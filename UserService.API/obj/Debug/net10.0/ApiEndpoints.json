@@ -1,0 +1,18 @@
+[
+  {
+    "ContainingType": "UserService.API.Controllers.CompanySignupController",
+    "Method": "CreateCompanySignup",
+    "RelativePath": "api/signup/company",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "UserService.API.Models.CreateCompanySignupRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
