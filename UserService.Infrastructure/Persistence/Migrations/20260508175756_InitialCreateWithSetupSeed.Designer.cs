@@ -12,8 +12,8 @@ using UserService.Infrastructure.Persistence;
 namespace UserService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(UserServiceDbContext))]
-    [Migration("20260508174113_AddFsgSetupAccountingLanguageMasterEntityLocation")]
-    partial class AddFsgSetupAccountingLanguageMasterEntityLocation
+    [Migration("20260508175756_InitialCreateWithSetupSeed")]
+    partial class InitialCreateWithSetupSeed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,151 +31,122 @@ namespace UserService.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("EmailSnapshot")
-                        .HasColumnType("citext")
-                        .HasColumnName("email_snapshot");
+                        .HasColumnType("citext");
 
                     b.Property<string>("Issuer")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("issuer");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("LinkedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("linked_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ObjectId")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("object_id");
+                        .HasColumnType("text");
 
                     b.Property<string>("Subject")
-                        .HasColumnType("text")
-                        .HasColumnName("subject");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
-                        .HasDatabaseName("ix_auth_identity_user");
+                        .HasDatabaseName("IxAuthIdentityUser");
 
                     b.HasIndex("Issuer", "ObjectId")
                         .IsUnique();
 
-                    b.ToTable("auth_identity", "fgs");
+                    b.ToTable("AuthIdentity", "fgs");
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.Company", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
+                        .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<int>("BusinessTypeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("business_type_id");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("CompactLogoUrl")
                         .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("compact_logo_url");
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<Guid>("CompanyGuid")
-                        .HasColumnType("uuid")
-                        .HasColumnName("company_guid");
+                        .HasColumnType("uuid");
 
                     b.Property<long>("CompanyNumber")
-                        .HasColumnType("bigint")
-                        .HasColumnName("company_number");
+                        .HasColumnType("bigint");
 
                     b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
-                        .HasColumnName("email");
+                        .HasColumnType("character varying(300)");
 
                     b.Property<string>("FaviconUrl")
                         .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("favicon_url");
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("FullLogoUrl")
                         .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("full_logo_url");
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("IconLogoUrl")
                         .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("icon_logo_url");
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("LegalName")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
-                        .HasColumnName("legal_name");
+                        .HasColumnType("character varying(300)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("phone_number");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<Guid?>("PrimaryLocationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("primary_location_id");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("TaxId")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("tax_id");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Website")
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("website");
+                        .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
 
@@ -185,7 +156,7 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.HasIndex("TenantId")
-                        .HasDatabaseName("ix_company_tenant");
+                        .HasDatabaseName("IxCompanyTenant");
 
                     b.ToTable("Company", "fgs");
                 });
@@ -194,42 +165,34 @@ namespace UserService.Infrastructure.Persistence.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -243,46 +206,37 @@ namespace UserService.Infrastructure.Persistence.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("SortOrder")
-                        .HasColumnType("integer")
-                        .HasColumnName("sort_order");
+                        .HasColumnType("integer");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -296,56 +250,45 @@ namespace UserService.Infrastructure.Persistence.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("code");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CultureCode")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("culture_code");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsDefault")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_default");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<int>("SortOrder")
-                        .HasColumnType("integer")
-                        .HasColumnName("sort_order");
+                        .HasColumnType("integer");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -359,42 +302,34 @@ namespace UserService.Infrastructure.Persistence.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -408,42 +343,34 @@ namespace UserService.Infrastructure.Persistence.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -457,41 +384,33 @@ namespace UserService.Infrastructure.Persistence.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("description");
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnType("boolean");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -505,143 +424,116 @@ namespace UserService.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("AcceptedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("accepted_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("company_id");
+                        .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expires_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("InvitedEmail")
                         .IsRequired()
-                        .HasColumnType("citext")
-                        .HasColumnName("invited_email");
+                        .HasColumnType("citext");
 
                     b.Property<DateTimeOffset?>("RevokedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("revoked_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("status");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
+                        .HasColumnType("uuid");
 
                     b.Property<byte[]>("TokenHash")
                         .IsRequired()
-                        .HasColumnType("bytea")
-                        .HasColumnName("token_hash");
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CompanyId");
 
                     b.HasIndex("TenantId")
-                        .HasDatabaseName("ix_invite_pending")
-                        .HasFilter("status = 'pending'");
+                        .HasDatabaseName("IxInvitePending")
+                        .HasFilter("\"Status\" = 'pending'");
 
                     b.HasIndex("TokenHash")
-                        .HasDatabaseName("ix_invite_token_hash");
+                        .HasDatabaseName("IxInviteTokenHash");
 
                     b.HasIndex("UserId")
-                        .HasDatabaseName("ix_invite_user");
+                        .HasDatabaseName("IxInviteUser");
 
-                    b.ToTable("invite", "fgs");
+                    b.ToTable("Invite", "fgs");
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DefaultCurrency")
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("default_currency");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<int?>("DefaultLanguageId")
-                        .HasColumnType("integer")
-                        .HasColumnName("default_language_id");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Email")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
-                        .HasColumnName("email");
+                        .HasColumnType("character varying(300)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("LegalName")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
-                        .HasColumnName("legal_name");
+                        .HasColumnType("character varying(300)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("phone_number");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<Guid?>("PrimaryLocationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("primary_location_id");
+                        .HasColumnType("uuid");
 
                     b.Property<int?>("SubscriptionPlanId")
-                        .HasColumnType("integer")
-                        .HasColumnName("subscription_plan_id");
+                        .HasColumnType("integer");
 
                     b.Property<string>("TimeZone")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("time_zone");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Website")
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("website");
+                        .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
 
@@ -652,55 +544,47 @@ namespace UserService.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("company_id");
+                        .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DisplayName")
-                        .HasColumnType("text")
-                        .HasColumnName("display_name");
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("citext")
-                        .HasColumnName("email");
+                        .HasColumnType("citext");
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("role");
+                        .HasColumnType("text");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("status");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CompanyId");
 
                     b.HasIndex("TenantId")
-                        .HasDatabaseName("ix_users_tenant");
+                        .HasDatabaseName("IxUsersTenant");
 
                     b.HasIndex("TenantId", "Email")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("IxUsersTenantEmail");
 
-                    b.ToTable("users", "fgs");
+                    b.ToTable("Users", "fgs");
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.AuthIdentity", b =>

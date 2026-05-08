@@ -28,22 +28,5 @@ public sealed class UserServiceDbContext : DbContext
         modelBuilder.HasPostgresExtension("citext");
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(UserServiceDbContext).Assembly);
-        ApplySnakeCaseColumnNames(modelBuilder);
-    }
-
-    private static void ApplySnakeCaseColumnNames(ModelBuilder modelBuilder)
-    {
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-        {
-            foreach (var property in entityType.GetProperties())
-                property.SetColumnName(ToSnakeCase(property.Name));
-        }
-    }
-
-    private static string ToSnakeCase(string name)
-    {
-        return string.Concat(
-                name.Select((c, i) => i > 0 && char.IsUpper(c) ? "_" + char.ToLowerInvariant(c) : char.ToLowerInvariant(c).ToString()))
-            .TrimStart('_');
     }
 }

@@ -9,7 +9,7 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.ToTable("users");
+        builder.ToTable("Users");
 
         builder.HasKey(e => e.Id);
 
@@ -30,9 +30,9 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(e => e.CreatedAt).IsRequired();
         builder.Property(e => e.UpdatedAt).IsRequired();
 
-        builder.HasIndex(e => e.TenantId).HasDatabaseName("ix_users_tenant");
+        builder.HasIndex(e => e.TenantId).HasDatabaseName("IxUsersTenant");
 
-        builder.HasIndex(e => new { e.TenantId, e.Email }).IsUnique();
+        builder.HasIndex(e => new { e.TenantId, e.Email }).IsUnique().HasDatabaseName("IxUsersTenantEmail");
 
         builder.HasMany(e => e.Invites)
             .WithOne(e => e.User)

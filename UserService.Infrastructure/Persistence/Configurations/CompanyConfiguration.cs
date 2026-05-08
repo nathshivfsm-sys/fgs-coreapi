@@ -32,7 +32,7 @@ public sealed class CompanyConfiguration : IEntityTypeConfiguration<Company>
         builder.Property(e => e.UpdatedOn);
 
         builder.HasIndex(e => e.CompanyGuid).IsUnique();
-        builder.HasIndex(e => e.TenantId).HasDatabaseName("ix_company_tenant");
+        builder.HasIndex(e => e.TenantId).HasDatabaseName("IxCompanyTenant");
 
         builder.HasMany(e => e.Users)
             .WithOne(e => e.Company)

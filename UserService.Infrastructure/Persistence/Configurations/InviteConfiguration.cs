@@ -10,7 +10,7 @@ public sealed class InviteConfiguration : IEntityTypeConfiguration<Invite>
 {
     public void Configure(EntityTypeBuilder<Invite> builder)
     {
-        builder.ToTable("invite");
+        builder.ToTable("Invite");
 
         builder.HasKey(e => e.Id);
 
@@ -30,11 +30,11 @@ public sealed class InviteConfiguration : IEntityTypeConfiguration<Invite>
         builder.Property(e => e.ExpiresAt).IsRequired();
         builder.Property(e => e.CreatedAt).IsRequired();
 
-        builder.HasIndex(e => e.TokenHash).HasDatabaseName("ix_invite_token_hash");
-        builder.HasIndex(e => e.UserId).HasDatabaseName("ix_invite_user");
+        builder.HasIndex(e => e.TokenHash).HasDatabaseName("IxInviteTokenHash");
+        builder.HasIndex(e => e.UserId).HasDatabaseName("IxInviteUser");
 
         builder.HasIndex(e => e.TenantId)
-            .HasDatabaseName("ix_invite_pending")
-            .HasFilter("status = 'pending'");
+            .HasDatabaseName("IxInvitePending")
+            .HasFilter("\"Status\" = 'pending'");
     }
 }

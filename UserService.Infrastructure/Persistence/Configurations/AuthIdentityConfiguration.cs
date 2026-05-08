@@ -8,7 +8,7 @@ public sealed class AuthIdentityConfiguration : IEntityTypeConfiguration<AuthIde
 {
     public void Configure(EntityTypeBuilder<AuthIdentity> builder)
     {
-        builder.ToTable("auth_identity");
+        builder.ToTable("AuthIdentity");
 
         builder.HasKey(e => e.Id);
 
@@ -19,6 +19,6 @@ public sealed class AuthIdentityConfiguration : IEntityTypeConfiguration<AuthIde
         builder.Property(e => e.LinkedAt).IsRequired();
 
         builder.HasIndex(e => new { e.Issuer, e.ObjectId }).IsUnique();
-        builder.HasIndex(e => e.UserId).HasDatabaseName("ix_auth_identity_user");
+        builder.HasIndex(e => e.UserId).HasDatabaseName("IxAuthIdentityUser");
     }
 }
