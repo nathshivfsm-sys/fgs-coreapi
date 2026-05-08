@@ -25,6 +25,7 @@ public sealed class Company : AuditableEntity
     public FSGSetupBusinessType BusinessType { get; private set; } = null!;
     public ICollection<User> Users { get; private set; } = new List<User>();
     public ICollection<Invite> Invites { get; private set; } = new List<Invite>();
+    public CompanyConfiguration? Configuration { get; private set; }
 
     private Company()
     {
