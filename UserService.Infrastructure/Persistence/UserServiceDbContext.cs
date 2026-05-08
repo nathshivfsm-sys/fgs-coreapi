@@ -15,6 +15,12 @@ public sealed class UserServiceDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Invite> Invites => Set<Invite>();
     public DbSet<AuthIdentity> AuthIdentities => Set<AuthIdentity>();
+    public DbSet<FSGSetupBusinessType> FSGSetupBusinessTypes => Set<FSGSetupBusinessType>();
+    public DbSet<FSGSetupTimeCardOption> FSGSetupTimeCardOptions => Set<FSGSetupTimeCardOption>();
+    public DbSet<FSGSetupAccountingIntegrationType> FSGSetupAccountingIntegrationTypes => Set<FSGSetupAccountingIntegrationType>();
+    public DbSet<FSGSetupLanguage> FSGSetupLanguages => Set<FSGSetupLanguage>();
+    public DbSet<FSGSetupMasterEntityType> FSGSetupMasterEntityTypes => Set<FSGSetupMasterEntityType>();
+    public DbSet<FSGSetupLocationType> FSGSetupLocationTypes => Set<FSGSetupLocationType>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

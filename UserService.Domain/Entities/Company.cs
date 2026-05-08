@@ -22,6 +22,7 @@ public sealed class Company : AuditableEntity
     public bool IsActive { get; private set; }
 
     public Tenant Tenant { get; private set; } = null!;
+    public FSGSetupBusinessType BusinessType { get; private set; } = null!;
     public ICollection<User> Users { get; private set; } = new List<User>();
     public ICollection<Invite> Invites { get; private set; } = new List<Invite>();
 
