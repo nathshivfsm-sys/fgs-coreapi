@@ -168,7 +168,7 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.ToTable("tenant", "fgs");
                 });
 
-            modelBuilder.Entity("UserService.Domain.Entities.TenantCompany", b =>
+            modelBuilder.Entity("UserService.Domain.Entities.Company", b =>
                 {
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
@@ -279,7 +279,7 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("UserService.Domain.Entities.TenantCompany", "TenantCompany")
+                    b.HasOne("UserService.Domain.Entities.Company", "Company")
                         .WithMany("Invites")
                         .HasForeignKey("TenantId", "CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -287,15 +287,15 @@ namespace UserService.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Tenant");
 
-                    b.Navigation("TenantCompany");
+                    b.Navigation("Company");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("UserService.Domain.Entities.TenantCompany", b =>
+            modelBuilder.Entity("UserService.Domain.Entities.Company", b =>
                 {
                     b.HasOne("UserService.Domain.Entities.Tenant", "Tenant")
-                        .WithMany("Subsidiaries")
+                        .WithMany("Companies")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -311,7 +311,7 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("UserService.Domain.Entities.TenantCompany", "TenantCompany")
+                    b.HasOne("UserService.Domain.Entities.Company", "Company")
                         .WithMany("Users")
                         .HasForeignKey("TenantId", "CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -319,19 +319,19 @@ namespace UserService.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Tenant");
 
-                    b.Navigation("TenantCompany");
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.Tenant", b =>
                 {
                     b.Navigation("Invites");
 
-                    b.Navigation("Subsidiaries");
+                    b.Navigation("Companies");
 
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("UserService.Domain.Entities.TenantCompany", b =>
+            modelBuilder.Entity("UserService.Domain.Entities.Company", b =>
                 {
                     b.Navigation("Invites");
 

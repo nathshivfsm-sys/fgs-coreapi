@@ -11,7 +11,8 @@ namespace UserService.Application.Signup.CreateCompanySignup;
 public sealed class CreateCompanySignupCommandHandler
     : IRequestHandler<CreateCompanySignupCommand, ApiResponse<CompanySignupResponse>>
 {
-    private const short DefaultSubsidiaryCompanyId = 1;
+    private const long DefaultCompanyNumber = 1;
+    private const int DefaultBusinessTypeId = 1;
     private static readonly TimeSpan InviteTtl = TimeSpan.FromDays(7);
 
     private readonly IUnitOfWork _unitOfWork;
@@ -52,11 +53,18 @@ public sealed class CreateCompanySignupCommandHandler
         try
         {
             tenant = Tenant.Create(companyName);
-            var subsidiary = TenantCompany.Create(tenant.Id, DefaultSubsidiaryCompanyId, companyName);
-            user = User.CreateAdmin(tenant.Id, DefaultSubsidiaryCompanyId, email, displayName);
+            var companyCode = companyName.Length <= 100 ? companyName : companyName[..100];
+            var company = Company.Create(
+                tenant.Id,
+                DefaultCompanyNumber,
+                DefaultBusinessTypeId,
+                companyCode,
+                companyName);
+            user = User.CreateAdmin(tenant.Id, email, displayName);
+            company.Users.Add(user);
 
             _unitOfWork.Repository<Tenant>().Add(tenant);
-            _unitOfWork.Repository<TenantCompany>().Add(subsidiary);
+            _unitOfWork.Repository<Company>().Add(company);
             _unitOfWork.Repository<User>().Add(user);
 
             (plainInviteToken, var tokenHash) = _inviteTokens.CreateTokenWithHash();
@@ -64,9 +72,9 @@ public sealed class CreateCompanySignupCommandHandler
                 tenant.Id,
                 user.Id,
                 email,
-                DefaultSubsidiaryCompanyId,
                 tokenHash,
                 DateTimeOffset.UtcNow.Add(InviteTtl));
+            company.Invites.Add(invite);
 
             _unitOfWork.Repository<Invite>().Add(invite);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

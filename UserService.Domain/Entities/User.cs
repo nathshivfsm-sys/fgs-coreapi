@@ -9,13 +9,13 @@ public sealed class User
     public string Email { get; private set; } = null!;
     public string? DisplayName { get; private set; }
     public UserStatus Status { get; private set; }
-    public short CompanyId { get; private set; }
+    public long CompanyId { get; private set; }
     public UserRole Role { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
 
     public Tenant Tenant { get; private set; } = null!;
-    public TenantCompany TenantCompany { get; private set; } = null!;
+    public Company Company { get; private set; } = null!;
     public ICollection<Invite> Invites { get; private set; } = new List<Invite>();
     public ICollection<AuthIdentity> AuthIdentities { get; private set; } = new List<AuthIdentity>();
 
@@ -23,11 +23,7 @@ public sealed class User
     {
     }
 
-    public static User CreateAdmin(
-        Guid tenantId,
-        short companyId,
-        string email,
-        string? displayName)
+    public static User CreateAdmin(Guid tenantId, string email, string? displayName)
     {
         var now = DateTimeOffset.UtcNow;
         return new User
@@ -37,7 +33,6 @@ public sealed class User
             Email = email,
             DisplayName = displayName,
             Status = UserStatus.Pending,
-            CompanyId = companyId,
             Role = UserRole.Admin,
             CreatedAt = now,
             UpdatedAt = now

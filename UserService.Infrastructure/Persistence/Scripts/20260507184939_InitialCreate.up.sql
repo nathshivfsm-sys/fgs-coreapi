@@ -116,4 +116,13 @@ CREATE INDEX "IX_users_tenant_id_company_id" ON fgs.users (tenant_id, company_id
 
 CREATE UNIQUE INDEX "IX_users_tenant_id_email" ON fgs.users (tenant_id, email);
 
+CREATE TABLE IF NOT EXISTS fgs.__ef_migrations_history (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___ef_migrations_history" PRIMARY KEY ("MigrationId")
+);
+
+INSERT INTO fgs.__ef_migrations_history ("MigrationId", "ProductVersion")
+VALUES ('20260507184939_InitialCreate', '10.0.0');
+
 COMMIT;

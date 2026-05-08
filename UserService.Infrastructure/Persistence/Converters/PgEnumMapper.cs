@@ -4,24 +4,6 @@ namespace UserService.Infrastructure.Persistence.Converters;
 
 internal static class PgEnumMapper
 {
-    public static string TenantStatusToPg(TenantStatus value) =>
-        value switch
-        {
-            TenantStatus.Active => "active",
-            TenantStatus.Suspended => "suspended",
-            TenantStatus.Closed => "closed",
-            _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
-        };
-
-    public static TenantStatus TenantStatusFromPg(string value) =>
-        value switch
-        {
-            "active" => TenantStatus.Active,
-            "suspended" => TenantStatus.Suspended,
-            "closed" => TenantStatus.Closed,
-            _ => throw new InvalidOperationException($"Unknown tenant status '{value}'.")
-        };
-
     public static string UserStatusToPg(UserStatus value) =>
         value switch
         {

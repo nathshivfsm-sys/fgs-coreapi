@@ -11,7 +11,7 @@ public sealed class UserServiceDbContext : DbContext
     }
 
     public DbSet<Tenant> Tenants => Set<Tenant>();
-    public DbSet<TenantCompany> TenantSubsidiaries => Set<TenantCompany>();
+    public DbSet<Company> Companies => Set<Company>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Invite> Invites => Set<Invite>();
     public DbSet<AuthIdentity> AuthIdentities => Set<AuthIdentity>();
