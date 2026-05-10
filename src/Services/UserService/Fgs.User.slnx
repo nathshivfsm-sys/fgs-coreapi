@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Fgs.User.API/Fgs.User.API.csproj" />
+  <Project Path="Fgs.User.Application/Fgs.User.Application.csproj" />
+  <Project Path="Fgs.User.Domain/Fgs.User.Domain.csproj" />
+  <Project Path="Fgs.User.Infrastructure/Fgs.User.Infrastructure.csproj" />
+  <Project Path="Fgs.User.Tests/Fgs.User.Tests.csproj" Id="5b2e9071-2239-4035-8e75-ce61edb731c9" />
+</Solution>
