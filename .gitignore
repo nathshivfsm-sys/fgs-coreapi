@@ -1,0 +1,9 @@
+# Visual Studio / MSBuild
+.vs/
+
+# Build outputs
+**/bin/
+**/obj/
+
+# UserService at repo root (C:\SourceCode\FGS\UserService)
+UserService/
