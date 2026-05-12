@@ -148,6 +148,9 @@ public class FgsUserDbContext : DbContext
         {
             entity.ToTable(tableName);
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnOrder(0);
+            entity.Property(e => e.TenantId).HasColumnOrder(1);
+            entity.Property(e => e.CompanyId).HasColumnOrder(2);
             entity.HasIndex(e => new { e.TenantId, e.CompanyId });
             entity.HasOne<FgsTenantCompany>()
                 .WithMany()
@@ -210,6 +213,7 @@ public class FgsUserDbContext : DbContext
         {
             entity.ToTable("FgsTenant");
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnOrder(0);
             entity.HasIndex(e => e.TenantCode).IsUnique();
             entity.Property(e => e.TenantCode).HasMaxLength(50);
             entity.Property(e => e.Name).HasMaxLength(200);
@@ -230,6 +234,9 @@ public class FgsUserDbContext : DbContext
         {
             entity.ToTable("FgsTenantCompany");
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnOrder(0);
+            entity.Property(e => e.TenantId).HasColumnOrder(1);
+            entity.Property(e => e.CompanyGuid).HasColumnOrder(2);
             entity.HasAlternateKey(e => new { e.TenantId, e.CompanyGuid });
             entity.HasIndex(e => new { e.TenantId, e.CompanyNumber }).IsUnique();
             entity.HasIndex(e => new { e.TenantId, e.Code }).IsUnique();
@@ -255,6 +262,8 @@ public class FgsUserDbContext : DbContext
         {
             entity.ToTable("FgsTenantServiceSetup");
             entity.HasKey(e => new { e.TenantId, e.CompanyId });
+            entity.Property(e => e.TenantId).HasColumnOrder(0);
+            entity.Property(e => e.CompanyId).HasColumnOrder(1);
             entity.HasOne<FgsTenantCompany>()
                 .WithMany()
                 .HasForeignKey(e => new { e.TenantId, e.CompanyId })
@@ -281,6 +290,9 @@ public class FgsUserDbContext : DbContext
         {
             entity.ToTable("FgsLocation");
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnOrder(0);
+            entity.Property(e => e.TenantId).HasColumnOrder(1);
+            entity.Property(e => e.CompanyId).HasColumnOrder(2);
             entity.HasOne<FgsTenantCompany>()
                 .WithMany()
                 .HasForeignKey(e => new { e.TenantId, e.CompanyId })
@@ -315,6 +327,9 @@ public class FgsUserDbContext : DbContext
         {
             entity.ToTable("FgsCredentialProvider");
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnOrder(0);
+            entity.Property(e => e.TenantId).HasColumnOrder(1);
+            entity.Property(e => e.CompanyId).HasColumnOrder(2);
             entity.HasOne<FgsTenantCompany>()
                 .WithMany()
                 .HasForeignKey(e => new { e.TenantId, e.CompanyId })
@@ -336,6 +351,9 @@ public class FgsUserDbContext : DbContext
         {
             entity.ToTable("FgsCredentialProviderConfiguration");
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnOrder(0);
+            entity.Property(e => e.TenantId).HasColumnOrder(1);
+            entity.Property(e => e.CompanyId).HasColumnOrder(2);
             entity.HasOne<FgsTenantCompany>()
                 .WithMany()
                 .HasForeignKey(e => new { e.TenantId, e.CompanyId })
@@ -370,6 +388,9 @@ public class FgsUserDbContext : DbContext
         {
             entity.ToTable("FgsCredentialSecret");
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnOrder(0);
+            entity.Property(e => e.TenantId).HasColumnOrder(1);
+            entity.Property(e => e.CompanyId).HasColumnOrder(2);
             entity.HasOne<FgsTenantCompany>()
                 .WithMany()
                 .HasForeignKey(e => new { e.TenantId, e.CompanyId })
@@ -399,6 +420,9 @@ public class FgsUserDbContext : DbContext
         {
             entity.ToTable("FgsCredentialAudit");
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnOrder(0);
+            entity.Property(e => e.TenantId).HasColumnOrder(1);
+            entity.Property(e => e.CompanyId).HasColumnOrder(2);
             entity.HasOne<FgsTenantCompany>()
                 .WithMany()
                 .HasForeignKey(e => new { e.TenantId, e.CompanyId })
