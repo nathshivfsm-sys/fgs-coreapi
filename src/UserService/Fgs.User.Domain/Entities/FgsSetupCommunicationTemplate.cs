@@ -13,6 +13,4 @@ public class FgsSetupCommunicationTemplate : FgsTenantCompanySetupEntityBase
     public string Body { get; set; } = null!;
 
     public bool IsMobileVisible { get; set; } = true;
-
-    public int? GloMasterEntityTypeId { get; set; }
 }

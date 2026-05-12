@@ -2,7 +2,7 @@ namespace Fgs.User.Domain.Entities;
 
 public class FgsSetupPaymentMethod : FgsTenantCompanySetupEntityBase
 {
-    public string PaymentMethodType { get; set; } = null!;
+    public int GloPaymentMethodTypeId { get; set; }
 
     public string DisplayName { get; set; } = null!;
 

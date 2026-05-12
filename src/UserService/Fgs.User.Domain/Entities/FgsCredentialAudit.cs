@@ -1,11 +1,15 @@
 namespace Fgs.User.Domain.Entities;
 
 /// <summary>
-/// Immutable audit trail; DDL only defines <see cref="CreatedOn"/> / <see cref="CreatedBy"/> (no updated columns).
+/// Immutable audit trail for credential secret changes (no updated columns).
 /// </summary>
 public class FgsCredentialAudit
 {
     public Guid Id { get; set; }
+
+    public Guid TenantId { get; set; }
+
+    public Guid CompanyId { get; set; }
 
     public Guid CredentialSecretId { get; set; }
 

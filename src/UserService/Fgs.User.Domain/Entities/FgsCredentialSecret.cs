@@ -4,27 +4,27 @@ public class FgsCredentialSecret : FgsEntityBase
 {
     public Guid Id { get; set; }
 
-    public Guid CredentialProviderId { get; set; }
+    public Guid TenantId { get; set; }
 
-    public string VaultProvider { get; set; } = null!;
+    public Guid CompanyId { get; set; }
+
+    public Guid CredentialProviderId { get; set; }
 
     public string SecretName { get; set; } = null!;
 
-    public string? SecretArn { get; set; }
+    public string EncryptedSecretValue { get; set; } = null!;
 
-    public string RegionName { get; set; } = null!;
+    public string EncryptedDek { get; set; } = null!;
 
-    public string? KmsKeyArn { get; set; }
-
-    public bool RotationEnabled { get; set; } = true;
+    public string EncryptionKeyId { get; set; } = null!;
 
     public int VersionNo { get; set; } = 1;
 
-    public DateTimeOffset? RotatedOn { get; set; }
+    public DateTimeOffset? LastRotatedOn { get; set; }
 
-    public DateTimeOffset? LastValidatedOn { get; set; }
-
-    public string? Remarks { get; set; }
+    public DateTimeOffset? ExpiresOn { get; set; }
 
     public bool IsActive { get; set; } = true;
+
+    public bool IsRevoked { get; set; }
 }

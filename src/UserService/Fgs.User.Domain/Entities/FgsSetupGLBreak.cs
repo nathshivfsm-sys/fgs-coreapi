@@ -6,11 +6,11 @@ public class FgsSetupGLBreak : FgsTenantCompanySetupEntityBase
 
     public string Name { get; set; } = null!;
 
+    public string? BreakLabel { get; set; }
+
     public int BreakLevel { get; set; } = 1;
 
     public long? FgsSetupTechTradeId { get; set; }
 
-    public Guid? LogoLocationId { get; set; }
-
-    public string? Description { get; set; }
+    public string? LogoUrl { get; set; }
 }

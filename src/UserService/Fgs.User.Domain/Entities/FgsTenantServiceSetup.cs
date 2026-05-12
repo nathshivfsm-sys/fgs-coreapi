@@ -1,20 +1,25 @@
 namespace Fgs.User.Domain.Entities;
 
-public class FgsTenantCompanyConfiguration : FgsEntityBase
+/// <summary>
+/// Per-company service / operations configuration (replaces legacy FgsTenantCompanyConfiguration).
+/// </summary>
+public class FgsTenantServiceSetup : FgsEntityBase
 {
     public Guid TenantId { get; set; }
 
-    public long CompanyId { get; set; }
+    public Guid CompanyId { get; set; }
 
-    public int TimeCardOptionId { get; set; }
+    public int GloTimeCardOptionId { get; set; }
 
     public int? AccountingIntegrationTypeId { get; set; }
 
-    public bool EnableCallBookingWidget { get; set; } = true;
+    public bool UseExternalTaxCalculationProvider { get; set; }
 
-    public bool EnablePaymentWidget { get; set; } = true;
+    public bool EnableCallBookingWidget { get; set; }
 
-    public bool EnableCustomerPortal { get; set; } = true;
+    public bool EnablePaymentWidget { get; set; }
+
+    public bool EnableCustomerPortal { get; set; }
 
     public bool EnableRulesManagement { get; set; }
 

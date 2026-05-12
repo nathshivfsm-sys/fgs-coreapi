@@ -1,21 +1,27 @@
 namespace Fgs.User.Domain.Entities;
 
 /// <summary>
-/// Reusable address / geo row. <see cref="EntityTypeId"/> is the owning entity kind (FK to global entity-type catalog, e.g. GloMasterEntityType).
+/// Reusable address / geo row scoped to a tenant company. <see cref="MasterEntityTypeId"/> references <see cref="GloMasterEntityType"/>.
 /// </summary>
 public class FgsLocation : FgsEntityBase
 {
     public Guid Id { get; set; }
 
-    // Ownership metadata
-    public int EntityTypeId { get; set; }
+    public Guid TenantId { get; set; }
+
+    public Guid CompanyId { get; set; }
+
+    public int MasterEntityTypeId { get; set; }
 
     public long? EntityNumber { get; set; }
 
-    // Address
     public string? AddressLine1 { get; set; }
 
     public string? AddressLine2 { get; set; }
+
+    public string? AddressLine3 { get; set; }
+
+    public string? AddressLine4 { get; set; }
 
     public string? City { get; set; }
 
@@ -29,7 +35,6 @@ public class FgsLocation : FgsEntityBase
 
     public string? FormattedAddress { get; set; }
 
-    // Geo location
     public decimal? Latitude { get; set; }
 
     public decimal? Longitude { get; set; }
