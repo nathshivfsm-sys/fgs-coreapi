@@ -1,10 +1,5 @@
 namespace Fgs.User.Domain.Entities;
 
-public class GloTimeCardOption
+public class GloTimeCardOption : GloCodeNameLookupBase
 {
-    public int Id { get; set; }
-
-    public string Code { get; set; } = null!;
-
-    public string Name { get; set; } = null!;
 }

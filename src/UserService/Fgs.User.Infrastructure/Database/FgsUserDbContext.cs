@@ -92,6 +92,24 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<GloPaymentMethodType> GloPaymentMethodTypes => Set<GloPaymentMethodType>();
 
+    public DbSet<GloCountry> GloCountries => Set<GloCountry>();
+
+    public DbSet<GloStateProvince> GloStateProvinces => Set<GloStateProvince>();
+
+    public DbSet<GloAccountingIntegrationType> GloAccountingIntegrationTypes => Set<GloAccountingIntegrationType>();
+
+    public DbSet<GloBusinessType> GloBusinessTypes => Set<GloBusinessType>();
+
+    public DbSet<GloLanguage> GloLanguages => Set<GloLanguage>();
+
+    public DbSet<GloLocationType> GloLocationTypes => Set<GloLocationType>();
+
+    public DbSet<GloCredentialCategory> GloCredentialCategories => Set<GloCredentialCategory>();
+
+    public DbSet<GloCredentialProviderType> GloCredentialProviderTypes => Set<GloCredentialProviderType>();
+
+    public DbSet<GloResolutionType> GloResolutionTypes => Set<GloResolutionType>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(FgsSchema);
@@ -100,6 +118,15 @@ public class FgsUserDbContext : DbContext
         ConfigureGloCommunicationToken(modelBuilder);
         ConfigureGloTimeCardOption(modelBuilder);
         ConfigureGloPaymentMethodType(modelBuilder);
+        ConfigureGloCountry(modelBuilder);
+        ConfigureGloStateProvince(modelBuilder);
+        ConfigureGloAccountingIntegrationType(modelBuilder);
+        ConfigureGloBusinessType(modelBuilder);
+        ConfigureGloLanguage(modelBuilder);
+        ConfigureGloLocationType(modelBuilder);
+        ConfigureGloCredentialCategory(modelBuilder);
+        ConfigureGloCredentialProviderType(modelBuilder);
+        ConfigureGloResolutionType(modelBuilder);
 
         ConfigureFgsTenant(modelBuilder);
         ConfigureFgsTenantCompany(modelBuilder);
@@ -204,6 +231,135 @@ public class FgsUserDbContext : DbContext
             entity.ToTable("GloPaymentMethodType");
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.Code).IsUnique();
+        });
+    }
+
+    private static void ConfigureGloCountry(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GloCountry>(entity =>
+        {
+            entity.ToTable("GloCountry");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).UseIdentityByDefaultColumn();
+            entity.Property(e => e.CountryCode).HasMaxLength(10);
+            entity.Property(e => e.CountryName).HasMaxLength(200);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+        });
+    }
+
+    private static void ConfigureGloStateProvince(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GloStateProvince>(entity =>
+        {
+            entity.ToTable("GloStateProvince");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).UseIdentityByDefaultColumn();
+            entity.Property(e => e.RegionCode).HasMaxLength(25);
+            entity.Property(e => e.RegionName).HasMaxLength(200);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.HasIndex(e => e.GloCountryId);
+            entity.HasOne(e => e.Country)
+                .WithMany()
+                .HasForeignKey(e => e.GloCountryId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+
+    private static void ConfigureGloAccountingIntegrationType(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GloAccountingIntegrationType>(entity =>
+        {
+            entity.ToTable("GloAccountingIntegrationType");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Code).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        });
+    }
+
+    private static void ConfigureGloBusinessType(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GloBusinessType>(entity =>
+        {
+            entity.ToTable("GloBusinessType");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Code).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        });
+    }
+
+    private static void ConfigureGloLanguage(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GloLanguage>(entity =>
+        {
+            entity.ToTable("GloLanguage");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.LanguageCode).IsUnique();
+            entity.Property(e => e.LanguageCode).HasMaxLength(25);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        });
+    }
+
+    private static void ConfigureGloLocationType(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GloLocationType>(entity =>
+        {
+            entity.ToTable("GloLocationType");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Code).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        });
+    }
+
+    private static void ConfigureGloCredentialCategory(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GloCredentialCategory>(entity =>
+        {
+            entity.ToTable("GloCredentialCategory");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Code).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        });
+    }
+
+    private static void ConfigureGloCredentialProviderType(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GloCredentialProviderType>(entity =>
+        {
+            entity.ToTable("GloCredentialProviderType");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Code).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        });
+    }
+
+    private static void ConfigureGloResolutionType(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GloResolutionType>(entity =>
+        {
+            entity.ToTable("GloResolutionType");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.ResolutionTypeCode).IsUnique();
+            entity.Property(e => e.ResolutionTypeCode).HasMaxLength(50);
+            entity.Property(e => e.ResolutionTypeName).HasMaxLength(200);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
         });
     }
 

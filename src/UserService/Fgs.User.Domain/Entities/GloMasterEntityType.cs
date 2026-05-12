@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Global catalog of entity kinds that can own locations, attachments, etc.
 /// </summary>
-public class GloMasterEntityType
+public class GloMasterEntityType : GloOptionalAuditEntityBase
 {
     public int Id { get; set; }
 
@@ -14,12 +14,4 @@ public class GloMasterEntityType
     public bool IsActive { get; set; } = true;
 
     public int SortOrder { get; set; }
-
-    public DateTimeOffset? CreatedOn { get; set; }
-
-    public Guid? CreatedBy { get; set; }
-
-    public DateTimeOffset? UpdatedOn { get; set; }
-
-    public Guid? UpdatedBy { get; set; }
 }

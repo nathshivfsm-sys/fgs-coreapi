@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Global merge-field tokens available in communication templates.
 /// </summary>
-public class GloCommunicationToken
+public class GloCommunicationToken : FgsEntityBase
 {
     public int Id { get; set; }
 
@@ -16,12 +16,4 @@ public class GloCommunicationToken
     public string SourceColumnName { get; set; } = null!;
 
     public bool IsActive { get; set; } = true;
-
-    public DateTimeOffset CreatedOn { get; set; }
-
-    public Guid? CreatedBy { get; set; }
-
-    public DateTimeOffset? UpdatedOn { get; set; }
-
-    public Guid? UpdatedBy { get; set; }
 }
