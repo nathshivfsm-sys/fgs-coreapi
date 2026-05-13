@@ -8,3 +8,4 @@
 # UserService at repo root only (C:\SourceCode\FGS\UserService).
 # Leading "/" — do not use "UserService/" alone; it ignores every folder named UserService (e.g. src/Services/UserService).
 /UserService/
+/deployment/nginx/nginx-1.30.0
