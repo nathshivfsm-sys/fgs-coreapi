@@ -10,7 +10,7 @@ public class FgsSetupPaymentTerm : FgsTenantCompanySetupEntityBase
 
     public bool IsAccountsReceivable { get; set; } = true;
 
-    public bool IsAccountsPayable { get; set; }
+    public bool IsAccountsPayable { get; set; } = true;
 
     public bool IsMobileVisible { get; set; } = true;
 }

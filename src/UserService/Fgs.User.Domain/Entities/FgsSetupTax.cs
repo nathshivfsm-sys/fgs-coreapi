@@ -6,5 +6,7 @@ public class FgsSetupTax : FgsTenantCompanySetupEntityBase
 
     public string Name { get; set; } = null!;
 
+    public bool IsExternalSystemRecord { get; set; }
+
     public string? Description { get; set; }
 }

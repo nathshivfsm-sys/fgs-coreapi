@@ -8,5 +8,7 @@ public class FgsSetupTaxAuthority : FgsTenantCompanySetupEntityBase
 
     public string? RegionCode { get; set; }
 
+    public bool IsExternalSystemRecord { get; set; }
+
     public string? Description { get; set; }
 }

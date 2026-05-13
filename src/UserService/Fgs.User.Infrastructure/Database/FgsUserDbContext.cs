@@ -57,11 +57,6 @@ public class FgsUserDbContext : DbContext
     public DbSet<FgsSetupServiceAssetManufacturer> FgsSetupServiceAssetManufacturers =>
         Set<FgsSetupServiceAssetManufacturer>();
 
-    public DbSet<FgsSetupServiceAssetModelSerialDescription> FgsSetupServiceAssetModelSerialDescriptions =>
-        Set<FgsSetupServiceAssetModelSerialDescription>();
-
-    public DbSet<FgsSetupServiceAssetMedia> FgsSetupServiceAssetMedia => Set<FgsSetupServiceAssetMedia>();
-
     public DbSet<FgsSetupPriceSheet> FgsSetupPriceSheets => Set<FgsSetupPriceSheet>();
 
     public DbSet<FgsSetupPriceSheetLabor> FgsSetupPriceSheetLabors => Set<FgsSetupPriceSheetLabor>();
@@ -69,9 +64,6 @@ public class FgsUserDbContext : DbContext
     public DbSet<FgsSetupPriceSheetLaborTier> FgsSetupPriceSheetLaborTiers => Set<FgsSetupPriceSheetLaborTier>();
 
     public DbSet<FgsSetupPriceSheetMaterial> FgsSetupPriceSheetMaterials => Set<FgsSetupPriceSheetMaterial>();
-
-    public DbSet<FgsSetupPriceSheetMaterialRange> FgsSetupPriceSheetMaterialRanges =>
-        Set<FgsSetupPriceSheetMaterialRange>();
 
     public DbSet<FgsSetupPriceSheetOther> FgsSetupPriceSheetOthers => Set<FgsSetupPriceSheetOther>();
 
@@ -149,15 +141,10 @@ public class FgsUserDbContext : DbContext
         MapSetupEntity<FgsSetupDescription>(modelBuilder, "FgsSetupDescription");
         MapSetupEntity<FgsSetupServiceAssetType>(modelBuilder, "FgsSetupServiceAssetType");
         MapSetupEntity<FgsSetupServiceAssetManufacturer>(modelBuilder, "FgsSetupServiceAssetManufacturer");
-        MapSetupEntity<FgsSetupServiceAssetModelSerialDescription>(
-            modelBuilder,
-            "FgsSetupServiceAssetModelSerialDescription");
-        MapSetupEntity<FgsSetupServiceAssetMedia>(modelBuilder, "FgsSetupServiceAssetMedia");
         MapSetupEntity<FgsSetupPriceSheet>(modelBuilder, "FgsSetupPriceSheet");
         MapSetupEntity<FgsSetupPriceSheetLabor>(modelBuilder, "FgsSetupPriceSheetLabor");
         MapSetupEntity<FgsSetupPriceSheetLaborTier>(modelBuilder, "FgsSetupPriceSheetLaborTier");
         MapSetupEntity<FgsSetupPriceSheetMaterial>(modelBuilder, "FgsSetupPriceSheetMaterial");
-        MapSetupEntity<FgsSetupPriceSheetMaterialRange>(modelBuilder, "FgsSetupPriceSheetMaterialRange");
         MapSetupEntity<FgsSetupPriceSheetOther>(modelBuilder, "FgsSetupPriceSheetOther");
         MapSetupEntity<FgsSetupGLBreak>(modelBuilder, "FgsSetupGLBreak");
         MapSetupEntity<FgsSetupCommunicationTemplate>(modelBuilder, "FgsSetupCommunicationTemplate");
