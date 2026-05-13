@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Fgs.WorkOrder.API/Fgs.WorkOrder.API.csproj" />
+  <Project Path="Fgs.WorkOrder.Application/Fgs.WorkOrder.Application.csproj" />
+  <Project Path="Fgs.WorkOrder.Domain/Fgs.WorkOrder.Domain.csproj" />
+  <Project Path="Fgs.WorkOrder.Infrastructure/Fgs.WorkOrder.Infrastructure.csproj" />
+  <Project Path="Fgs.WorkOrder.Tests/Fgs.WorkOrder.Tests.csproj" Id="a1c2e3f4-5566-7788-99aa-bbccddeeff00" />
+</Solution>

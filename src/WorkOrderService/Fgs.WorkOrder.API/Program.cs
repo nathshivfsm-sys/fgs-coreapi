@@ -1,11 +1,11 @@
-using Fgs.User.Infrastructure;
+using Fgs.WorkOrder.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();
-builder.Services.AddFgsUserInfrastructure(builder.Configuration);
+builder.Services.AddFgsWorkOrderInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
