@@ -46,7 +46,7 @@ public sealed class CreateCompanySignupCommandHandler
         CreateCompanySignupCommand request,
         CancellationToken cancellationToken)
     {
-        var normalizedEmail = _emailNormalizer.Normalize(request.AdminEmail);
+        var normalizedEmail = _emailNormalizer.Normalize(request.Email);
         var tenantRepo = _unitOfWork.Repository<FgsTenant>();
         var userRepo = _unitOfWork.Repository<FgsUser>();
 
@@ -68,17 +68,26 @@ public sealed class CreateCompanySignupCommandHandler
                     var userId = Guid.NewGuid();
                     var invitationId = Guid.NewGuid();
 
+                    var tenantCodeTrimmed = request.TenantCode.Trim();
+                    var tenantNameTrimmed = request.TenantName.Trim();
+                    var emailTrimmed = request.Email.Trim();
+
                     var tenant = new FgsTenant
                     {
                         Id = tenantId,
-                        TenantCode = request.TenantCode.Trim(),
-                        Name = request.TenantName.Trim(),
-                        Email = request.AdminEmail.Trim(),
-                        TimeZone = request.TimeZone,
-                        DefaultCurrency = request.DefaultCurrency,
+                        TenantCode = tenantCodeTrimmed,
+                        Name = tenantNameTrimmed,
+                        Email = emailTrimmed,
+                        Website = string.IsNullOrWhiteSpace(request.Website) ? null : request.Website.Trim(),
+                        TimeZone = string.IsNullOrWhiteSpace(request.TimeZone) ? null : request.TimeZone.Trim(),
+                        DefaultCurrency = string.IsNullOrWhiteSpace(request.DefaultCurrency)
+                            ? null
+                            : request.DefaultCurrency.Trim(),
                         IsActive = true,
                         CreatedOn = now
                     };
+
+                    var companyWebsite = string.IsNullOrWhiteSpace(request.Website) ? null : request.Website.Trim();
 
                     var company = new FgsTenantCompany
                     {
@@ -86,22 +95,27 @@ public sealed class CreateCompanySignupCommandHandler
                         TenantId = tenantId,
                         CompanyNumber = 1,
                         BusinessTypeId = 1,
-                        Code = request.CompanyCode.Trim(),
-                        Name = request.CompanyName.Trim(),
-                        Email = request.AdminEmail.Trim(),
+                        Code = tenantCodeTrimmed,
+                        Name = tenantNameTrimmed,
+                        Email = emailTrimmed,
+                        Website = companyWebsite,
                         IsActive = true,
                         CreatedOn = now
                     };
+
+                    var passwordHash = string.IsNullOrWhiteSpace(request.Password)
+                        ? null
+                        : _passwordHasher.HashPassword(request.Password.Trim());
 
                     var user = new FgsUser
                     {
                         Id = userId,
                         TenantId = tenantId,
                         CompanyId = companyId,
-                        Email = request.AdminEmail.Trim(),
+                        Email = emailTrimmed,
                         NormalizedEmail = normalizedEmail,
-                        DisplayName = request.AdminDisplayName.Trim(),
-                        PasswordHash = _passwordHasher.HashPassword(request.Password),
+                        DisplayName = request.DisplayName.Trim(),
+                        PasswordHash = passwordHash,
                         Role = UserRoleType.Admin,
                         IsActive = true,
                         CreatedOn = now
@@ -116,7 +130,7 @@ public sealed class CreateCompanySignupCommandHandler
                         Id = invitationId,
                         UserId = userId,
                         TenantId = tenantId,
-                        Email = request.AdminEmail.Trim(),
+                        Email = emailTrimmed,
                         TokenHash = tokenHash,
                         Status = InvitationStatus.Pending,
                         ExpiresAtUtc = now.AddDays(expiryDays),

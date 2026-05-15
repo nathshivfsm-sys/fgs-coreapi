@@ -40,11 +40,6 @@ public static class DependencyInjection
             });
         });
 
-        services.AddHealthChecks()
-            .AddDbContextCheck<FgsUserDbContext>(
-                name: "postgres",
-                tags: ["db", "sql", "ready"]);
-
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IOutboxWriter, OutboxWriter>();
@@ -55,7 +50,7 @@ public static class DependencyInjection
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
         services.AddHttpClient<IEntraExternalIdService, EntraExternalIdService>();
-        services.AddHostedService<OutboxProcessorService>();
+        //services.AddHostedService<OutboxProcessorService>();
 
         return services;
     }

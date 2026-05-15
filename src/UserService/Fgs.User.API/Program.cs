@@ -2,7 +2,6 @@ using Fgs.User.API.Middleware;
 using Fgs.User.API.Swagger;
 using Fgs.User.Application;
 using Fgs.User.Infrastructure;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,19 +38,6 @@ if (app.Configuration.IsSwaggerEnabled(app.Environment))
 
 app.UseAuthorization();
 app.MapControllers();
-app.MapHealthChecks("/health");
-app.MapHealthChecks("/health/ready", new HealthCheckOptions
-{
-    Predicate = check => check.Tags.Contains("ready")
-});
-
-var instanceId = Environment.MachineName;
-app.MapGet("/api/health", () => new
-{
-    Service = "User Service",
-    Instance = instanceId,
-    Time = DateTime.UtcNow
-});
 
 app.Run();
 

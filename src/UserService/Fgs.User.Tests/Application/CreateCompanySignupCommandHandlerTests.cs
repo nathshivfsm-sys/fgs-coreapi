@@ -21,7 +21,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
     public async Task Handle_WithDuplicateTenantCode_ReturnsConflict()
     {
         var (handler, _) = await CreateHandlerAsync();
-        var command = ValidCommand();
+        var command = ValidCommand($"dup-{Guid.NewGuid():N}"[..10]);
 
         await handler.Handle(command, CancellationToken.None);
         var second = await handler.Handle(command, CancellationToken.None);
@@ -34,7 +34,9 @@ public sealed class CreateCompanySignupCommandHandlerTests
     public async Task Handle_WithValidRequest_CreatesTenantCompanyUserInvitationAndOutbox()
     {
         var (handler, context) = await CreateHandlerAsync();
-        var response = await handler.Handle(ValidCommand(), CancellationToken.None);
+        var tc = $"tenant-{Guid.NewGuid():N}"[..12];
+        var command = ValidCommand(tc);
+        var response = await handler.Handle(command, CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(ApiStatusCodes.Created);
@@ -46,19 +48,41 @@ public sealed class CreateCompanySignupCommandHandlerTests
         (await context.FgsInvitations.CountAsync()).Should().Be(1);
         (await context.FgsOutboxMessages.CountAsync()).Should().Be(1);
 
+        var tenant = await context.FgsTenants.SingleAsync();
+        tenant.TenantCode.Should().Be(tc);
+        tenant.Website.Should().Be("https://example.com");
+
+        var company = await context.FgsTenantCompanies.SingleAsync();
+        company.Code.Should().Be(tc);
+        company.Name.Should().Be(command.TenantName);
+        company.Website.Should().Be("https://example.com");
+
         var user = await context.FgsUsers.SingleAsync();
         user.PasswordHash.Should().NotBeNullOrEmpty();
         user.Role.ToString().Should().Be("Admin");
     }
 
-    private static CreateCompanySignupCommand ValidCommand() =>
+    [Fact]
+    public async Task Handle_WithNoPassword_LeavesPasswordHashNull()
+    {
+        var (handler, context) = await CreateHandlerAsync();
+        var tc = $"tenant-{Guid.NewGuid():N}"[..12];
+        var command = ValidCommand(tc) with { Password = null };
+
+        var response = await handler.Handle(command, CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        var user = await context.FgsUsers.SingleAsync();
+        user.PasswordHash.Should().BeNull();
+    }
+
+    private static CreateCompanySignupCommand ValidCommand(string? tenantCode = null) =>
         new(
-            TenantCode: $"tenant-{Guid.NewGuid():N}"[..12],
+            TenantCode: tenantCode ?? $"tenant-{Guid.NewGuid():N}"[..12],
             TenantName: "Test Tenant",
-            CompanyCode: "main",
-            CompanyName: "Main Co",
-            AdminEmail: $"admin-{Guid.NewGuid():N}@test.com",
-            AdminDisplayName: "Admin User",
+            Email: $"admin-{Guid.NewGuid():N}@test.com",
+            DisplayName: "Admin User",
+            Website: "https://example.com",
             Password: "Str0ng!Passw0rd",
             TimeZone: "UTC",
             DefaultCurrency: "USD");

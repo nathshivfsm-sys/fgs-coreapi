@@ -15,6 +15,14 @@ public sealed class CreateCompanySignupCommandValidatorTests
     }
 
     [Fact]
+    public async Task Validate_WithNullPassword_Succeeds()
+    {
+        var command = CreateValidCommand() with { Password = null };
+        var result = await _validator.ValidateAsync(command);
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task Validate_WithWeakPassword_Fails()
     {
         var command = CreateValidCommand() with { Password = "short" };
@@ -25,7 +33,7 @@ public sealed class CreateCompanySignupCommandValidatorTests
     [Fact]
     public async Task Validate_WithInvalidEmail_Fails()
     {
-        var command = CreateValidCommand() with { AdminEmail = "not-an-email" };
+        var command = CreateValidCommand() with { Email = "not-an-email" };
         var result = await _validator.ValidateAsync(command);
         result.IsValid.Should().BeFalse();
     }
@@ -34,10 +42,9 @@ public sealed class CreateCompanySignupCommandValidatorTests
         new(
             TenantCode: "acme",
             TenantName: "Acme Corp",
-            CompanyCode: "acme-hq",
-            CompanyName: "Acme HQ",
-            AdminEmail: "admin@acme.com",
-            AdminDisplayName: "Acme Admin",
+            Email: "admin@acme.com",
+            DisplayName: "Acme Admin",
+            Website: "https://acme.com",
             Password: "Str0ng!Passw0rd",
             TimeZone: "America/Chicago",
             DefaultCurrency: "USD");
