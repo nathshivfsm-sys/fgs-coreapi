@@ -94,6 +94,8 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<GloLanguage> GloLanguages => Set<GloLanguage>();
 
+    public DbSet<GloBillingCategory> GloBillingCategories => Set<GloBillingCategory>();
+
     public DbSet<GloLocationType> GloLocationTypes => Set<GloLocationType>();
 
     public DbSet<GloCredentialCategory> GloCredentialCategories => Set<GloCredentialCategory>();
@@ -115,6 +117,7 @@ public class FgsUserDbContext : DbContext
         ConfigureGloAccountingIntegrationType(modelBuilder);
         ConfigureGloBusinessType(modelBuilder);
         ConfigureGloLanguage(modelBuilder);
+        ConfigureGloBillingCategory(modelBuilder);
         ConfigureGloLocationType(modelBuilder);
         ConfigureGloCredentialCategory(modelBuilder);
         ConfigureGloCredentialProviderType(modelBuilder);
@@ -226,11 +229,11 @@ public class FgsUserDbContext : DbContext
         modelBuilder.Entity<GloCountry>(entity =>
         {
             entity.ToTable("GloCountry");
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).UseIdentityByDefaultColumn();
-            entity.Property(e => e.CountryCode).HasMaxLength(10);
-            entity.Property(e => e.CountryName).HasMaxLength(200);
-            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.HasKey(e => e.CountryCode);
+            entity.Property(e => e.CountryCode).HasMaxLength(2);
+            entity.Property(e => e.CountryName).HasMaxLength(100);
+            entity.Property(e => e.CurrencyCode).HasMaxLength(3);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
     }
 
@@ -241,13 +244,17 @@ public class FgsUserDbContext : DbContext
             entity.ToTable("GloStateProvince");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).UseIdentityByDefaultColumn();
-            entity.Property(e => e.RegionCode).HasMaxLength(25);
-            entity.Property(e => e.RegionName).HasMaxLength(200);
-            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
-            entity.HasIndex(e => e.GloCountryId);
+            entity.Property(e => e.CountryCode).HasMaxLength(2);
+            entity.Property(e => e.StateProvinceCode).HasMaxLength(10);
+            entity.Property(e => e.StateProvinceName).HasMaxLength(100);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.HasIndex(e => new { e.CountryCode, e.StateProvinceCode })
+                .IsUnique()
+                .HasDatabaseName("UQ_GloStateProvince");
             entity.HasOne(e => e.Country)
                 .WithMany()
-                .HasForeignKey(e => e.GloCountryId)
+                .HasForeignKey(e => e.CountryCode)
+                .HasConstraintName("FK_GloStateProvince_Country")
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }
@@ -285,12 +292,21 @@ public class FgsUserDbContext : DbContext
         modelBuilder.Entity<GloLanguage>(entity =>
         {
             entity.ToTable("GloLanguage");
-            entity.HasKey(e => e.Id);
-            entity.HasIndex(e => e.LanguageCode).IsUnique();
-            entity.Property(e => e.LanguageCode).HasMaxLength(25);
-            entity.Property(e => e.Name).HasMaxLength(200);
-            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
-            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+            entity.HasKey(e => e.LanguageCode);
+            entity.Property(e => e.LanguageCode).HasMaxLength(5);
+            entity.Property(e => e.LanguageName).HasMaxLength(100);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+        });
+    }
+
+    private static void ConfigureGloBillingCategory(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GloBillingCategory>(entity =>
+        {
+            entity.ToTable("GloBillingCategory");
+            entity.HasKey(e => e.BillingCategoryType);
+            entity.Property(e => e.BillingCategoryType).HasMaxLength(2);
+            entity.Property(e => e.BillingCategoryName).HasMaxLength(100);
         });
     }
 
