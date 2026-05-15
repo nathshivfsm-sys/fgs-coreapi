@@ -104,6 +104,12 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<GloResolutionType> GloResolutionTypes => Set<GloResolutionType>();
 
+    public DbSet<FgsUser> FgsUsers => Set<FgsUser>();
+
+    public DbSet<FgsInvitation> FgsInvitations => Set<FgsInvitation>();
+
+    public DbSet<FgsOutboxMessage> FgsOutboxMessages => Set<FgsOutboxMessage>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(FgsSchema);
@@ -122,6 +128,10 @@ public class FgsUserDbContext : DbContext
         ConfigureGloCredentialCategory(modelBuilder);
         ConfigureGloCredentialProviderType(modelBuilder);
         ConfigureGloResolutionType(modelBuilder);
+
+        ConfigureFgsUser(modelBuilder);
+        ConfigureFgsInvitation(modelBuilder);
+        ConfigureFgsOutboxMessage(modelBuilder);
 
         ConfigureFgsTenant(modelBuilder);
         ConfigureFgsTenantCompany(modelBuilder);
@@ -363,6 +373,76 @@ public class FgsUserDbContext : DbContext
             entity.Property(e => e.ResolutionTypeName).HasMaxLength(200);
             entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
             entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        });
+    }
+
+    private static void ConfigureFgsUser(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<FgsUser>(entity =>
+        {
+            entity.ToTable("FgsUser");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.TenantId, e.NormalizedEmail })
+                .IsUnique()
+                .HasFilter("\"IsDeleted\" = false");
+            entity.Property(e => e.Email).HasMaxLength(300);
+            entity.Property(e => e.NormalizedEmail).HasMaxLength(300);
+            entity.Property(e => e.DisplayName).HasMaxLength(200);
+            entity.Property(e => e.PasswordHash).HasMaxLength(500);
+            entity.Property(e => e.EntraObjectId).HasMaxLength(100);
+            entity.Property(e => e.Role).HasConversion<string>().HasMaxLength(50);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+            entity.HasOne(e => e.Tenant)
+                .WithMany()
+                .HasForeignKey(e => e.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Company)
+                .WithMany()
+                .HasForeignKey(e => new { e.TenantId, e.CompanyId })
+                .HasPrincipalKey(c => new { c.TenantId, c.CompanyGuid })
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+
+    private static void ConfigureFgsInvitation(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<FgsInvitation>(entity =>
+        {
+            entity.ToTable("FgsInvitation");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.TokenHash);
+            entity.HasIndex(e => new { e.TenantId, e.Email, e.Status });
+            entity.Property(e => e.Email).HasMaxLength(300);
+            entity.Property(e => e.TokenHash).HasMaxLength(128);
+            entity.Property(e => e.Status).HasConversion<string>().HasMaxLength(50);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.ExpiresAtUtc).HasColumnType("timestamptz");
+            entity.Property(e => e.AcceptedAtUtc).HasColumnType("timestamptz");
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.Invitations)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+
+    private static void ConfigureFgsOutboxMessage(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<FgsOutboxMessage>(entity =>
+        {
+            entity.ToTable("FgsOutboxMessage");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.IdempotencyKey).IsUnique();
+            entity.HasIndex(e => new { e.Status, e.CreatedOn });
+            entity.Property(e => e.EventType).HasMaxLength(200);
+            entity.Property(e => e.Payload).HasColumnType("jsonb");
+            entity.Property(e => e.IdempotencyKey).HasMaxLength(200);
+            entity.Property(e => e.CorrelationId).HasMaxLength(100);
+            entity.Property(e => e.Status).HasConversion<string>().HasMaxLength(50);
+            entity.Property(e => e.LastError).HasMaxLength(2000);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.ProcessedOn).HasColumnType("timestamptz");
         });
     }
 
