@@ -50,7 +50,7 @@ public static class DependencyInjection
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
         services.AddHttpClient<IEntraExternalIdService, EntraExternalIdService>();
-        //services.AddHostedService<OutboxProcessorService>();
+        services.AddHostedService<OutboxProcessorService>();
 
         return services;
     }

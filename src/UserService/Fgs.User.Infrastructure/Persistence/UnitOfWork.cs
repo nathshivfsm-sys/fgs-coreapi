@@ -1,7 +1,6 @@
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Fgs.User.Infrastructure.Persistence;
 
@@ -28,23 +27,30 @@ public sealed class UnitOfWork : IUnitOfWork
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         _context.SaveChangesAsync(cancellationToken);
 
-    public async Task<T> ExecuteInTransactionAsync<T>(
+    public Task<T> ExecuteInTransactionAsync<T>(
         Func<CancellationToken, Task<T>> operation,
         CancellationToken cancellationToken = default)
     {
-        await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-        try
-        {
-            var result = await operation(cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
-            return result;
-        }
-        catch
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            throw;
-        }
+        // Required when UseNpgsql(... EnableRetryOnFailure): user transactions must run inside the execution strategy.
+        var strategy = _context.Database.CreateExecutionStrategy();
+        return strategy.ExecuteAsync<T>(
+            async ct =>
+            {
+                await using var transaction = await _context.Database.BeginTransactionAsync(ct);
+                try
+                {
+                    var result = await operation(ct);
+                    await _context.SaveChangesAsync(ct);
+                    await transaction.CommitAsync(ct);
+                    return result;
+                }
+                catch
+                {
+                    await transaction.RollbackAsync(ct);
+                    throw;
+                }
+            },
+            cancellationToken);
     }
 
     public async Task ExecuteInTransactionAsync(

@@ -8,7 +8,13 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://localhost:5067",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "RabbitMq__HostName": "127.0.0.1",
+        "RabbitMq__Port": "5672",
+        "RabbitMq__SslEnabled": "false",
+        "RabbitMq__ConnectionUri": "",
+        "RabbitMq__UserName": "fgs",
+        "RabbitMq__Password": "fgsdevlocal"
       }
     },
     "https": {
@@ -18,7 +24,13 @@
       "launchUrl": "swagger",
       "applicationUrl": "https://localhost:7168;http://localhost:5067",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "RabbitMq__HostName": "127.0.0.1",
+        "RabbitMq__Port": "5672",
+        "RabbitMq__SslEnabled": "false",
+        "RabbitMq__ConnectionUri": "",
+        "RabbitMq__UserName": "fgs",
+        "RabbitMq__Password": "fgsdevlocal"
       }
     }
   }
