@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.git/
+
+deployment/nginx/cache/
+deployment/nginx/logs/
+deployment/nginx/certs/*.key
+deployment/nginx/certs/*.crt
+deployment/nginx/nginx-1.30.0/
+
+src/UserService/Fgs.User.API/appsettings*.json
+src/WorkOrderService/Fgs.WorkOrder.API/appsettings*.json

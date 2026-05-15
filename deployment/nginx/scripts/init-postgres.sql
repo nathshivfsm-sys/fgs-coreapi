@@ -1,0 +1,5 @@
+CREATE DATABASE fgs_user;
+CREATE DATABASE fgs_workorder;
+
+GRANT ALL PRIVILEGES ON DATABASE fgs_user TO fgs;
+GRANT ALL PRIVILEGES ON DATABASE fgs_workorder TO fgs;

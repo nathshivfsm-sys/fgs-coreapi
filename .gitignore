@@ -9,3 +9,7 @@
 # Leading "/" — do not use "UserService/" alone; it ignores every folder named UserService (e.g. src/Services/UserService).
 /UserService/
 /deployment/nginx/nginx-1.30.0
+/deployment/nginx/cache/
+/deployment/nginx/logs/
+/deployment/nginx/certs/*.crt
+/deployment/nginx/certs/*.key
