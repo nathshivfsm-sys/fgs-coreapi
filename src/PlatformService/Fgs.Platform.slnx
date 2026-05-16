@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Fgs.Platform.API/Fgs.Platform.API.csproj" />
+  <Project Path="Fgs.Platform.Application/Fgs.Platform.Application.csproj" />
+  <Project Path="Fgs.Platform.Domain/Fgs.Platform.Domain.csproj" />
+  <Project Path="Fgs.Platform.Infrastructure/Fgs.Platform.Infrastructure.csproj" />
+  <Project Path="Fgs.Platform.Tests/Fgs.Platform.Tests.csproj" />
+</Solution>

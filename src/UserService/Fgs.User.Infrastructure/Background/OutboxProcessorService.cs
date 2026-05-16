@@ -1,3 +1,4 @@
+using Fgs.User.Application.IntegrationEvents;
 using Fgs.User.Domain.Enums;
 using Fgs.User.Infrastructure.Database;
 using Fgs.User.Infrastructure.Messaging;
@@ -46,7 +47,7 @@ public sealed class OutboxProcessorService(
 
         var messages = await context.FgsOutboxMessages
             .Where(m => !m.IsDeleted
-                && m.Status == OutboxMessageStatus.Pending
+                //&& m.Status == OutboxMessageStatus.Pending
                 && m.RetryCount < _options.MaxRetryCount)
             .OrderBy(m => m.CreatedOn)
             .Take(_options.BatchSize)
@@ -66,7 +67,9 @@ public sealed class OutboxProcessorService(
         {
             try
             {
-                var routingKey = $"{_rabbitOptions.RoutingKeyPrefix}{message.EventType}";
+                var routingKey = IntegrationEventRoutingKeys.ForEventType(
+                    message.EventType,
+                    _rabbitOptions.RoutingKeyPrefix);
                 await publisher.PublishAsync(routingKey, message.Payload, message.CorrelationId, cancellationToken);
 
                 message.Status = OutboxMessageStatus.Published;

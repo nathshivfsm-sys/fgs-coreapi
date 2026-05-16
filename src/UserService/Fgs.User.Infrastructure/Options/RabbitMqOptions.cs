@@ -30,7 +30,7 @@ public sealed class RabbitMqOptions
     /// <summary>When true, enables TLS certificate revocation checks. Some environments fail CRL checks and appear as "unreachable".</summary>
     public bool SslCheckCertificateRevocation { get; set; }
 
-    public string ExchangeName { get; set; } = "fgs.integration";
+    public string ExchangeName { get; set; } = "fgs.user";
 
     public string RoutingKeyPrefix { get; set; } = "user.";
 
@@ -41,7 +41,8 @@ public sealed class RabbitMqOptions
     public bool EnsureQueuesOnStartup { get; set; } = true;
 
     /// <summary>
-    /// Queues to declare and bind before publishing integration events.
+    /// Optional local queues to declare on the publisher. Leave empty when another service
+    /// (e.g. Platform) owns consumption — the publisher only needs <see cref="ExchangeName"/>.
     /// </summary>
     public IList<RabbitMqQueueBindingOptions> QueueBindings { get; set; } = [];
 }

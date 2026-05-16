@@ -1,0 +1,39 @@
+using Fgs.Platform.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace Fgs.Platform.Infrastructure.Database;
+
+public sealed class FgsPlatformDbContext(DbContextOptions<FgsPlatformDbContext> options) : DbContext(options)
+{
+    public const string FgsSchema = "dbo";
+
+    public DbSet<FgsNotificationHistory> NotificationHistory => Set<FgsNotificationHistory>();
+
+    public DbSet<FgsProcessedIntegrationEvent> ProcessedIntegrationEvents => Set<FgsProcessedIntegrationEvent>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.HasDefaultSchema(FgsSchema);
+
+        modelBuilder.Entity<FgsNotificationHistory>(entity =>
+        {
+            entity.ToTable("FgsNotificationHistory");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TemplateName).HasMaxLength(128);
+            entity.Property(e => e.Recipient).HasMaxLength(512);
+            entity.Property(e => e.CorrelationId).HasMaxLength(64);
+            entity.Property(e => e.ProviderMessageId).HasMaxLength(256);
+            entity.Property(e => e.Error).HasMaxLength(2000);
+            entity.HasIndex(e => new { e.TenantId, e.CreatedOn });
+        });
+
+        modelBuilder.Entity<FgsProcessedIntegrationEvent>(entity =>
+        {
+            entity.ToTable("FgsProcessedIntegrationEvent");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.MessageId).HasMaxLength(128);
+            entity.Property(e => e.EventType).HasMaxLength(128);
+            entity.HasIndex(e => e.MessageId).IsUnique();
+        });
+    }
+}
