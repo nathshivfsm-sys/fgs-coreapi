@@ -33,4 +33,15 @@ public sealed class RabbitMqOptions
     public string ExchangeName { get; set; } = "fgs.integration";
 
     public string RoutingKeyPrefix { get; set; } = "user.";
+
+    /// <summary>
+    /// When true, idempotently declares each <see cref="QueueBindings"/> queue and binds it to
+    /// <see cref="ExchangeName"/> on first connect (create-if-missing; no-op when already exists).
+    /// </summary>
+    public bool EnsureQueuesOnStartup { get; set; } = true;
+
+    /// <summary>
+    /// Queues to declare and bind before publishing integration events.
+    /// </summary>
+    public IList<RabbitMqQueueBindingOptions> QueueBindings { get; set; } = [];
 }

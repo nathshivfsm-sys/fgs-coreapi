@@ -8,7 +8,9 @@ using RabbitMQ.Client;
 
 namespace Fgs.User.Infrastructure.Messaging;
 
-public sealed class RabbitMqPublisher(IOptions<RabbitMqOptions> options, ILogger<RabbitMqPublisher> logger) : IRabbitMqPublisher, IAsyncDisposable
+public sealed class RabbitMqPublisher(
+    IOptions<RabbitMqOptions> options,
+    ILogger<RabbitMqPublisher> logger) : IRabbitMqPublisher, IAsyncDisposable
 {
     private readonly RabbitMqOptions _options = options.Value;
     private IConnection? _connection;
@@ -64,7 +66,6 @@ public sealed class RabbitMqPublisher(IOptions<RabbitMqOptions> options, ILogger
                 ClientProvidedName = "Fgs.User",
                 RequestedConnectionTimeout = TimeSpan.FromSeconds(
                     Math.Clamp(_options.ConnectionTimeoutSeconds, 5, 120)),
-                // Recovery can complicate first-connect diagnostics; broker reconnects are handled by the outbox retry loop.
                 AutomaticRecoveryEnabled = false
             };
 
@@ -84,11 +85,8 @@ public sealed class RabbitMqPublisher(IOptions<RabbitMqOptions> options, ILogger
             {
                 _connection = await factory.CreateConnectionAsync(cancellationToken);
                 _channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
-                await _channel.ExchangeDeclareAsync(
-                    exchange: _options.ExchangeName,
-                    type: ExchangeType.Topic,
-                    durable: true,
-                    cancellationToken: cancellationToken);
+
+                await EnsureExchangeAndQueuesAsync(cancellationToken);
             }
             catch (Exception ex)
             {
@@ -99,6 +97,58 @@ public sealed class RabbitMqPublisher(IOptions<RabbitMqOptions> options, ILogger
         finally
         {
             _initLock.Release();
+        }
+    }
+
+    private async Task EnsureExchangeAndQueuesAsync(CancellationToken cancellationToken)
+    {
+        var channel = _channel!;
+        await channel.ExchangeDeclareAsync(
+            exchange: _options.ExchangeName,
+            type: ExchangeType.Topic,
+            durable: true,
+            cancellationToken: cancellationToken);
+
+        if (!_options.EnsureQueuesOnStartup || _options.QueueBindings.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var binding in _options.QueueBindings)
+        {
+            if (string.IsNullOrWhiteSpace(binding.QueueName) || string.IsNullOrWhiteSpace(binding.RoutingKey))
+            {
+                logger.LogWarning(
+                    "Skipping RabbitMQ queue binding with empty QueueName or RoutingKey on exchange {Exchange}.",
+                    _options.ExchangeName);
+                continue;
+            }
+
+            var queueName = binding.QueueName.Trim();
+            var routingKey = binding.RoutingKey.Trim();
+
+            // exclusive: false (405 on restart if true). durable: true — RabbitMQ 4+ rejects transient non-exclusive queues (541).
+            await channel.QueueDeclareAsync(
+                queue: queueName,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null,
+                passive: false,
+                cancellationToken: cancellationToken);
+
+            await channel.QueueBindAsync(
+                queue: queueName,
+                exchange: _options.ExchangeName,
+                routingKey: routingKey,
+                arguments: null,
+                cancellationToken: cancellationToken);
+
+            logger.LogInformation(
+                "Queue {Queue} ready on exchange {Exchange} (routing key {RoutingKey}).",
+                queueName,
+                _options.ExchangeName,
+                routingKey);
         }
     }
 
@@ -129,14 +179,12 @@ public sealed class RabbitMqPublisher(IOptions<RabbitMqOptions> options, ILogger
 
         logger.LogError(
             ex,
-            "RabbitMQ connection failed. Broker {Broker}, TLS {Tls}, SNI {Sni}. Inner: {Inner}. {DnsHint}. " +
-            "For local Docker: run `docker compose up -d` in src/UserService and confirm TCP {Port} is listening.",
+            "RabbitMQ connection failed. Broker {Broker}, TLS {Tls}, SNI {Sni}. Inner: {Inner}. {DnsHint}.",
             safeEndpoint,
             tls,
             sni,
             innerMessages,
-            dnsHint ?? "DNS not checked.",
-            factory.Uri?.Port ?? _options.Port);
+            dnsHint ?? "DNS not checked.");
     }
 
     private static string SafeFormatBrokerUri(Uri? uri)
@@ -149,10 +197,6 @@ public sealed class RabbitMqPublisher(IOptions<RabbitMqOptions> options, ILogger
         return uri.GetComponents(UriComponents.SchemeAndServer | UriComponents.Path, UriFormat.UriEscaped);
     }
 
-    /// <summary>
-    /// Prefer a single <see cref="ConnectionFactory.Uri"/> (built here or from config) so the client matches other
-    /// stacks and avoids subtle HostName/Port/TLS mismatches on RabbitMQ.Client 7.
-    /// </summary>
     private void ApplyBrokerUri(ConnectionFactory factory)
     {
         var uri = ResolveBrokerUri();

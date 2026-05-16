@@ -53,7 +53,8 @@ static void LogRabbitMqEffectiveConfig(WebApplication app)
     var hasUri = !string.IsNullOrWhiteSpace(rabbit.ConnectionUri);
     app.Logger.LogInformation(
         "RabbitMQ effective configuration (environment {Environment}): " +
-        "ConnectionUri set={HasUri}, HostName={HostName}, Port={Port}, SslEnabled={Ssl}, UserName={UserName}, PasswordConfigured={HasPassword}. " +
+        "ConnectionUri set={HasUri}, HostName={HostName}, Port={Port}, SslEnabled={Ssl}, UserName={UserName}, PasswordConfigured={HasPassword}, " +
+        "Exchange={Exchange}, EnsureQueuesOnStartup={EnsureQueues}, QueueBindings={BindingCount}. " +
         "If this does not match your Docker broker, clear environment variables RabbitMq__* and user secrets for this section.",
         app.Environment.EnvironmentName,
         hasUri,
@@ -61,7 +62,10 @@ static void LogRabbitMqEffectiveConfig(WebApplication app)
         rabbit.Port,
         rabbit.SslEnabled,
         rabbit.UserName,
-        rabbit.Password.Length > 0);
+        rabbit.Password.Length > 0,
+        rabbit.ExchangeName,
+        rabbit.EnsureQueuesOnStartup,
+        rabbit.QueueBindings.Count);
 
     if (app.Environment.IsDevelopment()
         && !hasUri
