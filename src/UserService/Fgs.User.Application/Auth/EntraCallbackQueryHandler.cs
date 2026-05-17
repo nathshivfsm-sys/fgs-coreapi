@@ -47,7 +47,7 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
         }
 
         var redirectUri = _configuration["EntraExternalId:RedirectUri"]
-            ?? "https://localhost:5001/auth/callback";
+            ?? "https://localhost:8443/api/auth/entra/callback";
 
         EntraTokenResult entraUser;
         try
@@ -111,7 +111,7 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
 
                     var accessToken = _jwtTokenService.CreateToken(user);
                     var dashboardUrl = _configuration["Application:DashboardUrl"]
-                        ?? "https://localhost:4200/dashboard";
+                        ?? "https://localhost:8443/api/dashboard";
 
                     return new EntraCallbackResultDto(accessToken, dashboardUrl);
                 },

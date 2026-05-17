@@ -1,6 +1,6 @@
-# Local RabbitMQ for User Service (Docker Desktop).
-# Run from this folder: docker compose up -d
-# AMQP: localhost:5672  |  Management UI: http://localhost:15672  (same credentials as below)
+# RabbitMQ only — for running Fgs.User.API on the host (see launchSettings.json).
+# For the full stack (nginx, user, platform, workorder, postgres, rabbitmq), use:
+#   cd deployment/nginx && docker compose up --build
 services:
   rabbitmq:
     image: rabbitmq:4-management-alpine

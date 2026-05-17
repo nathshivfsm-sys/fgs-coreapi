@@ -191,7 +191,7 @@ public sealed class CreateCompanySignupCommandHandler
                     await _unitOfWork.Repository<FgsInvitation>().AddAsync(invitation, ct);
 
                     var inviteBaseUrl = _configuration["Invitation:InviteBaseUrl"]
-                        ?? "https://localhost:5001/api/invite/start";
+                        ?? "https://localhost:8443/api/invite/start";
                     var inviteUrl = $"{inviteBaseUrl.TrimEnd('/')}?token={Uri.EscapeDataString(plainToken)}";
 
                     var expirationHours = Math.Max(

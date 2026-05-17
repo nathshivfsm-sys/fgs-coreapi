@@ -9,7 +9,7 @@ namespace Fgs.User.API.Controllers;
 /// Authentication endpoints (Microsoft Entra External ID).
 /// </summary>
 [ApiController]
-[Route("auth")]
+[Route("api/auth")]
 [Produces("application/json")]
 public sealed class AuthController : ControllerBase
 {
@@ -24,7 +24,7 @@ public sealed class AuthController : ControllerBase
     /// On success, responds with HTTP 302 to the configured dashboard URL with access token in query string (browser flow).
     /// On failure, returns the standard JSON error envelope.
     /// </remarks>
-    [HttpGet("callback")]
+    [HttpGet("entra/callback")]
     [ProducesResponseType(StatusCodes.Status302Found)]
     [ProducesResponseType(typeof(ApiResponse<EntraCallbackResultDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

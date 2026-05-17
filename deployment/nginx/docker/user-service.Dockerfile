@@ -23,9 +23,8 @@ ENV ASPNETCORE_URLS=http://+:5001 \
 EXPOSE 5001
 
 COPY --from=build /app/publish .
-RUN rm -f appsettings.json appsettings.Development.json
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=5 \
     CMD curl -fsS http://localhost:5001/health || exit 1
 
 ENTRYPOINT ["dotnet", "Fgs.User.API.dll"]

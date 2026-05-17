@@ -4,8 +4,10 @@ using Fgs.User.API.Middleware;
 using Fgs.User.API.Swagger;
 using Fgs.User.Application;
 using Fgs.User.Infrastructure;
+using Fgs.User.Infrastructure.Database;
 using Fgs.User.Infrastructure.Options;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Net.Sockets;
 
@@ -24,8 +26,11 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.AddFgsUserSwagger();
 builder.Services.AddFgsUserApplication();
 builder.Services.AddFgsUserInfrastructure(builder.Configuration);
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+await ApplyMigrationsAsync(app);
 
 LogRabbitMqEffectiveConfig(app);
 ProbeLocalRabbitMqTcpIfDevelopment(app);
@@ -49,8 +54,21 @@ if (app.Configuration.IsSwaggerEnabled(app.Environment))
 
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();
+
+static async Task ApplyMigrationsAsync(WebApplication app)
+{
+    if (!app.Configuration.GetValue("Database:ApplyMigrationsOnStartup", false))
+    {
+        return;
+    }
+
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<FgsUserDbContext>();
+    await db.Database.MigrateAsync();
+}
 
 static void LogRabbitMqEffectiveConfig(WebApplication app)
 {

@@ -15,7 +15,7 @@ public sealed class EntraExternalIdOptions
     /// <summary>
     /// Must exactly match the redirect URI registered in Entra and used in both authorize and token requests.
     /// </summary>
-    public string RedirectUri { get; set; } = "http://localhost:5001/auth/callback";
+    public string RedirectUri { get; set; } = "https://localhost:8443/api/auth/entra/callback";
 
     public string Scopes { get; set; } = "openid profile email";
 

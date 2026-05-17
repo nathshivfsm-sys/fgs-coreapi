@@ -20,13 +20,15 @@ deployment/nginx/
     site.prod.conf
   docker/
     user-service.Dockerfile
+    platform-service.Dockerfile
     workorder-service.Dockerfile
   logs/
   scripts/
     generate-local-cert.ps1
     generate-local-cert.sh
-    init-postgres.sql
 ```
+
+PostgreSQL and RabbitMQ are **not** part of this Compose file. Start them on the host before bringing up the gateway stack (for example `docker compose up -d` in `src/UserService` for RabbitMQ, plus your local PostgreSQL instance).
 
 ## Routes
 
@@ -34,10 +36,22 @@ NGINX listens on `https://localhost:8443` locally.
 
 | Public route | Upstream service | Forwarded path |
 | --- | --- | --- |
-| `/api/users` | `user-service:5001` | `/` |
-| `/api/users/{path}` | `user-service:5001` | `/{path}` |
+| `/api/auth/{path}` | `user-service:5001` | `/api/auth/{path}` |
+| `/api/invite/{path}` | `user-service:5001` | `/api/invite/{path}` |
+| `/api/signup/{path}` | `user-service:5001` | `/api/signup/{path}` |
+| `/api/users` | `user-service:5001` | `/api/` |
+| `/api/users/{path}` | `user-service:5001` | `/api/{path}` |
+| `/api/platform` | `platform-service:5002` | `/api/` |
+| `/api/platform/{path}` | `platform-service:5002` | `/api/{path}` |
 | `/api/workorders` | `workorder-service:5003` | `/` |
 | `/api/workorders/{path}` | `workorder-service:5003` | `/{path}` |
+
+OAuth and invitation URLs are exposed through the gateway (register the same values in Microsoft Entra):
+
+| Setting | Local gateway value |
+| --- | --- |
+| `EntraExternalId:RedirectUri` | `https://localhost:8443/api/auth/entra/callback` |
+| `Invitation:InviteBaseUrl` | `https://localhost:8443/api/invite/start` |
 
 Both upstreams use `least_conn`, keepalive connections, passive health checks with `max_fails` and `fail_timeout`, and Docker health checks against each service's `/health` endpoint.
 
@@ -62,6 +76,7 @@ Test the gateway:
 ```powershell
 curl.exe -k https://localhost:8443/nginx-health
 curl.exe -k https://localhost:8443/api/users/health
+curl.exe -k https://localhost:8443/api/platform/health
 curl.exe -k https://localhost:8443/api/workorders/health
 ```
 
@@ -69,15 +84,31 @@ The local Compose file starts:
 
 - `nginx`, published on host ports `8080` and `8443`.
 - `user-service`, private on container port `5001`.
+- `platform-service`, private on container port `5002`.
 - `workorder-service`, private on container port `5003`.
-- `postgres`, private on container port `5432`, for local connection string overrides.
+
+### Application configuration (Postgres, RabbitMQ, Entra)
+
+Each API container mounts the **same** files you edit for local `dotnet run`:
+
+| Service | Mounted files |
+| --- | --- |
+| User | `src/UserService/Fgs.User.API/appsettings.json` + `appsettings.Development.json` |
+| Platform | `src/PlatformService/Fgs.Platform.API/appsettings.json` + `appsettings.Development.json` |
+| Workorder | `src/WorkOrderService/Fgs.WorkOrder.API/appsettings.json` + `appsettings.Development.json` |
+
+Containers use `ASPNETCORE_ENVIRONMENT=Development`, so ASP.NET Core **merges** `appsettings.json` then `appsettings.Development.json` (same as Visual Studio / `dotnet run`). There are no duplicate Postgres or RabbitMQ settings in `docker-compose.yml`.
+
+Change connection strings or RabbitMQ in those JSON files and restart the service container; no image rebuild is required for config-only changes.
+
+`appsettings.Development.json` overrides `Host` / `HostName` to `host.docker.internal` so containers can reach Postgres and RabbitMQ on the host. Base `appsettings.json` keeps `localhost` for `dotnet run` on the machine when you use a profile without the Development override, or when `host.docker.internal` resolves on your OS.
 
 ## Scale Services Locally
 
 Do not add `container_name`; Docker Compose needs generated names for scaling.
 
 ```powershell
-docker compose up --build --scale user-service=2 --scale workorder-service=2
+docker compose up --build --scale user-service=2 --scale platform-service=2 --scale workorder-service=2
 ```
 
 NGINX resolves the Compose service names and load balances with `least_conn`. If you scale after NGINX has already started, recreate or reload NGINX so it refreshes upstream DNS:
@@ -143,10 +174,10 @@ sudo systemctl reload nginx
 
 For Kubernetes, keep this routing model but move responsibilities as follows:
 
-- Use Kubernetes `Service` objects for `user-service` and `workorder-service`.
+- Use Kubernetes `Service` objects for `user-service`, `platform-service`, and `workorder-service`.
 - Put TLS certificates in `kubernetes.io/tls` secrets, or use cert-manager.
 - Use NGINX Ingress Controller for path routing and prefix rewrite annotations.
-- Keep `/api/users` and `/api/workorders` as the stable external contract.
+- Keep `/api/users`, `/api/platform`, and `/api/workorders` as the stable external contract.
 - Move rate limiting, body size, gzip, timeouts, and security headers into Ingress annotations or a controller ConfigMap.
 
 The production NGINX files remain useful as the reference edge policy when converting to Ingress resources.

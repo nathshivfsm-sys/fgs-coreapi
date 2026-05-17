@@ -45,7 +45,7 @@ public sealed class StartInvitationQueryHandler(
         }
 
         var redirectUri = configuration["EntraExternalId:RedirectUri"]
-            ?? "https://localhost:5001/api/auth/entra/callback";
+            ?? "https://localhost:8443/api/auth/entra/callback";
         var authorizeUrl = entraService.BuildAuthorizationUrl(matched.Id, redirectUri, matched.Email);
         return new StartInvitationResult(true, authorizeUrl, null);
     }
