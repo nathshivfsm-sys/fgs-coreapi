@@ -2,13 +2,21 @@ using System.Text.Json;
 using Fgs.Platform.Application.IntegrationEvents;
 using Fgs.Platform.Domain.Notifications;
 using Fgs.Platform.Infrastructure.Notifications.Queues;
-using FluentAssertions;
+using Fgs.Platform.Infrastructure.Options;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.Platform.Tests.Notifications;
 
 public sealed class IntegrationEventMapperTests
 {
-    private readonly IntegrationEventMapper _mapper = new();
+    private readonly IntegrationEventMapper _mapper = new(
+        Options.Create(new NotificationOptions
+        {
+            PlatformName = "FGS",
+            SupportEmail = "support@fgs.example",
+            CompanyName = "FGS",
+            InvitationExpirationHours = 72
+        }));
 
     [Fact]
     public void CanMap_KnownUserServiceRoutingKeys()
@@ -23,14 +31,20 @@ public sealed class IntegrationEventMapperTests
     public void Map_CompanySignupInviteEmail_BuildsEmailDispatchRequest()
     {
         var tenantId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
         var payload = JsonSerializer.Serialize(new CompanySignupInviteEmailEvent(
             tenantId,
-            Guid.NewGuid(),
+            companyId,
             Guid.NewGuid(),
             Guid.NewGuid(),
             "invite@example.com",
+            CommunicationTemplateCodes.CompanyAdminInvitation,
             "Alex",
-            "https://example.com/invite"));
+            "Acme Platform",
+            "https://example.com/invite",
+            "48",
+            "Acme Corp",
+            "help@acme.example"));
 
         var request = _mapper.Map(
             IntegrationEventRoutingKeys.CompanySignupInviteEmail,
@@ -40,8 +54,44 @@ public sealed class IntegrationEventMapperTests
 
         request.Should().NotBeNull();
         request!.TenantId.Should().Be(tenantId);
+        request.CompanyId.Should().Be(companyId);
         request.Channel.Should().Be(NotificationChannel.Email);
         request.Recipient.Should().Be("invite@example.com");
-        request.TemplateName.Should().Be("CompanySignupInviteEmail");
+        request.TemplateCode.Should().Be(CommunicationTemplateCodes.CompanyAdminInvitation);
+        request.TemplateData["Name"].Should().Be("Alex");
+        request.TemplateData["InviteLink"].Should().Be("https://example.com/invite");
+        request.TemplateData["PlatformName"].Should().Be("Acme Platform");
+        request.TemplateData["ExpirationHours"].Should().Be("48");
+        request.TemplateData["CompanyName"].Should().Be("Acme Corp");
+        request.TemplateData["SupportEmail"].Should().Be("help@acme.example");
+    }
+
+    [Fact]
+    public void Map_CompanySignupInviteEmail_UsesNotificationConfigWhenEventTokensEmpty()
+    {
+        var payload = JsonSerializer.Serialize(new CompanySignupInviteEmailEvent(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "invite@example.com",
+            CommunicationTemplateCodes.CompanyAdminInvitation,
+            "Alex",
+            string.Empty,
+            "https://example.com/invite",
+            string.Empty,
+            string.Empty,
+            string.Empty));
+
+        var request = _mapper.Map(
+            IntegrationEventRoutingKeys.CompanySignupInviteEmail,
+            payload,
+            null,
+            "mid");
+
+        request!.TemplateData["PlatformName"].Should().Be("FGS");
+        request.TemplateData["SupportEmail"].Should().Be("support@fgs.example");
+        request.TemplateData["CompanyName"].Should().Be("FGS");
+        request.TemplateData["ExpirationHours"].Should().Be("72");
     }
 }

@@ -1,8 +1,10 @@
+using System.Text.Json;
 using Fgs.User.Application.Abstractions.Messaging;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Application.Common;
+using Fgs.User.Application.IntegrationEvents;
 using Fgs.User.Application.Signup;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Database;
@@ -60,6 +62,18 @@ public sealed class CreateCompanySignupCommandHandlerTests
         var user = await context.FgsUsers.SingleAsync();
         user.PasswordHash.Should().NotBeNullOrEmpty();
         user.Role.ToString().Should().Be("Admin");
+
+        var outbox = await context.FgsOutboxMessages.SingleAsync();
+        var evt = JsonSerializer.Deserialize<CompanySignupInviteEmailEvent>(outbox.Payload);
+        evt.Should().NotBeNull();
+        evt!.Email.Should().Be(command.Email);
+        evt.EmailTemplateCode.Should().Be(CommunicationTemplateCodes.CompanyAdminInvitation);
+        evt.Name.Should().Be(command.DisplayName);
+        evt.PlatformName.Should().BeEmpty();
+        evt.CompanyName.Should().Be(command.TenantName);
+        evt.SupportEmail.Should().BeEmpty();
+        evt.InviteLink.Should().Contain("token=");
+        evt.ExpirationHours.Should().Be("168");
     }
 
     [Fact]

@@ -24,7 +24,7 @@ public sealed class NotificationDispatcher(
             Id = Guid.NewGuid(),
             TenantId = request.TenantId,
             Channel = request.Channel,
-            TemplateName = request.TemplateName,
+            TemplateName = request.TemplateCode,
             Recipient = request.Recipient,
             Status = NotificationDeliveryStatus.Pending,
             CorrelationId = request.CorrelationId,
@@ -57,7 +57,7 @@ public sealed class NotificationDispatcher(
                     "Notification dispatch failed (TenantId={TenantId}, Channel={Channel}, Template={Template}, CorrelationId={CorrelationId}): {Error}",
                     request.TenantId,
                     request.Channel,
-                    request.TemplateName,
+                    request.TemplateCode,
                     request.CorrelationId,
                     result.Error);
             }
@@ -81,7 +81,13 @@ public sealed class NotificationDispatcher(
         NotificationDispatchRequest request,
         CancellationToken cancellationToken)
     {
-        var rendered = templateRenderer.Render(request.TemplateName, request.TemplateData);
+        var rendered = await templateRenderer.RenderAsync(
+            request.TenantId,
+            request.CompanyId,
+            request.Channel,
+            request.TemplateCode,
+            request.TemplateData,
+            cancellationToken);
         var provider = providerFactory.ResolveEmailProvider(request.TenantId);
         return await provider.SendAsync(
             new EmailNotificationMessage(
@@ -99,7 +105,13 @@ public sealed class NotificationDispatcher(
         NotificationDispatchRequest request,
         CancellationToken cancellationToken)
     {
-        var rendered = templateRenderer.Render(request.TemplateName, request.TemplateData);
+        var rendered = await templateRenderer.RenderAsync(
+            request.TenantId,
+            request.CompanyId,
+            request.Channel,
+            request.TemplateCode,
+            request.TemplateData,
+            cancellationToken);
         var provider = providerFactory.ResolveSmsProvider(request.TenantId);
         return await provider.SendAsync(
             new SmsNotificationMessage(
@@ -114,7 +126,13 @@ public sealed class NotificationDispatcher(
         NotificationDispatchRequest request,
         CancellationToken cancellationToken)
     {
-        var rendered = templateRenderer.Render(request.TemplateName, request.TemplateData);
+        var rendered = await templateRenderer.RenderAsync(
+            request.TenantId,
+            request.CompanyId,
+            request.Channel,
+            request.TemplateCode,
+            request.TemplateData,
+            cancellationToken);
         var provider = providerFactory.ResolvePushProvider(request.TenantId);
         return await provider.SendAsync(
             new PushNotificationMessage(

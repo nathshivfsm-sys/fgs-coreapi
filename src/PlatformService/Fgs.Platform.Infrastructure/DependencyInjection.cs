@@ -16,6 +16,7 @@ using Fgs.Platform.Infrastructure.Audit;
 using Fgs.Platform.Infrastructure.BackgroundJobs;
 using Fgs.Platform.Infrastructure.Configuration;
 using Fgs.Platform.Infrastructure.Database;
+using Fgs.Platform.Infrastructure.Database.Seed;
 using Fgs.Platform.Infrastructure.Integrations.QuickBooks;
 using Fgs.Platform.Infrastructure.Integrations.SendGrid;
 using Fgs.Platform.Infrastructure.Integrations.Stripe;
@@ -50,6 +51,7 @@ public static class DependencyInjection
         services.Configure<TenantProviderOptions>(configuration.GetSection(TenantProviderOptions.SectionName));
         services.Configure<PlatformFeatureFlagsOptions>(configuration.GetSection(PlatformFeatureFlagsOptions.SectionName));
         services.Configure<NotificationWorkerOptions>(configuration.GetSection(NotificationWorkerOptions.SectionName));
+        services.Configure<NotificationOptions>(configuration.GetSection(NotificationOptions.SectionName));
 
         var connectionString = FgsPlatformConnectionString.ResolveRequired(configuration);
 
@@ -66,7 +68,11 @@ public static class DependencyInjection
 
         services.AddScoped<INotificationHistoryRepository, NotificationHistoryRepository>();
         services.AddScoped<IIdempotencyStore, IdempotencyStore>();
-        services.AddSingleton<INotificationTemplateRenderer, NotificationTemplateRenderer>();
+        services.AddScoped<ICommunicationTemplateRepository, CommunicationTemplateRepository>();
+        services.AddScoped<ICommunicationTemplateService, CommunicationTemplateService>();
+        services.AddSingleton<ITemplateRenderer, TemplateRenderer>();
+        services.AddScoped<INotificationTemplateRenderer, DatabaseNotificationTemplateRenderer>();
+        services.AddScoped<CommunicationTemplateSeeder>();
         services.AddSingleton<INotificationPreferenceService, PlaceholderNotificationPreferenceService>();
         services.AddSingleton<IIntegrationEventMapper, IntegrationEventMapper>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();

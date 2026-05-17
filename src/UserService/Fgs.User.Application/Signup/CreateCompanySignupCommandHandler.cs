@@ -146,14 +146,23 @@ public sealed class CreateCompanySignupCommandHandler
                         ?? "https://localhost:5001/api/invite/start";
                     var inviteUrl = $"{inviteBaseUrl.TrimEnd('/')}?token={Uri.EscapeDataString(plainToken)}";
 
+                    var expirationHours = Math.Max(
+                        1,
+                        (int)Math.Ceiling((invitation.ExpiresAtUtc - now).TotalHours));
+
                     var outboxPayload = JsonSerializer.Serialize(new CompanySignupInviteEmailEvent(
                         tenantId,
                         companyId,
                         userId,
                         invitationId,
                         user.Email,
+                        CommunicationTemplateCodes.CompanyAdminInvitation,
                         user.DisplayName,
-                        inviteUrl));
+                        PlatformName: string.Empty,
+                        inviteUrl,
+                        expirationHours.ToString(),
+                        tenantNameTrimmed,
+                        SupportEmail: string.Empty));
 
                     await _outboxWriter.EnqueueAsync(
                         IntegrationEventTypes.CompanySignupInviteEmail,

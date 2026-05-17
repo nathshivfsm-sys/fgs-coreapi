@@ -1,10 +1,16 @@
+using Fgs.Platform.Domain.Notifications;
+
 namespace Fgs.Platform.Application.Notifications.Templates;
 
 public interface INotificationTemplateRenderer
 {
-    RenderedNotificationTemplate Render(
-        string templateName,
-        IReadOnlyDictionary<string, string> data);
+    Task<RenderedNotificationTemplate> RenderAsync(
+        Guid tenantId,
+        Guid? companyId,
+        NotificationChannel channel,
+        string templateCode,
+        IReadOnlyDictionary<string, string> tokens,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record RenderedNotificationTemplate(

@@ -11,6 +11,8 @@ public sealed class FgsPlatformDbContext(DbContextOptions<FgsPlatformDbContext> 
 
     public DbSet<FgsProcessedIntegrationEvent> ProcessedIntegrationEvents => Set<FgsProcessedIntegrationEvent>();
 
+    public DbSet<FgsSetupCommunicationTemplate> CommunicationTemplates => Set<FgsSetupCommunicationTemplate>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(FgsSchema);
@@ -34,6 +36,20 @@ public sealed class FgsPlatformDbContext(DbContextOptions<FgsPlatformDbContext> 
             entity.Property(e => e.MessageId).HasMaxLength(128);
             entity.Property(e => e.EventType).HasMaxLength(128);
             entity.HasIndex(e => e.MessageId).IsUnique();
+        });
+
+        modelBuilder.Entity<FgsSetupCommunicationTemplate>(entity =>
+        {
+            entity.ToTable("FgsSetupCommunicationTemplate");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.TemplateType).IsRequired();
+            entity.Property(e => e.Code).IsRequired();
+            entity.Property(e => e.Name).IsRequired();
+            entity.Property(e => e.Body).IsRequired();
+            entity.HasIndex(e => new { e.TenantId, e.CompanyId });
+            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.TemplateType, e.Code })
+                .IsUnique();
         });
     }
 }

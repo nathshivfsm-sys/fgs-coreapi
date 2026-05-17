@@ -26,4 +26,28 @@ public sealed class EntraExternalIdServiceTests
         url.Should().Contain($"state={invitationId}");
         url.Should().Contain("redirect_uri=");
     }
+
+    [Fact]
+    public void BuildAuthorizationUrl_WithCiamTenant_UsesTenantIdPathWithoutUserFlow()
+    {
+        var service = new EntraExternalIdService(
+            Options.Create(new EntraExternalIdOptions
+            {
+                TenantId = "tenant-id",
+                ClientId = "client-id",
+                Authority = "https://example.ciamlogin.com",
+                UserFlow = "SignUpSignIn",
+                Scopes = "openid profile email"
+            }),
+            new HttpClient());
+
+        var url = service.BuildAuthorizationUrl(
+            Guid.NewGuid(),
+            "https://localhost/callback",
+            "admin@test.com");
+
+        url.Should().StartWith("https://example.ciamlogin.com/tenant-id/oauth2/v2.0/authorize?");
+        url.Should().NotContain("/SignUpSignIn/");
+        url.Should().Contain("login_hint=admin%40test.com");
+    }
 }

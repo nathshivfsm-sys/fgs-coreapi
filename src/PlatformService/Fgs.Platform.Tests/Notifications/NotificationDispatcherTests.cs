@@ -36,8 +36,14 @@ public sealed class NotificationDispatcherTests
             .Returns(Task.CompletedTask);
 
         var renderer = new Mock<INotificationTemplateRenderer>();
-        renderer.Setup(r => r.Render(It.IsAny<string>(), It.IsAny<IReadOnlyDictionary<string, string>>()))
-            .Returns(new RenderedNotificationTemplate("Subject", "<p>Hi</p>", "Hi"));
+        renderer.Setup(r => r.RenderAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<NotificationChannel>(),
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyDictionary<string, string>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RenderedNotificationTemplate("Subject", "<p>Hi</p>", "Hi"));
 
         var dispatcher = new NotificationDispatcher(
             factory.Object,
@@ -49,8 +55,9 @@ public sealed class NotificationDispatcherTests
         var result = await dispatcher.DispatchAsync(
             new NotificationDispatchRequest(
                 tenantId,
+                CompanyId: null,
                 NotificationChannel.Email,
-                "UserInvited",
+                "USER_INVITED",
                 "user@example.com",
                 new Dictionary<string, string> { ["DisplayName"] = "Test" },
                 "corr-1",

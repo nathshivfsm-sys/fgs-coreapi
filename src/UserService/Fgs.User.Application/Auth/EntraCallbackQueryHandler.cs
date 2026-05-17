@@ -47,7 +47,7 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
         }
 
         var redirectUri = _configuration["EntraExternalId:RedirectUri"]
-            ?? "https://localhost:5001/api/auth/entra/callback";
+            ?? "https://localhost:5001/auth/callback";
 
         EntraTokenResult entraUser;
         try

@@ -6,21 +6,14 @@ using Microsoft.Extensions.Options;
 
 namespace Fgs.User.Infrastructure.Identity;
 
-public sealed class EntraExternalIdService : IEntraExternalIdService
+public sealed class EntraExternalIdService(IOptions<EntraExternalIdOptions> options, HttpClient httpClient) : IEntraExternalIdService
 {
-    private readonly EntraExternalIdOptions _options;
-    private readonly HttpClient _httpClient;
+    private readonly EntraExternalIdOptions _options = options.Value;
 
-    public EntraExternalIdService(IOptions<EntraExternalIdOptions> options, HttpClient httpClient)
-    {
-        _options = options.Value;
-        _httpClient = httpClient;
-    }
-
-    public string BuildAuthorizationUrl(Guid invitationId, string redirectUri)
+    public string BuildAuthorizationUrl(Guid invitationId, string redirectUri, string? loginHint = null)
     {
         var authorize = string.IsNullOrWhiteSpace(_options.AuthorizeEndpoint)
-            ? $"{_options.Authority.TrimEnd('/')}/{_options.TenantId}/oauth2/v2.0/authorize"
+            ? BuildAuthorizeEndpoint()
             : _options.AuthorizeEndpoint;
 
         var query = new Dictionary<string, string?>
@@ -30,7 +23,8 @@ public sealed class EntraExternalIdService : IEntraExternalIdService
             ["redirect_uri"] = redirectUri,
             ["response_mode"] = "query",
             ["scope"] = _options.Scopes,
-            ["state"] = invitationId.ToString()
+            ["state"] = invitationId.ToString(),
+            ["login_hint"] = loginHint
         };
 
         var qs = string.Join("&", query
@@ -46,7 +40,7 @@ public sealed class EntraExternalIdService : IEntraExternalIdService
         CancellationToken cancellationToken = default)
     {
         var tokenEndpoint = string.IsNullOrWhiteSpace(_options.TokenEndpoint)
-            ? $"{_options.Authority.TrimEnd('/')}/{_options.TenantId}/oauth2/v2.0/token"
+            ? BuildOAuthEndpoint("token")
             : _options.TokenEndpoint;
 
         using var request = new HttpRequestMessage(HttpMethod.Post, tokenEndpoint);
@@ -60,7 +54,7 @@ public sealed class EntraExternalIdService : IEntraExternalIdService
             ["scope"] = _options.Scopes
         });
 
-        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        using var response = await httpClient.SendAsync(request, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
@@ -101,6 +95,20 @@ public sealed class EntraExternalIdService : IEntraExternalIdService
         }
 
         return new EntraTokenResult(oid, email, name);
+    }
+
+    private string BuildAuthorizeEndpoint()
+    {
+        var authority = _options.Authority.TrimEnd('/');
+        var tenant = _options.TenantId.Trim('/');
+        return $"{authority}/{tenant}/oauth2/v2.0/authorize";
+    }
+
+    private string BuildOAuthEndpoint(string action)
+    {
+        var authority = _options.Authority.TrimEnd('/');
+        var tenant = _options.TenantId.Trim('/');
+        return $"{authority}/{tenant}/oauth2/v2.0/{action}";
     }
 
     private static byte[] Base64UrlDecode(string input)

@@ -3,15 +3,20 @@ using Fgs.Platform.Application.IntegrationEvents;
 using Fgs.Platform.Application.Notifications.Channels.Models;
 using Fgs.Platform.Application.Notifications.Queues;
 using Fgs.Platform.Domain.Notifications;
+using Fgs.Platform.Infrastructure.Options;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.Platform.Infrastructure.Notifications.Queues;
 
-public sealed class IntegrationEventMapper : IIntegrationEventMapper
+public sealed class IntegrationEventMapper(IOptions<NotificationOptions> notificationOptions)
+    : IIntegrationEventMapper
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
+
+    private readonly NotificationOptions _notification = notificationOptions.Value;
 
     public bool CanMap(string routingKey) =>
         routingKey is IntegrationEventRoutingKeys.UserInvited
@@ -35,23 +40,23 @@ public sealed class IntegrationEventMapper : IIntegrationEventMapper
         };
     }
 
-    private static NotificationDispatchRequest MapCompanySignupInvite(
+    private NotificationDispatchRequest MapCompanySignupInvite(
         string payload,
         string? correlationId,
         string messageId)
     {
         var evt = JsonSerializer.Deserialize<CompanySignupInviteEmailEvent>(payload, JsonOptions)!;
+        var templateCode = string.IsNullOrWhiteSpace(evt.EmailTemplateCode)
+            ? CommunicationTemplateCodes.CompanyAdminInvitation
+            : evt.EmailTemplateCode;
+
         return new NotificationDispatchRequest(
             evt.TenantId,
+            evt.CompanyId,
             NotificationChannel.Email,
-            "CompanySignupInviteEmail",
+            templateCode,
             evt.Email,
-            new Dictionary<string, string>
-            {
-                ["DisplayName"] = evt.DisplayName,
-                ["InviteUrl"] = evt.InviteUrl,
-                ["Email"] = evt.Email
-            },
+            BuildCompanyAdminInvitationTokens(evt),
             correlationId,
             messageId);
     }
@@ -64,8 +69,9 @@ public sealed class IntegrationEventMapper : IIntegrationEventMapper
         var evt = JsonSerializer.Deserialize<UserInvitedEvent>(payload, JsonOptions)!;
         return new NotificationDispatchRequest(
             evt.TenantId,
+            CompanyId: null,
             NotificationChannel.Email,
-            "UserInvited",
+            "USER_INVITED",
             evt.Email,
             new Dictionary<string, string>
             {
@@ -85,8 +91,9 @@ public sealed class IntegrationEventMapper : IIntegrationEventMapper
         var evt = JsonSerializer.Deserialize<PasswordResetEvent>(payload, JsonOptions)!;
         return new NotificationDispatchRequest(
             evt.TenantId,
+            CompanyId: null,
             NotificationChannel.Email,
-            "PasswordReset",
+            "PASSWORD_RESET",
             evt.Email,
             new Dictionary<string, string>
             {
@@ -106,8 +113,9 @@ public sealed class IntegrationEventMapper : IIntegrationEventMapper
         var evt = JsonSerializer.Deserialize<CompanyCreatedEvent>(payload, JsonOptions)!;
         return new NotificationDispatchRequest(
             evt.TenantId,
+            CompanyId: null,
             NotificationChannel.Email,
-            "CompanyCreated",
+            "COMPANY_CREATED",
             evt.AdminEmail,
             new Dictionary<string, string>
             {
@@ -116,5 +124,31 @@ public sealed class IntegrationEventMapper : IIntegrationEventMapper
             },
             correlationId,
             messageId);
+    }
+
+    private Dictionary<string, string> BuildCompanyAdminInvitationTokens(CompanySignupInviteEmailEvent evt)
+    {
+        return new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["Name"] = FirstNonEmpty(evt.Name),
+            ["PlatformName"] = FirstNonEmpty(evt.PlatformName, _notification.PlatformName),
+            ["InviteLink"] = FirstNonEmpty(evt.InviteLink),
+            ["ExpirationHours"] = FirstNonEmpty(evt.ExpirationHours, _notification.InvitationExpirationHours.ToString()),
+            ["CompanyName"] = FirstNonEmpty(evt.CompanyName, _notification.CompanyName),
+            ["SupportEmail"] = FirstNonEmpty(evt.SupportEmail, _notification.SupportEmail)
+        };
+    }
+
+    private static string FirstNonEmpty(params string?[] values)
+    {
+        foreach (var value in values)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+        }
+
+        return string.Empty;
     }
 }

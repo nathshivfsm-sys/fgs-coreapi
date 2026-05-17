@@ -6,5 +6,10 @@ public sealed record CompanySignupInviteEmailEvent(
     Guid UserId,
     Guid InvitationId,
     string Email,
-    string DisplayName,
-    string InviteUrl);
+    string EmailTemplateCode,
+    string Name,
+    string PlatformName,
+    string InviteLink,
+    string ExpirationHours,
+    string CompanyName,
+    string SupportEmail);

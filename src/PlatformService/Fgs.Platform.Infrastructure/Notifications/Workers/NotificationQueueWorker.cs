@@ -104,7 +104,7 @@ public sealed class NotificationQueueWorker(
                     "Dispatching notification (TenantId={TenantId}, Channel={Channel}, Template={Template}, CorrelationId={CorrelationId}).",
                     request.TenantId,
                     request.Channel,
-                    request.TemplateName,
+                    request.TemplateCode,
                     request.CorrelationId);
 
                 var result = await dispatcher.DispatchAsync(request, stoppingToken);

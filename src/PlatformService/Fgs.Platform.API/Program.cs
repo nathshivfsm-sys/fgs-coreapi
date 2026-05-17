@@ -3,6 +3,7 @@ using Fgs.Platform.API.Swagger;
 using Fgs.Platform.Application;
 using Fgs.Platform.Infrastructure;
 using Fgs.Platform.Infrastructure.Database;
+using Fgs.Platform.Infrastructure.Database.Seed;
 using Fgs.Platform.Infrastructure.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -19,6 +20,7 @@ builder.Services.AddHealthChecks();
 var app = builder.Build();
 
 await ApplyMigrationsAsync(app);
+await SeedCommunicationTemplatesAsync(app);
 LogRabbitMqEffectiveConfig(app);
 ProbeLocalRabbitMqTcpIfDevelopment(app);
 
@@ -51,6 +53,18 @@ static async Task ApplyMigrationsAsync(WebApplication app)
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<FgsPlatformDbContext>();
     await db.Database.MigrateAsync();
+}
+
+static async Task SeedCommunicationTemplatesAsync(WebApplication app)
+{
+    if (!app.Configuration.GetValue("Database:SeedCommunicationTemplatesOnStartup", true))
+    {
+        return;
+    }
+
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider.GetRequiredService<CommunicationTemplateSeeder>();
+    await seeder.SeedAsync();
 }
 
 static void LogRabbitMqEffectiveConfig(WebApplication app)

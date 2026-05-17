@@ -9,11 +9,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Fgs.User.Infrastructure.Security;
 
-public sealed class JwtTokenService : IJwtTokenService
+public sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenService
 {
-    private readonly JwtOptions _options;
-
-    public JwtTokenService(IOptions<JwtOptions> options) => _options = options.Value;
+    private readonly JwtOptions _options = options.Value;
 
     public string CreateToken(FgsUser user)
     {

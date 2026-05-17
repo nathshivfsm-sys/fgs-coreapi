@@ -39,13 +39,14 @@ public sealed class StartInvitationQueryHandlerTests
 
         var entraMock = new Mock<IEntraExternalIdService>();
         entraMock
-            .Setup(s => s.BuildAuthorizationUrl(invitationId, It.IsAny<string>()))
+            .Setup(s => s.BuildAuthorizationUrl(invitationId, It.IsAny<string>(), "a@test.com"))
             .Returns("https://login.example/authorize");
 
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["EntraExternalId:RedirectUri"] = "https://localhost/callback"
+                ["EntraExternalId:RedirectUri"] = "https://localhost/callback",
+                ["EntraExternalId:UserFlow"] = "SignUpSignIn"
             })
             .Build();
 

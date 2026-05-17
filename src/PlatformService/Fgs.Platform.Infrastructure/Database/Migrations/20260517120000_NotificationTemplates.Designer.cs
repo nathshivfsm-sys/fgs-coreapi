@@ -1,6 +1,7 @@
 using Fgs.Platform.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -8,9 +9,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fgs.Platform.Infrastructure.Database.Migrations;
 
 [DbContext(typeof(FgsPlatformDbContext))]
-partial class FgsPlatformDbContextModelSnapshot : ModelSnapshot
+[Migration("20260517120000_NotificationTemplates")]
+partial class NotificationTemplates
 {
-    protected override void BuildModel(ModelBuilder modelBuilder)
+    protected override void BuildTargetModel(ModelBuilder modelBuilder)
     {
 #pragma warning disable 612, 618
         modelBuilder

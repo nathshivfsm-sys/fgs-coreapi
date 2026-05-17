@@ -2,7 +2,7 @@ namespace Fgs.User.Application.Abstractions.Identity;
 
 public interface IEntraExternalIdService
 {
-    string BuildAuthorizationUrl(Guid invitationId, string redirectUri);
+    string BuildAuthorizationUrl(Guid invitationId, string redirectUri, string? loginHint = null);
 
     Task<EntraTokenResult> ExchangeCodeAsync(string code, string redirectUri, CancellationToken cancellationToken = default);
 }
