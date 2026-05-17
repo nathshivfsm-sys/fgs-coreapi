@@ -1,3 +1,5 @@
+using System.Text.Json;
+using Fgs.User.API.Json;
 using Fgs.User.API.Middleware;
 using Fgs.User.API.Swagger;
 using Fgs.User.Application;
@@ -15,7 +17,10 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.ConfigureFgsApi());
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.ConfigureFgsApi());
 builder.Services.AddFgsUserSwagger();
 builder.Services.AddFgsUserApplication();
 builder.Services.AddFgsUserInfrastructure(builder.Configuration);

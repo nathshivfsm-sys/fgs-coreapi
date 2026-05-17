@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Fgs.User.Application.Abstractions.Geo;
 using Fgs.User.Application.Abstractions.Messaging;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Security;
@@ -7,37 +8,65 @@ using Fgs.User.Application.Common;
 using Fgs.User.Application.IntegrationEvents;
 using Fgs.User.Application.Signup;
 using Fgs.User.Domain.Entities;
+using Fgs.User.Domain.Enums;
 using Fgs.User.Infrastructure.Database;
+using Fgs.User.Infrastructure.Geo;
+using Fgs.User.Infrastructure.Options;
 using Fgs.User.Infrastructure.Messaging;
 using Fgs.User.Infrastructure.Persistence;
 using Fgs.User.Infrastructure.Security;
 using Fgs.User.Infrastructure.Time;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.User.Tests.Application;
 
 public sealed class CreateCompanySignupCommandHandlerTests
 {
     [Fact]
-    public async Task Handle_WithDuplicateTenantCode_ReturnsConflict()
+    public async Task Handle_WithDuplicateCompanyName_ReturnsConflict()
     {
         var (handler, _) = await CreateHandlerAsync();
-        var command = ValidCommand($"dup-{Guid.NewGuid():N}"[..10]);
+        var companyName = $"Dup Co {Guid.NewGuid():N}"[..20];
+        var command = ValidCommand(companyName: companyName);
 
-        await handler.Handle(command, CancellationToken.None);
+        (await handler.Handle(command, CancellationToken.None)).Success.Should().BeTrue();
+
         var second = await handler.Handle(command, CancellationToken.None);
 
         second.Success.Should().BeFalse();
         second.StatusCode.Should().Be(ApiStatusCodes.Conflict);
+        second.Errors.Should().Contain(e => e.Contains("company", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
-    public async Task Handle_WithValidRequest_CreatesTenantCompanyUserInvitationAndOutbox()
+    public async Task Handle_WithDuplicateEmail_ReturnsConflict()
+    {
+        var (handler, _) = await CreateHandlerAsync();
+        var email = $"dup-{Guid.NewGuid():N}@test.com";
+        var first = ValidCommand(companyName: $"First {Guid.NewGuid():N}"[..20]);
+        var second = ValidCommand(companyName: $"Second {Guid.NewGuid():N}"[..20]) with
+        {
+            Contact = first.Contact with { Email = email }
+        };
+        first = first with { Contact = first.Contact with { Email = email } };
+
+        (await handler.Handle(first, CancellationToken.None)).Success.Should().BeTrue();
+
+        var response = await handler.Handle(second, CancellationToken.None);
+
+        response.Success.Should().BeFalse();
+        response.StatusCode.Should().Be(ApiStatusCodes.Conflict);
+        response.Errors.Should().Contain(e => e.Contains("email", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task Handle_WithValidRequest_CreatesTenantCompanyUserInvitationLocationAndOutbox()
     {
         var (handler, context) = await CreateHandlerAsync();
-        var tc = $"tenant-{Guid.NewGuid():N}"[..12];
-        var command = ValidCommand(tc);
+        var companyName = $"Acme {Guid.NewGuid():N}"[..16];
+        var command = ValidCommand(companyName: companyName);
         var response = await handler.Handle(command, CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -48,40 +77,65 @@ public sealed class CreateCompanySignupCommandHandlerTests
         (await context.FgsTenantCompanies.CountAsync()).Should().Be(1);
         (await context.FgsUsers.CountAsync()).Should().Be(1);
         (await context.FgsInvitations.CountAsync()).Should().Be(1);
+        (await context.FgsLocations.CountAsync()).Should().Be(1);
         (await context.FgsOutboxMessages.CountAsync()).Should().Be(1);
 
         var tenant = await context.FgsTenants.SingleAsync();
-        tenant.TenantCode.Should().Be(tc);
+        tenant.Name.Should().Be(companyName);
+        tenant.PhoneNumber.Should().Be(command.Contact.PhoneNumber);
         tenant.Website.Should().Be("https://example.com");
+        tenant.TimeZone.Should().Be("America/Chicago");
+        tenant.DefaultCurrency.Should().Be("USD");
+        tenant.PhysicalLocationId.Should().NotBeNull();
 
         var company = await context.FgsTenantCompanies.SingleAsync();
-        company.Code.Should().Be(tc);
-        company.Name.Should().Be(command.TenantName);
+        company.Name.Should().Be(companyName);
+        company.PhoneNumber.Should().Be(command.Contact.PhoneNumber);
+        company.CompanySize.Should().Be(CompanySize.SingleOwner);
+        company.BusinessTypeId.Should().Be(1);
         company.Website.Should().Be("https://example.com");
+        company.PhysicalLocationId.Should().Be(tenant.PhysicalLocationId);
+
+        var location = await context.FgsLocations.SingleAsync();
+        location.AddressLine1.Should().Be(command.Company.Address.AddressLine1);
+        location.City.Should().Be(command.Company.Address.City);
+        location.State.Should().Be(command.Company.Address.State);
+        location.PostalCode.Should().Be(command.Company.Address.PostalCode);
+        location.FormattedAddress.Should().Be("100 Test Ave, Austin, TX 78701, US");
+        location.MasterEntityTypeId.Should().Be(2);
 
         var user = await context.FgsUsers.SingleAsync();
         user.PasswordHash.Should().NotBeNullOrEmpty();
+        user.DisplayName.Should().Be(command.Contact.Name);
         user.Role.ToString().Should().Be("Admin");
 
         var outbox = await context.FgsOutboxMessages.SingleAsync();
         var evt = JsonSerializer.Deserialize<CompanySignupInviteEmailEvent>(outbox.Payload);
         evt.Should().NotBeNull();
-        evt!.Email.Should().Be(command.Email);
+        evt!.Email.Should().Be(command.Contact.Email);
         evt.EmailTemplateCode.Should().Be(CommunicationTemplateCodes.CompanyAdminInvitation);
-        evt.Name.Should().Be(command.DisplayName);
-        evt.PlatformName.Should().BeEmpty();
-        evt.CompanyName.Should().Be(command.TenantName);
-        evt.SupportEmail.Should().BeEmpty();
+        evt.Name.Should().Be(command.Contact.Name);
         evt.InviteLink.Should().Contain("token=");
         evt.ExpirationHours.Should().Be("168");
+    }
+
+    [Fact]
+    public async Task Handle_WithInvalidBusinessType_ReturnsBadRequest()
+    {
+        var (handler, _) = await CreateHandlerAsync();
+        var command = ValidCommand() with { BusinessTypeId = 9999 };
+
+        var response = await handler.Handle(command, CancellationToken.None);
+
+        response.Success.Should().BeFalse();
+        response.StatusCode.Should().Be(ApiStatusCodes.BadRequest);
     }
 
     [Fact]
     public async Task Handle_WithNoPassword_LeavesPasswordHashNull()
     {
         var (handler, context) = await CreateHandlerAsync();
-        var tc = $"tenant-{Guid.NewGuid():N}"[..12];
-        var command = ValidCommand(tc) with { Password = null };
+        var command = ValidCommand() with { Password = null };
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -90,20 +144,45 @@ public sealed class CreateCompanySignupCommandHandlerTests
         user.PasswordHash.Should().BeNull();
     }
 
-    private static CreateCompanySignupCommand ValidCommand(string? tenantCode = null) =>
+    private static CreateCompanySignupCommand ValidCommand(string? companyName = null) =>
         new(
-            TenantCode: tenantCode ?? $"tenant-{Guid.NewGuid():N}"[..12],
-            TenantName: "Test Tenant",
-            Email: $"admin-{Guid.NewGuid():N}@test.com",
-            DisplayName: "Admin User",
-            Website: "https://example.com",
-            Password: "Str0ng!Passw0rd",
-            TimeZone: "UTC",
-            DefaultCurrency: "USD");
+            Contact: new SignupContactDto(
+                Name: "Admin User",
+                PhoneNumber: "+1 555-0199",
+                Email: $"admin-{Guid.NewGuid():N}@test.com"),
+            Company: new SignupCompanyDto(
+                Name: companyName ?? $"Test Tenant {Guid.NewGuid():N}"[..24],
+                Website: "https://example.com",
+                Address: new SignupAddressDto(
+                    AddressLine1: "100 Test Ave",
+                    AddressLine2: null,
+                    City: "Austin",
+                    State: "TX",
+                    PostalCode: "78701",
+                    Country: "US"),
+                CompanySize: CompanySize.SingleOwner),
+            BusinessTypeId: 1,
+            Password: "Str0ng!Passw0rd");
 
     private static async Task<(CreateCompanySignupCommandHandler Handler, FgsUserDbContext Context)> CreateHandlerAsync()
     {
         var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        context.GloBusinessTypes.Add(new GloBusinessType
+        {
+            Id = 1,
+            Code = "HVAC",
+            Name = "HVAC",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        context.GloCountries.Add(new GloCountry
+        {
+            CountryCode = "US",
+            CountryName = "United States",
+            CurrencyCode = "USD",
+            IsActive = true
+        });
+        await context.SaveChangesAsync();
 
         IUnitOfWork unitOfWork = new UnitOfWork(context);
         IDateTimeProvider dateTime = new DateTimeProvider();
@@ -117,6 +196,19 @@ public sealed class CreateCompanySignupCommandHandlerTests
             })
             .Build();
 
+        IAddressLocaleResolver localeResolver = new AddressLocaleResolver(
+            unitOfWork.Repository<GloCountry>(),
+            Options.Create(new SignupLocaleOptions
+            {
+                DefaultTimeZone = "UTC",
+                DefaultCurrency = "USD"
+            }));
+
+        var signupUniquenessValidator = new SignupUniquenessValidator(
+            unitOfWork,
+            new EmailNormalizer(),
+            dateTime);
+
         var handler = new CreateCompanySignupCommandHandler(
             unitOfWork,
             new PasswordHasherService(),
@@ -124,7 +216,9 @@ public sealed class CreateCompanySignupCommandHandlerTests
             new InvitationTokenService(),
             outboxWriter,
             dateTime,
-            configuration);
+            configuration,
+            localeResolver,
+            signupUniquenessValidator);
 
         return (handler, context);
     }

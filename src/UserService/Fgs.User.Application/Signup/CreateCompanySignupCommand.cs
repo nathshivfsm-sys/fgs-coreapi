@@ -3,12 +3,13 @@ using MediatR;
 
 namespace Fgs.User.Application.Signup;
 
+/// <summary>
+/// Company self-serve signup aligned to the onboarding questionnaire (contact, company, industry).
+/// </summary>
 public sealed record CreateCompanySignupCommand(
-    string TenantCode,
-    string TenantName,
-    string Email,
-    string DisplayName,
-    string? Website,
-    string? Password,
-    string? TimeZone,
-    string? DefaultCurrency) : IRequest<ApiResponse<CompanySignupResultDto>>;
+    SignupContactDto Contact,
+    SignupCompanyDto Company,
+    int BusinessTypeId,
+    string? Password = null,
+    string? TimeZone = null,
+    string? DefaultCurrency = null) : IRequest<ApiResponse<CompanySignupResultDto>>;

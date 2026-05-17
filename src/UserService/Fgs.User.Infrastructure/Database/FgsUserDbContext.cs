@@ -305,6 +305,7 @@ public class FgsUserDbContext : DbContext
             entity.HasKey(e => e.LanguageCode);
             entity.Property(e => e.LanguageCode).HasMaxLength(5);
             entity.Property(e => e.LanguageName).HasMaxLength(100);
+            entity.Property(e => e.CultureCode).HasMaxLength(10);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
     }
@@ -485,6 +486,7 @@ public class FgsUserDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(300);
             entity.Property(e => e.PhoneNumber).HasMaxLength(50);
             entity.Property(e => e.Website).HasMaxLength(500);
+            entity.Property(e => e.CompanySize).HasConversion<int>();
             entity.Property(e => e.TaxId).HasMaxLength(100);
             entity.Property(e => e.FullLogoUrl).HasMaxLength(1000);
             entity.Property(e => e.CompactLogoUrl).HasMaxLength(1000);

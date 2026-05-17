@@ -2,7 +2,8 @@ namespace Fgs.User.Application.Signup;
 
 public sealed record CompanySignupResultDto(
     Guid TenantId,
-    Guid CompanyId,
+    long CompanyId,
+    Guid CompanyUid,
     Guid UserId,
     Guid InvitationId,
     string InviteUrl);

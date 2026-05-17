@@ -134,7 +134,7 @@ public sealed class IntegrationEventMapper(IOptions<NotificationOptions> notific
             ["PlatformName"] = FirstNonEmpty(evt.PlatformName, _notification.PlatformName),
             ["InviteLink"] = FirstNonEmpty(evt.InviteLink),
             ["ExpirationHours"] = FirstNonEmpty(evt.ExpirationHours, _notification.InvitationExpirationHours.ToString()),
-            ["CompanyName"] = FirstNonEmpty(evt.CompanyName, _notification.CompanyName),
+            ["CompanyName"] = _notification.CompanyName,
             ["SupportEmail"] = FirstNonEmpty(evt.SupportEmail, _notification.SupportEmail)
         };
     }

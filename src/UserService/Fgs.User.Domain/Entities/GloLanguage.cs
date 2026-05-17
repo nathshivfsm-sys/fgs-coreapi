@@ -8,4 +8,6 @@ public class GloLanguage : GloActiveOnlyEntityBase
     public string LanguageCode { get; set; } = null!;
 
     public string LanguageName { get; set; } = null!;
+
+    public string CultureCode { get; set; } = null!;
 }

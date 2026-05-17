@@ -43,7 +43,6 @@ public sealed class IntegrationEventMapperTests
             "Acme Platform",
             "https://example.com/invite",
             "48",
-            "Acme Corp",
             "help@acme.example"));
 
         var request = _mapper.Map(
@@ -62,7 +61,7 @@ public sealed class IntegrationEventMapperTests
         request.TemplateData["InviteLink"].Should().Be("https://example.com/invite");
         request.TemplateData["PlatformName"].Should().Be("Acme Platform");
         request.TemplateData["ExpirationHours"].Should().Be("48");
-        request.TemplateData["CompanyName"].Should().Be("Acme Corp");
+        request.TemplateData["CompanyName"].Should().Be("FGS");
         request.TemplateData["SupportEmail"].Should().Be("help@acme.example");
     }
 
@@ -79,7 +78,6 @@ public sealed class IntegrationEventMapperTests
             "Alex",
             string.Empty,
             "https://example.com/invite",
-            string.Empty,
             string.Empty,
             string.Empty));
 

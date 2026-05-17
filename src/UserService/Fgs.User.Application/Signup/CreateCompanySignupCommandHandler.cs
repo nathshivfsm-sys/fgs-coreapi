@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Fgs.User.Application.Abstractions.Geo;
 using Fgs.User.Application.Abstractions.Messaging;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Security;
@@ -16,6 +17,8 @@ namespace Fgs.User.Application.Signup;
 public sealed class CreateCompanySignupCommandHandler
     : IRequestHandler<CreateCompanySignupCommand, ApiResponse<CompanySignupResultDto>>
 {
+    private const int TenantCompanyMasterEntityTypeId = 2;
+
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IEmailNormalizer _emailNormalizer;
@@ -23,6 +26,8 @@ public sealed class CreateCompanySignupCommandHandler
     private readonly IOutboxWriter _outboxWriter;
     private readonly IDateTimeProvider _dateTime;
     private readonly IConfiguration _configuration;
+    private readonly IAddressLocaleResolver _addressLocaleResolver;
+    private readonly ISignupUniquenessValidator _signupUniquenessValidator;
 
     public CreateCompanySignupCommandHandler(
         IUnitOfWork unitOfWork,
@@ -31,7 +36,9 @@ public sealed class CreateCompanySignupCommandHandler
         IInvitationTokenService tokenService,
         IOutboxWriter outboxWriter,
         IDateTimeProvider dateTime,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IAddressLocaleResolver addressLocaleResolver,
+        ISignupUniquenessValidator signupUniquenessValidator)
     {
         _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
@@ -40,22 +47,51 @@ public sealed class CreateCompanySignupCommandHandler
         _outboxWriter = outboxWriter;
         _dateTime = dateTime;
         _configuration = configuration;
+        _addressLocaleResolver = addressLocaleResolver;
+        _signupUniquenessValidator = signupUniquenessValidator;
     }
 
     public async Task<ApiResponse<CompanySignupResultDto>> Handle(
         CreateCompanySignupCommand request,
         CancellationToken cancellationToken)
     {
-        var normalizedEmail = _emailNormalizer.Normalize(request.Email);
+        var contact = request.Contact;
+        var company = request.Company;
+        var normalizedEmail = _emailNormalizer.Normalize(contact.Email);
         var tenantRepo = _unitOfWork.Repository<FgsTenant>();
         var userRepo = _unitOfWork.Repository<FgsUser>();
+        var businessTypeRepo = _unitOfWork.Repository<GloBusinessType>();
 
-        if (await tenantRepo.AnyAsync(t => t.TenantCode == request.TenantCode, cancellationToken))
+        if (!await businessTypeRepo.AnyAsync(b => b.Id == request.BusinessTypeId && b.IsActive, cancellationToken))
         {
             return ApiResponse<CompanySignupResultDto>.Fail(
-                ["Tenant code is already in use."],
+                ["The selected industry is not valid."],
+                ApiStatusCodes.BadRequest);
+        }
+
+        var uniquenessErrors = await _signupUniquenessValidator.ValidateAsync(request, cancellationToken);
+        if (uniquenessErrors.Count > 0)
+        {
+            return ApiResponse<CompanySignupResultDto>.Fail(
+                uniquenessErrors,
                 ApiStatusCodes.Conflict);
         }
+
+        var tenantCode = await ResolveUniqueTenantCodeAsync(company.Name, tenantRepo, cancellationToken);
+        if (tenantCode is null)
+        {
+            return ApiResponse<CompanySignupResultDto>.Fail(
+                ["Unable to generate a unique tenant code. Please try a different company name."],
+                ApiStatusCodes.Conflict);
+        }
+
+        var locale = await _addressLocaleResolver.ResolveAsync(company.Address, cancellationToken);
+        var timeZone = string.IsNullOrWhiteSpace(request.TimeZone)
+            ? locale.TimeZoneId
+            : request.TimeZone.Trim();
+        var defaultCurrency = string.IsNullOrWhiteSpace(request.DefaultCurrency)
+            ? locale.CurrencyCode
+            : request.DefaultCurrency.Trim();
 
         try
         {
@@ -64,41 +100,52 @@ public sealed class CreateCompanySignupCommandHandler
                 {
                     var now = _dateTime.UtcNow;
                     var tenantId = Guid.NewGuid();
-                    var companyId = Guid.NewGuid();
+                    var companyUid = Guid.NewGuid();
                     var userId = Guid.NewGuid();
                     var invitationId = Guid.NewGuid();
+                    var locationId = Guid.NewGuid();
 
-                    var tenantCodeTrimmed = request.TenantCode.Trim();
-                    var tenantNameTrimmed = request.TenantName.Trim();
-                    var emailTrimmed = request.Email.Trim();
+                    var companyNameTrimmed = company.Name.Trim();
+                    var emailTrimmed = contact.Email.Trim();
+                    var phoneTrimmed = contact.PhoneNumber.Trim();
+                    var companyWebsite = string.IsNullOrWhiteSpace(company.Website) ? null : company.Website.Trim();
+
+                    var location = SignupLocationFactory.CreateCompanyLocation(
+                        locationId,
+                        tenantId,
+                        companyUid,
+                        TenantCompanyMasterEntityTypeId,
+                        company.Address,
+                        now);
 
                     var tenant = new FgsTenant
                     {
                         Id = tenantId,
-                        TenantCode = tenantCodeTrimmed,
-                        Name = tenantNameTrimmed,
+                        TenantCode = tenantCode,
+                        Name = companyNameTrimmed,
                         Email = emailTrimmed,
-                        Website = string.IsNullOrWhiteSpace(request.Website) ? null : request.Website.Trim(),
-                        TimeZone = string.IsNullOrWhiteSpace(request.TimeZone) ? null : request.TimeZone.Trim(),
-                        DefaultCurrency = string.IsNullOrWhiteSpace(request.DefaultCurrency)
-                            ? null
-                            : request.DefaultCurrency.Trim(),
+                        PhoneNumber = phoneTrimmed,
+                        Website = companyWebsite,
+                        PhysicalLocationId = locationId,
+                        TimeZone = timeZone,
+                        DefaultCurrency = defaultCurrency,
                         IsActive = true,
                         CreatedOn = now
                     };
 
-                    var companyWebsite = string.IsNullOrWhiteSpace(request.Website) ? null : request.Website.Trim();
-
-                    var company = new FgsTenantCompany
+                    var tenantCompany = new FgsTenantCompany
                     {
-                        CompanyGuid = companyId,
+                        CompanyGuid = companyUid,
                         TenantId = tenantId,
                         CompanyNumber = 1,
-                        BusinessTypeId = 1,
-                        Code = tenantCodeTrimmed,
-                        Name = tenantNameTrimmed,
+                        BusinessTypeId = request.BusinessTypeId,
+                        CompanySize = company.CompanySize,
+                        Code = tenantCode,
+                        Name = companyNameTrimmed,
                         Email = emailTrimmed,
+                        PhoneNumber = phoneTrimmed,
                         Website = companyWebsite,
+                        PhysicalLocationId = locationId,
                         IsActive = true,
                         CreatedOn = now
                     };
@@ -111,10 +158,10 @@ public sealed class CreateCompanySignupCommandHandler
                     {
                         Id = userId,
                         TenantId = tenantId,
-                        CompanyId = companyId,
+                        CompanyId = companyUid,
                         Email = emailTrimmed,
                         NormalizedEmail = normalizedEmail,
-                        DisplayName = request.DisplayName.Trim(),
+                        DisplayName = contact.Name.Trim(),
                         PasswordHash = passwordHash,
                         Role = UserRoleType.Admin,
                         IsActive = true,
@@ -138,7 +185,8 @@ public sealed class CreateCompanySignupCommandHandler
                     };
 
                     await tenantRepo.AddAsync(tenant, ct);
-                    await _unitOfWork.Repository<FgsTenantCompany>().AddAsync(company, ct);
+                    await _unitOfWork.Repository<FgsLocation>().AddAsync(location, ct);
+                    await _unitOfWork.Repository<FgsTenantCompany>().AddAsync(tenantCompany, ct);
                     await userRepo.AddAsync(user, ct);
                     await _unitOfWork.Repository<FgsInvitation>().AddAsync(invitation, ct);
 
@@ -150,9 +198,11 @@ public sealed class CreateCompanySignupCommandHandler
                         1,
                         (int)Math.Ceiling((invitation.ExpiresAtUtc - now).TotalHours));
 
+                    await _unitOfWork.SaveChangesAsync(ct);
+
                     var outboxPayload = JsonSerializer.Serialize(new CompanySignupInviteEmailEvent(
                         tenantId,
-                        companyId,
+                        companyUid,
                         userId,
                         invitationId,
                         user.Email,
@@ -161,7 +211,6 @@ public sealed class CreateCompanySignupCommandHandler
                         PlatformName: string.Empty,
                         inviteUrl,
                         expirationHours.ToString(),
-                        tenantNameTrimmed,
                         SupportEmail: string.Empty));
 
                     await _outboxWriter.EnqueueAsync(
@@ -173,7 +222,8 @@ public sealed class CreateCompanySignupCommandHandler
 
                     return new CompanySignupResultDto(
                         tenantId,
-                        companyId,
+                        tenantCompany.Id,
+                        companyUid,
                         userId,
                         invitationId,
                         inviteUrl);
@@ -186,5 +236,28 @@ public sealed class CreateCompanySignupCommandHandler
         {
             return ApiResponse<CompanySignupResultDto>.Fail([ex.Message], ApiStatusCodes.BadRequest);
         }
+    }
+
+    private static async Task<string?> ResolveUniqueTenantCodeAsync(
+        string companyName,
+        IRepository<FgsTenant> tenantRepo,
+        CancellationToken cancellationToken)
+    {
+        var baseCode = TenantCodeGenerator.FromCompanyName(companyName);
+        if (!await tenantRepo.AnyAsync(t => t.TenantCode == baseCode, cancellationToken))
+        {
+            return baseCode;
+        }
+
+        for (var attempt = 0; attempt < 5; attempt++)
+        {
+            var candidate = TenantCodeGenerator.WithSuffix(baseCode, Guid.NewGuid().ToString("N")[..6]);
+            if (!await tenantRepo.AnyAsync(t => t.TenantCode == candidate, cancellationToken))
+            {
+                return candidate;
+            }
+        }
+
+        return null;
     }
 }

@@ -11,5 +11,4 @@ public sealed record CompanySignupInviteEmailEvent(
     string PlatformName,
     string InviteLink,
     string ExpirationHours,
-    string CompanyName,
     string SupportEmail);

@@ -1,3 +1,4 @@
+using Fgs.User.Application.Abstractions.Geo;
 using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Abstractions.Messaging;
 using Fgs.User.Application.Abstractions.Persistence;
@@ -5,6 +6,7 @@ using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Infrastructure.Background;
 using Fgs.User.Infrastructure.Database;
+using Fgs.User.Infrastructure.Geo;
 using Fgs.User.Infrastructure.Identity;
 using Fgs.User.Infrastructure.Messaging;
 using Fgs.User.Infrastructure.Options;
@@ -25,6 +27,7 @@ public static class DependencyInjection
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
         services.Configure<EntraExternalIdOptions>(configuration.GetSection(EntraExternalIdOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
+        services.Configure<SignupLocaleOptions>(configuration.GetSection(SignupLocaleOptions.SectionName));
 
         var connectionString = FgsUserConnectionString.ResolveRequired(configuration);
 
@@ -43,6 +46,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IOutboxWriter, OutboxWriter>();
+        services.AddScoped<IAddressLocaleResolver, AddressLocaleResolver>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IPasswordHasher, PasswordHasherService>();
         services.AddSingleton<IEmailNormalizer, EmailNormalizer>();

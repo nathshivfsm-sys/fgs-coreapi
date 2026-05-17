@@ -1,3 +1,5 @@
+using Fgs.User.Domain.Enums;
+
 namespace Fgs.User.Domain.Entities;
 
 /// <summary>
@@ -15,6 +17,8 @@ public class FgsTenantCompany : FgsEntityBase
     public long CompanyNumber { get; set; }
 
     public int BusinessTypeId { get; set; }
+
+    public CompanySize? CompanySize { get; set; }
 
     public string Code { get; set; } = null!;
 
