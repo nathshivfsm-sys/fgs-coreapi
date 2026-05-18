@@ -67,12 +67,15 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasIndex("CredentialSecretId");
 
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsCredentialAudit_Tenant_Company");
 
-                    b.HasIndex("TenantId", "CompanyId", "CredentialSecretId");
+                    b.HasIndex("TenantId", "CompanyId", "CredentialSecretId")
+                        .HasDatabaseName("IX_FgsCredentialAudit_Tenant_Company_Cred");
 
                     b.HasIndex("TenantId", "CompanyId", "CredentialSecretId", "ActionType", "NewVersionNo")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("UQ_FgsCredentialAudit");
 
                     b.ToTable("FgsCredentialAudit", "dbo");
                 });
@@ -190,13 +193,15 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasIndex("CredentialProviderId");
 
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsCredProvCfg_Tenant_Company");
 
-                    b.HasIndex("TenantId", "CompanyId", "CredentialProviderId");
+                    b.HasIndex("TenantId", "CompanyId", "CredentialProviderId")
+                        .HasDatabaseName("IX_FgsCredProvCfg_Tenant_Company_Prov");
 
                     b.HasIndex("TenantId", "CompanyId", "CredentialProviderId", "ConfigurationKey", "Environment")
                         .IsUnique()
-                        .HasDatabaseName("IX_FgsCredentialProviderConfiguration_TenantId_CompanyId_Cred~1");
+                        .HasDatabaseName("UQ_FgsCredentialProviderConfiguration");
 
                     b.ToTable("FgsCredentialProviderConfiguration", "dbo");
                 });
@@ -270,14 +275,18 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasIndex("CredentialProviderId");
 
-                    b.HasIndex("IsActive");
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_FgsCredentialSecret_IsActive");
 
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsCredentialSecret_Tenant_Company");
 
-                    b.HasIndex("TenantId", "CompanyId", "CredentialProviderId");
+                    b.HasIndex("TenantId", "CompanyId", "CredentialProviderId")
+                        .HasDatabaseName("IX_FgsCredentialSecret_Tenant_Company_Prov");
 
                     b.HasIndex("TenantId", "CompanyId", "CredentialProviderId", "SecretName", "VersionNo")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("UQ_FgsCredentialSecret");
 
                     b.ToTable("FgsCredentialSecret", "dbo");
                 });
@@ -437,7 +446,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasIndex("MasterEntityTypeId");
 
-                    b.HasIndex("TenantId", "CompanyId", "MasterEntityTypeId", "EntityNumber");
+                    b.HasIndex("TenantId", "CompanyId", "MasterEntityTypeId", "EntityNumber")
+                        .HasDatabaseName("IX_FgsLocation_Tenant_Company_Entity");
 
                     b.ToTable("FgsLocation", "dbo");
                 });
@@ -495,6 +505,72 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasIndex("Status", "CreatedOn");
 
                     b.ToTable("FgsOutboxMessage", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsResolutionCode", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<int>("GloResolutionTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsMobileVisible")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ResolutionCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ResolutionName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "ResolutionCode")
+                        .HasName("UQ_FgsResolutionCode_Code");
+
+                    b.HasIndex("GloResolutionTypeId");
+
+                    b.HasIndex("TenantId", "CompanyId", "GloResolutionTypeId")
+                        .HasDatabaseName("IX_FgsResolutionCode_GloResType");
+
+                    b.ToTable("FgsResolutionCode", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsResolutionCode_Code_Upper", "\"ResolutionCode\" = UPPER(\"ResolutionCode\")");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRole", b =>
@@ -616,10 +692,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasAlternateKey("TenantId", "CompanyId", "TemplateType", "Code")
+                        .HasName("UQ_FgsSetupCommunicationTemplate");
 
-                    b.HasIndex("TenantId", "CompanyId", "TemplateType", "Code")
-                        .IsUnique();
+                    b.HasIndex("TenantId", "CompanyId");
 
                     b.ToTable("FgsSetupCommunicationTemplate", "dbo");
                 });
@@ -678,9 +754,13 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FgsSetupTechTradeId")
+                        .HasDatabaseName("IX_FgsSetupDescription_TechTrade");
+
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.HasIndex("TenantId", "CompanyId", "DescriptionTypeCode");
+                    b.HasIndex("TenantId", "CompanyId", "DescriptionTypeCode")
+                        .HasDatabaseName("IX_FgsSetupDescription_Tenant_Company_Type");
 
                     b.ToTable("FgsSetupDescription", "dbo");
                 });
@@ -738,10 +818,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasAlternateKey("TenantId", "CompanyId", "Code")
+                        .HasName("UQ_FgsSetupGLBreak");
 
-                    b.HasIndex("TenantId", "CompanyId", "Code")
-                        .IsUnique();
+                    b.HasIndex("TenantId", "CompanyId");
 
                     b.ToTable("FgsSetupGLBreak", "dbo");
                 });
@@ -847,12 +927,12 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("TenantId", "CompanyId", "GloPaymentMethodTypeId")
+                        .HasName("UQ_FgsSetupPaymentMethod");
+
                     b.HasIndex("GloPaymentMethodTypeId");
 
                     b.HasIndex("TenantId", "CompanyId");
-
-                    b.HasIndex("TenantId", "CompanyId", "GloPaymentMethodTypeId")
-                        .IsUnique();
 
                     b.ToTable("FgsSetupPaymentMethod", "dbo");
                 });
@@ -913,10 +993,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasAlternateKey("TenantId", "CompanyId", "Name")
+                        .HasName("UQ_FgsSetupPaymentTerm");
 
-                    b.HasIndex("TenantId", "CompanyId", "Name")
-                        .IsUnique();
+                    b.HasIndex("TenantId", "CompanyId");
 
                     b.ToTable("FgsSetupPaymentTerm", "dbo");
                 });
@@ -967,9 +1047,16 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasAlternateKey("TenantId", "CompanyId", "PostalCode")
+                        .HasName("UQ_FgsSetupPostalCode");
 
-                    b.HasIndex("TenantId", "CompanyId", "PostalCode");
+                    b.HasIndex("FgsSetupTaxId")
+                        .HasDatabaseName("IX_FgsSetupPostalCode_TaxId");
+
+                    b.HasIndex("FgsSetupZoneId")
+                        .HasDatabaseName("IX_FgsSetupPostalCode_ZoneId");
+
+                    b.HasIndex("TenantId", "CompanyId");
 
                     b.ToTable("FgsSetupPostalCode", "dbo");
                 });
@@ -1033,9 +1120,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasAlternateKey("TenantId", "CompanyId", "Code")
+                        .HasName("UQ_FgsSetupPricingMatrix");
 
-                    b.HasIndex("TenantId", "CompanyId", "Code");
+                    b.HasIndex("TenantId", "CompanyId");
 
                     b.ToTable("FgsSetupPriceSheet", "dbo");
                 });
@@ -1216,8 +1304,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.HasIndex("TenantId", "CompanyId", "Code");
-
                     b.ToTable("FgsSetupPriceSheetMaterial", "dbo");
                 });
 
@@ -1274,11 +1360,17 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("TenantId", "CompanyId", "FgsSetupPriceSheetId", "CategoryCode")
+                        .HasName("UQ_FgsSetupPricingMatrixOther");
+
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.HasIndex("TenantId", "CompanyId", "CategoryCode");
+                    b.ToTable("FgsSetupPriceSheetOther", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixOther_DiscountPercent", "\"DiscountPercent\" IS NULL OR (\"DiscountPercent\" >= 0 AND \"DiscountPercent\" <= 100)");
 
-                    b.ToTable("FgsSetupPriceSheetOther", "dbo");
+                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixOther_MarkupPercent", "\"MarkupPercent\" IS NULL OR (\"MarkupPercent\" >= 0 AND \"MarkupPercent\" <= 100)");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupServiceAssetManufacturer", b =>
@@ -1328,11 +1420,99 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("TenantId", "CompanyId", "Code")
+                        .HasName("UQ_FgsSetupServiceAssetManufacturer");
+
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.HasIndex("TenantId", "CompanyId", "Code");
+                    b.ToTable("FgsSetupServiceAssetManufacturer", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupServiceAssetManufacturer_Code_Upper", "\"Code\" = UPPER(\"Code\")");
+                        });
+                });
 
-                    b.ToTable("FgsSetupServiceAssetManufacturer", "dbo");
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupServiceAssetModelReference", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<long>("FgsSetupServiceAssetManufacturerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("FgsSetupServiceAssetTypeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ModelDescription")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModelNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SerialNumberPattern")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<string>("UrlsJson")
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FgsSetupServiceAssetManufacturerId")
+                        .HasDatabaseName("IX_FgsSvcAssetModelRef_MfrId");
+
+                    b.HasIndex("FgsSetupServiceAssetTypeId")
+                        .HasDatabaseName("IX_FgsSvcAssetModelRef_TypeId");
+
+                    b.HasIndex("UrlsJson")
+                        .HasDatabaseName("IX_ServiceAsset_UrlsJson");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("UrlsJson"), "gin");
+
+                    b.HasIndex("TenantId", "CompanyId", "FgsSetupServiceAssetManufacturerId")
+                        .HasDatabaseName("IX_FgsSvcAssetModelRef_Mfr");
+
+                    b.HasIndex("TenantId", "CompanyId", "FgsSetupServiceAssetTypeId")
+                        .HasDatabaseName("IX_FgsSvcAssetModelRef_Type");
+
+                    b.HasIndex("TenantId", "CompanyId", "FgsSetupServiceAssetTypeId", "FgsSetupServiceAssetManufacturerId")
+                        .HasDatabaseName("IX_FgsSvcAssetModelRef_TypeMfr");
+
+                    b.ToTable("FgsSetupServiceAssetModelReference", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSvcAssetModelRef_UrlsJson", "\"UrlsJson\" IS NULL OR jsonb_typeof(\"UrlsJson\") = 'array'");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupServiceAssetType", b =>
@@ -1382,11 +1562,15 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("TenantId", "CompanyId", "Code")
+                        .HasName("UQ_FgsSetupServiceAssetType");
+
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.HasIndex("TenantId", "CompanyId", "Code");
-
-                    b.ToTable("FgsSetupServiceAssetType", "dbo");
+                    b.ToTable("FgsSetupServiceAssetType", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupServiceAssetType_Code_Upper", "\"Code\" = UPPER(\"Code\")");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTax", b =>
@@ -1439,11 +1623,15 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("TenantId", "CompanyId", "TaxCode")
+                        .HasName("UQ_FgsSetupTax");
+
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.HasIndex("TenantId", "CompanyId", "TaxCode");
-
-                    b.ToTable("FgsSetupTax", "dbo");
+                    b.ToTable("FgsSetupTax", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupTax_TaxCode_Upper", "\"TaxCode\" = UPPER(\"TaxCode\")");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTaxAuthority", b =>
@@ -1499,11 +1687,20 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("TenantId", "CompanyId", "Code")
+                        .HasName("UQ_FgsSetupTaxAuthority");
+
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.HasIndex("TenantId", "CompanyId", "Code");
+                    b.HasIndex("TenantId", "CompanyId", "RegionCode")
+                        .HasDatabaseName("IX_FgsSetupTaxAuthority_RegionCode");
 
-                    b.ToTable("FgsSetupTaxAuthority", "dbo");
+                    b.ToTable("FgsSetupTaxAuthority", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupTaxAuthority_Code_Upper", "\"Code\" = UPPER(\"Code\")");
+
+                            t.HasCheckConstraint("CK_FgsSetupTaxAuthority_RegionCode_Upper", "\"RegionCode\" IS NULL OR \"RegionCode\" = UPPER(\"RegionCode\")");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTaxDetail", b =>
@@ -1560,9 +1757,29 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FgsSetupTaxAuthorityId")
+                        .HasDatabaseName("IX_FgsSetupTaxDetail_TaxAuthId");
+
+                    b.HasIndex("FgsSetupTaxId")
+                        .HasDatabaseName("IX_FgsSetupTaxDetail_TaxId");
+
+                    b.HasIndex("EffectiveFromDate", "EffectiveToDate")
+                        .HasDatabaseName("IX_FgsSetupTaxDetail_EffectiveDates");
+
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.ToTable("FgsSetupTaxDetail", "dbo");
+                    b.HasIndex("TenantId", "CompanyId", "FgsSetupTaxAuthorityId")
+                        .HasDatabaseName("IX_FgsSetupTaxDetail_TaxAuth");
+
+                    b.HasIndex("TenantId", "CompanyId", "FgsSetupTaxId", "EffectiveFromDate", "EffectiveToDate")
+                        .HasDatabaseName("IX_FgsSetupTaxDetail_Tax");
+
+                    b.ToTable("FgsSetupTaxDetail", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupTaxDetail_EffectiveDates", "\"EffectiveToDate\" IS NULL OR \"EffectiveToDate\" >= \"EffectiveFromDate\"");
+
+                            t.HasCheckConstraint("CK_FgsSetupTaxDetail_TaxPercent", "\"TaxPercent\" >= 0 AND \"TaxPercent\" <= 100");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTechSkillLevel", b =>
@@ -1615,11 +1832,20 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("TenantId", "CompanyId", "Code")
+                        .HasName("UQ_FgsSetupTechSkillLevel");
+
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.HasIndex("TenantId", "CompanyId", "Code");
+                    b.HasIndex("TenantId", "CompanyId", "SortOrder")
+                        .HasDatabaseName("IX_FgsSetupTechSkillLevel_SortOrder");
 
-                    b.ToTable("FgsSetupTechSkillLevel", "dbo");
+                    b.ToTable("FgsSetupTechSkillLevel", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupTechSkillLevel_Code_Upper", "\"Code\" = UPPER(\"Code\")");
+
+                            t.HasCheckConstraint("CK_FgsSetupTechSkillLevel_SortOrder", "\"SortOrder\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTechTrade", b =>
@@ -1672,11 +1898,20 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("TenantId", "CompanyId", "TradeCode")
+                        .HasName("UQ_FgsSetupTechTrade");
+
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.HasIndex("TenantId", "CompanyId", "TradeCode");
+                    b.HasIndex("TenantId", "CompanyId", "SortOrder")
+                        .HasDatabaseName("IX_FgsSetupTechTrade_SortOrder");
 
-                    b.ToTable("FgsSetupTechTrade", "dbo");
+                    b.ToTable("FgsSetupTechTrade", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupTechTrade_SortOrder", "\"SortOrder\" >= 0");
+
+                            t.HasCheckConstraint("CK_FgsSetupTechTrade_TradeCode_Upper", "\"TradeCode\" = UPPER(\"TradeCode\")");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTimeSlot", b =>
@@ -1744,11 +1979,23 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("TenantId", "CompanyId", "Code")
+                        .HasName("UQ_FgsSetupTimeSlot");
+
+                    b.HasIndex("FgsSetupZoneId")
+                        .HasDatabaseName("IX_FgsSetupTimeSlot_ZoneId");
+
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.HasIndex("TenantId", "CompanyId", "Code");
+                    b.HasIndex("TenantId", "CompanyId", "FgsSetupZoneId")
+                        .HasDatabaseName("IX_FgsSetupTimeSlot_Zone");
 
-                    b.ToTable("FgsSetupTimeSlot", "dbo");
+                    b.ToTable("FgsSetupTimeSlot", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupTimeSlot_Code_Upper", "\"Code\" = UPPER(\"Code\")");
+
+                            t.HasCheckConstraint("CK_FgsSetupTimeSlot_TimeRange", "\"EndTime\" > \"BeginTime\"");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTitleOfCourtesy", b =>
@@ -1798,11 +2045,20 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("TenantId", "CompanyId", "Code")
+                        .HasName("UQ_FgsSetupTitleOfCourtesy");
+
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.HasIndex("TenantId", "CompanyId", "Code");
+                    b.HasIndex("TenantId", "CompanyId", "SortOrder")
+                        .HasDatabaseName("IX_FgsSetupTitleOfCourtesy_SortOrder");
 
-                    b.ToTable("FgsSetupTitleOfCourtesy", "dbo");
+                    b.ToTable("FgsSetupTitleOfCourtesy", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupTitleOfCourtesy_Code_Upper", "\"Code\" = UPPER(\"Code\")");
+
+                            t.HasCheckConstraint("CK_FgsSetupTitleOfCourtesy_SortOrder", "\"SortOrder\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupZone", b =>
@@ -1852,11 +2108,15 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("TenantId", "CompanyId", "Code")
+                        .HasName("UQ_FgsSetupZone");
+
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.HasIndex("TenantId", "CompanyId", "Code");
-
-                    b.ToTable("FgsSetupZone", "dbo");
+                    b.ToTable("FgsSetupZone", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupZone_Code_Upper", "\"Code\" = UPPER(\"Code\")");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenant", b =>
@@ -2159,7 +2419,14 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasIndex("GloTimeCardOptionId");
 
-                    b.ToTable("FgsTenantServiceSetup", "dbo");
+                    b.ToTable("FgsTenantServiceSetup", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsTenantServiceSetup_DTRange", "\"DTStartTime\" IS NULL OR \"DTEndTime\" IS NULL OR \"DTEndTime\" > \"DTStartTime\"");
+
+                            t.HasCheckConstraint("CK_FgsTenantServiceSetup_OTRange", "\"OTStartTime\" IS NULL OR \"OTEndTime\" IS NULL OR \"OTEndTime\" > \"OTStartTime\"");
+
+                            t.HasCheckConstraint("CK_FgsTenantServiceSetup_WorkLocationRadius", "\"WorkLocationRadiusForAutoArrive\" IS NULL OR \"WorkLocationRadiusForAutoArrive\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUser", b =>
@@ -2403,8 +2670,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TokenCode")
-                        .IsUnique();
+                    b.HasAlternateKey("TokenCode")
+                        .HasName("UQ_GloCommunicationToken_TokenCode");
 
                     b.ToTable("GloCommunicationToken", "dbo");
                 });
@@ -2603,8 +2870,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Code")
-                        .IsUnique();
+                    b.HasAlternateKey("Code")
+                        .HasName("UQ_GloMasterEntityType_Code");
 
                     b.ToTable("GloMasterEntityType", "dbo");
                 });
@@ -2633,8 +2900,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Code")
-                        .IsUnique();
+                    b.HasAlternateKey("Code")
+                        .HasName("UQ_GloPaymentMethodType_Code");
 
                     b.ToTable("GloPaymentMethodType", "dbo");
                 });
@@ -2676,8 +2943,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ResolutionTypeCode")
-                        .IsUnique();
+                    b.HasAlternateKey("ResolutionTypeCode")
+                        .HasName("UQ_GloResolutionType_Code");
 
                     b.ToTable("GloResolutionType", "dbo");
                 });
@@ -2780,7 +3047,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<DateTimeOffset?>("CreatedOn")
+                    b.Property<DateTimeOffset>("CreatedOn")
                         .HasColumnType("timestamptz");
 
                     b.Property<string>("Description")
@@ -2869,10 +3136,13 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Code")
-                        .IsUnique();
+                    b.HasAlternateKey("Code")
+                        .HasName("UQ_GloTimeCardOption_Code");
 
-                    b.ToTable("GloTimeCardOption", "dbo");
+                    b.ToTable("GloTimeCardOption", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_GloTimeCardOption_Code_Upper", "\"Code\" = UPPER(\"Code\")");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsCredentialAudit", b =>
@@ -2881,14 +3151,16 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .WithMany()
                         .HasForeignKey("CredentialSecretId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsCredentialAudit_CredentialSecret");
 
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsCredentialAudit_Company");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsCredentialProvider", b =>
@@ -2907,14 +3179,16 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .WithMany()
                         .HasForeignKey("CredentialProviderId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsCredProvCfg_Provider");
 
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsCredProvCfg_Company");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsCredentialSecret", b =>
@@ -2923,14 +3197,16 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .WithMany()
                         .HasForeignKey("CredentialProviderId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsCredentialSecret_Provider");
 
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsCredentialSecret_Company");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInvitation", b =>
@@ -2950,14 +3226,36 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .WithMany()
                         .HasForeignKey("MasterEntityTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsLocation_MasterEntityType");
 
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsLocation_Company");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsResolutionCode", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.GloResolutionType", "ResolutionType")
+                        .WithMany()
+                        .HasForeignKey("GloResolutionTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsResolutionCode_GloResType");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsResolutionCode_Company");
+
+                    b.Navigation("ResolutionType");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRole", b =>
@@ -2987,6 +3285,12 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupDescription", b =>
                 {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupTechTrade", null)
+                        .WithMany()
+                        .HasForeignKey("FgsSetupTechTradeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsSetupDescription_TechTrade");
+
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
@@ -3037,7 +3341,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .WithMany()
                         .HasForeignKey("GloPaymentMethodTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupPaymentMethod_GloPayType");
 
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
@@ -3059,6 +3364,18 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPostalCode", b =>
                 {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupTax", null)
+                        .WithMany()
+                        .HasForeignKey("FgsSetupTaxId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsSetupPostalCode_Tax");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupZone", null)
+                        .WithMany()
+                        .HasForeignKey("FgsSetupZoneId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsSetupPostalCode_Zone");
+
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
@@ -3132,6 +3449,35 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupServiceAssetModelReference", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupServiceAssetManufacturer", "ServiceAssetManufacturer")
+                        .WithMany()
+                        .HasForeignKey("FgsSetupServiceAssetManufacturerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSvcAssetModelRef_Mfr");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupServiceAssetType", "ServiceAssetType")
+                        .WithMany()
+                        .HasForeignKey("FgsSetupServiceAssetTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSvcAssetModelRef_AssetType");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSvcAssetModelRef_Company");
+
+                    b.Navigation("ServiceAssetManufacturer");
+
+                    b.Navigation("ServiceAssetType");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupServiceAssetType", b =>
                 {
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
@@ -3164,6 +3510,20 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTaxDetail", b =>
                 {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupTaxAuthority", null)
+                        .WithMany()
+                        .HasForeignKey("FgsSetupTaxAuthorityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupTaxDetail_TaxAuth");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupTax", null)
+                        .WithMany()
+                        .HasForeignKey("FgsSetupTaxId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupTaxDetail_Tax");
+
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
@@ -3194,6 +3554,12 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTimeSlot", b =>
                 {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupZone", null)
+                        .WithMany()
+                        .HasForeignKey("FgsSetupZoneId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsSetupTimeSlot_Zone");
+
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
@@ -3228,14 +3594,16 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .WithMany()
                         .HasForeignKey("GloTimeCardOptionId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsTenantServiceSetup_TimeCardOption");
 
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsTenantServiceSetup_Company");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUser", b =>

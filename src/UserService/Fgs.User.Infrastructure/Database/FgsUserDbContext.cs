@@ -7,7 +7,7 @@ namespace Fgs.User.Infrastructure.Database;
 /// <summary>
 /// Code-first EF Core context for FGS user / platform entities (PostgreSQL schema <c>dbo</c>).
 /// </summary>
-public class FgsUserDbContext : DbContext
+public partial class FgsUserDbContext : DbContext
 {
     public const string FgsSchema = "dbo";
 
@@ -57,6 +57,11 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<FgsSetupServiceAssetManufacturer> FgsSetupServiceAssetManufacturers =>
         Set<FgsSetupServiceAssetManufacturer>();
+
+    public DbSet<FgsSetupServiceAssetModelReference> FgsSetupServiceAssetModelReferences =>
+        Set<FgsSetupServiceAssetModelReference>();
+
+    public DbSet<FgsResolutionCode> FgsResolutionCodes => Set<FgsResolutionCode>();
 
     public DbSet<FgsSetupPriceSheet> FgsSetupPriceSheets => Set<FgsSetupPriceSheet>();
 
@@ -181,11 +186,10 @@ public class FgsUserDbContext : DbContext
         MapSetupEntity<FgsSetupPaymentMethod>(modelBuilder, "FgsSetupPaymentMethod");
         MapSetupEntity<FgsSetupPaymentTerm>(modelBuilder, "FgsSetupPaymentTerm");
 
-        ConfigureFgsSetupPaymentMethodRelationship(modelBuilder);
         ConfigureFgsSetupPriceSheetLaborRelationship(modelBuilder);
         ConfigureFgsSetupGLBreakTechTradeRelationships(modelBuilder);
-        ConfigureTenantCompanyScopedIndexes(modelBuilder);
         ConfigureAuditActorColumns(modelBuilder);
+        ConfigureCleanUpTables(modelBuilder);
     }
 
     private static void ConfigureAuditActorColumns(ModelBuilder modelBuilder)
@@ -234,7 +238,6 @@ public class FgsUserDbContext : DbContext
         {
             entity.ToTable("GloMasterEntityType");
             entity.HasKey(e => e.Id);
-            entity.HasIndex(e => e.Code).IsUnique();
             entity.Property(e => e.Code).HasMaxLength(100);
             entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
             entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
@@ -247,7 +250,6 @@ public class FgsUserDbContext : DbContext
         {
             entity.ToTable("GloCommunicationToken");
             entity.HasKey(e => e.Id);
-            entity.HasIndex(e => e.TokenCode).IsUnique();
             entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
             entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
         });
@@ -259,7 +261,6 @@ public class FgsUserDbContext : DbContext
         {
             entity.ToTable("GloTimeCardOption");
             entity.HasKey(e => e.Id);
-            entity.HasIndex(e => e.Code).IsUnique();
         });
     }
 
@@ -269,7 +270,6 @@ public class FgsUserDbContext : DbContext
         {
             entity.ToTable("GloPaymentMethodType");
             entity.HasKey(e => e.Id);
-            entity.HasIndex(e => e.Code).IsUnique();
         });
     }
 
@@ -408,7 +408,6 @@ public class FgsUserDbContext : DbContext
         {
             entity.ToTable("GloResolutionType");
             entity.HasKey(e => e.Id);
-            entity.HasIndex(e => e.ResolutionTypeCode).IsUnique();
             entity.Property(e => e.ResolutionTypeCode).HasMaxLength(50);
             entity.Property(e => e.ResolutionTypeName).HasMaxLength(200);
             entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
@@ -655,15 +654,6 @@ public class FgsUserDbContext : DbContext
             entity.HasKey(e => new { e.TenantId, e.CompanyId });
             entity.Property(e => e.TenantId).HasColumnOrder(0);
             entity.Property(e => e.CompanyId).HasColumnOrder(1);
-            entity.HasOne<FgsTenantCompany>()
-                .WithMany()
-                .HasForeignKey(e => new { e.TenantId, e.CompanyId })
-                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne<GloTimeCardOption>()
-                .WithMany()
-                .HasForeignKey(e => e.GloTimeCardOptionId)
-                .OnDelete(DeleteBehavior.Restrict);
             entity.Property(e => e.BillHoursFromDispatchOrArrive).HasMaxLength(20);
             entity.Property(e => e.InvoiceNumberPrefix).HasMaxLength(20);
             entity.Property(e => e.QuoteNumberPrefix).HasMaxLength(20);
@@ -684,16 +674,6 @@ public class FgsUserDbContext : DbContext
             entity.Property(e => e.Id).HasColumnOrder(0);
             entity.Property(e => e.TenantId).HasColumnOrder(1);
             entity.Property(e => e.CompanyId).HasColumnOrder(2);
-            entity.HasOne<FgsTenantCompany>()
-                .WithMany()
-                .HasForeignKey(e => new { e.TenantId, e.CompanyId })
-                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne<GloMasterEntityType>()
-                .WithMany()
-                .HasForeignKey(e => e.MasterEntityTypeId)
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.MasterEntityTypeId, e.EntityNumber });
             entity.Property(e => e.AddressLine1).HasMaxLength(200);
             entity.Property(e => e.AddressLine2).HasMaxLength(200);
             entity.Property(e => e.AddressLine3).HasMaxLength(200);
@@ -745,27 +725,6 @@ public class FgsUserDbContext : DbContext
             entity.Property(e => e.Id).HasColumnOrder(0);
             entity.Property(e => e.TenantId).HasColumnOrder(1);
             entity.Property(e => e.CompanyId).HasColumnOrder(2);
-            entity.HasOne<FgsTenantCompany>()
-                .WithMany()
-                .HasForeignKey(e => new { e.TenantId, e.CompanyId })
-                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne<FgsCredentialProvider>()
-                .WithMany()
-                .HasForeignKey(e => e.CredentialProviderId)
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId });
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.CredentialProviderId });
-            entity.HasIndex(
-                    e => new
-                    {
-                        e.TenantId,
-                        e.CompanyId,
-                        e.CredentialProviderId,
-                        e.ConfigurationKey,
-                        e.Environment
-                    })
-                .IsUnique();
             entity.Property(e => e.ConfigurationKey).HasMaxLength(200);
             entity.Property(e => e.Environment).HasMaxLength(50);
             entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
@@ -782,20 +741,6 @@ public class FgsUserDbContext : DbContext
             entity.Property(e => e.Id).HasColumnOrder(0);
             entity.Property(e => e.TenantId).HasColumnOrder(1);
             entity.Property(e => e.CompanyId).HasColumnOrder(2);
-            entity.HasOne<FgsTenantCompany>()
-                .WithMany()
-                .HasForeignKey(e => new { e.TenantId, e.CompanyId })
-                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne<FgsCredentialProvider>()
-                .WithMany()
-                .HasForeignKey(e => e.CredentialProviderId)
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId });
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.CredentialProviderId });
-            entity.HasIndex(e => e.IsActive);
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.CredentialProviderId, e.SecretName, e.VersionNo })
-                .IsUnique();
             entity.Property(e => e.SecretName).HasMaxLength(200);
             entity.Property(e => e.EncryptionKeyId).HasMaxLength(500);
             entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
@@ -814,43 +759,10 @@ public class FgsUserDbContext : DbContext
             entity.Property(e => e.Id).HasColumnOrder(0);
             entity.Property(e => e.TenantId).HasColumnOrder(1);
             entity.Property(e => e.CompanyId).HasColumnOrder(2);
-            entity.HasOne<FgsTenantCompany>()
-                .WithMany()
-                .HasForeignKey(e => new { e.TenantId, e.CompanyId })
-                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne<FgsCredentialSecret>()
-                .WithMany()
-                .HasForeignKey(e => e.CredentialSecretId)
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId });
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.CredentialSecretId });
-            entity.HasIndex(
-                    e => new
-                    {
-                        e.TenantId,
-                        e.CompanyId,
-                        e.CredentialSecretId,
-                        e.ActionType,
-                        e.NewVersionNo
-                    })
-                .IsUnique();
             entity.Property(e => e.ActionType).HasMaxLength(100);
             entity.Property(e => e.Remarks).HasMaxLength(1000);
             entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
             entity.Property(e => e.CreatedBy).HasMaxLength(100);
-        });
-    }
-
-    private static void ConfigureFgsSetupPaymentMethodRelationship(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<FgsSetupPaymentMethod>(entity =>
-        {
-            entity.HasOne<GloPaymentMethodType>()
-                .WithMany()
-                .HasForeignKey(e => e.GloPaymentMethodTypeId)
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.GloPaymentMethodTypeId }).IsUnique();
         });
     }
 
@@ -886,91 +798,4 @@ public class FgsUserDbContext : DbContext
         });
     }
 
-    private static void ConfigureTenantCompanyScopedIndexes(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<FgsSetupZone>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Code });
-        });
-
-        modelBuilder.Entity<FgsSetupTechTrade>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.TradeCode });
-        });
-
-        modelBuilder.Entity<FgsSetupTimeSlot>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Code });
-        });
-
-        modelBuilder.Entity<FgsSetupTechSkillLevel>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Code });
-        });
-
-        modelBuilder.Entity<FgsSetupTitleOfCourtesy>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Code });
-        });
-
-        modelBuilder.Entity<FgsSetupServiceAssetType>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Code });
-        });
-
-        modelBuilder.Entity<FgsSetupServiceAssetManufacturer>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Code });
-        });
-
-        modelBuilder.Entity<FgsSetupTax>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.TaxCode });
-        });
-
-        modelBuilder.Entity<FgsSetupTaxAuthority>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Code });
-        });
-
-        modelBuilder.Entity<FgsSetupDescription>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.DescriptionTypeCode });
-        });
-
-        modelBuilder.Entity<FgsSetupPostalCode>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.PostalCode });
-        });
-
-        modelBuilder.Entity<FgsSetupPriceSheet>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Code });
-        });
-
-        modelBuilder.Entity<FgsSetupPriceSheetMaterial>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Code });
-        });
-
-        modelBuilder.Entity<FgsSetupPriceSheetOther>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.CategoryCode });
-        });
-
-        modelBuilder.Entity<FgsSetupGLBreak>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Code }).IsUnique();
-        });
-
-        modelBuilder.Entity<FgsSetupCommunicationTemplate>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.TemplateType, e.Code }).IsUnique();
-        });
-
-        modelBuilder.Entity<FgsSetupPaymentTerm>(entity =>
-        {
-            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Name }).IsUnique();
-        });
-    }
 }
