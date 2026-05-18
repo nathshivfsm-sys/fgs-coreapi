@@ -1,5 +1,6 @@
 using Fgs.User.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Fgs.User.Infrastructure.Database;
 
@@ -104,7 +105,17 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<GloResolutionType> GloResolutionTypes => Set<GloResolutionType>();
 
+    public DbSet<GloRole> GloRoles => Set<GloRole>();
+
+    public DbSet<GloSetupDescriptionType> GloSetupDescriptionTypes => Set<GloSetupDescriptionType>();
+
+    public DbSet<GloSetupLaborRateType> GloSetupLaborRateTypes => Set<GloSetupLaborRateType>();
+
     public DbSet<FgsUser> FgsUsers => Set<FgsUser>();
+
+    public DbSet<FgsUserRole> FgsUserRoles => Set<FgsUserRole>();
+
+    public DbSet<FgsRole> FgsRoles => Set<FgsRole>();
 
     public DbSet<FgsInvitation> FgsInvitations => Set<FgsInvitation>();
 
@@ -128,8 +139,13 @@ public class FgsUserDbContext : DbContext
         ConfigureGloCredentialCategory(modelBuilder);
         ConfigureGloCredentialProviderType(modelBuilder);
         ConfigureGloResolutionType(modelBuilder);
+        ConfigureGloRole(modelBuilder);
+        ConfigureGloSetupDescriptionType(modelBuilder);
+        ConfigureGloSetupLaborRateType(modelBuilder);
 
         ConfigureFgsUser(modelBuilder);
+        ConfigureFgsUserRole(modelBuilder);
+        ConfigureFgsRole(modelBuilder);
         ConfigureFgsInvitation(modelBuilder);
         ConfigureFgsOutboxMessage(modelBuilder);
 
@@ -160,11 +176,14 @@ public class FgsUserDbContext : DbContext
         MapSetupEntity<FgsSetupPriceSheetMaterial>(modelBuilder, "FgsSetupPriceSheetMaterial");
         MapSetupEntity<FgsSetupPriceSheetOther>(modelBuilder, "FgsSetupPriceSheetOther");
         MapSetupEntity<FgsSetupGLBreak>(modelBuilder, "FgsSetupGLBreak");
+        MapSetupEntity<FgsSetupGLBreakTechTrade>(modelBuilder, "FgsSetupGLBreakTechTrade");
         MapSetupEntity<FgsSetupCommunicationTemplate>(modelBuilder, "FgsSetupCommunicationTemplate");
         MapSetupEntity<FgsSetupPaymentMethod>(modelBuilder, "FgsSetupPaymentMethod");
         MapSetupEntity<FgsSetupPaymentTerm>(modelBuilder, "FgsSetupPaymentTerm");
 
         ConfigureFgsSetupPaymentMethodRelationship(modelBuilder);
+        ConfigureFgsSetupPriceSheetLaborRelationship(modelBuilder);
+        ConfigureFgsSetupGLBreakTechTradeRelationships(modelBuilder);
         ConfigureTenantCompanyScopedIndexes(modelBuilder);
         ConfigureAuditActorColumns(modelBuilder);
     }
@@ -394,6 +413,118 @@ public class FgsUserDbContext : DbContext
             entity.Property(e => e.ResolutionTypeName).HasMaxLength(200);
             entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
             entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        });
+    }
+
+    private static void ConfigureGloRole(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GloRole>(entity =>
+        {
+            entity.ToTable("GloRole");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                .HasColumnType("smallint")
+                .UseIdentityByDefaultColumn();
+            entity.HasIndex(e => e.RoleCode).IsUnique();
+            entity.Property(e => e.RoleCode).HasMaxLength(50);
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.RoleLevel).HasMaxLength(20);
+            entity.Property(e => e.SortOrder).HasColumnType("smallint");
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+        });
+    }
+
+    private static void ConfigureGloSetupDescriptionType(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GloSetupDescriptionType>(entity =>
+        {
+            entity.ToTable("GloSetupDescriptionType");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Code).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        });
+    }
+
+    private static void ConfigureGloSetupLaborRateType(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GloSetupLaborRateType>(entity =>
+        {
+            entity.ToTable("GloSetupLaborRateType");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Name).IsUnique();
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        });
+    }
+
+    private static void ConfigureFgsRole(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<FgsRole>(entity =>
+        {
+            entity.ToTable("FgsRole");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnOrder(0);
+            entity.Property(e => e.TenantId).HasColumnOrder(1);
+            entity.Property(e => e.CompanyId).HasColumnOrder(2);
+            entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.RoleCode }).IsUnique();
+            entity.Property(e => e.RoleCode).HasMaxLength(50);
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.HasOne<FgsTenantCompany>()
+                .WithMany()
+                .HasForeignKey(e => new { e.TenantId, e.CompanyId })
+                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<GloRole>()
+                .WithMany()
+                .HasForeignKey(e => e.GloRoleId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        });
+    }
+
+    private static void ConfigureFgsUserRole(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<FgsUserRole>(entity =>
+        {
+            entity.ToTable("FgsUserRole");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => new { e.TenantId, e.CompanyId });
+            entity.HasIndex(e => e.GloRoleId);
+            entity.HasIndex(e => e.FgsRoleId);
+            entity.HasIndex(e => new { e.UserId, e.GloRoleId })
+                .IsUnique()
+                .HasFilter("\"GloRoleId\" IS NOT NULL");
+            entity.HasIndex(e => new { e.UserId, e.FgsRoleId })
+                .IsUnique()
+                .HasFilter("\"FgsRoleId\" IS NOT NULL");
+            entity.ToTable(t => t.HasCheckConstraint(
+                "CK_FgsUserRole_OnlyOneRole",
+                "(\"GloRoleId\" IS NOT NULL AND \"FgsRoleId\" IS NULL) OR (\"GloRoleId\" IS NULL AND \"FgsRoleId\" IS NOT NULL)"));
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<FgsTenantCompany>()
+                .WithMany()
+                .HasForeignKey(e => new { e.TenantId, e.CompanyId })
+                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.GloRole)
+                .WithMany()
+                .HasForeignKey(e => e.GloRoleId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.FgsRole)
+                .WithMany()
+                .HasForeignKey(e => e.FgsRoleId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 
@@ -720,6 +851,38 @@ public class FgsUserDbContext : DbContext
                 .HasForeignKey(e => e.GloPaymentMethodTypeId)
                 .OnDelete(DeleteBehavior.Restrict);
             entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.GloPaymentMethodTypeId }).IsUnique();
+        });
+    }
+
+    private static void ConfigureFgsSetupPriceSheetLaborRelationship(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<FgsSetupPriceSheetLabor>(entity =>
+        {
+            entity.HasOne<GloSetupLaborRateType>()
+                .WithMany()
+                .HasForeignKey(e => e.FgsSetupLaborRateTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+
+    private static void ConfigureFgsSetupGLBreakTechTradeRelationships(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<FgsSetupDescription>(entity =>
+        {
+            entity.Property(e => e.ShortNote).HasMaxLength(30);
+        });
+
+        modelBuilder.Entity<FgsSetupGLBreakTechTrade>(entity =>
+        {
+            entity.HasIndex(e => new { e.FgsSetupGLBreakId, e.FgsSetupTechTradeId }).IsUnique();
+            entity.HasOne(e => e.GLBreak)
+                .WithMany(b => b.TechTrades)
+                .HasForeignKey(e => e.FgsSetupGLBreakId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.TechTrade)
+                .WithMany()
+                .HasForeignKey(e => e.FgsSetupTechTradeId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 

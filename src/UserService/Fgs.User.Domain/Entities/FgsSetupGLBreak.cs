@@ -10,7 +10,7 @@ public class FgsSetupGLBreak : FgsTenantCompanySetupEntityBase
 
     public int BreakLevel { get; set; } = 1;
 
-    public long? FgsSetupTechTradeId { get; set; }
-
     public string? LogoUrl { get; set; }
+
+    public ICollection<FgsSetupGLBreakTechTrade> TechTrades { get; set; } = new List<FgsSetupGLBreakTechTrade>();
 }
