@@ -1,0 +1,25 @@
+# RabbitMQ only — for running Fgs.User.API on the host (see launchSettings.json).
+# For the full stack (nginx, user, platform, workorder, postgres, rabbitmq), use:
+#   cd deployment/nginx && docker compose up --build
+services:
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    container_name: fgs-user-rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: fgs
+      RABBITMQ_DEFAULT_PASS: fgsdevlocal
+    volumes:
+      - fgs_user_rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 6
+      start_period: 40s
+
+volumes:
+  fgs_user_rabbitmq_data:

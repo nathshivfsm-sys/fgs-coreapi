@@ -104,6 +104,12 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<GloResolutionType> GloResolutionTypes => Set<GloResolutionType>();
 
+    public DbSet<FgsUser> FgsUsers => Set<FgsUser>();
+
+    public DbSet<FgsInvitation> FgsInvitations => Set<FgsInvitation>();
+
+    public DbSet<FgsOutboxMessage> FgsOutboxMessages => Set<FgsOutboxMessage>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(FgsSchema);
@@ -122,6 +128,10 @@ public class FgsUserDbContext : DbContext
         ConfigureGloCredentialCategory(modelBuilder);
         ConfigureGloCredentialProviderType(modelBuilder);
         ConfigureGloResolutionType(modelBuilder);
+
+        ConfigureFgsUser(modelBuilder);
+        ConfigureFgsInvitation(modelBuilder);
+        ConfigureFgsOutboxMessage(modelBuilder);
 
         ConfigureFgsTenant(modelBuilder);
         ConfigureFgsTenantCompany(modelBuilder);
@@ -156,6 +166,26 @@ public class FgsUserDbContext : DbContext
 
         ConfigureFgsSetupPaymentMethodRelationship(modelBuilder);
         ConfigureTenantCompanyScopedIndexes(modelBuilder);
+        ConfigureAuditActorColumns(modelBuilder);
+    }
+
+    private static void ConfigureAuditActorColumns(ModelBuilder modelBuilder)
+    {
+        const int maxLength = 100;
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var createdBy = entityType.FindProperty("CreatedBy");
+            if (createdBy?.ClrType == typeof(string))
+            {
+                createdBy.SetMaxLength(maxLength);
+            }
+
+            var updatedBy = entityType.FindProperty("UpdatedBy");
+            if (updatedBy?.ClrType == typeof(string))
+            {
+                updatedBy.SetMaxLength(maxLength);
+            }
+        }
     }
 
     private static void MapSetupEntity<TEntity>(ModelBuilder modelBuilder, string tableName)
@@ -172,7 +202,7 @@ public class FgsUserDbContext : DbContext
             entity.HasOne<FgsTenantCompany>()
                 .WithMany()
                 .HasForeignKey(e => new { e.TenantId, e.CompanyId })
-                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyGuid })
+                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
                 .OnDelete(DeleteBehavior.Restrict);
             entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
             entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
@@ -295,6 +325,7 @@ public class FgsUserDbContext : DbContext
             entity.HasKey(e => e.LanguageCode);
             entity.Property(e => e.LanguageCode).HasMaxLength(5);
             entity.Property(e => e.LanguageName).HasMaxLength(100);
+            entity.Property(e => e.CultureCode).HasMaxLength(10);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
     }
@@ -366,6 +397,74 @@ public class FgsUserDbContext : DbContext
         });
     }
 
+    private static void ConfigureFgsUser(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<FgsUser>(entity =>
+        {
+            entity.ToTable("FgsUser");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.TenantId, e.Email })
+                .IsUnique()
+                .HasFilter("\"IsDeleted\" = false");
+            entity.Property(e => e.Email).HasMaxLength(300);
+            entity.Property(e => e.DisplayName).HasMaxLength(200);
+            entity.Property(e => e.EntraObjectId).HasMaxLength(100);
+            entity.Property(e => e.Role).HasConversion<string>().HasMaxLength(50);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+            entity.HasOne(e => e.Tenant)
+                .WithMany()
+                .HasForeignKey(e => e.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Company)
+                .WithMany()
+                .HasForeignKey(e => new { e.TenantId, e.CompanyId })
+                .HasPrincipalKey(c => new { c.TenantId, c.CompanyNumber })
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+
+    private static void ConfigureFgsInvitation(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<FgsInvitation>(entity =>
+        {
+            entity.ToTable("FgsInvitation");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.TokenHash);
+            entity.HasIndex(e => new { e.TenantId, e.Email, e.Status });
+            entity.Property(e => e.Email).HasMaxLength(300);
+            entity.Property(e => e.TokenHash).HasMaxLength(128);
+            entity.Property(e => e.Status).HasConversion<string>().HasMaxLength(50);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.ExpiresAtUtc).HasColumnType("timestamptz");
+            entity.Property(e => e.AcceptedAtUtc).HasColumnType("timestamptz");
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.Invitations)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+
+    private static void ConfigureFgsOutboxMessage(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<FgsOutboxMessage>(entity =>
+        {
+            entity.ToTable("FgsOutboxMessage");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.IdempotencyKey).IsUnique();
+            entity.HasIndex(e => new { e.Status, e.CreatedOn });
+            entity.Property(e => e.EventType).HasMaxLength(200);
+            entity.Property(e => e.Payload).HasColumnType("jsonb");
+            entity.Property(e => e.IdempotencyKey).HasMaxLength(200);
+            entity.Property(e => e.CorrelationId).HasMaxLength(100);
+            entity.Property(e => e.Status).HasConversion<string>().HasMaxLength(50);
+            entity.Property(e => e.LastError).HasMaxLength(2000);
+            entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.ProcessedOn).HasColumnType("timestamptz");
+        });
+    }
+
     private static void ConfigureFgsTenant(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<FgsTenant>(entity =>
@@ -397,6 +496,7 @@ public class FgsUserDbContext : DbContext
             entity.Property(e => e.TenantId).HasColumnOrder(1);
             entity.Property(e => e.CompanyGuid).HasColumnOrder(2);
             entity.HasAlternateKey(e => new { e.TenantId, e.CompanyGuid });
+            entity.HasAlternateKey(e => new { e.TenantId, e.CompanyNumber });
             entity.HasIndex(e => new { e.TenantId, e.CompanyNumber }).IsUnique();
             entity.HasIndex(e => new { e.TenantId, e.Code }).IsUnique();
             entity.Property(e => e.Code).HasMaxLength(100);
@@ -405,6 +505,7 @@ public class FgsUserDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(300);
             entity.Property(e => e.PhoneNumber).HasMaxLength(50);
             entity.Property(e => e.Website).HasMaxLength(500);
+            entity.Property(e => e.CompanySize).HasMaxLength(20);
             entity.Property(e => e.TaxId).HasMaxLength(100);
             entity.Property(e => e.FullLogoUrl).HasMaxLength(1000);
             entity.Property(e => e.CompactLogoUrl).HasMaxLength(1000);
@@ -426,7 +527,7 @@ public class FgsUserDbContext : DbContext
             entity.HasOne<FgsTenantCompany>()
                 .WithMany()
                 .HasForeignKey(e => new { e.TenantId, e.CompanyId })
-                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyGuid })
+                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
                 .OnDelete(DeleteBehavior.Restrict);
             entity.HasOne<GloTimeCardOption>()
                 .WithMany()
@@ -455,7 +556,7 @@ public class FgsUserDbContext : DbContext
             entity.HasOne<FgsTenantCompany>()
                 .WithMany()
                 .HasForeignKey(e => new { e.TenantId, e.CompanyId })
-                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyGuid })
+                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
                 .OnDelete(DeleteBehavior.Restrict);
             entity.HasOne<GloMasterEntityType>()
                 .WithMany()
@@ -492,7 +593,7 @@ public class FgsUserDbContext : DbContext
             entity.HasOne<FgsTenantCompany>()
                 .WithMany()
                 .HasForeignKey(e => new { e.TenantId, e.CompanyId })
-                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyGuid })
+                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
                 .OnDelete(DeleteBehavior.Restrict);
             entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Code }).IsUnique();
             entity.Property(e => e.Code).HasMaxLength(100);
@@ -516,7 +617,7 @@ public class FgsUserDbContext : DbContext
             entity.HasOne<FgsTenantCompany>()
                 .WithMany()
                 .HasForeignKey(e => new { e.TenantId, e.CompanyId })
-                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyGuid })
+                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
                 .OnDelete(DeleteBehavior.Restrict);
             entity.HasOne<FgsCredentialProvider>()
                 .WithMany()
@@ -553,7 +654,7 @@ public class FgsUserDbContext : DbContext
             entity.HasOne<FgsTenantCompany>()
                 .WithMany()
                 .HasForeignKey(e => new { e.TenantId, e.CompanyId })
-                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyGuid })
+                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
                 .OnDelete(DeleteBehavior.Restrict);
             entity.HasOne<FgsCredentialProvider>()
                 .WithMany()
@@ -585,7 +686,7 @@ public class FgsUserDbContext : DbContext
             entity.HasOne<FgsTenantCompany>()
                 .WithMany()
                 .HasForeignKey(e => new { e.TenantId, e.CompanyId })
-                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyGuid })
+                .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
                 .OnDelete(DeleteBehavior.Restrict);
             entity.HasOne<FgsCredentialSecret>()
                 .WithMany()
@@ -606,6 +707,7 @@ public class FgsUserDbContext : DbContext
             entity.Property(e => e.ActionType).HasMaxLength(100);
             entity.Property(e => e.Remarks).HasMaxLength(1000);
             entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
         });
     }
 

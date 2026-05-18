@@ -1,0 +1,10 @@
+using Fgs.User.Application.Common;
+using MediatR;
+
+namespace Fgs.User.Application.Auth;
+
+public sealed record EntraCallbackQuery(string Code, string State) : IRequest<ApiResponse<EntraCallbackResultDto>>;
+
+public sealed record EntraCallbackResultDto(
+    string AccessToken,
+    string RedirectUrl);

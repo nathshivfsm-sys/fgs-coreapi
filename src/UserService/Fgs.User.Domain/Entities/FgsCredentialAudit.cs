@@ -9,7 +9,7 @@ public class FgsCredentialAudit
 
     public Guid TenantId { get; set; }
 
-    public Guid CompanyId { get; set; }
+    public long CompanyId { get; set; }
 
     public Guid CredentialSecretId { get; set; }
 
@@ -23,5 +23,5 @@ public class FgsCredentialAudit
 
     public DateTimeOffset CreatedOn { get; set; }
 
-    public Guid? CreatedBy { get; set; }
+    public string? CreatedBy { get; set; }
 }

@@ -23,7 +23,6 @@ ENV ASPNETCORE_URLS=http://+:5003 \
 EXPOSE 5003
 
 COPY --from=build /app/publish .
-RUN rm -f appsettings.json appsettings.Development.json
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD curl -fsS http://localhost:5003/health || exit 1

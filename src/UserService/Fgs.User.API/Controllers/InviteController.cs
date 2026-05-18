@@ -1,0 +1,39 @@
+using Fgs.User.Application.Invitations;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Fgs.User.API.Controllers;
+
+/// <summary>
+/// Email invitation deep links (pre–Entra redirect).
+/// </summary>
+[ApiController]
+[Route("api/invite")]
+public sealed class InviteController : ControllerBase
+{
+    private readonly IMediator _mediator;
+
+    public InviteController(IMediator mediator) => _mediator = mediator;
+
+    /// <summary>
+    /// Validates the invitation token and redirects the browser to Microsoft Entra External ID authorization.
+    /// </summary>
+    /// <param name="token">Opaque token from the signup invitation email.</param>
+    /// <param name="cancellationToken">Request cancellation token.</param>
+    /// <remarks>
+    /// Returns 302 to Entra on success; 400 with error body on invalid or expired token.
+    /// </remarks>
+    [HttpGet("start")]
+    [ProducesResponseType(StatusCodes.Status302Found)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Start([FromQuery] string token, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new StartInvitationQuery(token), cancellationToken);
+        if (!result.Success || string.IsNullOrWhiteSpace(result.RedirectUrl))
+        {
+            return BadRequest(new { success = false, errors = new[] { result.ErrorMessage ?? "Invalid invitation." } });
+        }
+
+        return Redirect(result.RedirectUrl);
+    }
+}

@@ -8,6 +8,8 @@ services:
     depends_on:
       user-service:
         condition: service_healthy
+      platform-service:
+        condition: service_healthy
       workorder-service:
         condition: service_healthy
     ports:
@@ -19,8 +21,6 @@ services:
       - ./cache:/var/cache/nginx
     networks:
       - fgs-private
-      # Host port publishing is ignored for containers attached only to internal
-      # networks (moby#36174). Edge network exists solely so 8080/8443 bind on Windows.
       - fgs-edge
     restart: unless-stopped
 
@@ -30,13 +30,30 @@ services:
       dockerfile: deployment/nginx/docker/user-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:5001
-      ConnectionStrings__FgsUser: Host=postgres;Port=5432;Database=fgs_user;Username=fgs;Password=fgs_dev_password
+    volumes:
+      - ../../src/UserService/Fgs.User.API/appsettings.json:/app/appsettings.json:ro
+      - ../../src/UserService/Fgs.User.API/appsettings.Development.json:/app/appsettings.Development.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     expose:
       - "5001"
-    depends_on:
-      postgres:
-        condition: service_healthy
+    networks:
+      - fgs-private
+    restart: unless-stopped
+
+  platform-service:
+    build:
+      context: ../..
+      dockerfile: deployment/nginx/docker/platform-service.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    volumes:
+      - ../../src/PlatformService/Fgs.Platform.API/appsettings.json:/app/appsettings.json:ro
+      - ../../src/PlatformService/Fgs.Platform.API/appsettings.Development.json:/app/appsettings.Development.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "5002"
     networks:
       - fgs-private
     restart: unless-stopped
@@ -47,33 +64,13 @@ services:
       dockerfile: deployment/nginx/docker/workorder-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:5003
-      ConnectionStrings__FgsWorkOrder: Host=postgres;Port=5432;Database=fgs_workorder;Username=fgs;Password=fgs_dev_password
+    volumes:
+      - ../../src/WorkOrderService/Fgs.WorkOrder.API/appsettings.json:/app/appsettings.json:ro
+      - ../../src/WorkOrderService/Fgs.WorkOrder.API/appsettings.Development.json:/app/appsettings.Development.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     expose:
       - "5003"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - fgs-private
-    restart: unless-stopped
-
-  postgres:
-    image: postgres:17-alpine
-    environment:
-      POSTGRES_USER: fgs
-      POSTGRES_PASSWORD: fgs_dev_password
-      POSTGRES_DB: fgs_gateway
-    volumes:
-      - fgs-postgres-data:/var/lib/postgresql/data
-      - ./scripts/init-postgres.sql:/docker-entrypoint-initdb.d/01-init-postgres.sql:ro
-    expose:
-      - "5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U fgs -d fgs_gateway"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     networks:
       - fgs-private
     restart: unless-stopped
@@ -81,9 +78,5 @@ services:
 networks:
   fgs-private:
     driver: bridge
-    internal: true
   fgs-edge:
     driver: bridge
-
-volumes:
-  fgs-postgres-data:
