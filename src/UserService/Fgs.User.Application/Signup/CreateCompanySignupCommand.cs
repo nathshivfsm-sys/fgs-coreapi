@@ -10,6 +10,5 @@ public sealed record CreateCompanySignupCommand(
     SignupContactDto Contact,
     SignupCompanyDto Company,
     int BusinessTypeId,
-    string? Password = null,
     string? TimeZone = null,
     string? DefaultCurrency = null) : IRequest<ApiResponse<CompanySignupResultDto>>;

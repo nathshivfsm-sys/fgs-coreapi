@@ -9,7 +9,7 @@ public abstract class FgsTenantCompanySetupEntityBase : FgsEntityBase
 
     public Guid TenantId { get; set; }
 
-    public Guid CompanyId { get; set; }
+    public long CompanyId { get; set; }
 
     public bool IsActive { get; set; } = true;
 }

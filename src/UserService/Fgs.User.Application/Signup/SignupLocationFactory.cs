@@ -7,7 +7,7 @@ public static class SignupLocationFactory
     public static FgsLocation CreateCompanyLocation(
         Guid locationId,
         Guid tenantId,
-        Guid companyId,
+        long companyId,
         int masterEntityTypeId,
         SignupAddressDto address,
         DateTimeOffset createdOn)

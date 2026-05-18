@@ -11,15 +11,11 @@ public class FgsUser : FgsEntityBase
 
     public Guid TenantId { get; set; }
 
-    public Guid CompanyId { get; set; }
+    public long CompanyId { get; set; }
 
     public string Email { get; set; } = null!;
 
-    public string NormalizedEmail { get; set; } = null!;
-
     public string DisplayName { get; set; } = null!;
-
-    public string? PasswordHash { get; set; }
 
     public string? EntraObjectId { get; set; }
 

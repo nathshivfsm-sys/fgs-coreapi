@@ -6,7 +6,7 @@ public class FgsCredentialSecret : FgsEntityBase
 
     public Guid TenantId { get; set; }
 
-    public Guid CompanyId { get; set; }
+    public long CompanyId { get; set; }
 
     public Guid CredentialProviderId { get; set; }
 

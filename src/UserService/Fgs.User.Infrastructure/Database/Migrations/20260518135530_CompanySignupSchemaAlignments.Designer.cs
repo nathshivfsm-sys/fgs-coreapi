@@ -3,6 +3,7 @@ using System;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fgs.User.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(FgsUserDbContext))]
-    partial class FgsUserDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260518135530_CompanySignupSchemaAlignments")]
+    partial class CompanySignupSchemaAlignments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,8 +38,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -89,8 +92,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -146,8 +149,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("uuid")
                         .HasColumnOrder(0);
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("ConfigurationKey")
@@ -208,8 +211,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("uuid")
                         .HasColumnOrder(0);
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -370,8 +373,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("Country")
@@ -514,8 +517,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -576,8 +579,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -639,8 +642,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -693,8 +696,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -752,8 +755,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -816,8 +819,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -873,8 +876,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -938,8 +941,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<decimal>("BaseRate")
                         .HasColumnType("numeric");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -1001,8 +1004,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -1058,8 +1061,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -1118,8 +1121,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -1178,8 +1181,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -1232,8 +1235,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -1282,8 +1285,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -1343,8 +1346,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -1399,8 +1402,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -1462,8 +1465,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -1515,8 +1518,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -1579,8 +1582,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -1648,8 +1651,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -1702,8 +1705,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(2);
 
                     b.Property<string>("CreatedBy")
@@ -1919,8 +1922,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("TenantId", "CompanyGuid");
-
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
@@ -1936,8 +1937,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("uuid")
                         .HasColumnOrder(0);
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<int?>("AccountingIntegrationTypeId")
@@ -2052,8 +2053,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
@@ -2588,7 +2589,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2598,7 +2599,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2614,7 +2615,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2630,7 +2631,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2657,7 +2658,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2667,7 +2668,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2677,7 +2678,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2687,7 +2688,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2703,7 +2704,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2713,7 +2714,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2723,7 +2724,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2733,7 +2734,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2743,7 +2744,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2753,7 +2754,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2763,7 +2764,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2773,7 +2774,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2783,7 +2784,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2793,7 +2794,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2803,7 +2804,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2813,7 +2814,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2823,7 +2824,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2833,7 +2834,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2843,7 +2844,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2853,7 +2854,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2863,7 +2864,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2873,7 +2874,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2889,7 +2890,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2905,7 +2906,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", "Company")
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .HasPrincipalKey("TenantId", "CompanyGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

@@ -23,9 +23,8 @@ public sealed class JwtTokenServiceTests
         {
             Id = Guid.NewGuid(),
             TenantId = Guid.NewGuid(),
-            CompanyId = Guid.NewGuid(),
-            Email = "user@test.com",
-            NormalizedEmail = "USER@TEST.COM",
+            CompanyId = 1,
+            Email = "USER@TEST.COM",
             DisplayName = "User",
             Role = UserRoleType.Admin,
             EntraObjectId = "oid-1"

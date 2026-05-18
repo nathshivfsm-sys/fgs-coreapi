@@ -1,5 +1,4 @@
 using FluentValidation;
-using Fgs.User.Domain.Enums;
 
 namespace Fgs.User.Application.Signup;
 
@@ -19,17 +18,6 @@ public sealed class CreateCompanySignupCommandValidator : AbstractValidator<Crea
         RuleFor(x => x.DefaultCurrency)
             .MaximumLength(20)
             .When(x => !string.IsNullOrWhiteSpace(x.DefaultCurrency));
-
-        When(x => !string.IsNullOrWhiteSpace(x.Password), () =>
-        {
-            RuleFor(x => x.Password!)
-                .MinimumLength(12)
-                .MaximumLength(128)
-                .Matches("[A-Z]").WithMessage("Password must contain an uppercase letter.")
-                .Matches("[a-z]").WithMessage("Password must contain a lowercase letter.")
-                .Matches("[0-9]").WithMessage("Password must contain a digit.")
-                .Matches(@"[\W_]").WithMessage("Password must contain a special character.");
-        });
     }
 }
 
@@ -64,7 +52,7 @@ public sealed class SignupCompanyDtoValidator : AbstractValidator<SignupCompanyD
 
         RuleFor(x => x.Address).NotNull().SetValidator(new SignupAddressDtoValidator());
 
-        RuleFor(x => x.CompanySize).IsInEnum();
+        RuleFor(x => x.CompanySize).NotEmpty().MaximumLength(20);
     }
 }
 

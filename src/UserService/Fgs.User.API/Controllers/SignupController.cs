@@ -20,7 +20,7 @@ public sealed class SignupController(IMediator mediator) : ControllerBase
     /// Request body maps to the onboarding questionnaire: <c>contact</c> (name, phone, email),
     /// <c>company</c> (name, website, structured <c>address</c>, companySize), and <c>businessTypeId</c> (industry from <c>GloBusinessType</c>).
     /// Tenant code is derived from the company name; timezone and currency are inferred from <c>company.address</c> (override with optional <c>timeZone</c> / <c>defaultCurrency</c>).
-    /// Returns the standard JSON envelope with invite URL; email delivery uses the outbox.
+    /// Returns the standard JSON envelope with <c>tenantId</c>, <c>companyNumber</c>, <c>companyGuid</c>, user/invitation ids, and invite URL; email delivery uses the outbox.
     /// </remarks>
     [HttpPost("company")]
     [ProducesResponseType(typeof(ApiResponse<CompanySignupResultDto>), StatusCodes.Status201Created)]

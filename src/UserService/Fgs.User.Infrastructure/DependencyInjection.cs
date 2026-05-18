@@ -48,7 +48,6 @@ public static class DependencyInjection
         services.AddScoped<IOutboxWriter, OutboxWriter>();
         services.AddScoped<IAddressLocaleResolver, AddressLocaleResolver>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
-        services.AddSingleton<IPasswordHasher, PasswordHasherService>();
         services.AddSingleton<IEmailNormalizer, EmailNormalizer>();
         services.AddSingleton<IInvitationTokenService, InvitationTokenService>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();

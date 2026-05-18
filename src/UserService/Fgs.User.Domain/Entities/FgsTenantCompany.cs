@@ -1,10 +1,8 @@
-using Fgs.User.Domain.Enums;
-
 namespace Fgs.User.Domain.Entities;
 
 /// <summary>
 /// Tenant company row. <see cref="CompanyGuid"/> is the stable business key used with <see cref="TenantId"/>
-/// for composite foreign keys from other <c>Fgs*</c> tables (aligns with schema reference composite to <c>FgsTenantCompany</c>).
+/// for external references. Other <c>Fgs*</c> tables use <c>CompanyId</c> aligned with <see cref="CompanyNumber"/>.
 /// </summary>
 public class FgsTenantCompany : FgsEntityBase
 {
@@ -18,7 +16,7 @@ public class FgsTenantCompany : FgsEntityBase
 
     public int BusinessTypeId { get; set; }
 
-    public CompanySize? CompanySize { get; set; }
+    public string? CompanySize { get; set; }
 
     public string Code { get; set; } = null!;
 

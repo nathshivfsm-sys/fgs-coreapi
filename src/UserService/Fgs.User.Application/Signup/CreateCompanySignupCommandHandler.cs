@@ -20,8 +20,6 @@ public sealed class CreateCompanySignupCommandHandler
     private const int TenantCompanyMasterEntityTypeId = 2;
 
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly IEmailNormalizer _emailNormalizer;
     private readonly IInvitationTokenService _tokenService;
     private readonly IOutboxWriter _outboxWriter;
     private readonly IDateTimeProvider _dateTime;
@@ -31,8 +29,6 @@ public sealed class CreateCompanySignupCommandHandler
 
     public CreateCompanySignupCommandHandler(
         IUnitOfWork unitOfWork,
-        IPasswordHasher passwordHasher,
-        IEmailNormalizer emailNormalizer,
         IInvitationTokenService tokenService,
         IOutboxWriter outboxWriter,
         IDateTimeProvider dateTime,
@@ -41,8 +37,6 @@ public sealed class CreateCompanySignupCommandHandler
         ISignupUniquenessValidator signupUniquenessValidator)
     {
         _unitOfWork = unitOfWork;
-        _passwordHasher = passwordHasher;
-        _emailNormalizer = emailNormalizer;
         _tokenService = tokenService;
         _outboxWriter = outboxWriter;
         _dateTime = dateTime;
@@ -57,7 +51,6 @@ public sealed class CreateCompanySignupCommandHandler
     {
         var contact = request.Contact;
         var company = request.Company;
-        var normalizedEmail = _emailNormalizer.Normalize(contact.Email);
         var tenantRepo = _unitOfWork.Repository<FgsTenant>();
         var userRepo = _unitOfWork.Repository<FgsUser>();
         var businessTypeRepo = _unitOfWork.Repository<GloBusinessType>();
@@ -99,73 +92,79 @@ public sealed class CreateCompanySignupCommandHandler
                 async ct =>
                 {
                     var now = _dateTime.UtcNow;
+                    var prospectActor = SignupConstants.ProspectActor;
                     var tenantId = Guid.NewGuid();
                     var companyUid = Guid.NewGuid();
+                    const long companyNumber = 1;
                     var userId = Guid.NewGuid();
                     var invitationId = Guid.NewGuid();
                     var locationId = Guid.NewGuid();
 
                     var companyNameTrimmed = company.Name.Trim();
                     var emailTrimmed = contact.Email.Trim();
-                    var phoneTrimmed = contact.PhoneNumber.Trim();
+                    var phoneStored = SignupPhoneNormalizer.ToStorageFormat(contact.PhoneNumber);
                     var companyWebsite = string.IsNullOrWhiteSpace(company.Website) ? null : company.Website.Trim();
+                    var companySize = company.CompanySize.Trim();
 
                     var location = SignupLocationFactory.CreateCompanyLocation(
                         locationId,
                         tenantId,
-                        companyUid,
+                        companyNumber,
                         TenantCompanyMasterEntityTypeId,
                         company.Address,
                         now);
+                    location.CreatedBy = prospectActor;
 
                     var tenant = new FgsTenant
                     {
                         Id = tenantId,
                         TenantCode = tenantCode,
                         Name = companyNameTrimmed,
+                        LegalName = companyNameTrimmed,
                         Email = emailTrimmed,
-                        PhoneNumber = phoneTrimmed,
+                        PhoneNumber = phoneStored,
                         Website = companyWebsite,
                         PhysicalLocationId = locationId,
+                        BillingLocationId = locationId,
                         TimeZone = timeZone,
                         DefaultCurrency = defaultCurrency,
+                        DefaultLanguageId = SignupConstants.DefaultLanguageId,
                         IsActive = true,
-                        CreatedOn = now
+                        CreatedOn = now,
+                        CreatedBy = prospectActor
                     };
 
                     var tenantCompany = new FgsTenantCompany
                     {
                         CompanyGuid = companyUid,
                         TenantId = tenantId,
-                        CompanyNumber = 1,
+                        CompanyNumber = companyNumber,
                         BusinessTypeId = request.BusinessTypeId,
-                        CompanySize = company.CompanySize,
+                        CompanySize = companySize,
                         Code = tenantCode,
                         Name = companyNameTrimmed,
+                        LegalName = companyNameTrimmed,
                         Email = emailTrimmed,
-                        PhoneNumber = phoneTrimmed,
+                        PhoneNumber = phoneStored,
                         Website = companyWebsite,
                         PhysicalLocationId = locationId,
+                        BillingLocationId = locationId,
                         IsActive = true,
-                        CreatedOn = now
+                        CreatedOn = now,
+                        CreatedBy = prospectActor
                     };
-
-                    var passwordHash = string.IsNullOrWhiteSpace(request.Password)
-                        ? null
-                        : _passwordHasher.HashPassword(request.Password.Trim());
 
                     var user = new FgsUser
                     {
                         Id = userId,
                         TenantId = tenantId,
-                        CompanyId = companyUid,
+                        CompanyId = companyNumber,
                         Email = emailTrimmed,
-                        NormalizedEmail = normalizedEmail,
                         DisplayName = contact.Name.Trim(),
-                        PasswordHash = passwordHash,
                         Role = UserRoleType.Admin,
                         IsActive = true,
-                        CreatedOn = now
+                        CreatedOn = now,
+                        CreatedBy = prospectActor
                     };
 
                     var plainToken = _tokenService.GenerateToken();
@@ -181,7 +180,8 @@ public sealed class CreateCompanySignupCommandHandler
                         TokenHash = tokenHash,
                         Status = InvitationStatus.Pending,
                         ExpiresAtUtc = now.AddDays(expiryDays),
-                        CreatedOn = now
+                        CreatedOn = now,
+                        CreatedBy = prospectActor
                     };
 
                     await tenantRepo.AddAsync(tenant, ct);
@@ -222,7 +222,7 @@ public sealed class CreateCompanySignupCommandHandler
 
                     return new CompanySignupResultDto(
                         tenantId,
-                        tenantCompany.Id,
+                        tenantCompany.CompanyNumber,
                         companyUid,
                         userId,
                         invitationId,

@@ -74,9 +74,8 @@ public sealed class EntraCallbackQueryHandlerTests
         {
             Id = userId,
             TenantId = tenantId,
-            CompanyId = companyId,
+            CompanyId = 1,
             Email = inviteEmail,
-            NormalizedEmail = inviteEmail.ToUpperInvariant(),
             DisplayName = "Admin",
             Role = UserRoleType.Admin,
             CreatedOn = DateTimeOffset.UtcNow
