@@ -12,8 +12,13 @@ internal class GloSetupLaborRateTypeConfiguration : IEntityTypeConfiguration<Glo
         entity.ToTable("GloSetupLaborRateType");
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id).UseIdentityByDefaultColumn();
-        entity.HasIndex(e => e.Name).IsUnique();
-        entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+        entity.HasAlternateKey(e => e.Name).HasName("UQ_GloSetupLaborRateType_Name");
+        entity.Property(e => e.SortOrder).HasDefaultValue(0);
+        entity.Property(e => e.IsSystem).HasDefaultValue(true);
+        entity.Property(e => e.IsActive).HasDefaultValue(true);
+        entity.Property(e => e.CreatedOn)
+            .HasColumnType("timestamptz")
+            .HasDefaultValueSql("timezone('utc', now())");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
     }
 }

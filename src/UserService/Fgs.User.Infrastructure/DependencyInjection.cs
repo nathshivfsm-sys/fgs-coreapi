@@ -14,6 +14,7 @@ using Fgs.User.Infrastructure.Persistence;
 using Fgs.User.Infrastructure.Security;
 using Fgs.User.Infrastructure.Time;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -41,6 +42,9 @@ public static class DependencyInjection
                     maxRetryDelay: TimeSpan.FromSeconds(10),
                     errorCodesToAdd: null);
             });
+            // SQL-script migrations may drift from the snapshot; do not block startup or drop constraints.
+            options.ConfigureWarnings(w =>
+                w.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
