@@ -3,6 +3,7 @@ using System;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fgs.User.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(FgsUserDbContext))]
-    partial class FgsUserDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260518163137_Initial_Migration")]
+    partial class Initial_Migration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2297,11 +2300,11 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasAlternateKey("TenantId", "CompanyGuid");
 
-                    b.HasAlternateKey("TenantId", "CompanyNumber")
-                        .HasName("UX_Company_Tenant_CompanyNumber");
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
 
-                    b.HasAlternateKey("TenantId", "Code")
-                        .HasName("UX_Company_Tenant_Code");
+                    b.HasIndex("TenantId", "CompanyNumber")
+                        .IsUnique();
 
                     b.ToTable("FgsTenantCompany", "dbo");
                 });
@@ -2570,8 +2573,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("Code")
-                        .HasName("UX_AccountingIntegrationType_Code");
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.ToTable("GloAccountingIntegrationType", "dbo");
                 });
@@ -2621,8 +2624,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("Code")
-                        .HasName("UX_BusinessType_Code");
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.ToTable("GloBusinessType", "dbo");
                 });
@@ -2958,28 +2961,20 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("Id"));
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamptz")
-                        .HasDefaultValueSql("timezone('utc', now())");
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Description")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsAssignable")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsSystemRole")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -2997,30 +2992,21 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.Property<short>("SortOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint")
-                        .HasDefaultValue((short)0);
+                        .HasColumnType("smallint");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RoleCode")
-                        .IsUnique()
-                        .HasDatabaseName("UX_GloRole_RoleCode");
+                        .IsUnique();
 
-                    b.ToTable("GloRole", "dbo", t =>
-                        {
-                            t.HasCheckConstraint("CK_GloRole_RoleCode_NotEmpty", "length(trim(\"RoleCode\")) > 0");
-
-                            t.HasCheckConstraint("CK_GloRole_Name_NotEmpty", "length(trim(\"Name\")) > 0");
-                        });
+                    b.ToTable("GloRole", "dbo");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloSetupDescriptionType", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("gen_random_uuid()");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -3028,17 +3014,13 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamptz")
-                        .HasDefaultValueSql("timezone('utc', now())");
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -3051,8 +3033,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Code")
-                        .IsUnique()
-                        .HasDatabaseName("UQ_GloSetupDescriptionType_Code");
+                        .IsUnique();
 
                     b.ToTable("GloSetupDescriptionType", "dbo");
                 });
@@ -3070,31 +3051,23 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamptz")
-                        .HasDefaultValueSql("timezone('utc', now())");
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsSystem")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("SortOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
+                        .HasColumnType("integer");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
@@ -3106,8 +3079,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
-                        .IsUnique()
-                        .HasDatabaseName("UQ_GloSetupLaborRateType_Name");
+                        .IsUnique();
 
                     b.ToTable("GloSetupLaborRateType", "dbo");
                 });
