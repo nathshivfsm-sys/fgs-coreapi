@@ -1,8 +1,8 @@
 namespace Fgs.User.Domain.Entities;
 
-public class FgsSetupPriceSheetOther : FgsTenantCompanySetupEntityBase
+public class FgsSetupPricingMatrixOther : FgsTenantCompanySetupGuidEntityBase
 {
-    public long FgsSetupPriceSheetId { get; set; }
+    public Guid FgsSetupPricingMatrixId { get; set; }
 
     public string CategoryCode { get; set; } = null!;
 

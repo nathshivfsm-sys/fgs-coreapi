@@ -332,15 +332,18 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     RoleLevel = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    IsAssignable = table.Column<bool>(type: "boolean", nullable: false),
-                    IsSystemRole = table.Column<bool>(type: "boolean", nullable: false),
-                    SortOrder = table.Column<short>(type: "smallint", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false)
+                    IsAssignable = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    IsSystemRole = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    SortOrder = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false, defaultValueSql: "timezone('utc', now())")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_GloRole", x => x.Id);
+                    table.UniqueConstraint("UX_GloRole_RoleCode", x => x.RoleCode);
+                    table.CheckConstraint("CK_GloRole_RoleCode_NotEmpty", "length(trim(\"RoleCode\")) > 0");
+                    table.CheckConstraint("CK_GloRole_Name_NotEmpty", "length(trim(\"Name\")) > 0");
                 });
 
             migrationBuilder.CreateTable(
@@ -348,17 +351,18 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 schema: "dbo",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
                     Code = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "text", nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false, defaultValueSql: "timezone('utc', now())"),
                     UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_GloSetupDescriptionType", x => x.Id);
+                    table.UniqueConstraint("UQ_GloSetupDescriptionType_Code", x => x.Code);
                 });
 
             migrationBuilder.CreateTable(
@@ -370,10 +374,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: true),
-                    SortOrder = table.Column<int>(type: "integer", nullable: false),
-                    IsSystem = table.Column<bool>(type: "boolean", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    IsSystem = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false, defaultValueSql: "timezone('utc', now())"),
                     CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
                     UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
@@ -381,6 +385,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_GloSetupLaborRateType", x => x.Id);
+                    table.UniqueConstraint("UQ_GloSetupLaborRateType_Name", x => x.Name);
                 });
 
             migrationBuilder.CreateTable(
@@ -983,6 +988,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_GloStateProvince", x => x.Id);
+                    table.UniqueConstraint("UQ_GloStateProvince", x => new { x.CountryCode, x.StateProvinceCode });
                     table.ForeignKey(
                         name: "FK_GloStateProvince_Country",
                         column: x => x.CountryCode,
@@ -2279,33 +2285,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 column: "Code",
                 unique: true);
 
-            migrationBuilder.CreateIndex(
-                name: "IX_GloRole_RoleCode",
-                schema: "dbo",
-                table: "GloRole",
-                column: "RoleCode",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GloSetupDescriptionType_Code",
-                schema: "dbo",
-                table: "GloSetupDescriptionType",
-                column: "Code",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GloSetupLaborRateType_Name",
-                schema: "dbo",
-                table: "GloSetupLaborRateType",
-                column: "Name",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "UQ_GloStateProvince",
-                schema: "dbo",
-                table: "GloStateProvince",
-                columns: new[] { "CountryCode", "StateProvinceCode" },
-                unique: true);
         }
 
         /// <inheritdoc />

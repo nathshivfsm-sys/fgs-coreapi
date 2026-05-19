@@ -5,6 +5,85 @@
 
 START TRANSACTION;
 
+DELETE FROM dbo."GloStateProvince"
+WHERE ("CountryCode", "StateProvinceCode") IN (
+    SELECT v."CountryCode", v."StateProvinceCode"
+    FROM (
+        VALUES
+            ('US', 'AL'), ('US', 'AK'), ('US', 'AZ'), ('US', 'AR'), ('US', 'CA'),
+            ('US', 'CO'), ('US', 'CT'), ('US', 'DE'), ('US', 'FL'), ('US', 'GA'),
+            ('US', 'HI'), ('US', 'ID'), ('US', 'IL'), ('US', 'IN'), ('US', 'IA'),
+            ('US', 'KS'), ('US', 'KY'), ('US', 'LA'), ('US', 'ME'), ('US', 'MD'),
+            ('US', 'MA'), ('US', 'MI'), ('US', 'MN'), ('US', 'MS'), ('US', 'MO'),
+            ('US', 'MT'), ('US', 'NE'), ('US', 'NV'), ('US', 'NH'), ('US', 'NJ'),
+            ('US', 'NM'), ('US', 'NY'), ('US', 'NC'), ('US', 'ND'), ('US', 'OH'),
+            ('US', 'OK'), ('US', 'OR'), ('US', 'PA'), ('US', 'RI'), ('US', 'SC'),
+            ('US', 'SD'), ('US', 'TN'), ('US', 'TX'), ('US', 'UT'), ('US', 'VT'),
+            ('US', 'VA'), ('US', 'WA'), ('US', 'WV'), ('US', 'WI'), ('US', 'WY'),
+            ('US', 'DC'),
+            ('CA', 'AB'), ('CA', 'BC'), ('CA', 'MB'), ('CA', 'NB'), ('CA', 'NL'),
+            ('CA', 'NS'), ('CA', 'ON'), ('CA', 'PE'), ('CA', 'QC'), ('CA', 'SK'),
+            ('CA', 'NT'), ('CA', 'NU'), ('CA', 'YT')
+    ) AS v("CountryCode", "StateProvinceCode")
+);
+
+DELETE FROM dbo."GloCredentialProviderType"
+WHERE "Code" IN (
+    'AWS',
+    'AZURE',
+    'TWILIO',
+    'STRIPE',
+    'PAYPAL',
+    'QUICKBOOKS',
+    'SHOPIFY',
+    'HUBSPOT',
+    'MAILCHIMP',
+    'SENDGRID',
+    'GOOGLE',
+    'MICROSOFT',
+    'META',
+    'DOCUSIGN',
+    'CUSTOM',
+    'OTHER'
+);
+
+DELETE FROM dbo."GloCredentialCategory"
+WHERE "Code" IN (
+    'API_KEY',
+    'OAUTH',
+    'DATABASE',
+    'SMTP',
+    'AWS',
+    'AZURE',
+    'PAYMENT_GATEWAY',
+    'TWILIO',
+    'STRIPE',
+    'QUICKBOOKS',
+    'SERVICE_ACCOUNT',
+    'SSH',
+    'ENCRYPTION',
+    'WEBHOOK'
+);
+
+DELETE FROM dbo."GloCountry"
+WHERE "CountryCode" IN (
+    'US',
+    'CA'
+);
+
+DELETE FROM dbo."GloBillingCategory"
+WHERE "BillingCategoryType" IN (
+    'EQ',
+    'MT',
+    'LB',
+    'SB',
+    'SF',
+    'SH',
+    'TX',
+    'DS',
+    'OT'
+);
+
 DELETE FROM dbo."GloSetupLaborRateType"
 WHERE "Name" IN (
     'Regular',

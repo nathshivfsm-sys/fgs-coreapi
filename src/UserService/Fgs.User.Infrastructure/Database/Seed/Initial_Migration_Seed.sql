@@ -205,6 +205,239 @@ SELECT setval(
     COALESCE((SELECT MAX("Id") FROM dbo."GloBusinessType"), 1),
     true);
 
+-- GloBillingCategory (no CreatedOn/CreatedBy columns)
+INSERT INTO dbo."GloBillingCategory"
+(
+    "BillingCategoryType",
+    "BillingCategoryName"
+)
+SELECT
+    v."BillingCategoryType",
+    v."BillingCategoryName"
+FROM (
+    VALUES
+        ('EQ', 'Equipment'),
+        ('MT', 'Material'),
+        ('LB', 'Labor'),
+        ('SB', 'Sub Contractor'),
+        ('SF', 'Service Fee'),
+        ('SH', 'Shipping'),
+        ('TX', 'Tax'),
+        ('DS', 'Discount'),
+        ('OT', 'Other')
+) AS v("BillingCategoryType", "BillingCategoryName")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloBillingCategory" t
+    WHERE t."BillingCategoryType" = v."BillingCategoryType"
+);
+
+-- GloCountry (no CreatedOn/CreatedBy columns)
+INSERT INTO dbo."GloCountry"
+(
+    "CountryCode",
+    "CountryName",
+    "CurrencyCode",
+    "IsActive"
+)
+SELECT
+    v."CountryCode",
+    v."CountryName",
+    v."CurrencyCode",
+    v."IsActive"
+FROM (
+    VALUES
+        ('US', 'United States', 'USD', true),
+        ('CA', 'Canada', 'CAD', true)
+) AS v("CountryCode", "CountryName", "CurrencyCode", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloCountry" t
+    WHERE t."CountryCode" = v."CountryCode"
+);
+
+-- GloCredentialCategory
+INSERT INTO dbo."GloCredentialCategory"
+(
+    "Code",
+    "Name",
+    "IsActive",
+    "CreatedOn",
+    "UpdatedOn"
+)
+SELECT
+    v."Code",
+    v."Name",
+    v."IsActive",
+    timezone('utc', now()),
+    NULL::timestamptz
+FROM (
+    VALUES
+        ('API_KEY', 'API Key', true),
+        ('OAUTH', 'OAuth Credentials', true),
+        ('DATABASE', 'Database Credentials', true),
+        ('SMTP', 'SMTP Email Credentials', true),
+        ('AWS', 'AWS Access Credentials', true),
+        ('AZURE', 'Azure Access Credentials', true),
+        ('PAYMENT_GATEWAY', 'Payment Gateway Credentials', true),
+        ('TWILIO', 'Twilio Credentials', true),
+        ('STRIPE', 'Stripe Credentials', true),
+        ('QUICKBOOKS', 'QuickBooks Credentials', true),
+        ('SERVICE_ACCOUNT', 'Service Account Credentials', true),
+        ('SSH', 'SSH Credentials', true),
+        ('ENCRYPTION', 'Encryption Keys', true),
+        ('WEBHOOK', 'Webhook Secret', true)
+) AS v("Code", "Name", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloCredentialCategory" t
+    WHERE t."Code" = v."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloCredentialCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloCredentialCategory"), 1),
+    true);
+
+-- GloCredentialProviderType
+INSERT INTO dbo."GloCredentialProviderType"
+(
+    "Code",
+    "Name",
+    "IsActive",
+    "CreatedOn",
+    "UpdatedOn"
+)
+SELECT
+    v."Code",
+    v."Name",
+    v."IsActive",
+    timezone('utc', now()),
+    NULL::timestamptz
+FROM (
+    VALUES
+        ('AWS', 'Amazon Web Services', true),
+        ('AZURE', 'Microsoft Azure', true),
+        ('TWILIO', 'Twilio', true),
+        ('STRIPE', 'Stripe', true),
+        ('PAYPAL', 'PayPal', true),
+        ('QUICKBOOKS', 'QuickBooks', true),
+        ('SHOPIFY', 'Shopify', true),
+        ('HUBSPOT', 'HubSpot', true),
+        ('MAILCHIMP', 'Mailchimp', true),
+        ('SENDGRID', 'SendGrid', true),
+        ('GOOGLE', 'Google Services', true),
+        ('MICROSOFT', 'Microsoft Services', true),
+        ('META', 'Meta / Facebook', true),
+        ('DOCUSIGN', 'DocuSign', true),
+        ('CUSTOM', 'Custom Provider', true),
+        ('OTHER', 'Other Provider', true)
+) AS v("Code", "Name", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloCredentialProviderType" t
+    WHERE t."Code" = v."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloCredentialProviderType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloCredentialProviderType"), 1),
+    true);
+
+-- GloStateProvince (requires GloCountry; no CreatedOn/CreatedBy columns)
+INSERT INTO dbo."GloStateProvince"
+(
+    "CountryCode",
+    "StateProvinceCode",
+    "StateProvinceName",
+    "IsActive"
+)
+SELECT
+    v."CountryCode",
+    v."StateProvinceCode",
+    v."StateProvinceName",
+    v."IsActive"
+FROM (
+    VALUES
+        -- United States
+        ('US', 'AL', 'Alabama', true),
+        ('US', 'AK', 'Alaska', true),
+        ('US', 'AZ', 'Arizona', true),
+        ('US', 'AR', 'Arkansas', true),
+        ('US', 'CA', 'California', true),
+        ('US', 'CO', 'Colorado', true),
+        ('US', 'CT', 'Connecticut', true),
+        ('US', 'DE', 'Delaware', true),
+        ('US', 'FL', 'Florida', true),
+        ('US', 'GA', 'Georgia', true),
+        ('US', 'HI', 'Hawaii', true),
+        ('US', 'ID', 'Idaho', true),
+        ('US', 'IL', 'Illinois', true),
+        ('US', 'IN', 'Indiana', true),
+        ('US', 'IA', 'Iowa', true),
+        ('US', 'KS', 'Kansas', true),
+        ('US', 'KY', 'Kentucky', true),
+        ('US', 'LA', 'Louisiana', true),
+        ('US', 'ME', 'Maine', true),
+        ('US', 'MD', 'Maryland', true),
+        ('US', 'MA', 'Massachusetts', true),
+        ('US', 'MI', 'Michigan', true),
+        ('US', 'MN', 'Minnesota', true),
+        ('US', 'MS', 'Mississippi', true),
+        ('US', 'MO', 'Missouri', true),
+        ('US', 'MT', 'Montana', true),
+        ('US', 'NE', 'Nebraska', true),
+        ('US', 'NV', 'Nevada', true),
+        ('US', 'NH', 'New Hampshire', true),
+        ('US', 'NJ', 'New Jersey', true),
+        ('US', 'NM', 'New Mexico', true),
+        ('US', 'NY', 'New York', true),
+        ('US', 'NC', 'North Carolina', true),
+        ('US', 'ND', 'North Dakota', true),
+        ('US', 'OH', 'Ohio', true),
+        ('US', 'OK', 'Oklahoma', true),
+        ('US', 'OR', 'Oregon', true),
+        ('US', 'PA', 'Pennsylvania', true),
+        ('US', 'RI', 'Rhode Island', true),
+        ('US', 'SC', 'South Carolina', true),
+        ('US', 'SD', 'South Dakota', true),
+        ('US', 'TN', 'Tennessee', true),
+        ('US', 'TX', 'Texas', true),
+        ('US', 'UT', 'Utah', true),
+        ('US', 'VT', 'Vermont', true),
+        ('US', 'VA', 'Virginia', true),
+        ('US', 'WA', 'Washington', true),
+        ('US', 'WV', 'West Virginia', true),
+        ('US', 'WI', 'Wisconsin', true),
+        ('US', 'WY', 'Wyoming', true),
+        ('US', 'DC', 'District of Columbia', true),
+        -- Canada
+        ('CA', 'AB', 'Alberta', true),
+        ('CA', 'BC', 'British Columbia', true),
+        ('CA', 'MB', 'Manitoba', true),
+        ('CA', 'NB', 'New Brunswick', true),
+        ('CA', 'NL', 'Newfoundland and Labrador', true),
+        ('CA', 'NS', 'Nova Scotia', true),
+        ('CA', 'ON', 'Ontario', true),
+        ('CA', 'PE', 'Prince Edward Island', true),
+        ('CA', 'QC', 'Quebec', true),
+        ('CA', 'SK', 'Saskatchewan', true),
+        ('CA', 'NT', 'Northwest Territories', true),
+        ('CA', 'NU', 'Nunavut', true),
+        ('CA', 'YT', 'Yukon', true)
+) AS v("CountryCode", "StateProvinceCode", "StateProvinceName", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloStateProvince" t
+    WHERE t."CountryCode" = v."CountryCode"
+      AND t."StateProvinceCode" = v."StateProvinceCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloStateProvince"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloStateProvince"), 1),
+    true);
+
 -- GloPaymentMethodType (no CreatedOn/CreatedBy columns)
 INSERT INTO dbo."GloPaymentMethodType"
 (
