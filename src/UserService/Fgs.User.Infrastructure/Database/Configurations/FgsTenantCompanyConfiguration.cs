@@ -14,9 +14,10 @@ internal class FgsTenantCompanyConfiguration : IEntityTypeConfiguration<FgsTenan
         entity.Property(e => e.TenantId).HasColumnOrder(1);
         entity.Property(e => e.CompanyGuid).HasColumnOrder(2);
         entity.HasAlternateKey(e => new { e.TenantId, e.CompanyGuid });
-        entity.HasAlternateKey(e => new { e.TenantId, e.CompanyNumber });
-        entity.HasIndex(e => new { e.TenantId, e.CompanyNumber }).IsUnique();
-        entity.HasIndex(e => new { e.TenantId, e.Code }).IsUnique();
+        entity.HasAlternateKey(e => new { e.TenantId, e.CompanyNumber })
+            .HasName("UX_Company_Tenant_CompanyNumber");
+        entity.HasAlternateKey(e => new { e.TenantId, e.Code })
+            .HasName("UX_Company_Tenant_Code");
         entity.Property(e => e.Code).HasMaxLength(100);
         entity.Property(e => e.Name).HasMaxLength(200);
         entity.Property(e => e.LegalName).HasMaxLength(300);

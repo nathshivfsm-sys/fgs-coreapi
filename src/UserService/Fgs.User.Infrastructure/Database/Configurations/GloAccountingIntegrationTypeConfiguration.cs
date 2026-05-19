@@ -12,7 +12,8 @@ internal class GloAccountingIntegrationTypeConfiguration : IEntityTypeConfigurat
         entity.ToTable("GloAccountingIntegrationType");
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id).UseIdentityByDefaultColumn();
-        entity.HasIndex(e => e.Code).IsUnique();
+        entity.HasAlternateKey(e => e.Code)
+            .HasName("UX_AccountingIntegrationType_Code");
         entity.Property(e => e.Code).HasMaxLength(100);
         entity.Property(e => e.Name).HasMaxLength(200);
         entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");

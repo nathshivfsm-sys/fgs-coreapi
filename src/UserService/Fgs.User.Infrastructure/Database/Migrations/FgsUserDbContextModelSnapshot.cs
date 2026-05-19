@@ -2297,11 +2297,11 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasAlternateKey("TenantId", "CompanyGuid");
 
-                    b.HasIndex("TenantId", "Code")
-                        .IsUnique();
+                    b.HasAlternateKey("TenantId", "CompanyNumber")
+                        .HasName("UX_Company_Tenant_CompanyNumber");
 
-                    b.HasIndex("TenantId", "CompanyNumber")
-                        .IsUnique();
+                    b.HasAlternateKey("TenantId", "Code")
+                        .HasName("UX_Company_Tenant_Code");
 
                     b.ToTable("FgsTenantCompany", "dbo");
                 });
@@ -2570,8 +2570,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Code")
-                        .IsUnique();
+                    b.HasAlternateKey("Code")
+                        .HasName("UX_AccountingIntegrationType_Code");
 
                     b.ToTable("GloAccountingIntegrationType", "dbo");
                 });
@@ -2621,8 +2621,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Code")
-                        .IsUnique();
+                    b.HasAlternateKey("Code")
+                        .HasName("UX_BusinessType_Code");
 
                     b.ToTable("GloBusinessType", "dbo");
                 });

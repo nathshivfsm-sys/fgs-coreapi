@@ -108,7 +108,8 @@ BEGIN
         "UpdatedBy" character varying(100),
         CONSTRAINT "PK_FgsTenantCompany" PRIMARY KEY ("Id"),
         CONSTRAINT "AK_FgsTenantCompany_TenantId_CompanyGuid" UNIQUE ("TenantId", "CompanyGuid"),
-        CONSTRAINT "AK_FgsTenantCompany_TenantId_CompanyNumber" UNIQUE ("TenantId", "CompanyNumber")
+        CONSTRAINT "UX_Company_Tenant_CompanyNumber" UNIQUE ("TenantId", "CompanyNumber"),
+        CONSTRAINT "UX_Company_Tenant_Code" UNIQUE ("TenantId", "Code")
     );
     END IF;
 END $EF$;
@@ -123,7 +124,8 @@ BEGIN
         "IsActive" boolean NOT NULL,
         "CreatedOn" timestamptz NOT NULL,
         "UpdatedOn" timestamptz,
-        CONSTRAINT "PK_GloAccountingIntegrationType" PRIMARY KEY ("Id")
+        CONSTRAINT "PK_GloAccountingIntegrationType" PRIMARY KEY ("Id"),
+        CONSTRAINT "UX_AccountingIntegrationType_Code" UNIQUE ("Code")
     );
     END IF;
 END $EF$;
@@ -149,7 +151,8 @@ BEGIN
         "IsActive" boolean NOT NULL,
         "CreatedOn" timestamptz NOT NULL,
         "UpdatedOn" timestamptz,
-        CONSTRAINT "PK_GloBusinessType" PRIMARY KEY ("Id")
+        CONSTRAINT "PK_GloBusinessType" PRIMARY KEY ("Id"),
+        CONSTRAINT "UX_BusinessType_Code" UNIQUE ("Code")
     );
     END IF;
 END $EF$;
@@ -1763,20 +1766,6 @@ END $EF$;
 DO $EF$
 BEGIN
     IF NOT EXISTS(SELECT 1 FROM dbo."__EFMigrationsHistory" WHERE "MigrationId" = '20260518163137_Initial_Migration') THEN
-    CREATE UNIQUE INDEX "IX_FgsTenantCompany_TenantId_Code" ON dbo."FgsTenantCompany" ("TenantId", "Code");
-    END IF;
-END $EF$;
-
-DO $EF$
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM dbo."__EFMigrationsHistory" WHERE "MigrationId" = '20260518163137_Initial_Migration') THEN
-    CREATE UNIQUE INDEX "IX_FgsTenantCompany_TenantId_CompanyNumber" ON dbo."FgsTenantCompany" ("TenantId", "CompanyNumber");
-    END IF;
-END $EF$;
-
-DO $EF$
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM dbo."__EFMigrationsHistory" WHERE "MigrationId" = '20260518163137_Initial_Migration') THEN
     CREATE INDEX "IX_FgsTenantServiceSetup_GloTimeCardOptionId" ON dbo."FgsTenantServiceSetup" ("GloTimeCardOptionId");
     END IF;
 END $EF$;
@@ -1834,20 +1823,6 @@ DO $EF$
 BEGIN
     IF NOT EXISTS(SELECT 1 FROM dbo."__EFMigrationsHistory" WHERE "MigrationId" = '20260518163137_Initial_Migration') THEN
     CREATE UNIQUE INDEX "IX_FgsUserRole_UserId_GloRoleId" ON dbo."FgsUserRole" ("UserId", "GloRoleId") WHERE "GloRoleId" IS NOT NULL;
-    END IF;
-END $EF$;
-
-DO $EF$
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM dbo."__EFMigrationsHistory" WHERE "MigrationId" = '20260518163137_Initial_Migration') THEN
-    CREATE UNIQUE INDEX "IX_GloAccountingIntegrationType_Code" ON dbo."GloAccountingIntegrationType" ("Code");
-    END IF;
-END $EF$;
-
-DO $EF$
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM dbo."__EFMigrationsHistory" WHERE "MigrationId" = '20260518163137_Initial_Migration') THEN
-    CREATE UNIQUE INDEX "IX_GloBusinessType_Code" ON dbo."GloBusinessType" ("Code");
     END IF;
 END $EF$;
 
