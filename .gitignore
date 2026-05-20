@@ -13,3 +13,4 @@
 /deployment/nginx/logs/
 /deployment/nginx/certs/*.crt
 /deployment/nginx/certs/*.key
+/src/UserService/TestResults

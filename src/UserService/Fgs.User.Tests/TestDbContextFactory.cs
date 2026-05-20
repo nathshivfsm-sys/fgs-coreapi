@@ -1,4 +1,4 @@
-using Fgs.User.Infrastructure.Database;
+using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 

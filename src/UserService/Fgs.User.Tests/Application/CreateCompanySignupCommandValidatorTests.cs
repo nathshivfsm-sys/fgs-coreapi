@@ -1,4 +1,5 @@
-using Fgs.User.Application.Signup;
+using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
+using Fgs.User.Application.Features.Signup.DTOs;
 
 namespace Fgs.User.Tests.Application;
 

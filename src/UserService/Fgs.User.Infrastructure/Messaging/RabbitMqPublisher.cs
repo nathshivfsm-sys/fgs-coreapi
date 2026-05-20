@@ -1,7 +1,8 @@
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
-using Fgs.User.Infrastructure.Options;
+using Fgs.User.Application.Abstractions.Messaging;
+using Fgs.User.Infrastructure.Common.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;

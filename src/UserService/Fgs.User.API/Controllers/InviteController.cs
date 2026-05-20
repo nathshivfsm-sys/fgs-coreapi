@@ -1,4 +1,5 @@
-using Fgs.User.Application.Invitations;
+using Fgs.User.API.Constants;
+using Fgs.User.Application.Features.Invitations.Queries.StartInvitation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +22,8 @@ public sealed class InviteController : ControllerBase
     /// <param name="token">Opaque token from the signup invitation email.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
     /// <remarks>
-    /// Returns 302 to Entra on success; 400 with error body on invalid or expired token.
+    /// Returns 302 to Entra on success (including when the invitation was already accepted — user is sent to Entra sign-in);
+    /// 400 with error body on invalid or expired token.
     /// </remarks>
     [HttpGet("start")]
     [ProducesResponseType(StatusCodes.Status302Found)]
@@ -31,7 +33,7 @@ public sealed class InviteController : ControllerBase
         var result = await _mediator.Send(new StartInvitationQuery(token), cancellationToken);
         if (!result.Success || string.IsNullOrWhiteSpace(result.RedirectUrl))
         {
-            return BadRequest(new { success = false, errors = new[] { result.ErrorMessage ?? "Invalid invitation." } });
+            return BadRequest(new { success = false, errors = new[] { result.ErrorMessage ?? ApiErrorMessages.InvalidInvitation } });
         }
 
         return Redirect(result.RedirectUrl);

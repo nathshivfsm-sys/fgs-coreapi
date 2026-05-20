@@ -1,4 +1,4 @@
-using Fgs.User.Application.Signup;
+using Fgs.User.Application.Features.Signup.DTOs;
 
 namespace Fgs.User.Application.Abstractions.Geo;
 

@@ -1,10 +1,10 @@
 using Fgs.User.Application.Abstractions.Persistence;
-using Fgs.User.Application.Signup;
+using Fgs.User.Application.Features.Signup.DTOs;
 using Fgs.User.Domain.Entities;
-using Fgs.User.Infrastructure.Database;
-using Fgs.User.Infrastructure.Geo;
-using Fgs.User.Infrastructure.Options;
-using Fgs.User.Infrastructure.Persistence;
+using Fgs.User.Infrastructure.Common.Geo;
+using Fgs.User.Infrastructure.Common.Options;
+using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
+using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 using Microsoft.Extensions.Options;
 
 namespace Fgs.User.Tests.Application;

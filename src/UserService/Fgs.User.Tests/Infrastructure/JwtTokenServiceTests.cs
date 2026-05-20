@@ -1,7 +1,7 @@
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
-using Fgs.User.Infrastructure.Options;
-using Fgs.User.Infrastructure.Security;
+using Fgs.User.Infrastructure.Common.Options;
+using Fgs.User.Infrastructure.Common.Security;
 using Microsoft.Extensions.Options;
 
 namespace Fgs.User.Tests.Infrastructure;

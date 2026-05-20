@@ -1,8 +1,7 @@
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Domain.Enums;
-using Fgs.User.Infrastructure.Database;
+using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Infrastructure.Messaging;
-using Fgs.User.Infrastructure.Time;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.User.Tests.Infrastructure;

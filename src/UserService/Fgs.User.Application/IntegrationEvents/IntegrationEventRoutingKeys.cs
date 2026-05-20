@@ -8,14 +8,6 @@ public static class IntegrationEventRoutingKeys
 {
     public const string Prefix = "user.";
 
-    public const string CompanySignupInviteEmail = "user.CompanySignupInviteEmail";
-
-    public const string UserInvited = "user.UserInvited";
-
-    public const string PasswordReset = "user.PasswordReset";
-
-    public const string CompanyCreated = "user.CompanyCreated";
-
     public static string ForEventType(string eventType, string? routingKeyPrefix = null) =>
         $"{routingKeyPrefix ?? Prefix}{eventType}";
 }
