@@ -23,8 +23,6 @@ public class FgsInvitation : FgsEntityBase
 
     public DateTimeOffset? AcceptedAtUtc { get; set; }
 
-    public bool IsDeleted { get; set; }
-
     public FgsUser? User { get; set; }
 
     public bool IsActive =>

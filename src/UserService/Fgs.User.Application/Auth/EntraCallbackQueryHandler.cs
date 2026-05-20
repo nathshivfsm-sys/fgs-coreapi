@@ -63,7 +63,7 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
 
         var invitationRepo = _unitOfWork.Repository<FgsInvitation>();
         var invitation = await invitationRepo.GetByIdAsync(invitationId, cancellationToken);
-        if (invitation is null || invitation.IsDeleted)
+        if (invitation is null)
         {
             return ApiResponse<EntraCallbackResultDto>.Fail(
                 ["Invitation not found."],

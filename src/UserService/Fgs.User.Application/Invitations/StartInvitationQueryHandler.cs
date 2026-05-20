@@ -25,15 +25,29 @@ public sealed class StartInvitationQueryHandler(
             return new StartInvitationResult(false, null, "Invitation token is required.");
         }
 
+        var tokenHash = tokenService.HashToken(request.Token);
         var invitations = unitOfWork.Repository<FgsInvitation>();
-        var pending = await invitations.ListAsync(
-            i => !i.IsDeleted && i.Status == InvitationStatus.Pending,
+        var matched = await invitations.FirstOrDefaultAsync(
+            i => i.TokenHash == tokenHash,
             cancellationToken);
 
-        var matched = pending.FirstOrDefault(i => tokenService.VerifyToken(request.Token, i.TokenHash));
         if (matched is null)
         {
             return new StartInvitationResult(false, null, "Invalid invitation token.");
+        }
+
+        var redirectUri = configuration["EntraExternalId:RedirectUri"]
+            ?? "https://localhost:8443/api/auth/entra/callback";
+
+        if (matched.Status == InvitationStatus.Accepted)
+        {
+            var loginUrl = entraService.BuildAuthorizationUrl(matched.Id, redirectUri, matched.Email);
+            return new StartInvitationResult(true, loginUrl, null);
+        }
+
+        if (matched.Status != InvitationStatus.Pending)
+        {
+            return new StartInvitationResult(false, null, "Invitation is not active.");
         }
 
         if (matched.ExpiresAtUtc <= dateTime.UtcNow)
@@ -44,8 +58,6 @@ public sealed class StartInvitationQueryHandler(
             return new StartInvitationResult(false, null, "Invitation has expired.");
         }
 
-        var redirectUri = configuration["EntraExternalId:RedirectUri"]
-            ?? "https://localhost:8443/api/auth/entra/callback";
         var authorizeUrl = entraService.BuildAuthorizationUrl(matched.Id, redirectUri, matched.Email);
         return new StartInvitationResult(true, authorizeUrl, null);
     }

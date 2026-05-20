@@ -1198,10 +1198,12 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrixLaborTier", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -1252,10 +1254,12 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrixMaterialTier", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")

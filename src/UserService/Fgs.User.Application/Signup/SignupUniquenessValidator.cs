@@ -53,9 +53,7 @@ public sealed class SignupUniquenessValidator : ISignupUniquenessValidator
 
         var now = _dateTime.UtcNow;
         var invitations = await invitationRepo.ListAsync(
-            i => !i.IsDeleted
-                && i.Status == InvitationStatus.Pending
-                && i.ExpiresAtUtc > now,
+            i => i.Status == InvitationStatus.Pending && i.ExpiresAtUtc > now,
             cancellationToken);
 
         return invitations.Any(i => _emailNormalizer.Normalize(i.Email) == normalizedEmail);

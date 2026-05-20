@@ -1,6 +1,7 @@
 using Fgs.User.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Fgs.User.Infrastructure.Database.Configurations;
 
@@ -10,8 +11,9 @@ internal class FgsSetupPricingMatrixLaborTierConfiguration : IEntityTypeConfigur
     {
         entity.ToTable("FgsSetupPricingMatrixLaborTier");
         entity.HasKey(e => e.Id);
-        entity.ConfigureTenantCompanyGuidSetupColumns();
-        entity.ConfigureTenantCompanyGuidSetupFk("FK_FgsSetupPricingMatrixLaborTier_Company");
+        entity.Property(e => e.Id).UseIdentityByDefaultColumn().HasColumnType("integer");
+        entity.ConfigureTenantCompanySetupColumns();
+        entity.ConfigureTenantCompanySetupFk("FK_FgsSetupPricingMatrixLaborTier_Company");
         entity.Property(e => e.Rate).HasPrecision(18, 2);
         entity.HasOne<FgsSetupPricingMatrixLabor>()
             .WithMany()

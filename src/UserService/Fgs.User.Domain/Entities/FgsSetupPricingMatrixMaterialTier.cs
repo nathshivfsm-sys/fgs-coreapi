@@ -1,6 +1,6 @@
 namespace Fgs.User.Domain.Entities;
 
-public class FgsSetupPricingMatrixMaterialTier : FgsTenantCompanySetupGuidEntityBase
+public class FgsSetupPricingMatrixMaterialTier : FgsTenantCompanySetupEntityBase
 {
     public Guid FgsSetupPricingMatrixId { get; set; }
 

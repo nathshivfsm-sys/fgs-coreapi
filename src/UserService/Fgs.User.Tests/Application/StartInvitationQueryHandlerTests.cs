@@ -62,4 +62,52 @@ public sealed class StartInvitationQueryHandlerTests
         result.Success.Should().BeTrue();
         result.RedirectUrl.Should().StartWith("https://login.example");
     }
+
+    [Fact]
+    public async Task Handle_WithAcceptedInvitation_ReturnsEntraLoginRedirect()
+    {
+        var tokenService = new InvitationTokenService();
+        var plain = tokenService.GenerateToken();
+        var hash = tokenService.HashToken(plain);
+
+        var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        var invitationId = Guid.NewGuid();
+        context.FgsInvitations.Add(new FgsInvitation
+        {
+            Id = invitationId,
+            UserId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            Email = "verified@test.com",
+            TokenHash = hash,
+            Status = InvitationStatus.Accepted,
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            AcceptedAtUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        await context.SaveChangesAsync();
+
+        var entraMock = new Mock<IEntraExternalIdService>();
+        entraMock
+            .Setup(s => s.BuildAuthorizationUrl(invitationId, It.IsAny<string>(), "verified@test.com"))
+            .Returns("https://login.example/signin");
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["EntraExternalId:RedirectUri"] = "https://localhost/callback"
+            })
+            .Build();
+
+        var handler = new StartInvitationQueryHandler(
+            new UnitOfWork(context),
+            tokenService,
+            entraMock.Object,
+            new DateTimeProvider(),
+            configuration);
+
+        var result = await handler.Handle(new StartInvitationQuery(plain), CancellationToken.None);
+
+        result.Success.Should().BeTrue();
+        result.RedirectUrl.Should().StartWith("https://login.example/signin");
+    }
 }
