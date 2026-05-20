@@ -1,4 +1,4 @@
-using Fgs.User.Infrastructure.Security;
+using Fgs.User.Infrastructure.Common.Security;
 
 namespace Fgs.User.Tests.Infrastructure;
 

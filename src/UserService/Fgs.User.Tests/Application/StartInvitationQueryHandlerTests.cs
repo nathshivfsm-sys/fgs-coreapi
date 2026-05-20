@@ -5,9 +5,9 @@ using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Application.Features.Invitations.Queries.StartInvitation;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
-using Fgs.User.Infrastructure.Persistence;
-using Fgs.User.Infrastructure.Security;
-using Fgs.User.Infrastructure.Time;
+using Fgs.User.Infrastructure.Common.Security;
+using Fgs.User.Infrastructure.Common.Time;
+using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
 using Microsoft.Extensions.Configuration;
 using Moq;
 

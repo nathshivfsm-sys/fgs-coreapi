@@ -2,7 +2,7 @@ using Fgs.User.Application.Abstractions.Messaging;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
-using Fgs.User.Infrastructure.Database;
+using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 
 namespace Fgs.User.Infrastructure.Messaging;
 

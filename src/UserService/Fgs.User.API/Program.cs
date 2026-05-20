@@ -4,12 +4,12 @@ using Fgs.User.API.Middleware;
 using Fgs.User.API.Swagger;
 using Fgs.User.Application;
 using Fgs.User.Infrastructure;
-using Fgs.User.Infrastructure.Database;
-using Fgs.User.Infrastructure.Options;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Net.Sockets;
+using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
+using Fgs.User.Infrastructure.Common.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -10,16 +10,16 @@ using Fgs.User.Application.Features.Signup;
 using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 using Fgs.User.Application.Features.Signup.DTOs;
 using Fgs.User.Domain.Entities;
-using Fgs.User.Infrastructure.Database;
-using Fgs.User.Infrastructure.Geo;
-using Fgs.User.Infrastructure.Options;
+using Fgs.User.Infrastructure.Common.Geo;
+using Fgs.User.Infrastructure.Common.Options;
+using Fgs.User.Infrastructure.Common.Security;
+using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Infrastructure.Messaging;
-using Fgs.User.Infrastructure.Persistence;
-using Fgs.User.Infrastructure.Security;
-using Fgs.User.Infrastructure.Time;
+using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 
 namespace Fgs.User.Tests.Application;
 

@@ -6,10 +6,10 @@ using Fgs.User.Application.Features.Auth.Queries.EntraCallback;
 using Fgs.User.Application.Common;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
-using Fgs.User.Infrastructure.Database;
-using Fgs.User.Infrastructure.Persistence;
-using Fgs.User.Infrastructure.Security;
-using Fgs.User.Infrastructure.Time;
+using Fgs.User.Infrastructure.Common.Security;
+using Fgs.User.Infrastructure.Common.Time;
+using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
+using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -114,7 +114,7 @@ public sealed class EntraCallbackQueryHandlerTests
             new UnitOfWork(context),
             entraMock.Object,
             new JwtTokenService(Microsoft.Extensions.Options.Options.Create(
-                new Fgs.User.Infrastructure.Options.JwtOptions
+                new Fgs.User.Infrastructure.Common.Options.JwtOptions
                 {
                     Issuer = "test",
                     Audience = "test",
