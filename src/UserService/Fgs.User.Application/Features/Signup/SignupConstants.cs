@@ -11,4 +11,12 @@ public static class SignupConstants
     public const string ProspectActor = "Prospect";
 
     public const int DefaultLanguageId = 1;
+
+    public const int TenantCompanyMasterEntityTypeId = 2;
+
+    public const int DefaultInvitationExpiryDays = 7;
+
+    public const int MinimumExpirationHours = 1;
+
+    public const int TenantCodeSuffixAttempts = 5;
 }

@@ -3,6 +3,7 @@ using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Application.Common;
+using Fgs.User.Application.Features.Auth;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 using MediatR;
@@ -42,12 +43,12 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
         if (!Guid.TryParse(request.State, out var invitationId))
         {
             return ApiResponse<EntraCallbackResultDto>.Fail(
-                ["Invalid OAuth state."],
+                [AuthErrorMessages.InvalidOAuthState],
                 ApiStatusCodes.BadRequest);
         }
 
-        var redirectUri = _configuration["EntraExternalId:RedirectUri"]
-            ?? "https://localhost:8443/api/auth/entra/callback";
+        var redirectUri = _configuration[ConfigurationKeys.EntraExternalId.RedirectUri]
+            ?? ApplicationUrlDefaults.EntraCallbackRedirect;
 
         EntraTokenResult entraUser;
         try
@@ -57,7 +58,7 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
         catch (Exception)
         {
             return ApiResponse<EntraCallbackResultDto>.Fail(
-                ["Failed to exchange authorization code with Entra."],
+                [AuthErrorMessages.EntraCodeExchangeFailed],
                 ApiStatusCodes.Unauthorized);
         }
 
@@ -66,21 +67,18 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
         if (invitation is null)
         {
             return ApiResponse<EntraCallbackResultDto>.Fail(
-                ["Invitation not found."],
+                [AuthErrorMessages.InvitationNotFound],
                 ApiStatusCodes.NotFound);
         }
 
-        if (invitation.Status != InvitationStatus.Pending || invitation.ExpiresAtUtc <= _dateTime.UtcNow)
+        if (invitation.ExpiresAtUtc <= _dateTime.UtcNow)
         {
-            if (invitation.Status == InvitationStatus.Pending)
-            {
-                invitation.MarkExpired();
-                invitationRepo.Update(invitation);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-            }
+            invitation.MarkExpired();
+            invitationRepo.Update(invitation);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return ApiResponse<EntraCallbackResultDto>.Fail(
-                ["Invitation is not active."],
+                [AuthErrorMessages.InvitationNotActive],
                 ApiStatusCodes.BadRequest);
         }
 
@@ -89,7 +87,7 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
         if (!string.Equals(normalizedEntraEmail, normalizedInviteEmail, StringComparison.Ordinal))
         {
             return ApiResponse<EntraCallbackResultDto>.Fail(
-                ["Entra account email does not match the invitation."],
+                [AuthErrorMessages.EntraEmailMismatch],
                 ApiStatusCodes.BadRequest);
         }
 
@@ -102,16 +100,18 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
                     var user = await userRepo.GetByIdAsync(invitation.UserId, ct)
                         ?? throw new InvalidOperationException("Invitation user not found.");
 
-                    user.EntraObjectId = entraUser.ObjectId;
-                    user.UpdatedOn = _dateTime.UtcNow;
-                    userRepo.Update(user);
+                    if (invitation.Status != InvitationStatus.Accepted)
+                    {
+                        user.EntraObjectId = entraUser.ObjectId;
+                        user.UpdatedOn = _dateTime.UtcNow;
+                        userRepo.Update(user);
 
-                    invitation.MarkAccepted();
-                    invitationRepo.Update(invitation);
-
+                        invitation.MarkAccepted();
+                        invitationRepo.Update(invitation);
+                    }
                     var accessToken = _jwtTokenService.CreateToken(user);
-                    var dashboardUrl = _configuration["Application:DashboardUrl"]
-                        ?? "https://localhost:8443/api/dashboard";
+                    var dashboardUrl = _configuration[ConfigurationKeys.Application.DashboardUrl]
+                        ?? ApplicationUrlDefaults.Dashboard;
 
                     return new EntraCallbackResultDto(accessToken, dashboardUrl);
                 },
@@ -122,7 +122,7 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
         catch (Exception)
         {
             return ApiResponse<EntraCallbackResultDto>.Fail(
-                ["Failed to finalize onboarding."],
+                [AuthErrorMessages.FinalizeOnboardingFailed],
                 ApiStatusCodes.InternalServerError);
         }
     }

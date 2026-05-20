@@ -22,14 +22,14 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenSer
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email),
-            new("tenant_id", user.TenantId.ToString()),
-            new("company_id", user.CompanyId.ToString()),
+            new(JwtClaimTypes.TenantId, user.TenantId.ToString()),
+            new(JwtClaimTypes.CompanyId, user.CompanyId.ToString()),
             new(ClaimTypes.Role, user.Role.ToString())
         };
 
         if (!string.IsNullOrEmpty(user.EntraObjectId))
         {
-            claims.Add(new Claim("entra_oid", user.EntraObjectId));
+            claims.Add(new Claim(JwtClaimTypes.EntraObjectId, user.EntraObjectId));
         }
 
         var token = new JwtSecurityToken(

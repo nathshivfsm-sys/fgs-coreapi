@@ -33,7 +33,7 @@ public sealed class SignupUniquenessValidator : ISignupUniquenessValidator
 
         if (await EmailExistsAsync(userRepo, invitationRepo, normalizedEmail, cancellationToken))
         {
-            return ["This email address is already associated with an account or pending invitation."];
+            return [SignupErrorMessages.EmailAlreadyUsed];
         }
 
         return [];

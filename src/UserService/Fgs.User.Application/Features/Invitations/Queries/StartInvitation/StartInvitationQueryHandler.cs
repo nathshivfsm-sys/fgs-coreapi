@@ -1,4 +1,6 @@
 using Fgs.User.Application.Abstractions.Identity;
+using Fgs.User.Application.Common;
+using Fgs.User.Application.Features.Invitations;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
@@ -22,7 +24,7 @@ public sealed class StartInvitationQueryHandler(
     {
         if (string.IsNullOrWhiteSpace(request.Token))
         {
-            return new StartInvitationResult(false, null, "Invitation token is required.");
+            return new StartInvitationResult(false, null, InvitationErrorMessages.TokenRequired);
         }
 
         var tokenHash = tokenService.HashToken(request.Token);
@@ -33,11 +35,11 @@ public sealed class StartInvitationQueryHandler(
 
         if (matched is null)
         {
-            return new StartInvitationResult(false, null, "Invalid invitation token.");
+            return new StartInvitationResult(false, null, InvitationErrorMessages.InvalidToken);
         }
 
-        var redirectUri = configuration["EntraExternalId:RedirectUri"]
-            ?? "https://localhost:8443/api/auth/entra/callback";
+        var redirectUri = configuration[ConfigurationKeys.EntraExternalId.RedirectUri]
+            ?? ApplicationUrlDefaults.EntraCallbackRedirect;
 
         if (matched.Status == InvitationStatus.Accepted)
         {
@@ -47,7 +49,7 @@ public sealed class StartInvitationQueryHandler(
 
         if (matched.Status != InvitationStatus.Pending)
         {
-            return new StartInvitationResult(false, null, "Invitation is not active.");
+            return new StartInvitationResult(false, null, InvitationErrorMessages.NotActive);
         }
 
         if (matched.ExpiresAtUtc <= dateTime.UtcNow)
@@ -55,7 +57,7 @@ public sealed class StartInvitationQueryHandler(
             matched.MarkExpired();
             invitations.Update(matched);
             await unitOfWork.SaveChangesAsync(cancellationToken);
-            return new StartInvitationResult(false, null, "Invitation has expired.");
+            return new StartInvitationResult(false, null, InvitationErrorMessages.Expired);
         }
 
         var authorizeUrl = entraService.BuildAuthorizationUrl(matched.Id, redirectUri, matched.Email);

@@ -1,3 +1,4 @@
+using Fgs.User.Application.Features.Signup;
 using Fgs.User.Application.Features.Signup.DTOs;
 using FluentValidation;
 
@@ -32,7 +33,7 @@ public sealed class SignupContactDtoValidator : AbstractValidator<SignupContactD
             .NotEmpty()
             .MaximumLength(50)
             .Matches(@"^\+?[\d\s().-]+$")
-            .WithMessage("Phone number format is invalid.");
+            .WithMessage(SignupErrorMessages.InvalidPhoneFormat);
 
         RuleFor(x => x.Email)
             .NotEmpty()

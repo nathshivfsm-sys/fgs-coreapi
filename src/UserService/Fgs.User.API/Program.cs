@@ -101,9 +101,7 @@ static void LogRabbitMqEffectiveConfig(WebApplication app)
     }
 }
 
-/// <summary>
-/// If nothing accepts TCP on the AMQP port, AMQP will fail with "endpoints were unreachable" — distinguish that early.
-/// </summary>
+// If nothing accepts TCP on the AMQP port, AMQP will fail with "endpoints were unreachable" — distinguish that early.
 static void ProbeLocalRabbitMqTcpIfDevelopment(WebApplication app)
 {
     if (!app.Environment.IsDevelopment())

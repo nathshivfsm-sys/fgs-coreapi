@@ -5,8 +5,8 @@ using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Application.Common;
-using Fgs.User.Application.IntegrationEvents;
 using Fgs.User.Application.Features.Signup;
+using Fgs.User.Application.IntegrationEvents;
 using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 using Fgs.User.Application.Features.Signup.DTOs;
 using Fgs.User.Domain.Entities;
@@ -107,7 +107,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
         location.State.Should().Be(command.Company.Address.State);
         location.PostalCode.Should().Be(command.Company.Address.PostalCode);
         location.FormattedAddress.Should().Be("100 Test Ave, Austin, TX 78701, US");
-        location.MasterEntityTypeId.Should().Be(2);
+        location.MasterEntityTypeId.Should().Be(SignupConstants.TenantCompanyMasterEntityTypeId);
         location.CompanyId.Should().Be(1);
         location.CreatedBy.Should().Be(SignupConstants.ProspectActor);
 
@@ -138,6 +138,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
 
         response.Success.Should().BeFalse();
         response.StatusCode.Should().Be(ApiStatusCodes.BadRequest);
+        response.Errors.Should().Contain(SignupErrorMessages.InvalidBusinessType);
     }
 
     private static CreateCompanySignupCommand ValidCommand(string? companyName = null) =>
@@ -186,8 +187,8 @@ public sealed class CreateCompanySignupCommandHandlerTests
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["Invitation:ExpiryDays"] = "7",
-                ["Invitation:InviteBaseUrl"] = "https://localhost/api/invite/start"
+                [ConfigurationKeys.Invitation.ExpiryDays] = "7",
+                [ConfigurationKeys.Invitation.InviteBaseUrl] = "https://localhost/api/invite/start"
             })
             .Build();
 

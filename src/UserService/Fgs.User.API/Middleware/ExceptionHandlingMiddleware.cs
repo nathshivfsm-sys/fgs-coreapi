@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using FluentValidation;
+using Fgs.User.API.Constants;
 using Fgs.User.Application.Common;
 
 namespace Fgs.User.API.Middleware;
@@ -37,13 +38,13 @@ public sealed class ExceptionHandlingMiddleware
                 validation.Errors.Select(e => e.ErrorMessage).ToArray()),
             UnauthorizedAccessException => (
                 HttpStatusCode.Unauthorized,
-                new[] { "Unauthorized." }),
+                new[] { ApiErrorMessages.Unauthorized }),
             KeyNotFoundException => (
                 HttpStatusCode.NotFound,
                 new[] { exception.Message }),
             _ => (
                 HttpStatusCode.InternalServerError,
-                new[] { "An unexpected error occurred." })
+                new[] { ApiErrorMessages.UnexpectedError })
         };
 
         if (statusCode == HttpStatusCode.InternalServerError)

@@ -1,3 +1,5 @@
+using Fgs.User.Application.Common;
+using Fgs.User.Application.Features.Invitations;
 using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Security;
@@ -7,6 +9,7 @@ using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 using Fgs.User.Infrastructure.Common.Security;
 using Fgs.User.Infrastructure.Common.Time;
+using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -45,7 +48,7 @@ public sealed class StartInvitationQueryHandlerTests
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["EntraExternalId:RedirectUri"] = "https://localhost/callback",
+                [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback",
                 ["EntraExternalId:UserFlow"] = "SignUpSignIn"
             })
             .Build();
@@ -94,7 +97,7 @@ public sealed class StartInvitationQueryHandlerTests
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["EntraExternalId:RedirectUri"] = "https://localhost/callback"
+                [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback"
             })
             .Build();
 
@@ -109,5 +112,96 @@ public sealed class StartInvitationQueryHandlerTests
 
         result.Success.Should().BeTrue();
         result.RedirectUrl.Should().StartWith("https://login.example/signin");
+    }
+
+    [Fact]
+    public async Task Handle_WhenTokenMissing_ReturnsError()
+    {
+        var handler = CreateHandler(await TestDbContextFactory.CreateAndInitializeAsync());
+        var result = await handler.Handle(new StartInvitationQuery(string.Empty), CancellationToken.None);
+
+        result.Success.Should().BeFalse();
+        result.ErrorMessage.Should().Be(InvitationErrorMessages.TokenRequired);
+    }
+
+    [Fact]
+    public async Task Handle_WhenTokenInvalid_ReturnsError()
+    {
+        var handler = CreateHandler(await TestDbContextFactory.CreateAndInitializeAsync());
+        var result = await handler.Handle(new StartInvitationQuery("bad-token"), CancellationToken.None);
+
+        result.Success.Should().BeFalse();
+        result.ErrorMessage.Should().Be(InvitationErrorMessages.InvalidToken);
+    }
+
+    [Fact]
+    public async Task Handle_WhenInvitationExpired_ReturnsError()
+    {
+        var tokenService = new InvitationTokenService();
+        var plain = tokenService.GenerateToken();
+        var hash = tokenService.HashToken(plain);
+
+        var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        context.FgsInvitations.Add(new FgsInvitation
+        {
+            Id = Guid.NewGuid(),
+            UserId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            Email = "expired@test.com",
+            TokenHash = hash,
+            Status = InvitationStatus.Pending,
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        await context.SaveChangesAsync();
+
+        var result = await CreateHandler(context).Handle(new StartInvitationQuery(plain), CancellationToken.None);
+
+        result.Success.Should().BeFalse();
+        result.ErrorMessage.Should().Be(InvitationErrorMessages.Expired);
+    }
+
+    [Fact]
+    public async Task Handle_WhenInvitationRevoked_ReturnsNotActive()
+    {
+        var tokenService = new InvitationTokenService();
+        var plain = tokenService.GenerateToken();
+        var hash = tokenService.HashToken(plain);
+
+        var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        context.FgsInvitations.Add(new FgsInvitation
+        {
+            Id = Guid.NewGuid(),
+            UserId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            Email = "revoked@test.com",
+            TokenHash = hash,
+            Status = InvitationStatus.Expired,
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(1),
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        await context.SaveChangesAsync();
+
+        var result = await CreateHandler(context).Handle(new StartInvitationQuery(plain), CancellationToken.None);
+
+        result.Success.Should().BeFalse();
+        result.ErrorMessage.Should().Be(InvitationErrorMessages.NotActive);
+    }
+
+    private static StartInvitationQueryHandler CreateHandler(FgsUserDbContext context)
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback"
+            })
+            .Build();
+
+        return new StartInvitationQueryHandler(
+            new UnitOfWork(context),
+            new InvitationTokenService(),
+            Mock.Of<IEntraExternalIdService>(),
+            new DateTimeProvider(),
+            configuration);
     }
 }

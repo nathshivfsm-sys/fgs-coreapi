@@ -1,3 +1,5 @@
+using Fgs.User.Application.Common;
+
 namespace Fgs.User.Infrastructure.Common.Options;
 
 public sealed class EntraExternalIdOptions
@@ -15,7 +17,7 @@ public sealed class EntraExternalIdOptions
     /// <summary>
     /// Must exactly match the redirect URI registered in Entra and used in both authorize and token requests.
     /// </summary>
-    public string RedirectUri { get; set; } = "https://localhost:8443/api/auth/entra/callback";
+    public string RedirectUri { get; set; } = ApplicationUrlDefaults.EntraCallbackRedirect;
 
     public string Scopes { get; set; } = "openid profile email";
 

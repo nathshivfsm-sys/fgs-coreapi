@@ -60,7 +60,7 @@ public sealed class CreateCompanySignupCommandHandler
         if (!await businessTypeRepo.AnyAsync(b => b.Id == request.BusinessTypeId && b.IsActive, cancellationToken))
         {
             return ApiResponse<CompanySignupResultDto>.Fail(
-                ["The selected industry is not valid."],
+                [SignupErrorMessages.InvalidBusinessType],
                 ApiStatusCodes.BadRequest);
         }
 
@@ -112,7 +112,7 @@ public sealed class CreateCompanySignupCommandHandler
                         locationId,
                         tenantId,
                         companyNumber,
-                        TenantCompanyMasterEntityTypeId,
+                        SignupConstants.TenantCompanyMasterEntityTypeId,
                         company.Address,
                         now);
                     location.CreatedBy = prospectActor;
@@ -171,7 +171,9 @@ public sealed class CreateCompanySignupCommandHandler
 
                     var plainToken = _tokenService.GenerateToken();
                     var tokenHash = _tokenService.HashToken(plainToken);
-                    var expiryDays = _configuration.GetValue("Invitation:ExpiryDays", 7);
+                    var expiryDays = _configuration.GetValue(
+                        ConfigurationKeys.Invitation.ExpiryDays,
+                        SignupConstants.DefaultInvitationExpiryDays);
 
                     var invitation = new FgsInvitation
                     {
@@ -197,7 +199,7 @@ public sealed class CreateCompanySignupCommandHandler
                     var inviteUrl = $"{inviteBaseUrl.TrimEnd('/')}?token={Uri.EscapeDataString(plainToken)}";
 
                     var expirationHours = Math.Max(
-                        1,
+                        SignupConstants.MinimumExpirationHours,
                         (int)Math.Ceiling((invitation.ExpiresAtUtc - now).TotalHours));
 
                     await _unitOfWork.SaveChangesAsync(ct);
@@ -251,7 +253,7 @@ public sealed class CreateCompanySignupCommandHandler
             return baseCode;
         }
 
-        for (var attempt = 0; attempt < 5; attempt++)
+        for (var attempt = 0; attempt < SignupConstants.TenantCodeSuffixAttempts; attempt++)
         {
             var candidate = TenantCodeGenerator.WithSuffix(baseCode, Guid.NewGuid().ToString("N")[..6]);
             if (!await tenantRepo.AnyAsync(t => t.TenantCode == candidate, cancellationToken))

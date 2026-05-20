@@ -1,4 +1,5 @@
 using Fgs.User.Application.Abstractions.Messaging;
+using Fgs.User.Application.IntegrationEvents;
 using Fgs.User.Domain.Enums;
 using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
@@ -66,7 +67,9 @@ public sealed class OutboxProcessorService(
         {
             try
             {
-                var routingKey = $"{_rabbitOptions.RoutingKeyPrefix}{message.EventType}";
+                var routingKey = IntegrationEventRoutingKeys.ForEventType(
+                    message.EventType,
+                    _rabbitOptions.RoutingKeyPrefix);
                 await publisher.PublishAsync(routingKey, message.Payload, message.CorrelationId, cancellationToken);
 
                 message.Status = OutboxMessageStatus.Published;

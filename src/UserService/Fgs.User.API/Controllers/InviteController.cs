@@ -1,3 +1,4 @@
+using Fgs.User.API.Constants;
 using Fgs.User.Application.Features.Invitations.Queries.StartInvitation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ public sealed class InviteController : ControllerBase
         var result = await _mediator.Send(new StartInvitationQuery(token), cancellationToken);
         if (!result.Success || string.IsNullOrWhiteSpace(result.RedirectUrl))
         {
-            return BadRequest(new { success = false, errors = new[] { result.ErrorMessage ?? "Invalid invitation." } });
+            return BadRequest(new { success = false, errors = new[] { result.ErrorMessage ?? ApiErrorMessages.InvalidInvitation } });
         }
 
         return Redirect(result.RedirectUrl);
