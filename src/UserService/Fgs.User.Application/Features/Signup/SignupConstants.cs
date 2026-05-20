@@ -1,4 +1,4 @@
-namespace Fgs.User.Application.Signup;
+namespace Fgs.User.Application.Features.Signup;
 
 /// <summary>
 /// Well-known values used when persisting self-serve company signup records.

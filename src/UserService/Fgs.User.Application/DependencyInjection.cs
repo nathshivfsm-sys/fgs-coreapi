@@ -1,6 +1,6 @@
 using System.Reflection;
-using Fgs.User.Application.Common.Behaviors;
-using Fgs.User.Application.Signup;
+using Fgs.User.Application.Behaviours;
+using Fgs.User.Application.Features.Signup;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,8 +15,8 @@ public static class DependencyInjection
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
         services.AddValidatorsFromAssembly(assembly);
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
         services.AddScoped<ISignupUniquenessValidator, SignupUniquenessValidator>();
 
         return services;

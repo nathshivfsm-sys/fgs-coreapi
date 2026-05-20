@@ -1,4 +1,4 @@
-namespace Fgs.User.Application.Signup;
+namespace Fgs.User.Application.Features.Signup.DTOs;
 
 /// <summary>
 /// Result of company self-serve signup. <see cref="CompanyNumber"/> is the tenant-scoped company key

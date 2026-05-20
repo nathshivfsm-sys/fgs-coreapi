@@ -2,7 +2,7 @@ using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
-using Fgs.User.Application.Invitations;
+using Fgs.User.Application.Features.Invitations.Queries.StartInvitation;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 using Fgs.User.Infrastructure.Persistence;

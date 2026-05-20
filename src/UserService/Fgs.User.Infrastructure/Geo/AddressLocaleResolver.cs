@@ -1,6 +1,7 @@
 using Fgs.User.Application.Abstractions.Geo;
 using Fgs.User.Application.Abstractions.Persistence;
-using Fgs.User.Application.Signup;
+using Fgs.User.Application.Features.Signup;
+using Fgs.User.Application.Features.Signup.DTOs;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Options;
 using GeoTimeZone;

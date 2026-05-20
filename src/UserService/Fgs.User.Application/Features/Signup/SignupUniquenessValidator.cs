@@ -1,10 +1,11 @@
 using Fgs.User.Application.Abstractions.Persistence;
+using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 
-namespace Fgs.User.Application.Signup;
+namespace Fgs.User.Application.Features.Signup;
 
 public sealed class SignupUniquenessValidator : ISignupUniquenessValidator
 {

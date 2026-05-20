@@ -1,6 +1,8 @@
+using Fgs.User.Application.Features.Signup.DTOs;
+
 using Fgs.User.Domain.Entities;
 
-namespace Fgs.User.Application.Signup;
+namespace Fgs.User.Application.Features.Signup;
 
 public static class SignupLocationFactory
 {

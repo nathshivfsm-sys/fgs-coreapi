@@ -1,4 +1,4 @@
-namespace Fgs.User.Application.Signup;
+namespace Fgs.User.Application.Features.Signup;
 
 public static class AddressCountryNormalizer
 {

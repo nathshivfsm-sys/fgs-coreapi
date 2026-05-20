@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace Fgs.User.Application.Invitations;
+namespace Fgs.User.Application.Features.Invitations.Queries.StartInvitation;
 
 /// <summary>
 /// Validates invite token and returns Entra authorization redirect URL.

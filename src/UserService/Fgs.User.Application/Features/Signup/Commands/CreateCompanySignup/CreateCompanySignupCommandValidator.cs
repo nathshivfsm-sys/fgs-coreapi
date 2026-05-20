@@ -1,6 +1,7 @@
+using Fgs.User.Application.Features.Signup.DTOs;
 using FluentValidation;
 
-namespace Fgs.User.Application.Signup;
+namespace Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 
 public sealed class CreateCompanySignupCommandValidator : AbstractValidator<CreateCompanySignupCommand>
 {

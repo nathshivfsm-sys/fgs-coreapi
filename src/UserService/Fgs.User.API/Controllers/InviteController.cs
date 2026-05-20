@@ -1,4 +1,4 @@
-using Fgs.User.Application.Invitations;
+using Fgs.User.Application.Features.Invitations.Queries.StartInvitation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

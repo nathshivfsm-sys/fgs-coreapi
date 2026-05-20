@@ -8,7 +8,7 @@ using Fgs.User.Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 
-namespace Fgs.User.Application.Auth;
+namespace Fgs.User.Application.Features.Auth.Queries.EntraCallback;
 
 public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQuery, ApiResponse<EntraCallbackResultDto>>
 {

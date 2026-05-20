@@ -1,5 +1,6 @@
 using Fgs.User.Application.Common;
-using Fgs.User.Application.Signup;
+using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
+using Fgs.User.Application.Features.Signup.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

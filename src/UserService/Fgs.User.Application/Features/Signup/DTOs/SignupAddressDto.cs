@@ -1,4 +1,4 @@
-namespace Fgs.User.Application.Signup;
+namespace Fgs.User.Application.Features.Signup.DTOs;
 
 /// <summary>
 /// Structured company address mapped to <see cref="Fgs.User.Domain.Entities.FgsLocation"/> columns.

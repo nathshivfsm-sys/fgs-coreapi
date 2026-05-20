@@ -1,4 +1,4 @@
-namespace Fgs.User.Application.Signup;
+namespace Fgs.User.Application.Features.Signup.DTOs;
 
 /// <summary>
 /// Q1 — Tell us about yourself.

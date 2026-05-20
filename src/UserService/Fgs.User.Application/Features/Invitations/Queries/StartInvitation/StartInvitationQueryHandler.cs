@@ -7,7 +7,7 @@ using Fgs.User.Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 
-namespace Fgs.User.Application.Invitations;
+namespace Fgs.User.Application.Features.Invitations.Queries.StartInvitation;
 
 public sealed class StartInvitationQueryHandler(
     IUnitOfWork unitOfWork,

@@ -5,14 +5,16 @@ using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Application.Common;
+using Fgs.User.Application.Features.Signup.DTOs;
 using Fgs.User.Application.IntegrationEvents;
+using Fgs.User.Application.Features.Signup;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 using Fgs.User.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 
-namespace Fgs.User.Application.Signup;
+namespace Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 
 public sealed class CreateCompanySignupCommandHandler
     : IRequestHandler<CreateCompanySignupCommand, ApiResponse<CompanySignupResultDto>>
