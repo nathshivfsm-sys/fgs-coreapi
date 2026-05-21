@@ -1,6 +1,6 @@
 namespace Fgs.User.Domain.Entities;
 
-public class FgsSetupTimeSlot : FgsTenantCompanySetupEntityBase
+public class FgsSetupTimeSlot : FgsTenantCompanySetupEntityBase<long>
 {
     public long? FgsSetupZoneId { get; set; }
 

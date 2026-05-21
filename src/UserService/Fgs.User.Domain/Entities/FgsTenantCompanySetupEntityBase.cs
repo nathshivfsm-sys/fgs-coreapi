@@ -1,11 +1,11 @@
 namespace Fgs.User.Domain.Entities;
 
 /// <summary>
-/// Common shape for tenant- and company-scoped <c>FgsSetup*</c> catalog rows (see platform naming rules).
+/// Common shape for tenant- and company-scoped setup catalog rows.
 /// </summary>
-public abstract class FgsTenantCompanySetupEntityBase : FgsEntityBase
+public abstract class FgsTenantCompanySetupEntityBase<TKey> : FgsEntityBase
 {
-    public long Id { get; set; }
+    public TKey Id { get; set; } = default!;
 
     public long TenantId { get; set; }
 

@@ -1,6 +1,6 @@
 namespace Fgs.User.Domain.Entities;
 
-public class FgsSetupPaymentTerm : FgsTenantCompanySetupEntityBase
+public class FgsSetupPaymentTerm : FgsTenantCompanySetupEntityBase<long>
 {
     public string Name { get; set; } = null!;
 

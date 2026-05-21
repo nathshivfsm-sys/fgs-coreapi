@@ -4,10 +4,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Fgs.User.Infrastructure.Database.Migrations
+namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial_Migration : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -38,42 +38,13 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FgsTenant",
-                schema: "dbo",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantCode = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    LegalName = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
-                    Email = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
-                    PhoneNumber = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                    Website = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    PhysicalLocationId = table.Column<Guid>(type: "uuid", nullable: true),
-                    BillingLocationId = table.Column<Guid>(type: "uuid", nullable: true),
-                    SubscriptionPlanId = table.Column<int>(type: "integer", nullable: true),
-                    TimeZone = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    DefaultCurrency = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    DefaultLanguageId = table.Column<int>(type: "integer", nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
-                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FgsTenant", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "FgsTenantCompany",
                 schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyGuid = table.Column<Guid>(type: "uuid", nullable: false),
                     CompanyNumber = table.Column<long>(type: "bigint", nullable: false),
                     BusinessTypeId = table.Column<int>(type: "integer", nullable: false),
@@ -101,7 +72,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     table.PrimaryKey("PK_FgsTenantCompany", x => x.Id);
                     table.UniqueConstraint("AK_FgsTenantCompany_TenantId_CompanyGuid", x => new { x.TenantId, x.CompanyGuid });
-                    table.UniqueConstraint("AK_FgsTenantCompany_TenantId_CompanyNumber", x => new { x.TenantId, x.CompanyNumber });
+                    table.UniqueConstraint("UX_Company_Tenant_Code", x => new { x.TenantId, x.Code });
+                    table.UniqueConstraint("UX_Company_Tenant_CompanyNumber", x => new { x.TenantId, x.CompanyNumber });
                 });
 
             migrationBuilder.CreateTable(
@@ -115,11 +87,14 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
-                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true)
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_GloAccountingIntegrationType", x => x.Id);
+                    table.UniqueConstraint("UX_AccountingIntegrationType_Code", x => x.Code);
                 });
 
             migrationBuilder.CreateTable(
@@ -146,11 +121,14 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
-                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true)
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_GloBusinessType", x => x.Id);
+                    table.UniqueConstraint("UX_BusinessType_Code", x => x.Code);
                 });
 
             migrationBuilder.CreateTable(
@@ -184,7 +162,11 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     CountryCode = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: false),
                     CountryName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     CurrencyCode = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true)
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -202,7 +184,9 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
-                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true)
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -220,7 +204,9 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
-                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true)
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -235,7 +221,11 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     LanguageCode = table.Column<string>(type: "character varying(5)", maxLength: 5, nullable: false),
                     LanguageName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     CultureCode = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true)
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -253,7 +243,9 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
-                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true)
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -269,11 +261,11 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Code = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     IsDocumentAllowed = table.Column<bool>(type: "boolean", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     SortOrder = table.Column<int>(type: "integer", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
-                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
@@ -292,7 +284,11 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     Code = table.Column<string>(type: "text", nullable: false),
                     DisplayName = table.Column<string>(type: "text", nullable: false),
                     SortOrder = table.Column<int>(type: "integer", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -342,8 +338,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     table.PrimaryKey("PK_GloRole", x => x.Id);
                     table.UniqueConstraint("UX_GloRole_RoleCode", x => x.RoleCode);
-                    table.CheckConstraint("CK_GloRole_RoleCode_NotEmpty", "length(trim(\"RoleCode\")) > 0");
                     table.CheckConstraint("CK_GloRole_Name_NotEmpty", "length(trim(\"Name\")) > 0");
+                    table.CheckConstraint("CK_GloRole_RoleCode_NotEmpty", "length(trim(\"RoleCode\")) > 0");
                 });
 
             migrationBuilder.CreateTable(
@@ -389,6 +385,26 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "GloSetupTenantStatus",
+                schema: "dbo",
+                columns: table => new
+                {
+                    Id = table.Column<short>(type: "smallint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false, defaultValueSql: "now()"),
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    UpdatedBy = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GloSetupTenantStatus", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "GloTimeCardOption",
                 schema: "dbo",
                 columns: table => new
@@ -411,7 +427,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     CredentialProviderTypeId = table.Column<int>(type: "integer", nullable: false),
                     Code = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
@@ -437,13 +453,56 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FgsFile",
+                schema: "dbo",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
+                    CompanyId = table.Column<long>(type: "bigint", nullable: false),
+                    EntityType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    EntityId = table.Column<long>(type: "bigint", nullable: false),
+                    BucketName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    ObjectKey = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
+                    ThumbnailObjectKey = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    OriginalFileName = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    StoredFileName = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    ContentType = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    FileExtension = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    FileSizeBytes = table.Column<long>(type: "bigint", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    Tags = table.Column<string[]>(type: "text[]", nullable: true),
+                    IsVisibleToCustomer = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    IsVisibleToFieldTechnician = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    UploadedByUserId = table.Column<long>(type: "bigint", nullable: true),
+                    UploadedByName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    UploadedByType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false, defaultValueSql: "now()"),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FgsFile", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FgsFile_FgsTenantCompany_TenantId_CompanyId",
+                        columns: x => new { x.TenantId, x.CompanyId },
+                        principalSchema: "dbo",
+                        principalTable: "FgsTenantCompany",
+                        principalColumns: new[] { "TenantId", "CompanyNumber" },
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "FgsSetupCommunicationTemplate",
                 schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     TemplateType = table.Column<string>(type: "text", nullable: false),
                     Code = table.Column<string>(type: "text", nullable: false),
@@ -462,7 +521,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     table.PrimaryKey("PK_FgsSetupCommunicationTemplate", x => x.Id);
                     table.UniqueConstraint("UQ_FgsSetupCommunicationTemplate", x => new { x.TenantId, x.CompanyId, x.TemplateType, x.Code });
                     table.ForeignKey(
-                        name: "FK_FgsSetupCommunicationTemplate_FgsTenantCompany_TenantId_Com~",
+                        name: "FK_FgsSetupCommunicationTemplate_FgsTenantCompany_TenantId_CompanyId",
                         columns: x => new { x.TenantId, x.CompanyId },
                         principalSchema: "dbo",
                         principalTable: "FgsTenantCompany",
@@ -477,7 +536,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     Code = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
@@ -510,7 +569,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     DueDateMethod = table.Column<string>(type: "text", nullable: false),
@@ -538,13 +597,12 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FgsSetupPriceSheet",
+                name: "FgsSetupPricingMatrix",
                 schema: "dbo",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     Code = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
@@ -561,108 +619,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FgsSetupPriceSheet", x => x.Id);
+                    table.PrimaryKey("PK_FgsSetupPricingMatrix", x => x.Id);
                     table.UniqueConstraint("UQ_FgsSetupPricingMatrix", x => new { x.TenantId, x.CompanyId, x.Code });
                     table.ForeignKey(
-                        name: "FK_FgsSetupPriceSheet_FgsTenantCompany_TenantId_CompanyId",
-                        columns: x => new { x.TenantId, x.CompanyId },
-                        principalSchema: "dbo",
-                        principalTable: "FgsTenantCompany",
-                        principalColumns: new[] { "TenantId", "CompanyNumber" },
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "FgsSetupPriceSheetLaborTier",
-                schema: "dbo",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CompanyId = table.Column<long>(type: "bigint", nullable: false),
-                    FgsSetupPriceSheetLaborId = table.Column<long>(type: "bigint", nullable: false),
-                    SequenceOrder = table.Column<int>(type: "integer", nullable: false),
-                    DurationMinutes = table.Column<int>(type: "integer", nullable: false),
-                    Rate = table.Column<decimal>(type: "numeric", nullable: false),
-                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
-                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FgsSetupPriceSheetLaborTier", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_FgsSetupPriceSheetLaborTier_FgsTenantCompany_TenantId_Compa~",
-                        columns: x => new { x.TenantId, x.CompanyId },
-                        principalSchema: "dbo",
-                        principalTable: "FgsTenantCompany",
-                        principalColumns: new[] { "TenantId", "CompanyNumber" },
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "FgsSetupPriceSheetMaterial",
-                schema: "dbo",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CompanyId = table.Column<long>(type: "bigint", nullable: false),
-                    FgsSetupPriceSheetId = table.Column<long>(type: "bigint", nullable: false),
-                    Code = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    DefaultMarkupPercent = table.Column<decimal>(type: "numeric", nullable: true),
-                    DefaultDiscountPercent = table.Column<decimal>(type: "numeric", nullable: true),
-                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
-                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FgsSetupPriceSheetMaterial", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_FgsSetupPriceSheetMaterial_FgsTenantCompany_TenantId_Compan~",
-                        columns: x => new { x.TenantId, x.CompanyId },
-                        principalSchema: "dbo",
-                        principalTable: "FgsTenantCompany",
-                        principalColumns: new[] { "TenantId", "CompanyNumber" },
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "FgsSetupPriceSheetOther",
-                schema: "dbo",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CompanyId = table.Column<long>(type: "bigint", nullable: false),
-                    FgsSetupPriceSheetId = table.Column<long>(type: "bigint", nullable: false),
-                    CategoryCode = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    MarkupPercent = table.Column<decimal>(type: "numeric", nullable: true),
-                    DiscountPercent = table.Column<decimal>(type: "numeric", nullable: true),
-                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
-                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FgsSetupPriceSheetOther", x => x.Id);
-                    table.UniqueConstraint("UQ_FgsSetupPricingMatrixOther", x => new { x.TenantId, x.CompanyId, x.FgsSetupPriceSheetId, x.CategoryCode });
-                    table.CheckConstraint("CK_FgsSetupPricingMatrixOther_DiscountPercent", "\"DiscountPercent\" IS NULL OR (\"DiscountPercent\" >= 0 AND \"DiscountPercent\" <= 100)");
-                    table.CheckConstraint("CK_FgsSetupPricingMatrixOther_MarkupPercent", "\"MarkupPercent\" IS NULL OR (\"MarkupPercent\" >= 0 AND \"MarkupPercent\" <= 100)");
-                    table.ForeignKey(
-                        name: "FK_FgsSetupPriceSheetOther_FgsTenantCompany_TenantId_CompanyId",
+                        name: "FK_FgsSetupPricingMatrix_Company",
                         columns: x => new { x.TenantId, x.CompanyId },
                         principalSchema: "dbo",
                         principalTable: "FgsTenantCompany",
@@ -677,7 +637,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     Code = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
@@ -694,7 +654,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     table.UniqueConstraint("UQ_FgsSetupServiceAssetManufacturer", x => new { x.TenantId, x.CompanyId, x.Code });
                     table.CheckConstraint("CK_FgsSetupServiceAssetManufacturer_Code_Upper", "\"Code\" = UPPER(\"Code\")");
                     table.ForeignKey(
-                        name: "FK_FgsSetupServiceAssetManufacturer_FgsTenantCompany_TenantId_~",
+                        name: "FK_FgsSetupServiceAssetManufacturer_FgsTenantCompany_TenantId_CompanyId",
                         columns: x => new { x.TenantId, x.CompanyId },
                         principalSchema: "dbo",
                         principalTable: "FgsTenantCompany",
@@ -709,7 +669,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     Code = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
@@ -741,11 +701,14 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     TaxCode = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     IsExternalSystemRecord = table.Column<bool>(type: "boolean", nullable: false),
+                    ExternalSystemId = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    SyncToken = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    ShowTaxDetail = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     Description = table.Column<string>(type: "text", nullable: true),
                     CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -774,7 +737,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     Code = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
@@ -809,7 +772,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     Code = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
@@ -843,7 +806,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     TradeCode = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
@@ -877,7 +840,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     Code = table.Column<string>(type: "text", nullable: false),
                     DisplayName = table.Column<string>(type: "text", nullable: false),
@@ -910,7 +873,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     Code = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
@@ -936,44 +899,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FgsUser",
-                schema: "dbo",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CompanyId = table.Column<long>(type: "bigint", nullable: false),
-                    Email = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
-                    DisplayName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    EntraObjectId = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    Role = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
-                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FgsUser", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_FgsUser_FgsTenantCompany_TenantId_CompanyId",
-                        columns: x => new { x.TenantId, x.CompanyId },
-                        principalSchema: "dbo",
-                        principalTable: "FgsTenantCompany",
-                        principalColumns: new[] { "TenantId", "CompanyNumber" },
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_FgsUser_FgsTenant_TenantId",
-                        column: x => x.TenantId,
-                        principalSchema: "dbo",
-                        principalTable: "FgsTenant",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "GloStateProvince",
                 schema: "dbo",
                 columns: table => new
@@ -983,12 +908,15 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     CountryCode = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: false),
                     StateProvinceCode = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     StateProvinceName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true)
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_GloStateProvince", x => x.Id);
-                    table.UniqueConstraint("UQ_GloStateProvince", x => new { x.CountryCode, x.StateProvinceCode });
                     table.ForeignKey(
                         name: "FK_GloStateProvince_Country",
                         column: x => x.CountryCode,
@@ -1004,7 +932,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     MasterEntityTypeId = table.Column<int>(type: "integer", nullable: false),
                     EntityNumber = table.Column<long>(type: "bigint", nullable: true),
@@ -1053,7 +981,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     GloPaymentMethodTypeId = table.Column<int>(type: "integer", nullable: false),
                     DisplayName = table.Column<string>(type: "text", nullable: false),
@@ -1092,7 +1020,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     GloResolutionTypeId = table.Column<int>(type: "integer", nullable: false),
                     ResolutionCode = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
@@ -1132,7 +1060,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     RoleCode = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
@@ -1164,43 +1092,39 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FgsSetupPriceSheetLabor",
+                name: "FgsTenant",
                 schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CompanyId = table.Column<long>(type: "bigint", nullable: false),
-                    FgsSetupPriceSheetId = table.Column<long>(type: "bigint", nullable: false),
-                    FgsSetupLaborRateTypeId = table.Column<int>(type: "integer", nullable: true),
-                    FgsSetupTechSkillLevelId = table.Column<long>(type: "bigint", nullable: true),
-                    RateType = table.Column<string>(type: "text", nullable: false),
-                    BaseRate = table.Column<decimal>(type: "numeric", nullable: false),
-                    OvertimeMultiplier = table.Column<decimal>(type: "numeric", nullable: true),
-                    DoubleTimeMultiplier = table.Column<decimal>(type: "numeric", nullable: true),
-                    DiscountPercent = table.Column<decimal>(type: "numeric", nullable: true),
+                    FgsTenantStatusId = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)1),
+                    TenantCode = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    LegalName = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
+                    Email = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
+                    PhoneNumber = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    Website = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    PhysicalLocationId = table.Column<Guid>(type: "uuid", nullable: true),
+                    BillingLocationId = table.Column<Guid>(type: "uuid", nullable: true),
+                    SubscriptionPlanId = table.Column<int>(type: "integer", nullable: true),
+                    TimeZone = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    DefaultCurrency = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    DefaultLanguageId = table.Column<int>(type: "integer", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FgsSetupPriceSheetLabor", x => x.Id);
+                    table.PrimaryKey("PK_FgsTenant", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FgsSetupPriceSheetLabor_FgsTenantCompany_TenantId_CompanyId",
-                        columns: x => new { x.TenantId, x.CompanyId },
+                        name: "FK_FgsTenant_GloSetupTenantStatus",
+                        column: x => x.FgsTenantStatusId,
                         principalSchema: "dbo",
-                        principalTable: "FgsTenantCompany",
-                        principalColumns: new[] { "TenantId", "CompanyNumber" },
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_FgsSetupPriceSheetLabor_GloSetupLaborRateType_FgsSetupLabor~",
-                        column: x => x.FgsSetupLaborRateTypeId,
-                        principalSchema: "dbo",
-                        principalTable: "GloSetupLaborRateType",
+                        principalTable: "GloSetupTenantStatus",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -1210,7 +1134,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 schema: "dbo",
                 columns: table => new
                 {
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     GloTimeCardOptionId = table.Column<int>(type: "integer", nullable: false),
                     AccountingIntegrationTypeId = table.Column<int>(type: "integer", nullable: true),
@@ -1271,7 +1195,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     CredentialProviderId = table.Column<Guid>(type: "uuid", nullable: false),
                     ConfigurationKey = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
@@ -1308,7 +1232,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     CredentialProviderId = table.Column<Guid>(type: "uuid", nullable: false),
                     SecretName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
@@ -1345,13 +1269,97 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FgsSetupPricingMatrixMaterialTier",
+                schema: "dbo",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
+                    CompanyId = table.Column<long>(type: "bigint", nullable: false),
+                    FgsSetupPricingMatrixId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FromCost = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    ToCost = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    MarkupPercent = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    DiscountPercent = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FgsSetupPricingMatrixMaterialTier", x => x.Id);
+                    table.CheckConstraint("CK_FgsSetupPricingMatrixMaterialTier_DiscountPercent", "\"DiscountPercent\" IS NULL OR (\"DiscountPercent\" >= 0 AND \"DiscountPercent\" <= 100)");
+                    table.CheckConstraint("CK_FgsSetupPricingMatrixMaterialTier_FromCost", "\"FromCost\" >= 0");
+                    table.CheckConstraint("CK_FgsSetupPricingMatrixMaterialTier_MarkupPercent", "\"MarkupPercent\" >= 0");
+                    table.CheckConstraint("CK_FgsSetupPricingMatrixMaterialTier_ToCost", "\"ToCost\" IS NULL OR \"ToCost\" >= \"FromCost\"");
+                    table.ForeignKey(
+                        name: "FK_FgsSetupPricingMatrixMaterialTier_Company",
+                        columns: x => new { x.TenantId, x.CompanyId },
+                        principalSchema: "dbo",
+                        principalTable: "FgsTenantCompany",
+                        principalColumns: new[] { "TenantId", "CompanyNumber" },
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FgsSetupPricingMatrixMaterialTier_PricingMatrix",
+                        column: x => x.FgsSetupPricingMatrixId,
+                        principalSchema: "dbo",
+                        principalTable: "FgsSetupPricingMatrix",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FgsSetupPricingMatrixOther",
+                schema: "dbo",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
+                    CompanyId = table.Column<long>(type: "bigint", nullable: false),
+                    FgsSetupPricingMatrixId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CategoryCode = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    MarkupPercent = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    DiscountPercent = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FgsSetupPricingMatrixOther", x => x.Id);
+                    table.UniqueConstraint("UQ_FgsSetupPricingMatrixOther", x => new { x.TenantId, x.CompanyId, x.FgsSetupPricingMatrixId, x.CategoryCode });
+                    table.CheckConstraint("CK_FgsSetupPricingMatrixOther_DiscountPercent", "\"DiscountPercent\" IS NULL OR (\"DiscountPercent\" >= 0 AND \"DiscountPercent\" <= 100)");
+                    table.CheckConstraint("CK_FgsSetupPricingMatrixOther_MarkupPercent", "\"MarkupPercent\" IS NULL OR \"MarkupPercent\" >= 0");
+                    table.ForeignKey(
+                        name: "FK_FgsSetupPricingMatrixOther_Company",
+                        columns: x => new { x.TenantId, x.CompanyId },
+                        principalSchema: "dbo",
+                        principalTable: "FgsTenantCompany",
+                        principalColumns: new[] { "TenantId", "CompanyNumber" },
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FgsSetupPricingMatrixOther_PricingMatrix",
+                        column: x => x.FgsSetupPricingMatrixId,
+                        principalSchema: "dbo",
+                        principalTable: "FgsSetupPricingMatrix",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "FgsSetupServiceAssetModelReference",
                 schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     FgsSetupServiceAssetTypeId = table.Column<long>(type: "bigint", nullable: false),
                     FgsSetupServiceAssetManufacturerId = table.Column<long>(type: "bigint", nullable: false),
@@ -1400,7 +1408,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     FgsSetupTaxId = table.Column<long>(type: "bigint", nullable: false),
                     FgsSetupTaxAuthorityId = table.Column<long>(type: "bigint", nullable: false),
@@ -1443,13 +1451,67 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FgsSetupPricingMatrixLabor",
+                schema: "dbo",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
+                    CompanyId = table.Column<long>(type: "bigint", nullable: false),
+                    FgsSetupPricingMatrixId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FgsSetupLaborRateTypeId = table.Column<int>(type: "integer", nullable: false),
+                    FgsSetupTechSkillLevelId = table.Column<long>(type: "bigint", nullable: true),
+                    BaseRate = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    OvertimeMultiplier = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    DoubleTimeMultiplier = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    DiscountPercent = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FgsSetupPricingMatrixLabor", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FgsSetupPricingMatrixLabor_Company",
+                        columns: x => new { x.TenantId, x.CompanyId },
+                        principalSchema: "dbo",
+                        principalTable: "FgsTenantCompany",
+                        principalColumns: new[] { "TenantId", "CompanyNumber" },
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FgsSetupPricingMatrixLabor_LaborRateType",
+                        column: x => x.FgsSetupLaborRateTypeId,
+                        principalSchema: "dbo",
+                        principalTable: "GloSetupLaborRateType",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FgsSetupPricingMatrixLabor_PricingMatrix",
+                        column: x => x.FgsSetupPricingMatrixId,
+                        principalSchema: "dbo",
+                        principalTable: "FgsSetupPricingMatrix",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FgsSetupPricingMatrixLabor_TechSkillLevel",
+                        column: x => x.FgsSetupTechSkillLevelId,
+                        principalSchema: "dbo",
+                        principalTable: "FgsSetupTechSkillLevel",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "FgsSetupDescription",
                 schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     DescriptionTypeCode = table.Column<string>(type: "text", nullable: false),
                     ShortNote = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
@@ -1488,7 +1550,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     FgsSetupGLBreakId = table.Column<long>(type: "bigint", nullable: false),
                     FgsSetupTechTradeId = table.Column<long>(type: "bigint", nullable: false),
@@ -1531,7 +1593,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     PostalCode = table.Column<string>(type: "text", nullable: false),
                     FgsSetupZoneId = table.Column<long>(type: "bigint", nullable: true),
@@ -1576,7 +1638,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     FgsSetupZoneId = table.Column<long>(type: "bigint", nullable: true),
                     Code = table.Column<string>(type: "text", nullable: false),
@@ -1616,13 +1678,124 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FgsUser",
+                schema: "dbo",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
+                    CompanyId = table.Column<long>(type: "bigint", nullable: false),
+                    Email = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
+                    DisplayName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    EntraObjectId = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Role = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FgsUser", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FgsUser_FgsTenantCompany_TenantId_CompanyId",
+                        columns: x => new { x.TenantId, x.CompanyId },
+                        principalSchema: "dbo",
+                        principalTable: "FgsTenantCompany",
+                        principalColumns: new[] { "TenantId", "CompanyNumber" },
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FgsUser_FgsTenant_TenantId",
+                        column: x => x.TenantId,
+                        principalSchema: "dbo",
+                        principalTable: "FgsTenant",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FgsCredentialAudit",
+                schema: "dbo",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
+                    CompanyId = table.Column<long>(type: "bigint", nullable: false),
+                    CredentialSecretId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ActionType = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Remarks = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    OldVersionNo = table.Column<int>(type: "integer", nullable: true),
+                    NewVersionNo = table.Column<int>(type: "integer", nullable: true),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FgsCredentialAudit", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FgsCredentialAudit_Company",
+                        columns: x => new { x.TenantId, x.CompanyId },
+                        principalSchema: "dbo",
+                        principalTable: "FgsTenantCompany",
+                        principalColumns: new[] { "TenantId", "CompanyNumber" },
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FgsCredentialAudit_CredentialSecret",
+                        column: x => x.CredentialSecretId,
+                        principalSchema: "dbo",
+                        principalTable: "FgsCredentialSecret",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FgsSetupPricingMatrixLaborTier",
+                schema: "dbo",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
+                    CompanyId = table.Column<long>(type: "bigint", nullable: false),
+                    FgsSetupPricingMatrixLaborId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SequenceOrder = table.Column<int>(type: "integer", nullable: false),
+                    DurationMinutes = table.Column<int>(type: "integer", nullable: false),
+                    Rate = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
+                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FgsSetupPricingMatrixLaborTier", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FgsSetupPricingMatrixLaborTier_Company",
+                        columns: x => new { x.TenantId, x.CompanyId },
+                        principalSchema: "dbo",
+                        principalTable: "FgsTenantCompany",
+                        principalColumns: new[] { "TenantId", "CompanyNumber" },
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FgsSetupPricingMatrixLaborTier_Labor",
+                        column: x => x.FgsSetupPricingMatrixLaborId,
+                        principalSchema: "dbo",
+                        principalTable: "FgsSetupPricingMatrixLabor",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "FgsInvitation",
                 schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     Email = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
                     TokenHash = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
@@ -1653,7 +1826,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<long>(type: "bigint", nullable: false),
                     CompanyId = table.Column<long>(type: "bigint", nullable: false),
                     GloRoleId = table.Column<short>(type: "smallint", nullable: true),
                     FgsRoleId = table.Column<long>(type: "bigint", nullable: true),
@@ -1689,41 +1862,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         column: x => x.GloRoleId,
                         principalSchema: "dbo",
                         principalTable: "GloRole",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "FgsCredentialAudit",
-                schema: "dbo",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CompanyId = table.Column<long>(type: "bigint", nullable: false),
-                    CredentialSecretId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ActionType = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Remarks = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    OldVersionNo = table.Column<int>(type: "integer", nullable: true),
-                    NewVersionNo = table.Column<int>(type: "integer", nullable: true),
-                    CreatedOn = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
-                    CreatedBy = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FgsCredentialAudit", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_FgsCredentialAudit_Company",
-                        columns: x => new { x.TenantId, x.CompanyId },
-                        principalSchema: "dbo",
-                        principalTable: "FgsTenantCompany",
-                        principalColumns: new[] { "TenantId", "CompanyNumber" },
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_FgsCredentialAudit_CredentialSecret",
-                        column: x => x.CredentialSecretId,
-                        principalSchema: "dbo",
-                        principalTable: "FgsCredentialSecret",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -1814,6 +1952,32 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 schema: "dbo",
                 table: "FgsCredentialSecret",
                 columns: new[] { "TenantId", "CompanyId", "CredentialProviderId", "SecretName", "VersionNo" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FgsFile_Entity",
+                schema: "dbo",
+                table: "FgsFile",
+                columns: new[] { "TenantId", "CompanyId", "EntityType", "EntityId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FgsFile_Tags",
+                schema: "dbo",
+                table: "FgsFile",
+                column: "Tags")
+                .Annotation("Npgsql:IndexMethod", "gin");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FgsFile_TenantId_CompanyId",
+                schema: "dbo",
+                table: "FgsFile",
+                columns: new[] { "TenantId", "CompanyId" });
+
+            migrationBuilder.CreateIndex(
+                name: "UX_FgsFile_Bucket_ObjectKey",
+                schema: "dbo",
+                table: "FgsFile",
+                columns: new[] { "BucketName", "ObjectKey" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -1970,45 +2134,81 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 column: "FgsSetupZoneId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FgsSetupPriceSheet_TenantId_CompanyId",
+                name: "IX_FgsSetupPricingMatrix_TenantId_CompanyId",
                 schema: "dbo",
-                table: "FgsSetupPriceSheet",
+                table: "FgsSetupPricingMatrix",
                 columns: new[] { "TenantId", "CompanyId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_FgsSetupPriceSheetLabor_FgsSetupLaborRateTypeId",
+                name: "IX_FgsSetupPricingMatrixLabor_FgsSetupLaborRateTypeId",
                 schema: "dbo",
-                table: "FgsSetupPriceSheetLabor",
+                table: "FgsSetupPricingMatrixLabor",
                 column: "FgsSetupLaborRateTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FgsSetupPriceSheetLabor_TenantId_CompanyId",
+                name: "IX_FgsSetupPricingMatrixLabor_FgsSetupPricingMatrixId",
                 schema: "dbo",
-                table: "FgsSetupPriceSheetLabor",
+                table: "FgsSetupPricingMatrixLabor",
+                column: "FgsSetupPricingMatrixId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FgsSetupPricingMatrixLabor_FgsSetupTechSkillLevelId",
+                schema: "dbo",
+                table: "FgsSetupPricingMatrixLabor",
+                column: "FgsSetupTechSkillLevelId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FgsSetupPricingMatrixLabor_TenantId_CompanyId",
+                schema: "dbo",
+                table: "FgsSetupPricingMatrixLabor",
                 columns: new[] { "TenantId", "CompanyId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_FgsSetupPriceSheetLaborTier_TenantId_CompanyId",
+                name: "IX_FgsSetupPricingMatrixLaborTier_FgsSetupPricingMatrixLaborId",
                 schema: "dbo",
-                table: "FgsSetupPriceSheetLaborTier",
+                table: "FgsSetupPricingMatrixLaborTier",
+                column: "FgsSetupPricingMatrixLaborId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FgsSetupPricingMatrixLaborTier_TenantId_CompanyId",
+                schema: "dbo",
+                table: "FgsSetupPricingMatrixLaborTier",
                 columns: new[] { "TenantId", "CompanyId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_FgsSetupPriceSheetMaterial_TenantId_CompanyId",
+                name: "IX_FgsSetupPricingMatrixMaterialTier_FgsSetupPricingMatrixId",
                 schema: "dbo",
-                table: "FgsSetupPriceSheetMaterial",
+                table: "FgsSetupPricingMatrixMaterialTier",
+                column: "FgsSetupPricingMatrixId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FgsSetupPricingMatrixMaterialTier_TenantId_CompanyId",
+                schema: "dbo",
+                table: "FgsSetupPricingMatrixMaterialTier",
                 columns: new[] { "TenantId", "CompanyId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_FgsSetupPriceSheetOther_TenantId_CompanyId",
+                name: "IX_FgsSetupPricingMatrixOther_FgsSetupPricingMatrixId",
                 schema: "dbo",
-                table: "FgsSetupPriceSheetOther",
+                table: "FgsSetupPricingMatrixOther",
+                column: "FgsSetupPricingMatrixId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FgsSetupPricingMatrixOther_TenantId_CompanyId",
+                schema: "dbo",
+                table: "FgsSetupPricingMatrixOther",
                 columns: new[] { "TenantId", "CompanyId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_FgsSetupServiceAssetManufacturer_TenantId_CompanyId",
                 schema: "dbo",
                 table: "FgsSetupServiceAssetManufacturer",
+                columns: new[] { "TenantId", "CompanyId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FgsSetupServiceAssetModelReference_TenantId_CompanyId",
+                schema: "dbo",
+                table: "FgsSetupServiceAssetModelReference",
                 columns: new[] { "TenantId", "CompanyId" });
 
             migrationBuilder.CreateIndex(
@@ -2169,24 +2369,16 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 columns: new[] { "TenantId", "CompanyId" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_FgsTenant_FgsTenantStatusId",
+                schema: "dbo",
+                table: "FgsTenant",
+                column: "FgsTenantStatusId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FgsTenant_TenantCode",
                 schema: "dbo",
                 table: "FgsTenant",
                 column: "TenantCode",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FgsTenantCompany_TenantId_Code",
-                schema: "dbo",
-                table: "FgsTenantCompany",
-                columns: new[] { "TenantId", "Code" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FgsTenantCompany_TenantId_CompanyNumber",
-                schema: "dbo",
-                table: "FgsTenantCompany",
-                columns: new[] { "TenantId", "CompanyNumber" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -2250,20 +2442,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 filter: "\"GloRoleId\" IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GloAccountingIntegrationType_Code",
-                schema: "dbo",
-                table: "GloAccountingIntegrationType",
-                column: "Code",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GloBusinessType_Code",
-                schema: "dbo",
-                table: "GloBusinessType",
-                column: "Code",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_GloCredentialCategory_Code",
                 schema: "dbo",
                 table: "GloCredentialCategory",
@@ -2284,6 +2462,19 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 column: "Code",
                 unique: true);
 
+            migrationBuilder.CreateIndex(
+                name: "UX_GloSetupTenantStatus_Name",
+                schema: "dbo",
+                table: "GloSetupTenantStatus",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "UQ_GloStateProvince",
+                schema: "dbo",
+                table: "GloStateProvince",
+                columns: new[] { "CountryCode", "StateProvinceCode" },
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -2295,6 +2486,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "FgsCredentialProviderConfiguration",
+                schema: "dbo");
+
+            migrationBuilder.DropTable(
+                name: "FgsFile",
                 schema: "dbo");
 
             migrationBuilder.DropTable(
@@ -2338,23 +2533,15 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 schema: "dbo");
 
             migrationBuilder.DropTable(
-                name: "FgsSetupPriceSheet",
+                name: "FgsSetupPricingMatrixLaborTier",
                 schema: "dbo");
 
             migrationBuilder.DropTable(
-                name: "FgsSetupPriceSheetLabor",
+                name: "FgsSetupPricingMatrixMaterialTier",
                 schema: "dbo");
 
             migrationBuilder.DropTable(
-                name: "FgsSetupPriceSheetLaborTier",
-                schema: "dbo");
-
-            migrationBuilder.DropTable(
-                name: "FgsSetupPriceSheetMaterial",
-                schema: "dbo");
-
-            migrationBuilder.DropTable(
-                name: "FgsSetupPriceSheetOther",
+                name: "FgsSetupPricingMatrixOther",
                 schema: "dbo");
 
             migrationBuilder.DropTable(
@@ -2363,10 +2550,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "FgsSetupTaxDetail",
-                schema: "dbo");
-
-            migrationBuilder.DropTable(
-                name: "FgsSetupTechSkillLevel",
                 schema: "dbo");
 
             migrationBuilder.DropTable(
@@ -2450,7 +2633,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 schema: "dbo");
 
             migrationBuilder.DropTable(
-                name: "GloSetupLaborRateType",
+                name: "FgsSetupPricingMatrixLabor",
                 schema: "dbo");
 
             migrationBuilder.DropTable(
@@ -2494,6 +2677,18 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                 schema: "dbo");
 
             migrationBuilder.DropTable(
+                name: "GloSetupLaborRateType",
+                schema: "dbo");
+
+            migrationBuilder.DropTable(
+                name: "FgsSetupPricingMatrix",
+                schema: "dbo");
+
+            migrationBuilder.DropTable(
+                name: "FgsSetupTechSkillLevel",
+                schema: "dbo");
+
+            migrationBuilder.DropTable(
                 name: "GloRole",
                 schema: "dbo");
 
@@ -2503,6 +2698,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "FgsTenantCompany",
+                schema: "dbo");
+
+            migrationBuilder.DropTable(
+                name: "GloSetupTenantStatus",
                 schema: "dbo");
         }
     }

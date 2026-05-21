@@ -1,6 +1,6 @@
 namespace Fgs.User.Domain.Entities;
 
-public class FgsSetupTechSkillLevel : FgsTenantCompanySetupEntityBase
+public class FgsSetupTechSkillLevel : FgsTenantCompanySetupEntityBase<long>
 {
     public string Code { get; set; } = null!;
 

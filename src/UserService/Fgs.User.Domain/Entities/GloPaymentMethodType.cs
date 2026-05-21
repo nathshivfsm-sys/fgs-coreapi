@@ -1,6 +1,6 @@
 namespace Fgs.User.Domain.Entities;
 
-public class GloPaymentMethodType : GloActiveOnlyEntityBase
+public class GloPaymentMethodType : GloEntityBase
 {
     public int Id { get; set; }
 

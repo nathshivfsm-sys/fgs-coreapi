@@ -640,10 +640,12 @@ OVERRIDING SYSTEM VALUE
 SELECT v."Id", v."Name", v."Description", v."IsActive", timezone('utc', now())
 FROM (
     VALUES
-        (1::smallint, 'Active',    'Tenant is active and operational.',     true),
-        (2::smallint, 'Prospect',  'Tenant is in signup or onboarding.',   true),
-        (3::smallint, 'Suspended', 'Tenant access is temporarily suspended.', true),
-        (4::smallint, 'Cancelled', 'Tenant subscription is cancelled.',     true)
+        (1::smallint, 'Pending',    'Tenant registration initiated',     true),
+        (2::smallint, 'Provisioning',  'Infrastructure provisioning in progress',   true),
+        (3::smallint, 'Active', 'Tenant is active and operational', true),
+        (4::smallint, 'ProvisioningFailed', 'Infrastructure provisioning failed', true),
+        (5::smallint, 'Suspended', 'Tenant access temporarily suspended', true),
+        (6::smallint, 'Cancelled', 'Tenant subscription cancelled',     true)
 ) AS v("Id", "Name", "Description", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1 FROM dbo."GloSetupTenantStatus" t WHERE t."Id" = v."Id"

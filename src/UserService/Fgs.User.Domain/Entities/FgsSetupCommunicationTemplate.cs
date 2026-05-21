@@ -1,6 +1,6 @@
 namespace Fgs.User.Domain.Entities;
 
-public class FgsSetupCommunicationTemplate : FgsTenantCompanySetupEntityBase
+public class FgsSetupCommunicationTemplate : FgsTenantCompanySetupEntityBase<long>
 {
     public string TemplateType { get; set; } = null!;
 

@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Global catalog of states/provinces linked to <see cref="GloCountry"/>.
 /// </summary>
-public class GloStateProvince : GloActiveOnlyEntityBase
+public class GloStateProvince : GloEntityBase
 {
     public int Id { get; set; }
 
