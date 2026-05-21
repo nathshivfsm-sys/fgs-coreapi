@@ -6,15 +6,26 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Configurations;
 
 internal static class FgsUserDbContextConfigurationExtensions
 {
-    internal static void ConfigureTenantCompanySetupColumns<T>(this EntityTypeBuilder<T> entity)
+    internal static void ConfigureTenantCompanySetupColumns<T>(
+        this EntityTypeBuilder<T> entity,
+        bool includeTenantCompanyIndex = true,
+        string? tenantCompanyIndexName = null)
         where T : FgsTenantCompanySetupEntityBase
     {
         entity.Property(e => e.Id).HasColumnOrder(0);
         entity.Property(e => e.TenantId).HasColumnOrder(1);
         entity.Property(e => e.CompanyId).HasColumnOrder(2);
-        entity.HasIndex(e => new { e.TenantId, e.CompanyId });
         entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+
+        if (includeTenantCompanyIndex)
+        {
+            var index = entity.HasIndex(e => new { e.TenantId, e.CompanyId });
+            if (tenantCompanyIndexName is not null)
+            {
+                index.HasDatabaseName(tenantCompanyIndexName);
+            }
+        }
     }
 
     internal static void ConfigureTenantCompanySetupFk<T>(

@@ -291,6 +291,131 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.ToTable("FgsCredentialSecret", "dbo");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsFile", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BucketName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("ContentType")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<long>("EntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("FileExtension")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsVisibleToCustomer")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsVisibleToFieldTechnician")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("ObjectKey")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string[]>("Tags")
+                        .HasColumnType("text[]");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("ThumbnailObjectKey")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<long?>("UploadedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UploadedByName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("UploadedByType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Tags")
+                        .HasDatabaseName("IX_FgsFile_Tags");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Tags"), "gin");
+
+                    b.HasIndex("BucketName", "ObjectKey")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsFile_Bucket_ObjectKey");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsFile_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EntityType", "EntityId")
+                        .HasDatabaseName("IX_FgsFile_Entity");
+
+                    b.ToTable("FgsFile", "dbo");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInvitation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -314,6 +439,9 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.Property<DateTimeOffset>("ExpiresAtUtc")
                         .HasColumnType("timestamptz");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -1195,12 +1323,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrixLaborTier", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(0);
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -1251,12 +1377,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrixMaterialTier", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(0);
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -3252,6 +3376,17 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsCredentialSecret_Company");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsFile", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsFile_FgsTenantCompany_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInvitation", b =>

@@ -128,6 +128,8 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<FgsInvitation> FgsInvitations => Set<FgsInvitation>();
 
+    public DbSet<FgsFile> FgsFiles => Set<FgsFile>();
+
     public DbSet<FgsOutboxMessage> FgsOutboxMessages => Set<FgsOutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
