@@ -1,6 +1,7 @@
 using Fgs.User.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Fgs.User.Infrastructure.Persistence.Database.Configurations;
 
@@ -10,7 +11,18 @@ internal class FgsTenantConfiguration : IEntityTypeConfiguration<FgsTenant>
     {
         entity.ToTable("FgsTenant");
         entity.HasKey(e => e.Id);
-        entity.Property(e => e.Id).HasColumnOrder(0);
+        entity.Property(e => e.Id)
+            .ValueGeneratedOnAdd()
+            .HasColumnOrder(0);
+        NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(entity.Property(e => e.Id));
+        entity.Property(e => e.FgsTenantStatusId)
+            .HasColumnOrder(1)
+            .HasDefaultValue((short)1);
+        entity.HasOne<GloSetupTenantStatus>()
+            .WithMany()
+            .HasForeignKey(e => e.FgsTenantStatusId)
+            .HasConstraintName("FK_FgsTenant_GloSetupTenantStatus")
+            .OnDelete(DeleteBehavior.Restrict);
         entity.HasIndex(e => e.TenantCode).IsUnique();
         entity.Property(e => e.TenantCode).HasMaxLength(50);
         entity.Property(e => e.Name).HasMaxLength(200);

@@ -1,6 +1,6 @@
 namespace Fgs.User.Domain.Entities;
 
-public class FgsSetupTax : FgsTenantCompanySetupEntityBase
+public class FgsSetupTax : FgsTenantCompanySetupEntityBase<long>
 {
     public string TaxCode { get; set; } = null!;
 

@@ -10,7 +10,7 @@ internal static class FgsUserDbContextConfigurationExtensions
         this EntityTypeBuilder<T> entity,
         bool includeTenantCompanyIndex = true,
         string? tenantCompanyIndexName = null)
-        where T : FgsTenantCompanySetupEntityBase
+        where T : FgsTenantCompanySetupEntityBase<long>
     {
         entity.Property(e => e.Id).HasColumnOrder(0);
         entity.Property(e => e.TenantId).HasColumnOrder(1);
@@ -28,21 +28,8 @@ internal static class FgsUserDbContextConfigurationExtensions
         }
     }
 
-    internal static void ConfigureTenantCompanySetupFk<T>(
-        this EntityTypeBuilder<T> entity,
-        string constraintName)
-        where T : FgsTenantCompanySetupEntityBase
-    {
-        entity.HasOne<FgsTenantCompany>()
-            .WithMany()
-            .HasForeignKey(e => new { e.TenantId, e.CompanyId })
-            .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
-            .HasConstraintName(constraintName)
-            .OnDelete(DeleteBehavior.Restrict);
-    }
-
     internal static void ConfigureTenantCompanyGuidSetupColumns<T>(this EntityTypeBuilder<T> entity)
-        where T : FgsTenantCompanySetupGuidEntityBase
+        where T : FgsTenantCompanySetupEntityBase<Guid>
     {
         entity.Property(e => e.Id).HasColumnOrder(0);
         entity.Property(e => e.TenantId).HasColumnOrder(1);
@@ -52,10 +39,23 @@ internal static class FgsUserDbContextConfigurationExtensions
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
     }
 
+    internal static void ConfigureTenantCompanySetupFk<T>(
+        this EntityTypeBuilder<T> entity,
+        string constraintName)
+        where T : FgsTenantCompanySetupEntityBase<long>
+    {
+        entity.HasOne<FgsTenantCompany>()
+            .WithMany()
+            .HasForeignKey(e => new { e.TenantId, e.CompanyId })
+            .HasPrincipalKey(tc => new { tc.TenantId, tc.CompanyNumber })
+            .HasConstraintName(constraintName)
+            .OnDelete(DeleteBehavior.Restrict);
+    }
+
     internal static void ConfigureTenantCompanyGuidSetupFk<T>(
         this EntityTypeBuilder<T> entity,
         string constraintName)
-        where T : FgsTenantCompanySetupGuidEntityBase
+        where T : FgsTenantCompanySetupEntityBase<Guid>
     {
         entity.HasOne<FgsTenantCompany>()
             .WithMany()

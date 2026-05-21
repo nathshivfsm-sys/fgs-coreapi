@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Global catalog of supported countries (no tenant scope).
 /// </summary>
-public class GloCountry : GloActiveOnlyEntityBase
+public class GloCountry : GloEntityBase
 {
     public string CountryCode { get; set; } = null!;
 

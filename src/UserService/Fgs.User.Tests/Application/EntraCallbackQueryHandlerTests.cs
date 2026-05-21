@@ -200,18 +200,20 @@ public sealed class EntraCallbackQueryHandlerTests
         DateTimeOffset expiresAtUtc,
         Guid? invitationId = null)
     {
-        var tenantId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var id = invitationId ?? Guid.NewGuid();
 
-        context.FgsTenants.Add(new FgsTenant
+        var tenant = new FgsTenant
         {
-            Id = tenantId,
             TenantCode = "t1",
             Name = "Tenant",
             CreatedOn = DateTimeOffset.UtcNow
-        });
+        };
+        context.FgsTenants.Add(tenant);
+        await context.SaveChangesAsync();
+
+        var tenantId = tenant.Id;
         context.FgsTenantCompanies.Add(new FgsTenantCompany
         {
             CompanyGuid = companyId,

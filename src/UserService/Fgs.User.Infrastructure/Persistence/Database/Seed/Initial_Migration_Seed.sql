@@ -634,4 +634,26 @@ SELECT setval(
     COALESCE((SELECT MAX("Id") FROM dbo."GloSetupLaborRateType"), 1),
     true);
 
+-- GloSetupTenantStatus (Id 1 = default FK on FgsTenant)
+INSERT INTO dbo."GloSetupTenantStatus" ("Id", "Name", "Description", "IsActive", "CreatedOn")
+OVERRIDING SYSTEM VALUE
+SELECT v."Id", v."Name", v."Description", v."IsActive", timezone('utc', now())
+FROM (
+    VALUES
+        (1::smallint, 'Pending',    'Tenant registration initiated',     true),
+        (2::smallint, 'Provisioning',  'Infrastructure provisioning in progress',   true),
+        (3::smallint, 'Active', 'Tenant is active and operational', true),
+        (4::smallint, 'ProvisioningFailed', 'Infrastructure provisioning failed', true),
+        (5::smallint, 'Suspended', 'Tenant access temporarily suspended', true),
+        (6::smallint, 'Cancelled', 'Tenant subscription cancelled',     true)
+) AS v("Id", "Name", "Description", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1 FROM dbo."GloSetupTenantStatus" t WHERE t."Id" = v."Id"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloSetupTenantStatus"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloSetupTenantStatus"), 1),
+    true);
+
 COMMIT;

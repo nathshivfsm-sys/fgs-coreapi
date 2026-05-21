@@ -16,7 +16,7 @@ internal class GloBusinessTypeConfiguration : IEntityTypeConfiguration<GloBusine
             .HasName("UX_BusinessType_Code");
         entity.Property(e => e.Code).HasMaxLength(100);
         entity.Property(e => e.Name).HasMaxLength(200);
-        entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+        entity.Property(e => e.CreatedOn).IsRequired().HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
     }
 }

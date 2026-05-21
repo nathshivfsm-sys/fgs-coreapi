@@ -22,7 +22,7 @@ public sealed class JwtTokenServiceTests
         var token = service.CreateToken(new FgsUser
         {
             Id = Guid.NewGuid(),
-            TenantId = Guid.NewGuid(),
+            TenantId = 1,
             CompanyId = 1,
             Email = "USER@TEST.COM",
             DisplayName = "User",

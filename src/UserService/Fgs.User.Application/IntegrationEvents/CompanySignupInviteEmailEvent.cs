@@ -1,7 +1,7 @@
 namespace Fgs.User.Application.IntegrationEvents;
 
 public sealed record CompanySignupInviteEmailEvent(
-    Guid TenantId,
+    long TenantId,
     Guid CompanyId,
     Guid UserId,
     Guid InvitationId,

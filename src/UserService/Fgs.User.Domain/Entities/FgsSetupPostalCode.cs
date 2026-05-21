@@ -1,6 +1,6 @@
 namespace Fgs.User.Domain.Entities;
 
-public class FgsSetupPostalCode : FgsTenantCompanySetupEntityBase
+public class FgsSetupPostalCode : FgsTenantCompanySetupEntityBase<long>
 {
     public string PostalCode { get; set; } = null!;
 

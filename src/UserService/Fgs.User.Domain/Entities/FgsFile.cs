@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Object-storage file metadata scoped to a tenant company and associated business entity.
 /// </summary>
-public class FgsFile : FgsTenantCompanySetupEntityBase
+public class FgsFile : FgsTenantCompanySetupEntityBase<long>
 {
     public string EntityType { get; set; } = null!;
 

@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Model reference catalog for service assets (type, manufacturer, model metadata).
 /// </summary>
-public class FgsSetupServiceAssetModelReference : FgsTenantCompanySetupEntityBase
+public class FgsSetupServiceAssetModelReference : FgsTenantCompanySetupEntityBase<long>
 {
     public long FgsSetupServiceAssetTypeId { get; set; }
 

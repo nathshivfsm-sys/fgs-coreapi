@@ -4,7 +4,7 @@ public class FgsCredentialProviderConfiguration : FgsEntityBase
 {
     public Guid Id { get; set; }
 
-    public Guid TenantId { get; set; }
+    public long TenantId { get; set; }
 
     public long CompanyId { get; set; }
 

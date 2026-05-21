@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Tenant-scoped resolution codes linked to <see cref="GloResolutionType"/>.
 /// </summary>
-public class FgsResolutionCode : FgsTenantCompanySetupEntityBase
+public class FgsResolutionCode : FgsTenantCompanySetupEntityBase<long>
 {
     public int GloResolutionTypeId { get; set; }
 

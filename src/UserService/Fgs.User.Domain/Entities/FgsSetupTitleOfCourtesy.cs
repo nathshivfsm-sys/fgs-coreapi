@@ -1,6 +1,6 @@
 namespace Fgs.User.Domain.Entities;
 
-public class FgsSetupTitleOfCourtesy : FgsTenantCompanySetupEntityBase
+public class FgsSetupTitleOfCourtesy : FgsTenantCompanySetupEntityBase<long>
 {
     public string Code { get; set; } = null!;
 

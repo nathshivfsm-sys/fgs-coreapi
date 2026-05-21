@@ -5,7 +5,7 @@ namespace Fgs.User.Application.Features.Signup.DTOs;
 /// (same value stored as <c>CompanyId</c> on <c>Fgs*</c> tables).
 /// </summary>
 public sealed record CompanySignupResultDto(
-    Guid TenantId,
+    long TenantId,
     long CompanyNumber,
     Guid CompanyGuid,
     Guid UserId,

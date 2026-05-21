@@ -1,6 +1,6 @@
 namespace Fgs.User.Domain.Entities;
 
-public class FgsSetupTechTrade : FgsTenantCompanySetupEntityBase
+public class FgsSetupTechTrade : FgsTenantCompanySetupEntityBase<long>
 {
     public string TradeCode { get; set; } = null!;
 

@@ -1,6 +1,6 @@
 namespace Fgs.User.Domain.Entities;
 
-public class FgsSetupDescription : FgsTenantCompanySetupEntityBase
+public class FgsSetupDescription : FgsTenantCompanySetupEntityBase<long>
 {
     public string DescriptionTypeCode { get; set; } = null!;
 

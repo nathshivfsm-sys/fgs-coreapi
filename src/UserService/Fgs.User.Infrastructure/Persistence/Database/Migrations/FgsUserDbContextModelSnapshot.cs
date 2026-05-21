@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Fgs.User.Infrastructure.Database.Migrations
+namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
 {
     [DbContext(typeof(FgsUserDbContext))]
     partial class FgsUserDbContextModelSnapshot : ModelSnapshot
@@ -59,8 +59,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.HasKey("Id");
@@ -123,8 +123,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -178,8 +178,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -257,8 +257,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -365,11 +365,11 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<string[]>("Tags")
+                    b.PrimitiveCollection<string[]>("Tags")
                         .HasColumnType("text[]");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("ThumbnailObjectKey")
@@ -383,9 +383,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<DateTimeOffset?>("UpdatedOn")
                         .HasColumnType("timestamptz");
 
-                    b.Property<long?>("UploadedByUserId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("UploadedByName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -395,6 +392,9 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<long?>("UploadedByUserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -440,16 +440,13 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<DateTimeOffset>("ExpiresAtUtc")
                         .HasColumnType("timestamptz");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("TokenHash")
                         .IsRequired()
@@ -556,8 +553,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -671,8 +668,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -738,8 +735,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -804,8 +801,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -866,8 +863,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -930,8 +927,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -980,8 +977,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1039,8 +1036,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<bool>("IsMobileVisible")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1105,8 +1102,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<int?>("NumberOfDays")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1159,8 +1156,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1230,8 +1227,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1297,8 +1294,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1323,10 +1320,12 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrixLaborTier", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -1355,8 +1354,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<int>("SequenceOrder")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1377,10 +1376,12 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrixMaterialTier", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -1411,8 +1412,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<decimal?>("ToCost")
@@ -1484,8 +1485,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1546,8 +1547,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1612,8 +1613,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<string>("SerialNumberPattern")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1690,8 +1691,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1737,6 +1738,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<string>("ExternalSystemId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -1747,12 +1752,21 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("ShowTaxDetail")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("SyncToken")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<string>("TaxCode")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1815,8 +1829,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<string>("RegionCode")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1885,8 +1899,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<decimal>("TaxPercent")
                         .HasColumnType("numeric");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1960,8 +1974,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<int?>("SortOrder")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -2022,8 +2036,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<int?>("SortOrder")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("TradeCode")
@@ -2107,8 +2121,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -2173,8 +2187,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<int?>("SortOrder")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -2236,8 +2250,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -2262,10 +2276,12 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenant", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<Guid?>("BillingLocationId")
                         .HasColumnType("uuid");
@@ -2287,6 +2303,12 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<string>("Email")
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
+
+                    b.Property<short>("FgsTenantStatusId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasColumnOrder(1);
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -2331,6 +2353,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FgsTenantStatusId");
 
                     b.HasIndex("TenantCode")
                         .IsUnique();
@@ -2419,8 +2443,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -2449,8 +2473,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenantServiceSetup", b =>
                 {
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(0);
 
                     b.Property<long>("CompanyId")
@@ -2611,8 +2635,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
@@ -2652,8 +2676,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<short?>("GloRoleId")
                         .HasColumnType("smallint");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -2695,6 +2719,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<DateTimeOffset>("CreatedOn")
                         .HasColumnType("timestamptz");
 
@@ -2705,6 +2733,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset?>("UpdatedOn")
                         .HasColumnType("timestamptz");
@@ -2746,6 +2778,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<DateTimeOffset>("CreatedOn")
                         .HasColumnType("timestamptz");
 
@@ -2756,6 +2792,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset?>("UpdatedOn")
                         .HasColumnType("timestamptz");
@@ -2828,6 +2868,13 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("CurrencyCode")
                         .HasMaxLength(3)
                         .HasColumnType("character varying(3)");
@@ -2836,6 +2883,13 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("CountryCode");
 
@@ -2855,6 +2909,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<DateTimeOffset>("CreatedOn")
                         .HasColumnType("timestamptz");
 
@@ -2865,6 +2923,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset?>("UpdatedOn")
                         .HasColumnType("timestamptz");
@@ -2890,6 +2952,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<DateTimeOffset>("CreatedOn")
                         .HasColumnType("timestamptz");
 
@@ -2900,6 +2966,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset?>("UpdatedOn")
                         .HasColumnType("timestamptz");
@@ -2918,6 +2988,13 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(5)
                         .HasColumnType("character varying(5)");
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("CultureCode")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -2932,6 +3009,13 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("LanguageCode");
 
@@ -2951,6 +3035,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<DateTimeOffset>("CreatedOn")
                         .HasColumnType("timestamptz");
 
@@ -2961,6 +3049,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset?>("UpdatedOn")
                         .HasColumnType("timestamptz");
@@ -3029,6 +3121,13 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -3038,6 +3137,13 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -3250,6 +3356,51 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.ToTable("GloSetupLaborRateType", "dbo");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloSetupTenantStatus", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<short>("Id"));
+
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long?>("UpdatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloSetupTenantStatus_Name");
+
+                    b.ToTable("GloSetupTenantStatus", "dbo");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloStateProvince", b =>
                 {
                     b.Property<int>("Id")
@@ -3262,6 +3413,13 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(2)
                         .HasColumnType("character varying(2)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -3277,6 +3435,13 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -3824,6 +3989,16 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsSetupZone_FgsTenantCompany_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenant", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.GloSetupTenantStatus", null)
+                        .WithMany()
+                        .HasForeignKey("FgsTenantStatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsTenant_GloSetupTenantStatus");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenantServiceSetup", b =>
