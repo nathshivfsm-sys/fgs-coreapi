@@ -8,5 +8,11 @@ public class FgsSetupTax : FgsTenantCompanySetupEntityBase
 
     public bool IsExternalSystemRecord { get; set; }
 
+    public string? ExternalSystemId { get; set; }
+
+    public string? SyncToken { get; set; }
+
+    public bool ShowTaxDetail { get; set; }
+
     public string? Description { get; set; }
 }
