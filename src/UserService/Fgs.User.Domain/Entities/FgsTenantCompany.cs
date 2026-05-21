@@ -10,7 +10,7 @@ public class FgsTenantCompany : FgsEntityBase
 
     public Guid CompanyGuid { get; set; }
 
-    public Guid TenantId { get; set; }
+    public long TenantId { get; set; }
 
     public long CompanyNumber { get; set; }
 

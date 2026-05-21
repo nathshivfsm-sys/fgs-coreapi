@@ -3,17 +3,20 @@ using System;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Fgs.User.Infrastructure.Database.Migrations
+namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
 {
     [DbContext(typeof(FgsUserDbContext))]
-    partial class FgsUserDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260519120000_GloCatalogConstraints")]
+    partial class GloCatalogConstraints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,8 +62,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.HasKey("Id");
@@ -123,8 +126,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -178,8 +181,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -257,8 +260,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -291,131 +294,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.ToTable("FgsCredentialSecret", "dbo");
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsFile", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnOrder(0);
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("BucketName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
-                        .HasColumnOrder(2);
-
-                    b.Property<string>("ContentType")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamptz")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<long>("EntityId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("EntityType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("FileExtension")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<long>("FileSizeBytes")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsVisibleToCustomer")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<bool>("IsVisibleToFieldTechnician")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("ObjectKey")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
-                    b.Property<string>("OriginalFileName")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("StoredFileName")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.PrimitiveCollection<string[]>("Tags")
-                        .HasColumnType("text[]");
-
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
-                        .HasColumnOrder(1);
-
-                    b.Property<string>("ThumbnailObjectKey")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTimeOffset?>("UpdatedOn")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<string>("UploadedByName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("UploadedByType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<long?>("UploadedByUserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Tags")
-                        .HasDatabaseName("IX_FgsFile_Tags");
-
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Tags"), "gin");
-
-                    b.HasIndex("BucketName", "ObjectKey")
-                        .IsUnique()
-                        .HasDatabaseName("UX_FgsFile_Bucket_ObjectKey");
-
-                    b.HasIndex("TenantId", "CompanyId")
-                        .HasDatabaseName("IX_FgsFile_TenantId_CompanyId");
-
-                    b.HasIndex("TenantId", "CompanyId", "EntityType", "EntityId")
-                        .HasDatabaseName("IX_FgsFile_Entity");
-
-                    b.ToTable("FgsFile", "dbo");
-                });
-
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInvitation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -440,13 +318,16 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<DateTimeOffset>("ExpiresAtUtc")
                         .HasColumnType("timestamptz");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("TokenHash")
                         .IsRequired()
@@ -553,8 +434,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -668,8 +549,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -735,8 +616,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -801,8 +682,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -863,8 +744,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -927,8 +808,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -977,8 +858,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1036,8 +917,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<bool>("IsMobileVisible")
                         .HasColumnType("boolean");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1102,8 +983,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<int?>("NumberOfDays")
                         .HasColumnType("integer");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1156,8 +1037,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1183,12 +1064,14 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.ToTable("FgsSetupPostalCode", "dbo");
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrix", b =>
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPriceSheet", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -1227,8 +1110,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1245,19 +1128,20 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.ToTable("FgsSetupPricingMatrix", "dbo");
+                    b.ToTable("FgsSetupPriceSheet", "dbo");
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrixLabor", b =>
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPriceSheetLabor", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(0);
 
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
                     b.Property<decimal>("BaseRate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -1271,18 +1155,16 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("timestamptz");
 
                     b.Property<decimal?>("DiscountPercent")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<decimal?>("DoubleTimeMultiplier")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
-                    b.Property<int>("FgsSetupLaborRateTypeId")
+                    b.Property<int?>("FgsSetupLaborRateTypeId")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("FgsSetupPricingMatrixId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("FgsSetupPriceSheetId")
+                        .HasColumnType("bigint");
 
                     b.Property<long?>("FgsSetupTechSkillLevelId")
                         .HasColumnType("bigint");
@@ -1291,11 +1173,14 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<decimal?>("OvertimeMultiplier")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<string>("RateType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1309,23 +1194,19 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasIndex("FgsSetupLaborRateTypeId");
 
-                    b.HasIndex("FgsSetupPricingMatrixId");
-
-                    b.HasIndex("FgsSetupTechSkillLevelId");
-
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.ToTable("FgsSetupPricingMatrixLabor", "dbo");
+                    b.ToTable("FgsSetupPriceSheetLabor", "dbo");
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrixLaborTier", b =>
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPriceSheetLaborTier", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(0);
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -1341,21 +1222,20 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<int>("DurationMinutes")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("FgsSetupPricingMatrixLaborId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("FgsSetupPriceSheetLaborId")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<decimal>("Rate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<int>("SequenceOrder")
                         .HasColumnType("integer");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1367,21 +1247,23 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FgsSetupPricingMatrixLaborId");
-
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.ToTable("FgsSetupPricingMatrixLaborTier", "dbo");
+                    b.ToTable("FgsSetupPriceSheetLaborTier", "dbo");
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrixMaterialTier", b =>
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPriceSheetMaterial", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(0);
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -1394,31 +1276,25 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<DateTimeOffset>("CreatedOn")
                         .HasColumnType("timestamptz");
 
-                    b.Property<decimal?>("DiscountPercent")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                    b.Property<decimal?>("DefaultDiscountPercent")
+                        .HasColumnType("numeric");
 
-                    b.Property<Guid>("FgsSetupPricingMatrixId")
-                        .HasColumnType("uuid");
+                    b.Property<decimal?>("DefaultMarkupPercent")
+                        .HasColumnType("numeric");
 
-                    b.Property<decimal>("FromCost")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                    b.Property<long>("FgsSetupPriceSheetId")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<decimal>("MarkupPercent")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
-
-                    b.Property<decimal?>("ToCost")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
@@ -1429,28 +1305,19 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FgsSetupPricingMatrixId");
-
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.ToTable("FgsSetupPricingMatrixMaterialTier", "dbo", t =>
-                        {
-                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixMaterialTier_DiscountPercent", "\"DiscountPercent\" IS NULL OR (\"DiscountPercent\" >= 0 AND \"DiscountPercent\" <= 100)");
-
-                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixMaterialTier_FromCost", "\"FromCost\" >= 0");
-
-                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixMaterialTier_MarkupPercent", "\"MarkupPercent\" >= 0");
-
-                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixMaterialTier_ToCost", "\"ToCost\" IS NULL OR \"ToCost\" >= \"FromCost\"");
-                        });
+                    b.ToTable("FgsSetupPriceSheetMaterial", "dbo");
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrixOther", b =>
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPriceSheetOther", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("CategoryCode")
                         .IsRequired()
@@ -1468,25 +1335,23 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("timestamptz");
 
                     b.Property<decimal?>("DiscountPercent")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
-                    b.Property<Guid>("FgsSetupPricingMatrixId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("FgsSetupPriceSheetId")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<decimal?>("MarkupPercent")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1498,18 +1363,16 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("TenantId", "CompanyId", "FgsSetupPricingMatrixId", "CategoryCode")
+                    b.HasAlternateKey("TenantId", "CompanyId", "FgsSetupPriceSheetId", "CategoryCode")
                         .HasName("UQ_FgsSetupPricingMatrixOther");
-
-                    b.HasIndex("FgsSetupPricingMatrixId");
 
                     b.HasIndex("TenantId", "CompanyId");
 
-                    b.ToTable("FgsSetupPricingMatrixOther", "dbo", t =>
+                    b.ToTable("FgsSetupPriceSheetOther", "dbo", t =>
                         {
                             t.HasCheckConstraint("CK_FgsSetupPricingMatrixOther_DiscountPercent", "\"DiscountPercent\" IS NULL OR (\"DiscountPercent\" >= 0 AND \"DiscountPercent\" <= 100)");
 
-                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixOther_MarkupPercent", "\"MarkupPercent\" IS NULL OR \"MarkupPercent\" >= 0");
+                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixOther_MarkupPercent", "\"MarkupPercent\" IS NULL OR (\"MarkupPercent\" >= 0 AND \"MarkupPercent\" <= 100)");
                         });
                 });
 
@@ -1547,8 +1410,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1613,8 +1476,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<string>("SerialNumberPattern")
                         .HasColumnType("text");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1639,8 +1502,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasDatabaseName("IX_ServiceAsset_UrlsJson");
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("UrlsJson"), "gin");
-
-                    b.HasIndex("TenantId", "CompanyId");
 
                     b.HasIndex("TenantId", "CompanyId", "FgsSetupServiceAssetManufacturerId")
                         .HasDatabaseName("IX_FgsSvcAssetModelRef_Mfr");
@@ -1691,8 +1552,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1738,10 +1599,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<string>("ExternalSystemId")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -1752,21 +1609,12 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("ShowTaxDetail")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("SyncToken")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
                     b.Property<string>("TaxCode")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1829,8 +1677,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<string>("RegionCode")
                         .HasColumnType("text");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1899,8 +1747,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<decimal>("TaxPercent")
                         .HasColumnType("numeric");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -1974,8 +1822,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<int?>("SortOrder")
                         .HasColumnType("integer");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -2036,8 +1884,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<int?>("SortOrder")
                         .HasColumnType("integer");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("TradeCode")
@@ -2121,8 +1969,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -2187,8 +2035,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<int?>("SortOrder")
                         .HasColumnType("integer");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -2250,8 +2098,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -2276,12 +2124,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenant", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(0);
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<Guid?>("BillingLocationId")
                         .HasColumnType("uuid");
@@ -2303,12 +2149,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<string>("Email")
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
-
-                    b.Property<short>("FgsTenantStatusId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint")
-                        .HasDefaultValue((short)1)
-                        .HasColumnOrder(1);
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -2353,8 +2193,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FgsTenantStatusId");
 
                     b.HasIndex("TenantCode")
                         .IsUnique();
@@ -2443,8 +2281,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(1);
 
                     b.Property<string>("UpdatedBy")
@@ -2460,21 +2298,21 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("TenantId", "Code")
-                        .HasName("UX_Company_Tenant_Code");
-
                     b.HasAlternateKey("TenantId", "CompanyGuid");
 
-                    b.HasAlternateKey("TenantId", "CompanyNumber")
-                        .HasName("UX_Company_Tenant_CompanyNumber");
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "CompanyNumber")
+                        .IsUnique();
 
                     b.ToTable("FgsTenantCompany", "dbo");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenantServiceSetup", b =>
                 {
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
                         .HasColumnOrder(0);
 
                     b.Property<long>("CompanyId")
@@ -2635,8 +2473,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
@@ -2676,8 +2514,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<short?>("GloRoleId")
                         .HasColumnType("smallint");
 
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -2735,8 +2573,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("Code")
-                        .HasName("UX_AccountingIntegrationType_Code");
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.ToTable("GloAccountingIntegrationType", "dbo");
                 });
@@ -2786,8 +2624,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("Code")
-                        .HasName("UX_BusinessType_Code");
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.ToTable("GloBusinessType", "dbo");
                 });
@@ -3123,28 +2961,20 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("Id"));
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamptz")
-                        .HasDefaultValueSql("timezone('utc', now())");
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Description")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsAssignable")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsSystemRole")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -3162,29 +2992,21 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.Property<short>("SortOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint")
-                        .HasDefaultValue((short)0);
+                        .HasColumnType("smallint");
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("RoleCode")
-                        .HasName("UX_GloRole_RoleCode");
+                    b.HasIndex("RoleCode")
+                        .IsUnique();
 
-                    b.ToTable("GloRole", "dbo", t =>
-                        {
-                            t.HasCheckConstraint("CK_GloRole_Name_NotEmpty", "length(trim(\"Name\")) > 0");
-
-                            t.HasCheckConstraint("CK_GloRole_RoleCode_NotEmpty", "length(trim(\"RoleCode\")) > 0");
-                        });
+                    b.ToTable("GloRole", "dbo");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloSetupDescriptionType", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("gen_random_uuid()");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -3192,17 +3014,13 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamptz")
-                        .HasDefaultValueSql("timezone('utc', now())");
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -3214,8 +3032,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("Code")
-                        .HasName("UQ_GloSetupDescriptionType_Code");
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.ToTable("GloSetupDescriptionType", "dbo");
                 });
@@ -3233,31 +3051,23 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamptz")
-                        .HasDefaultValueSql("timezone('utc', now())");
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsSystem")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("SortOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
+                        .HasColumnType("integer");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
@@ -3268,55 +3078,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("Name")
-                        .HasName("UQ_GloSetupLaborRateType_Name");
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("GloSetupLaborRateType", "dbo");
-                });
-
-            modelBuilder.Entity("Fgs.User.Domain.Entities.GloSetupTenantStatus", b =>
-                {
-                    b.Property<short>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<short>("Id"));
-
-                    b.Property<long?>("CreatedBy")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamptz")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<long?>("UpdatedBy")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset?>("UpdatedOn")
-                        .HasColumnType("timestamptz");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasDatabaseName("UX_GloSetupTenantStatus_Name");
-
-                    b.ToTable("GloSetupTenantStatus", "dbo");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloStateProvince", b =>
@@ -3447,17 +3212,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasConstraintName("FK_FgsCredentialSecret_Company");
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsFile", b =>
-                {
-                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsFile_FgsTenantCompany_TenantId_CompanyId");
-                });
-
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInvitation", b =>
                 {
                     b.HasOne("Fgs.User.Domain.Entities.FgsUser", "User")
@@ -3529,8 +3283,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupCommunicationTemplate_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupDescription", b =>
@@ -3546,8 +3299,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupDescription_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupGLBreak", b =>
@@ -3557,8 +3309,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupGLBreak_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupGLBreakTechTrade", b =>
@@ -3580,8 +3331,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupGLBreakTechTrade_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
 
                     b.Navigation("GLBreak");
 
@@ -3602,8 +3352,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPaymentMethod_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPaymentTerm", b =>
@@ -3613,8 +3362,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPaymentTerm_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPostalCode", b =>
@@ -3636,104 +3384,62 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPostalCode_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrix", b =>
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPriceSheet", b =>
                 {
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPricingMatrix_Company");
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrixLabor", b =>
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPriceSheetLabor", b =>
                 {
                     b.HasOne("Fgs.User.Domain.Entities.GloSetupLaborRateType", null)
                         .WithMany()
                         .HasForeignKey("FgsSetupLaborRateTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPricingMatrixLabor_LaborRateType");
-
-                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupPricingMatrix", null)
-                        .WithMany()
-                        .HasForeignKey("FgsSetupPricingMatrixId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPricingMatrixLabor_PricingMatrix");
-
-                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupTechSkillLevel", null)
-                        .WithMany()
-                        .HasForeignKey("FgsSetupTechSkillLevelId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("FK_FgsSetupPricingMatrixLabor_TechSkillLevel");
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPricingMatrixLabor_Company");
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrixLaborTier", b =>
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPriceSheetLaborTier", b =>
                 {
-                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupPricingMatrixLabor", null)
-                        .WithMany()
-                        .HasForeignKey("FgsSetupPricingMatrixLaborId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPricingMatrixLaborTier_Labor");
-
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPricingMatrixLaborTier_Company");
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrixMaterialTier", b =>
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPriceSheetMaterial", b =>
                 {
-                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupPricingMatrix", null)
-                        .WithMany()
-                        .HasForeignKey("FgsSetupPricingMatrixId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPricingMatrixMaterialTier_PricingMatrix");
-
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPricingMatrixMaterialTier_Company");
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPricingMatrixOther", b =>
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPriceSheetOther", b =>
                 {
-                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupPricingMatrix", null)
-                        .WithMany()
-                        .HasForeignKey("FgsSetupPricingMatrixId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPricingMatrixOther_PricingMatrix");
-
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPricingMatrixOther_Company");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupServiceAssetManufacturer", b =>
@@ -3743,8 +3449,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupServiceAssetManufacturer_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupServiceAssetModelReference", b =>
@@ -3783,8 +3488,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupServiceAssetType_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTax", b =>
@@ -3794,8 +3498,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupTax_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTaxAuthority", b =>
@@ -3805,8 +3508,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupTaxAuthority_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTaxDetail", b =>
@@ -3830,8 +3532,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupTaxDetail_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTechSkillLevel", b =>
@@ -3841,8 +3542,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupTechSkillLevel_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTechTrade", b =>
@@ -3852,8 +3552,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupTechTrade_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTimeSlot", b =>
@@ -3869,8 +3568,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupTimeSlot_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupTitleOfCourtesy", b =>
@@ -3880,8 +3578,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupTitleOfCourtesy_FgsTenantCompany_TenantId_CompanyId");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupZone", b =>
@@ -3891,18 +3588,7 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupZone_FgsTenantCompany_TenantId_CompanyId");
-                });
-
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenant", b =>
-                {
-                    b.HasOne("Fgs.User.Domain.Entities.GloSetupTenantStatus", null)
-                        .WithMany()
-                        .HasForeignKey("FgsTenantStatusId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsTenant_GloSetupTenantStatus");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenantServiceSetup", b =>
@@ -4000,3 +3686,4 @@ namespace Fgs.User.Infrastructure.Database.Migrations
         }
     }
 }
+

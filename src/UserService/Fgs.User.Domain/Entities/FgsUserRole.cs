@@ -9,7 +9,7 @@ public class FgsUserRole
 
     public Guid UserId { get; set; }
 
-    public Guid TenantId { get; set; }
+    public long TenantId { get; set; }
 
     public long CompanyId { get; set; }
 

@@ -8,7 +8,7 @@ public sealed class SignupLocationFactoryTests
     [Fact]
     public void CreateCompanyLocation_MapsStructuredAddressFields()
     {
-        var tenantId = Guid.NewGuid();
+        const long tenantId = 1;
         const long companyId = 1;
         var locationId = Guid.NewGuid();
         var now = DateTimeOffset.UtcNow;

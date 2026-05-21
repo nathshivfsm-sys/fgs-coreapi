@@ -13,21 +13,13 @@ public partial class RemoveFgsInvitationIsDeleted : Migration
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.DropColumn(
-            name: "IsDeleted",
-            schema: "dbo",
-            table: "FgsInvitation");
+        // Intentionally empty: applied in 20260521145233_GloSetupTenantStatusAndTenantIdBigint.
+        // Manual deploy: Database/Scripts/20260522130000_RemoveFgsInvitationIsDeleted_Up.sql
     }
 
     /// <inheritdoc />
     protected override void Down(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.AddColumn<bool>(
-            name: "IsDeleted",
-            schema: "dbo",
-            table: "FgsInvitation",
-            type: "boolean",
-            nullable: false,
-            defaultValue: false);
+        // Intentionally empty: run 20260522130000_RemoveFgsInvitationIsDeleted_Down.sql against the database.
     }
 }

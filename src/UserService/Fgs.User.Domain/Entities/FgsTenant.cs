@@ -2,7 +2,9 @@ namespace Fgs.User.Domain.Entities;
 
 public class FgsTenant : FgsEntityBase
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
+
+    public short FgsTenantStatusId { get; set; } = 1;
 
     public string TenantCode { get; set; } = null!;
 

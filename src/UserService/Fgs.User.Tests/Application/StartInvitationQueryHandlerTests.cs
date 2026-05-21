@@ -31,7 +31,7 @@ public sealed class StartInvitationQueryHandlerTests
         {
             Id = invitationId,
             UserId = Guid.NewGuid(),
-            TenantId = Guid.NewGuid(),
+            TenantId = 1,
             Email = "a@test.com",
             TokenHash = hash,
             Status = InvitationStatus.Pending,
@@ -79,7 +79,7 @@ public sealed class StartInvitationQueryHandlerTests
         {
             Id = invitationId,
             UserId = Guid.NewGuid(),
-            TenantId = Guid.NewGuid(),
+            TenantId = 1,
             Email = "verified@test.com",
             TokenHash = hash,
             Status = InvitationStatus.Accepted,
@@ -146,7 +146,7 @@ public sealed class StartInvitationQueryHandlerTests
         {
             Id = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
-            TenantId = Guid.NewGuid(),
+            TenantId = 1,
             Email = "expired@test.com",
             TokenHash = hash,
             Status = InvitationStatus.Pending,
@@ -173,7 +173,7 @@ public sealed class StartInvitationQueryHandlerTests
         {
             Id = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
-            TenantId = Guid.NewGuid(),
+            TenantId = 1,
             Email = "revoked@test.com",
             TokenHash = hash,
             Status = InvitationStatus.Expired,

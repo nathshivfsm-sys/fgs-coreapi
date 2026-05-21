@@ -5,7 +5,7 @@ namespace Fgs.User.Domain.Entities;
 /// </summary>
 public class FgsTenantServiceSetup : FgsEntityBase
 {
-    public Guid TenantId { get; set; }
+    public long TenantId { get; set; }
 
     public long CompanyId { get; set; }
 

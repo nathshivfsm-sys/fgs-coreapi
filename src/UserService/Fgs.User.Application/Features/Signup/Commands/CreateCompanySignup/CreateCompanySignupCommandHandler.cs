@@ -95,7 +95,6 @@ public sealed class CreateCompanySignupCommandHandler
                 {
                     var now = _dateTime.UtcNow;
                     var prospectActor = SignupConstants.ProspectActor;
-                    var tenantId = Guid.NewGuid();
                     var companyUid = Guid.NewGuid();
                     const long companyNumber = 1;
                     var userId = Guid.NewGuid();
@@ -108,6 +107,28 @@ public sealed class CreateCompanySignupCommandHandler
                     var companyWebsite = string.IsNullOrWhiteSpace(company.Website) ? null : company.Website.Trim();
                     var companySize = company.CompanySize.Trim();
 
+                    var tenant = new FgsTenant
+                    {
+                        FgsTenantStatusId = 2,
+                        TenantCode = tenantCode,
+                        Name = companyNameTrimmed,
+                        LegalName = companyNameTrimmed,
+                        Email = emailTrimmed,
+                        PhoneNumber = phoneStored,
+                        Website = companyWebsite,
+                        TimeZone = timeZone,
+                        DefaultCurrency = defaultCurrency,
+                        DefaultLanguageId = SignupConstants.DefaultLanguageId,
+                        IsActive = true,
+                        CreatedOn = now,
+                        CreatedBy = prospectActor
+                    };
+
+                    await tenantRepo.AddAsync(tenant, ct);
+                    await _unitOfWork.SaveChangesAsync(ct);
+
+                    var tenantId = tenant.Id;
+
                     var location = SignupLocationFactory.CreateCompanyLocation(
                         locationId,
                         tenantId,
@@ -117,24 +138,8 @@ public sealed class CreateCompanySignupCommandHandler
                         now);
                     location.CreatedBy = prospectActor;
 
-                    var tenant = new FgsTenant
-                    {
-                        Id = tenantId,
-                        TenantCode = tenantCode,
-                        Name = companyNameTrimmed,
-                        LegalName = companyNameTrimmed,
-                        Email = emailTrimmed,
-                        PhoneNumber = phoneStored,
-                        Website = companyWebsite,
-                        PhysicalLocationId = locationId,
-                        BillingLocationId = locationId,
-                        TimeZone = timeZone,
-                        DefaultCurrency = defaultCurrency,
-                        DefaultLanguageId = SignupConstants.DefaultLanguageId,
-                        IsActive = true,
-                        CreatedOn = now,
-                        CreatedBy = prospectActor
-                    };
+                    tenant.PhysicalLocationId = locationId;
+                    tenant.BillingLocationId = locationId;
 
                     var tenantCompany = new FgsTenantCompany
                     {
@@ -188,7 +193,6 @@ public sealed class CreateCompanySignupCommandHandler
                         CreatedBy = prospectActor
                     };
 
-                    await tenantRepo.AddAsync(tenant, ct);
                     await _unitOfWork.Repository<FgsLocation>().AddAsync(location, ct);
                     await _unitOfWork.Repository<FgsTenantCompany>().AddAsync(tenantCompany, ct);
                     await userRepo.AddAsync(user, ct);

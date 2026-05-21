@@ -102,6 +102,8 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<GloBusinessType> GloBusinessTypes => Set<GloBusinessType>();
 
+    public DbSet<GloSetupTenantStatus> GloSetupTenantStatuses => Set<GloSetupTenantStatus>();
+
     public DbSet<GloLanguage> GloLanguages => Set<GloLanguage>();
 
     public DbSet<GloBillingCategory> GloBillingCategories => Set<GloBillingCategory>();

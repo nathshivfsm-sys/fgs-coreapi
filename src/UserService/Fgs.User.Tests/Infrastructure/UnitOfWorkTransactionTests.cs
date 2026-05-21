@@ -16,7 +16,6 @@ public sealed class UnitOfWorkTransactionTests
         {
             await unitOfWork.Repository<FgsTenant>().AddAsync(new FgsTenant
             {
-                Id = Guid.NewGuid(),
                 TenantCode = "commit-test",
                 Name = "Committed",
                 CreatedOn = DateTimeOffset.UtcNow
