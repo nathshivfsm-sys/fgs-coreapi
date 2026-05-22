@@ -142,6 +142,73 @@ WHERE "Code" IN (
     'ZELLE'
 );
 
+DELETE FROM dbo."GloCategorySubCategory"
+WHERE "BusinessTypeId" IN (
+    SELECT "Id" FROM dbo."GloBusinessType"
+    WHERE "Code" IN ('HVAC', 'PLUMBING', 'ELECTRICAL')
+);
+
+DELETE FROM dbo."GloSkill"
+WHERE "SkillCode" IN (
+    'HVACEXPERT',
+    'HVACHELPER',
+    'PLUMBINGEXPERT',
+    'PLUMBINGHELPER',
+    'ELECTRICALEXPERT',
+    'ELECTRICALHELPER'
+);
+
+DELETE FROM dbo."GloCategory"
+WHERE ("BusinessTypeId", "Code") IN (
+    SELECT bt."Id", v."Code"
+    FROM (
+        VALUES
+            ('HVAC',       'AC'),
+            ('HVAC',       'FURNACE'),
+            ('HVAC',       'THERMOSTAT'),
+            ('PLUMBING',   'TOILET'),
+            ('PLUMBING',   'FAUCET'),
+            ('PLUMBING',   'WATERHEATER'),
+            ('ELECTRICAL', 'PANEL'),
+            ('ELECTRICAL', 'LIGHTING'),
+            ('ELECTRICAL', 'OUTLET')
+    ) AS v("BusinessTypeCode", "Code")
+    INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+);
+
+DELETE FROM dbo."GloSubCategory"
+WHERE "Code" IN (
+    'INSTALL',
+    'REPAIR',
+    'SERVICE',
+    'REPLACE',
+    'INSPECT',
+    'MAINTENANCE',
+    'TROUBLESHOOT',
+    'CLEANING',
+    'TUNEUP',
+    'UPGRADE'
+);
+
+DELETE FROM dbo."GloTrade"
+WHERE "TradeCode" IN (
+    'PESTCONTROL',
+    'GARAGEDOOR',
+    'LAWNCARE',
+    'IRRIGATION',
+    'LANDSCAPING',
+    'HOUSECLEANING',
+    'TRASHREMOVAL',
+    'JUNKREMOVAL',
+    'ELECTRICAL',
+    'PLUMBING',
+    'HVAC',
+    'PAINTING'
+);
+
+DELETE FROM dbo."GloZone"
+WHERE "Code" IN ('ALL');
+
 DELETE FROM dbo."GloBusinessType"
 WHERE "Code" IN (
     'HVAC',
@@ -152,7 +219,11 @@ WHERE "Code" IN (
     'TRASHPICKUP',
     'GARAGEDOOR',
     'HOUSECLEANING',
-    'PAINTING'
+    'PAINTING',
+    'CARPETCLEANING',
+    'WINDOWCLEANING',
+    'HOLIDAYLIGHTING',
+    'OTHER'
 );
 
 DELETE FROM dbo."GloTimeCardOption"

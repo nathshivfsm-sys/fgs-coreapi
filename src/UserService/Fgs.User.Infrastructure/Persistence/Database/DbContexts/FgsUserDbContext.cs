@@ -102,6 +102,22 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<GloBusinessType> GloBusinessTypes => Set<GloBusinessType>();
 
+    public DbSet<GloTrade> GloTrades => Set<GloTrade>();
+
+    public DbSet<GloSkill> GloSkills => Set<GloSkill>();
+
+    public DbSet<GloLeadSource> GloLeadSources => Set<GloLeadSource>();
+
+    public DbSet<FgsLeadSource> FgsLeadSources => Set<FgsLeadSource>();
+
+    public DbSet<GloZone> GloZones => Set<GloZone>();
+
+    public DbSet<GloCategory> GloCategories => Set<GloCategory>();
+
+    public DbSet<GloSubCategory> GloSubCategories => Set<GloSubCategory>();
+
+    public DbSet<GloCategorySubCategory> GloCategorySubCategories => Set<GloCategorySubCategory>();
+
     public DbSet<GloSetupTenantStatus> GloSetupTenantStatuses => Set<GloSetupTenantStatus>();
 
     public DbSet<GloLanguage> GloLanguages => Set<GloLanguage>();

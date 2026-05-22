@@ -169,31 +169,37 @@ SELECT setval(
     COALESCE((SELECT MAX("Id") FROM dbo."GloTimeCardOption"), 1),
     true);
 
--- GloBusinessType
+-- GloBusinessType (explicit Id: sequential 1..n; OTHER last)
 INSERT INTO dbo."GloBusinessType"
 (
+    "Id",
     "Code",
     "Name",
     "IsActive",
     "CreatedOn"
 )
 SELECT
+    v."Id",
     v."Code",
     v."Name",
     v."IsActive",
     timezone('utc', now())
 FROM (
     VALUES
-        ('HVAC',          'HVAC',           true),
-        ('PLUMBING',      'Plumbing',       true),
-        ('ELECTRICAL',    'Electrical',     true),
-        ('PESTCONTROL',   'Pest Control',   true),
-        ('LAWNCARE',      'Lawn Care',      true),
-        ('TRASHPICKUP',   'Trash Pickup',   true),
-        ('GARAGEDOOR',    'Garage Door',    true),
-        ('HOUSECLEANING', 'House Cleaning', true),
-        ('PAINTING',      'Painting',       true)
-) AS v("Code", "Name", "IsActive")
+        ( 1, 'HVAC',            'HVAC',             true),
+        ( 2, 'PLUMBING',        'Plumbing',         true),
+        ( 3, 'ELECTRICAL',      'Electrical',       true),
+        ( 4, 'PESTCONTROL',     'Pest Control',     true),
+        ( 5, 'LAWNCARE',        'Lawn Care',        true),
+        ( 6, 'TRASHPICKUP',     'Trash Pickup',     true),
+        ( 7, 'GARAGEDOOR',      'Garage Door',      true),
+        ( 8, 'HOUSECLEANING',   'House Cleaning',   true),
+        ( 9, 'PAINTING',        'Painting',         true),
+        (10, 'CARPETCLEANING',  'Carpet Cleaning',  true),
+        (11, 'WINDOWCLEANING',  'Window Cleaning',  true),
+        (12, 'HOLIDAYLIGHTING', 'Holiday Lighting', true),
+        (13, 'OTHER',           'Other',            true)
+) AS v("Id", "Code", "Name", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
     FROM dbo."GloBusinessType" t
@@ -655,5 +661,243 @@ SELECT setval(
     pg_get_serial_sequence('dbo."GloSetupTenantStatus"', 'Id'),
     COALESCE((SELECT MAX("Id") FROM dbo."GloSetupTenantStatus"), 1),
     true);
+
+-- GloTrade
+INSERT INTO dbo."GloTrade"
+(
+    "BusinessTypeId",
+    "TradeCode",
+    "TradeName",
+    "Description",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    bt."Id",
+    v."TradeCode",
+    v."TradeName",
+    v."Description",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('PESTCONTROL',   'PESTCONTROL',   'Pest Control',   'General pest control services'),
+        ('GARAGEDOOR',    'GARAGEDOOR',    'Garage Door',    'Garage door installation and repair'),
+        ('LAWNCARE',      'LAWNCARE',      'Lawn Care',      'General lawn maintenance'),
+        ('LAWNCARE',      'IRRIGATION',    'Irrigation',     'Sprinkler and irrigation systems'),
+        ('LAWNCARE',      'LANDSCAPING',   'Landscaping',    'Landscape design and maintenance'),
+        ('HOUSECLEANING', 'HOUSECLEANING', 'House Cleaning', 'Residential and commercial cleaning'),
+        ('TRASHPICKUP',   'TRASHREMOVAL',  'Trash Removal',  'General trash pickup services'),
+        ('TRASHPICKUP',   'JUNKREMOVAL',   'Junk Removal',   'Bulk junk and debris removal'),
+        ('ELECTRICAL',    'ELECTRICAL',    'Electrical',     'Electrical installation and repair'),
+        ('PLUMBING',      'PLUMBING',      'Plumbing',       'Residential and commercial plumbing'),
+        ('HVAC',          'HVAC',          'HVAC',           'Heating and air conditioning services'),
+        ('PAINTING',      'PAINTING',      'Painting',       'Interior and exterior painting')
+) AS v("BusinessTypeCode", "TradeCode", "TradeName", "Description")
+INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloTrade" t
+    WHERE t."TradeCode" = v."TradeCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloTrade"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloTrade"), 1),
+    true);
+
+-- GloSkill (HVAC, Plumbing, Electrical)
+INSERT INTO dbo."GloSkill"
+(
+    "BusinessTypeId",
+    "TradeId",
+    "SkillCode",
+    "SkillName",
+    "Description",
+    "RequiresCertification",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    bt."Id",
+    tr."Id",
+    v."SkillCode",
+    v."SkillName",
+    v."Description",
+    v."RequiresCertification",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('HVAC',       'HVAC',       'HVACEXPERT',       'HVAC Expert',       'Experienced HVAC technician', false),
+        ('HVAC',       'HVAC',       'HVACHELPER',       'HVAC Helper',       'HVAC helper and assistant technician', false),
+        ('PLUMBING',   'PLUMBING',   'PLUMBINGEXPERT',   'Plumbing Expert',   'Experienced plumbing technician', false),
+        ('PLUMBING',   'PLUMBING',   'PLUMBINGHELPER',   'Plumbing Helper',   'Plumbing helper and assistant technician', false),
+        ('ELECTRICAL', 'ELECTRICAL', 'ELECTRICALEXPERT', 'Electrical Expert', 'Experienced electrical technician', false),
+        ('ELECTRICAL', 'ELECTRICAL', 'ELECTRICALHELPER', 'Electrical Helper', 'Electrical helper and assistant technician', false)
+) AS v("BusinessTypeCode", "TradeCode", "SkillCode", "SkillName", "Description", "RequiresCertification")
+INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+INNER JOIN dbo."GloTrade" tr ON tr."TradeCode" = v."TradeCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloSkill" s
+    WHERE s."SkillCode" = v."SkillCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloSkill"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloSkill"), 1),
+    true);
+
+-- GloZone
+INSERT INTO dbo."GloZone"
+(
+    "Code",
+    "Name",
+    "Description",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."Code",
+    v."Name",
+    v."Description",
+    v."IsActive",
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('ALL', 'All', 'Default zone covering all service areas', true)
+) AS v("Code", "Name", "Description", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloZone" z
+    WHERE z."Code" = v."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloZone"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloZone"), 1),
+    true);
+
+-- GloSubCategory
+INSERT INTO dbo."GloSubCategory"
+(
+    "Code",
+    "Name",
+    "Description",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."Code",
+    v."Name",
+    v."Description",
+    v."IsActive",
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('INSTALL',      'Install',      'Installation service', true),
+        ('REPAIR',       'Repair',       'Repair service', true),
+        ('SERVICE',      'Service',      'General maintenance service', true),
+        ('REPLACE',      'Replace',      'Replacement service', true),
+        ('INSPECT',      'Inspect',      'Inspection service', true),
+        ('MAINTENANCE',  'Maintenance',  'Preventive maintenance service', true),
+        ('TROUBLESHOOT', 'Troubleshoot', 'Diagnostic and troubleshooting service', true),
+        ('CLEANING',     'Cleaning',     'Cleaning service', true),
+        ('TUNEUP',       'Tune-Up',      'System tune-up service', true),
+        ('UPGRADE',      'Upgrade',      'Upgrade existing equipment or system', true)
+) AS v("Code", "Name", "Description", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloSubCategory" sc
+    WHERE sc."Code" = v."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloSubCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloSubCategory"), 1),
+    true);
+
+-- GloCategory
+INSERT INTO dbo."GloCategory"
+(
+    "BusinessTypeId",
+    "Code",
+    "Name",
+    "Description",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    bt."Id",
+    v."Code",
+    v."Name",
+    v."Description",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('HVAC',       'AC',          'Air Conditioning',     'Air conditioning systems'),
+        ('HVAC',       'FURNACE',     'Furnace',              'Heating furnace systems'),
+        ('HVAC',       'THERMOSTAT',  'Thermostat',           'Thermostat systems and controls'),
+        ('PLUMBING',   'TOILET',      'Toilet',               'Toilet systems'),
+        ('PLUMBING',   'FAUCET',      'Faucet',               'Faucet systems'),
+        ('PLUMBING',   'WATERHEATER', 'Water Heater',         'Water heater systems'),
+        ('ELECTRICAL', 'PANEL',       'Electrical Panel',     'Electrical panel systems'),
+        ('ELECTRICAL', 'LIGHTING',    'Lighting',             'Lighting systems'),
+        ('ELECTRICAL', 'OUTLET',      'Outlet',               'Electrical outlet systems')
+) AS v("BusinessTypeCode", "Code", "Name", "Description")
+INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloCategory" c
+    WHERE c."BusinessTypeId" = bt."Id"
+      AND c."Code" = v."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloCategory"), 1),
+    true);
+
+-- GloCategorySubCategory
+INSERT INTO dbo."GloCategorySubCategory"
+(
+    "BusinessTypeId",
+    "CategoryId",
+    "SubCategoryId",
+    "CreatedOn"
+)
+SELECT
+    bt."Id",
+    c."Id",
+    sc."Id",
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('HVAC',       'AC',          'INSTALL'),
+        ('HVAC',       'AC',          'REPAIR'),
+        ('HVAC',       'AC',          'SERVICE'),
+        ('HVAC',       'FURNACE',     'SERVICE'),
+        ('PLUMBING',   'TOILET',      'REPAIR'),
+        ('PLUMBING',   'TOILET',      'REPLACE'),
+        ('PLUMBING',   'FAUCET',      'INSTALL'),
+        ('PLUMBING',   'FAUCET',      'REPLACE'),
+        ('ELECTRICAL', 'PANEL',       'REPLACE'),
+        ('ELECTRICAL', 'LIGHTING',    'INSTALL'),
+        ('ELECTRICAL', 'OUTLET',      'REPAIR')
+) AS v("BusinessTypeCode", "CategoryCode", "SubCategoryCode")
+INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+INNER JOIN dbo."GloCategory" c
+    ON c."BusinessTypeId" = bt."Id"
+   AND c."Code" = v."CategoryCode"
+INNER JOIN dbo."GloSubCategory" sc ON sc."Code" = v."SubCategoryCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloCategorySubCategory" m
+    WHERE m."BusinessTypeId" = bt."Id"
+      AND m."CategoryId" = c."Id"
+      AND m."SubCategoryId" = sc."Id"
+);
 
 COMMIT;
