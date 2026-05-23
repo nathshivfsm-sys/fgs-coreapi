@@ -939,6 +939,130 @@ SELECT setval(
     COALESCE((SELECT MAX("Id") FROM dbo."GloLeadSource"), 1),
     true);
 
+-- GloUnitOfMeasure (global units of measure)
+INSERT INTO dbo."GloUnitOfMeasure"
+(
+    "UnitCode",
+    "Name",
+    "Abbreviation",
+    "Description",
+    "UnitType",
+    "DecimalPlaces",
+    "DisplayOrder",
+    "IsSystem",
+    "IsActive"
+)
+SELECT
+    v."UnitCode",
+    v."Name",
+    v."Abbreviation",
+    v."Description",
+    v."UnitType",
+    v."DecimalPlaces",
+    v."DisplayOrder",
+    v."IsSystem",
+    v."IsActive"
+FROM (
+    VALUES
+        ('EACH',  'Each',   'EA',   'Individual item',        'COUNT',   0,  1, true, true),
+        ('BOX',   'Box',    'BOX',  'Box quantity',           'PACKAGE', 0,  2, true, true),
+        ('CASE',  'Case',   'CS',   'Case quantity',          'PACKAGE', 0,  3, true, true),
+        ('FOOT',  'Foot',   'FT',   'Linear feet',            'LENGTH',  2,  4, true, true),
+        ('INCH',  'Inch',   'IN',   'Inches',                 'LENGTH',  2,  5, true, true),
+        ('POUND', 'Pound',  'LB',   'Weight in pounds',       'WEIGHT',  2,  6, true, true),
+        ('GALLON','Gallon', 'GAL',  'Liquid gallon',          'VOLUME',  2,  7, true, true),
+        ('HOUR',  'Hour',   'HR',   'Labor hour',             'TIME',    2,  8, true, true),
+        ('DAY',   'Day',    'DAY',  'Daily unit',             'TIME',    0,  9, true, true),
+        ('ROLL',  'Roll',   'ROLL', 'Roll quantity',          'PACKAGE', 0, 10, true, true)
+) AS v("UnitCode", "Name", "Abbreviation", "Description", "UnitType", "DecimalPlaces", "DisplayOrder", "IsSystem", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloUnitOfMeasure" u
+    WHERE u."UnitCode" = v."UnitCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloUnitOfMeasure"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloUnitOfMeasure"), 1),
+    true);
+
+-- GloTag (global system tags)
+INSERT INTO dbo."GloTag"
+(
+    "TagCode",
+    "Name",
+    "NormalizedName",
+    "Description",
+    "BackgroundColor",
+    "TextColor",
+    "DisplayOrder",
+    "IsSystemGenerated",
+    "IsActive"
+)
+SELECT
+    v."TagCode",
+    v."Name",
+    v."NormalizedName",
+    v."Description",
+    v."BackgroundColor",
+    v."TextColor",
+    v."DisplayOrder",
+    v."IsSystemGenerated",
+    v."IsActive"
+FROM (
+    VALUES
+        ('URGENT',     'Urgent',               'urgent',               'Requires immediate attention',     '#EF4444', '#FFFFFF', 1, true, true),
+        ('VIP',        'VIP',                  'vip',                  'Important customer',               '#F59E0B', '#000000', 2, true, true),
+        ('WARRANTY',   'Warranty',             'warranty',             'Under warranty',                   '#10B981', '#FFFFFF', 3, true, true),
+        ('FOLLOWUP',   'Needs Follow-Up',      'needs follow-up',      'Additional follow-up required',    '#EAB308', '#000000', 4, true, true),
+        ('COMMERCIAL', 'Commercial',           'commercial',           'Commercial customer or property',  '#3B82F6', '#FFFFFF', 5, true, true),
+        ('INSPECTION', 'Inspection Required',  'inspection required',  'Inspection is required',           '#06B6D4', '#FFFFFF', 6, true, true)
+) AS v("TagCode", "Name", "NormalizedName", "Description", "BackgroundColor", "TextColor", "DisplayOrder", "IsSystemGenerated", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloTag" t
+    WHERE t."TagCode" = v."TagCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloTag"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloTag"), 1),
+    true);
+
+-- GloTitleOfCourtesy (global courtesy titles)
+INSERT INTO dbo."GloTitleOfCourtesy"
+(
+    "Code",
+    "DisplayName",
+    "SortOrder",
+    "IsActive"
+)
+SELECT
+    v."Code",
+    v."DisplayName",
+    v."SortOrder",
+    v."IsActive"
+FROM (
+    VALUES
+        ('MR',   'Mr.',   1, true),
+        ('MRS',  'Mrs.',  2, true),
+        ('MS',   'Ms.',   3, true),
+        ('MISS', 'Miss',  4, true),
+        ('DR',   'Dr.',   5, true),
+        ('PROF', 'Prof.', 6, true),
+        ('REV',  'Rev.',  7, true)
+) AS v("Code", "DisplayName", "SortOrder", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloTitleOfCourtesy" t
+    WHERE t."Code" = v."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloTitleOfCourtesy"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloTitleOfCourtesy"), 1),
+    true);
+
 -- =============================================================================
 -- GloSeedTableMapping / GloSeedTableColumnMapping
 -- Tenant provisioning: global (Glo*) -> tenant/company (Fgs*) catalog copies
@@ -973,7 +1097,10 @@ FROM (
         ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'dbo', 'GloTrade',      'dbo', 'FgsSetupTechTrade',      20, 'Copy global technician trades into tenant setup',                true),
         ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'dbo', 'GloSkill',      'dbo', 'FgsSetupTechSkillLevel', 30, 'Copy global technician skill levels into tenant setup',          true),
         ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'dbo', 'GloLeadSource', 'dbo', 'FgsLeadSource',          40, 'Copy global lead sources into tenant/company lead source catalog', true),
-        ('GLO_ROLE_TO_FGS_ROLE',                     'dbo', 'GloRole',       'dbo', 'FgsRole',                50, 'Copy global roles into tenant/company role catalog',             true)
+        ('GLO_ROLE_TO_FGS_ROLE',                     'dbo', 'GloRole',       'dbo', 'FgsRole',                50, 'Copy global roles into tenant/company role catalog',             true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'dbo', 'GloTitleOfCourtesy', 'dbo', 'FgsSetupTitleOfCourtesy', 60, 'Copy global courtesy titles into tenant setup',                  true),
+        ('GLO_TAG_TO_FGS_TAG',                       'dbo', 'GloTag',        'dbo', 'FgsTag',                 70, 'Copy global system tags into tenant/company tag catalog',        true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'dbo', 'GloUnitOfMeasure', 'dbo', 'FgsUnitOfMeasure',  80, 'Copy global units of measure into tenant/company catalog',       true)
 ) AS v("SeedCode", "SourceSchemaName", "SourceTableName", "TargetSchemaName", "TargetTableName", "SeedOrder", "Description", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
@@ -1062,7 +1189,45 @@ INNER JOIN (
         ('GLO_ROLE_TO_FGS_ROLE',                     'Id',           'GloRoleId',   NULL,                NULL,      6, true),
         ('GLO_ROLE_TO_FGS_ROLE',                     'IsActive',     'IsActive',    NULL,                NULL,      7, true),
         ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      8, true),
-        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CreatedBy',   'STATIC',            'System',  9, false)
+        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CreatedBy',   'STATIC',            'System',  9, false),
+
+        -- GloTitleOfCourtesy -> FgsSetupTitleOfCourtesy
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'Code',         'Code',        NULL,                NULL,      3, true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'DisplayName',  'DisplayName', NULL,                NULL,      4, true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'SortOrder',    'SortOrder',   NULL,                NULL,      5, true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'IsActive',     'IsActive',    NULL,                NULL,      6, true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      7, true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'CreatedBy',   'STATIC',            'System',  8, false),
+
+        -- GloTag -> FgsTag
+        ('GLO_TAG_TO_FGS_TAG',                       NULL,           'TenantId',         'TENANT_ID',         NULL,      1, true),
+        ('GLO_TAG_TO_FGS_TAG',                       NULL,           'CompanyId',        'COMPANY_ID',        NULL,      2, true),
+        ('GLO_TAG_TO_FGS_TAG',                       'TagCode',      'TagCode',          NULL,                NULL,      3, true),
+        ('GLO_TAG_TO_FGS_TAG',                       'Name',         'Name',             NULL,                NULL,      4, true),
+        ('GLO_TAG_TO_FGS_TAG',                       'NormalizedName', 'NormalizedName', NULL,                NULL,      5, true),
+        ('GLO_TAG_TO_FGS_TAG',                       'Description',  'Description',      NULL,                NULL,      6, false),
+        ('GLO_TAG_TO_FGS_TAG',                       'BackgroundColor', 'BackgroundColor', NULL,             NULL,      7, false),
+        ('GLO_TAG_TO_FGS_TAG',                       'TextColor',    'TextColor',        NULL,                NULL,      8, false),
+        ('GLO_TAG_TO_FGS_TAG',                       'IconFileId',   'IconFileId',       NULL,                NULL,      9, false),
+        ('GLO_TAG_TO_FGS_TAG',                       'IsSystemGenerated', 'IsSystemGenerated', NULL,         NULL,     10, true),
+        ('GLO_TAG_TO_FGS_TAG',                       'IsActive',     'IsActive',         NULL,                NULL,     11, true),
+        ('GLO_TAG_TO_FGS_TAG',                       NULL,           'CreatedOn',        'CURRENT_TIMESTAMP', NULL,     12, true),
+
+        -- GloUnitOfMeasure -> FgsUnitOfMeasure
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', NULL,           'TenantId',      'TENANT_ID',         NULL,      1, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', NULL,           'CompanyId',     'COMPANY_ID',        NULL,      2, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'UnitCode',     'UnitCode',      NULL,                NULL,      3, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'Name',         'Name',          NULL,                NULL,      4, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'Abbreviation', 'Abbreviation',  NULL,                NULL,      5, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'Description',  'Description',   NULL,                NULL,      6, false),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'UnitType',     'UnitType',      NULL,                NULL,      7, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'DecimalPlaces', 'DecimalPlaces', NULL,               NULL,      8, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'DisplayOrder', 'DisplayOrder', NULL,               NULL,      9, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'IsSystem',     'IsSystem',      NULL,                NULL,     10, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'IsActive',     'IsActive',      NULL,                NULL,     11, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', NULL,           'CreatedOn',     'CURRENT_TIMESTAMP', NULL,     12, true)
 ) AS c("SeedCode", "SourceColumnName", "TargetColumnName", "TransformationType", "StaticValue", "ColumnOrder", "IsRequired")
     ON c."SeedCode" = m."SeedCode"
 WHERE NOT EXISTS (

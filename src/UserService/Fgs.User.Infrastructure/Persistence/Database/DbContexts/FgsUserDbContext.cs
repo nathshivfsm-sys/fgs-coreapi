@@ -118,6 +118,14 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<GloCategorySubCategory> GloCategorySubCategories => Set<GloCategorySubCategory>();
 
+    public DbSet<GloUnitOfMeasure> GloUnitOfMeasures => Set<GloUnitOfMeasure>();
+
+    public DbSet<GloTag> GloTags => Set<GloTag>();
+
+    public DbSet<FgsTag> FgsTags => Set<FgsTag>();
+
+    public DbSet<GloTitleOfCourtesy> GloTitlesOfCourtesy => Set<GloTitleOfCourtesy>();
+
     public DbSet<GloSetupTenantStatus> GloSetupTenantStatuses => Set<GloSetupTenantStatus>();
 
     public DbSet<GloLanguage> GloLanguages => Set<GloLanguage>();

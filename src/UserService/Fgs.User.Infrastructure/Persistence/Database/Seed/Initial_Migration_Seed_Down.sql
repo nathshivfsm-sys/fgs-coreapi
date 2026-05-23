@@ -291,7 +291,10 @@ WHERE "SeedTableMappingId" IN (
         'GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',
         'GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',
         'GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',
-        'GLO_ROLE_TO_FGS_ROLE'
+        'GLO_ROLE_TO_FGS_ROLE',
+        'GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY',
+        'GLO_TAG_TO_FGS_TAG',
+        'GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE'
     )
 );
 
@@ -301,7 +304,10 @@ WHERE "SeedCode" IN (
     'GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',
     'GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',
     'GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',
-    'GLO_ROLE_TO_FGS_ROLE'
+    'GLO_ROLE_TO_FGS_ROLE',
+    'GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY',
+    'GLO_TAG_TO_FGS_TAG',
+    'GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE'
 );
 
 DELETE FROM dbo."GloLeadSource"
@@ -314,6 +320,41 @@ WHERE "SourceCode" IN (
     'PHONE',
     'DIRECT',
     'OTHER'
+);
+
+DELETE FROM dbo."GloTitleOfCourtesy"
+WHERE "Code" IN (
+    'MR',
+    'MRS',
+    'MS',
+    'MISS',
+    'DR',
+    'PROF',
+    'REV'
+);
+
+DELETE FROM dbo."GloTag"
+WHERE "TagCode" IN (
+    'URGENT',
+    'VIP',
+    'WARRANTY',
+    'FOLLOWUP',
+    'COMMERCIAL',
+    'INSPECTION'
+);
+
+DELETE FROM dbo."GloUnitOfMeasure"
+WHERE "UnitCode" IN (
+    'EACH',
+    'BOX',
+    'CASE',
+    'FOOT',
+    'INCH',
+    'POUND',
+    'GALLON',
+    'HOUR',
+    'DAY',
+    'ROLL'
 );
 
 COMMIT;
