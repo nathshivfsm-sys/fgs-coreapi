@@ -44,11 +44,12 @@ public sealed class OutboxProcessorService(
         using var scope = scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<FgsUserDbContext>();
         var publisher = scope.ServiceProvider.GetRequiredService<IRabbitMqPublisher>();
+        var now = DateTimeOffset.UtcNow;
 
-        var messages = await context.FgsOutboxMessages
-            .Where(m => !m.IsDeleted
-                && m.Status == OutboxMessageStatus.Pending
-                && m.RetryCount < _options.MaxRetryCount)
+        var messages = await context.GloOutboxMessages
+            .Where(m => (m.Status == OutboxMessageStatus.Pending || m.Status == OutboxMessageStatus.Retry)
+                && (m.NextRetryOn == null || m.NextRetryOn <= now)
+                && m.RetryCount < m.MaxRetryCount)
             .OrderBy(m => m.CreatedOn)
             .Take(_options.BatchSize)
             .ToListAsync(cancellationToken);
@@ -67,21 +68,36 @@ public sealed class OutboxProcessorService(
         {
             try
             {
-                var routingKey = IntegrationEventRoutingKeys.ForEventType(
-                    message.EventType,
-                    _rabbitOptions.RoutingKeyPrefix);
-                await publisher.PublishAsync(routingKey, message.Payload, message.CorrelationId, cancellationToken);
+                var routingKey = !string.IsNullOrWhiteSpace(message.RoutingKey)
+                    ? message.RoutingKey
+                    : IntegrationEventRoutingKeys.ForEventType(
+                        message.EventType,
+                        _rabbitOptions.RoutingKeyPrefix);
+                await publisher.PublishAsync(
+                    routingKey,
+                    message.Payload,
+                    message.CorrelationId.ToString(),
+                    cancellationToken);
 
                 message.Status = OutboxMessageStatus.Published;
-                message.ProcessedOn = DateTimeOffset.UtcNow;
+                message.ProcessedOn = now;
                 message.LastError = null;
+                message.NextRetryOn = null;
             }
             catch (Exception ex)
             {
                 message.RetryCount++;
-                message.Status = message.RetryCount >= _options.MaxRetryCount
-                    ? OutboxMessageStatus.Failed
-                    : OutboxMessageStatus.Pending;
+                if (message.RetryCount >= message.MaxRetryCount)
+                {
+                    message.Status = OutboxMessageStatus.Failed;
+                    message.NextRetryOn = null;
+                }
+                else
+                {
+                    message.Status = OutboxMessageStatus.Retry;
+                    message.NextRetryOn = now.AddSeconds(Math.Pow(2, message.RetryCount));
+                }
+
                 message.LastError = ex.Message;
                 logger.LogWarning(ex, "Failed to publish outbox message {MessageId}", message.Id);
             }

@@ -148,7 +148,7 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<FgsFile> FgsFiles => Set<FgsFile>();
 
-    public DbSet<FgsOutboxMessage> FgsOutboxMessages => Set<FgsOutboxMessage>();
+    public DbSet<GloOutboxMessage> GloOutboxMessages => Set<GloOutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

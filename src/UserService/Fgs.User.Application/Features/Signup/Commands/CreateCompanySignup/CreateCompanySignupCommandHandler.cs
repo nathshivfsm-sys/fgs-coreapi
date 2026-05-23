@@ -224,9 +224,12 @@ public sealed class CreateCompanySignupCommandHandler
                     await _outboxWriter.EnqueueAsync(
                         IntegrationEventTypes.CompanySignupInviteEmail,
                         outboxPayload,
-                        idempotencyKey: $"signup-{invitationId:N}",
-                        correlationId: invitationId.ToString(),
-                        ct);
+                        correlationId: invitationId,
+                        tenantId: tenantId,
+                        companyId: tenantCompany.CompanyNumber,
+                        aggregateType: "Invitation",
+                        aggregateId: invitationId.ToString(),
+                        cancellationToken: ct);
 
                     return new CompanySignupResultDto(
                         tenantId,

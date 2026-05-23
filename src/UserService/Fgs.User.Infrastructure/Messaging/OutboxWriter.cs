@@ -20,21 +20,36 @@ public sealed class OutboxWriter : IOutboxWriter
     public async Task EnqueueAsync(
         string eventType,
         string payload,
-        string idempotencyKey,
-        string? correlationId,
+        Guid correlationId,
+        long? tenantId = null,
+        long? companyId = null,
+        string? aggregateType = null,
+        string? aggregateId = null,
+        Guid? causationId = null,
+        string? exchangeName = null,
+        string? routingKey = null,
+        string? headers = null,
+        long? createdBy = null,
         CancellationToken cancellationToken = default)
     {
-        var message = new FgsOutboxMessage
+        var message = new GloOutboxMessage
         {
-            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            CompanyId = companyId,
             EventType = eventType,
-            Payload = payload,
-            IdempotencyKey = idempotencyKey,
+            AggregateType = aggregateType,
+            AggregateId = aggregateId,
             CorrelationId = correlationId,
+            CausationId = causationId,
+            ExchangeName = exchangeName,
+            RoutingKey = routingKey,
+            Payload = payload,
+            Headers = headers,
             Status = OutboxMessageStatus.Pending,
-            CreatedOn = _dateTime.UtcNow
+            CreatedOn = _dateTime.UtcNow,
+            CreatedBy = createdBy?.ToString()
         };
 
-        await _context.FgsOutboxMessages.AddAsync(message, cancellationToken);
+        await _context.GloOutboxMessages.AddAsync(message, cancellationToken);
     }
 }

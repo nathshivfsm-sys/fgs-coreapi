@@ -76,7 +76,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
         (await context.FgsUsers.CountAsync()).Should().Be(1);
         (await context.FgsInvitations.CountAsync()).Should().Be(1);
         (await context.FgsLocations.CountAsync()).Should().Be(1);
-        (await context.FgsOutboxMessages.CountAsync()).Should().Be(1);
+        (await context.GloOutboxMessages.CountAsync()).Should().Be(1);
 
         var tenant = await context.FgsTenants.SingleAsync();
         tenant.Name.Should().Be(companyName);
@@ -118,7 +118,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
         user.CompanyId.Should().Be(1);
         user.CreatedBy.Should().Be(SignupConstants.ProspectActor);
 
-        var outbox = await context.FgsOutboxMessages.SingleAsync();
+        var outbox = await context.GloOutboxMessages.SingleAsync();
         var evt = JsonSerializer.Deserialize<CompanySignupInviteEmailEvent>(outbox.Payload);
         evt.Should().NotBeNull();
         evt!.Email.Should().Be(user.Email);
