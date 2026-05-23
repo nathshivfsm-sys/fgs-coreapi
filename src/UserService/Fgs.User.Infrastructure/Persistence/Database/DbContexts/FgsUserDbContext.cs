@@ -150,6 +150,10 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<GloOutboxMessage> GloOutboxMessages => Set<GloOutboxMessage>();
 
+    public DbSet<GloSeedTableMapping> GloSeedTableMappings => Set<GloSeedTableMapping>();
+
+    public DbSet<GloSeedTableColumnMapping> GloSeedTableColumnMappings => Set<GloSeedTableColumnMapping>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(FgsSchema);
@@ -163,13 +167,15 @@ public class FgsUserDbContext : DbContext
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             var createdBy = entityType.FindProperty("CreatedBy");
-            if (createdBy?.ClrType == typeof(string))
+            if (createdBy?.ClrType == typeof(string)
+                && !string.Equals(createdBy.GetColumnType(), "bigint", StringComparison.OrdinalIgnoreCase))
             {
                 createdBy.SetMaxLength(maxLength);
             }
 
             var updatedBy = entityType.FindProperty("UpdatedBy");
-            if (updatedBy?.ClrType == typeof(string))
+            if (updatedBy?.ClrType == typeof(string)
+                && !string.Equals(updatedBy.GetColumnType(), "bigint", StringComparison.OrdinalIgnoreCase))
             {
                 updatedBy.SetMaxLength(maxLength);
             }

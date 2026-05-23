@@ -2,17 +2,12 @@ using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Fgs.User.Infrastructure.Persistence.Database.Configurations;
 
 internal class GloOutboxMessageConfiguration : IEntityTypeConfiguration<GloOutboxMessage>
 {
-    private static readonly ValueConverter<string?, long?> ActorIdConverter = new(
-        v => string.IsNullOrWhiteSpace(v) ? null : long.Parse(v),
-        v => v.HasValue ? v.Value.ToString() : null);
-
     public void Configure(EntityTypeBuilder<GloOutboxMessage> entity)
     {
         entity.ToTable("GloOutboxMessage");
@@ -43,17 +38,7 @@ internal class GloOutboxMessageConfiguration : IEntityTypeConfiguration<GloOutbo
         entity.Property(e => e.NextRetryOn).HasColumnType("timestamptz");
         entity.Property(e => e.ProcessedOn).HasColumnType("timestamptz");
         entity.Property(e => e.LastError).HasColumnType("text");
-        entity.Property(e => e.CreatedOn)
-            .IsRequired()
-            .HasColumnType("timestamptz")
-            .HasDefaultValueSql("now()");
-        entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
-        entity.Property(e => e.CreatedBy)
-            .HasColumnType("bigint")
-            .HasConversion(ActorIdConverter);
-        entity.Property(e => e.UpdatedBy)
-            .HasColumnType("bigint")
-            .HasConversion(ActorIdConverter);
+        entity.ConfigureGloEntityBigintAuditColumns();
 
         entity.HasIndex(e => new { e.Status, e.NextRetryOn })
             .HasDatabaseName("IX_GloOutboxMessage_Status_NextRetryOn");
