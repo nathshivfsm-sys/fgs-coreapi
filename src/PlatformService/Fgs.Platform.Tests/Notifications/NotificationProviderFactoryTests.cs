@@ -15,7 +15,7 @@ public sealed class NotificationProviderFactoryTests
     public void ResolveEmailProvider_UsesSendGrid_ByDefault()
     {
         var tenantConfig = new Mock<ITenantConfigurationResolver>();
-        tenantConfig.Setup(t => t.GetProviderConfiguration(It.IsAny<Guid>()))
+        tenantConfig.Setup(t => t.GetProviderConfiguration(It.IsAny<long>()))
             .Returns(new TenantProviderConfiguration(EmailProviderKind.SendGrid, "Twilio", "Firebase"));
 
         var factory = new NotificationProviderFactory(
@@ -25,14 +25,14 @@ public sealed class NotificationProviderFactoryTests
             new TwilioSmsProvider(Mock.Of<Microsoft.Extensions.Logging.ILogger<TwilioSmsProvider>>()),
             new FirebasePushProvider(Mock.Of<Microsoft.Extensions.Logging.ILogger<FirebasePushProvider>>()));
 
-        var provider = factory.ResolveEmailProvider(Guid.NewGuid());
+        var provider = factory.ResolveEmailProvider(1001L);
         provider.ProviderName.Should().Be("SendGrid");
     }
 
     [Fact]
     public void ResolveEmailProvider_UsesSmtp_WhenTenantConfigured()
     {
-        var tenantId = Guid.NewGuid();
+        var tenantId = 2002L;
         var tenantConfig = new Mock<ITenantConfigurationResolver>();
         tenantConfig.Setup(t => t.GetProviderConfiguration(tenantId))
             .Returns(new TenantProviderConfiguration(EmailProviderKind.Smtp, "Twilio", "Firebase"));

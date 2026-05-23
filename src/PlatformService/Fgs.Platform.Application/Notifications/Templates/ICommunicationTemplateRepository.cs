@@ -5,8 +5,8 @@ namespace Fgs.Platform.Application.Notifications.Templates;
 public interface ICommunicationTemplateRepository
 {
     Task<FgsSetupCommunicationTemplate?> GetActiveTemplateAsync(
-        Guid? tenantId,
-        Guid? companyId,
+        long? tenantId,
+        long? companyId,
         string templateType,
         string code,
         CancellationToken cancellationToken = default);

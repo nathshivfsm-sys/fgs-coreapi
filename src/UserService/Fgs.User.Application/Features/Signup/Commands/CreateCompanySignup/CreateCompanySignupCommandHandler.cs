@@ -210,7 +210,7 @@ public sealed class CreateCompanySignupCommandHandler
 
                     var outboxPayload = JsonSerializer.Serialize(new CompanySignupInviteEmailEvent(
                         tenantId,
-                        companyUid,
+                        tenantCompany.CompanyNumber,
                         userId,
                         invitationId,
                         user.Email,
@@ -229,6 +229,9 @@ public sealed class CreateCompanySignupCommandHandler
                         companyId: tenantCompany.CompanyNumber,
                         aggregateType: "Invitation",
                         aggregateId: invitationId.ToString(),
+                        exchangeName: IntegrationEventExchanges.UserEvents,
+                        routingKey: IntegrationEventRoutingKeys.CompanySignupInviteEmail,
+                        createdBy: SignupConstants.ToGloCreatedBy(tenant.CreatedBy),
                         cancellationToken: ct);
 
                     return new CompanySignupResultDto(

@@ -2332,6 +2332,10 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.Property<Guid?>("PhysicalLocationId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("StorageBucketName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.Property<int?>("SubscriptionPlanId")
                         .HasColumnType("integer");
 

@@ -2,7 +2,9 @@ using Fgs.User.Application.Abstractions.Messaging;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
+using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.User.Infrastructure.Messaging;
 
@@ -10,11 +12,16 @@ public sealed class OutboxWriter : IOutboxWriter
 {
     private readonly FgsUserDbContext _context;
     private readonly IDateTimeProvider _dateTime;
+    private readonly OutboxOptions _options;
 
-    public OutboxWriter(FgsUserDbContext context, IDateTimeProvider dateTime)
+    public OutboxWriter(
+        FgsUserDbContext context,
+        IDateTimeProvider dateTime,
+        IOptions<OutboxOptions> options)
     {
         _context = context;
         _dateTime = dateTime;
+        _options = options.Value;
     }
 
     public async Task EnqueueAsync(
@@ -46,6 +53,7 @@ public sealed class OutboxWriter : IOutboxWriter
             Payload = payload,
             Headers = headers,
             Status = OutboxMessageStatus.Pending,
+            MaxRetryCount = _options.MaxRetryCount,
             CreatedOn = _dateTime.UtcNow,
             CreatedBy = createdBy?.ToString()
         };

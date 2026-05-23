@@ -12,7 +12,7 @@ public interface IPushProvider
 }
 
 public sealed record PushNotificationMessage(
-    Guid TenantId,
+    long TenantId,
     string DeviceToken,
     string Title,
     string Body,

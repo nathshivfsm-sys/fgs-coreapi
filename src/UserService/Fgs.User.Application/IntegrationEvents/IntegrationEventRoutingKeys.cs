@@ -1,13 +1,21 @@
 namespace Fgs.User.Application.IntegrationEvents;
 
 /// <summary>
-/// Routing keys published to <c>fgs.user</c> (topic exchange). Platform Service binds
-/// <c>fgs.platform.notifications</c> to these keys for consumption.
+/// Routing keys published to RabbitMQ topic exchanges.
 /// </summary>
 public static class IntegrationEventRoutingKeys
 {
     public const string Prefix = "user.";
 
+    public const string TenantProvisionRequested = "tenant.provision.requested";
+
+    public const string CompanySignupInviteEmail = "user.CompanySignupInviteEmail";
+
     public static string ForEventType(string eventType, string? routingKeyPrefix = null) =>
-        $"{routingKeyPrefix ?? Prefix}{eventType}";
+        eventType switch
+        {
+            IntegrationEventTypes.TenantProvisionRequested => TenantProvisionRequested,
+            IntegrationEventTypes.CompanySignupInviteEmail => CompanySignupInviteEmail,
+            _ => $"{routingKeyPrefix ?? Prefix}{eventType}"
+        };
 }

@@ -32,6 +32,7 @@ internal class FgsTenantConfiguration : IEntityTypeConfiguration<FgsTenant>
         entity.Property(e => e.Website).HasMaxLength(500);
         entity.Property(e => e.TimeZone).HasMaxLength(100);
         entity.Property(e => e.DefaultCurrency).HasMaxLength(20);
+        entity.Property(e => e.StorageBucketName).HasMaxLength(255);
         entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
     }

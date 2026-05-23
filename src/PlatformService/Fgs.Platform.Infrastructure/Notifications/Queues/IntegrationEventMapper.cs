@@ -11,10 +11,7 @@ namespace Fgs.Platform.Infrastructure.Notifications.Queues;
 public sealed class IntegrationEventMapper(IOptions<NotificationOptions> notificationOptions)
     : IIntegrationEventMapper
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationEventJsonSerializerOptions.Create();
 
     private readonly NotificationOptions _notification = notificationOptions.Value;
 
@@ -50,9 +47,10 @@ public sealed class IntegrationEventMapper(IOptions<NotificationOptions> notific
             ? CommunicationTemplateCodes.CompanyAdminInvitation
             : evt.EmailTemplateCode;
 
+        // Legacy payloads may carry a GUID string for CompanyId; those map to 0 and use global templates.
         return new NotificationDispatchRequest(
             evt.TenantId,
-            evt.CompanyId,
+            evt.CompanyId > 0 ? evt.CompanyId : null,
             NotificationChannel.Email,
             templateCode,
             evt.Email,
@@ -113,7 +111,7 @@ public sealed class IntegrationEventMapper(IOptions<NotificationOptions> notific
         var evt = JsonSerializer.Deserialize<CompanyCreatedEvent>(payload, JsonOptions)!;
         return new NotificationDispatchRequest(
             evt.TenantId,
-            CompanyId: null,
+            evt.CompanyId,
             NotificationChannel.Email,
             "COMPANY_CREATED",
             evt.AdminEmail,
@@ -135,7 +133,8 @@ public sealed class IntegrationEventMapper(IOptions<NotificationOptions> notific
             ["InviteLink"] = FirstNonEmpty(evt.InviteLink),
             ["ExpirationHours"] = FirstNonEmpty(evt.ExpirationHours, _notification.InvitationExpirationHours.ToString()),
             ["CompanyName"] = _notification.CompanyName,
-            ["SupportEmail"] = FirstNonEmpty(evt.SupportEmail, _notification.SupportEmail)
+            ["SupportEmail"] = FirstNonEmpty(evt.SupportEmail, _notification.SupportEmail),
+            ["FgsTenantId"] = evt.TenantId.ToString()
         };
     }
 

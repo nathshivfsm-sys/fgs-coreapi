@@ -119,9 +119,14 @@ public sealed class CreateCompanySignupCommandHandlerTests
         user.CreatedBy.Should().Be(SignupConstants.ProspectActor);
 
         var outbox = await context.GloOutboxMessages.SingleAsync();
+        outbox.ExchangeName.Should().Be(IntegrationEventExchanges.UserEvents);
+        outbox.RoutingKey.Should().Be(IntegrationEventRoutingKeys.CompanySignupInviteEmail);
+        outbox.CreatedBy.Should().Be(SignupConstants.ProspectActorUserId.ToString());
         var evt = JsonSerializer.Deserialize<CompanySignupInviteEmailEvent>(outbox.Payload);
         evt.Should().NotBeNull();
         evt!.Email.Should().Be(user.Email);
+        evt.CompanyId.Should().Be(1);
+        evt.TenantId.Should().Be(tenant.Id);
         evt.EmailTemplateCode.Should().Be(CommunicationTemplateCodes.CompanyAdminInvitation);
         evt.Name.Should().Be(command.Contact.Name);
         evt.InviteLink.Should().Contain("token=");
@@ -182,7 +187,10 @@ public sealed class CreateCompanySignupCommandHandlerTests
 
         IUnitOfWork unitOfWork = new UnitOfWork(context);
         IDateTimeProvider dateTime = new DateTimeProvider();
-        IOutboxWriter outboxWriter = new OutboxWriter(context, dateTime);
+        IOutboxWriter outboxWriter = new OutboxWriter(
+            context,
+            dateTime,
+            Microsoft.Extensions.Options.Options.Create(new OutboxOptions()));
 
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>

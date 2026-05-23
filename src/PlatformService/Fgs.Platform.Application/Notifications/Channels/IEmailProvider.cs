@@ -12,7 +12,7 @@ public interface IEmailProvider
 }
 
 public sealed record EmailNotificationMessage(
-    Guid TenantId,
+    long TenantId,
     string ToAddress,
     string? ToName,
     string Subject,

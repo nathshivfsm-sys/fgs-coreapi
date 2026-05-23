@@ -19,7 +19,7 @@ public sealed class SendGridIntegrationClientTests
 
         var result = await client.SendEmailAsync(
             new EmailNotificationMessage(
-                Guid.NewGuid(),
+                1L,
                 "to@example.com",
                 "To",
                 "Subject",

@@ -18,7 +18,15 @@ public sealed class RabbitMqPublisher(
     private IChannel? _channel;
     private readonly SemaphoreSlim _initLock = new(1, 1);
 
+    public Task PublishAsync(
+        string routingKey,
+        string payload,
+        string? correlationId,
+        CancellationToken cancellationToken = default) =>
+        PublishAsync(_options.ExchangeName, routingKey, payload, correlationId, cancellationToken);
+
     public async Task PublishAsync(
+        string exchangeName,
         string routingKey,
         string payload,
         string? correlationId,
@@ -37,14 +45,17 @@ public sealed class RabbitMqPublisher(
         };
 
         await _channel!.BasicPublishAsync(
-            exchange: _options.ExchangeName,
+            exchange: exchangeName,
             routingKey: routingKey,
             mandatory: false,
             basicProperties: properties,
             body: body,
             cancellationToken: cancellationToken);
 
-        logger.LogInformation("Published message to {RoutingKey}", routingKey);
+        logger.LogInformation(
+            "Published message to exchange {Exchange} routing key {RoutingKey}",
+            exchangeName,
+            routingKey);
     }
 
     private async Task EnsureChannelAsync(CancellationToken cancellationToken)

@@ -7,4 +7,11 @@ public interface IRabbitMqPublisher
         string payload,
         string? correlationId,
         CancellationToken cancellationToken = default);
+
+    Task PublishAsync(
+        string exchangeName,
+        string routingKey,
+        string payload,
+        string? correlationId,
+        CancellationToken cancellationToken = default);
 }

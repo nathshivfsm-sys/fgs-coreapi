@@ -31,4 +31,9 @@ public class FgsTenant : FgsEntityBase
     public int? DefaultLanguageId { get; set; }
 
     public bool IsActive { get; set; } = true;
+
+    /// <summary>
+    /// Private S3 bucket name for tenant-wide and company assets.
+    /// </summary>
+    public string? StorageBucketName { get; set; }
 }

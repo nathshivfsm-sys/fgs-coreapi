@@ -1,4 +1,5 @@
 using Fgs.User.Application.Abstractions.Identity;
+using Fgs.User.Application.Abstractions.Messaging;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
@@ -7,8 +8,10 @@ using Fgs.User.Application.Features.Auth;
 using Fgs.User.Application.Features.Auth.Queries.EntraCallback;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
+using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Common.Security;
 using Fgs.User.Infrastructure.Common.Time;
+using Fgs.User.Infrastructure.Messaging;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
 using Microsoft.Extensions.Configuration;
@@ -168,11 +171,16 @@ public sealed class EntraCallbackQueryHandlerTests
             })
             .Build();
 
+        IOutboxWriter outboxWriter = new OutboxWriter(
+            context,
+            new DateTimeProvider(),
+            Microsoft.Extensions.Options.Options.Create(new OutboxOptions()));
+
         return new EntraCallbackQueryHandler(
             new UnitOfWork(context),
             entraMock,
             new JwtTokenService(Microsoft.Extensions.Options.Options.Create(
-                new Fgs.User.Infrastructure.Common.Options.JwtOptions
+                new JwtOptions
                 {
                     Issuer = "test",
                     Audience = "test",
@@ -181,7 +189,8 @@ public sealed class EntraCallbackQueryHandlerTests
                 })),
             new EmailNormalizer(),
             new DateTimeProvider(),
-            configuration);
+            configuration,
+            outboxWriter);
     }
 
     private static Mock<IEntraExternalIdService> CreateEntraMock(string entraEmail)

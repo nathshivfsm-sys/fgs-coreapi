@@ -13,8 +13,8 @@ public sealed class CommunicationTemplateServiceTests
     public async Task GetActiveTemplateAsync_ReturnsCompanyScoped_WhenPresent()
     {
         await using var context = TestDbContextFactory.Create();
-        var tenantId = Guid.NewGuid();
-        var companyId = Guid.NewGuid();
+        var tenantId = 100L;
+        var companyId = 200L;
         var global = CommunicationTemplateSeedData.CompanyAdminInvitationEmail();
         var companyTemplate = new FgsSetupCommunicationTemplate
         {
@@ -56,8 +56,8 @@ public sealed class CommunicationTemplateServiceTests
         var service = new CommunicationTemplateService(new CommunicationTemplateRepository(context));
 
         var result = await service.GetActiveTemplateAsync(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
+            999L,
+            888L,
             NotificationChannel.Email,
             CommunicationTemplateCodes.CompanyAdminInvitation);
 
@@ -73,7 +73,7 @@ public sealed class CommunicationTemplateServiceTests
         var service = new CommunicationTemplateService(new CommunicationTemplateRepository(context));
 
         var act = () => service.GetActiveTemplateAsync(
-            Guid.NewGuid(),
+            999L,
             null,
             NotificationChannel.Email,
             "MISSING_CODE");

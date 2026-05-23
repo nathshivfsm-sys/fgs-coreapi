@@ -6,7 +6,7 @@ public sealed class FgsNotificationHistory
 {
     public Guid Id { get; set; }
 
-    public Guid TenantId { get; set; }
+    public long TenantId { get; set; }
 
     public NotificationChannel Channel { get; set; }
 

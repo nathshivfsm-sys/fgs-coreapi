@@ -1,7 +1,9 @@
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Domain.Enums;
+using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Infrastructure.Messaging;
+using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.User.Tests.Infrastructure;
@@ -13,7 +15,7 @@ public sealed class OutboxWriterTests
     {
         await using var context = TestDbContextFactory.Create();
         IDateTimeProvider dateTime = new DateTimeProvider();
-        var writer = new OutboxWriter(context, dateTime);
+        var writer = new OutboxWriter(context, dateTime, Options.Create(new OutboxOptions()));
         var correlationId = Guid.NewGuid();
 
         await writer.EnqueueAsync(

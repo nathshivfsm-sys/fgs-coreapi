@@ -21,7 +21,7 @@ public sealed class NotificationDispatcherTests
             .ReturnsAsync(new NotificationDispatchResult(true, "msg-1", null));
 
         var factory = new Mock<INotificationProviderFactory>();
-        factory.Setup(f => f.ResolveEmailProvider(It.IsAny<Guid>())).Returns(emailProvider.Object);
+        factory.Setup(f => f.ResolveEmailProvider(It.IsAny<long>())).Returns(emailProvider.Object);
 
         var history = new Mock<INotificationHistoryRepository>();
         history.Setup(h => h.AddAsync(It.IsAny<Domain.Entities.FgsNotificationHistory>(), It.IsAny<CancellationToken>()))
@@ -37,8 +37,8 @@ public sealed class NotificationDispatcherTests
 
         var renderer = new Mock<INotificationTemplateRenderer>();
         renderer.Setup(r => r.RenderAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid?>(),
+                It.IsAny<long>(),
+                It.IsAny<long?>(),
                 It.IsAny<NotificationChannel>(),
                 It.IsAny<string>(),
                 It.IsAny<IReadOnlyDictionary<string, string>>(),
@@ -51,7 +51,7 @@ public sealed class NotificationDispatcherTests
             history.Object,
             Mock.Of<Microsoft.Extensions.Logging.ILogger<NotificationDispatcher>>());
 
-        var tenantId = Guid.NewGuid();
+        var tenantId = 5001L;
         var result = await dispatcher.DispatchAsync(
             new NotificationDispatchRequest(
                 tenantId,

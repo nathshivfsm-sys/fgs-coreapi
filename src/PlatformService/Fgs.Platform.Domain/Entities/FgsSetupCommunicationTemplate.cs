@@ -8,9 +8,9 @@ public sealed class FgsSetupCommunicationTemplate
 {
     public long Id { get; set; }
 
-    public Guid? TenantId { get; set; }
+    public long? TenantId { get; set; }
 
-    public Guid? CompanyId { get; set; }
+    public long? CompanyId { get; set; }
 
     /// <summary>EMAIL, SMS, or PUSH.</summary>
     public string TemplateType { get; set; } = string.Empty;

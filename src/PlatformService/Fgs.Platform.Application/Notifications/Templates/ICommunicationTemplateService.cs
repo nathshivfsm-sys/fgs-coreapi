@@ -9,8 +9,8 @@ public interface ICommunicationTemplateService
     /// Resolves the active template using tenant/company scope, then tenant-only, then global defaults.
     /// </summary>
     Task<FgsSetupCommunicationTemplate> GetActiveTemplateAsync(
-        Guid tenantId,
-        Guid? companyId,
+        long tenantId,
+        long? companyId,
         NotificationChannel channel,
         string templateCode,
         CancellationToken cancellationToken = default);
