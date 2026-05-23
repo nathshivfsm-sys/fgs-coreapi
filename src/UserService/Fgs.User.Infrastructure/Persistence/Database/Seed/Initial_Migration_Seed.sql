@@ -1146,7 +1146,7 @@ INNER JOIN (
         ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'Description',  'Description', NULL,                NULL,      5, false),
         ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'IsActive',     'IsActive',    NULL,                NULL,      6, true),
         ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      7, true),
-        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'CreatedBy',   'STATIC',            'System',  8, false),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      8, false),
 
         -- GloTrade -> FgsSetupTechTrade
         ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
@@ -1157,7 +1157,7 @@ INNER JOIN (
         ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'Id',           'SortOrder',   NULL,                NULL,      6, false),
         ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'IsActive',     'IsActive',    NULL,                NULL,      7, true),
         ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      8, true),
-        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'CreatedBy',   'STATIC',            'System',  9, false),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      9, false),
 
         -- GloSkill -> FgsSetupTechSkillLevel
         ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
@@ -1168,7 +1168,7 @@ INNER JOIN (
         ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'Id',           'SortOrder',   NULL,                NULL,      6, false),
         ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'IsActive',     'IsActive',    NULL,                NULL,      7, true),
         ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      8, true),
-        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'CreatedBy',   'STATIC',            'System',  9, false),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      9, false),
 
         -- GloLeadSource -> FgsLeadSource
         ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
@@ -1178,7 +1178,7 @@ INNER JOIN (
         ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'Description',  'Description', NULL,                NULL,      5, false),
         ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'IsActive',     'IsActive',    NULL,                NULL,      6, true),
         ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      7, true),
-        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'CreatedBy',   'STATIC',            'System',  8, false),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      8, false),
 
         -- GloRole -> FgsRole
         ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
@@ -1189,7 +1189,7 @@ INNER JOIN (
         ('GLO_ROLE_TO_FGS_ROLE',                     'Id',           'GloRoleId',   NULL,                NULL,      6, true),
         ('GLO_ROLE_TO_FGS_ROLE',                     'IsActive',     'IsActive',    NULL,                NULL,      7, true),
         ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      8, true),
-        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CreatedBy',   'STATIC',            'System',  9, false),
+        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      9, false),
 
         -- GloTitleOfCourtesy -> FgsSetupTitleOfCourtesy
         ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
@@ -1199,7 +1199,7 @@ INNER JOIN (
         ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'SortOrder',    'SortOrder',   NULL,                NULL,      5, true),
         ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'IsActive',     'IsActive',    NULL,                NULL,      6, true),
         ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      7, true),
-        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'CreatedBy',   'STATIC',            'System',  8, false),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      8, false),
 
         -- GloTag -> FgsTag
         ('GLO_TAG_TO_FGS_TAG',                       NULL,           'TenantId',         'TENANT_ID',         NULL,      1, true),

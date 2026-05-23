@@ -184,8 +184,14 @@ public sealed class TenantDataSeedingEngine(
         {
             SeedTransformationTypes.TenantId => "@tenantId",
             SeedTransformationTypes.CompanyId => "@companyId",
-            SeedTransformationTypes.Static => ToSqlLiteral(column.StaticValue),
+            SeedTransformationTypes.Static => string.Equals(
+                column.TargetColumnName,
+                "CreatedBy",
+                StringComparison.OrdinalIgnoreCase)
+                ? ToSqlLiteral(SeedTransformationTypes.SeedCreatedByValue)
+                : ToSqlLiteral(column.StaticValue),
             SeedTransformationTypes.CurrentTimestamp => "NOW()",
+            SeedTransformationTypes.SeedCreatedBy => ToSqlLiteral(SeedTransformationTypes.SeedCreatedByValue),
             _ => throw new InvalidOperationException(
                 $"Unsupported transformation type '{column.TransformationType}' on column mapping {column.Id}.")
         };

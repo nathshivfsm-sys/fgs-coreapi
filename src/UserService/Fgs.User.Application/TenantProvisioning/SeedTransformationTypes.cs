@@ -6,4 +6,7 @@ public static class SeedTransformationTypes
     public const string CompanyId = "COMPANY_ID";
     public const string Static = "STATIC";
     public const string CurrentTimestamp = "CURRENT_TIMESTAMP";
+    public const string SeedCreatedBy = "SEED_CREATED_BY";
+
+    public const string SeedCreatedByValue = "Data Seed";
 }
