@@ -900,4 +900,181 @@ WHERE NOT EXISTS (
       AND m."SubCategoryId" = sc."Id"
 );
 
+-- GloLeadSource (global lead acquisition sources for tenant provisioning seed)
+INSERT INTO dbo."GloLeadSource"
+(
+    "SourceCode",
+    "SourceName",
+    "Description",
+    "IsActive",
+    "CreatedOn",
+    "CreatedBy"
+)
+SELECT
+    v."SourceCode",
+    v."SourceName",
+    v."Description",
+    v."IsActive",
+    timezone('utc', now()),
+    'System'
+FROM (
+    VALUES
+        ('REFERRAL',  'Referral',        'Customer or partner referral',           true),
+        ('WEBSITE',   'Website',         'Company website inquiry',                true),
+        ('GOOGLE',    'Google',          'Google search or ads',                   true),
+        ('FACEBOOK',  'Facebook',        'Facebook or social media',               true),
+        ('YELP',      'Yelp',            'Yelp or online review platform',         true),
+        ('PHONE',     'Phone Call',      'Inbound phone call',                     true),
+        ('DIRECT',    'Direct Mail',     'Direct mail campaign',                   true),
+        ('OTHER',     'Other',           'Other or unknown lead source',           true)
+) AS v("SourceCode", "SourceName", "Description", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloLeadSource" ls
+    WHERE ls."SourceCode" = v."SourceCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloLeadSource"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloLeadSource"), 1),
+    true);
+
+-- =============================================================================
+-- GloSeedTableMapping / GloSeedTableColumnMapping
+-- Tenant provisioning: global (Glo*) -> tenant/company (Fgs*) catalog copies
+-- Idempotent: matched by SeedCode (table) and TargetColumnName (column)
+-- =============================================================================
+
+INSERT INTO dbo."GloSeedTableMapping"
+(
+    "SeedCode",
+    "SourceSchemaName",
+    "SourceTableName",
+    "TargetSchemaName",
+    "TargetTableName",
+    "SeedOrder",
+    "Description",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."SeedCode",
+    v."SourceSchemaName",
+    v."SourceTableName",
+    v."TargetSchemaName",
+    v."TargetTableName",
+    v."SeedOrder",
+    v."Description",
+    v."IsActive",
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'dbo', 'GloZone',       'dbo', 'FgsSetupZone',           10, 'Copy global service zones into tenant setup',                    true),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'dbo', 'GloTrade',      'dbo', 'FgsSetupTechTrade',      20, 'Copy global technician trades into tenant setup',                true),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'dbo', 'GloSkill',      'dbo', 'FgsSetupTechSkillLevel', 30, 'Copy global technician skill levels into tenant setup',          true),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'dbo', 'GloLeadSource', 'dbo', 'FgsLeadSource',          40, 'Copy global lead sources into tenant/company lead source catalog', true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     'dbo', 'GloRole',       'dbo', 'FgsRole',                50, 'Copy global roles into tenant/company role catalog',             true)
+) AS v("SeedCode", "SourceSchemaName", "SourceTableName", "TargetSchemaName", "TargetTableName", "SeedOrder", "Description", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloSeedTableMapping" m
+    WHERE m."SeedCode" = v."SeedCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloSeedTableMapping"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloSeedTableMapping"), 1),
+    true);
+
+INSERT INTO dbo."GloSeedTableColumnMapping"
+(
+    "SeedTableMappingId",
+    "SourceColumnName",
+    "TargetColumnName",
+    "TransformationType",
+    "StaticValue",
+    "ColumnOrder",
+    "IsRequired",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    m."Id",
+    c."SourceColumnName",
+    c."TargetColumnName",
+    c."TransformationType",
+    c."StaticValue",
+    c."ColumnOrder",
+    c."IsRequired",
+    true,
+    timezone('utc', now())
+FROM dbo."GloSeedTableMapping" m
+INNER JOIN (
+    VALUES
+        -- GloZone -> FgsSetupZone
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'Code',         'Code',        NULL,                NULL,      3, true),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'Name',         'Name',        NULL,                NULL,      4, true),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'Description',  'Description', NULL,                NULL,      5, false),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'IsActive',     'IsActive',    NULL,                NULL,      6, true),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      7, true),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'CreatedBy',   'STATIC',            'System',  8, false),
+
+        -- GloTrade -> FgsSetupTechTrade
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'TradeCode',    'TradeCode',   NULL,                NULL,      3, true),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'TradeName',    'Name',        NULL,                NULL,      4, true),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'Description',  'Description', NULL,                NULL,      5, false),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'Id',           'SortOrder',   NULL,                NULL,      6, false),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'IsActive',     'IsActive',    NULL,                NULL,      7, true),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      8, true),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'CreatedBy',   'STATIC',            'System',  9, false),
+
+        -- GloSkill -> FgsSetupTechSkillLevel
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'SkillCode',    'Code',        NULL,                NULL,      3, true),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'SkillName',    'Name',        NULL,                NULL,      4, true),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'Description',  'Description', NULL,                NULL,      5, false),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'Id',           'SortOrder',   NULL,                NULL,      6, false),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'IsActive',     'IsActive',    NULL,                NULL,      7, true),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      8, true),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'CreatedBy',   'STATIC',            'System',  9, false),
+
+        -- GloLeadSource -> FgsLeadSource
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'SourceCode',   'SourceCode',  NULL,                NULL,      3, true),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'SourceName',   'SourceName',  NULL,                NULL,      4, true),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'Description',  'Description', NULL,                NULL,      5, false),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'IsActive',     'IsActive',    NULL,                NULL,      6, true),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      7, true),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'CreatedBy',   'STATIC',            'System',  8, false),
+
+        -- GloRole -> FgsRole
+        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     'RoleCode',     'RoleCode',    NULL,                NULL,      3, true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     'Name',         'Name',        NULL,                NULL,      4, true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     'Description',  'Description', NULL,                NULL,      5, false),
+        ('GLO_ROLE_TO_FGS_ROLE',                     'Id',           'GloRoleId',   NULL,                NULL,      6, true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     'IsActive',     'IsActive',    NULL,                NULL,      7, true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      8, true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CreatedBy',   'STATIC',            'System',  9, false)
+) AS c("SeedCode", "SourceColumnName", "TargetColumnName", "TransformationType", "StaticValue", "ColumnOrder", "IsRequired")
+    ON c."SeedCode" = m."SeedCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloSeedTableColumnMapping" existing
+    WHERE existing."SeedTableMappingId" = m."Id"
+      AND existing."TargetColumnName" = c."TargetColumnName"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloSeedTableColumnMapping"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloSeedTableColumnMapping"), 1),
+    true);
+
 COMMIT;

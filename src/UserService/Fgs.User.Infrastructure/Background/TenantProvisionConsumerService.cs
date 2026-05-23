@@ -33,6 +33,31 @@ public sealed class TenantProvisionConsumerService(
             return;
         }
 
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await RunConsumerAsync(stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Tenant provision consumer faulted; retrying in {Delay}s",
+                    _consumerOptions.InitialRetryDelaySeconds);
+                await Task.Delay(
+                    TimeSpan.FromSeconds(_consumerOptions.InitialRetryDelaySeconds),
+                    stoppingToken);
+            }
+        }
+    }
+
+    private async Task RunConsumerAsync(CancellationToken stoppingToken)
+    {
         var connection = await CreateConnectionAsync(stoppingToken);
         await using var channel = await connection.CreateChannelAsync(cancellationToken: stoppingToken);
 
@@ -104,6 +129,10 @@ public sealed class TenantProvisionConsumerService(
         catch (OperationCanceledException)
         {
             // shutdown
+        }
+        finally
+        {
+            await connection.DisposeAsync();
         }
     }
 

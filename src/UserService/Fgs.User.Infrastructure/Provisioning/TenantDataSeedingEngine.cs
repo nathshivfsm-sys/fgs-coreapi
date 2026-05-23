@@ -43,7 +43,8 @@ public sealed class TenantDataSeedingEngine(
             .ThenBy(c => c.Id)
             .ToListAsync(cancellationToken);
 
-        await using var connection = (NpgsqlConnection)dbContext.Database.GetDbConnection();
+        // Do not dispose this connection — it is owned by the DbContext.
+        var connection = (NpgsqlConnection)dbContext.Database.GetDbConnection();
         if (connection.State != System.Data.ConnectionState.Open)
         {
             await connection.OpenAsync(cancellationToken);

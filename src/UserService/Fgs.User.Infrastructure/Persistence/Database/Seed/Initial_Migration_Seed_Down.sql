@@ -282,4 +282,38 @@ WHERE "Code" IN (
     'JOBSITE'
 );
 
+DELETE FROM dbo."GloSeedTableColumnMapping"
+WHERE "SeedTableMappingId" IN (
+    SELECT "Id"
+    FROM dbo."GloSeedTableMapping"
+    WHERE "SeedCode" IN (
+        'GLO_ZONE_TO_FGS_SETUP_ZONE',
+        'GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',
+        'GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',
+        'GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',
+        'GLO_ROLE_TO_FGS_ROLE'
+    )
+);
+
+DELETE FROM dbo."GloSeedTableMapping"
+WHERE "SeedCode" IN (
+    'GLO_ZONE_TO_FGS_SETUP_ZONE',
+    'GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',
+    'GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',
+    'GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',
+    'GLO_ROLE_TO_FGS_ROLE'
+);
+
+DELETE FROM dbo."GloLeadSource"
+WHERE "SourceCode" IN (
+    'REFERRAL',
+    'WEBSITE',
+    'GOOGLE',
+    'FACEBOOK',
+    'YELP',
+    'PHONE',
+    'DIRECT',
+    'OTHER'
+);
+
 COMMIT;
