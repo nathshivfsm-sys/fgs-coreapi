@@ -114,9 +114,13 @@ public sealed class CreateCompanySignupCommandHandlerTests
         var user = await context.FgsUsers.SingleAsync();
         user.Email.Should().Be(command.Contact.Email.Trim());
         user.DisplayName.Should().Be(command.Contact.Name);
-        user.Role.ToString().Should().Be("Admin");
         user.CompanyId.Should().Be(1);
         user.CreatedBy.Should().Be(SignupConstants.ProspectActor);
+
+        var userRole = await context.FgsUserRoles.SingleAsync();
+        userRole.UserId.Should().Be(user.Id);
+        userRole.GloRoleId.Should().Be(1);
+        userRole.FgsRoleId.Should().BeNull();
 
         var outbox = await context.GloOutboxMessages.SingleAsync();
         outbox.ExchangeName.Should().Be(IntegrationEventExchanges.UserEvents);
@@ -182,6 +186,15 @@ public sealed class CreateCompanySignupCommandHandlerTests
             CountryName = "United States",
             CurrencyCode = "USD",
             IsActive = true
+        });
+        context.GloRoles.Add(new GloRole
+        {
+            Id = 1,
+            RoleCode = SignupConstants.TenantAdminRoleCode,
+            Name = "Tenant Administrator",
+            RoleLevel = "TENANT",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
         });
         await context.SaveChangesAsync();
 

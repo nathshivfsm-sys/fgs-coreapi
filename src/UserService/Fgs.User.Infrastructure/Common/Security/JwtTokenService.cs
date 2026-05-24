@@ -13,7 +13,7 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenSer
 {
     private readonly JwtOptions _options = options.Value;
 
-    public string CreateToken(FgsUser user)
+    public string CreateToken(FgsUser user, IReadOnlyList<string> roleCodes)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SigningKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -23,9 +23,13 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenSer
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email),
             new(JwtClaimTypes.TenantId, user.TenantId.ToString()),
-            new(JwtClaimTypes.CompanyId, user.CompanyId.ToString()),
-            new(ClaimTypes.Role, user.Role.ToString())
+            new(JwtClaimTypes.CompanyId, user.CompanyId.ToString())
         };
+
+        foreach (var roleCode in roleCodes)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, roleCode));
+        }
 
         if (!string.IsNullOrEmpty(user.EntraObjectId))
         {

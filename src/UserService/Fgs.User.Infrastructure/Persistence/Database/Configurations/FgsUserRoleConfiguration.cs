@@ -25,7 +25,7 @@ internal class FgsUserRoleConfiguration : IEntityTypeConfiguration<FgsUserRole>
             "CK_FgsUserRole_OnlyOneRole",
             "(\"GloRoleId\" IS NOT NULL AND \"FgsRoleId\" IS NULL) OR (\"GloRoleId\" IS NULL AND \"FgsRoleId\" IS NOT NULL)"));
         entity.HasOne(e => e.User)
-            .WithMany()
+            .WithMany(u => u.UserRoles)
             .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.Cascade);
         entity.HasOne<FgsTenantCompany>()

@@ -240,7 +240,23 @@ public sealed class EntraCallbackQueryHandlerTests
             CompanyId = 1,
             Email = inviteEmail,
             DisplayName = "Admin",
-            Role = UserRoleType.Admin,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        context.GloRoles.Add(new GloRole
+        {
+            Id = 1,
+            RoleCode = "TENANT_ADMIN",
+            Name = "Tenant Administrator",
+            RoleLevel = "TENANT",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        context.FgsUserRoles.Add(new FgsUserRole
+        {
+            UserId = userId,
+            TenantId = tenantId,
+            CompanyId = 1,
+            GloRoleId = 1,
             CreatedOn = DateTimeOffset.UtcNow
         });
         context.FgsInvitations.Add(new FgsInvitation

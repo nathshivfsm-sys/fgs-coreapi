@@ -779,8 +779,8 @@ SELECT setval(
     COALESCE((SELECT MAX("Id") FROM dbo."GloZone"), 1),
     true);
 
--- GloSubCategory
-INSERT INTO dbo."GloSubCategory"
+-- GloJobTypeSubCategory
+INSERT INTO dbo."GloJobTypeSubCategory"
 (
     "Code",
     "Name",
@@ -809,17 +809,17 @@ FROM (
 ) AS v("Code", "Name", "Description", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloSubCategory" sc
+    FROM dbo."GloJobTypeSubCategory" sc
     WHERE sc."Code" = v."Code"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloSubCategory"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloSubCategory"), 1),
+    pg_get_serial_sequence('dbo."GloJobTypeSubCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloJobTypeSubCategory"), 1),
     true);
 
--- GloCategory
-INSERT INTO dbo."GloCategory"
+-- GloJobTypeCategory
+INSERT INTO dbo."GloJobTypeCategory"
 (
     "BusinessTypeId",
     "Code",
@@ -850,18 +850,18 @@ FROM (
 INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloCategory" c
+    FROM dbo."GloJobTypeCategory" c
     WHERE c."BusinessTypeId" = bt."Id"
       AND c."Code" = v."Code"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloCategory"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloCategory"), 1),
+    pg_get_serial_sequence('dbo."GloJobTypeCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloJobTypeCategory"), 1),
     true);
 
--- GloCategorySubCategory
-INSERT INTO dbo."GloCategorySubCategory"
+-- GloJobTypeCategorySubCategory
+INSERT INTO dbo."GloJobTypeCategorySubCategory"
 (
     "BusinessTypeId",
     "CategoryId",
@@ -888,13 +888,13 @@ FROM (
         ('ELECTRICAL', 'OUTLET',      'REPAIR')
 ) AS v("BusinessTypeCode", "CategoryCode", "SubCategoryCode")
 INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
-INNER JOIN dbo."GloCategory" c
+INNER JOIN dbo."GloJobTypeCategory" c
     ON c."BusinessTypeId" = bt."Id"
    AND c."Code" = v."CategoryCode"
-INNER JOIN dbo."GloSubCategory" sc ON sc."Code" = v."SubCategoryCode"
+INNER JOIN dbo."GloJobTypeSubCategory" sc ON sc."Code" = v."SubCategoryCode"
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloCategorySubCategory" m
+    FROM dbo."GloJobTypeCategorySubCategory" m
     WHERE m."BusinessTypeId" = bt."Id"
       AND m."CategoryId" = c."Id"
       AND m."SubCategoryId" = sc."Id"

@@ -5,18 +5,18 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Fgs.User.Infrastructure.Persistence.Database.Configurations;
 
-internal class GloSubCategoryConfiguration : IEntityTypeConfiguration<GloSubCategory>
+internal class GloJobTypeCategoryConfiguration : IEntityTypeConfiguration<GloJobTypeCategory>
 {
-    public void Configure(EntityTypeBuilder<GloSubCategory> entity)
+    public void Configure(EntityTypeBuilder<GloJobTypeCategory> entity)
     {
-        entity.ToTable("GloSubCategory");
+        entity.ToTable("GloJobTypeCategory");
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id)
             .HasColumnType("smallint")
             .UseIdentityAlwaysColumn();
-        entity.HasIndex(e => e.Code)
+        entity.HasIndex(e => new { e.BusinessTypeId, e.Code })
             .IsUnique()
-            .HasDatabaseName("UQ_GloSubCategory_Code");
+            .HasDatabaseName("UQ_GloJobTypeCategory_BusinessTypeId_Code");
         entity.Property(e => e.Code).HasMaxLength(50);
         entity.Property(e => e.Name).HasMaxLength(100);
         entity.Property(e => e.Description).HasMaxLength(255);
@@ -26,6 +26,11 @@ internal class GloSubCategoryConfiguration : IEntityTypeConfiguration<GloSubCate
             .HasColumnType("timestamptz")
             .HasDefaultValueSql("now()");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
-        entity.ToTable(t => t.HasCheckConstraint("CK_GloSubCategory_Code_Upper", "\"Code\" = upper(\"Code\")"));
+        entity.HasOne<GloBusinessType>()
+            .WithMany()
+            .HasForeignKey(e => e.BusinessTypeId)
+            .HasConstraintName("FK_GloJobTypeCategory_GloBusinessType_BusinessTypeId")
+            .OnDelete(DeleteBehavior.Restrict);
+        entity.ToTable(t => t.HasCheckConstraint("CK_GloJobTypeCategory_Code_Upper", "\"Code\" = upper(\"Code\")"));
     }
 }

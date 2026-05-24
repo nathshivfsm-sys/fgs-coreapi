@@ -112,17 +112,21 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<GloZone> GloZones => Set<GloZone>();
 
-    public DbSet<GloCategory> GloCategories => Set<GloCategory>();
+    public DbSet<GloJobTypeCategory> GloJobTypeCategories => Set<GloJobTypeCategory>();
 
-    public DbSet<GloSubCategory> GloSubCategories => Set<GloSubCategory>();
+    public DbSet<GloJobTypeSubCategory> GloJobTypeSubCategories => Set<GloJobTypeSubCategory>();
 
-    public DbSet<GloCategorySubCategory> GloCategorySubCategories => Set<GloCategorySubCategory>();
+    public DbSet<GloJobTypeCategorySubCategory> GloJobTypeCategorySubCategories => Set<GloJobTypeCategorySubCategory>();
 
     public DbSet<GloUnitOfMeasure> GloUnitOfMeasures => Set<GloUnitOfMeasure>();
 
     public DbSet<GloTag> GloTags => Set<GloTag>();
 
     public DbSet<FgsTag> FgsTags => Set<FgsTag>();
+
+    public DbSet<FgsEntityTag> FgsEntityTags => Set<FgsEntityTag>();
+
+    public DbSet<FgsTagEntityType> FgsTagEntityTypes => Set<FgsTagEntityType>();
 
     public DbSet<GloTitleOfCourtesy> GloTitlesOfCourtesy => Set<GloTitleOfCourtesy>();
 

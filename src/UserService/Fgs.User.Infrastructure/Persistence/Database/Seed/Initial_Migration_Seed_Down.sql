@@ -142,7 +142,7 @@ WHERE "Code" IN (
     'ZELLE'
 );
 
-DELETE FROM dbo."GloCategorySubCategory"
+DELETE FROM dbo."GloJobTypeCategorySubCategory"
 WHERE "BusinessTypeId" IN (
     SELECT "Id" FROM dbo."GloBusinessType"
     WHERE "Code" IN ('HVAC', 'PLUMBING', 'ELECTRICAL')
@@ -158,7 +158,7 @@ WHERE "SkillCode" IN (
     'ELECTRICALHELPER'
 );
 
-DELETE FROM dbo."GloCategory"
+DELETE FROM dbo."GloJobTypeCategory"
 WHERE ("BusinessTypeId", "Code") IN (
     SELECT bt."Id", v."Code"
     FROM (
@@ -176,7 +176,7 @@ WHERE ("BusinessTypeId", "Code") IN (
     INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
 );
 
-DELETE FROM dbo."GloSubCategory"
+DELETE FROM dbo."GloJobTypeSubCategory"
 WHERE "Code" IN (
     'INSTALL',
     'REPAIR',

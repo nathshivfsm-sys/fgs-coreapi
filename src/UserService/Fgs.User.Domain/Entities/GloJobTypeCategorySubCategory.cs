@@ -1,9 +1,9 @@
 namespace Fgs.User.Domain.Entities;
 
 /// <summary>
-/// Maps business type, category, and sub-category for onboarding seed logic.
+/// Maps business type, job type category, and sub-category for onboarding seed logic.
 /// </summary>
-public class GloCategorySubCategory
+public class GloJobTypeCategorySubCategory
 {
     public int BusinessTypeId { get; set; }
 

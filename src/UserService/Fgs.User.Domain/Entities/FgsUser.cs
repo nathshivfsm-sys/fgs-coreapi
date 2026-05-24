@@ -1,5 +1,3 @@
-using Fgs.User.Domain.Enums;
-
 namespace Fgs.User.Domain.Entities;
 
 /// <summary>
@@ -19,8 +17,6 @@ public class FgsUser : FgsEntityBase
 
     public string? EntraObjectId { get; set; }
 
-    public UserRoleType Role { get; set; }
-
     public bool IsActive { get; set; } = true;
 
     public bool IsDeleted { get; set; }
@@ -30,4 +26,6 @@ public class FgsUser : FgsEntityBase
     public FgsTenantCompany? Company { get; set; }
 
     public ICollection<FgsInvitation> Invitations { get; set; } = new List<FgsInvitation>();
+
+    public ICollection<FgsUserRole> UserRoles { get; set; } = new List<FgsUserRole>();
 }

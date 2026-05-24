@@ -1,11 +1,13 @@
 namespace Fgs.User.Domain.Entities;
 
 /// <summary>
-/// Global reusable service action / work type (install, repair, replace, etc.).
+/// Global job type category catalog scoped to a business type (e.g. HVAC → AC).
 /// </summary>
-public class GloSubCategory : GloEntityBase
+public class GloJobTypeCategory : GloEntityBase
 {
     public short Id { get; set; }
+
+    public int BusinessTypeId { get; set; }
 
     public string Code { get; set; } = null!;
 

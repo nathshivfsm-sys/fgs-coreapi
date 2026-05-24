@@ -25,6 +25,8 @@ public static class SignupConstants
 
     public const int TenantCodeSuffixAttempts = 5;
 
+    public const string TenantAdminRoleCode = "TENANT_ADMIN";
+
     /// <summary>
     /// Maps FGS varchar audit actors to bigint ids used by Glo tables.
     /// </summary>

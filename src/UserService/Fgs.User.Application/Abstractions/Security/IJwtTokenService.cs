@@ -4,5 +4,5 @@ namespace Fgs.User.Application.Abstractions.Security;
 
 public interface IJwtTokenService
 {
-    string CreateToken(FgsUser user);
+    string CreateToken(FgsUser user, IReadOnlyList<string> roleCodes);
 }

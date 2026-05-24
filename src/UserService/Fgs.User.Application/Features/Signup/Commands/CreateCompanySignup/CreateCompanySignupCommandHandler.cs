@@ -168,10 +168,25 @@ public sealed class CreateCompanySignupCommandHandler
                         CompanyId = companyNumber,
                         Email = emailTrimmed,
                         DisplayName = contact.Name.Trim(),
-                        Role = UserRoleType.Admin,
                         IsActive = true,
                         CreatedOn = now,
                         CreatedBy = prospectActor
+                    };
+
+                    var gloRoleRepo = _unitOfWork.Repository<GloRole>();
+                    var tenantAdminRole = await gloRoleRepo.FirstOrDefaultAsync(
+                            r => r.RoleCode == SignupConstants.TenantAdminRoleCode,
+                            ct)
+                        ?? throw new InvalidOperationException(
+                            $"Global role '{SignupConstants.TenantAdminRoleCode}' was not found.");
+
+                    var userRole = new FgsUserRole
+                    {
+                        UserId = userId,
+                        TenantId = tenantId,
+                        CompanyId = companyNumber,
+                        GloRoleId = tenantAdminRole.Id,
+                        CreatedOn = now
                     };
 
                     var plainToken = _tokenService.GenerateToken();
@@ -196,6 +211,7 @@ public sealed class CreateCompanySignupCommandHandler
                     await _unitOfWork.Repository<FgsLocation>().AddAsync(location, ct);
                     await _unitOfWork.Repository<FgsTenantCompany>().AddAsync(tenantCompany, ct);
                     await userRepo.AddAsync(user, ct);
+                    await _unitOfWork.Repository<FgsUserRole>().AddAsync(userRole, ct);
                     await _unitOfWork.Repository<FgsInvitation>().AddAsync(invitation, ct);
 
                     var inviteBaseUrl = _configuration["Invitation:InviteBaseUrl"]

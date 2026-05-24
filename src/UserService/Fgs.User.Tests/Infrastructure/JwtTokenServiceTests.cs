@@ -1,5 +1,4 @@
 using Fgs.User.Domain.Entities;
-using Fgs.User.Domain.Enums;
 using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Common.Security;
 using Microsoft.Extensions.Options;
@@ -26,9 +25,9 @@ public sealed class JwtTokenServiceTests
             CompanyId = 1,
             Email = "USER@TEST.COM",
             DisplayName = "User",
-            Role = UserRoleType.Admin,
             EntraObjectId = "oid-1"
-        });
+        },
+        ["TENANT_ADMIN"]);
 
         token.Should().NotBeNullOrWhiteSpace();
         token.Split('.').Should().HaveCount(3);

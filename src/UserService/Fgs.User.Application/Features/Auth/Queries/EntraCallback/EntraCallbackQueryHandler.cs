@@ -121,7 +121,10 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
 
                         await EnqueueTenantProvisionRequestedAsync(invitation, ct);
                     }
-                    var accessToken = _jwtTokenService.CreateToken(user);
+
+                    var roleCodes = await ResolveUserRoleCodesAsync(user.Id, ct);
+
+                    var accessToken = _jwtTokenService.CreateToken(user, roleCodes);
                     var dashboardUrl = _configuration[ConfigurationKeys.Application.DashboardUrl]
                         ?? ApplicationUrlDefaults.Dashboard;
 
@@ -137,6 +140,48 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
                 [AuthErrorMessages.FinalizeOnboardingFailed],
                 ApiStatusCodes.InternalServerError);
         }
+    }
+
+    private async Task<IReadOnlyList<string>> ResolveUserRoleCodesAsync(
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var userRoles = await _unitOfWork.Repository<FgsUserRole>()
+            .ListAsync(ur => ur.UserId == userId, cancellationToken);
+
+        if (userRoles.Count == 0)
+        {
+            return [];
+        }
+
+        var gloRoleRepo = _unitOfWork.Repository<GloRole>();
+        var fgsRoleRepo = _unitOfWork.Repository<FgsRole>();
+        var roleCodes = new List<string>(userRoles.Count);
+
+        foreach (var userRole in userRoles)
+        {
+            if (userRole.GloRoleId is { } gloRoleId)
+            {
+                var gloRole = await gloRoleRepo.FirstOrDefaultAsync(r => r.Id == gloRoleId, cancellationToken);
+                if (gloRole is not null)
+                {
+                    roleCodes.Add(gloRole.RoleCode);
+                }
+
+                continue;
+            }
+
+            if (userRole.FgsRoleId is { } fgsRoleId)
+            {
+                var fgsRole = await fgsRoleRepo.FirstOrDefaultAsync(r => r.Id == fgsRoleId, cancellationToken);
+                if (fgsRole is not null)
+                {
+                    roleCodes.Add(fgsRole.RoleCode);
+                }
+            }
+        }
+
+        return roleCodes;
     }
 
     private async Task EnqueueTenantProvisionRequestedAsync(

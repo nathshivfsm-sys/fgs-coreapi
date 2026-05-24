@@ -16,7 +16,6 @@ internal class FgsUserConfiguration : IEntityTypeConfiguration<FgsUser>
         entity.Property(e => e.Email).HasMaxLength(300);
         entity.Property(e => e.DisplayName).HasMaxLength(200);
         entity.Property(e => e.EntraObjectId).HasMaxLength(100);
-        entity.Property(e => e.Role).HasConversion<string>().HasMaxLength(50);
         entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
         entity.HasOne(e => e.Tenant)
