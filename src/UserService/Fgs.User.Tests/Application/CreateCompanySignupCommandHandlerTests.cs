@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Text.Json;
 using Fgs.User.Application.Abstractions.Geo;
 using Fgs.User.Application.Abstractions.Messaging;
@@ -19,6 +20,7 @@ using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Moq;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 
 namespace Fgs.User.Tests.Application;
@@ -150,6 +152,73 @@ public sealed class CreateCompanySignupCommandHandlerTests
         response.Errors.Should().Contain(SignupErrorMessages.InvalidBusinessType);
     }
 
+    [Fact]
+    public async Task Handle_WhenUniqueTenantCodeCannotBeResolved_ReturnsConflict()
+    {
+        var tenantRepoMock = new Mock<IRepository<FgsTenant>>();
+        tenantRepoMock
+            .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<FgsTenant, bool>>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var businessTypeRepoMock = new Mock<IRepository<GloBusinessType>>();
+        businessTypeRepoMock
+            .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<GloBusinessType, bool>>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var unitOfWorkMock = new Mock<IUnitOfWork>();
+        unitOfWorkMock.Setup(u => u.Repository<FgsTenant>()).Returns(tenantRepoMock.Object);
+        unitOfWorkMock.Setup(u => u.Repository<GloBusinessType>()).Returns(businessTypeRepoMock.Object);
+
+        var signupUniquenessValidatorMock = new Mock<ISignupUniquenessValidator>();
+        signupUniquenessValidatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<CreateCompanySignupCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        var handler = new CreateCompanySignupCommandHandler(
+            unitOfWorkMock.Object,
+            new InvitationTokenService(),
+            Mock.Of<IOutboxWriter>(),
+            new DateTimeProvider(),
+            new ConfigurationBuilder().Build(),
+            Mock.Of<IAddressLocaleResolver>(),
+            signupUniquenessValidatorMock.Object);
+
+        var response = await handler.Handle(ValidCommand(), CancellationToken.None);
+
+        response.Success.Should().BeFalse();
+        response.StatusCode.Should().Be(ApiStatusCodes.Conflict);
+        response.Errors.Should().Contain(SignupErrorMessages.UniqueTenantCodeFailed);
+    }
+
+    [Fact]
+    public async Task Handle_WhenTenantAdminRoleMissing_Throws()
+    {
+        var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        context.GloBusinessTypes.Add(new GloBusinessType
+        {
+            Id = 1,
+            Code = "HVAC",
+            Name = "HVAC",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        context.GloCountries.Add(new GloCountry
+        {
+            CountryCode = "US",
+            CountryName = "United States",
+            CurrencyCode = "USD",
+            IsActive = true
+        });
+        await context.SaveChangesAsync();
+
+        var handler = await CreateHandlerFromContextAsync(context);
+
+        var act = async () => await handler.Handle(ValidCommand(), CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage(SignupErrorMessages.TenantAdminRoleNotFound);
+    }
+
     private static CreateCompanySignupCommand ValidCommand(string? companyName = null) =>
         new(
             Contact: new SignupContactDto(
@@ -198,6 +267,11 @@ public sealed class CreateCompanySignupCommandHandlerTests
         });
         await context.SaveChangesAsync();
 
+        return (await CreateHandlerFromContextAsync(context), context);
+    }
+
+    private static Task<CreateCompanySignupCommandHandler> CreateHandlerFromContextAsync(FgsUserDbContext context)
+    {
         IUnitOfWork unitOfWork = new UnitOfWork(context);
         IDateTimeProvider dateTime = new DateTimeProvider();
         IOutboxWriter outboxWriter = new OutboxWriter(
@@ -235,6 +309,6 @@ public sealed class CreateCompanySignupCommandHandlerTests
             localeResolver,
             signupUniquenessValidator);
 
-        return (handler, context);
+        return Task.FromResult(handler);
     }
 }

@@ -27,6 +27,10 @@
     <Folder Include="Persistence\Database\Scripts\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Fgs.User.Tests" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

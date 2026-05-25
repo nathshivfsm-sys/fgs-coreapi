@@ -1,22 +1,19 @@
+using System.Data;
+using System.Data.Common;
 using System.Text;
 using Fgs.User.Application.Abstractions.Provisioning;
 using Fgs.User.Application.TenantProvisioning;
-using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Npgsql;
 
 namespace Fgs.User.Infrastructure.Provisioning;
 
 public sealed class TenantDataSeedingEngine(
     FgsUserDbContext dbContext,
-    IOptions<TenantProvisioningOptions> options,
     ILogger<TenantDataSeedingEngine> logger) : ITenantDataSeedingEngine
 {
-    private readonly TenantProvisioningOptions _options = options.Value;
-
     public async Task SeedTenantDataAsync(
         long tenantId,
         long companyId,
@@ -44,8 +41,8 @@ public sealed class TenantDataSeedingEngine(
             .ToListAsync(cancellationToken);
 
         // Do not dispose this connection — it is owned by the DbContext.
-        var connection = (NpgsqlConnection)dbContext.Database.GetDbConnection();
-        if (connection.State != System.Data.ConnectionState.Open)
+        var connection = dbContext.Database.GetDbConnection();
+        if (connection.State != ConnectionState.Open)
         {
             await connection.OpenAsync(cancellationToken);
         }
@@ -67,7 +64,7 @@ public sealed class TenantDataSeedingEngine(
             }
 
             var seedsTenantId = columns.Any(c =>
-                string.Equals(c.TargetColumnName, "TenantId", StringComparison.OrdinalIgnoreCase)
+                string.Equals(c.TargetColumnName, SeedTransformationTypes.TargetColumns.TenantId, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(c.TransformationType, SeedTransformationTypes.TenantId, StringComparison.Ordinal));
 
             if (seedsTenantId
@@ -88,7 +85,7 @@ public sealed class TenantDataSeedingEngine(
                 continue;
             }
 
-            var sql = BuildInsertSelectSql(mapping, columns, tenantId, companyId);
+            var sql = BuildInsertSelectSql(mapping, columns);
             logger.LogInformation(
                 "Seeding {SeedCode}: {SourceSchema}.{SourceTable} -> {TargetSchema}.{TargetTable} for tenant {TenantId}",
                 mapping.SeedCode,
@@ -98,9 +95,11 @@ public sealed class TenantDataSeedingEngine(
                 mapping.TargetTableName,
                 tenantId);
 
-            await using var command = new NpgsqlCommand(sql, connection, transaction);
-            command.Parameters.AddWithValue("tenantId", tenantId);
-            command.Parameters.AddWithValue("companyId", companyId);
+            await using var command = connection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = sql;
+            AddParameter(command, SeedTransformationTypes.SqlParameters.TenantId, tenantId);
+            AddParameter(command, SeedTransformationTypes.SqlParameters.CompanyId, companyId);
             var inserted = await command.ExecuteNonQueryAsync(cancellationToken);
             logger.LogInformation(
                 "Seed {SeedCode} inserted {RowCount} row(s) for tenant {TenantId}",
@@ -110,36 +109,111 @@ public sealed class TenantDataSeedingEngine(
         }
 
         await transaction.CommitAsync(cancellationToken);
+
+        await SeedInventorySubCategoriesAsync(tenantId, companyId, cancellationToken);
+    }
+
+    private async Task SeedInventorySubCategoriesAsync(
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var alreadySeeded = await dbContext.FgsInventorySubCategories
+            .AsNoTracking()
+            .AnyAsync(sc => sc.TenantId == tenantId && sc.CompanyId == companyId, cancellationToken);
+
+        if (alreadySeeded)
+        {
+            return;
+        }
+
+        var sql = """
+            INSERT INTO dbo."FgsInventorySubCategory"
+            (
+                "TenantId",
+                "CompanyId",
+                "InventoryCategoryId",
+                "SubCategoryCode",
+                "Name",
+                "Description",
+                "DisplayOrder",
+                "IsSystem",
+                "IsActive",
+                "CreatedOn",
+                "CreatedBy"
+            )
+            SELECT
+                @tenantId,
+                @companyId,
+                fc."Id",
+                glo."SubCategoryCode",
+                glo."Name",
+                glo."Description",
+                glo."DisplayOrder",
+                true,
+                glo."IsActive",
+                NOW(),
+                @seedCreatedBy
+            FROM dbo."GloInventorySubCategory" glo
+            INNER JOIN dbo."GloInventoryCategory" gc ON gc."Id" = glo."InventoryCategoryId"
+            INNER JOIN dbo."FgsInventoryCategory" fc
+                ON fc."TenantId" = @tenantId
+               AND fc."CompanyId" = @companyId
+               AND fc."CategoryCode" = gc."CategoryCode"
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM dbo."FgsInventorySubCategory" existing
+                WHERE existing."TenantId" = @tenantId
+                  AND existing."CompanyId" = @companyId
+                  AND existing."InventoryCategoryId" = fc."Id"
+                  AND existing."SubCategoryCode" = glo."SubCategoryCode"
+            )
+            """;
+
+        await dbContext.Database.ExecuteSqlRawAsync(
+            sql,
+            [
+                new NpgsqlParameter("tenantId", tenantId),
+                new NpgsqlParameter("companyId", companyId),
+                new NpgsqlParameter("seedCreatedBy", SeedTransformationTypes.SeedCreatedByValue)
+            ],
+            cancellationToken);
+
+        logger.LogInformation(
+            "Seeded FgsInventorySubCategory rows for tenant {TenantId}, company {CompanyId}",
+            tenantId,
+            companyId);
     }
 
     private static async Task<bool> TargetAlreadySeededAsync(
-        NpgsqlConnection connection,
-        NpgsqlTransaction transaction,
+        DbConnection connection,
+        DbTransaction transaction,
         string targetSchema,
         string targetTable,
         long tenantId,
         CancellationToken cancellationToken)
     {
         var qualifiedTarget = QualifyTable(targetSchema, targetTable);
+        var tenantColumn = QuoteIdentifier(SeedTransformationTypes.TargetColumns.TenantId);
         var checkSql = $"""
             SELECT EXISTS(
                 SELECT 1 FROM {qualifiedTarget}
-                WHERE "TenantId" = @tenantId
+                WHERE {tenantColumn} = @{SeedTransformationTypes.SqlParameters.TenantId}
                 LIMIT 1
             )
             """;
 
-        await using var command = new NpgsqlCommand(checkSql, connection, transaction);
-        command.Parameters.AddWithValue("tenantId", tenantId);
-        var exists = (bool)(await command.ExecuteScalarAsync(cancellationToken) ?? false);
+        await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = checkSql;
+        AddParameter(command, SeedTransformationTypes.SqlParameters.TenantId, tenantId);
+        var exists = Convert.ToBoolean(await command.ExecuteScalarAsync(cancellationToken) ?? false);
         return exists;
     }
 
     private static string BuildInsertSelectSql(
         Domain.Entities.GloSeedTableMapping mapping,
-        IReadOnlyList<Domain.Entities.GloSeedTableColumnMapping> columns,
-        long tenantId,
-        long companyId)
+        IReadOnlyList<Domain.Entities.GloSeedTableColumnMapping> columns)
     {
         var target = QualifyTable(mapping.TargetSchemaName, mapping.TargetTableName);
         var source = QualifyTable(mapping.SourceSchemaName, mapping.SourceTableName);
@@ -167,14 +241,16 @@ public sealed class TenantDataSeedingEngine(
             """;
     }
 
-    private static string BuildSelectExpression(Domain.Entities.GloSeedTableColumnMapping column)
+    internal static string BuildSelectExpression(Domain.Entities.GloSeedTableColumnMapping column)
     {
         if (string.IsNullOrWhiteSpace(column.TransformationType))
         {
             if (string.IsNullOrWhiteSpace(column.SourceColumnName))
             {
                 throw new InvalidOperationException(
-                    $"Column mapping {column.Id} requires SourceColumnName when TransformationType is null.");
+                    string.Format(
+                        SeedTransformationTypes.ErrorMessages.SourceColumnRequiredFormat,
+                        column.Id));
             }
 
             return QuoteIdentifier(column.SourceColumnName);
@@ -182,27 +258,38 @@ public sealed class TenantDataSeedingEngine(
 
         return column.TransformationType switch
         {
-            SeedTransformationTypes.TenantId => "@tenantId",
-            SeedTransformationTypes.CompanyId => "@companyId",
+            SeedTransformationTypes.TenantId => $"@{SeedTransformationTypes.SqlParameters.TenantId}",
+            SeedTransformationTypes.CompanyId => $"@{SeedTransformationTypes.SqlParameters.CompanyId}",
             SeedTransformationTypes.Static => string.Equals(
                 column.TargetColumnName,
-                "CreatedBy",
+                SeedTransformationTypes.TargetColumns.CreatedBy,
                 StringComparison.OrdinalIgnoreCase)
                 ? ToSqlLiteral(SeedTransformationTypes.SeedCreatedByValue)
                 : ToSqlLiteral(column.StaticValue),
-            SeedTransformationTypes.CurrentTimestamp => "NOW()",
+            SeedTransformationTypes.CurrentTimestamp => SeedTransformationTypes.SqlFunctions.CurrentTimestamp,
             SeedTransformationTypes.SeedCreatedBy => ToSqlLiteral(SeedTransformationTypes.SeedCreatedByValue),
             _ => throw new InvalidOperationException(
-                $"Unsupported transformation type '{column.TransformationType}' on column mapping {column.Id}.")
+                string.Format(
+                    SeedTransformationTypes.ErrorMessages.UnsupportedTransformationFormat,
+                    column.TransformationType,
+                    column.Id))
         };
     }
 
     private static string QualifyTable(string schema, string table) =>
         $"{QuoteIdentifier(schema)}.{QuoteIdentifier(table)}";
 
-    private static string QuoteIdentifier(string identifier) =>
+    internal static string QuoteIdentifier(string identifier) =>
         $"\"{identifier.Replace("\"", "\"\"", StringComparison.Ordinal)}\"";
 
-    private static string ToSqlLiteral(string? value) =>
+    internal static string ToSqlLiteral(string? value) =>
         value is null ? "NULL" : $"'{value.Replace("'", "''", StringComparison.Ordinal)}'";
+
+    private static void AddParameter(DbCommand command, string name, object value)
+    {
+        var parameter = command.CreateParameter();
+        parameter.ParameterName = name;
+        parameter.Value = value;
+        command.Parameters.Add(parameter);
+    }
 }

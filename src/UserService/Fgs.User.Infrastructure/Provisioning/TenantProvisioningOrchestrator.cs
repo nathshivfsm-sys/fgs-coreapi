@@ -1,5 +1,6 @@
 using Fgs.User.Application.Abstractions.Provisioning;
 using Fgs.User.Application.Abstractions.Time;
+using Fgs.User.Application.Features.Auth;
 using Fgs.User.Application.IntegrationEvents;
 using Fgs.User.Application.TenantProvisioning;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
@@ -26,7 +27,7 @@ public sealed class TenantProvisioningOrchestrator(
 
         var tenant = await dbContext.FgsTenants
             .FirstOrDefaultAsync(t => t.Id == request.TenantId, cancellationToken)
-            ?? throw new InvalidOperationException($"Tenant {request.TenantId} was not found.");
+            ?? throw new InvalidOperationException(AuthErrorMessages.TenantNotFound);
 
         if (tenant.FgsTenantStatusId == TenantStatusIds.Active
             && !string.IsNullOrWhiteSpace(tenant.StorageBucketName))

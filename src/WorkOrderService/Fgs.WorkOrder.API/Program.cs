@@ -14,7 +14,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+if (ShouldUseHttpsRedirection(app.Configuration))
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthorization();
 
@@ -23,3 +26,8 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 
 app.Run();
+
+static bool ShouldUseHttpsRedirection(IConfiguration configuration) =>
+    !string.Equals(configuration["DOTNET_RUNNING_IN_CONTAINER"], "true", StringComparison.OrdinalIgnoreCase)
+    && (configuration["ASPNETCORE_URLS"]?.Contains("https://", StringComparison.OrdinalIgnoreCase) == true
+        || !string.IsNullOrWhiteSpace(configuration["ASPNETCORE_HTTPS_PORT"]));

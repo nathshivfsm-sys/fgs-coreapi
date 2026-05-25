@@ -900,6 +900,189 @@ WHERE NOT EXISTS (
       AND m."SubCategoryId" = sc."Id"
 );
 
+-- GloInventoryItemType
+INSERT INTO dbo."GloInventoryItemType"
+(
+    "ItemTypeCode",
+    "Name",
+    "Description",
+    "TracksQuantity",
+    "DisplayOrder",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."ItemTypeCode",
+    v."Name",
+    v."Description",
+    v."TracksQuantity",
+    v."DisplayOrder",
+    v."IsActive",
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('INVENTORY',    'Inventory',     'Standard inventory item that tracks quantity on hand.',                    true,  1::smallint, true),
+        ('NONINVENTORY', 'Non-Inventory', 'Item used for purchasing or selling without quantity tracking.',         false, 2::smallint, true),
+        ('SERVICE',      'Service',       'Labor or service item with no inventory tracking.',                      false, 3::smallint, true),
+        ('KIT',          'Kit',           'Bundle or grouped item composed of multiple inventory items.',           false, 4::smallint, true),
+        ('TOOL',         'Tool',          'Operational tool or equipment item that tracks quantity.',               true,  5::smallint, true)
+) AS v("ItemTypeCode", "Name", "Description", "TracksQuantity", "DisplayOrder", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloInventoryItemType" t
+    WHERE t."ItemTypeCode" = v."ItemTypeCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloInventoryItemType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloInventoryItemType"), 1),
+    true);
+
+-- GloInventoryCategory
+INSERT INTO dbo."GloInventoryCategory"
+(
+    "BusinessTypeId",
+    "CategoryCode",
+    "Name",
+    "Description",
+    "DisplayOrder",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    bt."Id",
+    v."CategoryCode",
+    v."Name",
+    v."Description",
+    v."DisplayOrder",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('HVAC',           'THERMOSTATS',      'Thermostats',       'HVAC thermostats and controls',              1::smallint),
+        ('HVAC',           'CAPACITORS',       'Capacitors',        'HVAC capacitors',                            2::smallint),
+        ('HVAC',           'COMPRESSORS',      'Compressors',       'HVAC compressors',                           3::smallint),
+        ('HVAC',           'FILTERS',          'Filters',           'Air filters and filtration products',        4::smallint),
+        ('HVAC',           'REFRIGERANT',      'Refrigerant',       'Refrigerant products',                       5::smallint),
+        ('HVAC',           'TOOLS',            'Tools',             'HVAC tools and equipment',                   6::smallint),
+        ('PLUMBING',       'PIPE',             'Pipe',              'Plumbing pipe and fittings',                 1::smallint),
+        ('PLUMBING',       'FAUCETS',          'Faucets',           'Kitchen and bathroom faucets',               2::smallint),
+        ('PLUMBING',       'VALVES',           'Valves',            'Plumbing valves',                            3::smallint),
+        ('PLUMBING',       'WATERHEATERS',     'Water Heaters',     'Water heater systems',                       4::smallint),
+        ('PLUMBING',       'DRAINS',           'Drains',            'Drain and sewer products',                   5::smallint),
+        ('PLUMBING',       'TOOLS',            'Tools',             'Plumbing tools and equipment',               6::smallint),
+        ('ELECTRICAL',     'BREAKERS',         'Breakers',          'Electrical breakers',                        1::smallint),
+        ('ELECTRICAL',     'WIRE',             'Wire',              'Electrical wire and cable',                  2::smallint),
+        ('ELECTRICAL',     'PANELS',           'Panels',            'Electrical panels',                          3::smallint),
+        ('ELECTRICAL',     'SWITCHES',         'Switches',          'Switches and outlets',                       4::smallint),
+        ('ELECTRICAL',     'LIGHTING',         'Lighting',          'Lighting fixtures and accessories',            5::smallint),
+        ('ELECTRICAL',     'TOOLS',            'Tools',             'Electrical tools and equipment',             6::smallint),
+        ('HOUSECLEANING',  'CHEMICALS',        'Chemicals',         'Cleaning chemicals and supplies',            1::smallint),
+        ('HOUSECLEANING',  'MOPS',             'Mops',              'Mops and cleaning tools',                    2::smallint),
+        ('HOUSECLEANING',  'VACUUMS',          'Vacuums',           'Vacuum equipment',                           3::smallint),
+        ('HOUSECLEANING',  'TRASHBAGS',        'Trash Bags',        'Trash bags and liners',                      4::smallint),
+        ('HOUSECLEANING',  'PAPERPRODUCTS',    'Paper Products',    'Paper towels and restroom supplies',         5::smallint),
+        ('HOUSECLEANING',  'TOOLS',            'Tools',             'Cleaning tools and equipment',               6::smallint),
+        ('WINDOWCLEANING', 'SURFACECLEANERS',  'Surface Cleaners',  'Pressure washing surface cleaners',          1::smallint),
+        ('WINDOWCLEANING', 'HOSES',            'Hoses',             'Pressure washing hoses',                     2::smallint),
+        ('WINDOWCLEANING', 'WANDS',            'Wands',             'Pressure washing wands and guns',            3::smallint),
+        ('WINDOWCLEANING', 'CHEMICALS',        'Chemicals',         'Pressure washing chemicals',                 4::smallint),
+        ('WINDOWCLEANING', 'NOZZLES',          'Nozzles',           'Pressure washing nozzles',                   5::smallint),
+        ('WINDOWCLEANING', 'TOOLS',            'Tools',             'Pressure washing tools and equipment',       6::smallint),
+        ('LAWNCARE',       'MOWERS',           'Mowers',            'Lawn mowers and equipment',                  1::smallint),
+        ('LAWNCARE',       'TRIMMERS',         'Trimmers',          'Grass trimmers and edgers',                  2::smallint),
+        ('LAWNCARE',       'FERTILIZER',       'Fertilizer',        'Fertilizer and lawn chemicals',              3::smallint),
+        ('LAWNCARE',       'IRRIGATION',       'Irrigation',        'Irrigation supplies',                        4::smallint),
+        ('LAWNCARE',       'PLANTS',           'Plants',            'Plants and landscaping materials',           5::smallint),
+        ('LAWNCARE',       'TOOLS',            'Tools',             'Landscaping tools and equipment',            6::smallint)
+) AS v("BusinessTypeCode", "CategoryCode", "Name", "Description", "DisplayOrder")
+INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloInventoryCategory" c
+    WHERE c."BusinessTypeId" = bt."Id"
+      AND c."CategoryCode" = v."CategoryCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloInventoryCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloInventoryCategory"), 1),
+    true);
+
+-- GloInventorySubCategory
+INSERT INTO dbo."GloInventorySubCategory"
+(
+    "InventoryCategoryId",
+    "SubCategoryCode",
+    "Name",
+    "Description",
+    "DisplayOrder",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    c."Id",
+    v."SubCategoryCode",
+    v."Name",
+    v."Description",
+    v."DisplayOrder",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('HVAC',           'THERMOSTATS',  'SMARTTHERMOSTATS',        'Smart Thermostats',        'WiFi and smart thermostats',              1::smallint),
+        ('HVAC',           'THERMOSTATS',  'PROGRAMMABLETHERMOSTATS', 'Programmable Thermostats', 'Programmable thermostats',                2::smallint),
+        ('HVAC',           'CAPACITORS',   'RUN_CAPACITORS',          'Run Capacitors',           'HVAC run capacitors',                     1::smallint),
+        ('HVAC',           'CAPACITORS',   'START_CAPACITORS',        'Start Capacitors',         'HVAC start capacitors',                   2::smallint),
+        ('HVAC',           'COMPRESSORS',  'SCROLLCOMPRESSORS',       'Scroll Compressors',       'Scroll compressors',                      1::smallint),
+        ('HVAC',           'COMPRESSORS',  'RECIPROCATINGCOMPRESSORS','Reciprocating Compressors','Reciprocating compressors',               2::smallint),
+        ('HVAC',           'FILTERS',      'PLEATEDFILTERS',          'Pleated Filters',          'Pleated air filters',                     1::smallint),
+        ('HVAC',           'FILTERS',      'HEPAFILTERS',             'HEPA Filters',             'HEPA filtration products',                2::smallint),
+        ('HVAC',           'REFRIGERANT',  'R410A',                   'R-410A',                   'R-410A refrigerant',                      1::smallint),
+        ('HVAC',           'REFRIGERANT',  'R32',                     'R-32',                     'R-32 refrigerant',                          2::smallint),
+        ('HVAC',           'TOOLS',        'VACUUMPUMPS',             'Vacuum Pumps',             'HVAC vacuum pumps',                       1::smallint),
+        ('HVAC',           'TOOLS',        'RECOVERYMACHINES',       'Recovery Machines',        'Refrigerant recovery machines',           2::smallint),
+        ('PLUMBING',       'PIPE',         'PVCPIPES',                'PVC Pipes',                'PVC plumbing pipes',                      1::smallint),
+        ('PLUMBING',       'PIPE',         'COPPERPIPES',             'Copper Pipes',             'Copper plumbing pipes',                   2::smallint),
+        ('PLUMBING',       'FAUCETS',      'KITCHENFAUCETS',          'Kitchen Faucets',          'Kitchen sink faucets',                    1::smallint),
+        ('PLUMBING',       'FAUCETS',      'BATHROOMFAUCETS',         'Bathroom Faucets',         'Bathroom sink faucets',                   2::smallint),
+        ('PLUMBING',       'VALVES',       'BALLVALVES',              'Ball Valves',              'Ball valves',                             1::smallint),
+        ('PLUMBING',       'VALVES',       'GATEVALVES',              'Gate Valves',              'Gate valves',                             2::smallint),
+        ('PLUMBING',       'WATERHEATERS', 'TANKWATERHEATERS',        'Tank Water Heaters',       'Traditional tank water heaters',          1::smallint),
+        ('PLUMBING',       'WATERHEATERS', 'TANKLESSWATERHEATERS',    'Tankless Water Heaters',   'Tankless water heaters',                  2::smallint),
+        ('PLUMBING',       'DRAINS',       'FLOORDRAINS',             'Floor Drains',             'Floor drain products',                    1::smallint),
+        ('PLUMBING',       'DRAINS',       'SHOWERDRAINS',            'Shower Drains',            'Shower drain products',                   2::smallint),
+        ('PLUMBING',       'TOOLS',        'PIPERENCHES',             'Pipe Wrenches',            'Pipe wrenches',                           1::smallint),
+        ('PLUMBING',       'TOOLS',        'DRAINMACHINES',          'Drain Machines',           'Drain cleaning machines',                 2::smallint),
+        ('ELECTRICAL',     'BREAKERS',     'SINGLEPOLEBREAKERS',      'Single Pole Breakers',     'Single pole breakers',                    1::smallint),
+        ('ELECTRICAL',     'BREAKERS',     'DOUBLEPOLEBREAKERS',      'Double Pole Breakers',     'Double pole breakers',                    2::smallint),
+        ('ELECTRICAL',     'WIRE',         'ROMEXWIRE',               'Romex Wire',               'Romex electrical wire',                   1::smallint),
+        ('ELECTRICAL',     'WIRE',         'THHNWIRE',                'THHN Wire',                'THHN electrical wire',                    2::smallint),
+        ('ELECTRICAL',     'PANELS',       'MAINPANELS',              'Main Panels',              'Main electrical panels',                  1::smallint),
+        ('ELECTRICAL',     'PANELS',       'SUBPANELS',               'Sub Panels',               'Sub electrical panels',                   2::smallint),
+        ('ELECTRICAL',     'SWITCHES',     'DIMMERSWITCHES',          'Dimmer Switches',          'Dimmer switches',                         1::smallint),
+        ('ELECTRICAL',     'SWITCHES',     'GFCIOUTLETS',             'GFCI Outlets',             'GFCI outlets',                            2::smallint),
+        ('ELECTRICAL',     'LIGHTING',     'LEDFIXTURES',           'LED Fixtures',             'LED lighting fixtures',                   1::smallint),
+        ('ELECTRICAL',     'LIGHTING',     'OUTDOORLIGHTING',         'Outdoor Lighting',         'Outdoor lighting products',               2::smallint),
+        ('ELECTRICAL',     'TOOLS',        'MULTIMETERS',             'Multimeters',              'Electrical multimeters',                  1::smallint),
+        ('ELECTRICAL',     'TOOLS',        'WIRESTRIPPERS',           'Wire Strippers',           'Wire stripping tools',                    2::smallint)
+) AS v("BusinessTypeCode", "CategoryCode", "SubCategoryCode", "Name", "Description", "DisplayOrder")
+INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+INNER JOIN dbo."GloInventoryCategory" c
+    ON c."BusinessTypeId" = bt."Id"
+   AND c."CategoryCode" = v."CategoryCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloInventorySubCategory" sc
+    WHERE sc."InventoryCategoryId" = c."Id"
+      AND sc."SubCategoryCode" = v."SubCategoryCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloInventorySubCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloInventorySubCategory"), 1),
+    true);
+
 -- GloLeadSource (global lead acquisition sources for tenant provisioning seed)
 INSERT INTO dbo."GloLeadSource"
 (

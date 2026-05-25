@@ -86,6 +86,30 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<FgsSetupPaymentTerm> FgsSetupPaymentTerms => Set<FgsSetupPaymentTerm>();
 
+    public DbSet<GloInventoryItemType> GloInventoryItemTypes => Set<GloInventoryItemType>();
+
+    public DbSet<GloInventoryCategory> GloInventoryCategories => Set<GloInventoryCategory>();
+
+    public DbSet<GloInventorySubCategory> GloInventorySubCategories => Set<GloInventorySubCategory>();
+
+    public DbSet<FgsInventoryItemType> FgsInventoryItemTypes => Set<FgsInventoryItemType>();
+
+    public DbSet<FgsInventoryCategory> FgsInventoryCategories => Set<FgsInventoryCategory>();
+
+    public DbSet<FgsInventorySubCategory> FgsInventorySubCategories => Set<FgsInventorySubCategory>();
+
+    public DbSet<FgsInventoryItem> FgsInventoryItems => Set<FgsInventoryItem>();
+
+    public DbSet<FgsInventoryStock> FgsInventoryStocks => Set<FgsInventoryStock>();
+
+    public DbSet<FgsInventoryItemAlternate> FgsInventoryItemAlternates => Set<FgsInventoryItemAlternate>();
+
+    public DbSet<FgsInventoryItemDependency> FgsInventoryItemDependencies => Set<FgsInventoryItemDependency>();
+
+    public DbSet<FgsVendor> FgsVendors => Set<FgsVendor>();
+
+    public DbSet<FgsVendorInventoryItem> FgsVendorInventoryItems => Set<FgsVendorInventoryItem>();
+
     public DbSet<GloMasterEntityType> GloMasterEntityTypes => Set<GloMasterEntityType>();
 
     public DbSet<GloCommunicationToken> GloCommunicationTokens => Set<GloCommunicationToken>();

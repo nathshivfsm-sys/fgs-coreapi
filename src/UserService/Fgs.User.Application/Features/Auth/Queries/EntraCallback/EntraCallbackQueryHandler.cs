@@ -108,7 +108,7 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
                 {
                     var userRepo = _unitOfWork.Repository<FgsUser>();
                     var user = await userRepo.GetByIdAsync(invitation.UserId, ct)
-                        ?? throw new InvalidOperationException("Invitation user not found.");
+                        ?? throw new InvalidOperationException(AuthErrorMessages.InvitationUserNotFound);
 
                     if (invitation.Status != InvitationStatus.Accepted)
                     {
@@ -190,11 +190,11 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
     {
         var tenantRepo = _unitOfWork.Repository<FgsTenant>();
         var tenant = await tenantRepo.FirstOrDefaultAsync(t => t.Id == invitation.TenantId, cancellationToken)
-            ?? throw new InvalidOperationException($"Tenant {invitation.TenantId} was not found.");
+            ?? throw new InvalidOperationException(AuthErrorMessages.TenantNotFound);
 
         var company = await _unitOfWork.Repository<FgsTenantCompany>()
             .FirstOrDefaultAsync(c => c.TenantId == invitation.TenantId, cancellationToken)
-            ?? throw new InvalidOperationException($"Tenant company for tenant {invitation.TenantId} was not found.");
+            ?? throw new InvalidOperationException(AuthErrorMessages.TenantCompanyNotFound);
 
         if (tenant.FgsTenantStatusId == TenantStatusIds.Active)
         {
@@ -219,7 +219,7 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
             correlationId,
             tenantId: tenant.Id,
             companyId: company.CompanyNumber,
-            aggregateType: "Tenant",
+            aggregateType: IntegrationEventTypes.AggregateTypes.Tenant,
             aggregateId: tenant.Id.ToString(),
             exchangeName: IntegrationEventExchanges.TenantEvents,
             routingKey: IntegrationEventRoutingKeys.TenantProvisionRequested,
