@@ -9,7 +9,7 @@ public sealed class TenantConfigurationResolver(
     IOptions<TenantProviderOptions> tenantProviders,
     IOptions<PlatformFeatureFlagsOptions> featureFlags) : ITenantConfigurationResolver
 {
-    public TenantProviderConfiguration GetProviderConfiguration(Guid tenantId)
+    public TenantProviderConfiguration GetProviderConfiguration(long tenantId)
     {
         var options = tenantProviders.Value;
         var binding = options.Tenants.TryGetValue(tenantId.ToString(), out var tenantBinding)
@@ -22,7 +22,7 @@ public sealed class TenantConfigurationResolver(
             binding.Push);
     }
 
-    public bool IsFeatureEnabled(Guid tenantId, string featureFlag)
+    public bool IsFeatureEnabled(long tenantId, string featureFlag)
     {
         var flags = featureFlags.Value;
         if (flags.Tenants.TryGetValue(tenantId.ToString(), out var tenantFlags)

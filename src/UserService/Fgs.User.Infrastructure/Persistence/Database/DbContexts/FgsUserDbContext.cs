@@ -77,14 +77,44 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<FgsSetupGLBreak> FgsSetupGLBreaks => Set<FgsSetupGLBreak>();
 
-    public DbSet<FgsSetupGLBreakTechTrade> FgsSetupGLBreakTechTrades => Set<FgsSetupGLBreakTechTrade>();
-
     public DbSet<FgsSetupCommunicationTemplate> FgsSetupCommunicationTemplates =>
         Set<FgsSetupCommunicationTemplate>();
 
     public DbSet<FgsSetupPaymentMethod> FgsSetupPaymentMethods => Set<FgsSetupPaymentMethod>();
 
     public DbSet<FgsSetupPaymentTerm> FgsSetupPaymentTerms => Set<FgsSetupPaymentTerm>();
+
+    public DbSet<FgsBillingCategory> FgsBillingCategories => Set<FgsBillingCategory>();
+
+    public DbSet<FgsBusinessType> FgsBusinessTypes => Set<FgsBusinessType>();
+
+    public DbSet<FgsSetupLaborRateType> FgsSetupLaborRateTypes => Set<FgsSetupLaborRateType>();
+
+    public DbSet<GloSetupPaymentTerm> GloSetupPaymentTerms => Set<GloSetupPaymentTerm>();
+
+    public DbSet<GloInventoryItemType> GloInventoryItemTypes => Set<GloInventoryItemType>();
+
+    public DbSet<GloInventoryCategory> GloInventoryCategories => Set<GloInventoryCategory>();
+
+    public DbSet<GloInventorySubCategory> GloInventorySubCategories => Set<GloInventorySubCategory>();
+
+    public DbSet<FgsInventoryItemType> FgsInventoryItemTypes => Set<FgsInventoryItemType>();
+
+    public DbSet<FgsInventoryCategory> FgsInventoryCategories => Set<FgsInventoryCategory>();
+
+    public DbSet<FgsInventorySubCategory> FgsInventorySubCategories => Set<FgsInventorySubCategory>();
+
+    public DbSet<FgsInventoryItem> FgsInventoryItems => Set<FgsInventoryItem>();
+
+    public DbSet<FgsInventoryStock> FgsInventoryStocks => Set<FgsInventoryStock>();
+
+    public DbSet<FgsInventoryItemAlternate> FgsInventoryItemAlternates => Set<FgsInventoryItemAlternate>();
+
+    public DbSet<FgsInventoryItemDependency> FgsInventoryItemDependencies => Set<FgsInventoryItemDependency>();
+
+    public DbSet<FgsVendor> FgsVendors => Set<FgsVendor>();
+
+    public DbSet<FgsVendorInventoryItem> FgsVendorInventoryItems => Set<FgsVendorInventoryItem>();
 
     public DbSet<GloMasterEntityType> GloMasterEntityTypes => Set<GloMasterEntityType>();
 
@@ -101,6 +131,32 @@ public class FgsUserDbContext : DbContext
     public DbSet<GloAccountingIntegrationType> GloAccountingIntegrationTypes => Set<GloAccountingIntegrationType>();
 
     public DbSet<GloBusinessType> GloBusinessTypes => Set<GloBusinessType>();
+
+    public DbSet<GloTrade> GloTrades => Set<GloTrade>();
+
+    public DbSet<GloSkill> GloSkills => Set<GloSkill>();
+
+    public DbSet<GloLeadSource> GloLeadSources => Set<GloLeadSource>();
+
+    public DbSet<FgsLeadSource> FgsLeadSources => Set<FgsLeadSource>();
+
+    public DbSet<GloZone> GloZones => Set<GloZone>();
+
+    public DbSet<GloJobTypeCategory> GloJobTypeCategories => Set<GloJobTypeCategory>();
+
+    public DbSet<GloJobTypeSubCategory> GloJobTypeSubCategories => Set<GloJobTypeSubCategory>();
+
+    public DbSet<GloUnitOfMeasure> GloUnitOfMeasures => Set<GloUnitOfMeasure>();
+
+    public DbSet<GloTag> GloTags => Set<GloTag>();
+
+    public DbSet<FgsTag> FgsTags => Set<FgsTag>();
+
+    public DbSet<FgsEntityTag> FgsEntityTags => Set<FgsEntityTag>();
+
+    public DbSet<FgsTagEntityType> FgsTagEntityTypes => Set<FgsTagEntityType>();
+
+    public DbSet<GloTitleOfCourtesy> GloTitlesOfCourtesy => Set<GloTitleOfCourtesy>();
 
     public DbSet<GloSetupTenantStatus> GloSetupTenantStatuses => Set<GloSetupTenantStatus>();
 
@@ -132,7 +188,11 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<FgsFile> FgsFiles => Set<FgsFile>();
 
-    public DbSet<FgsOutboxMessage> FgsOutboxMessages => Set<FgsOutboxMessage>();
+    public DbSet<GloOutboxMessage> GloOutboxMessages => Set<GloOutboxMessage>();
+
+    public DbSet<GloSeedTableMapping> GloSeedTableMappings => Set<GloSeedTableMapping>();
+
+    public DbSet<GloSeedTableColumnMapping> GloSeedTableColumnMappings => Set<GloSeedTableColumnMapping>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -147,13 +207,15 @@ public class FgsUserDbContext : DbContext
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             var createdBy = entityType.FindProperty("CreatedBy");
-            if (createdBy?.ClrType == typeof(string))
+            if (createdBy?.ClrType == typeof(string)
+                && !string.Equals(createdBy.GetColumnType(), "bigint", StringComparison.OrdinalIgnoreCase))
             {
                 createdBy.SetMaxLength(maxLength);
             }
 
             var updatedBy = entityType.FindProperty("UpdatedBy");
-            if (updatedBy?.ClrType == typeof(string))
+            if (updatedBy?.ClrType == typeof(string)
+                && !string.Equals(updatedBy.GetColumnType(), "bigint", StringComparison.OrdinalIgnoreCase))
             {
                 updatedBy.SetMaxLength(maxLength);
             }

@@ -4,9 +4,9 @@ namespace Fgs.Platform.Application.Configuration;
 
 public interface ITenantConfigurationResolver
 {
-    TenantProviderConfiguration GetProviderConfiguration(Guid tenantId);
+    TenantProviderConfiguration GetProviderConfiguration(long tenantId);
 
-    bool IsFeatureEnabled(Guid tenantId, string featureFlag);
+    bool IsFeatureEnabled(long tenantId, string featureFlag);
 }
 
 public sealed record TenantProviderConfiguration(

@@ -12,7 +12,7 @@ public interface ISmsProvider
 }
 
 public sealed record SmsNotificationMessage(
-    Guid TenantId,
+    long TenantId,
     string PhoneNumber,
     string Body,
     string? CorrelationId);

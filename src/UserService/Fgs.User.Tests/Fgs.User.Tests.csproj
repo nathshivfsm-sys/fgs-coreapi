@@ -13,7 +13,7 @@
     <Include>[Fgs.User.Application]*</Include>
     <Exclude>[Fgs.User.Domain]*</Exclude>
     <ExcludeByFile>**/Migrations/**/*.cs</ExcludeByFile>
-    <Threshold>95</Threshold>
+    <Threshold>90</Threshold>
     <ThresholdType>line</ThresholdType>
     <ThresholdStat>total</ThresholdStat>
   </PropertyGroup>

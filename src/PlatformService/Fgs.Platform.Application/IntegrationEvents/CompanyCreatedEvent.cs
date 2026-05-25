@@ -1,7 +1,7 @@
 namespace Fgs.Platform.Application.IntegrationEvents;
 
 public sealed record CompanyCreatedEvent(
-    Guid TenantId,
-    Guid CompanyId,
+    long TenantId,
+    long CompanyId,
     string CompanyName,
     string AdminEmail);

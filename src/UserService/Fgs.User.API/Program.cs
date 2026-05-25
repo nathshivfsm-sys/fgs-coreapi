@@ -39,7 +39,10 @@ app.UseForwardedHeaders();
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<RequestResponseLoggingMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.UseHttpsRedirection();
+if (ShouldUseHttpsRedirection(app.Configuration))
+{
+    app.UseHttpsRedirection();
+}
 
 if (app.Configuration.IsSwaggerEnabled(app.Environment))
 {
@@ -152,5 +155,10 @@ static void ProbeLocalRabbitMqTcpIfDevelopment(WebApplication app)
             rabbit.Port);
     }
 }
+
+static bool ShouldUseHttpsRedirection(IConfiguration configuration) =>
+    !string.Equals(configuration["DOTNET_RUNNING_IN_CONTAINER"], "true", StringComparison.OrdinalIgnoreCase)
+    && (configuration["ASPNETCORE_URLS"]?.Contains("https://", StringComparison.OrdinalIgnoreCase) == true
+        || !string.IsNullOrWhiteSpace(configuration["ASPNETCORE_HTTPS_PORT"]));
 
 public partial class Program;

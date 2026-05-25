@@ -23,6 +23,150 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsBillingCategory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BillingCategoryName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("BillingCategoryType")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsSystemDefined")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("ShowToFieldTech")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "BillingCategoryType")
+                        .HasName("UQ_FgsBillingCategory_TenantId_CompanyId_BillingCategoryType");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsBillingCategory_TenantId_CompanyId_IsActive");
+
+                    b.ToTable("FgsBillingCategory", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsBusinessType", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("timezone('utc', now())");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "Code")
+                        .HasName("UQ_FgsBusinessType_TenantId_CompanyId_Code");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsBusinessType_TenantId_CompanyId_IsActive");
+
+                    b.ToTable("FgsBusinessType", "dbo");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsCredentialAudit", b =>
                 {
                     b.Property<Guid>("Id")
@@ -291,6 +435,69 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.ToTable("FgsCredentialSecret", "dbo");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsEntityTag", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<long>("EntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("MasterEntityTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<long>("TagId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedOn")
+                        .IsDescending()
+                        .HasDatabaseName("IX_FgsEntityTag_CreatedOn");
+
+                    b.HasIndex("MasterEntityTypeId")
+                        .HasDatabaseName("IX_FgsEntityTag_MasterEntityTypeId1");
+
+                    b.HasIndex("TagId")
+                        .HasDatabaseName("IX_FgsEntityTag_TagId1");
+
+                    b.HasIndex("TenantId", "CompanyId", "MasterEntityTypeId")
+                        .HasDatabaseName("IX_FgsEntityTag_MasterEntityTypeId");
+
+                    b.HasIndex("TenantId", "CompanyId", "TagId")
+                        .HasDatabaseName("IX_FgsEntityTag_TagId");
+
+                    b.HasIndex("TenantId", "CompanyId", "MasterEntityTypeId", "EntityId")
+                        .HasDatabaseName("IX_FgsEntityTag_Entity");
+
+                    b.HasIndex("TenantId", "CompanyId", "TagId", "MasterEntityTypeId", "EntityId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEntityTag_TenantId_CompanyId_TagId_MasterEntityTypeId_EntityId");
+
+                    b.ToTable("FgsEntityTag", "dbo");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsFile", b =>
                 {
                     b.Property<long>("Id")
@@ -416,6 +623,570 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.ToTable("FgsFile", "dbo");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInventoryCategory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CategoryCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "CategoryCode")
+                        .HasName("UQ_FgsInventoryCategory_TenantId_CompanyId_CategoryCode");
+
+                    b.HasIndex("TenantId", "CompanyId");
+
+                    b.ToTable("FgsInventoryCategory", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInventoryItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<decimal>("Cost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<bool>("DefaultTaxable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("InventoryCategoryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("InventoryItemTypeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("InventorySubCategoryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("ItemCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ManufacturerPartNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("PurchaseDescription")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SalesDescription")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("SalesPrice")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<bool>("TrackQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("UPCCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("UnitOfMeasure")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "ItemCode")
+                        .HasName("UQ_FgsInventoryItem_TenantId_CompanyId_ItemCode");
+
+                    b.HasIndex("InventoryCategoryId");
+
+                    b.HasIndex("InventoryItemTypeId");
+
+                    b.HasIndex("InventorySubCategoryId");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryCategoryId")
+                        .HasDatabaseName("IX_FgsInventoryItem_TenantId_CompanyId_InventoryCategoryId");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryItemTypeId")
+                        .HasDatabaseName("IX_FgsInventoryItem_TenantId_CompanyId_InventoryItemTypeId");
+
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .HasDatabaseName("IX_FgsInventoryItem_TenantId_CompanyId_Name");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryCategoryId", "InventorySubCategoryId")
+                        .HasDatabaseName("IX_FgsInventoryItem_TenantId_CompanyId_InventoryCategoryId_InventorySubCategoryId");
+
+                    b.ToTable("FgsInventoryItem", "dbo", t =>
+                        {
+                            t.HasComment("Inventory item master record for purchasing, sales, and stock tracking.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInventoryItemAlternate", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AlternateInventoryItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("AlternateType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<long>("InventoryItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<short>("PriorityOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "InventoryItemId", "AlternateInventoryItemId")
+                        .HasName("UQ_FgsInventoryItemAlternate_TenantId_CompanyId_InventoryItemId_AlternateInventoryItemId");
+
+                    b.HasIndex("AlternateInventoryItemId");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryItemId")
+                        .HasDatabaseName("IX_FgsInventoryItemAlternate_TenantId_CompanyId_InventoryItemId");
+
+                    b.ToTable("FgsInventoryItemAlternate", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInventoryItemDependency", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("DependencyType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<long>("DependentInventoryItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<long>("InventoryItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsRequired")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Quantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(1m);
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "InventoryItemId", "DependentInventoryItemId")
+                        .HasName("UQ_FgsInventoryItemDependency_TenantId_CompanyId_InventoryItemId_DependentInventoryItemId");
+
+                    b.HasIndex("DependentInventoryItemId");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryItemId")
+                        .HasDatabaseName("IX_FgsInventoryItemDependency_TenantId_CompanyId_InventoryItemId");
+
+                    b.ToTable("FgsInventoryItemDependency", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInventoryItemType", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("ItemTypeCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<bool>("TracksQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "ItemTypeCode")
+                        .HasName("UQ_FgsInventoryItemType_TenantId_CompanyId_ItemTypeCode");
+
+                    b.HasIndex("TenantId", "CompanyId");
+
+                    b.ToTable("FgsInventoryItemType", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInventoryStock", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("AverageCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("InventoryItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("LastCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<DateTimeOffset?>("LastPurchaseDate")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<DateTimeOffset?>("LastSoldDate")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<decimal>("QuantityAvailable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<decimal>("QuantityCommitted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<decimal>("QuantityOnHand")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "InventoryItemId")
+                        .HasName("UQ_FgsInventoryStock_TenantId_CompanyId_InventoryItemId");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.ToTable("FgsInventoryStock", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInventorySubCategory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<long>("InventoryCategoryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("SubCategoryCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "InventoryCategoryId", "SubCategoryCode")
+                        .HasName("UQ_FgsInventorySubCategory_TenantId_CompanyId_InventoryCategoryId_SubCategoryCode");
+
+                    b.HasIndex("InventoryCategoryId");
+
+                    b.HasIndex("TenantId", "CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryCategoryId")
+                        .HasDatabaseName("IX_FgsInventorySubCategory_TenantId_CompanyId_InventoryCategoryId");
+
+                    b.ToTable("FgsInventorySubCategory", "dbo");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInvitation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -472,6 +1243,64 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.HasIndex("TenantId", "Email", "Status");
 
                     b.ToTable("FgsInvitation", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsLeadSource", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("SourceCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("SourceName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId", "SourceCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsLeadSource_TenantId_CompanyId_SourceCode");
+
+                    b.ToTable("FgsLeadSource", "dbo");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsLocation", b =>
@@ -572,61 +1401,6 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .HasDatabaseName("IX_FgsLocation_Tenant_Company_Entity");
 
                     b.ToTable("FgsLocation", "dbo");
-                });
-
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsOutboxMessage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("CorrelationId")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<string>("EventType")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("IdempotencyKey")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("LastError")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
-                    b.Property<string>("Payload")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<DateTimeOffset?>("ProcessedOn")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<int>("RetryCount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdempotencyKey")
-                        .IsUnique();
-
-                    b.HasIndex("Status", "CreatedOn");
-
-                    b.ToTable("FgsOutboxMessage", "dbo");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsResolutionCode", b =>
@@ -896,11 +1670,14 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("BreakLabel")
                         .HasColumnType("text");
 
-                    b.Property<int>("BreakLevel")
-                        .HasColumnType("integer");
+                    b.Property<short>("BreakLevel")
+                        .HasColumnType("smallint");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -920,8 +1697,8 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("LogoUrl")
-                        .HasColumnType("text");
+                    b.Property<long?>("LogoFileId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -930,6 +1707,9 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
                         .HasColumnOrder(1);
+
+                    b.PrimitiveCollection<string[]>("Trades")
+                        .HasColumnType("text[]");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
@@ -940,15 +1720,23 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("TenantId", "CompanyId", "Code")
+                    b.HasAlternateKey("TenantId", "CompanyId", "Code", "BreakLevel")
                         .HasName("UQ_FgsSetupGLBreak");
 
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasIndex("AddressId");
 
-                    b.ToTable("FgsSetupGLBreak", "dbo");
+                    b.HasIndex("LogoFileId");
+
+                    b.HasIndex("TenantId", "CompanyId", "BreakLevel")
+                        .HasDatabaseName("IX_FgsSetupGLBreak_TenantId_CompanyId_BreakLevel");
+
+                    b.ToTable("FgsSetupGLBreak", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupGLBreak_BreakLevel", "\"BreakLevel\" IN (1, 2)");
+                        });
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupGLBreakTechTrade", b =>
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupLaborRateType", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -966,16 +1754,31 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamptz");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("timezone('utc', now())");
 
-                    b.Property<long>("FgsSetupGLBreakId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("FgsSetupTechTradeId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
@@ -990,14 +1793,13 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FgsSetupTechTradeId");
+                    b.HasAlternateKey("TenantId", "CompanyId", "Name")
+                        .HasName("UQ_FgsSetupLaborRateType_TenantId_CompanyId_Name");
 
-                    b.HasIndex("FgsSetupGLBreakId", "FgsSetupTechTradeId")
-                        .IsUnique();
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsSetupLaborRateType_TenantId_CompanyId_IsActive");
 
-                    b.HasIndex("TenantId", "CompanyId");
-
-                    b.ToTable("FgsSetupGLBreakTechTrade", "dbo");
+                    b.ToTable("FgsSetupLaborRateType", "dbo");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPaymentMethod", b =>
@@ -1024,17 +1826,23 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("GloPaymentMethodTypeId")
-                        .HasColumnType("integer");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsCustomerPortalVisible")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
 
                     b.Property<bool>("IsMobileVisible")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
@@ -1049,12 +1857,11 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("TenantId", "CompanyId", "GloPaymentMethodTypeId")
+                    b.HasAlternateKey("TenantId", "CompanyId", "DisplayName")
                         .HasName("UQ_FgsSetupPaymentMethod");
 
-                    b.HasIndex("GloPaymentMethodTypeId");
-
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsSetupPaymentMethod_TenantId_CompanyId_IsActive");
 
                     b.ToTable("FgsSetupPaymentMethod", "dbo");
                 });
@@ -2274,6 +3081,151 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTag", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BackgroundColor")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("IconFileId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsSystemGenerated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("TagCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("TextColor")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<long?>("UpdatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<int>("UsageCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IconFileId")
+                        .HasDatabaseName("IX_FgsTag_IconFileId");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsTag_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .HasDatabaseName("IX_FgsTag_Name");
+
+                    b.HasIndex("TenantId", "CompanyId", "NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsTag_TenantId_CompanyId_NormalizedName");
+
+                    b.HasIndex("TenantId", "CompanyId", "TagCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsTag_TenantId_CompanyId_TagCode")
+                        .HasFilter("\"TagCode\" IS NOT NULL");
+
+                    b.HasIndex("TenantId", "CompanyId", "UsageCount")
+                        .IsDescending(false, false, true)
+                        .HasDatabaseName("IX_FgsTag_UsageCount");
+
+                    b.ToTable("FgsTag", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTagEntityType", b =>
+                {
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TagId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("MasterEntityTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.HasKey("TenantId", "CompanyId", "TagId", "MasterEntityTypeId");
+
+                    b.HasIndex("MasterEntityTypeId")
+                        .HasDatabaseName("IX_FgsTagEntityType_MasterEntityTypeId1");
+
+                    b.HasIndex("TagId")
+                        .HasDatabaseName("IX_FgsTagEntityType_TagId1");
+
+                    b.HasIndex("TenantId", "CompanyId", "MasterEntityTypeId")
+                        .HasDatabaseName("IX_FgsTagEntityType_MasterEntityTypeId");
+
+                    b.HasIndex("TenantId", "CompanyId", "TagId")
+                        .HasDatabaseName("IX_FgsTagEntityType_TagId");
+
+                    b.HasIndex("TenantId", "CompanyId", "MasterEntityTypeId", "IsDefault")
+                        .HasDatabaseName("IX_FgsTagEntityType_IsDefault");
+
+                    b.ToTable("FgsTagEntityType", "dbo");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenant", b =>
                 {
                     b.Property<long>("Id")
@@ -2308,7 +3260,7 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("smallint")
                         .HasDefaultValue((short)1)
-                        .HasColumnOrder(1);
+                        .HasColumnOrder(2);
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -2329,6 +3281,10 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.Property<Guid?>("PhysicalLocationId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("StorageBucketName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.Property<int?>("SubscriptionPlanId")
                         .HasColumnType("integer");
 
@@ -2336,6 +3292,12 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("TenantGuid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnOrder(1)
+                        .HasDefaultValueSql("gen_random_uuid()");
 
                     b.Property<string>("TimeZone")
                         .HasMaxLength(100)
@@ -2357,6 +3319,9 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.HasIndex("FgsTenantStatusId");
 
                     b.HasIndex("TenantCode")
+                        .IsUnique();
+
+                    b.HasIndex("TenantGuid")
                         .IsUnique();
 
                     b.ToTable("FgsTenant", "dbo");
@@ -2630,11 +3595,6 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");
 
@@ -2703,6 +3663,223 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.ToTable("FgsUserRole", "dbo", t =>
                         {
                             t.HasCheckConstraint("CK_FgsUserRole_OnlyOneRole", "(\"GloRoleId\" IS NOT NULL AND \"FgsRoleId\" IS NULL) OR (\"GloRoleId\" IS NULL AND \"FgsRoleId\" IS NOT NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsVendor", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("InsurancePolicyNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("Is1099Eligible")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether vendor should be included in 1099 reporting.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("LegalName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("LicenseNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("MobileNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("PaymentTermId")
+                        .HasColumnType("bigint")
+                        .HasComment("References payment terms used for accounts payable due date calculation.");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("TaxIdentificationNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<string>("VendorCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("VendorType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Allowed values: VENDOR, SUBCONTRACTOR");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "VendorCode")
+                        .HasName("UQ_FgsVendor_TenantId_CompanyId_VendorCode");
+
+                    b.HasIndex("PaymentTermId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsVendor_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .HasDatabaseName("IX_FgsVendor_TenantId_CompanyId_Name");
+
+                    b.HasIndex("TenantId", "CompanyId", "VendorType")
+                        .HasDatabaseName("IX_FgsVendor_TenantId_CompanyId_VendorType");
+
+                    b.ToTable("FgsVendor", "dbo", t =>
+                        {
+                            t.HasComment("Stores vendor and subcontractor master information for purchasing, AP, and subcontractor management.");
+
+                            t.HasCheckConstraint("CK_FgsVendor_VendorType", "\"VendorType\" IN ('VENDOR', 'SUBCONTRACTOR')");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsVendorInventoryItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<long>("InventoryItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsPreferredVendor")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether this vendor is the preferred vendor for the inventory item.");
+
+                    b.Property<decimal>("LastCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Last received cost from the vendor based on purchase order receiving.");
+
+                    b.Property<DateTimeOffset?>("LastReceivedDate")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Last date inventory was received from the vendor.");
+
+                    b.Property<string>("PurchaseOrderComments")
+                        .HasColumnType("text")
+                        .HasComment("Comments automatically copied to purchase orders for this vendor item combination.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<long>("VendorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("VendorPartName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("VendorPartNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Vendor-specific part number for the inventory item.");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "VendorId", "InventoryItemId")
+                        .HasName("UQ_FgsVendorInventoryItem_TenantId_CompanyId_VendorId_InventoryItemId");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.HasIndex("VendorId");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryItemId")
+                        .HasDatabaseName("IX_FgsVendorInventoryItem_TenantId_CompanyId_InventoryItemId");
+
+                    b.HasIndex("TenantId", "CompanyId", "VendorId")
+                        .HasDatabaseName("IX_FgsVendorInventoryItem_TenantId_CompanyId_VendorId");
+
+                    b.ToTable("FgsVendorInventoryItem", "dbo", t =>
+                        {
+                            t.HasComment("Stores vendor-specific inventory item relationships, vendor part information, pricing, and purchasing defaults.");
                         });
                 });
 
@@ -2982,6 +4159,288 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.ToTable("GloCredentialProviderType", "dbo");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloInventoryCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BusinessTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CategoryCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessTypeId")
+                        .HasDatabaseName("IX_GloInventoryCategory_BusinessTypeId");
+
+                    b.HasIndex("BusinessTypeId", "CategoryCode")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_GloInventoryCategory_BusinessTypeId_CategoryCode");
+
+                    b.ToTable("GloInventoryCategory", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloInventoryItemType", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("ItemTypeCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<bool>("TracksQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemTypeCode")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_GloInventoryItemType_ItemTypeCode");
+
+                    b.ToTable("GloInventoryItemType", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloInventorySubCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<int>("InventoryCategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("SubCategoryCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryCategoryId")
+                        .HasDatabaseName("IX_GloInventorySubCategory_InventoryCategoryId");
+
+                    b.HasIndex("InventoryCategoryId", "SubCategoryCode")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_GloInventorySubCategory_InventoryCategoryId_SubCategoryCode");
+
+                    b.ToTable("GloInventorySubCategory", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloJobTypeCategory", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<short>("Id"));
+
+                    b.Property<int>("BusinessTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessTypeId", "Code")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_GloJobTypeCategory_BusinessTypeId_Code");
+
+                    b.ToTable("GloJobTypeCategory", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_GloJobTypeCategory_Code_Upper", "\"Code\" = upper(\"Code\")");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloJobTypeSubCategory", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<short>("Id"));
+
+                    b.Property<int?>("BusinessTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessTypeId")
+                        .HasDatabaseName("IX_GloJobTypeSubCategory_BusinessTypeId");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_GloJobTypeSubCategory_Code");
+
+                    b.ToTable("GloJobTypeSubCategory", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_GloJobTypeSubCategory_Code_Upper", "\"Code\" = upper(\"Code\")");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloLanguage", b =>
                 {
                     b.Property<string>("LanguageCode")
@@ -3020,6 +4479,58 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.HasKey("LanguageCode");
 
                     b.ToTable("GloLanguage", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloLeadSource", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("SourceCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("SourceName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SourceCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloLeadSource_SourceCode");
+
+                    b.ToTable("GloLeadSource", "dbo");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloLocationType", b =>
@@ -3107,6 +4618,111 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .HasName("UQ_GloMasterEntityType_Code");
 
                     b.ToTable("GloMasterEntityType", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloOutboxMessage", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AggregateId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("AggregateType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid?>("CausationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long?>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("CorrelationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("ExchangeName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Headers")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("LastError")
+                        .HasColumnType("text");
+
+                    b.Property<int>("MaxRetryCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(10);
+
+                    b.Property<DateTimeOffset?>("NextRetryOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset?>("ProcessedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<int>("RetryCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("RoutingKey")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasDefaultValue("Pending");
+
+                    b.Property<long?>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("UpdatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorrelationId")
+                        .HasDatabaseName("IX_GloOutboxMessage_CorrelationId");
+
+                    b.HasIndex("EventType")
+                        .HasDatabaseName("IX_GloOutboxMessage_EventType");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("IX_GloOutboxMessage_TenantId");
+
+                    b.HasIndex("Status", "NextRetryOn")
+                        .HasDatabaseName("IX_GloOutboxMessage_Status_NextRetryOn");
+
+                    b.ToTable("GloOutboxMessage", "dbo");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloPaymentMethodType", b =>
@@ -3261,12 +4877,165 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloSeedTableColumnMapping", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ColumnOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsRequired")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<long>("SeedTableMappingId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("SourceColumnName")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("StaticValue")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TargetColumnName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("TransformationType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<long?>("UpdatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SeedTableMappingId")
+                        .HasDatabaseName("IX_GloSeedTableColumnMapping_SeedTableMappingId");
+
+                    b.ToTable("GloSeedTableColumnMapping", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloSeedTableMapping", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("SeedCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("SeedOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SourceDatabaseName")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("SourceSchemaName")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("public");
+
+                    b.Property<string>("SourceTableName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("TargetDatabaseName")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("TargetSchemaName")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("public");
+
+                    b.Property<string>("TargetTableName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<long?>("UpdatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SeedCode")
+                        .HasDatabaseName("IX_GloSeedTableMapping_SeedCode");
+
+                    b.HasIndex("SeedOrder")
+                        .HasDatabaseName("IX_GloSeedTableMapping_SeedOrder");
+
+                    b.HasIndex("SeedCode", "TargetTableName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloSeedTableMapping_SeedCode_TargetTableName");
+
+                    b.ToTable("GloSeedTableMapping", "dbo");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloSetupDescriptionType", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<short>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("gen_random_uuid()");
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<short>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -3356,6 +5125,69 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.ToTable("GloSetupLaborRateType", "dbo");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloSetupPaymentTerm", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<short>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("timezone('utc', now())");
+
+                    b.Property<string>("DueDateMethod")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsAccountsPayable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsAccountsReceivable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsMobileVisible")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("NumberOfDays")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("Name")
+                        .HasName("UQ_GloSetupPaymentTerm_Name");
+
+                    b.ToTable("GloSetupPaymentTerm", "dbo");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloSetupTenantStatus", b =>
                 {
                     b.Property<short>("Id")
@@ -3399,6 +5231,73 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .HasDatabaseName("UX_GloSetupTenantStatus_Name");
 
                     b.ToTable("GloSetupTenantStatus", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloSkill", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("Id"));
+
+                    b.Property<int>("BusinessTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("RequiresCertification")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("SkillCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("SkillName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<short>("TradeId")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessTypeId");
+
+                    b.HasIndex("SkillCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloSkill_SkillCode");
+
+                    b.HasIndex("TradeId");
+
+                    b.ToTable("GloSkill", "dbo");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloStateProvince", b =>
@@ -3452,6 +5351,91 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.ToTable("GloStateProvince", "dbo");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BackgroundColor")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<long?>("IconFileId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsSystemGenerated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("TagCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("TextColor")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DisplayOrder")
+                        .HasDatabaseName("IX_GloTag_DisplayOrder");
+
+                    b.HasIndex("IconFileId")
+                        .HasDatabaseName("IX_GloTag_IconFileId");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_GloTag_IsActive");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("IX_GloTag_Name");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloTag_NormalizedName");
+
+                    b.HasIndex("TagCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloTag_TagCode");
+
+                    b.ToTable("GloTag", "dbo");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloTimeCardOption", b =>
                 {
                     b.Property<int>("Id")
@@ -3477,6 +5461,258 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         {
                             t.HasCheckConstraint("CK_GloTimeCardOption_Code_Upper", "\"Code\" = UPPER(\"Code\")");
                         });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloTitleOfCourtesy", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("character varying(25)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_GloTitleOfCourtesy_Code");
+
+                    b.HasIndex("SortOrder")
+                        .HasDatabaseName("IX_GloTitleOfCourtesy_SortOrder");
+
+                    b.ToTable("GloTitleOfCourtesy", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_GloTitleOfCourtesy_Code_Upper", "\"Code\" = upper(\"Code\")");
+
+                            t.HasCheckConstraint("CK_GloTitleOfCourtesy_SortOrder", "\"SortOrder\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloTrade", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("Id"));
+
+                    b.Property<int>("BusinessTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("TradeCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("TradeName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessTypeId");
+
+                    b.HasIndex("TradeCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloTrade_TradeCode");
+
+                    b.ToTable("GloTrade", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloUnitOfMeasure", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Abbreviation")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DecimalPlaces")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)2);
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("UnitCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("UnitType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UnitCode")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_GloUnitOfMeasure_UnitCode");
+
+                    b.HasIndex("UnitType")
+                        .HasDatabaseName("IX_GloUnitOfMeasure_UnitType");
+
+                    b.ToTable("GloUnitOfMeasure", "dbo");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloZone", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<short>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_GloZone_Code");
+
+                    b.ToTable("GloZone", "dbo", t =>
+                        {
+                            t.HasCheckConstraint("CK_GloZone_Code_Upper", "\"Code\" = upper(\"Code\")");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsBillingCategory", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsBillingCategory_FgsTenantCompany_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsBusinessType", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsBusinessType_FgsTenantCompany_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsCredentialAudit", b =>
@@ -3543,6 +5779,31 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .HasConstraintName("FK_FgsCredentialSecret_Company");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsEntityTag", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.GloMasterEntityType", null)
+                        .WithMany()
+                        .HasForeignKey("MasterEntityTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEntityTag_GloMasterEntityType_MasterEntityTypeId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTag", null)
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEntityTag_FgsTag_TagId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEntityTag_FgsTenantCompany_TenantId_CompanyId");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsFile", b =>
                 {
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
@@ -3554,6 +5815,144 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .HasConstraintName("FK_FgsFile_FgsTenantCompany_TenantId_CompanyId");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInventoryCategory", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryCategory_FgsTenantCompany_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInventoryItem", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsInventoryCategory", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsInventoryItem_FgsInventoryCategory");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsInventoryItemType", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryItemTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItem_FgsInventoryItemType");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsInventorySubCategory", null)
+                        .WithMany()
+                        .HasForeignKey("InventorySubCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsInventoryItem_FgsInventorySubCategory");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItem_FgsTenantCompany_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInventoryItemAlternate", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsInventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("AlternateInventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemAlternate_FgsInventoryItem_AlternateInventoryItemId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsInventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemAlternate_FgsInventoryItem_InventoryItemId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemAlternate_FgsTenantCompany_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInventoryItemDependency", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsInventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("DependentInventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemDependency_FgsInventoryItem_DependentInventoryItemId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsInventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemDependency_FgsInventoryItem_InventoryItemId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemDependency_FgsTenantCompany_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInventoryItemType", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemType_FgsTenantCompany_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInventoryStock", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsInventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryStock_FgsInventoryItem");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryStock_FgsTenantCompany_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInventorySubCategory", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsInventoryCategory", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventorySubCategory_FgsInventoryCategory");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventorySubCategory_FgsTenantCompany_TenantId_CompanyId");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInvitation", b =>
                 {
                     b.HasOne("Fgs.User.Domain.Entities.FgsUser", "User")
@@ -3563,6 +5962,17 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsLeadSource", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsLeadSource_FgsTenantCompany_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsLocation", b =>
@@ -3648,6 +6058,18 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupGLBreak", b =>
                 {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsLocation", null)
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_FgsSetupGLBreak_FgsLocation_AddressId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsFile", null)
+                        .WithMany()
+                        .HasForeignKey("LogoFileId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_FgsSetupGLBreak_FgsFile_LogoFileId");
+
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
@@ -3657,42 +6079,19 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .HasConstraintName("FK_FgsSetupGLBreak_FgsTenantCompany_TenantId_CompanyId");
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupGLBreakTechTrade", b =>
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupLaborRateType", b =>
                 {
-                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupGLBreak", "GLBreak")
-                        .WithMany("TechTrades")
-                        .HasForeignKey("FgsSetupGLBreakId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupTechTrade", "TechTrade")
-                        .WithMany()
-                        .HasForeignKey("FgsSetupTechTradeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_FgsSetupGLBreakTechTrade_FgsTenantCompany_TenantId_CompanyId");
-
-                    b.Navigation("GLBreak");
-
-                    b.Navigation("TechTrade");
+                        .HasConstraintName("FK_FgsSetupLaborRateType_FgsTenantCompany_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupPaymentMethod", b =>
                 {
-                    b.HasOne("Fgs.User.Domain.Entities.GloPaymentMethodType", null)
-                        .WithMany()
-                        .HasForeignKey("GloPaymentMethodTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPaymentMethod_GloPayType");
-
                     b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
@@ -3991,6 +6390,50 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .HasConstraintName("FK_FgsSetupZone_FgsTenantCompany_TenantId_CompanyId");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTag", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsFile", "IconFile")
+                        .WithMany()
+                        .HasForeignKey("IconFileId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_FgsTag_FgsFile_IconFileId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsTag_FgsTenantCompany_TenantId_CompanyId");
+
+                    b.Navigation("IconFile");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTagEntityType", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.GloMasterEntityType", null)
+                        .WithMany()
+                        .HasForeignKey("MasterEntityTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsTagEntityType_GloMasterEntityType_MasterEntityTypeId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTag", null)
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsTagEntityType_FgsTag_TagId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsTagEntityType_FgsTenantCompany_TenantId_CompanyId");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenant", b =>
                 {
                     b.HasOne("Fgs.User.Domain.Entities.GloSetupTenantStatus", null)
@@ -4052,7 +6495,7 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Fgs.User.Domain.Entities.FgsUser", "User")
-                        .WithMany()
+                        .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -4071,6 +6514,116 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsVendor", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsSetupPaymentTerm", null)
+                        .WithMany()
+                        .HasForeignKey("PaymentTermId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsVendor_FgsSetupPaymentTerm");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVendor_FgsTenantCompany_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsVendorInventoryItem", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsInventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVendorInventoryItem_FgsInventoryItem");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsVendor", null)
+                        .WithMany()
+                        .HasForeignKey("VendorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVendorInventoryItem_FgsVendor");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVendorInventoryItem_FgsTenantCompany_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloInventoryCategory", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.GloBusinessType", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_GloInventoryCategory_GloBusinessType");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloInventorySubCategory", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.GloInventoryCategory", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_GloInventorySubCategory_GloInventoryCategory");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloJobTypeCategory", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.GloBusinessType", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_GloJobTypeCategory_GloBusinessType_BusinessTypeId");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloJobTypeSubCategory", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.GloBusinessType", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_GloJobTypeSubCategory_GloBusinessType_BusinessTypeId");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloSeedTableColumnMapping", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.GloSeedTableMapping", "SeedTableMapping")
+                        .WithMany("ColumnMappings")
+                        .HasForeignKey("SeedTableMappingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_GloSeedTableColumnMapping_GloSeedTableMapping");
+
+                    b.Navigation("SeedTableMapping");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloSkill", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.GloBusinessType", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessTypeId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_GloSkill_GloBusinessType_BusinessTypeId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.GloTrade", null)
+                        .WithMany()
+                        .HasForeignKey("TradeId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_GloSkill_GloTrade_TradeId");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloStateProvince", b =>
                 {
                     b.HasOne("Fgs.User.Domain.Entities.GloCountry", "Country")
@@ -4083,14 +6636,37 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.Navigation("Country");
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupGLBreak", b =>
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloTag", b =>
                 {
-                    b.Navigation("TechTrades");
+                    b.HasOne("Fgs.User.Domain.Entities.FgsFile", "IconFile")
+                        .WithMany()
+                        .HasForeignKey("IconFileId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_GloTag_FgsFile_IconFileId");
+
+                    b.Navigation("IconFile");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloTrade", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.GloBusinessType", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessTypeId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_GloTrade_GloBusinessType_BusinessTypeId");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUser", b =>
                 {
                     b.Navigation("Invitations");
+
+                    b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloSeedTableMapping", b =>
+                {
+                    b.Navigation("ColumnMappings");
                 });
 #pragma warning restore 612, 618
         }

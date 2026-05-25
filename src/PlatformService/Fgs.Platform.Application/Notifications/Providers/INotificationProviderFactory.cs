@@ -5,11 +5,11 @@ namespace Fgs.Platform.Application.Notifications.Providers;
 
 public interface INotificationProviderFactory
 {
-    IEmailProvider ResolveEmailProvider(Guid tenantId);
+    IEmailProvider ResolveEmailProvider(long tenantId);
 
-    ISmsProvider ResolveSmsProvider(Guid tenantId);
+    ISmsProvider ResolveSmsProvider(long tenantId);
 
-    IPushProvider ResolvePushProvider(Guid tenantId);
+    IPushProvider ResolvePushProvider(long tenantId);
 
-    EmailProviderKind ResolveEmailProviderKind(Guid tenantId);
+    EmailProviderKind ResolveEmailProviderKind(long tenantId);
 }

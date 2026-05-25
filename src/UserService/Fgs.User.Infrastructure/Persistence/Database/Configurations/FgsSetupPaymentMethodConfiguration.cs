@@ -12,14 +12,19 @@ internal class FgsSetupPaymentMethodConfiguration : IEntityTypeConfiguration<Fgs
         entity.ToTable("FgsSetupPaymentMethod");
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id).UseIdentityByDefaultColumn();
-        entity.ConfigureTenantCompanySetupColumns();
+        entity.ConfigureTenantCompanySetupColumns(includeTenantCompanyIndex: false);
         entity.ConfigureTenantCompanySetupFk("FK_FgsSetupPaymentMethod_FgsTenantCompany_TenantId_CompanyId");
-        entity.HasAlternateKey(e => new { e.TenantId, e.CompanyId, e.GloPaymentMethodTypeId })
+        entity.HasAlternateKey(e => new { e.TenantId, e.CompanyId, e.DisplayName })
             .HasName("UQ_FgsSetupPaymentMethod");
-        entity.HasOne<GloPaymentMethodType>()
-            .WithMany()
-            .HasForeignKey(e => e.GloPaymentMethodTypeId)
-            .HasConstraintName("FK_FgsSetupPaymentMethod_GloPayType")
-            .OnDelete(DeleteBehavior.Restrict);
+        entity.Property(e => e.DisplayName).HasColumnType("text");
+        entity.Property(e => e.SortOrder).HasDefaultValue(0);
+        entity.Property(e => e.IsMobileVisible).HasDefaultValue(true);
+        entity.Property(e => e.IsCustomerPortalVisible).HasDefaultValue(true);
+        entity.Property(e => e.CreatedOn)
+            .IsRequired()
+            .HasColumnType("timestamptz");
+        entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.IsActive })
+            .HasDatabaseName("IX_FgsSetupPaymentMethod_TenantId_CompanyId_IsActive");
     }
 }

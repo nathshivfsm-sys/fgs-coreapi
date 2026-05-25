@@ -9,8 +9,8 @@ public sealed class DatabaseNotificationTemplateRenderer(
     ITemplateRenderer templateRenderer) : INotificationTemplateRenderer
 {
     public async Task<RenderedNotificationTemplate> RenderAsync(
-        Guid tenantId,
-        Guid? companyId,
+        long tenantId,
+        long? companyId,
         NotificationChannel channel,
         string templateCode,
         IReadOnlyDictionary<string, string> tokens,

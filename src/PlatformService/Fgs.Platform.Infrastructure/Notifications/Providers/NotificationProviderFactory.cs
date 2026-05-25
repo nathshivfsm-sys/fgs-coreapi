@@ -15,17 +15,17 @@ public sealed class NotificationProviderFactory(
     TwilioSmsProvider twilioSms,
     FirebasePushProvider firebasePush) : INotificationProviderFactory
 {
-    public IEmailProvider ResolveEmailProvider(Guid tenantId) =>
+    public IEmailProvider ResolveEmailProvider(long tenantId) =>
         ResolveEmailProviderKind(tenantId) switch
         {
             EmailProviderKind.Smtp => smtpEmail,
             _ => sendGridEmail
         };
 
-    public ISmsProvider ResolveSmsProvider(Guid tenantId) => twilioSms;
+    public ISmsProvider ResolveSmsProvider(long tenantId) => twilioSms;
 
-    public IPushProvider ResolvePushProvider(Guid tenantId) => firebasePush;
+    public IPushProvider ResolvePushProvider(long tenantId) => firebasePush;
 
-    public EmailProviderKind ResolveEmailProviderKind(Guid tenantId) =>
+    public EmailProviderKind ResolveEmailProviderKind(long tenantId) =>
         tenantConfiguration.GetProviderConfiguration(tenantId).EmailProvider;
 }

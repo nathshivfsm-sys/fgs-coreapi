@@ -3,8 +3,8 @@ using Fgs.Platform.Domain.Notifications;
 namespace Fgs.Platform.Application.Notifications.Channels.Models;
 
 public sealed record NotificationDispatchRequest(
-    Guid TenantId,
-    Guid? CompanyId,
+    long TenantId,
+    long? CompanyId,
     NotificationChannel Channel,
     string TemplateCode,
     string Recipient,

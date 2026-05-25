@@ -17,6 +17,7 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.8" />
     <PackageReference Include="GeoTimeZone" Version="6.0.0" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.410.12" />
     <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
   </ItemGroup>
@@ -24,6 +25,10 @@
   <ItemGroup>
     <Folder Include="Persistence\Database\Migrations\" />
     <Folder Include="Persistence\Database\Scripts\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Fgs.User.Tests" />
   </ItemGroup>
 
   <PropertyGroup>

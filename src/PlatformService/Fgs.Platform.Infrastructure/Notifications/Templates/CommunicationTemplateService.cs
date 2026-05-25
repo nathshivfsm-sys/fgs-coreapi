@@ -8,8 +8,8 @@ public sealed class CommunicationTemplateService(ICommunicationTemplateRepositor
     : ICommunicationTemplateService
 {
     public async Task<FgsSetupCommunicationTemplate> GetActiveTemplateAsync(
-        Guid tenantId,
-        Guid? companyId,
+        long tenantId,
+        long? companyId,
         NotificationChannel channel,
         string templateCode,
         CancellationToken cancellationToken = default)

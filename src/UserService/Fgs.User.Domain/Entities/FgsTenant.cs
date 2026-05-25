@@ -4,6 +4,8 @@ public class FgsTenant : FgsEntityBase
 {
     public long Id { get; set; }
 
+    public Guid TenantGuid { get; set; }
+
     public short FgsTenantStatusId { get; set; } = 1;
 
     public string TenantCode { get; set; } = null!;
@@ -31,4 +33,9 @@ public class FgsTenant : FgsEntityBase
     public int? DefaultLanguageId { get; set; }
 
     public bool IsActive { get; set; } = true;
+
+    /// <summary>
+    /// Private S3 bucket name for tenant-wide and company assets.
+    /// </summary>
+    public string? StorageBucketName { get; set; }
 }

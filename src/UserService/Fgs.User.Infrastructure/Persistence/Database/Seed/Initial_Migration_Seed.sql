@@ -169,31 +169,37 @@ SELECT setval(
     COALESCE((SELECT MAX("Id") FROM dbo."GloTimeCardOption"), 1),
     true);
 
--- GloBusinessType
+-- GloBusinessType (explicit Id: sequential 1..n; OTHER last)
 INSERT INTO dbo."GloBusinessType"
 (
+    "Id",
     "Code",
     "Name",
     "IsActive",
     "CreatedOn"
 )
 SELECT
+    v."Id",
     v."Code",
     v."Name",
     v."IsActive",
     timezone('utc', now())
 FROM (
     VALUES
-        ('HVAC',          'HVAC',           true),
-        ('PLUMBING',      'Plumbing',       true),
-        ('ELECTRICAL',    'Electrical',     true),
-        ('PESTCONTROL',   'Pest Control',   true),
-        ('LAWNCARE',      'Lawn Care',      true),
-        ('TRASHPICKUP',   'Trash Pickup',   true),
-        ('GARAGEDOOR',    'Garage Door',    true),
-        ('HOUSECLEANING', 'House Cleaning', true),
-        ('PAINTING',      'Painting',       true)
-) AS v("Code", "Name", "IsActive")
+        ( 1, 'HVAC',            'HVAC',             true),
+        ( 2, 'PLUMBING',        'Plumbing',         true),
+        ( 3, 'ELECTRICAL',      'Electrical',       true),
+        ( 4, 'PESTCONTROL',     'Pest Control',     true),
+        ( 5, 'LAWNCARE',        'Lawn Care',        true),
+        ( 6, 'TRASHPICKUP',     'Trash Pickup',     true),
+        ( 7, 'GARAGEDOOR',      'Garage Door',      true),
+        ( 8, 'HOUSECLEANING',   'House Cleaning',   true),
+        ( 9, 'PAINTING',        'Painting',         true),
+        (10, 'CARPETCLEANING',  'Carpet Cleaning',  true),
+        (11, 'WINDOWCLEANING',  'Window Cleaning',  true),
+        (12, 'HOLIDAYLIGHTING', 'Holiday Lighting', true),
+        (13, 'OTHER',           'Other',            true)
+) AS v("Id", "Code", "Name", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
     FROM dbo."GloBusinessType" t
@@ -569,7 +575,6 @@ SELECT setval(
 -- GloSetupDescriptionType
 INSERT INTO dbo."GloSetupDescriptionType"
 (
-    "Id",
     "Code",
     "Name",
     "Description",
@@ -577,7 +582,6 @@ INSERT INTO dbo."GloSetupDescriptionType"
     "CreatedOn"
 )
 SELECT
-    gen_random_uuid(),
     v."Code",
     v."Name",
     v."Description",
@@ -634,6 +638,44 @@ SELECT setval(
     COALESCE((SELECT MAX("Id") FROM dbo."GloSetupLaborRateType"), 1),
     true);
 
+-- GloSetupPaymentTerm
+INSERT INTO dbo."GloSetupPaymentTerm"
+(
+    "Name",
+    "DueDateMethod",
+    "NumberOfDays",
+    "IsAccountsReceivable",
+    "IsAccountsPayable",
+    "IsMobileVisible",
+    "IsActive"
+)
+SELECT
+    v."Name",
+    v."DueDateMethod",
+    v."NumberOfDays",
+    v."IsAccountsReceivable",
+    v."IsAccountsPayable",
+    v."IsMobileVisible",
+    v."IsActive"
+FROM (
+    VALUES
+        ('Net 15',       'NetDays',      15,  true, true, true, true),
+        ('Net 30',       'NetDays',      30,  true, true, true, true),
+        ('Net 45',       'NetDays',      45,  true, true, true, true),
+        ('End Of Month', 'EndOfMonth',   NULL::integer, true, true, true, true),
+        ('COD',          'DueOnReceipt', 0,   true, true, true, true)
+) AS v("Name", "DueDateMethod", "NumberOfDays", "IsAccountsReceivable", "IsAccountsPayable", "IsMobileVisible", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloSetupPaymentTerm" t
+    WHERE t."Name" = v."Name"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloSetupPaymentTerm"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloSetupPaymentTerm"), 1),
+    true);
+
 -- GloSetupTenantStatus (Id 1 = default FK on FgsTenant)
 INSERT INTO dbo."GloSetupTenantStatus" ("Id", "Name", "Description", "IsActive", "CreatedOn")
 OVERRIDING SYSTEM VALUE
@@ -654,6 +696,729 @@ WHERE NOT EXISTS (
 SELECT setval(
     pg_get_serial_sequence('dbo."GloSetupTenantStatus"', 'Id'),
     COALESCE((SELECT MAX("Id") FROM dbo."GloSetupTenantStatus"), 1),
+    true);
+
+-- GloTrade
+INSERT INTO dbo."GloTrade"
+(
+    "BusinessTypeId",
+    "TradeCode",
+    "TradeName",
+    "Description",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    bt."Id",
+    v."TradeCode",
+    v."TradeName",
+    v."Description",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('PESTCONTROL',   'PESTCONTROL',   'Pest Control',   'General pest control services'),
+        ('GARAGEDOOR',    'GARAGEDOOR',    'Garage Door',    'Garage door installation and repair'),
+        ('LAWNCARE',      'LAWNCARE',      'Lawn Care',      'General lawn maintenance'),
+        ('LAWNCARE',      'IRRIGATION',    'Irrigation',     'Sprinkler and irrigation systems'),
+        ('LAWNCARE',      'LANDSCAPING',   'Landscaping',    'Landscape design and maintenance'),
+        ('HOUSECLEANING', 'HOUSECLEANING', 'House Cleaning', 'Residential and commercial cleaning'),
+        ('TRASHPICKUP',   'TRASHREMOVAL',  'Trash Removal',  'General trash pickup services'),
+        ('TRASHPICKUP',   'JUNKREMOVAL',   'Junk Removal',   'Bulk junk and debris removal'),
+        ('ELECTRICAL',    'ELECTRICAL',    'Electrical',     'Electrical installation and repair'),
+        ('PLUMBING',      'PLUMBING',      'Plumbing',       'Residential and commercial plumbing'),
+        ('HVAC',          'HVAC',          'HVAC',           'Heating and air conditioning services'),
+        ('PAINTING',      'PAINTING',      'Painting',       'Interior and exterior painting')
+) AS v("BusinessTypeCode", "TradeCode", "TradeName", "Description")
+INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloTrade" t
+    WHERE t."TradeCode" = v."TradeCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloTrade"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloTrade"), 1),
+    true);
+
+-- GloSkill (HVAC, Plumbing, Electrical)
+INSERT INTO dbo."GloSkill"
+(
+    "BusinessTypeId",
+    "TradeId",
+    "SkillCode",
+    "SkillName",
+    "Description",
+    "RequiresCertification",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    bt."Id",
+    tr."Id",
+    v."SkillCode",
+    v."SkillName",
+    v."Description",
+    v."RequiresCertification",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('HVAC',       'HVAC',       'HVACEXPERT',       'HVAC Expert',       'Experienced HVAC technician', false),
+        ('HVAC',       'HVAC',       'HVACHELPER',       'HVAC Helper',       'HVAC helper and assistant technician', false),
+        ('PLUMBING',   'PLUMBING',   'PLUMBINGEXPERT',   'Plumbing Expert',   'Experienced plumbing technician', false),
+        ('PLUMBING',   'PLUMBING',   'PLUMBINGHELPER',   'Plumbing Helper',   'Plumbing helper and assistant technician', false),
+        ('ELECTRICAL', 'ELECTRICAL', 'ELECTRICALEXPERT', 'Electrical Expert', 'Experienced electrical technician', false),
+        ('ELECTRICAL', 'ELECTRICAL', 'ELECTRICALHELPER', 'Electrical Helper', 'Electrical helper and assistant technician', false)
+) AS v("BusinessTypeCode", "TradeCode", "SkillCode", "SkillName", "Description", "RequiresCertification")
+INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+INNER JOIN dbo."GloTrade" tr ON tr."TradeCode" = v."TradeCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloSkill" s
+    WHERE s."SkillCode" = v."SkillCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloSkill"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloSkill"), 1),
+    true);
+
+-- GloZone
+INSERT INTO dbo."GloZone"
+(
+    "Code",
+    "Name",
+    "Description",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."Code",
+    v."Name",
+    v."Description",
+    v."IsActive",
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('ALL', 'All', 'Default zone covering all service areas', true)
+) AS v("Code", "Name", "Description", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloZone" z
+    WHERE z."Code" = v."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloZone"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloZone"), 1),
+    true);
+
+-- GloJobTypeSubCategory
+INSERT INTO dbo."GloJobTypeSubCategory"
+(
+    "Code",
+    "Name",
+    "Description",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."Code",
+    v."Name",
+    v."Description",
+    v."IsActive",
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('INSTALL',      'Install',      'Installation service', true),
+        ('REPAIR',       'Repair',       'Repair service', true),
+        ('SERVICE',      'Service',      'General maintenance service', true),
+        ('REPLACE',      'Replace',      'Replacement service', true),
+        ('INSPECT',      'Inspect',      'Inspection service', true),
+        ('MAINTENANCE',  'Maintenance',  'Preventive maintenance service', true),
+        ('TROUBLESHOOT', 'Troubleshoot', 'Diagnostic and troubleshooting service', true),
+        ('CLEANING',     'Cleaning',     'Cleaning service', true),
+        ('TUNEUP',       'Tune-Up',      'System tune-up service', true),
+        ('UPGRADE',      'Upgrade',      'Upgrade existing equipment or system', true)
+) AS v("Code", "Name", "Description", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloJobTypeSubCategory" sc
+    WHERE sc."Code" = v."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloJobTypeSubCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloJobTypeSubCategory"), 1),
+    true);
+
+-- GloJobTypeCategory
+INSERT INTO dbo."GloJobTypeCategory"
+(
+    "BusinessTypeId",
+    "Code",
+    "Name",
+    "Description",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    bt."Id",
+    v."Code",
+    v."Name",
+    v."Description",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('HVAC',       'AC',          'Air Conditioning',     'Air conditioning systems'),
+        ('HVAC',       'FURNACE',     'Furnace',              'Heating furnace systems'),
+        ('HVAC',       'THERMOSTAT',  'Thermostat',           'Thermostat systems and controls'),
+        ('PLUMBING',   'TOILET',      'Toilet',               'Toilet systems'),
+        ('PLUMBING',   'FAUCET',      'Faucet',               'Faucet systems'),
+        ('PLUMBING',   'WATERHEATER', 'Water Heater',         'Water heater systems'),
+        ('ELECTRICAL', 'PANEL',       'Electrical Panel',     'Electrical panel systems'),
+        ('ELECTRICAL', 'LIGHTING',    'Lighting',             'Lighting systems'),
+        ('ELECTRICAL', 'OUTLET',      'Outlet',               'Electrical outlet systems')
+) AS v("BusinessTypeCode", "Code", "Name", "Description")
+INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloJobTypeCategory" c
+    WHERE c."BusinessTypeId" = bt."Id"
+      AND c."Code" = v."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloJobTypeCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloJobTypeCategory"), 1),
+    true);
+
+-- GloInventoryItemType
+INSERT INTO dbo."GloInventoryItemType"
+(
+    "ItemTypeCode",
+    "Name",
+    "Description",
+    "TracksQuantity",
+    "DisplayOrder",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."ItemTypeCode",
+    v."Name",
+    v."Description",
+    v."TracksQuantity",
+    v."DisplayOrder",
+    v."IsActive",
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('INVENTORY',    'Inventory',     'Standard inventory item that tracks quantity on hand.',                    true,  1::smallint, true),
+        ('NONINVENTORY', 'Non-Inventory', 'Item used for purchasing or selling without quantity tracking.',         false, 2::smallint, true),
+        ('SERVICE',      'Service',       'Labor or service item with no inventory tracking.',                      false, 3::smallint, true),
+        ('KIT',          'Kit',           'Bundle or grouped item composed of multiple inventory items.',           false, 4::smallint, true),
+        ('TOOL',         'Tool',          'Operational tool or equipment item that tracks quantity.',               true,  5::smallint, true)
+) AS v("ItemTypeCode", "Name", "Description", "TracksQuantity", "DisplayOrder", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloInventoryItemType" t
+    WHERE t."ItemTypeCode" = v."ItemTypeCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloInventoryItemType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloInventoryItemType"), 1),
+    true);
+
+-- GloInventoryCategory
+INSERT INTO dbo."GloInventoryCategory"
+(
+    "BusinessTypeId",
+    "CategoryCode",
+    "Name",
+    "Description",
+    "DisplayOrder",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    bt."Id",
+    v."CategoryCode",
+    v."Name",
+    v."Description",
+    v."DisplayOrder",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('HVAC',           'THERMOSTATS',      'Thermostats',       'HVAC thermostats and controls',              1::smallint),
+        ('HVAC',           'CAPACITORS',       'Capacitors',        'HVAC capacitors',                            2::smallint),
+        ('HVAC',           'COMPRESSORS',      'Compressors',       'HVAC compressors',                           3::smallint),
+        ('HVAC',           'FILTERS',          'Filters',           'Air filters and filtration products',        4::smallint),
+        ('HVAC',           'REFRIGERANT',      'Refrigerant',       'Refrigerant products',                       5::smallint),
+        ('HVAC',           'TOOLS',            'Tools',             'HVAC tools and equipment',                   6::smallint),
+        ('PLUMBING',       'PIPE',             'Pipe',              'Plumbing pipe and fittings',                 1::smallint),
+        ('PLUMBING',       'FAUCETS',          'Faucets',           'Kitchen and bathroom faucets',               2::smallint),
+        ('PLUMBING',       'VALVES',           'Valves',            'Plumbing valves',                            3::smallint),
+        ('PLUMBING',       'WATERHEATERS',     'Water Heaters',     'Water heater systems',                       4::smallint),
+        ('PLUMBING',       'DRAINS',           'Drains',            'Drain and sewer products',                   5::smallint),
+        ('PLUMBING',       'TOOLS',            'Tools',             'Plumbing tools and equipment',               6::smallint),
+        ('ELECTRICAL',     'BREAKERS',         'Breakers',          'Electrical breakers',                        1::smallint),
+        ('ELECTRICAL',     'WIRE',             'Wire',              'Electrical wire and cable',                  2::smallint),
+        ('ELECTRICAL',     'PANELS',           'Panels',            'Electrical panels',                          3::smallint),
+        ('ELECTRICAL',     'SWITCHES',         'Switches',          'Switches and outlets',                       4::smallint),
+        ('ELECTRICAL',     'LIGHTING',         'Lighting',          'Lighting fixtures and accessories',            5::smallint),
+        ('ELECTRICAL',     'TOOLS',            'Tools',             'Electrical tools and equipment',             6::smallint),
+        ('HOUSECLEANING',  'CHEMICALS',        'Chemicals',         'Cleaning chemicals and supplies',            1::smallint),
+        ('HOUSECLEANING',  'MOPS',             'Mops',              'Mops and cleaning tools',                    2::smallint),
+        ('HOUSECLEANING',  'VACUUMS',          'Vacuums',           'Vacuum equipment',                           3::smallint),
+        ('HOUSECLEANING',  'TRASHBAGS',        'Trash Bags',        'Trash bags and liners',                      4::smallint),
+        ('HOUSECLEANING',  'PAPERPRODUCTS',    'Paper Products',    'Paper towels and restroom supplies',         5::smallint),
+        ('HOUSECLEANING',  'TOOLS',            'Tools',             'Cleaning tools and equipment',               6::smallint),
+        ('WINDOWCLEANING', 'SURFACECLEANERS',  'Surface Cleaners',  'Pressure washing surface cleaners',          1::smallint),
+        ('WINDOWCLEANING', 'HOSES',            'Hoses',             'Pressure washing hoses',                     2::smallint),
+        ('WINDOWCLEANING', 'WANDS',            'Wands',             'Pressure washing wands and guns',            3::smallint),
+        ('WINDOWCLEANING', 'CHEMICALS',        'Chemicals',         'Pressure washing chemicals',                 4::smallint),
+        ('WINDOWCLEANING', 'NOZZLES',          'Nozzles',           'Pressure washing nozzles',                   5::smallint),
+        ('WINDOWCLEANING', 'TOOLS',            'Tools',             'Pressure washing tools and equipment',       6::smallint),
+        ('LAWNCARE',       'MOWERS',           'Mowers',            'Lawn mowers and equipment',                  1::smallint),
+        ('LAWNCARE',       'TRIMMERS',         'Trimmers',          'Grass trimmers and edgers',                  2::smallint),
+        ('LAWNCARE',       'FERTILIZER',       'Fertilizer',        'Fertilizer and lawn chemicals',              3::smallint),
+        ('LAWNCARE',       'IRRIGATION',       'Irrigation',        'Irrigation supplies',                        4::smallint),
+        ('LAWNCARE',       'PLANTS',           'Plants',            'Plants and landscaping materials',           5::smallint),
+        ('LAWNCARE',       'TOOLS',            'Tools',             'Landscaping tools and equipment',            6::smallint)
+) AS v("BusinessTypeCode", "CategoryCode", "Name", "Description", "DisplayOrder")
+INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloInventoryCategory" c
+    WHERE c."BusinessTypeId" = bt."Id"
+      AND c."CategoryCode" = v."CategoryCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloInventoryCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloInventoryCategory"), 1),
+    true);
+
+-- GloInventorySubCategory
+INSERT INTO dbo."GloInventorySubCategory"
+(
+    "InventoryCategoryId",
+    "SubCategoryCode",
+    "Name",
+    "Description",
+    "DisplayOrder",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    c."Id",
+    v."SubCategoryCode",
+    v."Name",
+    v."Description",
+    v."DisplayOrder",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('HVAC',           'THERMOSTATS',  'SMARTTHERMOSTATS',        'Smart Thermostats',        'WiFi and smart thermostats',              1::smallint),
+        ('HVAC',           'THERMOSTATS',  'PROGRAMMABLETHERMOSTATS', 'Programmable Thermostats', 'Programmable thermostats',                2::smallint),
+        ('HVAC',           'CAPACITORS',   'RUN_CAPACITORS',          'Run Capacitors',           'HVAC run capacitors',                     1::smallint),
+        ('HVAC',           'CAPACITORS',   'START_CAPACITORS',        'Start Capacitors',         'HVAC start capacitors',                   2::smallint),
+        ('HVAC',           'COMPRESSORS',  'SCROLLCOMPRESSORS',       'Scroll Compressors',       'Scroll compressors',                      1::smallint),
+        ('HVAC',           'COMPRESSORS',  'RECIPROCATINGCOMPRESSORS','Reciprocating Compressors','Reciprocating compressors',               2::smallint),
+        ('HVAC',           'FILTERS',      'PLEATEDFILTERS',          'Pleated Filters',          'Pleated air filters',                     1::smallint),
+        ('HVAC',           'FILTERS',      'HEPAFILTERS',             'HEPA Filters',             'HEPA filtration products',                2::smallint),
+        ('HVAC',           'REFRIGERANT',  'R410A',                   'R-410A',                   'R-410A refrigerant',                      1::smallint),
+        ('HVAC',           'REFRIGERANT',  'R32',                     'R-32',                     'R-32 refrigerant',                          2::smallint),
+        ('HVAC',           'TOOLS',        'VACUUMPUMPS',             'Vacuum Pumps',             'HVAC vacuum pumps',                       1::smallint),
+        ('HVAC',           'TOOLS',        'RECOVERYMACHINES',       'Recovery Machines',        'Refrigerant recovery machines',           2::smallint),
+        ('PLUMBING',       'PIPE',         'PVCPIPES',                'PVC Pipes',                'PVC plumbing pipes',                      1::smallint),
+        ('PLUMBING',       'PIPE',         'COPPERPIPES',             'Copper Pipes',             'Copper plumbing pipes',                   2::smallint),
+        ('PLUMBING',       'FAUCETS',      'KITCHENFAUCETS',          'Kitchen Faucets',          'Kitchen sink faucets',                    1::smallint),
+        ('PLUMBING',       'FAUCETS',      'BATHROOMFAUCETS',         'Bathroom Faucets',         'Bathroom sink faucets',                   2::smallint),
+        ('PLUMBING',       'VALVES',       'BALLVALVES',              'Ball Valves',              'Ball valves',                             1::smallint),
+        ('PLUMBING',       'VALVES',       'GATEVALVES',              'Gate Valves',              'Gate valves',                             2::smallint),
+        ('PLUMBING',       'WATERHEATERS', 'TANKWATERHEATERS',        'Tank Water Heaters',       'Traditional tank water heaters',          1::smallint),
+        ('PLUMBING',       'WATERHEATERS', 'TANKLESSWATERHEATERS',    'Tankless Water Heaters',   'Tankless water heaters',                  2::smallint),
+        ('PLUMBING',       'DRAINS',       'FLOORDRAINS',             'Floor Drains',             'Floor drain products',                    1::smallint),
+        ('PLUMBING',       'DRAINS',       'SHOWERDRAINS',            'Shower Drains',            'Shower drain products',                   2::smallint),
+        ('PLUMBING',       'TOOLS',        'PIPERENCHES',             'Pipe Wrenches',            'Pipe wrenches',                           1::smallint),
+        ('PLUMBING',       'TOOLS',        'DRAINMACHINES',          'Drain Machines',           'Drain cleaning machines',                 2::smallint),
+        ('ELECTRICAL',     'BREAKERS',     'SINGLEPOLEBREAKERS',      'Single Pole Breakers',     'Single pole breakers',                    1::smallint),
+        ('ELECTRICAL',     'BREAKERS',     'DOUBLEPOLEBREAKERS',      'Double Pole Breakers',     'Double pole breakers',                    2::smallint),
+        ('ELECTRICAL',     'WIRE',         'ROMEXWIRE',               'Romex Wire',               'Romex electrical wire',                   1::smallint),
+        ('ELECTRICAL',     'WIRE',         'THHNWIRE',                'THHN Wire',                'THHN electrical wire',                    2::smallint),
+        ('ELECTRICAL',     'PANELS',       'MAINPANELS',              'Main Panels',              'Main electrical panels',                  1::smallint),
+        ('ELECTRICAL',     'PANELS',       'SUBPANELS',               'Sub Panels',               'Sub electrical panels',                   2::smallint),
+        ('ELECTRICAL',     'SWITCHES',     'DIMMERSWITCHES',          'Dimmer Switches',          'Dimmer switches',                         1::smallint),
+        ('ELECTRICAL',     'SWITCHES',     'GFCIOUTLETS',             'GFCI Outlets',             'GFCI outlets',                            2::smallint),
+        ('ELECTRICAL',     'LIGHTING',     'LEDFIXTURES',           'LED Fixtures',             'LED lighting fixtures',                   1::smallint),
+        ('ELECTRICAL',     'LIGHTING',     'OUTDOORLIGHTING',         'Outdoor Lighting',         'Outdoor lighting products',               2::smallint),
+        ('ELECTRICAL',     'TOOLS',        'MULTIMETERS',             'Multimeters',              'Electrical multimeters',                  1::smallint),
+        ('ELECTRICAL',     'TOOLS',        'WIRESTRIPPERS',           'Wire Strippers',           'Wire stripping tools',                    2::smallint)
+) AS v("BusinessTypeCode", "CategoryCode", "SubCategoryCode", "Name", "Description", "DisplayOrder")
+INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+INNER JOIN dbo."GloInventoryCategory" c
+    ON c."BusinessTypeId" = bt."Id"
+   AND c."CategoryCode" = v."CategoryCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloInventorySubCategory" sc
+    WHERE sc."InventoryCategoryId" = c."Id"
+      AND sc."SubCategoryCode" = v."SubCategoryCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloInventorySubCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloInventorySubCategory"), 1),
+    true);
+
+-- GloLeadSource (global lead acquisition sources for tenant provisioning seed)
+INSERT INTO dbo."GloLeadSource"
+(
+    "SourceCode",
+    "SourceName",
+    "Description",
+    "IsActive",
+    "CreatedOn",
+    "CreatedBy"
+)
+SELECT
+    v."SourceCode",
+    v."SourceName",
+    v."Description",
+    v."IsActive",
+    timezone('utc', now()),
+    'System'
+FROM (
+    VALUES
+        ('REFERRAL',  'Referral',        'Customer or partner referral',           true),
+        ('WEBSITE',   'Website',         'Company website inquiry',                true),
+        ('GOOGLE',    'Google',          'Google search or ads',                   true),
+        ('FACEBOOK',  'Facebook',        'Facebook or social media',               true),
+        ('YELP',      'Yelp',            'Yelp or online review platform',         true),
+        ('PHONE',     'Phone Call',      'Inbound phone call',                     true),
+        ('DIRECT',    'Direct Mail',     'Direct mail campaign',                   true),
+        ('OTHER',     'Other',           'Other or unknown lead source',           true)
+) AS v("SourceCode", "SourceName", "Description", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloLeadSource" ls
+    WHERE ls."SourceCode" = v."SourceCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloLeadSource"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloLeadSource"), 1),
+    true);
+
+-- GloUnitOfMeasure (global units of measure)
+INSERT INTO dbo."GloUnitOfMeasure"
+(
+    "UnitCode",
+    "Name",
+    "Abbreviation",
+    "Description",
+    "UnitType",
+    "DecimalPlaces",
+    "DisplayOrder",
+    "IsSystem",
+    "IsActive"
+)
+SELECT
+    v."UnitCode",
+    v."Name",
+    v."Abbreviation",
+    v."Description",
+    v."UnitType",
+    v."DecimalPlaces",
+    v."DisplayOrder",
+    v."IsSystem",
+    v."IsActive"
+FROM (
+    VALUES
+        ('EACH',  'Each',   'EA',   'Individual item',        'COUNT',   0,  1, true, true),
+        ('BOX',   'Box',    'BOX',  'Box quantity',           'PACKAGE', 0,  2, true, true),
+        ('CASE',  'Case',   'CS',   'Case quantity',          'PACKAGE', 0,  3, true, true),
+        ('FOOT',  'Foot',   'FT',   'Linear feet',            'LENGTH',  2,  4, true, true),
+        ('INCH',  'Inch',   'IN',   'Inches',                 'LENGTH',  2,  5, true, true),
+        ('POUND', 'Pound',  'LB',   'Weight in pounds',       'WEIGHT',  2,  6, true, true),
+        ('GALLON','Gallon', 'GAL',  'Liquid gallon',          'VOLUME',  2,  7, true, true),
+        ('HOUR',  'Hour',   'HR',   'Labor hour',             'TIME',    2,  8, true, true),
+        ('DAY',   'Day',    'DAY',  'Daily unit',             'TIME',    0,  9, true, true),
+        ('ROLL',  'Roll',   'ROLL', 'Roll quantity',          'PACKAGE', 0, 10, true, true)
+) AS v("UnitCode", "Name", "Abbreviation", "Description", "UnitType", "DecimalPlaces", "DisplayOrder", "IsSystem", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloUnitOfMeasure" u
+    WHERE u."UnitCode" = v."UnitCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloUnitOfMeasure"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloUnitOfMeasure"), 1),
+    true);
+
+-- GloTag (global system tags)
+INSERT INTO dbo."GloTag"
+(
+    "TagCode",
+    "Name",
+    "NormalizedName",
+    "Description",
+    "BackgroundColor",
+    "TextColor",
+    "DisplayOrder",
+    "IsSystemGenerated",
+    "IsActive"
+)
+SELECT
+    v."TagCode",
+    v."Name",
+    v."NormalizedName",
+    v."Description",
+    v."BackgroundColor",
+    v."TextColor",
+    v."DisplayOrder",
+    v."IsSystemGenerated",
+    v."IsActive"
+FROM (
+    VALUES
+        ('URGENT',     'Urgent',               'urgent',               'Requires immediate attention',     '#EF4444', '#FFFFFF', 1, true, true),
+        ('VIP',        'VIP',                  'vip',                  'Important customer',               '#F59E0B', '#000000', 2, true, true),
+        ('WARRANTY',   'Warranty',             'warranty',             'Under warranty',                   '#10B981', '#FFFFFF', 3, true, true),
+        ('FOLLOWUP',   'Needs Follow-Up',      'needs follow-up',      'Additional follow-up required',    '#EAB308', '#000000', 4, true, true),
+        ('COMMERCIAL', 'Commercial',           'commercial',           'Commercial customer or property',  '#3B82F6', '#FFFFFF', 5, true, true),
+        ('INSPECTION', 'Inspection Required',  'inspection required',  'Inspection is required',           '#06B6D4', '#FFFFFF', 6, true, true)
+) AS v("TagCode", "Name", "NormalizedName", "Description", "BackgroundColor", "TextColor", "DisplayOrder", "IsSystemGenerated", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloTag" t
+    WHERE t."TagCode" = v."TagCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloTag"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloTag"), 1),
+    true);
+
+-- GloTitleOfCourtesy (global courtesy titles)
+INSERT INTO dbo."GloTitleOfCourtesy"
+(
+    "Code",
+    "DisplayName",
+    "SortOrder",
+    "IsActive"
+)
+SELECT
+    v."Code",
+    v."DisplayName",
+    v."SortOrder",
+    v."IsActive"
+FROM (
+    VALUES
+        ('MR',   'Mr.',   1, true),
+        ('MRS',  'Mrs.',  2, true),
+        ('MS',   'Ms.',   3, true),
+        ('MISS', 'Miss',  4, true),
+        ('DR',   'Dr.',   5, true),
+        ('PROF', 'Prof.', 6, true),
+        ('REV',  'Rev.',  7, true)
+) AS v("Code", "DisplayName", "SortOrder", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloTitleOfCourtesy" t
+    WHERE t."Code" = v."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloTitleOfCourtesy"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloTitleOfCourtesy"), 1),
+    true);
+
+-- =============================================================================
+-- GloSeedTableMapping / GloSeedTableColumnMapping
+-- Tenant provisioning: global (Glo*) -> tenant/company (Fgs*) catalog copies
+-- Idempotent: matched by SeedCode (table) and TargetColumnName (column)
+-- =============================================================================
+
+INSERT INTO dbo."GloSeedTableMapping"
+(
+    "SeedCode",
+    "SourceSchemaName",
+    "SourceTableName",
+    "TargetSchemaName",
+    "TargetTableName",
+    "SeedOrder",
+    "Description",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."SeedCode",
+    v."SourceSchemaName",
+    v."SourceTableName",
+    v."TargetSchemaName",
+    v."TargetTableName",
+    v."SeedOrder",
+    v."Description",
+    v."IsActive",
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'dbo', 'GloZone',       'dbo', 'FgsSetupZone',           10, 'Copy global service zones into tenant setup',                    true),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'dbo', 'GloTrade',      'dbo', 'FgsSetupTechTrade',      20, 'Copy global technician trades into tenant setup',                true),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'dbo', 'GloSkill',      'dbo', 'FgsSetupTechSkillLevel', 30, 'Copy global technician skill levels into tenant setup',          true),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'dbo', 'GloLeadSource', 'dbo', 'FgsLeadSource',          40, 'Copy global lead sources into tenant/company lead source catalog', true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     'dbo', 'GloRole',       'dbo', 'FgsRole',                50, 'Copy global roles into tenant/company role catalog',             true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'dbo', 'GloTitleOfCourtesy', 'dbo', 'FgsSetupTitleOfCourtesy', 60, 'Copy global courtesy titles into tenant setup',                  true),
+        ('GLO_TAG_TO_FGS_TAG',                       'dbo', 'GloTag',        'dbo', 'FgsTag',                 70, 'Copy global system tags into tenant/company tag catalog',        true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'dbo', 'GloUnitOfMeasure', 'dbo', 'FgsUnitOfMeasure',  80, 'Copy global units of measure into tenant/company catalog',       true)
+) AS v("SeedCode", "SourceSchemaName", "SourceTableName", "TargetSchemaName", "TargetTableName", "SeedOrder", "Description", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloSeedTableMapping" m
+    WHERE m."SeedCode" = v."SeedCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloSeedTableMapping"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloSeedTableMapping"), 1),
+    true);
+
+INSERT INTO dbo."GloSeedTableColumnMapping"
+(
+    "SeedTableMappingId",
+    "SourceColumnName",
+    "TargetColumnName",
+    "TransformationType",
+    "StaticValue",
+    "ColumnOrder",
+    "IsRequired",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    m."Id",
+    c."SourceColumnName",
+    c."TargetColumnName",
+    c."TransformationType",
+    c."StaticValue",
+    c."ColumnOrder",
+    c."IsRequired",
+    true,
+    timezone('utc', now())
+FROM dbo."GloSeedTableMapping" m
+INNER JOIN (
+    VALUES
+        -- GloZone -> FgsSetupZone
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'Code',         'Code',        NULL,                NULL,      3, true),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'Name',         'Name',        NULL,                NULL,      4, true),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'Description',  'Description', NULL,                NULL,      5, false),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'IsActive',     'IsActive',    NULL,                NULL,      6, true),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      7, true),
+        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      8, false),
+
+        -- GloTrade -> FgsSetupTechTrade
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'TradeCode',    'TradeCode',   NULL,                NULL,      3, true),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'TradeName',    'Name',        NULL,                NULL,      4, true),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'Description',  'Description', NULL,                NULL,      5, false),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'Id',           'SortOrder',   NULL,                NULL,      6, false),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'IsActive',     'IsActive',    NULL,                NULL,      7, true),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      8, true),
+        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      9, false),
+
+        -- GloSkill -> FgsSetupTechSkillLevel
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'SkillCode',    'Code',        NULL,                NULL,      3, true),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'SkillName',    'Name',        NULL,                NULL,      4, true),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'Description',  'Description', NULL,                NULL,      5, false),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'Id',           'SortOrder',   NULL,                NULL,      6, false),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'IsActive',     'IsActive',    NULL,                NULL,      7, true),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      8, true),
+        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      9, false),
+
+        -- GloLeadSource -> FgsLeadSource
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'SourceCode',   'SourceCode',  NULL,                NULL,      3, true),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'SourceName',   'SourceName',  NULL,                NULL,      4, true),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'Description',  'Description', NULL,                NULL,      5, false),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'IsActive',     'IsActive',    NULL,                NULL,      6, true),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      7, true),
+        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      8, false),
+
+        -- GloRole -> FgsRole
+        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     'RoleCode',     'RoleCode',    NULL,                NULL,      3, true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     'Name',         'Name',        NULL,                NULL,      4, true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     'Description',  'Description', NULL,                NULL,      5, false),
+        ('GLO_ROLE_TO_FGS_ROLE',                     'Id',           'GloRoleId',   NULL,                NULL,      6, true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     'IsActive',     'IsActive',    NULL,                NULL,      7, true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      8, true),
+        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      9, false),
+
+        -- GloTitleOfCourtesy -> FgsSetupTitleOfCourtesy
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'Code',         'Code',        NULL,                NULL,      3, true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'DisplayName',  'DisplayName', NULL,                NULL,      4, true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'SortOrder',    'SortOrder',   NULL,                NULL,      5, true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'IsActive',     'IsActive',    NULL,                NULL,      6, true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      7, true),
+        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      8, false),
+
+        -- GloTag -> FgsTag
+        ('GLO_TAG_TO_FGS_TAG',                       NULL,           'TenantId',         'TENANT_ID',         NULL,      1, true),
+        ('GLO_TAG_TO_FGS_TAG',                       NULL,           'CompanyId',        'COMPANY_ID',        NULL,      2, true),
+        ('GLO_TAG_TO_FGS_TAG',                       'TagCode',      'TagCode',          NULL,                NULL,      3, true),
+        ('GLO_TAG_TO_FGS_TAG',                       'Name',         'Name',             NULL,                NULL,      4, true),
+        ('GLO_TAG_TO_FGS_TAG',                       'NormalizedName', 'NormalizedName', NULL,                NULL,      5, true),
+        ('GLO_TAG_TO_FGS_TAG',                       'Description',  'Description',      NULL,                NULL,      6, false),
+        ('GLO_TAG_TO_FGS_TAG',                       'BackgroundColor', 'BackgroundColor', NULL,             NULL,      7, false),
+        ('GLO_TAG_TO_FGS_TAG',                       'TextColor',    'TextColor',        NULL,                NULL,      8, false),
+        ('GLO_TAG_TO_FGS_TAG',                       'IconFileId',   'IconFileId',       NULL,                NULL,      9, false),
+        ('GLO_TAG_TO_FGS_TAG',                       'IsSystemGenerated', 'IsSystemGenerated', NULL,         NULL,     10, true),
+        ('GLO_TAG_TO_FGS_TAG',                       'IsActive',     'IsActive',         NULL,                NULL,     11, true),
+        ('GLO_TAG_TO_FGS_TAG',                       NULL,           'CreatedOn',        'CURRENT_TIMESTAMP', NULL,     12, true),
+
+        -- GloUnitOfMeasure -> FgsUnitOfMeasure
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', NULL,           'TenantId',      'TENANT_ID',         NULL,      1, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', NULL,           'CompanyId',     'COMPANY_ID',        NULL,      2, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'UnitCode',     'UnitCode',      NULL,                NULL,      3, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'Name',         'Name',          NULL,                NULL,      4, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'Abbreviation', 'Abbreviation',  NULL,                NULL,      5, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'Description',  'Description',   NULL,                NULL,      6, false),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'UnitType',     'UnitType',      NULL,                NULL,      7, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'DecimalPlaces', 'DecimalPlaces', NULL,               NULL,      8, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'DisplayOrder', 'DisplayOrder', NULL,               NULL,      9, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'IsSystem',     'IsSystem',      NULL,                NULL,     10, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'IsActive',     'IsActive',      NULL,                NULL,     11, true),
+        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', NULL,           'CreatedOn',     'CURRENT_TIMESTAMP', NULL,     12, true)
+) AS c("SeedCode", "SourceColumnName", "TargetColumnName", "TransformationType", "StaticValue", "ColumnOrder", "IsRequired")
+    ON c."SeedCode" = m."SeedCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloSeedTableColumnMapping" existing
+    WHERE existing."SeedTableMappingId" = m."Id"
+      AND existing."TargetColumnName" = c."TargetColumnName"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloSeedTableColumnMapping"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloSeedTableColumnMapping"), 1),
     true);
 
 COMMIT;

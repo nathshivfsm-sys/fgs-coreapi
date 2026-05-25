@@ -5,8 +5,8 @@ namespace Fgs.Platform.Application.Notifications.Templates;
 public sealed class CommunicationTemplateNotFoundException : Exception
 {
     public CommunicationTemplateNotFoundException(
-        Guid tenantId,
-        Guid? companyId,
+        long tenantId,
+        long? companyId,
         string templateCode,
         NotificationChannel channel)
         : base(
@@ -19,9 +19,9 @@ public sealed class CommunicationTemplateNotFoundException : Exception
         Channel = channel;
     }
 
-    public Guid TenantId { get; }
+    public long TenantId { get; }
 
-    public Guid? CompanyId { get; }
+    public long? CompanyId { get; }
 
     public string TemplateCode { get; }
 

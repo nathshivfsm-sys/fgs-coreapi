@@ -15,4 +15,8 @@ public static class AuthErrorMessages
     public const string FinalizeOnboardingFailed = "Failed to finalize onboarding.";
 
     public const string InvitationUserNotFound = "Invitation user not found.";
+
+    public const string TenantNotFound = "Tenant was not found.";
+
+    public const string TenantCompanyNotFound = "Tenant company was not found.";
 }

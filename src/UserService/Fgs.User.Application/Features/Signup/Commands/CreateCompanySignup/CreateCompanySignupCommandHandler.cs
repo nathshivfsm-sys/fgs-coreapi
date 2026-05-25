@@ -76,7 +76,7 @@ public sealed class CreateCompanySignupCommandHandler
         if (tenantCode is null)
         {
             return ApiResponse<CompanySignupResultDto>.Fail(
-                ["Unable to generate a unique tenant code. Please try a different company name."],
+                [SignupErrorMessages.UniqueTenantCodeFailed],
                 ApiStatusCodes.Conflict);
         }
 
@@ -168,10 +168,24 @@ public sealed class CreateCompanySignupCommandHandler
                         CompanyId = companyNumber,
                         Email = emailTrimmed,
                         DisplayName = contact.Name.Trim(),
-                        Role = UserRoleType.Admin,
                         IsActive = true,
                         CreatedOn = now,
                         CreatedBy = prospectActor
+                    };
+
+                    var gloRoleRepo = _unitOfWork.Repository<GloRole>();
+                    var tenantAdminRole = await gloRoleRepo.FirstOrDefaultAsync(
+                            r => r.RoleCode == SignupConstants.TenantAdminRoleCode,
+                            ct)
+                        ?? throw new InvalidOperationException(SignupErrorMessages.TenantAdminRoleNotFound);
+
+                    var userRole = new FgsUserRole
+                    {
+                        UserId = userId,
+                        TenantId = tenantId,
+                        CompanyId = companyNumber,
+                        GloRoleId = tenantAdminRole.Id,
+                        CreatedOn = now
                     };
 
                     var plainToken = _tokenService.GenerateToken();
@@ -196,10 +210,11 @@ public sealed class CreateCompanySignupCommandHandler
                     await _unitOfWork.Repository<FgsLocation>().AddAsync(location, ct);
                     await _unitOfWork.Repository<FgsTenantCompany>().AddAsync(tenantCompany, ct);
                     await userRepo.AddAsync(user, ct);
+                    await _unitOfWork.Repository<FgsUserRole>().AddAsync(userRole, ct);
                     await _unitOfWork.Repository<FgsInvitation>().AddAsync(invitation, ct);
 
-                    var inviteBaseUrl = _configuration["Invitation:InviteBaseUrl"]
-                        ?? "https://localhost:8443/api/invite/start";
+                    var inviteBaseUrl = _configuration[ConfigurationKeys.Invitation.InviteBaseUrl]
+                        ?? ApplicationUrlDefaults.InviteStart;
                     var inviteUrl = $"{inviteBaseUrl.TrimEnd('/')}?token={Uri.EscapeDataString(plainToken)}";
 
                     var expirationHours = Math.Max(
@@ -210,7 +225,7 @@ public sealed class CreateCompanySignupCommandHandler
 
                     var outboxPayload = JsonSerializer.Serialize(new CompanySignupInviteEmailEvent(
                         tenantId,
-                        companyUid,
+                        tenantCompany.CompanyNumber,
                         userId,
                         invitationId,
                         user.Email,
@@ -224,9 +239,15 @@ public sealed class CreateCompanySignupCommandHandler
                     await _outboxWriter.EnqueueAsync(
                         IntegrationEventTypes.CompanySignupInviteEmail,
                         outboxPayload,
-                        idempotencyKey: $"signup-{invitationId:N}",
-                        correlationId: invitationId.ToString(),
-                        ct);
+                        correlationId: invitationId,
+                        tenantId: tenantId,
+                        companyId: tenantCompany.CompanyNumber,
+                        aggregateType: IntegrationEventTypes.AggregateTypes.Invitation,
+                        aggregateId: invitationId.ToString(),
+                        exchangeName: IntegrationEventExchanges.UserEvents,
+                        routingKey: IntegrationEventRoutingKeys.CompanySignupInviteEmail,
+                        createdBy: SignupConstants.ToGloCreatedBy(tenant.CreatedBy),
+                        cancellationToken: ct);
 
                     return new CompanySignupResultDto(
                         tenantId,

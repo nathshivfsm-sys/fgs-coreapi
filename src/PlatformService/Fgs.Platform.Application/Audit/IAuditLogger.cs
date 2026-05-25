@@ -6,7 +6,7 @@ public interface IAuditLogger
 }
 
 public sealed record AuditEntry(
-    Guid? TenantId,
+    long? TenantId,
     string EntityType,
     string EntityId,
     string Action,

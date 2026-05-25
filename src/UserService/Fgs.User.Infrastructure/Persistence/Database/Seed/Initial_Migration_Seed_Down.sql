@@ -93,6 +93,15 @@ WHERE "Name" IN (
     'Weekend'
 );
 
+DELETE FROM dbo."GloSetupPaymentTerm"
+WHERE "Name" IN (
+    'Net 15',
+    'Net 30',
+    'Net 45',
+    'End Of Month',
+    'COD'
+);
+
 DELETE FROM dbo."GloSetupDescriptionType"
 WHERE "Code" IN (
     'ReasonForCall',
@@ -142,6 +151,67 @@ WHERE "Code" IN (
     'ZELLE'
 );
 
+DELETE FROM dbo."GloSkill"
+WHERE "SkillCode" IN (
+    'HVACEXPERT',
+    'HVACHELPER',
+    'PLUMBINGEXPERT',
+    'PLUMBINGHELPER',
+    'ELECTRICALEXPERT',
+    'ELECTRICALHELPER'
+);
+
+DELETE FROM dbo."GloJobTypeCategory"
+WHERE ("BusinessTypeId", "Code") IN (
+    SELECT bt."Id", v."Code"
+    FROM (
+        VALUES
+            ('HVAC',       'AC'),
+            ('HVAC',       'FURNACE'),
+            ('HVAC',       'THERMOSTAT'),
+            ('PLUMBING',   'TOILET'),
+            ('PLUMBING',   'FAUCET'),
+            ('PLUMBING',   'WATERHEATER'),
+            ('ELECTRICAL', 'PANEL'),
+            ('ELECTRICAL', 'LIGHTING'),
+            ('ELECTRICAL', 'OUTLET')
+    ) AS v("BusinessTypeCode", "Code")
+    INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+);
+
+DELETE FROM dbo."GloJobTypeSubCategory"
+WHERE "Code" IN (
+    'INSTALL',
+    'REPAIR',
+    'SERVICE',
+    'REPLACE',
+    'INSPECT',
+    'MAINTENANCE',
+    'TROUBLESHOOT',
+    'CLEANING',
+    'TUNEUP',
+    'UPGRADE'
+);
+
+DELETE FROM dbo."GloTrade"
+WHERE "TradeCode" IN (
+    'PESTCONTROL',
+    'GARAGEDOOR',
+    'LAWNCARE',
+    'IRRIGATION',
+    'LANDSCAPING',
+    'HOUSECLEANING',
+    'TRASHREMOVAL',
+    'JUNKREMOVAL',
+    'ELECTRICAL',
+    'PLUMBING',
+    'HVAC',
+    'PAINTING'
+);
+
+DELETE FROM dbo."GloZone"
+WHERE "Code" IN ('ALL');
+
 DELETE FROM dbo."GloBusinessType"
 WHERE "Code" IN (
     'HVAC',
@@ -152,7 +222,11 @@ WHERE "Code" IN (
     'TRASHPICKUP',
     'GARAGEDOOR',
     'HOUSECLEANING',
-    'PAINTING'
+    'PAINTING',
+    'CARPETCLEANING',
+    'WINDOWCLEANING',
+    'HOLIDAYLIGHTING',
+    'OTHER'
 );
 
 DELETE FROM dbo."GloTimeCardOption"
@@ -209,6 +283,106 @@ WHERE "Code" IN (
     'HQ',
     'REMITTO',
     'JOBSITE'
+);
+
+DELETE FROM dbo."GloSeedTableColumnMapping"
+WHERE "SeedTableMappingId" IN (
+    SELECT "Id"
+    FROM dbo."GloSeedTableMapping"
+    WHERE "SeedCode" IN (
+        'GLO_ZONE_TO_FGS_SETUP_ZONE',
+        'GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',
+        'GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',
+        'GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',
+        'GLO_ROLE_TO_FGS_ROLE',
+        'GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY',
+        'GLO_TAG_TO_FGS_TAG',
+        'GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE',
+        'GLO_INVENTORY_ITEM_TYPE_TO_FGS_INVENTORY_ITEM_TYPE',
+        'GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY',
+        'GLO_BILLING_CATEGORY_TO_FGS_BILLING_CATEGORY',
+        'GLO_BUSINESS_TYPE_TO_FGS_BUSINESS_TYPE',
+        'GLO_SETUP_LABOR_RATE_TYPE_TO_FGS_SETUP_LABOR_RATE_TYPE',
+        'GLO_SETUP_PAYMENT_TERM_TO_FGS_SETUP_PAYMENT_TERM'
+    )
+);
+
+DELETE FROM dbo."GloSeedTableMapping"
+WHERE "SeedCode" IN (
+    'GLO_ZONE_TO_FGS_SETUP_ZONE',
+    'GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',
+    'GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',
+    'GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',
+    'GLO_ROLE_TO_FGS_ROLE',
+    'GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY',
+    'GLO_TAG_TO_FGS_TAG',
+    'GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE',
+    'GLO_INVENTORY_ITEM_TYPE_TO_FGS_INVENTORY_ITEM_TYPE',
+    'GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY',
+    'GLO_BILLING_CATEGORY_TO_FGS_BILLING_CATEGORY',
+    'GLO_BUSINESS_TYPE_TO_FGS_BUSINESS_TYPE',
+    'GLO_SETUP_LABOR_RATE_TYPE_TO_FGS_SETUP_LABOR_RATE_TYPE',
+    'GLO_SETUP_PAYMENT_TERM_TO_FGS_SETUP_PAYMENT_TERM'
+);
+
+DELETE FROM dbo."GloInventorySubCategory";
+
+DELETE FROM dbo."GloInventoryCategory";
+
+DELETE FROM dbo."GloInventoryItemType"
+WHERE "ItemTypeCode" IN (
+    'INVENTORY',
+    'NONINVENTORY',
+    'SERVICE',
+    'KIT',
+    'TOOL'
+);
+
+DELETE FROM dbo."GloLeadSource"
+WHERE "SourceCode" IN (
+    'REFERRAL',
+    'WEBSITE',
+    'GOOGLE',
+    'FACEBOOK',
+    'YELP',
+    'PHONE',
+    'DIRECT',
+    'OTHER'
+);
+
+DELETE FROM dbo."GloTitleOfCourtesy"
+WHERE "Code" IN (
+    'MR',
+    'MRS',
+    'MS',
+    'MISS',
+    'DR',
+    'PROF',
+    'REV'
+);
+
+DELETE FROM dbo."GloTag"
+WHERE "TagCode" IN (
+    'URGENT',
+    'VIP',
+    'WARRANTY',
+    'FOLLOWUP',
+    'COMMERCIAL',
+    'INSPECTION'
+);
+
+DELETE FROM dbo."GloUnitOfMeasure"
+WHERE "UnitCode" IN (
+    'EACH',
+    'BOX',
+    'CASE',
+    'FOOT',
+    'INCH',
+    'POUND',
+    'GALLON',
+    'HOUR',
+    'DAY',
+    'ROLL'
 );
 
 COMMIT;

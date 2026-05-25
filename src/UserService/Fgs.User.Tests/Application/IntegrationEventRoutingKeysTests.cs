@@ -4,11 +4,11 @@ namespace Fgs.User.Tests.Application;
 
 public sealed class IntegrationEventRoutingKeysTests
 {
-    [Fact]
+      [Fact]
     public void ForEventType_UsesDefaultPrefix()
     {
         IntegrationEventRoutingKeys.ForEventType(IntegrationEventTypes.CompanySignupInviteEmail)
-            .Should().Be("user.CompanySignupInviteEmail");
+            .Should().Be(IntegrationEventRoutingKeys.CompanySignupInviteEmail);
     }
 
     [Fact]

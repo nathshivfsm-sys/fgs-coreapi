@@ -5,5 +5,6 @@ public enum OutboxMessageStatus
     Pending = 1,
     Processing = 2,
     Published = 3,
-    Failed = 4
+    Retry = 4,
+    Failed = 5
 }

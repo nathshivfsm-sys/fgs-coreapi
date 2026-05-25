@@ -1,6 +1,7 @@
 using Fgs.User.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Fgs.User.Infrastructure.Persistence.Database.Configurations;
 
@@ -10,7 +11,9 @@ internal class GloSetupDescriptionTypeConfiguration : IEntityTypeConfiguration<G
     {
         entity.ToTable("GloSetupDescriptionType");
         entity.HasKey(e => e.Id);
-        entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        entity.Property(e => e.Id)
+            .HasColumnType("smallint")
+            .UseIdentityAlwaysColumn();
         entity.HasAlternateKey(e => e.Code).HasName("UQ_GloSetupDescriptionType_Code");
         entity.Property(e => e.Code).HasMaxLength(100);
         entity.Property(e => e.Name).HasMaxLength(200);

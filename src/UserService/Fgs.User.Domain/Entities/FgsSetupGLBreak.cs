@@ -8,9 +8,11 @@ public class FgsSetupGLBreak : FgsTenantCompanySetupEntityBase<long>
 
     public string? BreakLabel { get; set; }
 
-    public int BreakLevel { get; set; } = 1;
+    public short BreakLevel { get; set; } = 1;
 
-    public string? LogoUrl { get; set; }
+    public string[]? Trades { get; set; }
 
-    public ICollection<FgsSetupGLBreakTechTrade> TechTrades { get; set; } = new List<FgsSetupGLBreakTechTrade>();
+    public long? LogoFileId { get; set; }
+
+    public Guid? AddressId { get; set; }
 }

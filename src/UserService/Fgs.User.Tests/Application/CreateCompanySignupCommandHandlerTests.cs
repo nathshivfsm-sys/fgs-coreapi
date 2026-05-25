@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Text.Json;
 using Fgs.User.Application.Abstractions.Geo;
 using Fgs.User.Application.Abstractions.Messaging;
@@ -19,6 +20,7 @@ using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Moq;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 
 namespace Fgs.User.Tests.Application;
@@ -76,7 +78,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
         (await context.FgsUsers.CountAsync()).Should().Be(1);
         (await context.FgsInvitations.CountAsync()).Should().Be(1);
         (await context.FgsLocations.CountAsync()).Should().Be(1);
-        (await context.FgsOutboxMessages.CountAsync()).Should().Be(1);
+        (await context.GloOutboxMessages.CountAsync()).Should().Be(1);
 
         var tenant = await context.FgsTenants.SingleAsync();
         tenant.Name.Should().Be(companyName);
@@ -114,14 +116,23 @@ public sealed class CreateCompanySignupCommandHandlerTests
         var user = await context.FgsUsers.SingleAsync();
         user.Email.Should().Be(command.Contact.Email.Trim());
         user.DisplayName.Should().Be(command.Contact.Name);
-        user.Role.ToString().Should().Be("Admin");
         user.CompanyId.Should().Be(1);
         user.CreatedBy.Should().Be(SignupConstants.ProspectActor);
 
-        var outbox = await context.FgsOutboxMessages.SingleAsync();
+        var userRole = await context.FgsUserRoles.SingleAsync();
+        userRole.UserId.Should().Be(user.Id);
+        userRole.GloRoleId.Should().Be(1);
+        userRole.FgsRoleId.Should().BeNull();
+
+        var outbox = await context.GloOutboxMessages.SingleAsync();
+        outbox.ExchangeName.Should().Be(IntegrationEventExchanges.UserEvents);
+        outbox.RoutingKey.Should().Be(IntegrationEventRoutingKeys.CompanySignupInviteEmail);
+        outbox.CreatedBy.Should().Be(SignupConstants.ProspectActorUserId.ToString());
         var evt = JsonSerializer.Deserialize<CompanySignupInviteEmailEvent>(outbox.Payload);
         evt.Should().NotBeNull();
         evt!.Email.Should().Be(user.Email);
+        evt.CompanyId.Should().Be(1);
+        evt.TenantId.Should().Be(tenant.Id);
         evt.EmailTemplateCode.Should().Be(CommunicationTemplateCodes.CompanyAdminInvitation);
         evt.Name.Should().Be(command.Contact.Name);
         evt.InviteLink.Should().Contain("token=");
@@ -139,6 +150,73 @@ public sealed class CreateCompanySignupCommandHandlerTests
         response.Success.Should().BeFalse();
         response.StatusCode.Should().Be(ApiStatusCodes.BadRequest);
         response.Errors.Should().Contain(SignupErrorMessages.InvalidBusinessType);
+    }
+
+    [Fact]
+    public async Task Handle_WhenUniqueTenantCodeCannotBeResolved_ReturnsConflict()
+    {
+        var tenantRepoMock = new Mock<IRepository<FgsTenant>>();
+        tenantRepoMock
+            .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<FgsTenant, bool>>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var businessTypeRepoMock = new Mock<IRepository<GloBusinessType>>();
+        businessTypeRepoMock
+            .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<GloBusinessType, bool>>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var unitOfWorkMock = new Mock<IUnitOfWork>();
+        unitOfWorkMock.Setup(u => u.Repository<FgsTenant>()).Returns(tenantRepoMock.Object);
+        unitOfWorkMock.Setup(u => u.Repository<GloBusinessType>()).Returns(businessTypeRepoMock.Object);
+
+        var signupUniquenessValidatorMock = new Mock<ISignupUniquenessValidator>();
+        signupUniquenessValidatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<CreateCompanySignupCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        var handler = new CreateCompanySignupCommandHandler(
+            unitOfWorkMock.Object,
+            new InvitationTokenService(),
+            Mock.Of<IOutboxWriter>(),
+            new DateTimeProvider(),
+            new ConfigurationBuilder().Build(),
+            Mock.Of<IAddressLocaleResolver>(),
+            signupUniquenessValidatorMock.Object);
+
+        var response = await handler.Handle(ValidCommand(), CancellationToken.None);
+
+        response.Success.Should().BeFalse();
+        response.StatusCode.Should().Be(ApiStatusCodes.Conflict);
+        response.Errors.Should().Contain(SignupErrorMessages.UniqueTenantCodeFailed);
+    }
+
+    [Fact]
+    public async Task Handle_WhenTenantAdminRoleMissing_Throws()
+    {
+        var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        context.GloBusinessTypes.Add(new GloBusinessType
+        {
+            Id = 1,
+            Code = "HVAC",
+            Name = "HVAC",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        context.GloCountries.Add(new GloCountry
+        {
+            CountryCode = "US",
+            CountryName = "United States",
+            CurrencyCode = "USD",
+            IsActive = true
+        });
+        await context.SaveChangesAsync();
+
+        var handler = await CreateHandlerFromContextAsync(context);
+
+        var act = async () => await handler.Handle(ValidCommand(), CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage(SignupErrorMessages.TenantAdminRoleNotFound);
     }
 
     private static CreateCompanySignupCommand ValidCommand(string? companyName = null) =>
@@ -178,11 +256,28 @@ public sealed class CreateCompanySignupCommandHandlerTests
             CurrencyCode = "USD",
             IsActive = true
         });
+        context.GloRoles.Add(new GloRole
+        {
+            Id = 1,
+            RoleCode = SignupConstants.TenantAdminRoleCode,
+            Name = "Tenant Administrator",
+            RoleLevel = "TENANT",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
         await context.SaveChangesAsync();
 
+        return (await CreateHandlerFromContextAsync(context), context);
+    }
+
+    private static Task<CreateCompanySignupCommandHandler> CreateHandlerFromContextAsync(FgsUserDbContext context)
+    {
         IUnitOfWork unitOfWork = new UnitOfWork(context);
         IDateTimeProvider dateTime = new DateTimeProvider();
-        IOutboxWriter outboxWriter = new OutboxWriter(context, dateTime);
+        IOutboxWriter outboxWriter = new OutboxWriter(
+            context,
+            dateTime,
+            Microsoft.Extensions.Options.Options.Create(new OutboxOptions()));
 
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
@@ -214,6 +309,6 @@ public sealed class CreateCompanySignupCommandHandlerTests
             localeResolver,
             signupUniquenessValidator);
 
-        return (handler, context);
+        return Task.FromResult(handler);
     }
 }

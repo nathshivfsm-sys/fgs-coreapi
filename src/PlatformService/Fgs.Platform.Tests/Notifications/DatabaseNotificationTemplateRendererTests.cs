@@ -33,7 +33,7 @@ public sealed class DatabaseNotificationTemplateRendererTests
         };
 
         var result = await renderer.RenderAsync(
-            Guid.NewGuid(),
+            1L,
             companyId: null,
             NotificationChannel.Email,
             CommunicationTemplateCodes.CompanyAdminInvitation,
@@ -53,8 +53,8 @@ public sealed class DatabaseNotificationTemplateRendererTests
         var templateService = new Mock<ICommunicationTemplateService>();
         templateService
             .Setup(s => s.GetActiveTemplateAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid?>(),
+                It.IsAny<long>(),
+                It.IsAny<long?>(),
                 NotificationChannel.Sms,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
@@ -74,7 +74,7 @@ public sealed class DatabaseNotificationTemplateRendererTests
             new TemplateRenderer());
 
         var result = await renderer.RenderAsync(
-            Guid.NewGuid(),
+            1L,
             null,
             NotificationChannel.Sms,
             "TEST_SMS",

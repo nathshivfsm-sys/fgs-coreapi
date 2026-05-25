@@ -1,7 +1,7 @@
 namespace Fgs.Platform.Application.IntegrationEvents;
 
 public sealed record UserInvitedEvent(
-    Guid TenantId,
+    long TenantId,
     string Email,
     string DisplayName,
     string InviteUrl);
