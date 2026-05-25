@@ -20,8 +20,11 @@ internal class GloSeedTableMappingConfiguration : IEntityTypeConfiguration<GloSe
 
         entity.Property(e => e.SeedCode).HasMaxLength(100);
         entity.HasIndex(e => e.SeedCode)
+            .HasDatabaseName("IX_GloSeedTableMapping_SeedCode");
+
+        entity.HasIndex(e => new { e.SeedCode, e.TargetTableName })
             .IsUnique()
-            .HasDatabaseName("UX_GloSeedTableMapping_SeedCode");
+            .HasDatabaseName("UX_GloSeedTableMapping_SeedCode_TargetTableName");
 
         entity.Property(e => e.SourceDatabaseName).HasMaxLength(150);
         entity.Property(e => e.SourceSchemaName)

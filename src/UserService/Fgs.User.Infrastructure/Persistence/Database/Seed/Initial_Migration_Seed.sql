@@ -575,7 +575,6 @@ SELECT setval(
 -- GloSetupDescriptionType
 INSERT INTO dbo."GloSetupDescriptionType"
 (
-    "Id",
     "Code",
     "Name",
     "Description",
@@ -583,7 +582,6 @@ INSERT INTO dbo."GloSetupDescriptionType"
     "CreatedOn"
 )
 SELECT
-    gen_random_uuid(),
     v."Code",
     v."Name",
     v."Description",
@@ -638,6 +636,44 @@ WHERE NOT EXISTS (
 SELECT setval(
     pg_get_serial_sequence('dbo."GloSetupLaborRateType"', 'Id'),
     COALESCE((SELECT MAX("Id") FROM dbo."GloSetupLaborRateType"), 1),
+    true);
+
+-- GloSetupPaymentTerm
+INSERT INTO dbo."GloSetupPaymentTerm"
+(
+    "Name",
+    "DueDateMethod",
+    "NumberOfDays",
+    "IsAccountsReceivable",
+    "IsAccountsPayable",
+    "IsMobileVisible",
+    "IsActive"
+)
+SELECT
+    v."Name",
+    v."DueDateMethod",
+    v."NumberOfDays",
+    v."IsAccountsReceivable",
+    v."IsAccountsPayable",
+    v."IsMobileVisible",
+    v."IsActive"
+FROM (
+    VALUES
+        ('Net 15',       'NetDays',      15,  true, true, true, true),
+        ('Net 30',       'NetDays',      30,  true, true, true, true),
+        ('Net 45',       'NetDays',      45,  true, true, true, true),
+        ('End Of Month', 'EndOfMonth',   NULL::integer, true, true, true, true),
+        ('COD',          'DueOnReceipt', 0,   true, true, true, true)
+) AS v("Name", "DueDateMethod", "NumberOfDays", "IsAccountsReceivable", "IsAccountsPayable", "IsMobileVisible", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo."GloSetupPaymentTerm" t
+    WHERE t."Name" = v."Name"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('dbo."GloSetupPaymentTerm"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM dbo."GloSetupPaymentTerm"), 1),
     true);
 
 -- GloSetupTenantStatus (Id 1 = default FK on FgsTenant)
@@ -859,46 +895,6 @@ SELECT setval(
     pg_get_serial_sequence('dbo."GloJobTypeCategory"', 'Id'),
     COALESCE((SELECT MAX("Id") FROM dbo."GloJobTypeCategory"), 1),
     true);
-
--- GloJobTypeCategorySubCategory
-INSERT INTO dbo."GloJobTypeCategorySubCategory"
-(
-    "BusinessTypeId",
-    "CategoryId",
-    "SubCategoryId",
-    "CreatedOn"
-)
-SELECT
-    bt."Id",
-    c."Id",
-    sc."Id",
-    timezone('utc', now())
-FROM (
-    VALUES
-        ('HVAC',       'AC',          'INSTALL'),
-        ('HVAC',       'AC',          'REPAIR'),
-        ('HVAC',       'AC',          'SERVICE'),
-        ('HVAC',       'FURNACE',     'SERVICE'),
-        ('PLUMBING',   'TOILET',      'REPAIR'),
-        ('PLUMBING',   'TOILET',      'REPLACE'),
-        ('PLUMBING',   'FAUCET',      'INSTALL'),
-        ('PLUMBING',   'FAUCET',      'REPLACE'),
-        ('ELECTRICAL', 'PANEL',       'REPLACE'),
-        ('ELECTRICAL', 'LIGHTING',    'INSTALL'),
-        ('ELECTRICAL', 'OUTLET',      'REPAIR')
-) AS v("BusinessTypeCode", "CategoryCode", "SubCategoryCode")
-INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
-INNER JOIN dbo."GloJobTypeCategory" c
-    ON c."BusinessTypeId" = bt."Id"
-   AND c."Code" = v."CategoryCode"
-INNER JOIN dbo."GloJobTypeSubCategory" sc ON sc."Code" = v."SubCategoryCode"
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM dbo."GloJobTypeCategorySubCategory" m
-    WHERE m."BusinessTypeId" = bt."Id"
-      AND m."CategoryId" = c."Id"
-      AND m."SubCategoryId" = sc."Id"
-);
 
 -- GloInventoryItemType
 INSERT INTO dbo."GloInventoryItemType"

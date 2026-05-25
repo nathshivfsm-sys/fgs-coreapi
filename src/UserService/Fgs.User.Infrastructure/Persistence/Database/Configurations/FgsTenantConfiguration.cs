@@ -15,8 +15,12 @@ internal class FgsTenantConfiguration : IEntityTypeConfiguration<FgsTenant>
             .ValueGeneratedOnAdd()
             .HasColumnOrder(0);
         NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(entity.Property(e => e.Id));
-        entity.Property(e => e.FgsTenantStatusId)
+        entity.Property(e => e.TenantGuid)
             .HasColumnOrder(1)
+            .HasDefaultValueSql("gen_random_uuid()");
+        entity.HasIndex(e => e.TenantGuid).IsUnique();
+        entity.Property(e => e.FgsTenantStatusId)
+            .HasColumnOrder(2)
             .HasDefaultValue((short)1);
         entity.HasOne<GloSetupTenantStatus>()
             .WithMany()

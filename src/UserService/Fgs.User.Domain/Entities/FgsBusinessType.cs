@@ -1,17 +1,15 @@
 namespace Fgs.User.Domain.Entities;
 
 /// <summary>
-/// Global reusable job type sub-category (install, repair, replace, etc.).
+/// Tenant- and company-scoped business type catalog seeded from GloBusinessType.
 /// </summary>
-public class GloJobTypeSubCategory : GloEntityBase
+public class FgsBusinessType : FgsTenantCompanySetupEntityBase<long>
 {
-    public short Id { get; set; }
-
     public string Code { get; set; } = null!;
 
     public string Name { get; set; } = null!;
 
     public string? Description { get; set; }
 
-    public int? BusinessTypeId { get; set; }
+    public short DisplayOrder { get; set; } = 1;
 }

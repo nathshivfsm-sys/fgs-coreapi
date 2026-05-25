@@ -4,6 +4,8 @@ public class FgsTenant : FgsEntityBase
 {
     public long Id { get; set; }
 
+    public Guid TenantGuid { get; set; }
+
     public short FgsTenantStatusId { get; set; } = 1;
 
     public string TenantCode { get; set; } = null!;

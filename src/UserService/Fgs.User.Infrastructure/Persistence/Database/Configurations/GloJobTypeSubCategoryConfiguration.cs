@@ -27,5 +27,12 @@ internal class GloJobTypeSubCategoryConfiguration : IEntityTypeConfiguration<Glo
             .HasDefaultValueSql("now()");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
         entity.ToTable(t => t.HasCheckConstraint("CK_GloJobTypeSubCategory_Code_Upper", "\"Code\" = upper(\"Code\")"));
+        entity.HasOne<GloBusinessType>()
+            .WithMany()
+            .HasForeignKey(e => e.BusinessTypeId)
+            .HasConstraintName("FK_GloJobTypeSubCategory_GloBusinessType_BusinessTypeId")
+            .OnDelete(DeleteBehavior.Restrict);
+        entity.HasIndex(e => e.BusinessTypeId)
+            .HasDatabaseName("IX_GloJobTypeSubCategory_BusinessTypeId");
     }
 }

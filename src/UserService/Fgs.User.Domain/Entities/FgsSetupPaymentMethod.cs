@@ -2,9 +2,9 @@ namespace Fgs.User.Domain.Entities;
 
 public class FgsSetupPaymentMethod : FgsTenantCompanySetupEntityBase<long>
 {
-    public int GloPaymentMethodTypeId { get; set; }
-
     public string DisplayName { get; set; } = null!;
+
+    public int SortOrder { get; set; }
 
     public bool IsMobileVisible { get; set; } = true;
 

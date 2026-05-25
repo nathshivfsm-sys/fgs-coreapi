@@ -77,14 +77,20 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<FgsSetupGLBreak> FgsSetupGLBreaks => Set<FgsSetupGLBreak>();
 
-    public DbSet<FgsSetupGLBreakTechTrade> FgsSetupGLBreakTechTrades => Set<FgsSetupGLBreakTechTrade>();
-
     public DbSet<FgsSetupCommunicationTemplate> FgsSetupCommunicationTemplates =>
         Set<FgsSetupCommunicationTemplate>();
 
     public DbSet<FgsSetupPaymentMethod> FgsSetupPaymentMethods => Set<FgsSetupPaymentMethod>();
 
     public DbSet<FgsSetupPaymentTerm> FgsSetupPaymentTerms => Set<FgsSetupPaymentTerm>();
+
+    public DbSet<FgsBillingCategory> FgsBillingCategories => Set<FgsBillingCategory>();
+
+    public DbSet<FgsBusinessType> FgsBusinessTypes => Set<FgsBusinessType>();
+
+    public DbSet<FgsSetupLaborRateType> FgsSetupLaborRateTypes => Set<FgsSetupLaborRateType>();
+
+    public DbSet<GloSetupPaymentTerm> GloSetupPaymentTerms => Set<GloSetupPaymentTerm>();
 
     public DbSet<GloInventoryItemType> GloInventoryItemTypes => Set<GloInventoryItemType>();
 
@@ -139,8 +145,6 @@ public class FgsUserDbContext : DbContext
     public DbSet<GloJobTypeCategory> GloJobTypeCategories => Set<GloJobTypeCategory>();
 
     public DbSet<GloJobTypeSubCategory> GloJobTypeSubCategories => Set<GloJobTypeSubCategory>();
-
-    public DbSet<GloJobTypeCategorySubCategory> GloJobTypeCategorySubCategories => Set<GloJobTypeCategorySubCategory>();
 
     public DbSet<GloUnitOfMeasure> GloUnitOfMeasures => Set<GloUnitOfMeasure>();
 

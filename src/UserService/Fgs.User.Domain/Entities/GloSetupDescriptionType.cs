@@ -5,7 +5,7 @@ namespace Fgs.User.Domain.Entities;
 /// </summary>
 public class GloSetupDescriptionType
 {
-    public Guid Id { get; set; }
+    public short Id { get; set; }
 
     public string Code { get; set; } = null!;
 
