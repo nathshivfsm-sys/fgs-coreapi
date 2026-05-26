@@ -10,6 +10,6 @@ namespace Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 public sealed record CreateCompanySignupCommand(
     SignupContactDto Contact,
     SignupCompanyDto Company,
-    int BusinessTypeId,
+    IReadOnlyList<int> BusinessTypeIds,
     string? TimeZone = null,
     string? DefaultCurrency = null) : IRequest<ApiResponse<CompanySignupResultDto>>;

@@ -140,10 +140,33 @@ public sealed class CreateCompanySignupCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_WithMultipleBusinessTypes_PersistsAllSelections()
+    {
+        var (handler, context) = await CreateHandlerAsync();
+        context.GloBusinessTypes.Add(new GloBusinessType
+        {
+            Id = 2,
+            Code = "PLUMBING",
+            Name = "Plumbing",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        await context.SaveChangesAsync();
+
+        var command = ValidCommand() with { BusinessTypeIds = [1, 2] };
+        var response = await handler.Handle(command, CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        (await context.FgsBusinessTypes.CountAsync()).Should().Be(2);
+        var company = await context.FgsTenantCompanies.SingleAsync();
+        company.BusinessTypeId.Should().Be(1);
+    }
+
+    [Fact]
     public async Task Handle_WithInvalidBusinessType_ReturnsBadRequest()
     {
         var (handler, _) = await CreateHandlerAsync();
-        var command = ValidCommand() with { BusinessTypeId = 9999 };
+        var command = ValidCommand() with { BusinessTypeIds = [9999] };
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -162,8 +185,8 @@ public sealed class CreateCompanySignupCommandHandlerTests
 
         var businessTypeRepoMock = new Mock<IRepository<GloBusinessType>>();
         businessTypeRepoMock
-            .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<GloBusinessType, bool>>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+            .Setup(r => r.ListAsync(It.IsAny<Expression<Func<GloBusinessType, bool>>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new GloBusinessType { Id = 1, Code = "HVAC", Name = "HVAC", IsActive = true }]);
 
         var unitOfWorkMock = new Mock<IUnitOfWork>();
         unitOfWorkMock.Setup(u => u.Repository<FgsTenant>()).Returns(tenantRepoMock.Object);
@@ -236,7 +259,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
                     PostalCode: "78701",
                     Country: "US"),
                 CompanySize: "1-2"),
-            BusinessTypeId: 1);
+            BusinessTypeIds: [1]);
 
     private static async Task<(CreateCompanySignupCommandHandler Handler, FgsUserDbContext Context)> CreateHandlerAsync()
     {

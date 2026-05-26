@@ -101,7 +101,8 @@ public sealed class TenantS3BucketProvisioner(
 
         foreach (var companyId in companyIds)
         {
-            prefixes.Add($"company-assets/{companyId}/");
+            prefixes.Add(S3ObjectKeyBuilder.CompanyAssetsPrefix(companyId));
+            prefixes.Add(S3ObjectKeyBuilder.CompanyGeneralPrefix(companyId));
         }
 
         foreach (var prefix in prefixes)

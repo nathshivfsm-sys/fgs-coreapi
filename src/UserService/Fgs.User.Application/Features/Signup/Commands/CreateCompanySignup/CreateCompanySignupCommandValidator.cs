@@ -11,7 +11,11 @@ public sealed class CreateCompanySignupCommandValidator : AbstractValidator<Crea
         RuleFor(x => x.Contact).NotNull().SetValidator(new SignupContactDtoValidator());
         RuleFor(x => x.Company).NotNull().SetValidator(new SignupCompanyDtoValidator());
 
-        RuleFor(x => x.BusinessTypeId).GreaterThan(0);
+        RuleFor(x => x.BusinessTypeIds)
+            .NotEmpty()
+            .WithMessage(SignupErrorMessages.BusinessTypeIdsRequired);
+
+        RuleForEach(x => x.BusinessTypeIds).GreaterThan(0);
 
         RuleFor(x => x.TimeZone)
             .MaximumLength(100)
