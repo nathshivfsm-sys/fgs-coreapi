@@ -6,6 +6,7 @@ services:
     image: rabbitmq:4-management-alpine
     container_name: fgs-user-rabbitmq
     hostname: rabbitmq
+    user: "100:101"
     environment:
       RABBITMQ_DEFAULT_USER: fgs
       RABBITMQ_DEFAULT_PASS: fgsdevlocal
@@ -13,11 +14,14 @@ services:
     ports:
       - "127.0.0.1:5672:5672"
       - "127.0.0.1:15672:15672"
-    tmpfs:
-      - /var/lib/rabbitmq:rw,nosuid,nodev,noexec,uid=100,gid=101,mode=0700
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 15s
       timeout: 10s
       retries: 6
       start_period: 40s
+
+volumes:
+  rabbitmq-data:

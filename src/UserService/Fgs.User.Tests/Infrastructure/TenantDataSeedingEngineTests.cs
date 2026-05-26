@@ -16,7 +16,7 @@ public sealed class TenantDataSeedingEngineTests
             TargetColumnName = "Code"
         };
 
-        TenantDataSeedingEngine.BuildSelectExpression(column).Should().Be("\"Code\"");
+        TenantSeedSqlBuilder.BuildSelectExpression(column).Should().Be("\"Code\"");
     }
 
     [Theory]
@@ -33,7 +33,7 @@ public sealed class TenantDataSeedingEngineTests
             TransformationType = transformationType
         };
 
-        TenantDataSeedingEngine.BuildSelectExpression(column).Should().Be(expected);
+        TenantSeedSqlBuilder.BuildSelectExpression(column).Should().Be(expected);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public sealed class TenantDataSeedingEngineTests
             TransformationType = SeedTransformationTypes.SeedCreatedBy
         };
 
-        TenantDataSeedingEngine.BuildSelectExpression(column)
+        TenantSeedSqlBuilder.BuildSelectExpression(column)
             .Should().Be($"'{SeedTransformationTypes.SeedCreatedByValue}'");
     }
 
@@ -61,7 +61,7 @@ public sealed class TenantDataSeedingEngineTests
             StaticValue = "ignored"
         };
 
-        TenantDataSeedingEngine.BuildSelectExpression(column)
+        TenantSeedSqlBuilder.BuildSelectExpression(column)
             .Should().Be($"'{SeedTransformationTypes.SeedCreatedByValue}'");
     }
 
@@ -76,7 +76,7 @@ public sealed class TenantDataSeedingEngineTests
             StaticValue = "Active"
         };
 
-        TenantDataSeedingEngine.BuildSelectExpression(column).Should().Be("'Active'");
+        TenantSeedSqlBuilder.BuildSelectExpression(column).Should().Be("'Active'");
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public sealed class TenantDataSeedingEngineTests
             TransformationType = SeedTransformationTypes.CurrentTimestamp
         };
 
-        TenantDataSeedingEngine.BuildSelectExpression(column)
+        TenantSeedSqlBuilder.BuildSelectExpression(column)
             .Should().Be(SeedTransformationTypes.SqlFunctions.CurrentTimestamp);
     }
 
@@ -102,7 +102,7 @@ public sealed class TenantDataSeedingEngineTests
             TargetColumnName = "Code"
         };
 
-        var act = () => TenantDataSeedingEngine.BuildSelectExpression(column);
+        var act = () => TenantSeedSqlBuilder.BuildSelectExpression(column);
 
         act.Should().Throw<InvalidOperationException>()
             .WithMessage(string.Format(
@@ -120,7 +120,7 @@ public sealed class TenantDataSeedingEngineTests
             TransformationType = "UNKNOWN"
         };
 
-        var act = () => TenantDataSeedingEngine.BuildSelectExpression(column);
+        var act = () => TenantSeedSqlBuilder.BuildSelectExpression(column);
 
         act.Should().Throw<InvalidOperationException>()
             .WithMessage(string.Format(
@@ -130,9 +130,31 @@ public sealed class TenantDataSeedingEngineTests
     }
 
     [Fact]
+    public void BuildBusinessTypeFilterClause_WhenNullable_IncludesNullRows()
+    {
+        var clause = TenantSeedSqlBuilder.BuildBusinessTypeFilterClause(
+            sourceHasBusinessTypeId: true,
+            businessTypeColumnIsNullable: true,
+            hasBusinessTypeFilter: true);
+
+        clause.Should().Be("(\"BusinessTypeId\" = ANY(@businessTypeIds) OR \"BusinessTypeId\" IS NULL)");
+    }
+
+    [Fact]
+    public void BuildBusinessTypeFilterClause_WhenRequired_UsesAnyOnly()
+    {
+        var clause = TenantSeedSqlBuilder.BuildBusinessTypeFilterClause(
+            sourceHasBusinessTypeId: true,
+            businessTypeColumnIsNullable: false,
+            hasBusinessTypeFilter: true);
+
+        clause.Should().Be("\"BusinessTypeId\" = ANY(@businessTypeIds)");
+    }
+
+    [Fact]
     public void QuoteIdentifier_EscapesEmbeddedQuotes()
     {
-        TenantDataSeedingEngine.QuoteIdentifier("Col\"Name").Should().Be("\"Col\"\"Name\"");
+        TenantSeedSqlBuilder.QuoteIdentifier("Col\"Name").Should().Be("\"Col\"\"Name\"");
     }
 
     [Theory]
@@ -140,6 +162,6 @@ public sealed class TenantDataSeedingEngineTests
     [InlineData("O'Brien", "'O''Brien'")]
     public void ToSqlLiteral_EscapesQuotesAndHandlesNull(string? value, string expected)
     {
-        TenantDataSeedingEngine.ToSqlLiteral(value).Should().Be(expected);
+        TenantSeedSqlBuilder.ToSqlLiteral(value).Should().Be(expected);
     }
 }

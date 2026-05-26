@@ -290,6 +290,19 @@ WHERE "SeedTableMappingId" IN (
     SELECT "Id"
     FROM dbo."GloSeedTableMapping"
     WHERE "SeedCode" IN (
+        'ALL_GloBillingCategory',
+        'ALL_GloJobTypeCategory',
+        'ALL_GloJobTypeSubCategory',
+        'ALL_GloLeadSource',
+        'ALL_GloPaymentMethodType',
+        'ALL_GloResolutionType',
+        'ALL_GloSetupLaborRateType',
+        'GloSkill',
+        'ALL_GloTag',
+        'GloTrade',
+        'ALL_GloTitleOfCourtesy',
+        'ALL_GloZone',
+        'ALL_GloSetupPaymentTerm',
         'GLO_ZONE_TO_FGS_SETUP_ZONE',
         'GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',
         'GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',
@@ -309,6 +322,19 @@ WHERE "SeedTableMappingId" IN (
 
 DELETE FROM dbo."GloSeedTableMapping"
 WHERE "SeedCode" IN (
+    'ALL_GloBillingCategory',
+    'ALL_GloJobTypeCategory',
+    'ALL_GloJobTypeSubCategory',
+    'ALL_GloLeadSource',
+    'ALL_GloPaymentMethodType',
+    'ALL_GloResolutionType',
+    'ALL_GloSetupLaborRateType',
+    'GloSkill',
+    'ALL_GloTag',
+    'GloTrade',
+    'ALL_GloTitleOfCourtesy',
+    'ALL_GloZone',
+    'ALL_GloSetupPaymentTerm',
     'GLO_ZONE_TO_FGS_SETUP_ZONE',
     'GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',
     'GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',

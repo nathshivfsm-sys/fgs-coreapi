@@ -6,7 +6,7 @@
 -- Idempotent: each insert skips rows that already exist (matched by natural key).
 -- Defaults where applicable:
 --   CreatedOn = UTC now
---   CreatedBy = 'System'
+--   CreatedBy = 'System' (varchar audit columns only; GloSeed* mapping tables use bigint CreatedBy = NULL)
 -- =============================================================================
 
 START TRANSACTION;
@@ -1246,45 +1246,55 @@ SELECT setval(
 -- GloSeedTableMapping / GloSeedTableColumnMapping
 -- Tenant provisioning: global (Glo*) -> tenant/company (Fgs*) catalog copies
 -- Idempotent: matched by SeedCode (table) and TargetColumnName (column)
+-- Transformation types: TENANT_ID, COMPANY_ID, STATIC, CURRENT_TIMESTAMP, SEED_CREATED_BY
 -- =============================================================================
 
 INSERT INTO dbo."GloSeedTableMapping"
 (
     "SeedCode",
+    "SourceDatabaseName",
     "SourceSchemaName",
     "SourceTableName",
+    "TargetDatabaseName",
     "TargetSchemaName",
     "TargetTableName",
     "SeedOrder",
     "Description",
     "IsActive",
-    "CreatedOn"
+    "CreatedOn",
+    "CreatedBy"
 )
 SELECT
     v."SeedCode",
+    v."SourceDatabaseName",
     v."SourceSchemaName",
     v."SourceTableName",
+    v."TargetDatabaseName",
     v."TargetSchemaName",
     v."TargetTableName",
     v."SeedOrder",
     v."Description",
     v."IsActive",
-    timezone('utc', now())
+    timezone('utc', now()),
+    NULL::bigint
 FROM (
     VALUES
-        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'dbo', 'GloZone',       'dbo', 'FgsSetupZone',           10, 'Copy global service zones into tenant setup',                    true),
-        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'dbo', 'GloTrade',      'dbo', 'FgsSetupTechTrade',      20, 'Copy global technician trades into tenant setup',                true),
-        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'dbo', 'GloSkill',      'dbo', 'FgsSetupTechSkillLevel', 30, 'Copy global technician skill levels into tenant setup',          true),
-        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'dbo', 'GloLeadSource', 'dbo', 'FgsLeadSource',          40, 'Copy global lead sources into tenant/company lead source catalog', true),
-        ('GLO_ROLE_TO_FGS_ROLE',                     'dbo', 'GloRole',       'dbo', 'FgsRole',                50, 'Copy global roles into tenant/company role catalog',             true),
-        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'dbo', 'GloTitleOfCourtesy', 'dbo', 'FgsSetupTitleOfCourtesy', 60, 'Copy global courtesy titles into tenant setup',                  true),
-        ('GLO_TAG_TO_FGS_TAG',                       'dbo', 'GloTag',        'dbo', 'FgsTag',                 70, 'Copy global system tags into tenant/company tag catalog',        true),
-        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'dbo', 'GloUnitOfMeasure', 'dbo', 'FgsUnitOfMeasure',  80, 'Copy global units of measure into tenant/company catalog',       true)
-) AS v("SeedCode", "SourceSchemaName", "SourceTableName", "TargetSchemaName", "TargetTableName", "SeedOrder", "Description", "IsActive")
+        ('ALL_GloBillingCategory', 'fgs_dev_db', 'dbo', 'GloBillingCategory', 'fgs_dev_db', 'dbo', 'FgsBillingCategory', 100, 'Billing Category', true),
+        ('ALL_GloJobTypeCategory', 'fgs_dev_db', 'dbo', 'GloJobTypeCategory', 'fgs_dev_db', 'dbo', 'FgsJobTypeCategory', 130, 'JobType Categories', true),
+        ('ALL_GloJobTypeSubCategory', 'fgs_dev_db', 'dbo', 'GloJobTypeSubCategory', 'fgs_dev_db', 'dbo', 'FgsJobTypeSubCategory', 160, 'JobType Sub Categories', true),
+        ('ALL_GloLeadSource', 'fgs_dev_db', 'dbo', 'GloLeadSource', 'fgs_dev_db', 'dbo', 'FgsLeadSource', 190, 'Lead Source', true),
+        ('ALL_GloPaymentMethodType', 'fgs_dev_db', 'dbo', 'GloPaymentMethodType', 'fgs_dev_db', 'dbo', 'FgsSetupPaymentMethod', 220, 'Payment Method', true),
+        ('ALL_GloResolutionType', 'fgs_dev_db', 'dbo', 'GloResolutionType', 'fgs_dev_db', 'dbo', 'FgsResolutionCode', 250, 'Resolution Code', true),
+        ('ALL_GloSetupLaborRateType', 'fgs_dev_db', 'dbo', 'GloSetupLaborRateType', 'fgs_dev_db', 'dbo', 'FgsSetupLaborRateType', 280, 'Labor Rate Type', true),
+        ('GloSkill', 'fgs_dev_db', 'dbo', 'GloSkill', 'fgs_dev_db', 'dbo', 'FgsSetupTechSkillLevel', 310, 'Technician Skill', true),
+        ('ALL_GloTag', 'fgs_dev_db', 'dbo', 'GloTag', 'fgs_dev_db', 'dbo', 'FgsTag', 340, 'Tags', true),
+        ('GloTrade', 'fgs_dev_db', 'dbo', 'GloTrade', 'fgs_dev_db', 'dbo', 'FgsSetupTechTrade', 410, 'Technician Trade', true),
+        ('ALL_GloTitleOfCourtesy', 'fgs_dev_db', 'dbo', 'GloTitleOfCourtesy', 'fgs_dev_db', 'dbo', 'FgsSetupTitleOfCourtesy', 440, 'Title Of Courtesy', true),
+        ('ALL_GloZone', 'fgs_dev_db', 'dbo', 'GloZone', 'fgs_dev_db', 'dbo', 'FgsSetupZone', 470, 'Zone', true),
+        ('ALL_GloSetupPaymentTerm', 'fgs_dev_db', 'dbo', 'GloSetupPaymentTerm', 'fgs_dev_db', 'dbo', 'FgsSetupPaymentTerm', 500, 'Payment Term', true)
+) AS v("SeedCode", "SourceDatabaseName", "SourceSchemaName", "SourceTableName", "TargetDatabaseName", "TargetSchemaName", "TargetTableName", "SeedOrder", "Description", "IsActive")
 WHERE NOT EXISTS (
-    SELECT 1
-    FROM dbo."GloSeedTableMapping" m
-    WHERE m."SeedCode" = v."SeedCode"
+    SELECT 1 FROM dbo."GloSeedTableMapping" m WHERE m."SeedCode" = v."SeedCode"
 );
 
 SELECT setval(
@@ -1302,7 +1312,8 @@ INSERT INTO dbo."GloSeedTableColumnMapping"
     "ColumnOrder",
     "IsRequired",
     "IsActive",
-    "CreatedOn"
+    "CreatedOn",
+    "CreatedBy"
 )
 SELECT
     m."Id",
@@ -1312,102 +1323,159 @@ SELECT
     c."StaticValue",
     c."ColumnOrder",
     c."IsRequired",
-    true,
-    timezone('utc', now())
+    c."IsActive",
+    timezone('utc', now()),
+    NULL::bigint
 FROM dbo."GloSeedTableMapping" m
 INNER JOIN (
     VALUES
-        -- GloZone -> FgsSetupZone
-        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
-        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
-        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'Code',         'Code',        NULL,                NULL,      3, true),
-        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'Name',         'Name',        NULL,                NULL,      4, true),
-        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'Description',  'Description', NULL,                NULL,      5, false),
-        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               'IsActive',     'IsActive',    NULL,                NULL,      6, true),
-        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      7, true),
-        ('GLO_ZONE_TO_FGS_SETUP_ZONE',               NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      8, false),
+        -- ALL_GloBillingCategory -> FgsBillingCategory
+        ('ALL_GloBillingCategory', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloBillingCategory', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloBillingCategory', 'BillingCategoryType', 'BillingCategoryType', NULL, NULL, 3, true, true),
+        ('ALL_GloBillingCategory', 'BillingCategoryName', 'BillingCategoryName', NULL, NULL, 4, true, true),
+        ('ALL_GloBillingCategory', NULL, 'Description', 'STATIC', '', 5, false, true),
+        ('ALL_GloBillingCategory', NULL, 'DisplayOrder', 'STATIC', '1', 6, true, true),
+        ('ALL_GloBillingCategory', NULL, 'IsSystemDefined', 'STATIC', 'true', 7, true, true),
+        ('ALL_GloBillingCategory', NULL, 'ShowToFieldTech', 'STATIC', 'true', 8, true, true),
+        ('ALL_GloBillingCategory', NULL, 'IsActive', 'STATIC', 'true', 9, true, true),
+        ('ALL_GloBillingCategory', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 10, true, true),
+        ('ALL_GloBillingCategory', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 11, false, true),
 
-        -- GloTrade -> FgsSetupTechTrade
-        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
-        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
-        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'TradeCode',    'TradeCode',   NULL,                NULL,      3, true),
-        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'TradeName',    'Name',        NULL,                NULL,      4, true),
-        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'Description',  'Description', NULL,                NULL,      5, false),
-        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'Id',           'SortOrder',   NULL,                NULL,      6, false),
-        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        'IsActive',     'IsActive',    NULL,                NULL,      7, true),
-        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      8, true),
-        ('GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',        NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      9, false),
+        -- ALL_GloJobTypeCategory -> FgsJobTypeCategory
+        ('ALL_GloJobTypeCategory', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloJobTypeCategory', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloJobTypeCategory', 'Code', 'CategoryCode', NULL, NULL, 3, true, true),
+        ('ALL_GloJobTypeCategory', 'Name', 'Name', NULL, NULL, 4, true, true),
+        ('ALL_GloJobTypeCategory', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('ALL_GloJobTypeCategory', 'Id', 'DisplayOrder', NULL, NULL, 6, true, true),
+        ('ALL_GloJobTypeCategory', 'IsActive', 'IsActive', NULL, NULL, 7, true, true),
+        ('ALL_GloJobTypeCategory', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 8, true, true),
+        ('ALL_GloJobTypeCategory', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 9, false, true),
+
+        -- ALL_GloJobTypeSubCategory -> FgsJobTypeSubCategory
+        ('ALL_GloJobTypeSubCategory', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloJobTypeSubCategory', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloJobTypeSubCategory', 'Code', 'SubCategoryCode', NULL, NULL, 3, true, true),
+        ('ALL_GloJobTypeSubCategory', 'Name', 'Name', NULL, NULL, 4, true, true),
+        ('ALL_GloJobTypeSubCategory', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('ALL_GloJobTypeSubCategory', 'Id', 'DisplayOrder', NULL, NULL, 6, true, true),
+        ('ALL_GloJobTypeSubCategory', 'IsActive', 'IsActive', NULL, NULL, 7, true, true),
+        ('ALL_GloJobTypeSubCategory', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 8, true, true),
+        ('ALL_GloJobTypeSubCategory', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 9, false, true),
+
+        -- ALL_GloLeadSource -> FgsLeadSource
+        ('ALL_GloLeadSource', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloLeadSource', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloLeadSource', 'SourceCode', 'SourceCode', NULL, NULL, 3, true, true),
+        ('ALL_GloLeadSource', 'SourceName', 'SourceName', NULL, NULL, 4, true, true),
+        ('ALL_GloLeadSource', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('ALL_GloLeadSource', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('ALL_GloLeadSource', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+        ('ALL_GloLeadSource', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 8, false, true),
+
+        -- ALL_GloPaymentMethodType -> FgsSetupPaymentMethod
+        ('ALL_GloPaymentMethodType', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloPaymentMethodType', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloPaymentMethodType', 'DisplayName', 'DisplayName', NULL, NULL, 3, true, true),
+        ('ALL_GloPaymentMethodType', 'SortOrder', 'SortOrder', NULL, NULL, 4, true, true),
+        ('ALL_GloPaymentMethodType', NULL, 'IsMobileVisible', 'STATIC', 'true', 5, true, true),
+        ('ALL_GloPaymentMethodType', NULL, 'IsCustomerPortalVisible', 'STATIC', 'true', 6, true, true),
+        ('ALL_GloPaymentMethodType', 'IsActive', 'IsActive', NULL, NULL, 7, true, true),
+        ('ALL_GloPaymentMethodType', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 8, true, true),
+        ('ALL_GloPaymentMethodType', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 9, false, true),
+
+        -- ALL_GloResolutionType -> FgsResolutionCode
+        ('ALL_GloResolutionType', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloResolutionType', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloResolutionType', 'Id', 'GloResolutionTypeId', NULL, NULL, 3, true, true),
+        ('ALL_GloResolutionType', 'ResolutionTypeCode', 'ResolutionCode', NULL, NULL, 4, true, true),
+        ('ALL_GloResolutionType', 'ResolutionTypeName', 'ResolutionName', NULL, NULL, 5, true, true),
+        ('ALL_GloResolutionType', NULL, 'IsMobileVisible', 'STATIC', 'true', 6, true, true),
+        ('ALL_GloResolutionType', 'IsActive', 'IsActive', NULL, NULL, 7, true, true),
+        ('ALL_GloResolutionType', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 8, true, true),
+        ('ALL_GloResolutionType', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 9, false, true),
+
+        -- ALL_GloSetupLaborRateType -> FgsSetupLaborRateType
+        ('ALL_GloSetupLaborRateType', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloSetupLaborRateType', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloSetupLaborRateType', 'Name', 'Name', NULL, NULL, 3, true, true),
+        ('ALL_GloSetupLaborRateType', 'Description', 'Description', NULL, NULL, 4, false, true),
+        ('ALL_GloSetupLaborRateType', 'SortOrder', 'SortOrder', NULL, NULL, 5, true, true),
+        ('ALL_GloSetupLaborRateType', 'IsSystem', 'IsSystem', NULL, NULL, 6, true, true),
+        ('ALL_GloSetupLaborRateType', 'IsActive', 'IsActive', NULL, NULL, 7, true, true),
+        ('ALL_GloSetupLaborRateType', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 8, true, true),
+        ('ALL_GloSetupLaborRateType', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 9, false, true),
 
         -- GloSkill -> FgsSetupTechSkillLevel
-        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
-        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
-        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'SkillCode',    'Code',        NULL,                NULL,      3, true),
-        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'SkillName',    'Name',        NULL,                NULL,      4, true),
-        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'Description',  'Description', NULL,                NULL,      5, false),
-        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'Id',           'SortOrder',   NULL,                NULL,      6, false),
-        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  'IsActive',     'IsActive',    NULL,                NULL,      7, true),
-        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      8, true),
-        ('GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',  NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      9, false),
+        ('GloSkill', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('GloSkill', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('GloSkill', 'SkillCode', 'Code', NULL, NULL, 3, true, true),
+        ('GloSkill', 'SkillName', 'Name', NULL, NULL, 4, true, true),
+        ('GloSkill', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('GloSkill', 'Id', 'SortOrder', NULL, NULL, 6, false, true),
+        ('GloSkill', 'IsActive', 'IsActive', NULL, NULL, 7, true, true),
+        ('GloSkill', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 8, true, true),
+        ('GloSkill', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 9, false, true),
 
-        -- GloLeadSource -> FgsLeadSource
-        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
-        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
-        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'SourceCode',   'SourceCode',  NULL,                NULL,      3, true),
-        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'SourceName',   'SourceName',  NULL,                NULL,      4, true),
-        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'Description',  'Description', NULL,                NULL,      5, false),
-        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       'IsActive',     'IsActive',    NULL,                NULL,      6, true),
-        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      7, true),
-        ('GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',       NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      8, false),
+        -- ALL_GloTag -> FgsTag
+        ('ALL_GloTag', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloTag', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloTag', 'TagCode', 'TagCode', NULL, NULL, 3, true, true),
+        ('ALL_GloTag', 'Name', 'Name', NULL, NULL, 4, true, true),
+        ('ALL_GloTag', 'NormalizedName', 'NormalizedName', NULL, NULL, 5, true, true),
+        ('ALL_GloTag', 'Description', 'Description', NULL, NULL, 6, false, true),
+        ('ALL_GloTag', 'BackgroundColor', 'BackgroundColor', NULL, NULL, 7, false, true),
+        ('ALL_GloTag', 'TextColor', 'TextColor', NULL, NULL, 8, false, true),
+        ('ALL_GloTag', 'IconFileId', 'IconFileId', NULL, NULL, 9, false, true),
+        ('ALL_GloTag', 'IsSystemGenerated', 'IsSystemGenerated', NULL, NULL, 10, true, true),
+        ('ALL_GloTag', 'IsActive', 'IsActive', NULL, NULL, 11, true, true),
+        ('ALL_GloTag', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 12, true, true),
 
-        -- GloRole -> FgsRole
-        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
-        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
-        ('GLO_ROLE_TO_FGS_ROLE',                     'RoleCode',     'RoleCode',    NULL,                NULL,      3, true),
-        ('GLO_ROLE_TO_FGS_ROLE',                     'Name',         'Name',        NULL,                NULL,      4, true),
-        ('GLO_ROLE_TO_FGS_ROLE',                     'Description',  'Description', NULL,                NULL,      5, false),
-        ('GLO_ROLE_TO_FGS_ROLE',                     'Id',           'GloRoleId',   NULL,                NULL,      6, true),
-        ('GLO_ROLE_TO_FGS_ROLE',                     'IsActive',     'IsActive',    NULL,                NULL,      7, true),
-        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      8, true),
-        ('GLO_ROLE_TO_FGS_ROLE',                     NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      9, false),
+        -- GloTrade -> FgsSetupTechTrade
+        ('GloTrade', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('GloTrade', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('GloTrade', 'TradeCode', 'TradeCode', NULL, NULL, 3, true, true),
+        ('GloTrade', 'TradeName', 'Name', NULL, NULL, 4, true, true),
+        ('GloTrade', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('GloTrade', 'Id', 'SortOrder', NULL, NULL, 6, false, true),
+        ('GloTrade', 'IsActive', 'IsActive', NULL, NULL, 7, true, true),
+        ('GloTrade', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 8, true, true),
+        ('GloTrade', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 9, false, true),
 
-        -- GloTitleOfCourtesy -> FgsSetupTitleOfCourtesy
-        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'TenantId',    'TENANT_ID',         NULL,      1, true),
-        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'CompanyId',   'COMPANY_ID',        NULL,      2, true),
-        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'Code',         'Code',        NULL,                NULL,      3, true),
-        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'DisplayName',  'DisplayName', NULL,                NULL,      4, true),
-        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'SortOrder',    'SortOrder',   NULL,                NULL,      5, true),
-        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', 'IsActive',     'IsActive',    NULL,                NULL,      6, true),
-        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'CreatedOn',   'CURRENT_TIMESTAMP', NULL,      7, true),
-        ('GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY', NULL,           'CreatedBy',   'SEED_CREATED_BY',   NULL,      8, false),
+        -- ALL_GloTitleOfCourtesy -> FgsSetupTitleOfCourtesy
+        ('ALL_GloTitleOfCourtesy', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloTitleOfCourtesy', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloTitleOfCourtesy', 'Code', 'Code', NULL, NULL, 3, true, true),
+        ('ALL_GloTitleOfCourtesy', 'DisplayName', 'DisplayName', NULL, NULL, 4, true, true),
+        ('ALL_GloTitleOfCourtesy', 'SortOrder', 'SortOrder', NULL, NULL, 5, false, true),
+        ('ALL_GloTitleOfCourtesy', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('ALL_GloTitleOfCourtesy', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+        ('ALL_GloTitleOfCourtesy', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 8, false, true),
 
-        -- GloTag -> FgsTag
-        ('GLO_TAG_TO_FGS_TAG',                       NULL,           'TenantId',         'TENANT_ID',         NULL,      1, true),
-        ('GLO_TAG_TO_FGS_TAG',                       NULL,           'CompanyId',        'COMPANY_ID',        NULL,      2, true),
-        ('GLO_TAG_TO_FGS_TAG',                       'TagCode',      'TagCode',          NULL,                NULL,      3, true),
-        ('GLO_TAG_TO_FGS_TAG',                       'Name',         'Name',             NULL,                NULL,      4, true),
-        ('GLO_TAG_TO_FGS_TAG',                       'NormalizedName', 'NormalizedName', NULL,                NULL,      5, true),
-        ('GLO_TAG_TO_FGS_TAG',                       'Description',  'Description',      NULL,                NULL,      6, false),
-        ('GLO_TAG_TO_FGS_TAG',                       'BackgroundColor', 'BackgroundColor', NULL,             NULL,      7, false),
-        ('GLO_TAG_TO_FGS_TAG',                       'TextColor',    'TextColor',        NULL,                NULL,      8, false),
-        ('GLO_TAG_TO_FGS_TAG',                       'IconFileId',   'IconFileId',       NULL,                NULL,      9, false),
-        ('GLO_TAG_TO_FGS_TAG',                       'IsSystemGenerated', 'IsSystemGenerated', NULL,         NULL,     10, true),
-        ('GLO_TAG_TO_FGS_TAG',                       'IsActive',     'IsActive',         NULL,                NULL,     11, true),
-        ('GLO_TAG_TO_FGS_TAG',                       NULL,           'CreatedOn',        'CURRENT_TIMESTAMP', NULL,     12, true),
+        -- ALL_GloZone -> FgsSetupZone
+        ('ALL_GloZone', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloZone', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloZone', 'Code', 'Code', NULL, NULL, 3, true, true),
+        ('ALL_GloZone', 'Name', 'Name', NULL, NULL, 4, true, true),
+        ('ALL_GloZone', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('ALL_GloZone', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('ALL_GloZone', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+        ('ALL_GloZone', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 8, false, true),
 
-        -- GloUnitOfMeasure -> FgsUnitOfMeasure
-        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', NULL,           'TenantId',      'TENANT_ID',         NULL,      1, true),
-        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', NULL,           'CompanyId',     'COMPANY_ID',        NULL,      2, true),
-        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'UnitCode',     'UnitCode',      NULL,                NULL,      3, true),
-        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'Name',         'Name',          NULL,                NULL,      4, true),
-        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'Abbreviation', 'Abbreviation',  NULL,                NULL,      5, true),
-        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'Description',  'Description',   NULL,                NULL,      6, false),
-        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'UnitType',     'UnitType',      NULL,                NULL,      7, true),
-        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'DecimalPlaces', 'DecimalPlaces', NULL,               NULL,      8, true),
-        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'DisplayOrder', 'DisplayOrder', NULL,               NULL,      9, true),
-        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'IsSystem',     'IsSystem',      NULL,                NULL,     10, true),
-        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', 'IsActive',     'IsActive',      NULL,                NULL,     11, true),
-        ('GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE', NULL,           'CreatedOn',     'CURRENT_TIMESTAMP', NULL,     12, true)
-) AS c("SeedCode", "SourceColumnName", "TargetColumnName", "TransformationType", "StaticValue", "ColumnOrder", "IsRequired")
+        -- ALL_GloSetupPaymentTerm -> FgsSetupPaymentTerm
+        ('ALL_GloSetupPaymentTerm', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloSetupPaymentTerm', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloSetupPaymentTerm', 'Name', 'Name', NULL, NULL, 3, true, true),
+        ('ALL_GloSetupPaymentTerm', 'DueDateMethod', 'DueDateMethod', NULL, NULL, 4, true, true),
+        ('ALL_GloSetupPaymentTerm', 'NumberOfDays', 'NumberOfDays', NULL, NULL, 5, false, true),
+        ('ALL_GloSetupPaymentTerm', 'IsAccountsReceivable', 'IsAccountsReceivable', NULL, NULL, 6, true, true),
+        ('ALL_GloSetupPaymentTerm', 'IsAccountsPayable', 'IsAccountsPayable', NULL, NULL, 7, true, true),
+        ('ALL_GloSetupPaymentTerm', 'IsMobileVisible', 'IsMobileVisible', NULL, NULL, 8, true, true),
+        ('ALL_GloSetupPaymentTerm', 'IsActive', 'IsActive', NULL, NULL, 9, true, true),
+        ('ALL_GloSetupPaymentTerm', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 10, true, true),
+        ('ALL_GloSetupPaymentTerm', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 11, false, true)
+) AS c("SeedCode", "SourceColumnName", "TargetColumnName", "TransformationType", "StaticValue", "ColumnOrder", "IsRequired", "IsActive")
     ON c."SeedCode" = m."SeedCode"
 WHERE NOT EXISTS (
     SELECT 1

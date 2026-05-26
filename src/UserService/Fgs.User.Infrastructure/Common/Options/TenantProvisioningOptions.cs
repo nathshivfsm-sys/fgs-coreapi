@@ -10,5 +10,11 @@ public sealed class TenantProvisioningOptions
 
     public int SeedingBatchSize { get; set; } = 500;
 
+    /// <summary>
+    /// Optional full connection strings keyed by database name for cross-database seeding.
+    /// When absent, the FgsUser base connection string is reused with <c>Database</c> replaced.
+    /// </summary>
+    public Dictionary<string, string> DatabaseConnectionStrings { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
     public string TenantEventsExchangeName { get; set; } = "tenant.events";
 }

@@ -22,6 +22,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.User.Infrastructure;
 
@@ -66,6 +67,10 @@ public static class DependencyInjection
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
         services.AddSingleton<RabbitMqTopologyService>();
+        services.AddSingleton<ITenantSeedDatabaseConnectionFactory>(sp =>
+            new TenantSeedDatabaseConnectionFactory(
+                FgsUserConnectionString.ResolveRequired(configuration),
+                sp.GetRequiredService<IOptions<TenantProvisioningOptions>>()));
         services.AddScoped<ITenantDataSeedingEngine, TenantDataSeedingEngine>();
         services.AddScoped<ITenantS3BucketProvisioner, TenantS3BucketProvisioner>();
         services.AddScoped<ITenantProvisioningOrchestrator, TenantProvisioningOrchestrator>();
