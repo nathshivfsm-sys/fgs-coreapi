@@ -146,6 +146,12 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<GloJobTypeSubCategory> GloJobTypeSubCategories => Set<GloJobTypeSubCategory>();
 
+    public DbSet<FgsJobTypeCategory> FgsJobTypeCategories => Set<FgsJobTypeCategory>();
+
+    public DbSet<FgsJobTypeSubCategory> FgsJobTypeSubCategories => Set<FgsJobTypeSubCategory>();
+
+    public DbSet<FgsJobType> FgsJobTypes => Set<FgsJobType>();
+
     public DbSet<GloUnitOfMeasure> GloUnitOfMeasures => Set<GloUnitOfMeasure>();
 
     public DbSet<GloTag> GloTags => Set<GloTag>();

@@ -3,6 +3,7 @@ using System;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
 {
     [DbContext(typeof(FgsUserDbContext))]
-    partial class FgsUserDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260526140737_AddFgsJobTypeTables")]
+    partial class AddFgsJobTypeTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
