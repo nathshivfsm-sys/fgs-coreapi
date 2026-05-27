@@ -77,6 +77,8 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<FgsSetupGLBreak> FgsSetupGLBreaks => Set<FgsSetupGLBreak>();
 
+    public DbSet<FgsSetupGLBreakTrade> FgsSetupGLBreakTrades => Set<FgsSetupGLBreakTrade>();
+
     public DbSet<FgsSetupCommunicationTemplate> FgsSetupCommunicationTemplates =>
         Set<FgsSetupCommunicationTemplate>();
 

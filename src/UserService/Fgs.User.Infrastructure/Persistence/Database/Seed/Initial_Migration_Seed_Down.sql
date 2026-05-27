@@ -73,15 +73,15 @@ WHERE "CountryCode" IN (
 
 DELETE FROM dbo."GloBillingCategory"
 WHERE "BillingCategoryType" IN (
-    'EQ',
-    'MT',
+    'DS',
+    'IN',
     'LB',
+    'NI',
+    'OT',
     'SB',
     'SF',
     'SH',
-    'TX',
-    'DS',
-    'OT'
+    'TX'
 );
 
 DELETE FROM dbo."GloSetupLaborRateType"

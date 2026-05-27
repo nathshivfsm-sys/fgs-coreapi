@@ -215,28 +215,51 @@ SELECT setval(
 INSERT INTO dbo."GloBillingCategory"
 (
     "BillingCategoryType",
-    "BillingCategoryName"
+    "BillingCategoryName",
+    "Description",
+    "DisplayOrder"
 )
 SELECT
     v."BillingCategoryType",
-    v."BillingCategoryName"
+    v."BillingCategoryName",
+    v."Description",
+    v."DisplayOrder"
 FROM (
     VALUES
-        ('EQ', 'Equipment'),
-        ('MT', 'Material'),
-        ('LB', 'Labor'),
-        ('SB', 'Sub Contractor'),
-        ('SF', 'Service Fee'),
-        ('SH', 'Shipping'),
-        ('TX', 'Tax'),
-        ('DS', 'Discount'),
-        ('OT', 'Other')
-) AS v("BillingCategoryType", "BillingCategoryName")
+        ('DS', 'Discount',       'Used for discounts applied to invoices, quotes, or transactions.', 1::smallint),
+        ('IN', 'Inventory',      'Charges for stocked inventory items.', 2::smallint),
+        ('LB', 'Labor',          'Labor and technician service charges.', 3::smallint),
+        ('NI', 'Non-Inventory',  'Charges for non-inventory items or services.', 4::smallint),
+        ('OT', 'Other',          'Miscellaneous charges not covered by other categories.', 5::smallint),
+        ('SB', 'Sub Contractor', 'Charges related to subcontractor work or outsourced services.', 6::smallint),
+        ('SF', 'Service Fee',    'General service-related fees.', 7::smallint),
+        ('SH', 'Shipping',       'Shipping, freight, and delivery charges.', 8::smallint),
+        ('TX', 'Tax',            'Sales tax or other applicable tax charges.', 9::smallint)
+) AS v("BillingCategoryType", "BillingCategoryName", "Description", "DisplayOrder")
 WHERE NOT EXISTS (
     SELECT 1
     FROM dbo."GloBillingCategory" t
     WHERE t."BillingCategoryType" = v."BillingCategoryType"
 );
+
+UPDATE dbo."GloBillingCategory" AS t
+SET
+    "BillingCategoryName" = v."BillingCategoryName",
+    "Description" = v."Description",
+    "DisplayOrder" = v."DisplayOrder"
+FROM (
+    VALUES
+        ('DS', 'Discount',       'Used for discounts applied to invoices, quotes, or transactions.', 1::smallint),
+        ('IN', 'Inventory',      'Charges for stocked inventory items.', 2::smallint),
+        ('LB', 'Labor',          'Labor and technician service charges.', 3::smallint),
+        ('NI', 'Non-Inventory',  'Charges for non-inventory items or services.', 4::smallint),
+        ('OT', 'Other',          'Miscellaneous charges not covered by other categories.', 5::smallint),
+        ('SB', 'Sub Contractor', 'Charges related to subcontractor work or outsourced services.', 6::smallint),
+        ('SF', 'Service Fee',    'General service-related fees.', 7::smallint),
+        ('SH', 'Shipping',       'Shipping, freight, and delivery charges.', 8::smallint),
+        ('TX', 'Tax',            'Sales tax or other applicable tax charges.', 9::smallint)
+) AS v("BillingCategoryType", "BillingCategoryName", "Description", "DisplayOrder")
+WHERE t."BillingCategoryType" = v."BillingCategoryType";
 
 -- GloCountry (no CreatedOn/CreatedBy columns)
 INSERT INTO dbo."GloCountry"
@@ -1334,8 +1357,8 @@ INNER JOIN (
         ('ALL_GloBillingCategory', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
         ('ALL_GloBillingCategory', 'BillingCategoryType', 'BillingCategoryType', NULL, NULL, 3, true, true),
         ('ALL_GloBillingCategory', 'BillingCategoryName', 'BillingCategoryName', NULL, NULL, 4, true, true),
-        ('ALL_GloBillingCategory', NULL, 'Description', 'STATIC', '', 5, false, true),
-        ('ALL_GloBillingCategory', NULL, 'DisplayOrder', 'STATIC', '1', 6, true, true),
+        ('ALL_GloBillingCategory', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('ALL_GloBillingCategory', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 6, true, true),
         ('ALL_GloBillingCategory', NULL, 'IsSystemDefined', 'STATIC', 'true', 7, true, true),
         ('ALL_GloBillingCategory', NULL, 'ShowToFieldTech', 'STATIC', 'true', 8, true, true),
         ('ALL_GloBillingCategory', NULL, 'IsActive', 'STATIC', 'true', 9, true, true),

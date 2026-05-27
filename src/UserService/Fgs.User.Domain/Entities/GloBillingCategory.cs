@@ -8,4 +8,8 @@ public class GloBillingCategory
     public string BillingCategoryType { get; set; } = null!;
 
     public string BillingCategoryName { get; set; } = null!;
+
+    public string? Description { get; set; }
+
+    public short DisplayOrder { get; set; } = 1;
 }

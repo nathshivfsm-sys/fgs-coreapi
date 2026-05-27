@@ -3,6 +3,7 @@ using System;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
 {
     [DbContext(typeof(FgsUserDbContext))]
-    partial class FgsUserDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260527143747_UpdateGloBillingCategoryAndFgsSetupGLBreakTrade")]
+    partial class UpdateGloBillingCategoryAndFgsSetupGLBreakTrade
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1928,27 +1931,22 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasColumnOrder(0)
-                        .HasComment("Surrogate primary key.");
+                        .HasColumnOrder(0);
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<Guid?>("AddressId")
-                        .HasColumnType("uuid")
-                        .HasComment("Optional reference to branch or break address in FgsLocation.");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("BreakLabel")
-                        .HasColumnType("text")
-                        .HasComment("Optional label displayed in UI and financial documents.");
+                        .HasColumnType("text");
 
                     b.Property<short>("BreakLevel")
-                        .HasColumnType("smallint")
-                        .HasComment("Break hierarchy level. Allowed values: 1 or 2.");
+                        .HasColumnType("smallint");
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasComment("Unique GL break code within tenant, company, and break level scope.");
+                        .HasColumnType("text");
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -1956,25 +1954,20 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasComment("User or process that created the record.");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamptz")
-                        .HasComment("UTC timestamp when the record was created.");
+                        .HasColumnType("timestamptz");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasComment("Indicates whether the GL break is active.");
+                        .HasColumnType("boolean");
 
                     b.Property<long?>("LogoFileId")
-                        .HasColumnType("bigint")
-                        .HasComment("Optional reference to uploaded logo file in FgsFile.");
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasComment("Display name of the GL break.");
+                        .HasColumnType("text");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
@@ -1982,31 +1975,25 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasComment("User or process that last updated the record.");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset?>("UpdatedOn")
-                        .HasColumnType("timestamptz")
-                        .HasComment("UTC timestamp when the record was last updated.");
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
                     b.HasAlternateKey("TenantId", "CompanyId", "Code", "BreakLevel")
                         .HasName("UQ_FgsSetupGLBreak");
 
-                    b.HasIndex("AddressId")
-                        .HasDatabaseName("IX_FgsSetupGLBreak_AddressId");
+                    b.HasIndex("AddressId");
 
-                    b.HasIndex("LogoFileId")
-                        .HasDatabaseName("IX_FgsSetupGLBreak_LogoFileId");
+                    b.HasIndex("LogoFileId");
 
                     b.HasIndex("TenantId", "CompanyId", "BreakLevel")
                         .HasDatabaseName("IX_FgsSetupGLBreak_TenantId_CompanyId_BreakLevel");
 
                     b.ToTable("FgsSetupGLBreak", "dbo", t =>
                         {
-                            t.HasComment("Stores GL break configuration for financial reporting segmentation by trade, division, branch, or organizational unit.");
-
                             t.HasCheckConstraint("CK_FgsSetupGLBreak_BreakLevel", "\"BreakLevel\" IN (1, 2)");
                         });
                 });
@@ -2015,39 +2002,32 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasComment("Surrogate primary key.");
+                        .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
-                        .HasComment("Tenant-scoped company number.");
+                        .HasColumnType("bigint");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasComment("User or process that created the record.");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamptz")
-                        .HasDefaultValueSql("now()")
-                        .HasComment("UTC timestamp when the record was created.");
+                        .HasDefaultValueSql("now()");
 
                     b.Property<long>("GLBreakId")
-                        .HasColumnType("bigint")
-                        .HasComment("Reference to the associated GL break configuration.");
+                        .HasColumnType("bigint");
 
                     b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
-                        .HasComment("Owning tenant identifier.");
+                        .HasColumnType("bigint");
 
                     b.Property<string>("TradeCode")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasComment("Technician or operational trade code associated with the GL break such as HVAC, Plumbing, Electrical, or Drain.");
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
@@ -2063,10 +2043,7 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.HasIndex("TenantId", "CompanyId", "TradeCode")
                         .HasDatabaseName("IX_FgsSetupGLBreakTrade_TradeCode");
 
-                    b.ToTable("FgsSetupGLBreakTrade", "dbo", t =>
-                        {
-                            t.HasComment("Stores trade-to-GL-break mappings used for financial segmentation and reporting.");
-                        });
+                    b.ToTable("FgsSetupGLBreakTrade", "dbo");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsSetupLaborRateType", b =>
@@ -4263,31 +4240,24 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                 {
                     b.Property<string>("BillingCategoryType")
                         .HasMaxLength(2)
-                        .HasColumnType("character varying(2)")
-                        .HasComment("Short billing category code (primary key), e.g. IN, LB, TX.");
+                        .HasColumnType("character varying(2)");
 
                     b.Property<string>("BillingCategoryName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasComment("Display name of the billing category.");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasComment("Optional description of how the billing category is used.");
+                        .HasColumnType("text");
 
                     b.Property<short>("DisplayOrder")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("smallint")
-                        .HasDefaultValue((short)1)
-                        .HasComment("Controls sorting/display order of billing categories in dropdowns and setup screens.");
+                        .HasDefaultValue((short)1);
 
                     b.HasKey("BillingCategoryType");
 
-                    b.ToTable("GloBillingCategory", "dbo", t =>
-                        {
-                            t.HasComment("Global billing line category lookup used during tenant provisioning (equipment, labor, tax, etc.).");
-                        });
+                    b.ToTable("GloBillingCategory", "dbo");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloBusinessType", b =>
