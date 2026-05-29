@@ -56,8 +56,7 @@ public sealed class StartInvitationQueryHandlerTests
             .Setup(s => s.BuildAuthorizationUrl(
                 invitationId,
                 It.IsAny<string>(),
-                "a@test.com",
-                "Acme Admin"))
+                "a@test.com"))
             .Returns("https://login.example/authorize");
 
         var configuration = new ConfigurationBuilder()
@@ -109,8 +108,7 @@ public sealed class StartInvitationQueryHandlerTests
             .Setup(s => s.BuildAuthorizationUrl(
                 invitationId,
                 It.IsAny<string>(),
-                "verified@test.com",
-                It.IsAny<string?>()))
+                "verified@test.com"))
             .Returns("https://login.example/signin");
 
         var configuration = new ConfigurationBuilder()

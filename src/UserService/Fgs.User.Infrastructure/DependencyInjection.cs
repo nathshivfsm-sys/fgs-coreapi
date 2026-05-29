@@ -1,3 +1,4 @@
+using Fgs.User.Application.Abstractions.Credentials;
 using Fgs.User.Application.Abstractions.Geo;
 using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Abstractions.Messaging;
@@ -15,6 +16,7 @@ using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Infrastructure.Messaging;
 using Fgs.User.Infrastructure.Provisioning;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
+using Fgs.User.Infrastructure.Secrets;
 using Fgs.User.Infrastructure.Storage;
 using Fgs.User.Infrastructure.Persistence.Database.Repositories;
 using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
@@ -37,6 +39,16 @@ public static class DependencyInjection
         services.Configure<SignupLocaleOptions>(configuration.GetSection(SignupLocaleOptions.SectionName));
         services.Configure<AwsS3Options>(configuration.GetSection(AwsS3Options.SectionName));
         services.AddAwsS3Client();
+        services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));
+        services.AddAwsCredentialsServices(configuration);
+        services.AddScoped<ISecretsManagerService, AwsSecretsManagerService>();
+        services.AddScoped<ISecretCache, MemorySecretCache>();
+        services.AddScoped<ICredentialAuditWriter, CredentialAuditWriter>();
+        services.AddScoped<ICredentialSecretResolver, CredentialSecretResolver>();
+        services.AddScoped<ICorrelationContext, HttpCorrelationContext>();
+        services.AddScoped<ICredentialPayloadDeserializer, CredentialPayloadDeserializer>();
+        services.AddScoped<ICredentialConnectionStringBuilder, CredentialConnectionStringBuilder>();
+        services.AddScoped<ICredentialSecretNameBuilder, CredentialSecretNameBuilder>();
         services.Configure<TenantProvisioningOptions>(configuration.GetSection(TenantProvisioningOptions.SectionName));
         services.Configure<RabbitMqConsumerOptions>(configuration.GetSection(RabbitMqConsumerOptions.SectionName));
 

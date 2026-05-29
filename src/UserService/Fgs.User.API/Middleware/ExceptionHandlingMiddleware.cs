@@ -3,6 +3,7 @@ using System.Text.Json;
 using FluentValidation;
 using Fgs.User.API.Constants;
 using Fgs.User.Application.Common;
+using Fgs.User.Application.Credentials;
 
 namespace Fgs.User.API.Middleware;
 
@@ -42,6 +43,9 @@ public sealed class ExceptionHandlingMiddleware
             KeyNotFoundException => (
                 HttpStatusCode.NotFound,
                 new[] { exception.Message }),
+            CredentialSecretsException vaultEx => (
+                vaultEx.IsAccessDenied ? HttpStatusCode.Forbidden : HttpStatusCode.BadGateway,
+                new[] { vaultEx.Message }),
             _ => (
                 HttpStatusCode.InternalServerError,
                 new[] { ApiErrorMessages.UnexpectedError })

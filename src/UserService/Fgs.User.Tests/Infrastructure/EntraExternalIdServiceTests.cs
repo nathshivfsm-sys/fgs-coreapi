@@ -68,10 +68,8 @@ public sealed class EntraExternalIdServiceTests
         var url = service.BuildAuthorizationUrl(
             Guid.NewGuid(),
             "https://localhost/callback",
-            "admin@test.com",
-            "Jane Doe");
+            "admin@test.com");
 
-        url.Should().Contain("given_name=Jane");
-        url.Should().Contain("family_name=Doe");
+        url.Should().Contain("login_hint=admin%40test.com");
     }
 }
