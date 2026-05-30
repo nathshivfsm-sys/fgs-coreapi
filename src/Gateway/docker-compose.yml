@@ -52,7 +52,7 @@ services:
   user-service:
     build:
       context: ../..
-      dockerfile: deployment/nginx/docker/user-service.Dockerfile
+      dockerfile: src/Gateway/docker/user-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       RabbitMq__HostName: rabbitmq
@@ -60,8 +60,8 @@ services:
       rabbitmq:
         condition: service_healthy
     volumes:
-      - ../../src/UserService/Fgs.User.API/appsettings.json:/app/appsettings.json:ro
-      - ../../src/UserService/Fgs.User.API/appsettings.Development.json:/app/appsettings.Development.json:ro
+      - ../UserService/Fgs.User.API/appsettings.json:/app/appsettings.json:ro
+      - ../UserService/Fgs.User.API/appsettings.Development.json:/app/appsettings.Development.json:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     expose:
@@ -73,7 +73,7 @@ services:
   platform-service:
     build:
       context: ../..
-      dockerfile: deployment/nginx/docker/platform-service.Dockerfile
+      dockerfile: src/Gateway/docker/platform-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       RabbitMq__HostName: rabbitmq
@@ -81,8 +81,8 @@ services:
       rabbitmq:
         condition: service_healthy
     volumes:
-      - ../../src/PlatformService/Fgs.Platform.API/appsettings.json:/app/appsettings.json:ro
-      - ../../src/PlatformService/Fgs.Platform.API/appsettings.Development.json:/app/appsettings.Development.json:ro
+      - ../PlatformService/Fgs.Platform.API/appsettings.json:/app/appsettings.json:ro
+      - ../PlatformService/Fgs.Platform.API/appsettings.Development.json:/app/appsettings.Development.json:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     expose:
@@ -94,12 +94,12 @@ services:
   workorder-service:
     build:
       context: ../..
-      dockerfile: deployment/nginx/docker/workorder-service.Dockerfile
+      dockerfile: src/Gateway/docker/workorder-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
     volumes:
-      - ../../src/WorkOrderService/Fgs.WorkOrder.API/appsettings.json:/app/appsettings.json:ro
-      - ../../src/WorkOrderService/Fgs.WorkOrder.API/appsettings.Development.json:/app/appsettings.Development.json:ro
+      - ../WorkOrderService/Fgs.WorkOrder.API/appsettings.json:/app/appsettings.json:ro
+      - ../WorkOrderService/Fgs.WorkOrder.API/appsettings.Development.json:/app/appsettings.Development.json:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     expose:

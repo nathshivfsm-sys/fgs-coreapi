@@ -1,4 +1,6 @@
 <Solution>
+  <Folder Name="/Gateway/">
+  </Folder>
   <Folder Name="/Shared/">
     <Project Path="Shared/Kernel/Fgs.Kernel/Fgs.Kernel.csproj" />
     <Project Path="Shared/Foundation/Fgs.Foundation/Fgs.Foundation.csproj" />

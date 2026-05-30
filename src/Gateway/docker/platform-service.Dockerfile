@@ -1,6 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
 
+COPY src/Shared/ src/Shared/
 COPY src/PlatformService/Fgs.Platform.API/Fgs.Platform.API.csproj src/PlatformService/Fgs.Platform.API/
 COPY src/PlatformService/Fgs.Platform.Application/Fgs.Platform.Application.csproj src/PlatformService/Fgs.Platform.Application/
 COPY src/PlatformService/Fgs.Platform.Domain/Fgs.Platform.Domain.csproj src/PlatformService/Fgs.Platform.Domain/

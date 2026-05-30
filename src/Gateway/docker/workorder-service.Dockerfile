@@ -1,6 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
 
+COPY src/Shared/ src/Shared/
 COPY src/WorkOrderService/Fgs.WorkOrder.API/Fgs.WorkOrder.API.csproj src/WorkOrderService/Fgs.WorkOrder.API/
 COPY src/WorkOrderService/Fgs.WorkOrder.Application/Fgs.WorkOrder.Application.csproj src/WorkOrderService/Fgs.WorkOrder.Application/
 COPY src/WorkOrderService/Fgs.WorkOrder.Domain/Fgs.WorkOrder.Domain.csproj src/WorkOrderService/Fgs.WorkOrder.Domain/

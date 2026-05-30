@@ -182,7 +182,7 @@ Service-specific exception mapping via `IExceptionStatusMapper` (e.g. `Credentia
 
 | Area | Status | Recommendation |
 |------|--------|----------------|
-| JWT claim types | Centralized in `Fgs.Security` | Move token generation interface when Gateway exists |
+| JWT claim types | Centralized in `Fgs.Security` | Gateway validates TLS; services validate JWT via `AddFgsJwtAuthentication` |
 | Secret handling | UserService AWS Secrets Manager | Never log credential routes (implemented via omit path) |
 | Exception handling | Generic + mapper | No stack traces to clients in production |
 | Security headers | Added in Foundation | Add CSP, HSTS in production config |
@@ -243,7 +243,7 @@ Service-specific exception mapping via `IExceptionStatusMapper` (e.g. `Credentia
 | Shared database | Yes — UserService single PostgreSQL multi-schema | Split schemas per service over time |
 | Distributed monolith | Risk — User publishes, Platform consumes same DB concepts | Contracts project (done) |
 | Smart endpoints, dumb pipes | Partial — direct DB in both services for templates | Event-driven only for notifications |
-| No API gateway | Yes | Add `src/Gateway/` per target architecture |
+| No API gateway | Mitigated | NGINX edge gateway in `src/Gateway/` |
 | Chatty integration | Low currently | Keep async events, avoid sync cross-service calls |
 | Common library dumping ground | Was imminent | Eight focused projects with strict rules |
 
@@ -273,7 +273,7 @@ Service-specific exception mapping via `IExceptionStatusMapper` (e.g. `Credentia
 | Standard middleware | ✅ |
 | Health endpoints | ✅ |
 | OpenTelemetry | ✅ ASP.NET Core + HTTP tracing (OTLP optional) |
-| API Gateway | ❌ Not yet |
+| API Gateway | ✅ NGINX in `src/Gateway/` |
 | Container images | Existing per-service docker-compose |
 
 ---
@@ -303,11 +303,22 @@ Service-specific exception mapping via `IExceptionStatusMapper` (e.g. `Credentia
 
 **PlatformService wiring:** shared `RabbitMqConnectionFactory` + `PlatformRabbitMqTopologyInitializer` (DLQ/notification topology stays service-specific).
 
-### Phase 3 — Domain Decomposition
-- [ ] Extract `Glo*` catalog from UserService → Platform or Catalog service
-- [ ] Split inventory/billing entities from UserService
-- [ ] Separate DbContext per bounded context (or separate databases)
-- [ ] Add API Gateway (`src/Gateway/`)
+### Phase 3 — Domain Decomposition (Revised Scope)
+
+**Constraints (team decision):**
+- Keep all `Glo*` tables in UserService — do not extract catalog to a new service
+- Do not add new microservices in this phase
+- API Gateway is **NGINX** (already implemented); lives at `src/Gateway/` (moved from `deployment/nginx/`)
+
+**Remaining Phase 3 work:**
+- [ ] Split inventory/billing entities from UserService (within existing services only — no new service)
+- [ ] Separate DbContext per bounded context inside UserService (same PostgreSQL, existing schemas)
+- [x] NGINX API Gateway under `src/Gateway/` (routes `/api/users`, `/api/platform`, `/api/workorders`)
+
+**Deferred (not in current scope):**
+- Extract `Glo*` catalog to Platform/Catalog service
+- New InventoryService / BillingService projects
+- Separate databases per bounded context
 
 ### Phase 4 — Enterprise Hardening
 - [ ] Event schema versioning + compatibility tests

@@ -1,6 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
 
+COPY src/Shared/ src/Shared/
 COPY src/UserService/Fgs.User.API/Fgs.User.API.csproj src/UserService/Fgs.User.API/
 COPY src/UserService/Fgs.User.Application/Fgs.User.Application.csproj src/UserService/Fgs.User.Application/
 COPY src/UserService/Fgs.User.Domain/Fgs.User.Domain.csproj src/UserService/Fgs.User.Domain/
