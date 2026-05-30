@@ -5,6 +5,7 @@ using Fgs.User.Application.TenantProvisioning;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
+using Fgs.User.Infrastructure.Persistence.Database.Schemas;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -339,7 +340,7 @@ public sealed class TenantDataSeedingEngine(
         CancellationToken cancellationToken)
     {
         var referenceMapping = mappings.FirstOrDefault();
-        var sourceSchema = referenceMapping?.SourceSchemaName ?? "dbo";
+        var sourceSchema = referenceMapping?.SourceSchemaName ?? FgsDatabaseSchemas.Glo;
         var targetSchema = referenceMapping?.TargetSchemaName ?? sourceSchema;
         var sourceDatabaseName = referenceMapping?.SourceDatabaseName;
         var targetDatabaseName = referenceMapping?.TargetDatabaseName;

@@ -5,7 +5,7 @@
 
 START TRANSACTION;
 
-DELETE FROM dbo."GloStateProvince"
+DELETE FROM glo."GloStateProvince"
 WHERE ("CountryCode", "StateProvinceCode") IN (
     SELECT v."CountryCode", v."StateProvinceCode"
     FROM (
@@ -27,7 +27,7 @@ WHERE ("CountryCode", "StateProvinceCode") IN (
     ) AS v("CountryCode", "StateProvinceCode")
 );
 
-DELETE FROM dbo."GloCredentialProviderType"
+DELETE FROM glo."GloCredentialProviderType"
 WHERE "Code" IN (
     'AWS',
     'AZURE',
@@ -47,7 +47,7 @@ WHERE "Code" IN (
     'OTHER'
 );
 
-DELETE FROM dbo."GloCredentialCategory"
+DELETE FROM glo."GloCredentialCategory"
 WHERE "Code" IN (
     'API_KEY',
     'OAUTH',
@@ -65,13 +65,13 @@ WHERE "Code" IN (
     'WEBHOOK'
 );
 
-DELETE FROM dbo."GloCountry"
+DELETE FROM glo."GloCountry"
 WHERE "CountryCode" IN (
     'US',
     'CA'
 );
 
-DELETE FROM dbo."GloBillingCategory"
+DELETE FROM glo."GloBillingCategory"
 WHERE "BillingCategoryType" IN (
     'DS',
     'IN',
@@ -84,7 +84,7 @@ WHERE "BillingCategoryType" IN (
     'TX'
 );
 
-DELETE FROM dbo."GloSetupLaborRateType"
+DELETE FROM glo."GloSetupLaborRateType"
 WHERE "Name" IN (
     'Regular',
     'Overtime',
@@ -93,7 +93,7 @@ WHERE "Name" IN (
     'Weekend'
 );
 
-DELETE FROM dbo."GloSetupPaymentTerm"
+DELETE FROM glo."GloSetupPaymentTerm"
 WHERE "Name" IN (
     'Net 15',
     'Net 30',
@@ -102,7 +102,7 @@ WHERE "Name" IN (
     'COD'
 );
 
-DELETE FROM dbo."GloSetupDescriptionType"
+DELETE FROM glo."GloSetupDescriptionType"
 WHERE "Code" IN (
     'ReasonForCall',
     'Recommendations',
@@ -110,7 +110,7 @@ WHERE "Code" IN (
     'AgreementDescription'
 );
 
-DELETE FROM dbo."GloRole"
+DELETE FROM glo."GloRole"
 WHERE "RoleCode" IN (
     'SYSTEM_ADMIN',
     'IMPLEMENTATION_SPECIALIST',
@@ -130,7 +130,7 @@ WHERE "RoleCode" IN (
     'FIELD_TECH'
 );
 
-DELETE FROM dbo."GloResolutionType"
+DELETE FROM glo."GloResolutionType"
 WHERE "ResolutionTypeCode" IN (
     'COMPLETED',
     'INCOMPLETE',
@@ -139,7 +139,7 @@ WHERE "ResolutionTypeCode" IN (
     'CANCELLED'
 );
 
-DELETE FROM dbo."GloPaymentMethodType"
+DELETE FROM glo."GloPaymentMethodType"
 WHERE "Code" IN (
     'CASH',
     'CHECK',
@@ -151,7 +151,7 @@ WHERE "Code" IN (
     'ZELLE'
 );
 
-DELETE FROM dbo."GloSkill"
+DELETE FROM glo."GloSkill"
 WHERE "SkillCode" IN (
     'HVACEXPERT',
     'HVACHELPER',
@@ -161,7 +161,7 @@ WHERE "SkillCode" IN (
     'ELECTRICALHELPER'
 );
 
-DELETE FROM dbo."GloJobTypeCategory"
+DELETE FROM glo."GloJobTypeCategory"
 WHERE ("BusinessTypeId", "Code") IN (
     SELECT bt."Id", v."Code"
     FROM (
@@ -176,10 +176,10 @@ WHERE ("BusinessTypeId", "Code") IN (
             ('ELECTRICAL', 'LIGHTING'),
             ('ELECTRICAL', 'OUTLET')
     ) AS v("BusinessTypeCode", "Code")
-    INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+    INNER JOIN glo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
 );
 
-DELETE FROM dbo."GloJobTypeSubCategory"
+DELETE FROM glo."GloJobTypeSubCategory"
 WHERE "Code" IN (
     'INSTALL',
     'REPAIR',
@@ -193,7 +193,7 @@ WHERE "Code" IN (
     'UPGRADE'
 );
 
-DELETE FROM dbo."GloTrade"
+DELETE FROM glo."GloTrade"
 WHERE "TradeCode" IN (
     'PESTCONTROL',
     'GARAGEDOOR',
@@ -209,10 +209,10 @@ WHERE "TradeCode" IN (
     'PAINTING'
 );
 
-DELETE FROM dbo."GloZone"
+DELETE FROM glo."GloZone"
 WHERE "Code" IN ('ALL');
 
-DELETE FROM dbo."GloBusinessType"
+DELETE FROM glo."GloBusinessType"
 WHERE "Code" IN (
     'HVAC',
     'PLUMBING',
@@ -229,28 +229,28 @@ WHERE "Code" IN (
     'OTHER'
 );
 
-DELETE FROM dbo."GloTimeCardOption"
+DELETE FROM glo."GloTimeCardOption"
 WHERE "Code" IN (
     'NONE',
     'DISPATCHARRIVECOMPLETE',
     'CHECKINCHECKOUT'
 );
 
-DELETE FROM dbo."GloAccountingIntegrationType"
+DELETE FROM glo."GloAccountingIntegrationType"
 WHERE "Code" IN (
     'NONE',
     'QUICKBOOKSONLINE',
     'SAGEINTACCT'
 );
 
-DELETE FROM dbo."GloLanguage"
+DELETE FROM glo."GloLanguage"
 WHERE "LanguageCode" IN (
     'EN',
     'ES',
     'FR'
 );
 
-DELETE FROM dbo."GloMasterEntityType"
+DELETE FROM glo."GloMasterEntityType"
 WHERE "Code" IN (
     'TENANT',
     'COMPANY',
@@ -273,7 +273,7 @@ WHERE "Code" IN (
     'SERVICE_LOCATION'
 );
 
-DELETE FROM dbo."GloLocationType"
+DELETE FROM glo."GloLocationType"
 WHERE "Code" IN (
     'BILLING',
     'SHIPPING',
@@ -285,10 +285,10 @@ WHERE "Code" IN (
     'JOBSITE'
 );
 
-DELETE FROM dbo."GloSeedTableColumnMapping"
+DELETE FROM glo."GloSeedTableColumnMapping"
 WHERE "SeedTableMappingId" IN (
     SELECT "Id"
-    FROM dbo."GloSeedTableMapping"
+    FROM glo."GloSeedTableMapping"
     WHERE "SeedCode" IN (
         'ALL_GloBillingCategory',
         'ALL_GloJobTypeCategory',
@@ -320,7 +320,7 @@ WHERE "SeedTableMappingId" IN (
     )
 );
 
-DELETE FROM dbo."GloSeedTableMapping"
+DELETE FROM glo."GloSeedTableMapping"
 WHERE "SeedCode" IN (
     'ALL_GloBillingCategory',
     'ALL_GloJobTypeCategory',
@@ -351,11 +351,11 @@ WHERE "SeedCode" IN (
     'GLO_SETUP_PAYMENT_TERM_TO_FGS_SETUP_PAYMENT_TERM'
 );
 
-DELETE FROM dbo."GloInventorySubCategory";
+DELETE FROM glo."GloInventorySubCategory";
 
-DELETE FROM dbo."GloInventoryCategory";
+DELETE FROM glo."GloInventoryCategory";
 
-DELETE FROM dbo."GloInventoryItemType"
+DELETE FROM glo."GloInventoryItemType"
 WHERE "ItemTypeCode" IN (
     'INVENTORY',
     'NONINVENTORY',
@@ -364,7 +364,7 @@ WHERE "ItemTypeCode" IN (
     'TOOL'
 );
 
-DELETE FROM dbo."GloLeadSource"
+DELETE FROM glo."GloLeadSource"
 WHERE "SourceCode" IN (
     'REFERRAL',
     'WEBSITE',
@@ -376,7 +376,7 @@ WHERE "SourceCode" IN (
     'OTHER'
 );
 
-DELETE FROM dbo."GloTitleOfCourtesy"
+DELETE FROM glo."GloTitleOfCourtesy"
 WHERE "Code" IN (
     'MR',
     'MRS',
@@ -387,7 +387,7 @@ WHERE "Code" IN (
     'REV'
 );
 
-DELETE FROM dbo."GloTag"
+DELETE FROM glo."GloTag"
 WHERE "TagCode" IN (
     'URGENT',
     'VIP',
@@ -397,7 +397,7 @@ WHERE "TagCode" IN (
     'INSPECTION'
 );
 
-DELETE FROM dbo."GloUnitOfMeasure"
+DELETE FROM glo."GloUnitOfMeasure"
 WHERE "UnitCode" IN (
     'EACH',
     'BOX',

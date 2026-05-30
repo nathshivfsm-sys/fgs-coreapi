@@ -58,7 +58,7 @@ public static class DependencyInjection
         {
             options.UseNpgsql(connectionString, npgsql =>
             {
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsUserDbContext.FgsSchema);
+                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsUserDbContext.MigrationHistorySchema);
                 npgsql.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: TimeSpan.FromSeconds(10),

@@ -3,6 +3,7 @@ using System;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
 {
     [DbContext(typeof(FgsUserDbContext))]
-    partial class FgsUserDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260530120910_SplitDboIntoDomainSchemas")]
+    partial class SplitDboIntoDomainSchemas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4278,7 +4281,7 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.HasAlternateKey("Code")
                         .HasName("UX_AccountingIntegrationType_Code");
 
-                    b.ToTable("GloAccountingIntegrationType", "glo");
+                    b.ToTable("GloAccountingIntegrationType", "integration");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloBillingCategory", b =>
@@ -4421,7 +4424,7 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.HasAlternateKey("TokenCode")
                         .HasName("UQ_GloCommunicationToken_TokenCode");
 
-                    b.ToTable("GloCommunicationToken", "glo");
+                    b.ToTable("GloCommunicationToken", "notification");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloCountry", b =>
@@ -4503,7 +4506,7 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("GloCredentialCategory", "glo");
+                    b.ToTable("GloCredentialCategory", "integration");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloCredentialProviderType", b =>
@@ -4546,7 +4549,7 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("GloCredentialProviderType", "glo");
+                    b.ToTable("GloCredentialProviderType", "integration");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloInventoryCategory", b =>
@@ -5112,7 +5115,7 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.HasIndex("Status", "NextRetryOn")
                         .HasDatabaseName("IX_GloOutboxMessage_Status_NextRetryOn");
 
-                    b.ToTable("GloOutboxMessage", "glo");
+                    b.ToTable("GloOutboxMessage", "shared");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloPaymentMethodType", b =>
@@ -5259,7 +5262,7 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.HasAlternateKey("RoleCode")
                         .HasName("UX_GloRole_RoleCode");
 
-                    b.ToTable("GloRole", "glo", t =>
+                    b.ToTable("GloRole", "identity", t =>
                         {
                             t.HasCheckConstraint("CK_GloRole_Name_NotEmpty", "length(trim(\"Name\")) > 0");
 
@@ -5331,7 +5334,7 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.HasIndex("SeedTableMappingId")
                         .HasDatabaseName("IX_GloSeedTableColumnMapping_SeedTableMappingId");
 
-                    b.ToTable("GloSeedTableColumnMapping", "glo");
+                    b.ToTable("GloSeedTableColumnMapping", "tenant");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloSeedTableMapping", b =>
@@ -5416,7 +5419,7 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .IsUnique()
                         .HasDatabaseName("UX_GloSeedTableMapping_SeedCode_TargetTableName");
 
-                    b.ToTable("GloSeedTableMapping", "glo");
+                    b.ToTable("GloSeedTableMapping", "tenant");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloSetupDescriptionType", b =>
@@ -5847,7 +5850,7 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.HasAlternateKey("Code")
                         .HasName("UQ_GloTimeCardOption_Code");
 
-                    b.ToTable("GloTimeCardOption", "glo", t =>
+                    b.ToTable("GloTimeCardOption", "dispatch", t =>
                         {
                             t.HasCheckConstraint("CK_GloTimeCardOption_Code_Upper", "\"Code\" = UPPER(\"Code\")");
                         });

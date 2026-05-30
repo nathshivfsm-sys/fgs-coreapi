@@ -18,7 +18,7 @@ public sealed class FgsUserDbContextDesignFactory : IDesignTimeDbContextFactory<
                 "Set environment variable FGS_USER_DB or run dotnet ef from a directory under the repo so Fgs.User.API/appsettings.json can be found (or use --startup-project Fgs.User.API).");
 
         var options = new DbContextOptionsBuilder<FgsUserDbContext>()
-            .UseNpgsql(connectionString, npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsUserDbContext.FgsSchema))
+            .UseNpgsql(connectionString, npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsUserDbContext.MigrationHistorySchema))
             .Options;
 
         return new FgsUserDbContext(options);
