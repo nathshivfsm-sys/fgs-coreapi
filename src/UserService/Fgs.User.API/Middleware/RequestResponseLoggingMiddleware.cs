@@ -15,16 +15,31 @@ public sealed class RequestResponseLoggingMiddleware
         _logger = logger;
     }
 
+    private static bool IsCredentialRoute(PathString path) =>
+        path.StartsWithSegments("/api/credentials", StringComparison.OrdinalIgnoreCase);
+
     public async Task InvokeAsync(HttpContext context)
     {
         var correlationId = context.TraceIdentifier;
         var sw = Stopwatch.StartNew();
+        var omitBody = IsCredentialRoute(context.Request.Path);
 
-        _logger.LogInformation(
-            "HTTP {Method} {Path} started (CorrelationId={CorrelationId})",
-            context.Request.Method,
-            context.Request.Path,
-            correlationId);
+        if (omitBody)
+        {
+            _logger.LogInformation(
+                "HTTP {Method} {Path} started (CorrelationId={CorrelationId}, body omitted)",
+                context.Request.Method,
+                context.Request.Path,
+                correlationId);
+        }
+        else
+        {
+            _logger.LogInformation(
+                "HTTP {Method} {Path} started (CorrelationId={CorrelationId})",
+                context.Request.Method,
+                context.Request.Path,
+                correlationId);
+        }
 
         await _next(context);
 

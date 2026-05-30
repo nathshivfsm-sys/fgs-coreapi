@@ -8,8 +8,15 @@ public sealed class S3ObjectKeyBuilder : IS3ObjectKeyBuilder
 
     public string TenantAssetsPrefix => TenantAssetsRoot;
 
-    public string CompanyAssetsPrefix(long companyId) =>
+    public const string CompanyGeneralFolderName = "General";
+
+    public static string CompanyAssetsPrefix(long companyId) =>
         $"company-assets/{companyId}/";
+
+    public static string CompanyGeneralPrefix(long companyId) =>
+        $"{CompanyAssetsPrefix(companyId)}{CompanyGeneralFolderName}/";
+
+    string IS3ObjectKeyBuilder.CompanyAssetsPrefix(long companyId) => CompanyAssetsPrefix(companyId);
 
     public string BuildCompanyAssetKey(
         long companyId,

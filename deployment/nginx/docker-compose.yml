@@ -4,16 +4,18 @@ services:
   rabbitmq:
     image: rabbitmq:4-management-alpine
     hostname: rabbitmq
+    # Run as rabbitmq (uid 100) so .erlang.cookie is created with correct ownership.
+    # Do not use tmpfs with uid/gid on Docker Desktop for Windows — it often causes EACCES.
+    user: "100:101"
     environment:
       RABBITMQ_DEFAULT_USER: fgs
       RABBITMQ_DEFAULT_PASS: fgsdevlocal
-      # Avoid .erlang.cookie EACCES on Windows: tmpfs must be owned by rabbitmq (uid 100, gid 101).
       RABBITMQ_ERLANG_COOKIE: fgs-local-dev-cookie
     ports:
       - "127.0.0.1:5672:5672"
       - "127.0.0.1:15672:15672"
-    tmpfs:
-      - /var/lib/rabbitmq:rw,nosuid,nodev,noexec,uid=100,gid=101,mode=0700
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 15s
@@ -111,3 +113,6 @@ networks:
     driver: bridge
   fgs-edge:
     driver: bridge
+
+volumes:
+  rabbitmq-data:

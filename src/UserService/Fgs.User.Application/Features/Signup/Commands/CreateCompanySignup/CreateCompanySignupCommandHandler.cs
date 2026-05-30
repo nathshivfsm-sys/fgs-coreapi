@@ -56,13 +56,22 @@ public sealed class CreateCompanySignupCommandHandler
         var tenantRepo = _unitOfWork.Repository<FgsTenant>();
         var userRepo = _unitOfWork.Repository<FgsUser>();
         var businessTypeRepo = _unitOfWork.Repository<GloBusinessType>();
+        var selectedBusinessTypeIds = request.BusinessTypeIds
+            .Distinct()
+            .ToList();
 
-        if (!await businessTypeRepo.AnyAsync(b => b.Id == request.BusinessTypeId && b.IsActive, cancellationToken))
+        var activeSelectedTypes = await businessTypeRepo.ListAsync(
+            b => selectedBusinessTypeIds.Contains(b.Id) && b.IsActive,
+            cancellationToken);
+
+        if (activeSelectedTypes.Count != selectedBusinessTypeIds.Count)
         {
             return ApiResponse<CompanySignupResultDto>.Fail(
                 [SignupErrorMessages.InvalidBusinessType],
                 ApiStatusCodes.BadRequest);
         }
+
+        var primaryBusinessTypeId = selectedBusinessTypeIds[0];
 
         var uniquenessErrors = await _signupUniquenessValidator.ValidateAsync(request, cancellationToken);
         if (uniquenessErrors.Count > 0)
@@ -146,7 +155,7 @@ public sealed class CreateCompanySignupCommandHandler
                         CompanyGuid = companyUid,
                         TenantId = tenantId,
                         CompanyNumber = companyNumber,
-                        BusinessTypeId = request.BusinessTypeId,
+                        BusinessTypeId = primaryBusinessTypeId,
                         CompanySize = companySize,
                         Code = tenantCode,
                         Name = companyNameTrimmed,
@@ -206,6 +215,31 @@ public sealed class CreateCompanySignupCommandHandler
                         CreatedOn = now,
                         CreatedBy = prospectActor
                     };
+
+                    var gloById = activeSelectedTypes.ToDictionary(g => g.Id);
+                    var fgsBusinessTypeRepo = _unitOfWork.Repository<FgsBusinessType>();
+                    short displayOrder = 1;
+                    foreach (var gloBusinessTypeId in selectedBusinessTypeIds)
+                    {
+                        if (!gloById.TryGetValue(gloBusinessTypeId, out var gloType))
+                        {
+                            continue;
+                        }
+
+                        await fgsBusinessTypeRepo.AddAsync(
+                            new FgsBusinessType
+                            {
+                                TenantId = tenantId,
+                                CompanyId = companyNumber,
+                                Code = gloType.Code,
+                                Name = gloType.Name,
+                                DisplayOrder = displayOrder++,
+                                IsActive = true,
+                                CreatedOn = now,
+                                CreatedBy = prospectActor
+                            },
+                            ct);
+                    }
 
                     await _unitOfWork.Repository<FgsLocation>().AddAsync(location, ct);
                     await _unitOfWork.Repository<FgsTenantCompany>().AddAsync(tenantCompany, ct);

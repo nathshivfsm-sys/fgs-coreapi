@@ -14,6 +14,13 @@ public sealed class S3ObjectKeyBuilderTests
     }
 
     [Fact]
+    public void CompanyGeneralPrefix_UsesGeneralFolderUnderCompanyAssets()
+    {
+        S3ObjectKeyBuilder.CompanyGeneralPrefix(42)
+            .Should().Be("company-assets/42/General/");
+    }
+
+    [Fact]
     public void BuildThumbnailKey_AppendsThumbBeforeExtension()
     {
         var key = _builder.BuildThumbnailKey("company-assets/2001/work-orders/80012/file-1.jpg");

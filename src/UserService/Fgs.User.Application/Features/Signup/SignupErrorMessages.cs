@@ -4,6 +4,8 @@ public static class SignupErrorMessages
 {
     public const string InvalidBusinessType = "The selected industry is not valid.";
 
+    public const string BusinessTypeIdsRequired = "At least one industry (business type) must be selected.";
+
     public const string UniqueTenantCodeFailed =
         "Unable to generate a unique tenant code. Please try a different company name.";
 

@@ -1,3 +1,4 @@
+using Fgs.User.Application.Abstractions.Credentials;
 using Fgs.User.Application.Abstractions.Geo;
 using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Abstractions.Messaging;
@@ -15,6 +16,7 @@ using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Infrastructure.Messaging;
 using Fgs.User.Infrastructure.Provisioning;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
+using Fgs.User.Infrastructure.Secrets;
 using Fgs.User.Infrastructure.Storage;
 using Fgs.User.Infrastructure.Persistence.Database.Repositories;
 using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
@@ -22,6 +24,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.User.Infrastructure;
 
@@ -36,6 +39,16 @@ public static class DependencyInjection
         services.Configure<SignupLocaleOptions>(configuration.GetSection(SignupLocaleOptions.SectionName));
         services.Configure<AwsS3Options>(configuration.GetSection(AwsS3Options.SectionName));
         services.AddAwsS3Client();
+        services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));
+        services.AddAwsCredentialsServices(configuration);
+        services.AddScoped<ISecretsManagerService, AwsSecretsManagerService>();
+        services.AddScoped<ISecretCache, MemorySecretCache>();
+        services.AddScoped<ICredentialAuditWriter, CredentialAuditWriter>();
+        services.AddScoped<ICredentialSecretResolver, CredentialSecretResolver>();
+        services.AddScoped<ICorrelationContext, HttpCorrelationContext>();
+        services.AddScoped<ICredentialPayloadDeserializer, CredentialPayloadDeserializer>();
+        services.AddScoped<ICredentialConnectionStringBuilder, CredentialConnectionStringBuilder>();
+        services.AddScoped<ICredentialSecretNameBuilder, CredentialSecretNameBuilder>();
         services.Configure<TenantProvisioningOptions>(configuration.GetSection(TenantProvisioningOptions.SectionName));
         services.Configure<RabbitMqConsumerOptions>(configuration.GetSection(RabbitMqConsumerOptions.SectionName));
 
@@ -66,6 +79,10 @@ public static class DependencyInjection
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
         services.AddSingleton<RabbitMqTopologyService>();
+        services.AddSingleton<ITenantSeedDatabaseConnectionFactory>(sp =>
+            new TenantSeedDatabaseConnectionFactory(
+                FgsUserConnectionString.ResolveRequired(configuration),
+                sp.GetRequiredService<IOptions<TenantProvisioningOptions>>()));
         services.AddScoped<ITenantDataSeedingEngine, TenantDataSeedingEngine>();
         services.AddScoped<ITenantS3BucketProvisioner, TenantS3BucketProvisioner>();
         services.AddScoped<ITenantProvisioningOrchestrator, TenantProvisioningOrchestrator>();

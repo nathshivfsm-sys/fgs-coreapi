@@ -45,10 +45,21 @@ public sealed class TenantProvisioningOrchestrator(
             tenant.UpdatedOn = dateTime.UtcNow;
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            await seedingEngine.SeedTenantDataAsync(
+            var seedResult = await seedingEngine.SeedTenantDataAsync(
                 request.TenantId,
                 request.CompanyId,
+                request.BusinessTypeIds,
                 cancellationToken);
+
+            if (seedResult.HasFailures)
+            {
+                logger.LogWarning(
+                    "Tenant data seed completed with failures for tenant {TenantId}: {Succeeded} succeeded, {Skipped} skipped, {Failed} failed",
+                    request.TenantId,
+                    seedResult.SucceededCount,
+                    seedResult.SkippedCount,
+                    seedResult.FailedCount);
+            }
 
             var bucketName = await s3Provisioner.EnsureTenantBucketAsync(
                 request.TenantId,

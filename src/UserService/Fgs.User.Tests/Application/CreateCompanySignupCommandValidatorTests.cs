@@ -43,5 +43,5 @@ public sealed class CreateCompanySignupCommandValidatorTests
                     PostalCode: "62701",
                     Country: "US"),
                 CompanySize: "2-5"),
-            BusinessTypeId: 1);
+            BusinessTypeIds: [1]);
 }

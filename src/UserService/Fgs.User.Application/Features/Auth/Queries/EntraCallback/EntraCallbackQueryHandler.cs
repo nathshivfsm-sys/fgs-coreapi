@@ -205,13 +205,30 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
         tenant.UpdatedOn = _dateTime.UtcNow;
         tenantRepo.Update(tenant);
 
+        var companyBusinessTypeCodes = (await _unitOfWork.Repository<FgsBusinessType>()
+                .ListAsync(
+                    b => b.TenantId == invitation.TenantId && b.CompanyId == company.CompanyNumber,
+                    cancellationToken))
+            .Select(b => b.Code)
+            .ToList();
+
+        var selectedGloBusinessTypeIds = companyBusinessTypeCodes.Count == 0
+            ? []
+            : (await _unitOfWork.Repository<GloBusinessType>()
+                .ListAsync(
+                    g => companyBusinessTypeCodes.Contains(g.Code) && g.IsActive,
+                    cancellationToken))
+            .Select(g => g.Id)
+            .ToList();
+
         var correlationId = invitation.Id;
         var provisionEvent = new TenantProvisionRequestedEvent(
             tenant.Id,
             company.CompanyNumber,
             tenant.TenantCode,
             correlationId,
-            invitation.UserId);
+            invitation.UserId,
+            selectedGloBusinessTypeIds);
 
         await _outboxWriter.EnqueueAsync(
             IntegrationEventTypes.TenantProvisionRequested,

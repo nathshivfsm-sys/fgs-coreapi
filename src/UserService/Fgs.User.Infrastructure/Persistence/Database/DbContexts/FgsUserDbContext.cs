@@ -77,6 +77,8 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<FgsSetupGLBreak> FgsSetupGLBreaks => Set<FgsSetupGLBreak>();
 
+    public DbSet<FgsSetupGLBreakTrade> FgsSetupGLBreakTrades => Set<FgsSetupGLBreakTrade>();
+
     public DbSet<FgsSetupCommunicationTemplate> FgsSetupCommunicationTemplates =>
         Set<FgsSetupCommunicationTemplate>();
 
@@ -145,6 +147,12 @@ public class FgsUserDbContext : DbContext
     public DbSet<GloJobTypeCategory> GloJobTypeCategories => Set<GloJobTypeCategory>();
 
     public DbSet<GloJobTypeSubCategory> GloJobTypeSubCategories => Set<GloJobTypeSubCategory>();
+
+    public DbSet<FgsJobTypeCategory> FgsJobTypeCategories => Set<FgsJobTypeCategory>();
+
+    public DbSet<FgsJobTypeSubCategory> FgsJobTypeSubCategories => Set<FgsJobTypeSubCategory>();
+
+    public DbSet<FgsJobType> FgsJobTypes => Set<FgsJobType>();
 
     public DbSet<GloUnitOfMeasure> GloUnitOfMeasures => Set<GloUnitOfMeasure>();
 

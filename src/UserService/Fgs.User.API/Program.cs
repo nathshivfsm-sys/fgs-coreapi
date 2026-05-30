@@ -13,12 +13,19 @@ using Fgs.User.Infrastructure.Common.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var kmsKeyArnFromEnv = Environment.GetEnvironmentVariable("KMS_KEY_ARN");
+if (!string.IsNullOrWhiteSpace(kmsKeyArnFromEnv))
+{
+    builder.Configuration["AwsCredentials:KmsKeyArn"] = kmsKeyArnFromEnv;
+}
+
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
     options.KnownProxies.Clear();
 });
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.ConfigureFgsApi());
 builder.Services.ConfigureHttpJsonOptions(options =>

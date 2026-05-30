@@ -27,10 +27,21 @@ public sealed class StartInvitationQueryHandlerTests
 
         var context = await TestDbContextFactory.CreateAndInitializeAsync();
         var invitationId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        context.FgsUsers.Add(new FgsUser
+        {
+            Id = userId,
+            TenantId = 1,
+            CompanyId = 1,
+            Email = "a@test.com",
+            DisplayName = "Acme Admin",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
         context.FgsInvitations.Add(new FgsInvitation
         {
             Id = invitationId,
-            UserId = Guid.NewGuid(),
+            UserId = userId,
             TenantId = 1,
             Email = "a@test.com",
             TokenHash = hash,
@@ -42,7 +53,10 @@ public sealed class StartInvitationQueryHandlerTests
 
         var entraMock = new Mock<IEntraExternalIdService>();
         entraMock
-            .Setup(s => s.BuildAuthorizationUrl(invitationId, It.IsAny<string>(), "a@test.com"))
+            .Setup(s => s.BuildAuthorizationUrl(
+                invitationId,
+                It.IsAny<string>(),
+                "a@test.com"))
             .Returns("https://login.example/authorize");
 
         var configuration = new ConfigurationBuilder()
@@ -91,7 +105,10 @@ public sealed class StartInvitationQueryHandlerTests
 
         var entraMock = new Mock<IEntraExternalIdService>();
         entraMock
-            .Setup(s => s.BuildAuthorizationUrl(invitationId, It.IsAny<string>(), "verified@test.com"))
+            .Setup(s => s.BuildAuthorizationUrl(
+                invitationId,
+                It.IsAny<string>(),
+                "verified@test.com"))
             .Returns("https://login.example/signin");
 
         var configuration = new ConfigurationBuilder()

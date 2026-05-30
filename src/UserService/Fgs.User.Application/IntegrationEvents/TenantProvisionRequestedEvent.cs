@@ -5,4 +5,5 @@ public sealed record TenantProvisionRequestedEvent(
     long CompanyId,
     string TenantCode,
     Guid CorrelationId,
-    Guid? UserId = null);
+    Guid? UserId = null,
+    IReadOnlyList<int>? BusinessTypeIds = null);
