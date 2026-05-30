@@ -1,4 +1,5 @@
 using Amazon;
+using Amazon.S3;
 using Amazon.SecretsManager;
 using Fgs.User.Infrastructure.Common.Options;
 using Microsoft.Extensions.Configuration;
@@ -21,12 +22,9 @@ public static class AwsCredentialsServiceCollectionExtensions
         services.AddSingleton<IAmazonSecretsManager>(sp =>
         {
             var options = sp.GetRequiredService<IOptions<AwsCredentialsOptions>>().Value;
-            var regionEndpoint = RegionEndpoint.GetBySystemName(
-                string.IsNullOrWhiteSpace(options.Region) ? "us-east-1" : options.Region);
-
             var config = new AmazonSecretsManagerConfig
             {
-                RegionEndpoint = regionEndpoint
+                RegionEndpoint = ResolveRegionEndpoint(options.Region)
             };
 
             if (HasExplicitCredentials(options))
@@ -41,10 +39,29 @@ public static class AwsCredentialsServiceCollectionExtensions
             return new AmazonSecretsManagerClient(config);
         });
 
+        services.AddSingleton<AmazonS3Client>(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<AwsCredentialsOptions>>().Value;
+            var config = new AmazonS3Config
+            {
+                RegionEndpoint = ResolveRegionEndpoint(options.Region)
+            };
+
+            if (HasExplicitCredentials(options))
+            {
+                return new AmazonS3Client(options.AccessKeyId!, options.SecretAccessKey!, config);
+            }
+
+            return new AmazonS3Client(config);
+        });
+
         return services;
     }
 
     private static bool HasExplicitCredentials(AwsCredentialsOptions options) =>
         !string.IsNullOrWhiteSpace(options.AccessKeyId)
         && !string.IsNullOrWhiteSpace(options.SecretAccessKey);
+
+    private static RegionEndpoint ResolveRegionEndpoint(string? region) =>
+        RegionEndpoint.GetBySystemName(string.IsNullOrWhiteSpace(region) ? "us-east-1" : region);
 }

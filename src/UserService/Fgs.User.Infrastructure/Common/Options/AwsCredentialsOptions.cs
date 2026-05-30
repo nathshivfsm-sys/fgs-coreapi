@@ -14,6 +14,9 @@ public sealed class AwsCredentialsOptions
 
     public string KmsKeyArn { get; set; } = string.Empty;
 
+    /// <summary>Prefix for tenant S3 bucket names, e.g. fgs-dev-tenant.</summary>
+    public string BucketNamePrefix { get; set; } = "fgs-prod-tenant";
+
     /// <summary>Application segment in secret paths (default: fsm). Full pattern: {Environment}/{ApplicationSlug}/{tenantCode}/{providerCode}.</summary>
     public string ApplicationSlug { get; set; } = "fsm";
 

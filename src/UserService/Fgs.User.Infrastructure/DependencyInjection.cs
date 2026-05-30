@@ -37,9 +37,6 @@ public static class DependencyInjection
         services.Configure<EntraExternalIdOptions>(configuration.GetSection(EntraExternalIdOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
         services.Configure<SignupLocaleOptions>(configuration.GetSection(SignupLocaleOptions.SectionName));
-        services.Configure<AwsS3Options>(configuration.GetSection(AwsS3Options.SectionName));
-        services.AddAwsS3Client();
-        services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));
         services.AddAwsCredentialsServices(configuration);
         services.AddScoped<ISecretsManagerService, AwsSecretsManagerService>();
         services.AddScoped<ISecretCache, MemorySecretCache>();
