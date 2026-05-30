@@ -1,4 +1,4 @@
-using Fgs.User.Application.Behaviours;
+using Fgs.Foundation.Behaviors;
 using Fgs.User.Application.Features.Auth.Queries.EntraCallback;
 using FluentValidation;
 using MediatR;
@@ -10,12 +10,12 @@ namespace Fgs.User.Tests.Application;
 public sealed class MediatrPipelineBehaviourTests
 {
     [Fact]
-    public async Task ValidationBehaviour_WhenValidationFails_ThrowsValidationException()
+    public async Task ValidationBehavior_WhenValidationFails_ThrowsValidationException()
     {
         var validators = new IValidator<EntraCallbackQuery>[] { new EntraCallbackQueryValidator() };
-        var behaviour = new ValidationBehaviour<EntraCallbackQuery, string>(validators);
+        var behavior = new ValidationBehavior<EntraCallbackQuery, string>(validators);
 
-        var act = () => behaviour.Handle(
+        var act = () => behavior.Handle(
             new EntraCallbackQuery(string.Empty, string.Empty),
             _ => Task.FromResult("ok"),
             CancellationToken.None);
@@ -24,11 +24,11 @@ public sealed class MediatrPipelineBehaviourTests
     }
 
     [Fact]
-    public async Task ValidationBehaviour_WhenNoValidators_CallsNext()
+    public async Task ValidationBehavior_WhenNoValidators_CallsNext()
     {
-        var behaviour = new ValidationBehaviour<EntraCallbackQuery, string>([]);
+        var behavior = new ValidationBehavior<EntraCallbackQuery, string>([]);
 
-        var result = await behaviour.Handle(
+        var result = await behavior.Handle(
             new EntraCallbackQuery("code", Guid.NewGuid().ToString()),
             _ => Task.FromResult("ok"),
             CancellationToken.None);
@@ -37,12 +37,12 @@ public sealed class MediatrPipelineBehaviourTests
     }
 
     [Fact]
-    public async Task LoggingBehaviour_LogsAndReturnsResponse()
+    public async Task LoggingBehavior_LogsAndReturnsResponse()
     {
-        var logger = new Mock<ILogger<LoggingBehaviour<EntraCallbackQuery, string>>>();
-        var behaviour = new LoggingBehaviour<EntraCallbackQuery, string>(logger.Object);
+        var logger = new Mock<ILogger<LoggingBehavior<EntraCallbackQuery, string>>>();
+        var behavior = new LoggingBehavior<EntraCallbackQuery, string>(logger.Object);
 
-        var result = await behaviour.Handle(
+        var result = await behavior.Handle(
             new EntraCallbackQuery("code", Guid.NewGuid().ToString()),
             _ => Task.FromResult("ok"),
             CancellationToken.None);
@@ -59,12 +59,12 @@ public sealed class MediatrPipelineBehaviourTests
     }
 
     [Fact]
-    public async Task LoggingBehaviour_WhenNextThrows_Rethrows()
+    public async Task LoggingBehavior_WhenNextThrows_Rethrows()
     {
-        var logger = new Mock<ILogger<LoggingBehaviour<EntraCallbackQuery, string>>>();
-        var behaviour = new LoggingBehaviour<EntraCallbackQuery, string>(logger.Object);
+        var logger = new Mock<ILogger<LoggingBehavior<EntraCallbackQuery, string>>>();
+        var behavior = new LoggingBehavior<EntraCallbackQuery, string>(logger.Object);
 
-        var act = () => behaviour.Handle(
+        var act = () => behavior.Handle(
             new EntraCallbackQuery("code", Guid.NewGuid().ToString()),
             _ => throw new InvalidOperationException("boom"),
             CancellationToken.None);

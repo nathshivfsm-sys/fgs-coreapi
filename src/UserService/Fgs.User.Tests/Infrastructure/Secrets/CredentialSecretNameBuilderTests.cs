@@ -1,4 +1,5 @@
 using Fgs.User.Infrastructure.Common.Options;
+using Fgs.Security.Options;
 using Fgs.User.Infrastructure.Secrets;
 using Microsoft.Extensions.Options;
 

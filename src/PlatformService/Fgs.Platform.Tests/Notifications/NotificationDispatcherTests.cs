@@ -1,9 +1,10 @@
+using Fgs.Platform.Domain.Notifications;
 using Fgs.Platform.Application.Notifications.Channels;
 using Fgs.Platform.Application.Notifications.Channels.Models;
 using Fgs.Platform.Application.Notifications.History;
 using Fgs.Platform.Application.Notifications.Providers;
 using Fgs.Platform.Application.Notifications.Templates;
-using Fgs.Platform.Domain.Notifications;
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.Platform.Infrastructure.Notifications.Channels;
 using FluentAssertions;
 using Moq;

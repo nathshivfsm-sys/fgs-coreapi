@@ -1,3 +1,4 @@
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.Platform.Domain.Entities;
 using Fgs.Platform.Domain.Notifications;
 

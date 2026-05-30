@@ -1,4 +1,4 @@
-using Fgs.User.Application.Common;
+using Fgs.Foundation.Result;
 using MediatR;
 
 namespace Fgs.User.Application.Features.Auth.Queries.EntraCallback;

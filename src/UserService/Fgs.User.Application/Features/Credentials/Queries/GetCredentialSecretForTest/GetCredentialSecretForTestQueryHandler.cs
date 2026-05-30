@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Fgs.User.Application.Abstractions.Credentials;
-using Fgs.User.Application.Common;
+using Fgs.Foundation.Result;
 using Fgs.User.Application.Features.Credentials.DTOs;
 using Fgs.User.Application.Features.Credentials.Payloads;
 using MediatR;

@@ -1,5 +1,5 @@
 using Fgs.User.Application.Features.Auth.Queries.EntraCallback;
-using Fgs.User.Application.Common;
+using Fgs.Foundation.Result;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,7 +1,7 @@
+using Fgs.Platform.Infrastructure.Options;
 using Fgs.Platform.Application.Notifications.Channels;
 using Fgs.Platform.Infrastructure.Integrations.SendGrid;
-using Fgs.Platform.Infrastructure.Options;
-using FluentAssertions;
+using Fgs.Messaging.Options; using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;

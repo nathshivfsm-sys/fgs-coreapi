@@ -1,9 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Fgs.Security.Constants;
+using Fgs.Security.Options;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Domain.Entities;
-using Fgs.User.Infrastructure.Common.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 

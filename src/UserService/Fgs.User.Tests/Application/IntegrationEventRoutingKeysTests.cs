@@ -1,4 +1,4 @@
-using Fgs.User.Application.IntegrationEvents;
+using Fgs.Contracts.IntegrationEvents;
 
 namespace Fgs.User.Tests.Application;
 

@@ -1,5 +1,6 @@
-using Fgs.User.Infrastructure.Common.Identity;
 using Fgs.User.Infrastructure.Common.Options;
+using Fgs.User.Infrastructure.Common.Identity;
+using Fgs.Security.Options;
 using Microsoft.Extensions.Options;
 
 namespace Fgs.User.Tests.Infrastructure;

@@ -32,6 +32,8 @@ using Fgs.Platform.Infrastructure.Notifications.Queues;
 using Fgs.Platform.Infrastructure.Notifications.Preferences;
 using Fgs.Platform.Infrastructure.Notifications.Templates;
 using Fgs.Platform.Infrastructure.Notifications.Workers;
+using Fgs.Messaging.Extensions;
+using Fgs.Messaging.Options;
 using Fgs.Platform.Infrastructure.Options;
 using Fgs.Platform.Infrastructure.Reporting;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +49,11 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
+        services.PostConfigure<RabbitMqOptions>(options =>
+        {
+            options.ClientProvidedName = "Fgs.Platform";
+            options.AutomaticRecoveryEnabled = true;
+        });
         services.Configure<SendGridOptions>(configuration.GetSection(SendGridOptions.SectionName));
         services.Configure<TenantProviderOptions>(configuration.GetSection(TenantProviderOptions.SectionName));
         services.Configure<PlatformFeatureFlagsOptions>(configuration.GetSection(PlatformFeatureFlagsOptions.SectionName));
@@ -64,7 +71,8 @@ public static class DependencyInjection
             });
         });
 
-        services.AddSingleton<RabbitMqConnectionFactory>();
+        services.AddFgsRabbitMqConnectionFactory();
+        services.AddSingleton<PlatformRabbitMqTopologyInitializer>();
 
         services.AddScoped<INotificationHistoryRepository, NotificationHistoryRepository>();
         services.AddScoped<IIdempotencyStore, IdempotencyStore>();

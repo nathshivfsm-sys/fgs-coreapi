@@ -1,5 +1,6 @@
+using Fgs.Foundation.Correlation;
 using Fgs.User.Application.Abstractions.Credentials;
-using Fgs.User.Application.Abstractions.Persistence;
+using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Credentials;
 using Fgs.User.Application.Features.Credentials.Models;
 using Fgs.User.Application.Features.Credentials.Payloads;

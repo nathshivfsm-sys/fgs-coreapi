@@ -1,4 +1,4 @@
-using Fgs.User.Application.Common;
+using Fgs.Foundation.Result;
 using Fgs.User.Application.Features.Credentials.DTOs;
 using Fgs.User.Application.Features.Credentials.Queries.GetCredentialSecretForTest;
 using Fgs.User.Infrastructure.Common.Options;

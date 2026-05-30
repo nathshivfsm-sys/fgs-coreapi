@@ -1,5 +1,6 @@
-using Fgs.Platform.Application.Notifications.Templates;
 using Fgs.Platform.Domain.Notifications;
+using Fgs.Platform.Application.Notifications.Templates;
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.Platform.Infrastructure.Database.Seed;
 using Fgs.Platform.Infrastructure.Notifications.Templates;
 using Fgs.Platform.Tests;

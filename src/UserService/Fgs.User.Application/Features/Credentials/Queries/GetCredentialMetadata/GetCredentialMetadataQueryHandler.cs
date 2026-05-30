@@ -1,5 +1,5 @@
-using Fgs.User.Application.Abstractions.Persistence;
-using Fgs.User.Application.Common;
+using Fgs.Persistence.Abstractions;
+using Fgs.Foundation.Result;
 using Fgs.User.Application.Features.Credentials.DTOs;
 using Fgs.User.Domain.Entities;
 using MediatR;

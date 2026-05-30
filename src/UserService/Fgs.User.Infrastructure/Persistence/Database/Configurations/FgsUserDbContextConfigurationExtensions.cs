@@ -1,3 +1,4 @@
+using Fgs.Kernel.Entities;
 using Fgs.User.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

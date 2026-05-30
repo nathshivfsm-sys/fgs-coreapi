@@ -1,13 +1,15 @@
+using Fgs.User.Infrastructure.Common.Security;
+using Fgs.Foundation.Result;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Invitations;
 using Fgs.User.Application.Abstractions.Identity;
-using Fgs.User.Application.Abstractions.Persistence;
+using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Application.Features.Invitations.Queries.StartInvitation;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
-using Fgs.User.Infrastructure.Common.Security;
+using Fgs.Security.Constants;
 using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;

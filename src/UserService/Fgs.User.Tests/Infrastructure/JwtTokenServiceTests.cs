@@ -2,7 +2,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Fgs.User.Application.Features.Signup;
 using Fgs.User.Domain.Entities;
-using Fgs.User.Infrastructure.Common.Options;
+using Fgs.Security.Constants;
+using Fgs.Security.Options;
 using Fgs.User.Infrastructure.Common.Security;
 using Microsoft.Extensions.Options;
 

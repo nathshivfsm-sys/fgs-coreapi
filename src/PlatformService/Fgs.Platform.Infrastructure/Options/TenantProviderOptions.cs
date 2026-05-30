@@ -1,3 +1,4 @@
+using Fgs.Platform.Infrastructure.Options;
 using Fgs.Platform.Domain.Notifications;
 
 namespace Fgs.Platform.Infrastructure.Options;

@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Fgs.User.Application.Abstractions.Persistence;
+using Fgs.Persistence.Abstractions;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 using Microsoft.EntityFrameworkCore;
 

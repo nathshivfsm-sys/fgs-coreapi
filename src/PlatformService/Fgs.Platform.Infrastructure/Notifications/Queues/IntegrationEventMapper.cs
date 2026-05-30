@@ -1,10 +1,12 @@
-using System.Text.Json;
-using Fgs.Platform.Application.IntegrationEvents;
+using Fgs.Contracts.IntegrationEvents;
+using Fgs.Messaging.Options;
+using Fgs.Messaging.Serialization;
 using Fgs.Platform.Application.Notifications.Channels.Models;
 using Fgs.Platform.Application.Notifications.Queues;
 using Fgs.Platform.Domain.Notifications;
 using Fgs.Platform.Infrastructure.Options;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace Fgs.Platform.Infrastructure.Notifications.Queues;
 

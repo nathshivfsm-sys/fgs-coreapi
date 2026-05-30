@@ -1,3 +1,5 @@
+using Fgs.Messaging.Options;
+using Fgs.Messaging.RabbitMq;
 using System.Text;
 using System.Text.Json;
 using Fgs.Platform.Application.Notifications.Channels;
@@ -15,6 +17,7 @@ namespace Fgs.Platform.Infrastructure.Notifications.Workers;
 
 public sealed class NotificationQueueWorker(
     RabbitMqConnectionFactory connectionFactory,
+    PlatformRabbitMqTopologyInitializer topologyInitializer,
     IServiceScopeFactory scopeFactory,
     IOptions<RabbitMqOptions> rabbitOptions,
     IOptions<NotificationWorkerOptions> workerOptions,
@@ -52,7 +55,7 @@ public sealed class NotificationQueueWorker(
 
         if (_rabbit.EnsureQueuesOnStartup)
         {
-            await connectionFactory.EnsureTopologyAsync(channel, stoppingToken);
+            await topologyInitializer.EnsureTopologyAsync(channel, stoppingToken);
         }
 
         await channel.BasicQosAsync(0, _worker.PrefetchCount, false, stoppingToken);

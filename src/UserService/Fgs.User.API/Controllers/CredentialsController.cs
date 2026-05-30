@@ -1,4 +1,4 @@
-using Fgs.User.Application.Common;
+using Fgs.Foundation.Result;
 using Fgs.User.Application.Features.Credentials.Commands.CreateCredential;
 using Fgs.User.Application.Features.Credentials.Commands.RevokeCredential;
 using Fgs.User.Application.Features.Credentials.Commands.RotateCredential;

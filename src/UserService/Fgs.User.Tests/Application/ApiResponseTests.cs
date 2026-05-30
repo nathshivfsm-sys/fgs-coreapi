@@ -1,4 +1,4 @@
-using Fgs.User.Application.Common;
+using Fgs.Foundation.Result;
 
 namespace Fgs.User.Tests.Application;
 

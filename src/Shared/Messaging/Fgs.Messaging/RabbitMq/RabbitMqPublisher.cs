@@ -1,0 +1,254 @@
+using System.Net;
+using System.Security.Authentication;
+using System.Text;
+using Fgs.Messaging.Abstractions;
+using Fgs.Messaging.Options;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using RabbitMQ.Client;
+
+namespace Fgs.Messaging.RabbitMq;
+
+public sealed class RabbitMqPublisher(
+    IOptions<RabbitMqOptions> options,
+    ILogger<RabbitMqPublisher> logger) : IRabbitMqPublisher, IMessagePublisher, IAsyncDisposable
+{
+    private readonly RabbitMqOptions _options = options.Value;
+    private IConnection? _connection;
+    private IChannel? _channel;
+    private readonly SemaphoreSlim _initLock = new(1, 1);
+
+    public Task PublishAsync(
+        string routingKey,
+        string payload,
+        string? correlationId,
+        CancellationToken cancellationToken = default) =>
+        PublishAsync(_options.ExchangeName, routingKey, payload, correlationId, cancellationToken);
+
+    public Task PublishAsync(
+        string exchangeName,
+        string routingKey,
+        string payload,
+        string? correlationId,
+        CancellationToken cancellationToken = default)
+    {
+        var body = Encoding.UTF8.GetBytes(payload);
+        var headers = new Dictionary<string, object?>();
+        if (!string.IsNullOrWhiteSpace(correlationId))
+        {
+            headers["correlation_id"] = correlationId;
+        }
+
+        return PublishAsync(exchangeName, routingKey, body, headers, cancellationToken);
+    }
+
+    public async Task PublishAsync(
+        string exchangeName,
+        string routingKey,
+        ReadOnlyMemory<byte> body,
+        IDictionary<string, object?>? headers = null,
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureChannelAsync(cancellationToken);
+
+        var properties = new BasicProperties
+        {
+            ContentType = "application/json",
+            DeliveryMode = DeliveryModes.Persistent,
+            MessageId = Guid.NewGuid().ToString(),
+            Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+        };
+
+        if (headers is not null)
+        {
+            if (headers.TryGetValue("correlation_id", out var correlationId)
+                && correlationId is string correlationIdText)
+            {
+                properties.CorrelationId = correlationIdText;
+            }
+
+            properties.Headers = new Dictionary<string, object?>(headers);
+        }
+
+        await _channel!.BasicPublishAsync(
+            exchange: exchangeName,
+            routingKey: routingKey,
+            mandatory: false,
+            basicProperties: properties,
+            body: body,
+            cancellationToken: cancellationToken);
+
+        logger.LogInformation(
+            "Published message to exchange {Exchange} routing key {RoutingKey}",
+            exchangeName,
+            routingKey);
+    }
+
+    private async Task EnsureChannelAsync(CancellationToken cancellationToken)
+    {
+        if (_channel is not null)
+        {
+            return;
+        }
+
+        await _initLock.WaitAsync(cancellationToken);
+        try
+        {
+            if (_channel is not null)
+            {
+                return;
+            }
+
+            var factory = new ConnectionFactory
+            {
+                ClientProvidedName = _options.ClientProvidedName,
+                RequestedConnectionTimeout = TimeSpan.FromSeconds(
+                    Math.Clamp(_options.ConnectionTimeoutSeconds, 5, 120)),
+                AutomaticRecoveryEnabled = _options.AutomaticRecoveryEnabled
+            };
+
+            ApplyBrokerUri(factory);
+
+            if (!string.IsNullOrWhiteSpace(_options.UserName))
+            {
+                factory.UserName = _options.UserName;
+            }
+
+            if (_options.Password is { Length: > 0 })
+            {
+                factory.Password = _options.Password;
+            }
+
+            try
+            {
+                _connection = await factory.CreateConnectionAsync(cancellationToken);
+                _channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
+                await EnsureExchangeAndQueuesAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                LogConnectionFailure(ex, factory);
+                throw;
+            }
+        }
+        finally
+        {
+            _initLock.Release();
+        }
+    }
+
+    private async Task EnsureExchangeAndQueuesAsync(CancellationToken cancellationToken)
+    {
+        var channel = _channel!;
+        await channel.ExchangeDeclareAsync(
+            exchange: _options.ExchangeName,
+            type: ExchangeType.Topic,
+            durable: true,
+            cancellationToken: cancellationToken);
+
+        if (!_options.EnsureQueuesOnStartup || _options.QueueBindings.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var binding in _options.QueueBindings)
+        {
+            if (string.IsNullOrWhiteSpace(binding.QueueName) || string.IsNullOrWhiteSpace(binding.RoutingKey))
+            {
+                logger.LogWarning(
+                    "Skipping RabbitMQ queue binding with empty QueueName or RoutingKey on exchange {Exchange}.",
+                    _options.ExchangeName);
+                continue;
+            }
+
+            var queueName = binding.QueueName.Trim();
+            var routingKey = binding.RoutingKey.Trim();
+
+            await channel.QueueDeclareAsync(
+                queue: queueName,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null,
+                passive: false,
+                cancellationToken: cancellationToken);
+
+            await channel.QueueBindAsync(
+                queue: queueName,
+                exchange: _options.ExchangeName,
+                routingKey: routingKey,
+                arguments: null,
+                cancellationToken: cancellationToken);
+
+            logger.LogInformation(
+                "Queue {Queue} ready on exchange {Exchange} (routing key {RoutingKey}).",
+                queueName,
+                _options.ExchangeName,
+                routingKey);
+        }
+    }
+
+    private void LogConnectionFailure(Exception ex, ConnectionFactory factory)
+    {
+        var safeEndpoint = factory.Uri is null
+            ? "(no URI)"
+            : factory.Uri.GetComponents(UriComponents.SchemeAndServer | UriComponents.Path, UriFormat.UriEscaped);
+
+        var innerMessages = ex is AggregateException agg
+            ? string.Join(" | ", agg.InnerExceptions.Select(e => e.Message))
+            : ex.InnerException?.Message ?? ex.Message;
+
+        var hostForDns = factory.Uri?.Host ?? _options.HostName;
+        string? dnsHint = null;
+        if (!string.IsNullOrWhiteSpace(hostForDns))
+        {
+            try
+            {
+                var addrs = Dns.GetHostAddresses(hostForDns);
+                dnsHint =
+                    $"DNS resolved {hostForDns} to {addrs.Length} address(es): {string.Join(", ", addrs.Take(4).Select(a => a.ToString()))}";
+            }
+            catch (Exception dnsEx)
+            {
+                dnsHint = $"DNS lookup failed for {hostForDns}: {dnsEx.Message}";
+            }
+        }
+
+        logger.LogError(
+            ex,
+            "RabbitMQ connection failed. Broker {Broker}, TLS {Tls}. Inner: {Inner}. {DnsHint}.",
+            safeEndpoint,
+            factory.Ssl.Enabled,
+            innerMessages,
+            dnsHint ?? "DNS not checked.");
+    }
+
+    private void ApplyBrokerUri(ConnectionFactory factory)
+    {
+        var uri = RabbitMqBrokerUriResolver.Resolve(_options);
+        factory.Uri = uri;
+
+        if (string.Equals(uri.Scheme, "amqps", StringComparison.OrdinalIgnoreCase))
+        {
+            factory.Ssl.Version = SslProtocols.Tls12 | SslProtocols.Tls13;
+            factory.Ssl.CheckCertificateRevocation = _options.SslCheckCertificateRevocation;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_channel is not null)
+        {
+            await _channel.CloseAsync();
+            await _channel.DisposeAsync();
+        }
+
+        if (_connection is not null)
+        {
+            await _connection.CloseAsync();
+            await _connection.DisposeAsync();
+        }
+
+        _initLock.Dispose();
+    }
+}

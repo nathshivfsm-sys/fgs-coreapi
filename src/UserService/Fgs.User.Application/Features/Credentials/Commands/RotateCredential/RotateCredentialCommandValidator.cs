@@ -7,7 +7,7 @@ public sealed class RotateCredentialCommandValidator : AbstractValidator<RotateC
     public RotateCredentialCommandValidator()
     {
         RuleFor(x => x.SecretId).NotEmpty();
-        RuleFor(x => x.TenantId).GreaterThan(0);
-        RuleFor(x => x.CompanyId).GreaterThan(0);
+        RuleFor(x => x.TenantId).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.CompanyId).GreaterThanOrEqualTo(0);
     }
 }

@@ -7,8 +7,8 @@ public sealed class CreateCredentialCommandValidator : AbstractValidator<CreateC
 {
     public CreateCredentialCommandValidator()
     {
-        RuleFor(x => x.TenantId).GreaterThan(0).WithMessage(CredentialErrorMessages.TenantIdRequired);
-        RuleFor(x => x.CompanyId).GreaterThan(0).WithMessage(CredentialErrorMessages.CompanyIdRequired);
+        RuleFor(x => x.TenantId).GreaterThanOrEqualTo(0).WithMessage(CredentialErrorMessages.TenantIdRequired);
+        RuleFor(x => x.CompanyId).GreaterThanOrEqualTo(0).WithMessage(CredentialErrorMessages.CompanyIdRequired);
         RuleFor(x => x.ProviderCode).NotEmpty().WithMessage(CredentialErrorMessages.ProviderCodeRequired);
         RuleFor(x => x.SecretPayload.ValueKind).NotEqual(System.Text.Json.JsonValueKind.Undefined)
             .WithMessage(CredentialErrorMessages.SecretPayloadRequired);

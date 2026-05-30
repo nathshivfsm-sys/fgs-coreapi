@@ -1,15 +1,19 @@
-using System.Text.Json;
+using Fgs.Foundation.Extensions;
+using Fgs.Messaging.Options;
+using Fgs.MultiTenancy.Extensions;
+using Fgs.Observability.Extensions;
 using Fgs.User.API.Json;
+using Fgs.Foundation.Middleware;
 using Fgs.User.API.Middleware;
 using Fgs.User.API.Swagger;
 using Fgs.User.Application;
 using Fgs.User.Infrastructure;
+using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
+using Fgs.User.Infrastructure.Persistence.Database.Seed;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Net.Sockets;
-using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
-using Fgs.User.Infrastructure.Common.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +29,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 });
 
-builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.ConfigureFgsApi());
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -33,19 +36,25 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.AddFgsUserSwagger();
 builder.Services.AddFgsUserApplication();
 builder.Services.AddFgsUserInfrastructure(builder.Configuration);
-builder.Services.AddHealthChecks();
+builder.Services.AddFgsMultiTenancy();
+builder.Services.AddFgsObservability(builder.Configuration, "fgs-user-service");
+builder.Services.AddSingleton<IExceptionStatusMapper, CredentialSecretsExceptionMapper>();
 
 var app = builder.Build();
 
 await ApplyMigrationsAsync(app);
+await SeedPlatformTenantAsync(app);
 
 LogRabbitMqEffectiveConfig(app);
 ProbeLocalRabbitMqTcpIfDevelopment(app);
 
 app.UseForwardedHeaders();
-app.UseMiddleware<CorrelationIdMiddleware>();
-app.UseMiddleware<RequestResponseLoggingMiddleware>();
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseFgsFoundationMiddleware(options =>
+{
+    options.OmitRequestBodyLoggingForPath = path =>
+        path.StartsWithSegments("/api/credentials", StringComparison.OrdinalIgnoreCase);
+});
+app.UseFgsTenantResolution();
 if (ShouldUseHttpsRedirection(app.Configuration))
 {
     app.UseHttpsRedirection();
@@ -62,11 +71,24 @@ if (app.Configuration.IsSwaggerEnabled(app.Environment))
     });
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapFgsHealthChecks();
 
 app.Run();
+
+static async Task SeedPlatformTenantAsync(WebApplication app)
+{
+    if (!app.Configuration.GetValue("Database:SeedPlatformTenantOnStartup", true))
+    {
+        return;
+    }
+
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider.GetRequiredService<PlatformTenantSeeder>();
+    await seeder.SeedAsync();
+}
 
 static async Task ApplyMigrationsAsync(WebApplication app)
 {
@@ -111,7 +133,6 @@ static void LogRabbitMqEffectiveConfig(WebApplication app)
     }
 }
 
-// If nothing accepts TCP on the AMQP port, AMQP will fail with "endpoints were unreachable" — distinguish that early.
 static void ProbeLocalRabbitMqTcpIfDevelopment(WebApplication app)
 {
     if (!app.Environment.IsDevelopment())

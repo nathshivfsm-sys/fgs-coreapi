@@ -1,13 +1,14 @@
 using System.Text.Json;
 using Fgs.User.Application.Abstractions.Identity;
-using Fgs.User.Application.Abstractions.Messaging;
-using Fgs.User.Application.Abstractions.Persistence;
+using Fgs.Messaging.Abstractions;
+using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
+using Fgs.Foundation.Result;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Auth;
 using Fgs.User.Application.Features.Signup;
-using Fgs.User.Application.IntegrationEvents;
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.User.Application.TenantProvisioning;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;

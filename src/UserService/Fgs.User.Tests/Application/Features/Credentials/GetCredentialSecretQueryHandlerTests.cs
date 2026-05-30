@@ -1,3 +1,4 @@
+using Fgs.Foundation.Correlation;
 using Fgs.User.Application.Abstractions.Credentials;
 using Fgs.User.Application.Features.Credentials.Models;
 using Fgs.User.Application.Features.Credentials.Queries.GetCredentialSecret;

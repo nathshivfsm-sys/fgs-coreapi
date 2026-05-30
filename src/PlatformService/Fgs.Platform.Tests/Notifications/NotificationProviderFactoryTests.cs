@@ -1,5 +1,6 @@
-using Fgs.Platform.Application.Configuration;
 using Fgs.Platform.Domain.Notifications;
+using Fgs.Platform.Application.Configuration;
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.Platform.Infrastructure.Notifications.Providers;
 using Fgs.Platform.Infrastructure.Notifications.Providers.Email;
 using Fgs.Platform.Infrastructure.Notifications.Providers.Push;

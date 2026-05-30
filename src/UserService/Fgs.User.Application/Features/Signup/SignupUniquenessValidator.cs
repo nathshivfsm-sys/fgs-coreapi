@@ -1,4 +1,4 @@
-using Fgs.User.Application.Abstractions.Persistence;
+using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;

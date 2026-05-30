@@ -1,10 +1,12 @@
-using Fgs.Platform.API.Middleware;
+using Fgs.Foundation.Extensions;
+using Fgs.Messaging.Options;
+using Fgs.MultiTenancy.Extensions;
+using Fgs.Observability.Extensions;
 using Fgs.Platform.API.Swagger;
 using Fgs.Platform.Application;
 using Fgs.Platform.Infrastructure;
 using Fgs.Platform.Infrastructure.Database;
 using Fgs.Platform.Infrastructure.Database.Seed;
-using Fgs.Platform.Infrastructure.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Net.Sockets;
@@ -15,7 +17,8 @@ builder.Services.AddControllers();
 builder.Services.AddFgsPlatformSwagger();
 builder.Services.AddFgsPlatformApplication();
 builder.Services.AddFgsPlatformInfrastructure(builder.Configuration);
-builder.Services.AddHealthChecks();
+builder.Services.AddFgsMultiTenancy();
+builder.Services.AddFgsObservability(builder.Configuration, "fgs-platform-service");
 
 var app = builder.Build();
 
@@ -24,7 +27,8 @@ await SeedCommunicationTemplatesAsync(app);
 LogRabbitMqEffectiveConfig(app);
 ProbeLocalRabbitMqTcpIfDevelopment(app);
 
-app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseFgsFoundationMiddleware();
+app.UseFgsTenantResolution();
 if (ShouldUseHttpsRedirection(app.Configuration))
 {
     app.UseHttpsRedirection();
@@ -42,7 +46,7 @@ if (app.Configuration.IsSwaggerEnabled(app.Environment))
 
 app.UseAuthorization();
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapFgsHealthChecks();
 
 app.Run();
 
