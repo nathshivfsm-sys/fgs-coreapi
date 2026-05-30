@@ -12,4 +12,8 @@ public class GloBillingCategory
     public string? Description { get; set; }
 
     public short DisplayOrder { get; set; } = 1;
+
+    public bool ShowToFieldTech { get; set; } = true;
+
+    public bool AllowToPick { get; set; } = true;
 }

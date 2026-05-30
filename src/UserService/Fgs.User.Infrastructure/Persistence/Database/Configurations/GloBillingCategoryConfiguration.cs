@@ -29,5 +29,15 @@ internal class GloBillingCategoryConfiguration : IEntityTypeConfiguration<GloBil
             .HasColumnType("smallint")
             .HasDefaultValue((short)1)
             .HasComment("Controls sorting/display order of billing categories in dropdowns and setup screens.");
+
+        entity.Property(e => e.ShowToFieldTech)
+            .HasDefaultValue(true)
+            .HasComment(
+                "Determines whether field technicians can view/select this billing category in mobile and field workflows.");
+
+        entity.Property(e => e.AllowToPick)
+            .HasDefaultValue(true)
+            .HasComment(
+                "Determines whether office users are allowed to manually select this billing category during estimate, invoice, or billing entry. Categories such as tax may be system controlled and not manually selectable.");
     }
 }

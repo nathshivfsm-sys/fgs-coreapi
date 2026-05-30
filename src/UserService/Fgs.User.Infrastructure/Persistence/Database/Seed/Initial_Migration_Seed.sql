@@ -217,25 +217,29 @@ INSERT INTO dbo."GloBillingCategory"
     "BillingCategoryType",
     "BillingCategoryName",
     "Description",
-    "DisplayOrder"
+    "DisplayOrder",
+    "ShowToFieldTech",
+    "AllowToPick"
 )
 SELECT
     v."BillingCategoryType",
     v."BillingCategoryName",
     v."Description",
-    v."DisplayOrder"
+    v."DisplayOrder",
+    v."ShowToFieldTech",
+    v."AllowToPick"
 FROM (
     VALUES
-        ('DS', 'Discount',       'Used for discounts applied to invoices, quotes, or transactions.', 1::smallint),
-        ('IN', 'Inventory',      'Charges for stocked inventory items.', 2::smallint),
-        ('LB', 'Labor',          'Labor and technician service charges.', 3::smallint),
-        ('NI', 'Non-Inventory',  'Charges for non-inventory items or services.', 4::smallint),
-        ('OT', 'Other',          'Miscellaneous charges not covered by other categories.', 5::smallint),
-        ('SB', 'Sub Contractor', 'Charges related to subcontractor work or outsourced services.', 6::smallint),
-        ('SF', 'Service Fee',    'General service-related fees.', 7::smallint),
-        ('SH', 'Shipping',       'Shipping, freight, and delivery charges.', 8::smallint),
-        ('TX', 'Tax',            'Sales tax or other applicable tax charges.', 9::smallint)
-) AS v("BillingCategoryType", "BillingCategoryName", "Description", "DisplayOrder")
+        ('DS', 'Discount',       'Used for discounts applied to invoices, quotes, or transactions.', 1::smallint, true,  true),
+        ('IN', 'Inventory',      'Charges for stocked inventory items.', 2::smallint, true,  true),
+        ('LB', 'Labor',          'Labor and technician service charges.', 3::smallint, true,  true),
+        ('NI', 'Non-Inventory',  'Charges for non-inventory items or services.', 4::smallint, true,  true),
+        ('OT', 'Other',          'Miscellaneous charges not covered by other categories.', 5::smallint, true,  true),
+        ('SB', 'Sub Contractor', 'Charges related to subcontractor work or outsourced services.', 6::smallint, true,  true),
+        ('SF', 'Service Fee',    'General service-related fees.', 7::smallint, true,  true),
+        ('SH', 'Shipping',       'Shipping, freight, and delivery charges.', 8::smallint, true,  true),
+        ('TX', 'Tax',            'Sales tax or other applicable tax charges.', 9::smallint, true,  false)
+) AS v("BillingCategoryType", "BillingCategoryName", "Description", "DisplayOrder", "ShowToFieldTech", "AllowToPick")
 WHERE NOT EXISTS (
     SELECT 1
     FROM dbo."GloBillingCategory" t
@@ -246,19 +250,21 @@ UPDATE dbo."GloBillingCategory" AS t
 SET
     "BillingCategoryName" = v."BillingCategoryName",
     "Description" = v."Description",
-    "DisplayOrder" = v."DisplayOrder"
+    "DisplayOrder" = v."DisplayOrder",
+    "ShowToFieldTech" = v."ShowToFieldTech",
+    "AllowToPick" = v."AllowToPick"
 FROM (
     VALUES
-        ('DS', 'Discount',       'Used for discounts applied to invoices, quotes, or transactions.', 1::smallint),
-        ('IN', 'Inventory',      'Charges for stocked inventory items.', 2::smallint),
-        ('LB', 'Labor',          'Labor and technician service charges.', 3::smallint),
-        ('NI', 'Non-Inventory',  'Charges for non-inventory items or services.', 4::smallint),
-        ('OT', 'Other',          'Miscellaneous charges not covered by other categories.', 5::smallint),
-        ('SB', 'Sub Contractor', 'Charges related to subcontractor work or outsourced services.', 6::smallint),
-        ('SF', 'Service Fee',    'General service-related fees.', 7::smallint),
-        ('SH', 'Shipping',       'Shipping, freight, and delivery charges.', 8::smallint),
-        ('TX', 'Tax',            'Sales tax or other applicable tax charges.', 9::smallint)
-) AS v("BillingCategoryType", "BillingCategoryName", "Description", "DisplayOrder")
+        ('DS', 'Discount',       'Used for discounts applied to invoices, quotes, or transactions.', 1::smallint, true,  true),
+        ('IN', 'Inventory',      'Charges for stocked inventory items.', 2::smallint, true,  true),
+        ('LB', 'Labor',          'Labor and technician service charges.', 3::smallint, true,  true),
+        ('NI', 'Non-Inventory',  'Charges for non-inventory items or services.', 4::smallint, true,  true),
+        ('OT', 'Other',          'Miscellaneous charges not covered by other categories.', 5::smallint, true,  true),
+        ('SB', 'Sub Contractor', 'Charges related to subcontractor work or outsourced services.', 6::smallint, true,  true),
+        ('SF', 'Service Fee',    'General service-related fees.', 7::smallint, true,  true),
+        ('SH', 'Shipping',       'Shipping, freight, and delivery charges.', 8::smallint, true,  true),
+        ('TX', 'Tax',            'Sales tax or other applicable tax charges.', 9::smallint, true,  false)
+) AS v("BillingCategoryType", "BillingCategoryName", "Description", "DisplayOrder", "ShowToFieldTech", "AllowToPick")
 WHERE t."BillingCategoryType" = v."BillingCategoryType";
 
 -- GloCountry (no CreatedOn/CreatedBy columns)
@@ -1360,10 +1366,11 @@ INNER JOIN (
         ('ALL_GloBillingCategory', 'Description', 'Description', NULL, NULL, 5, false, true),
         ('ALL_GloBillingCategory', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 6, true, true),
         ('ALL_GloBillingCategory', NULL, 'IsSystemDefined', 'STATIC', 'true', 7, true, true),
-        ('ALL_GloBillingCategory', NULL, 'ShowToFieldTech', 'STATIC', 'true', 8, true, true),
-        ('ALL_GloBillingCategory', NULL, 'IsActive', 'STATIC', 'true', 9, true, true),
-        ('ALL_GloBillingCategory', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 10, true, true),
-        ('ALL_GloBillingCategory', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 11, false, true),
+        ('ALL_GloBillingCategory', 'ShowToFieldTech', 'ShowToFieldTech', NULL, NULL, 8, true, true),
+        ('ALL_GloBillingCategory', 'AllowToPick', 'AllowToPick', NULL, NULL, 9, true, true),
+        ('ALL_GloBillingCategory', NULL, 'IsActive', 'STATIC', 'true', 10, true, true),
+        ('ALL_GloBillingCategory', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 11, true, true),
+        ('ALL_GloBillingCategory', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 12, false, true),
 
         -- ALL_GloJobTypeCategory -> FgsJobTypeCategory
         ('ALL_GloJobTypeCategory', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
@@ -1506,6 +1513,20 @@ WHERE NOT EXISTS (
     WHERE existing."SeedTableMappingId" = m."Id"
       AND existing."TargetColumnName" = c."TargetColumnName"
 );
+
+UPDATE dbo."GloSeedTableColumnMapping" AS existing
+SET
+    "SourceColumnName" = 'ShowToFieldTech',
+    "TransformationType" = NULL,
+    "StaticValue" = NULL,
+    "ColumnOrder" = 8,
+    "IsRequired" = true,
+    "IsActive" = true
+FROM dbo."GloSeedTableMapping" m
+WHERE existing."SeedTableMappingId" = m."Id"
+  AND m."SeedCode" = 'ALL_GloBillingCategory'
+  AND existing."TargetColumnName" = 'ShowToFieldTech'
+  AND existing."TransformationType" = 'STATIC';
 
 SELECT setval(
     pg_get_serial_sequence('dbo."GloSeedTableColumnMapping"', 'Id'),
