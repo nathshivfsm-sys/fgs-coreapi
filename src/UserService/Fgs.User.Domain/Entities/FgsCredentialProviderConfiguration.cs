@@ -1,6 +1,6 @@
 namespace Fgs.User.Domain.Entities;
 
-public class FgsCredentialProviderConfiguration : FgsEntityBase
+public class FgsCredentialProviderConfiguration : FgsEntityBase, ITenantCompanyScoped
 {
     public Guid Id { get; set; }
 

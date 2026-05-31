@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Tenant- and company-scoped tag.
 /// </summary>
-public class FgsTag
+public class FgsTag : ITenantCompanyScoped
 {
     public long Id { get; set; }
 

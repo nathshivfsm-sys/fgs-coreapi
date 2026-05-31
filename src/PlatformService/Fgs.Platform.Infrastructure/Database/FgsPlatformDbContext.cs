@@ -1,11 +1,20 @@
+using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Fgs.Platform.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Platform.Infrastructure.Database;
 
-public sealed class FgsPlatformDbContext(DbContextOptions<FgsPlatformDbContext> options) : DbContext(options)
+public sealed class FgsPlatformDbContext : FgsTenantFilteredDbContext
 {
     public const string FgsSchema = "dbo";
+
+    public FgsPlatformDbContext(
+        DbContextOptions<FgsPlatformDbContext> options,
+        ITenantContextAccessor tenantContextAccessor)
+        : base(options, tenantContextAccessor)
+    {
+    }
 
     public DbSet<FgsNotificationHistory> NotificationHistory => Set<FgsNotificationHistory>();
 
@@ -51,5 +60,8 @@ public sealed class FgsPlatformDbContext(DbContextOptions<FgsPlatformDbContext> 
             entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.TemplateType, e.Code })
                 .IsUnique();
         });
+
+        ApplyFgsTenantQueryFilters(modelBuilder);
+        ApplyFgsNullableTenantCompanyQueryFilter<FgsSetupCommunicationTemplate>(modelBuilder);
     }
 }

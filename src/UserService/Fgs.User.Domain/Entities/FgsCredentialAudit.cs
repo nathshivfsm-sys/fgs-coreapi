@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Immutable audit trail for credential secret changes (no updated columns).
 /// </summary>
-public class FgsCredentialAudit
+public class FgsCredentialAudit : ITenantCompanyScoped
 {
     public Guid Id { get; set; }
 

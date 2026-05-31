@@ -1,6 +1,8 @@
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Persistence.Database.Configurations;
 using Fgs.User.Infrastructure.Persistence.Database.Schemas;
+using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.User.Infrastructure.Persistence.Database.DbContexts;
@@ -9,7 +11,7 @@ namespace Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 /// Code-first EF Core context for FGS user / platform entities (PostgreSQL domain schemas).
 /// Entity mappings live in <see cref="Configurations"/> (one file per entity).
 /// </summary>
-public class FgsUserDbContext : DbContext
+public class FgsUserDbContext : FgsTenantFilteredDbContext
 {
     /// <summary>Schema for EF Core migration history (<c>shared</c>).</summary>
     public const string MigrationHistorySchema = FgsDatabaseSchemas.MigrationHistory;
@@ -18,8 +20,10 @@ public class FgsUserDbContext : DbContext
     [Obsolete("Use MigrationHistorySchema. dbo is no longer the default schema.")]
     public const string FgsSchema = MigrationHistorySchema;
 
-    public FgsUserDbContext(DbContextOptions<FgsUserDbContext> options)
-        : base(options)
+    public FgsUserDbContext(
+        DbContextOptions<FgsUserDbContext> options,
+        ITenantContextAccessor tenantContextAccessor)
+        : base(options, tenantContextAccessor)
     {
     }
 
@@ -213,6 +217,7 @@ public class FgsUserDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsUserDbContext).Assembly);
         EntitySchemaRegistry.ApplySchemas(modelBuilder);
         ConfigureAuditActorColumns(modelBuilder);
+        ApplyFgsTenantQueryFilters(modelBuilder);
     }
 
     private static void ConfigureAuditActorColumns(ModelBuilder modelBuilder)

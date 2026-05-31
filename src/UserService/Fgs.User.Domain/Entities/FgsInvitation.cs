@@ -5,7 +5,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Email verification / onboarding invitation (stores hashed token only).
 /// </summary>
-public class FgsInvitation : FgsEntityBase
+public class FgsInvitation : FgsEntityBase, ITenantScoped
 {
     public Guid Id { get; set; }
 

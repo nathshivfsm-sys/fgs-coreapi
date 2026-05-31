@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Platform user scoped to a tenant and company.
 /// </summary>
-public class FgsUser : FgsEntityBase
+public class FgsUser : FgsEntityBase, ITenantCompanyScoped
 {
     public Guid Id { get; set; }
 

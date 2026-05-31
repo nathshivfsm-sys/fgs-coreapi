@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Per-company service / operations configuration (replaces legacy FgsTenantCompanyConfiguration).
 /// </summary>
-public class FgsTenantServiceSetup : FgsEntityBase
+public class FgsTenantServiceSetup : FgsEntityBase, ITenantCompanyScoped
 {
     public long TenantId { get; set; }
 

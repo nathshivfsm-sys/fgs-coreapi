@@ -1,3 +1,4 @@
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +22,7 @@ public sealed class FgsUserDbContextDesignFactory : IDesignTimeDbContextFactory<
             .UseNpgsql(connectionString, npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsUserDbContext.MigrationHistorySchema))
             .Options;
 
-        return new FgsUserDbContext(options);
+        return new FgsUserDbContext(options, new DesignTimeTenantContextAccessor());
     }
 
     private static string? TryLoadConnectionStringFromApiAppsettings()

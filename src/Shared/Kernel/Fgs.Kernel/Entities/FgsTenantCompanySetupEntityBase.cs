@@ -3,7 +3,7 @@ namespace Fgs.Kernel.Entities;
 /// <summary>
 /// Common shape for tenant- and company-scoped setup catalog rows.
 /// </summary>
-public abstract class FgsTenantCompanySetupEntityBase<TKey> : FgsEntityBase
+public abstract class FgsTenantCompanySetupEntityBase<TKey> : FgsEntityBase, ITenantCompanyScoped
 {
     public TKey Id { get; set; } = default!;
 

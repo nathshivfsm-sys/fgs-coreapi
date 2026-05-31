@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Alternate or substitute inventory item mapping.
 /// </summary>
-public class FgsInventoryItemAlternate : FgsEntityBase
+public class FgsInventoryItemAlternate : FgsEntityBase, ITenantCompanyScoped
 {
     public long Id { get; set; }
 
