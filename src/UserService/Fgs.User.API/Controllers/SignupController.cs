@@ -4,6 +4,7 @@ using Fgs.Foundation.Result;
 using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 using Fgs.User.Application.Features.Signup.DTOs;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -11,6 +12,7 @@ namespace Fgs.User.API.Controllers;
 /// <summary>
 /// Company signup and tenant onboarding.
 /// </summary>
+[AllowAnonymous]
 [ApiController]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("signup")]

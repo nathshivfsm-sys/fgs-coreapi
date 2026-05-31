@@ -1,13 +1,12 @@
+using Fgs.Foundation.Result;
+using Fgs.User.Application.Common;
+using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Infrastructure.Common.Security;
 using Fgs.Messaging.Options;
 using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Application.Abstractions.Identity;
 using Fgs.Messaging.Abstractions;
 using Fgs.Persistence.Abstractions;
-using Fgs.User.Application.Abstractions.Security;
-using Fgs.User.Application.Abstractions.Time;
-using Fgs.Foundation.Result;
-using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Auth;
 using Fgs.User.Application.Features.Auth.Queries.EntraCallback;
 using Fgs.User.Application.Features.Signup;
@@ -15,8 +14,6 @@ using Fgs.Contracts.IntegrationEvents;
 using Fgs.User.Application.TenantProvisioning;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
-using Fgs.Security.Options;
-using Fgs.Security.Constants;
 using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Infrastructure.Messaging;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
@@ -255,11 +252,7 @@ public sealed class EntraCallbackQueryHandlerTests
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback",
-                [ConfigurationKeys.Application.DashboardUrl] = "https://localhost/dashboard",
-                ["Jwt:Issuer"] = "test",
-                ["Jwt:Audience"] = "test",
-                ["Jwt:SigningKey"] = "super-secret-signing-key-32chars!!",
-                ["Jwt:ExpiryMinutes"] = "60"
+                [ConfigurationKeys.Application.DashboardUrl] = "https://localhost/dashboard"
             })
             .Build();
 
@@ -271,14 +264,6 @@ public sealed class EntraCallbackQueryHandlerTests
         return new EntraCallbackQueryHandler(
             new UnitOfWork(context),
             entraMock,
-            new JwtTokenService(Microsoft.Extensions.Options.Options.Create(
-                new JwtOptions
-                {
-                    Issuer = "test",
-                    Audience = "test",
-                    SigningKey = "super-secret-signing-key-32chars!!",
-                    ExpiryMinutes = 60
-                })),
             new EmailNormalizer(),
             new DateTimeProvider(),
             configuration,
@@ -290,7 +275,7 @@ public sealed class EntraCallbackQueryHandlerTests
         var entraMock = new Mock<IEntraExternalIdService>();
         entraMock
             .Setup(s => s.ExchangeCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new EntraTokenResult("oid-123", entraEmail, "Admin"));
+            .ReturnsAsync(new EntraTokenResult("entra-access-token", "oid-123", entraEmail, "Admin"));
         return entraMock;
     }
 

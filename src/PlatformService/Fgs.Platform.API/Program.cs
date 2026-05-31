@@ -38,7 +38,6 @@ LogRabbitMqEffectiveConfig(app);
 ProbeLocalRabbitMqTcpIfDevelopment(app);
 
 app.UseFgsFoundationMiddleware();
-app.UseFgsTenantResolution();
 if (ShouldUseHttpsRedirection(app.Configuration))
 {
     app.UseHttpsRedirection();
@@ -46,6 +45,8 @@ if (ShouldUseHttpsRedirection(app.Configuration))
 
 app.UseFgsSwagger();
 
+app.UseAuthentication();
+app.UseFgsTenantResolution();
 app.UseAuthorization();
 app.MapControllers();
 app.MapFgsHealthChecks();

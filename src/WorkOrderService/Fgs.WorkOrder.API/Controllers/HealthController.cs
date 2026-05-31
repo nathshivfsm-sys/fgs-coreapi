@@ -1,9 +1,11 @@
 using Asp.Versioning;
 using Fgs.Foundation.Api;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.WorkOrder.API.Controllers;
 
+[AllowAnonymous]
 [ApiController]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("[controller]")]

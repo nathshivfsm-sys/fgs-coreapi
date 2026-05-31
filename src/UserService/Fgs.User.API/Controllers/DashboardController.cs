@@ -3,6 +3,7 @@ using Fgs.Foundation.Api;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -10,6 +11,7 @@ namespace Fgs.User.API.Controllers;
 /// <summary>
 /// Temporary local dashboard page after Entra sign-in (dev gateway flow).
 /// </summary>
+[AllowAnonymous]
 [ApiController]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("dashboard")]

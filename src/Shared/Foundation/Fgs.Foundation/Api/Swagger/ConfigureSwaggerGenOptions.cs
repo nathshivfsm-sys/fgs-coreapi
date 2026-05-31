@@ -26,6 +26,21 @@ internal sealed class ConfigureSwaggerGenOptions : IConfigureOptions<SwaggerGenO
             options.SwaggerDoc(description.GroupName, CreateOpenApiInfo(description));
         }
 
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Microsoft Entra External ID access token."
+        });
+
+        options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+        });
+
         if (_swagger.XmlCommentsAssembly is not null)
         {
             var xmlFile = $"{_swagger.XmlCommentsAssembly.GetName().Name}.xml";

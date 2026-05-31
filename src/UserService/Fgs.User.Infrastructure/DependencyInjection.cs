@@ -1,8 +1,8 @@
-using Fgs.Foundation.Correlation;
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Extensions;
 using Fgs.Messaging.Options;
 using Fgs.Persistence.Abstractions;
+using Fgs.Security.Abstractions;
 using Fgs.Security.Extensions;
 using Fgs.User.Application.Abstractions.Credentials;
 using Fgs.User.Application.Abstractions.Geo;
@@ -15,8 +15,7 @@ using Fgs.User.Infrastructure.Background;
 using Fgs.User.Infrastructure.Common.Geo;
 using Fgs.User.Infrastructure.Common.Identity;
 using Fgs.User.Infrastructure.Common.Options;
-using Fgs.User.Infrastructure.Common.Security;
-using Fgs.User.Infrastructure.Common.Time;
+using Fgs.User.Infrastructure.Common.Security;using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Infrastructure.Messaging;
 using Fgs.User.Infrastructure.Outbox;
 using Fgs.User.Infrastructure.Provisioning;
@@ -38,7 +37,10 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddFgsUserInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddFgsJwtAuthentication(configuration);
+        services.AddFgsEntraAuthentication(configuration);
+        services.AddScoped<IFgsClaimsEnricher, DbFgsClaimsEnricher>();
+        services.AddScoped<IFgsUserRoleResolver, FgsUserRoleResolver>();
+        services.AddScoped<IFgsUserProfileResolver, FgsUserProfileResolver>();
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
         services.PostConfigure<RabbitMqOptions>(options =>
         {
@@ -87,9 +89,7 @@ public static class DependencyInjection
         services.AddScoped<IAddressLocaleResolver, AddressLocaleResolver>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IEmailNormalizer, EmailNormalizer>();
-        services.AddSingleton<IInvitationTokenService, InvitationTokenService>();
-        services.AddSingleton<IJwtTokenService, JwtTokenService>();
-        services.AddSingleton<RabbitMqTopologyService>();
+        services.AddSingleton<IInvitationTokenService, InvitationTokenService>();        services.AddSingleton<RabbitMqTopologyService>();
         services.AddSingleton<ITenantSeedDatabaseConnectionFactory>(sp =>
             new TenantSeedDatabaseConnectionFactory(
                 FgsUserConnectionString.ResolveRequired(configuration),

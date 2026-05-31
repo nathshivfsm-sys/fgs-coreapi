@@ -62,7 +62,6 @@ app.UseFgsFoundationMiddleware(options =>
     options.OmitRequestBodyLoggingForPath = path =>
         FgsApiPath.StartsWithApiArea(path, "credentials");
 });
-app.UseFgsTenantResolution();
 if (ShouldUseHttpsRedirection(app.Configuration))
 {
     app.UseHttpsRedirection();
@@ -71,6 +70,7 @@ if (ShouldUseHttpsRedirection(app.Configuration))
 app.UseFgsSwagger();
 
 app.UseAuthentication();
+app.UseFgsTenantResolution();
 app.UseAuthorization();
 app.MapControllers();
 app.MapFgsHealthChecks();

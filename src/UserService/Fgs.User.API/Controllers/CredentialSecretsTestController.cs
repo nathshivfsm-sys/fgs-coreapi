@@ -5,6 +5,7 @@ using Fgs.User.Application.Features.Credentials.DTOs;
 using Fgs.User.Application.Features.Credentials.Queries.GetCredentialSecretForTest;
 using Fgs.User.Infrastructure.Common.Options;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -14,6 +15,7 @@ namespace Fgs.User.API.Controllers;
 /// Development-only endpoints that return decrypted credentials for integration testing.
 /// Disabled unless ASPNETCORE_ENVIRONMENT=Development and AwsCredentials:EnableTestSecretEndpoint=true.
 /// </summary>
+[AllowAnonymous]
 [ApiController]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("credentials/test")]

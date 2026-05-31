@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using Fgs.Foundation.Api;
+using Fgs.Security.Authorization;
 using Fgs.Foundation.Result;
 using Fgs.User.Application.Features.Credentials.Commands.CreateCredential;
 using Fgs.User.Application.Features.Credentials.Commands.RevokeCredential;
@@ -10,6 +11,7 @@ using Fgs.User.Application.Features.Credentials.Queries.GetCredentialMetadata;
 using Fgs.User.Application.Features.Credentials.Queries.ListCredentialProviders;
 using Fgs.User.Application.Features.Credentials.Queries.ListCredentialSecrets;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -21,6 +23,7 @@ namespace Fgs.User.API.Controllers;
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("credentials")]
 [Produces("application/json")]
+[Authorize(Policy = FgsAuthorizationPolicies.RequireTenantAdmin)]
 public sealed class CredentialsController(IMediator mediator) : ControllerBase
 {
     /// <summary>Creates a credential provider (if needed), stores the secret in AWS Secrets Manager, and persists metadata.</summary>

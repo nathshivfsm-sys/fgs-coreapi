@@ -8,6 +8,7 @@
     <Project Path="Shared/Messaging/Fgs.Messaging/Fgs.Messaging.csproj" />
     <Project Path="Shared/Persistence/Fgs.Persistence/Fgs.Persistence.csproj" />
     <Project Path="Shared/Security/Fgs.Security/Fgs.Security.csproj" />
+    <Project Path="Shared/Security/Fgs.Security.Tests/Fgs.Security.Tests.csproj" />
     <Project Path="Shared/MultiTenancy/Fgs.MultiTenancy/Fgs.MultiTenancy.csproj" />
     <Project Path="Shared/Observability/Fgs.Observability/Fgs.Observability.csproj" />
   </Folder>

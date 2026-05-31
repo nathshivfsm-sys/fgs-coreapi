@@ -24,7 +24,8 @@ public sealed class EntraExternalIdService(IOptions<EntraExternalIdOptions> opti
             ["response_mode"] = "query",
             ["scope"] = _options.Scopes,
             ["state"] = invitationId.ToString(),
-            ["login_hint"] = loginHint
+            ["login_hint"] = loginHint,
+            ["p"] = _options.UserFlow
         };
 
         var qs = string.Join("&", query
@@ -94,7 +95,7 @@ public sealed class EntraExternalIdService(IOptions<EntraExternalIdOptions> opti
             throw new InvalidOperationException("Required Entra claims (oid, email) were not present.");
         }
 
-        return new EntraTokenResult(oid, email, name);
+        return new EntraTokenResult(accessToken, oid, email, name);
     }
 
     private string BuildAuthorizeEndpoint()

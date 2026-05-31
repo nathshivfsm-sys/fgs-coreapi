@@ -32,6 +32,8 @@ using Fgs.Platform.Infrastructure.Notifications.Queues;
 using Fgs.Platform.Infrastructure.Notifications.Preferences;
 using Fgs.Platform.Infrastructure.Notifications.Templates;
 using Fgs.Platform.Infrastructure.Notifications.Workers;
+using Fgs.Security.Authorization;
+using Fgs.Security.Extensions;
 using Fgs.Messaging.Extensions;
 using Fgs.Messaging.Options;
 using Fgs.Platform.Infrastructure.Options;
@@ -48,6 +50,9 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddFgsEntraAuthentication(configuration);
+        services.AddFgsRemoteClaimsEnrichment(configuration);
+
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
         services.PostConfigure<RabbitMqOptions>(options =>
         {

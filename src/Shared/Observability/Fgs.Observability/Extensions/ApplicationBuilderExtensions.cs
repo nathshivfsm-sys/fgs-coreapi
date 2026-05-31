@@ -13,19 +13,19 @@ public static class ApplicationBuilderExtensions
         endpoints.MapHealthChecks("/health", new HealthCheckOptions
         {
             ResponseWriter = WriteHealthResponse
-        });
+        }).AllowAnonymous();
 
         endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions
         {
             Predicate = check => check.Tags.Contains("ready"),
             ResponseWriter = WriteHealthResponse
-        });
+        }).AllowAnonymous();
 
         endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
         {
             Predicate = _ => false,
             ResponseWriter = WriteHealthResponse
-        });
+        }).AllowAnonymous();
 
         return endpoints;
     }
