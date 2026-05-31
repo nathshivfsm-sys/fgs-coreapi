@@ -1,3 +1,5 @@
+using Asp.Versioning;
+using Fgs.Foundation.Api;
 using Fgs.Foundation.Result;
 using Fgs.User.Application.Features.Credentials.DTOs;
 using Fgs.User.Application.Features.Credentials.Queries.GetCredentialSecretForTest;
@@ -13,7 +15,8 @@ namespace Fgs.User.API.Controllers;
 /// Disabled unless ASPNETCORE_ENVIRONMENT=Development and AwsCredentials:EnableTestSecretEndpoint=true.
 /// </summary>
 [ApiController]
-[Route("api/credentials/test")]
+[ApiVersion(FgsApiVersions.V1)]
+[FgsVersionedRoute("credentials/test")]
 [Produces("application/json")]
 [Tags("Credentials (Test - Development Only)")]
 public sealed class CredentialSecretsTestController(

@@ -1,3 +1,5 @@
+using Asp.Versioning;
+using Fgs.Foundation.Api;
 using Fgs.Foundation.Result;
 using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 using Fgs.User.Application.Features.Signup.DTOs;
@@ -10,7 +12,8 @@ namespace Fgs.User.API.Controllers;
 /// Company signup and tenant onboarding.
 /// </summary>
 [ApiController]
-[Route("api/signup")]
+[ApiVersion(FgsApiVersions.V1)]
+[FgsVersionedRoute("signup")]
 [Produces("application/json")]
 public sealed class SignupController(IMediator mediator) : ControllerBase
 {

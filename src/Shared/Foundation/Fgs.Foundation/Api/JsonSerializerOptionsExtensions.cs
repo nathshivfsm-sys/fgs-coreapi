@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Fgs.User.API.Json;
+namespace Fgs.Foundation.Api;
 
-internal static class JsonSerializerOptionsExtensions
+public static class JsonSerializerOptionsExtensions
 {
     public static JsonSerializerOptions ConfigureFgsApi(this JsonSerializerOptions options)
     {

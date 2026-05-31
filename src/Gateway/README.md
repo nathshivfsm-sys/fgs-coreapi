@@ -36,22 +36,23 @@ NGINX listens on `https://localhost:8443` locally.
 
 | Public route | Upstream service | Forwarded path |
 | --- | --- | --- |
-| `/api/auth/{path}` | `user-service:5001` | `/api/auth/{path}` |
-| `/api/invite/{path}` | `user-service:5001` | `/api/invite/{path}` |
-| `/api/signup/{path}` | `user-service:5001` | `/api/signup/{path}` |
-| `/api/users` | `user-service:5001` | `/api/` |
-| `/api/users/{path}` | `user-service:5001` | `/api/{path}` |
-| `/api/platform` | `platform-service:5002` | `/api/` |
-| `/api/platform/{path}` | `platform-service:5002` | `/api/{path}` |
-| `/api/workorders` | `workorder-service:5003` | `/` |
-| `/api/workorders/{path}` | `workorder-service:5003` | `/{path}` |
+| `/api/v1/auth/{path}` | `user-service:5001` | `/api/v1/auth/{path}` |
+| `/api/v1/invite/{path}` | `user-service:5001` | `/api/v1/invite/{path}` |
+| `/api/v1/signup/{path}` | `user-service:5001` | `/api/v1/signup/{path}` |
+| `/api/v1/dashboard` | `user-service:5001` | `/api/v1/dashboard` |
+| `/api/v1/users` | `user-service:5001` | `/api/v1/` |
+| `/api/v1/users/{path}` | `user-service:5001` | `/api/v1/{path}` |
+| `/api/v1/platform` | `platform-service:5002` | `/api/v1/` |
+| `/api/v1/platform/{path}` | `platform-service:5002` | `/api/v1/{path}` |
+| `/api/v1/workorders` | `workorder-service:5003` | `/api/v1/` |
+| `/api/v1/workorders/{path}` | `workorder-service:5003` | `/api/v1/{path}` |
 
 OAuth and invitation URLs are exposed through the gateway (register the same values in Microsoft Entra):
 
 | Setting | Local gateway value |
 | --- | --- |
-| `EntraExternalId:RedirectUri` | `https://localhost:8443/api/auth/entra/callback` |
-| `Invitation:InviteBaseUrl` | `https://localhost:8443/api/invite/start` |
+| `EntraExternalId:RedirectUri` | `https://localhost:8443/api/v1/auth/entra/callback` |
+| `Invitation:InviteBaseUrl` | `https://localhost:8443/api/v1/invite/start` |
 
 Both upstreams use `least_conn`, keepalive connections, passive health checks with `max_fails` and `fail_timeout`, and Docker health checks against each service's `/health` endpoint.
 
@@ -75,9 +76,9 @@ Test the gateway:
 
 ```powershell
 curl.exe -k https://localhost:8443/nginx-health
-curl.exe -k https://localhost:8443/api/users/health
-curl.exe -k https://localhost:8443/api/platform/health
-curl.exe -k https://localhost:8443/api/workorders/health
+curl.exe -k https://localhost:8443/api/v1/users/health
+curl.exe -k https://localhost:8443/api/v1/platform/health
+curl.exe -k https://localhost:8443/api/v1/workorders/health
 ```
 
 The local Compose file starts:
@@ -177,7 +178,7 @@ For Kubernetes, keep this routing model but move responsibilities as follows:
 - Use Kubernetes `Service` objects for `user-service`, `platform-service`, and `workorder-service`.
 - Put TLS certificates in `kubernetes.io/tls` secrets, or use cert-manager.
 - Use NGINX Ingress Controller for path routing and prefix rewrite annotations.
-- Keep `/api/users`, `/api/platform`, and `/api/workorders` as the stable external contract.
+- Keep `/api/v1/users`, `/api/v1/platform`, and `/api/v1/workorders` as the stable external contract.
 - Move rate limiting, body size, gzip, timeouts, and security headers into Ingress annotations or a controller ConfigMap.
 
 The production NGINX files remain useful as the reference edge policy when converting to Ingress resources.

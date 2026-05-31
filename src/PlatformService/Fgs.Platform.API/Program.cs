@@ -1,8 +1,8 @@
+using Fgs.Foundation.Api;
 using Fgs.Foundation.Extensions;
 using Fgs.Messaging.Options;
 using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
-using Fgs.Platform.API.Swagger;
 using Fgs.Platform.Application;
 using Fgs.Platform.Infrastructure;
 using Fgs.Platform.Infrastructure.Database;
@@ -13,8 +13,18 @@ using System.Net.Sockets;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddFgsPlatformSwagger();
+builder.Services.AddFgsApiVersioning();
+builder.Services.AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.ConfigureFgsApi());
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.ConfigureFgsApi());
+builder.Services.AddFgsSwagger(options =>
+{
+    options.Title = "FGS Platform Service";
+    options.Description =
+        "Shared platform capabilities: notifications (email/SMS/push), integrations, audit, background jobs, and reporting foundations.";
+    options.XmlCommentsAssembly = typeof(Program).Assembly;
+});
 builder.Services.AddFgsPlatformApplication();
 builder.Services.AddFgsPlatformInfrastructure(builder.Configuration);
 builder.Services.AddFgsMultiTenancy();
@@ -34,15 +44,7 @@ if (ShouldUseHttpsRedirection(app.Configuration))
     app.UseHttpsRedirection();
 }
 
-if (app.Configuration.IsSwaggerEnabled(app.Environment))
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "FGS Platform Service v1");
-        options.DocumentTitle = "FGS Platform Service — API";
-    });
-}
+app.UseFgsSwagger();
 
 app.UseAuthorization();
 app.MapControllers();

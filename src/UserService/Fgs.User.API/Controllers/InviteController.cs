@@ -1,3 +1,5 @@
+using Asp.Versioning;
+using Fgs.Foundation.Api;
 using Fgs.User.API.Constants;
 using Fgs.User.Application.Features.Invitations.Queries.StartInvitation;
 using MediatR;
@@ -9,7 +11,8 @@ namespace Fgs.User.API.Controllers;
 /// Email invitation deep links (pre–Entra redirect).
 /// </summary>
 [ApiController]
-[Route("api/invite")]
+[ApiVersion(FgsApiVersions.V1)]
+[FgsVersionedRoute("invite")]
 public sealed class InviteController : ControllerBase
 {
     private readonly IMediator _mediator;

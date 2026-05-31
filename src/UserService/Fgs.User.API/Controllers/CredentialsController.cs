@@ -1,3 +1,5 @@
+using Asp.Versioning;
+using Fgs.Foundation.Api;
 using Fgs.Foundation.Result;
 using Fgs.User.Application.Features.Credentials.Commands.CreateCredential;
 using Fgs.User.Application.Features.Credentials.Commands.RevokeCredential;
@@ -16,7 +18,8 @@ namespace Fgs.User.API.Controllers;
 /// Credential provider and secret metadata management. Secret values are write-only and never returned.
 /// </summary>
 [ApiController]
-[Route("api/credentials")]
+[ApiVersion(FgsApiVersions.V1)]
+[FgsVersionedRoute("credentials")]
 [Produces("application/json")]
 public sealed class CredentialsController(IMediator mediator) : ControllerBase
 {

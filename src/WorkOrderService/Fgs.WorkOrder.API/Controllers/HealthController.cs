@@ -2,7 +2,7 @@ using Asp.Versioning;
 using Fgs.Foundation.Api;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Fgs.Platform.API.Controllers;
+namespace Fgs.WorkOrder.API.Controllers;
 
 [ApiController]
 [ApiVersion(FgsApiVersions.V1)]
@@ -11,5 +11,5 @@ public sealed class HealthController : ControllerBase
 {
     [HttpGet]
     public IActionResult Get() =>
-        Ok(new { status = "healthy", service = "Fgs.Platform", apiVersion = FgsApiVersions.V1 });
+        Ok(new { status = "healthy", service = "Fgs.WorkOrder", apiVersion = FgsApiVersions.V1 });
 }

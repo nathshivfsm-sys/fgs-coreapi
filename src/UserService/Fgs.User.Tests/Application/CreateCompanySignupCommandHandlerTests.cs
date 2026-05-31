@@ -310,7 +310,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 [ConfigurationKeys.Invitation.ExpiryDays] = "7",
-                [ConfigurationKeys.Invitation.InviteBaseUrl] = "https://localhost/api/invite/start"
+                [ConfigurationKeys.Invitation.InviteBaseUrl] = "https://localhost/api/v1/invite/start"
             })
             .Build();
 

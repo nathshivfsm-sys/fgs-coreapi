@@ -1,3 +1,5 @@
+using Asp.Versioning;
+using Fgs.Foundation.Api;
 using Fgs.User.Application.Features.Auth.Queries.EntraCallback;
 using Fgs.Foundation.Result;
 using MediatR;
@@ -9,7 +11,8 @@ namespace Fgs.User.API.Controllers;
 /// Authentication endpoints (Microsoft Entra External ID).
 /// </summary>
 [ApiController]
-[Route("api/auth")]
+[ApiVersion(FgsApiVersions.V1)]
+[FgsVersionedRoute("auth")]
 [Produces("application/json")]
 public sealed class AuthController : ControllerBase
 {

@@ -1,5 +1,4 @@
 using Fgs.Foundation.Correlation;
-using Fgs.Foundation.Correlation;
 using Fgs.User.Application.Abstractions.Credentials;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Credentials;

@@ -1,11 +1,10 @@
+using Fgs.Foundation.Api;
 using Fgs.Foundation.Extensions;
 using Fgs.Messaging.Options;
 using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
-using Fgs.User.API.Json;
 using Fgs.Foundation.Middleware;
 using Fgs.User.API.Middleware;
-using Fgs.User.API.Swagger;
 using Fgs.User.Application;
 using Fgs.User.Infrastructure;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
@@ -29,11 +28,20 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 });
 
+builder.Services.AddFgsApiVersioning();
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.ConfigureFgsApi());
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.ConfigureFgsApi());
-builder.Services.AddFgsUserSwagger();
+builder.Services.AddFgsSwagger(options =>
+{
+    options.Title = "FGS User Service";
+    options.Description =
+        "Multi-tenant company onboarding (signup), email invitations, Microsoft Entra External ID callback, "
+        + "transactional outbox, and platform user management.";
+    options.ContactName = "FGS Platform";
+    options.XmlCommentsAssembly = typeof(Program).Assembly;
+});
 builder.Services.AddFgsUserApplication();
 builder.Services.AddFgsUserInfrastructure(builder.Configuration);
 builder.Services.AddFgsMultiTenancy();
@@ -52,7 +60,7 @@ app.UseForwardedHeaders();
 app.UseFgsFoundationMiddleware(options =>
 {
     options.OmitRequestBodyLoggingForPath = path =>
-        path.StartsWithSegments("/api/credentials", StringComparison.OrdinalIgnoreCase);
+        FgsApiPath.StartsWithApiArea(path, "credentials");
 });
 app.UseFgsTenantResolution();
 if (ShouldUseHttpsRedirection(app.Configuration))
@@ -60,16 +68,7 @@ if (ShouldUseHttpsRedirection(app.Configuration))
     app.UseHttpsRedirection();
 }
 
-if (app.Configuration.IsSwaggerEnabled(app.Environment))
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "FGS User Service v1");
-        options.DocumentTitle = "FGS User Service — API";
-        options.DisplayRequestDuration();
-    });
-}
+app.UseFgsSwagger();
 
 app.UseAuthentication();
 app.UseAuthorization();

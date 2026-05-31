@@ -14,21 +14,29 @@ public sealed class PlatformRabbitMqTopologyInitializer(
 
     public async Task EnsureTopologyAsync(IChannel channel, CancellationToken cancellationToken)
     {
+        var exchangeName = _options.ExchangeName;
+        var deadLetterExchangeName = _options.DeadLetterExchangeName
+            ?? throw new InvalidOperationException("RabbitMq:DeadLetterExchangeName must be configured.");
+        var deadLetterQueueName = _options.DeadLetterQueueName
+            ?? throw new InvalidOperationException("RabbitMq:DeadLetterQueueName must be configured.");
+        var notificationQueueName = _options.NotificationQueueName
+            ?? throw new InvalidOperationException("RabbitMq:NotificationQueueName must be configured.");
+
         await channel.ExchangeDeclareAsync(
-            _options.ExchangeName,
+            exchangeName,
             ExchangeType.Topic,
             durable: true,
             cancellationToken: cancellationToken);
 
         await channel.ExchangeDeclareAsync(
-            _options.DeadLetterExchangeName,
+            deadLetterExchangeName,
             ExchangeType.Topic,
             durable: true,
             cancellationToken: cancellationToken);
 
         var dlqArgs = new Dictionary<string, object?>();
         await channel.QueueDeclareAsync(
-            _options.DeadLetterQueueName,
+            deadLetterQueueName,
             durable: true,
             exclusive: false,
             autoDelete: false,
@@ -37,20 +45,20 @@ public sealed class PlatformRabbitMqTopologyInitializer(
             cancellationToken: cancellationToken);
 
         await channel.QueueBindAsync(
-            _options.DeadLetterQueueName,
-            _options.DeadLetterExchangeName,
+            deadLetterQueueName,
+            deadLetterExchangeName,
             "platform.notifications.dlq",
             arguments: null,
             cancellationToken: cancellationToken);
 
         var queueArgs = new Dictionary<string, object?>
         {
-            ["x-dead-letter-exchange"] = _options.DeadLetterExchangeName,
+            ["x-dead-letter-exchange"] = deadLetterExchangeName,
             ["x-dead-letter-routing-key"] = "platform.notifications.dlq"
         };
 
         await channel.QueueDeclareAsync(
-            _options.NotificationQueueName,
+            notificationQueueName,
             durable: true,
             exclusive: false,
             autoDelete: false,
@@ -62,10 +70,10 @@ public sealed class PlatformRabbitMqTopologyInitializer(
             ? _options.QueueBindings
             :
             [
-                new RabbitMqQueueBindingOptions { QueueName = _options.NotificationQueueName, RoutingKey = IntegrationEventRoutingKeys.CompanySignupInviteEmail },
-                new RabbitMqQueueBindingOptions { QueueName = _options.NotificationQueueName, RoutingKey = IntegrationEventRoutingKeys.UserInvited },
-                new RabbitMqQueueBindingOptions { QueueName = _options.NotificationQueueName, RoutingKey = IntegrationEventRoutingKeys.PasswordReset },
-                new RabbitMqQueueBindingOptions { QueueName = _options.NotificationQueueName, RoutingKey = IntegrationEventRoutingKeys.CompanyCreated }
+                new RabbitMqQueueBindingOptions { QueueName = notificationQueueName, RoutingKey = IntegrationEventRoutingKeys.CompanySignupInviteEmail },
+                new RabbitMqQueueBindingOptions { QueueName = notificationQueueName, RoutingKey = IntegrationEventRoutingKeys.UserInvited },
+                new RabbitMqQueueBindingOptions { QueueName = notificationQueueName, RoutingKey = IntegrationEventRoutingKeys.PasswordReset },
+                new RabbitMqQueueBindingOptions { QueueName = notificationQueueName, RoutingKey = IntegrationEventRoutingKeys.CompanyCreated }
             ];
 
         foreach (var binding in bindings)
@@ -76,22 +84,22 @@ public sealed class PlatformRabbitMqTopologyInitializer(
             }
 
             var queueName = string.IsNullOrWhiteSpace(binding.QueueName)
-                ? _options.NotificationQueueName
+                ? notificationQueueName
                 : binding.QueueName.Trim();
 
-            if (!string.Equals(queueName, _options.NotificationQueueName, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(queueName, notificationQueueName, StringComparison.OrdinalIgnoreCase))
             {
                 logger.LogWarning(
                     "Skipping bind for queue {Queue}: Platform service only declares {PlatformQueue}. " +
                     "Do not reuse User Service queue names (they have different broker arguments).",
                     queueName,
-                    _options.NotificationQueueName);
+                    notificationQueueName);
                 continue;
             }
 
             await channel.QueueBindAsync(
                 queueName,
-                _options.ExchangeName,
+                exchangeName,
                 binding.RoutingKey.Trim(),
                 arguments: null,
                 cancellationToken: cancellationToken);
@@ -99,7 +107,7 @@ public sealed class PlatformRabbitMqTopologyInitializer(
             logger.LogInformation(
                 "Bound queue {Queue} to exchange {Exchange} with routing key {RoutingKey}.",
                 queueName,
-                _options.ExchangeName,
+                exchangeName,
                 binding.RoutingKey);
         }
     }

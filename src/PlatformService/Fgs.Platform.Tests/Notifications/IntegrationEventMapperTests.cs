@@ -2,9 +2,9 @@ using Fgs.Platform.Infrastructure.Options;
 using Fgs.Platform.Domain.Notifications;
 using System.Text.Json;
 using Fgs.Contracts.IntegrationEvents;
-using Fgs.Contracts.IntegrationEvents;
 using Fgs.Platform.Infrastructure.Notifications.Queues;
-using Fgs.Messaging.Options; using Microsoft.Extensions.Options;
+using Fgs.Messaging.Options;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.Platform.Tests.Notifications;
 

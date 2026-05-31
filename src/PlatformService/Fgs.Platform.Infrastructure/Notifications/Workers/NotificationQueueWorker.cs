@@ -60,6 +60,9 @@ public sealed class NotificationQueueWorker(
 
         await channel.BasicQosAsync(0, _worker.PrefetchCount, false, stoppingToken);
 
+        var notificationQueueName = _rabbit.NotificationQueueName
+            ?? throw new InvalidOperationException("RabbitMq:NotificationQueueName must be configured.");
+
         var consumer = new AsyncEventingBasicConsumer(channel);
         consumer.ReceivedAsync += async (_, args) =>
         {
@@ -145,7 +148,7 @@ public sealed class NotificationQueueWorker(
         };
 
         await channel.BasicConsumeAsync(
-            _rabbit.NotificationQueueName,
+            notificationQueueName,
             autoAck: false,
             consumer: consumer,
             cancellationToken: stoppingToken);

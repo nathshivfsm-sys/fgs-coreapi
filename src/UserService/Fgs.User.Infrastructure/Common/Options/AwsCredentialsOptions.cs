@@ -34,7 +34,7 @@ public sealed class AwsCredentialsOptions
     public bool EnableLocalProfileFallback { get; set; } = true;
 
     /// <summary>
-    /// When true together with Development environment, exposes GET /api/credentials/test/{secretId}/resolve.
+    /// When true together with Development environment, exposes GET /api/v1/credentials/test/{secretId}/resolve.
     /// Must remain false in production.
     /// </summary>
     public bool EnableTestSecretEndpoint { get; set; }

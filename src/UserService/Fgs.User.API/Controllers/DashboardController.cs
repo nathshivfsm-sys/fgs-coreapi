@@ -1,3 +1,5 @@
+using Asp.Versioning;
+using Fgs.Foundation.Api;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -9,7 +11,8 @@ namespace Fgs.User.API.Controllers;
 /// Temporary local dashboard page after Entra sign-in (dev gateway flow).
 /// </summary>
 [ApiController]
-[Route("api/dashboard")]
+[ApiVersion(FgsApiVersions.V1)]
+[FgsVersionedRoute("dashboard")]
 public sealed class DashboardController : ControllerBase
 {
     private const string PageStyles = """
@@ -141,7 +144,7 @@ public sealed class DashboardController : ControllerBase
                 <p>Signed in via Microsoft Entra. User details below are read from the JWT query parameter.</p>
                 {userSection}
                 {rawTokenBlock}
-                <p class="muted">FGS User Service · <code>GET /api/dashboard?token=…</code></p>
+                <p class="muted">FGS User Service · <code>GET /api/v1/dashboard?token=…</code></p>
               </main>
             </body>
             </html>
@@ -187,7 +190,7 @@ public sealed class DashboardController : ControllerBase
         $"""
          <span class="badge warn">No user data</span>
          <div class="alert">{Encode(message)}</div>
-         <p>Complete sign-in via <code>/api/auth/entra/callback</code> to receive a <code>token</code> query parameter.</p>
+         <p>Complete sign-in via <code>/api/v1/auth/entra/callback</code> to receive a <code>token</code> query parameter.</p>
          """;
 
     private static string Encode(string? value) =>
