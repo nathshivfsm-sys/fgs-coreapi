@@ -9,14 +9,9 @@ public static class FgsDatabaseSchemas
     public const string Glo = "glo";
     public const string Identity = "identity";
     public const string Tenant = "tenant";
-    public const string Crm = "crm";
-    public const string Dispatch = "dispatch";
-    public const string Billing = "billing";
-    public const string Inventory = "inventory";
+    public const string Setup = "setup";
     public const string Shared = "shared";
     public const string Audit = "audit";
-    public const string Integration = "integration";
-    public const string Notification = "notification";
 
     /// <summary>Schema for EF Core migration history.</summary>
     public const string MigrationHistory = Shared;
@@ -26,13 +21,8 @@ public static class FgsDatabaseSchemas
         Glo,
         Identity,
         Tenant,
-        Crm,
-        Dispatch,
-        Billing,
-        Inventory,
+        Setup,
         Shared,
-        Audit,
-        Integration,
-        Notification
+        Audit
     ];
 }

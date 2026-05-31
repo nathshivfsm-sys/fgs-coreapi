@@ -6,6 +6,7 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Schemas;
 /// <summary>
 /// Maps EF entities to PostgreSQL domain schemas.
 /// All <c>Glo*</c> tables belong in the <see cref="FgsDatabaseSchemas.Glo"/> schema.
+/// Tenant/company setup tables belong in <see cref="FgsDatabaseSchemas.Setup"/>.
 /// </summary>
 internal static class EntitySchemaRegistry
 {
@@ -91,51 +92,50 @@ internal static class EntitySchemaRegistry
         [typeof(FgsTenantCompany)] = FgsDatabaseSchemas.Tenant,
         [typeof(FgsTenantServiceSetup)] = FgsDatabaseSchemas.Tenant,
 
-        // crm — customer relationships
-        [typeof(FgsLeadSource)] = FgsDatabaseSchemas.Crm,
-        [typeof(FgsSetupTitleOfCourtesy)] = FgsDatabaseSchemas.Crm,
-
-        // dispatch — jobs, scheduling, technicians, field service setup
-        [typeof(FgsJobType)] = FgsDatabaseSchemas.Dispatch,
-        [typeof(FgsJobTypeCategory)] = FgsDatabaseSchemas.Dispatch,
-        [typeof(FgsJobTypeSubCategory)] = FgsDatabaseSchemas.Dispatch,
-        [typeof(FgsSetupTimeSlot)] = FgsDatabaseSchemas.Dispatch,
-        [typeof(FgsSetupTechTrade)] = FgsDatabaseSchemas.Dispatch,
-        [typeof(FgsSetupTechSkillLevel)] = FgsDatabaseSchemas.Dispatch,
-        [typeof(FgsSetupZone)] = FgsDatabaseSchemas.Dispatch,
-        [typeof(FgsSetupPostalCode)] = FgsDatabaseSchemas.Dispatch,
-        [typeof(FgsSetupServiceAssetType)] = FgsDatabaseSchemas.Dispatch,
-        [typeof(FgsSetupServiceAssetManufacturer)] = FgsDatabaseSchemas.Dispatch,
-        [typeof(FgsSetupServiceAssetModelReference)] = FgsDatabaseSchemas.Dispatch,
-        [typeof(FgsResolutionCode)] = FgsDatabaseSchemas.Dispatch,
-        [typeof(FgsBusinessType)] = FgsDatabaseSchemas.Dispatch,
-
-        // billing — financial domain
-        [typeof(FgsBillingCategory)] = FgsDatabaseSchemas.Billing,
-        [typeof(FgsSetupGLBreak)] = FgsDatabaseSchemas.Billing,
-        [typeof(FgsSetupGLBreakTrade)] = FgsDatabaseSchemas.Billing,
-        [typeof(FgsSetupTax)] = FgsDatabaseSchemas.Billing,
-        [typeof(FgsSetupTaxAuthority)] = FgsDatabaseSchemas.Billing,
-        [typeof(FgsSetupTaxDetail)] = FgsDatabaseSchemas.Billing,
-        [typeof(FgsSetupPaymentMethod)] = FgsDatabaseSchemas.Billing,
-        [typeof(FgsSetupPaymentTerm)] = FgsDatabaseSchemas.Billing,
-        [typeof(FgsSetupLaborRateType)] = FgsDatabaseSchemas.Billing,
-        [typeof(FgsSetupPricingMatrix)] = FgsDatabaseSchemas.Billing,
-        [typeof(FgsSetupPricingMatrixLabor)] = FgsDatabaseSchemas.Billing,
-        [typeof(FgsSetupPricingMatrixLaborTier)] = FgsDatabaseSchemas.Billing,
-        [typeof(FgsSetupPricingMatrixMaterialTier)] = FgsDatabaseSchemas.Billing,
-        [typeof(FgsSetupPricingMatrixOther)] = FgsDatabaseSchemas.Billing,
-
-        // inventory — inventory and procurement
-        [typeof(FgsInventoryItemType)] = FgsDatabaseSchemas.Inventory,
-        [typeof(FgsInventoryCategory)] = FgsDatabaseSchemas.Inventory,
-        [typeof(FgsInventorySubCategory)] = FgsDatabaseSchemas.Inventory,
-        [typeof(FgsInventoryItem)] = FgsDatabaseSchemas.Inventory,
-        [typeof(FgsInventoryStock)] = FgsDatabaseSchemas.Inventory,
-        [typeof(FgsInventoryItemAlternate)] = FgsDatabaseSchemas.Inventory,
-        [typeof(FgsInventoryItemDependency)] = FgsDatabaseSchemas.Inventory,
-        [typeof(FgsVendor)] = FgsDatabaseSchemas.Inventory,
-        [typeof(FgsVendorInventoryItem)] = FgsDatabaseSchemas.Inventory,
+        // setup — tenant/company configuration (billing, crm, dispatch, inventory, integration, notification)
+        [typeof(FgsLeadSource)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupTitleOfCourtesy)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsJobType)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsJobTypeCategory)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsJobTypeSubCategory)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupTimeSlot)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupTechTrade)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupTechSkillLevel)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupZone)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupPostalCode)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupServiceAssetType)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupServiceAssetManufacturer)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupServiceAssetModelReference)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsResolutionCode)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsBusinessType)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsBillingCategory)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupGLBreak)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupGLBreakTrade)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupTax)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupTaxAuthority)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupTaxDetail)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupPaymentMethod)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupPaymentTerm)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupLaborRateType)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupPricingMatrix)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupPricingMatrixLabor)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupPricingMatrixLaborTier)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupPricingMatrixMaterialTier)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupPricingMatrixOther)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsInventoryItemType)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsInventoryCategory)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsInventorySubCategory)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsInventoryItem)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsInventoryStock)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsInventoryItemAlternate)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsInventoryItemDependency)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsVendor)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsVendorInventoryItem)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsCredentialProvider)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsCredentialProviderConfiguration)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsCredentialSecret)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupCommunicationTemplate)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupDescription)] = FgsDatabaseSchemas.Setup,
 
         // shared — cross-domain infrastructure (Fgs* only)
         [typeof(FgsFile)] = FgsDatabaseSchemas.Shared,
@@ -146,15 +146,6 @@ internal static class EntitySchemaRegistry
 
         // audit — audit trails
         [typeof(FgsCredentialAudit)] = FgsDatabaseSchemas.Audit,
-
-        // integration — third-party connectivity and credentials (Fgs* only)
-        [typeof(FgsCredentialProvider)] = FgsDatabaseSchemas.Integration,
-        [typeof(FgsCredentialProviderConfiguration)] = FgsDatabaseSchemas.Integration,
-        [typeof(FgsCredentialSecret)] = FgsDatabaseSchemas.Integration,
-
-        // notification — messaging and templates (Fgs* only)
-        [typeof(FgsSetupCommunicationTemplate)] = FgsDatabaseSchemas.Notification,
-        [typeof(FgsSetupDescription)] = FgsDatabaseSchemas.Notification,
     };
 
     private static Dictionary<string, string> BuildTableSchemas()

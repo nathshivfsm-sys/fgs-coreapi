@@ -1308,19 +1308,19 @@ SELECT
     NULL::bigint
 FROM (
     VALUES
-        ('ALL_GloBillingCategory', 'fgs_dev_db', 'glo', 'GloBillingCategory', 'fgs_dev_db', 'billing', 'FgsBillingCategory', 100, 'Billing Category', true),
-        ('ALL_GloJobTypeCategory', 'fgs_dev_db', 'glo', 'GloJobTypeCategory', 'fgs_dev_db', 'dispatch', 'FgsJobTypeCategory', 130, 'JobType Categories', true),
-        ('ALL_GloJobTypeSubCategory', 'fgs_dev_db', 'glo', 'GloJobTypeSubCategory', 'fgs_dev_db', 'dispatch', 'FgsJobTypeSubCategory', 160, 'JobType Sub Categories', true),
-        ('ALL_GloLeadSource', 'fgs_dev_db', 'glo', 'GloLeadSource', 'fgs_dev_db', 'crm', 'FgsLeadSource', 190, 'Lead Source', true),
-        ('ALL_GloPaymentMethodType', 'fgs_dev_db', 'glo', 'GloPaymentMethodType', 'fgs_dev_db', 'billing', 'FgsSetupPaymentMethod', 220, 'Payment Method', true),
-        ('ALL_GloResolutionType', 'fgs_dev_db', 'glo', 'GloResolutionType', 'fgs_dev_db', 'dispatch', 'FgsResolutionCode', 250, 'Resolution Code', true),
-        ('ALL_GloSetupLaborRateType', 'fgs_dev_db', 'glo', 'GloSetupLaborRateType', 'fgs_dev_db', 'billing', 'FgsSetupLaborRateType', 280, 'Labor Rate Type', true),
-        ('GloSkill', 'fgs_dev_db', 'glo', 'GloSkill', 'fgs_dev_db', 'dispatch', 'FgsSetupTechSkillLevel', 310, 'Technician Skill', true),
+        ('ALL_GloBillingCategory', 'fgs_dev_db', 'glo', 'GloBillingCategory', 'fgs_dev_db', 'setup', 'FgsBillingCategory', 100, 'Billing Category', true),
+        ('ALL_GloJobTypeCategory', 'fgs_dev_db', 'glo', 'GloJobTypeCategory', 'fgs_dev_db', 'setup', 'FgsJobTypeCategory', 130, 'JobType Categories', true),
+        ('ALL_GloJobTypeSubCategory', 'fgs_dev_db', 'glo', 'GloJobTypeSubCategory', 'fgs_dev_db', 'setup', 'FgsJobTypeSubCategory', 160, 'JobType Sub Categories', true),
+        ('ALL_GloLeadSource', 'fgs_dev_db', 'glo', 'GloLeadSource', 'fgs_dev_db', 'setup', 'FgsLeadSource', 190, 'Lead Source', true),
+        ('ALL_GloPaymentMethodType', 'fgs_dev_db', 'glo', 'GloPaymentMethodType', 'fgs_dev_db', 'setup', 'FgsSetupPaymentMethod', 220, 'Payment Method', true),
+        ('ALL_GloResolutionType', 'fgs_dev_db', 'glo', 'GloResolutionType', 'fgs_dev_db', 'setup', 'FgsResolutionCode', 250, 'Resolution Code', true),
+        ('ALL_GloSetupLaborRateType', 'fgs_dev_db', 'glo', 'GloSetupLaborRateType', 'fgs_dev_db', 'setup', 'FgsSetupLaborRateType', 280, 'Labor Rate Type', true),
+        ('GloSkill', 'fgs_dev_db', 'glo', 'GloSkill', 'fgs_dev_db', 'setup', 'FgsSetupTechSkillLevel', 310, 'Technician Skill', true),
         ('ALL_GloTag', 'fgs_dev_db', 'glo', 'GloTag', 'fgs_dev_db', 'shared', 'FgsTag', 340, 'Tags', true),
-        ('GloTrade', 'fgs_dev_db', 'glo', 'GloTrade', 'fgs_dev_db', 'dispatch', 'FgsSetupTechTrade', 410, 'Technician Trade', true),
-        ('ALL_GloTitleOfCourtesy', 'fgs_dev_db', 'glo', 'GloTitleOfCourtesy', 'fgs_dev_db', 'crm', 'FgsSetupTitleOfCourtesy', 440, 'Title Of Courtesy', true),
-        ('ALL_GloZone', 'fgs_dev_db', 'glo', 'GloZone', 'fgs_dev_db', 'dispatch', 'FgsSetupZone', 470, 'Zone', true),
-        ('ALL_GloSetupPaymentTerm', 'fgs_dev_db', 'glo', 'GloSetupPaymentTerm', 'fgs_dev_db', 'billing', 'FgsSetupPaymentTerm', 500, 'Payment Term', true)
+        ('GloTrade', 'fgs_dev_db', 'glo', 'GloTrade', 'fgs_dev_db', 'setup', 'FgsSetupTechTrade', 410, 'Technician Trade', true),
+        ('ALL_GloTitleOfCourtesy', 'fgs_dev_db', 'glo', 'GloTitleOfCourtesy', 'fgs_dev_db', 'setup', 'FgsSetupTitleOfCourtesy', 440, 'Title Of Courtesy', true),
+        ('ALL_GloZone', 'fgs_dev_db', 'glo', 'GloZone', 'fgs_dev_db', 'setup', 'FgsSetupZone', 470, 'Zone', true),
+        ('ALL_GloSetupPaymentTerm', 'fgs_dev_db', 'glo', 'GloSetupPaymentTerm', 'fgs_dev_db', 'setup', 'FgsSetupPaymentTerm', 500, 'Payment Term', true)
 ) AS v("SeedCode", "SourceDatabaseName", "SourceSchemaName", "SourceTableName", "TargetDatabaseName", "TargetSchemaName", "TargetTableName", "SeedOrder", "Description", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1 FROM glo."GloSeedTableMapping" m WHERE m."SeedCode" = v."SeedCode"

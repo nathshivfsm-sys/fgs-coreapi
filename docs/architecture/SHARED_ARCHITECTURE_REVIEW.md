@@ -311,7 +311,7 @@ Service-specific exception mapping via `IExceptionStatusMapper` (e.g. `Credentia
 - API Gateway is **NGINX** (already implemented); lives at `src/Gateway/` (moved from `deployment/nginx/`)
 
 **Remaining Phase 3 work:**
-- [ ] Split inventory/billing entities from UserService (within existing services only — no new service)
+- [x] Consolidate tenant setup tables into PostgreSQL `setup` schema (from billing, crm, dispatch, integration, inventory, notification)
 - [ ] Separate DbContext per bounded context inside UserService (same PostgreSQL, existing schemas)
 - [x] NGINX API Gateway under `src/Gateway/` (routes `/api/users`, `/api/platform`, `/api/workorders`)
 
