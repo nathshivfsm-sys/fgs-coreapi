@@ -132,6 +132,11 @@ public class FgsUserDbContext : FgsTenantFilteredDbContext
 
     public DbSet<GloCommunicationToken> GloCommunicationTokens => Set<GloCommunicationToken>();
 
+    public DbSet<GloCommunicationTemplate> GloCommunicationTemplates => Set<GloCommunicationTemplate>();
+
+    public DbSet<GloCommunicationTemplateToken> GloCommunicationTemplateTokens =>
+        Set<GloCommunicationTemplateToken>();
+
     public DbSet<GloTimeCardOption> GloTimeCardOptions => Set<GloTimeCardOption>();
 
     public DbSet<GloPaymentMethodType> GloPaymentMethodTypes => Set<GloPaymentMethodType>();
@@ -218,6 +223,7 @@ public class FgsUserDbContext : FgsTenantFilteredDbContext
         EntitySchemaRegistry.ApplySchemas(modelBuilder);
         ConfigureAuditActorColumns(modelBuilder);
         ApplyFgsTenantQueryFilters(modelBuilder);
+        ApplyFgsNullableTenantCompanyQueryFilter<FgsSetupCommunicationTemplate>(modelBuilder);
     }
 
     private static void ConfigureAuditActorColumns(ModelBuilder modelBuilder)

@@ -110,6 +110,35 @@ WHERE "Code" IN (
     'AgreementDescription'
 );
 
+DELETE FROM glo."GloCommunicationTemplate"
+WHERE ("CommunicationChannel", "TemplateCode") IN (
+    ('Email', 'USER_INVITATION'),
+    ('Email', 'PASSWORD_RESET'),
+    ('Email', 'EMAIL_VERIFICATION'),
+    ('SystemNotification', 'ACCOUNT_LOCKED'),
+    ('SystemNotification', 'MFA_CODE'),
+    ('Email', 'CUSTOMER_WELCOME'),
+    ('Email', 'ESTIMATE_SENT'),
+    ('Email', 'ESTIMATE_APPROVED'),
+    ('Email', 'INVOICE_SENT'),
+    ('Email', 'PAYMENT_RECEIVED'),
+    ('Email', 'PAST_DUE_NOTICE'),
+    ('Email', 'WORKORDER_CREATED'),
+    ('Email', 'WORKORDER_COMPLETED'),
+    ('Email', 'APPOINTMENT_REMINDER'),
+    ('SMS', 'APPOINTMENT_REMINDER'),
+    ('SMS', 'TECHNICIAN_EN_ROUTE'),
+    ('SMS', 'TECHNICIAN_ARRIVED'),
+    ('SMS', 'INVOICE_SENT'),
+    ('SMS', 'PAYMENT_RECEIVED'),
+    ('PushNotification', 'WORKORDER_ASSIGNED'),
+    ('PushNotification', 'WORKORDER_COMPLETED'),
+    ('PushNotification', 'APPOINTMENT_REMINDER'),
+    ('SystemNotification', 'ESTIMATE_APPROVED'),
+    ('SystemNotification', 'PAYMENT_RECEIVED'),
+    ('SystemNotification', 'WORKORDER_COMPLETED')
+);
+
 DELETE FROM glo."GloRole"
 WHERE "RoleCode" IN (
     'SYSTEM_ADMIN',

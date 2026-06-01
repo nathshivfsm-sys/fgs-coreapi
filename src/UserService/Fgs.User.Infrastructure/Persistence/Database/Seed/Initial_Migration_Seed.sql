@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Seed: CleanUpTables global reference data (User Service)
--- Run manually after: 20260518163137_Initial_Migration_Up.sql
+-- Run manually after migrations (including 20260601115438_AddGloCommunicationTemplateAndSchemaComments).
 -- Not part of EF migration / Up / Down scripts.
 --
 -- Idempotent: each insert skips rows that already exist (matched by natural key).
@@ -599,6 +599,71 @@ WHERE NOT EXISTS (
 SELECT setval(
     pg_get_serial_sequence('glo."GloRole"', 'Id'),
     COALESCE((SELECT MAX("Id") FROM glo."GloRole"), 1),
+    true);
+
+-- GloCommunicationTemplate (FSM-provided communication templates)
+INSERT INTO glo."GloCommunicationTemplate"
+(
+    "TemplateScope",
+    "CommunicationChannel",
+    "TemplateCode",
+    "Name",
+    "Subject",
+    "Body",
+    "IsMobileVisible",
+    "DisplayOrder",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."TemplateScope",
+    v."CommunicationChannel",
+    v."TemplateCode",
+    v."Name",
+    v."Subject",
+    v."Body",
+    v."IsMobileVisible",
+    v."DisplayOrder",
+    v."IsActive",
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('System', 'Email', 'USER_INVITATION', 'User Invitation', 'You have been invited to {{CompanyName}}', E'Hello {{UserName}},\n\nYou have been invited to join {{CompanyName}}.\n\nClick the link below to activate your account:\n\n{{ActivationLink}}', false, 10::smallint, true),
+        ('System', 'Email', 'PASSWORD_RESET', 'Password Reset', 'Password Reset Request', E'Hello {{UserName}},\n\nA password reset was requested for your account.\n\nReset your password using the link below:\n\n{{ResetLink}}', false, 20::smallint, true),
+        ('System', 'Email', 'EMAIL_VERIFICATION', 'Email Verification', 'Verify Your Email Address', E'Hello {{UserName}},\n\nPlease verify your email address using the link below:\n\n{{VerificationLink}}', false, 30::smallint, true),
+        ('System', 'SystemNotification', 'ACCOUNT_LOCKED', 'Account Locked', NULL::text, 'Your account has been locked due to multiple failed login attempts.', false, 40::smallint, true),
+        ('System', 'SystemNotification', 'MFA_CODE', 'Multi-Factor Authentication Code', NULL::text, 'Your verification code is {{VerificationCode}}.', false, 50::smallint, true),
+        ('Tenant', 'Email', 'CUSTOMER_WELCOME', 'Customer Welcome', 'Welcome to {{CompanyName}}', E'Hello {{CustomerName}},\n\nThank you for choosing {{CompanyName}}.', false, 100::smallint, true),
+        ('Tenant', 'Email', 'ESTIMATE_SENT', 'Estimate Sent', 'Estimate {{EstimateNumber}}', E'Hello {{CustomerName}},\n\nYour estimate {{EstimateNumber}} is ready.\n\nAmount: {{EstimateAmount}}\n\n{{EstimateLink}}', false, 110::smallint, true),
+        ('Tenant', 'Email', 'ESTIMATE_APPROVED', 'Estimate Approved', 'Estimate Approved', 'Estimate {{EstimateNumber}} has been approved.', false, 120::smallint, true),
+        ('Tenant', 'Email', 'INVOICE_SENT', 'Invoice Sent', 'Invoice {{InvoiceNumber}}', E'Hello {{CustomerName}},\n\nInvoice {{InvoiceNumber}} is ready.\n\nAmount Due: {{InvoiceAmount}}\n\n{{PaymentLink}}', false, 130::smallint, true),
+        ('Tenant', 'Email', 'PAYMENT_RECEIVED', 'Payment Received', 'Payment Receipt', E'Payment of {{PaymentAmount}} has been received.\n\nInvoice: {{InvoiceNumber}}\n\nThank you.', false, 140::smallint, true),
+        ('Tenant', 'Email', 'PAST_DUE_NOTICE', 'Past Due Notice', 'Past Due Invoice {{InvoiceNumber}}', E'Invoice {{InvoiceNumber}} is now past due.\n\nBalance Due: {{BalanceDue}}', false, 150::smallint, true),
+        ('Tenant', 'Email', 'WORKORDER_CREATED', 'Work Order Created', 'Work Order {{WorkOrderNumber}} Created', 'Your work order has been scheduled for {{ScheduledDate}}.', true, 160::smallint, true),
+        ('Tenant', 'Email', 'WORKORDER_COMPLETED', 'Work Order Completed', 'Work Order Completed', 'Your work order {{WorkOrderNumber}} has been completed.', true, 170::smallint, true),
+        ('Tenant', 'Email', 'APPOINTMENT_REMINDER', 'Appointment Reminder', 'Upcoming Appointment Reminder', 'Reminder: Your appointment is scheduled for {{AppointmentDate}} at {{AppointmentTime}}.', true, 180::smallint, true),
+        ('Tenant', 'SMS', 'APPOINTMENT_REMINDER', 'Appointment Reminder SMS', NULL::text, 'Reminder: Appointment on {{AppointmentDate}} at {{AppointmentTime}}.', true, 200::smallint, true),
+        ('Tenant', 'SMS', 'TECHNICIAN_EN_ROUTE', 'Technician En Route', NULL::text, '{{TechnicianName}} is on the way for work order {{WorkOrderNumber}}.', true, 210::smallint, true),
+        ('Tenant', 'SMS', 'TECHNICIAN_ARRIVED', 'Technician Arrived', NULL::text, '{{TechnicianName}} has arrived.', true, 220::smallint, true),
+        ('Tenant', 'SMS', 'INVOICE_SENT', 'Invoice Sent SMS', NULL::text, 'Invoice {{InvoiceNumber}} for {{InvoiceAmount}} is ready. {{PaymentLink}}', true, 230::smallint, true),
+        ('Tenant', 'SMS', 'PAYMENT_RECEIVED', 'Payment Received SMS', NULL::text, 'Payment of {{PaymentAmount}} received. Thank you.', true, 240::smallint, true),
+        ('Tenant', 'PushNotification', 'WORKORDER_ASSIGNED', 'Work Order Assigned', NULL::text, 'You have been assigned work order {{WorkOrderNumber}}.', true, 300::smallint, true),
+        ('Tenant', 'PushNotification', 'WORKORDER_COMPLETED', 'Work Order Completed', NULL::text, 'Work order {{WorkOrderNumber}} completed.', true, 310::smallint, true),
+        ('Tenant', 'PushNotification', 'APPOINTMENT_REMINDER', 'Appointment Reminder', NULL::text, 'Upcoming appointment at {{AppointmentTime}}.', true, 320::smallint, true),
+        ('Tenant', 'SystemNotification', 'ESTIMATE_APPROVED', 'Estimate Approved', NULL::text, 'Estimate {{EstimateNumber}} approved.', true, 400::smallint, true),
+        ('Tenant', 'SystemNotification', 'PAYMENT_RECEIVED', 'Payment Received', NULL::text, 'Payment of {{PaymentAmount}} received.', true, 410::smallint, true),
+        ('Tenant', 'SystemNotification', 'WORKORDER_COMPLETED', 'Work Order Completed', NULL::text, 'Work order {{WorkOrderNumber}} completed.', true, 420::smallint, true)
+) AS v("TemplateScope", "CommunicationChannel", "TemplateCode", "Name", "Subject", "Body", "IsMobileVisible", "DisplayOrder", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM glo."GloCommunicationTemplate" t
+    WHERE t."CommunicationChannel" = v."CommunicationChannel"
+      AND t."TemplateCode" = v."TemplateCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloCommunicationTemplate"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloCommunicationTemplate"), 1),
     true);
 
 -- GloSetupDescriptionType

@@ -50,6 +50,8 @@ internal static class EntitySchemaRegistry
         [typeof(GloBillingCategory)] = FgsDatabaseSchemas.Glo,
         [typeof(GloBusinessType)] = FgsDatabaseSchemas.Glo,
         [typeof(GloCommunicationToken)] = FgsDatabaseSchemas.Glo,
+        [typeof(GloCommunicationTemplate)] = FgsDatabaseSchemas.Glo,
+        [typeof(GloCommunicationTemplateToken)] = FgsDatabaseSchemas.Glo,
         [typeof(GloCountry)] = FgsDatabaseSchemas.Glo,
         [typeof(GloCredentialCategory)] = FgsDatabaseSchemas.Glo,
         [typeof(GloCredentialProviderType)] = FgsDatabaseSchemas.Glo,
