@@ -35,14 +35,13 @@ public class FgsUserDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsLocation> FgsLocations => Set<FgsLocation>();
 
-    public DbSet<FgsCredentialProvider> FgsCredentialProviders => Set<FgsCredentialProvider>();
-
-    public DbSet<FgsCredentialProviderConfiguration> FgsCredentialProviderConfigurations =>
-        Set<FgsCredentialProviderConfiguration>();
-
-    public DbSet<FgsCredentialSecret> FgsCredentialSecrets => Set<FgsCredentialSecret>();
+    public DbSet<FgsCredential> FgsCredentials => Set<FgsCredential>();
 
     public DbSet<FgsCredentialAudit> FgsCredentialAudits => Set<FgsCredentialAudit>();
+
+    public DbSet<GloCredential> GloCredentials => Set<GloCredential>();
+
+    public DbSet<GloCredentialProviderType> GloCredentialProviderTypes => Set<GloCredentialProviderType>();
 
     public DbSet<FgsSetupTechTrade> FgsSetupTechTrades => Set<FgsSetupTechTrade>();
 
@@ -188,10 +187,6 @@ public class FgsUserDbContext : FgsTenantFilteredDbContext
     public DbSet<GloBillingCategory> GloBillingCategories => Set<GloBillingCategory>();
 
     public DbSet<GloLocationType> GloLocationTypes => Set<GloLocationType>();
-
-    public DbSet<GloCredentialCategory> GloCredentialCategories => Set<GloCredentialCategory>();
-
-    public DbSet<GloCredentialProviderType> GloCredentialProviderTypes => Set<GloCredentialProviderType>();
 
     public DbSet<GloResolutionType> GloResolutionTypes => Set<GloResolutionType>();
 

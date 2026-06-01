@@ -4,7 +4,6 @@ using Fgs.Messaging.Options;
 using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
 using Fgs.Foundation.Middleware;
-using Fgs.User.API.Middleware;
 using Fgs.User.Application;
 using Fgs.User.Infrastructure;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
@@ -46,7 +45,6 @@ builder.Services.AddFgsUserApplication();
 builder.Services.AddFgsUserInfrastructure(builder.Configuration);
 builder.Services.AddFgsMultiTenancy();
 builder.Services.AddFgsObservability(builder.Configuration, "fgs-user-service");
-builder.Services.AddSingleton<IExceptionStatusMapper, CredentialSecretsExceptionMapper>();
 
 var app = builder.Build();
 
@@ -57,11 +55,7 @@ LogRabbitMqEffectiveConfig(app);
 ProbeLocalRabbitMqTcpIfDevelopment(app);
 
 app.UseForwardedHeaders();
-app.UseFgsFoundationMiddleware(options =>
-{
-    options.OmitRequestBodyLoggingForPath = path =>
-        FgsApiPath.StartsWithApiArea(path, "credentials");
-});
+app.UseFgsFoundationMiddleware();
 if (ShouldUseHttpsRedirection(app.Configuration))
 {
     app.UseHttpsRedirection();

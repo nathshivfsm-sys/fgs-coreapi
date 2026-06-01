@@ -28,42 +28,7 @@ WHERE ("CountryCode", "StateProvinceCode") IN (
 );
 
 DELETE FROM glo."GloCredentialProviderType"
-WHERE "Code" IN (
-    'AWS',
-    'AZURE',
-    'TWILIO',
-    'STRIPE',
-    'PAYPAL',
-    'QUICKBOOKS',
-    'SHOPIFY',
-    'HUBSPOT',
-    'MAILCHIMP',
-    'SENDGRID',
-    'GOOGLE',
-    'MICROSOFT',
-    'META',
-    'DOCUSIGN',
-    'CUSTOM',
-    'OTHER'
-);
-
-DELETE FROM glo."GloCredentialCategory"
-WHERE "Code" IN (
-    'API_KEY',
-    'OAUTH',
-    'DATABASE',
-    'SMTP',
-    'AWS',
-    'AZURE',
-    'PAYMENT_GATEWAY',
-    'TWILIO',
-    'STRIPE',
-    'QUICKBOOKS',
-    'SERVICE_ACCOUNT',
-    'SSH',
-    'ENCRYPTION',
-    'WEBHOOK'
-);
+WHERE "ProviderCode" IN ('RABBITMQ');
 
 DELETE FROM glo."GloCountry"
 WHERE "CountryCode" IN (

@@ -291,87 +291,39 @@ WHERE NOT EXISTS (
     WHERE t."CountryCode" = v."CountryCode"
 );
 
--- GloCredentialCategory
-INSERT INTO glo."GloCredentialCategory"
-(
-    "Code",
-    "Name",
-    "IsActive",
-    "CreatedOn",
-    "UpdatedOn"
-)
-SELECT
-    v."Code",
-    v."Name",
-    v."IsActive",
-    timezone('utc', now()),
-    NULL::timestamptz
-FROM (
-    VALUES
-        ('API_KEY', 'API Key', true),
-        ('OAUTH', 'OAuth Credentials', true),
-        ('DATABASE', 'Database Credentials', true),
-        ('SMTP', 'SMTP Email Credentials', true),
-        ('AWS', 'AWS Access Credentials', true),
-        ('AZURE', 'Azure Access Credentials', true),
-        ('PAYMENT_GATEWAY', 'Payment Gateway Credentials', true),
-        ('TWILIO', 'Twilio Credentials', true),
-        ('STRIPE', 'Stripe Credentials', true),
-        ('QUICKBOOKS', 'QuickBooks Credentials', true),
-        ('SERVICE_ACCOUNT', 'Service Account Credentials', true),
-        ('SSH', 'SSH Credentials', true),
-        ('ENCRYPTION', 'Encryption Keys', true),
-        ('WEBHOOK', 'Webhook Secret', true)
-) AS v("Code", "Name", "IsActive")
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM glo."GloCredentialCategory" t
-    WHERE t."Code" = v."Code"
-);
-
-SELECT setval(
-    pg_get_serial_sequence('glo."GloCredentialCategory"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM glo."GloCredentialCategory"), 1),
-    true);
-
 -- GloCredentialProviderType
 INSERT INTO glo."GloCredentialProviderType"
 (
-    "Code",
-    "Name",
-    "IsActive",
+    "ProviderCode",
+    "ProviderName",
+    "ConfigurationSchema",
     "CreatedOn",
-    "UpdatedOn"
+    "CreatedBy"
 )
 SELECT
-    v."Code",
-    v."Name",
-    v."IsActive",
+    v."ProviderCode",
+    v."ProviderName",
+    v."ConfigurationSchema"::jsonb,
     timezone('utc', now()),
-    NULL::timestamptz
+    'SYSTEM'
 FROM (
     VALUES
-        ('AWS', 'Amazon Web Services', true),
-        ('AZURE', 'Microsoft Azure', true),
-        ('TWILIO', 'Twilio', true),
-        ('STRIPE', 'Stripe', true),
-        ('PAYPAL', 'PayPal', true),
-        ('QUICKBOOKS', 'QuickBooks', true),
-        ('SHOPIFY', 'Shopify', true),
-        ('HUBSPOT', 'HubSpot', true),
-        ('MAILCHIMP', 'Mailchimp', true),
-        ('SENDGRID', 'SendGrid', true),
-        ('GOOGLE', 'Google Services', true),
-        ('MICROSOFT', 'Microsoft Services', true),
-        ('META', 'Meta / Facebook', true),
-        ('DOCUSIGN', 'DocuSign', true),
-        ('CUSTOM', 'Custom Provider', true),
-        ('OTHER', 'Other Provider', true)
-) AS v("Code", "Name", "IsActive")
+        (
+            'RABBITMQ',
+            'RabbitMQ',
+            '[
+                {"key":"Host","label":"Host","type":"text","required":true},
+                {"key":"Port","label":"Port","type":"number","required":true},
+                {"key":"Username","label":"Username","type":"text","required":true},
+                {"key":"Password","label":"Password","type":"password","required":true,"sensitive":true},
+                {"key":"VirtualHost","label":"Virtual Host","type":"text","required":false}
+            ]'
+        )
+) AS v("ProviderCode", "ProviderName", "ConfigurationSchema")
 WHERE NOT EXISTS (
     SELECT 1
     FROM glo."GloCredentialProviderType" t
-    WHERE t."Code" = v."Code"
+    WHERE t."ProviderCode" = v."ProviderCode"
 );
 
 SELECT setval(
