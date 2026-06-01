@@ -1,7 +1,7 @@
 using System.Data;
 using System.Data.Common;
 using Fgs.User.Application.Abstractions.Provisioning;
-using Fgs.User.Application.TenantProvisioning;
+using Fgs.User.Application.Features.TenantProvisioning;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;

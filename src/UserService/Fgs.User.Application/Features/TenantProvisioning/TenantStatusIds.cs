@@ -1,4 +1,4 @@
-namespace Fgs.User.Application.TenantProvisioning;
+namespace Fgs.User.Application.Features.TenantProvisioning;
 
 /// <summary>
 /// <see cref="GloSetupTenantStatus"/> identifiers (seeded in Initial_Migration_Seed.sql).

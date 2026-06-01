@@ -18,7 +18,7 @@ using Fgs.User.Application.Features.Signup;
 
 using Fgs.Contracts.IntegrationEvents;
 
-using Fgs.User.Application.TenantProvisioning;
+using Fgs.User.Application.Features.TenantProvisioning;
 
 using Fgs.User.Domain.Entities;
 

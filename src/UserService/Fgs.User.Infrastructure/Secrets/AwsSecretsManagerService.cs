@@ -1,7 +1,7 @@
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Fgs.User.Application.Abstractions.Credentials;
-using Fgs.User.Application.Credentials;
+using Fgs.User.Application.Features.Credentials;
 using Microsoft.Extensions.Logging;
 
 namespace Fgs.User.Infrastructure.Secrets;

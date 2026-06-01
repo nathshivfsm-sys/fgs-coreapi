@@ -1,6 +1,6 @@
 using Fgs.User.Domain.Entities;
 
-namespace Fgs.User.Application.Credentials;
+namespace Fgs.User.Application.Features.Credentials;
 
 /// <summary>
 /// Maps existing <see cref="FgsCredentialSecret"/> columns to AWS Secrets Manager metadata.

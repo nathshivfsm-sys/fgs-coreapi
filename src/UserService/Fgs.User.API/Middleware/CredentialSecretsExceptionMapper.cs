@@ -1,6 +1,6 @@
 using System.Net;
 using Fgs.Foundation.Middleware;
-using Fgs.User.Application.Credentials;
+using Fgs.User.Application.Features.Credentials;
 
 namespace Fgs.User.API.Middleware;
 

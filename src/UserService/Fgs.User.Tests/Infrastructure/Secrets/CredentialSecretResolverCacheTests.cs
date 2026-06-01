@@ -1,7 +1,7 @@
 using Fgs.Foundation.Correlation;
 using Fgs.User.Application.Abstractions.Credentials;
 using Fgs.Persistence.Abstractions;
-using Fgs.User.Application.Credentials;
+using Fgs.User.Application.Features.Credentials;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Secrets;
 using Microsoft.Extensions.Logging.Abstractions;

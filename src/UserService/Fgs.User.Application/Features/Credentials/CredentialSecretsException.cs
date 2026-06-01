@@ -1,4 +1,4 @@
-namespace Fgs.User.Application.Credentials;
+namespace Fgs.User.Application.Features.Credentials;
 
 /// <summary>
 /// Raised when AWS Secrets Manager operations fail. Never includes secret values in the message.

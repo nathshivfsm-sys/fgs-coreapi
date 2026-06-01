@@ -1,4 +1,4 @@
-namespace Fgs.User.Application.Credentials;
+namespace Fgs.User.Application.Features.Credentials;
 
 public static class CredentialAuditRemarks
 {

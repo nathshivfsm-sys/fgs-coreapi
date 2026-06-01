@@ -2,7 +2,7 @@ using Fgs.User.Application.Abstractions.Provisioning;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Application.Features.Auth;
 using Fgs.Contracts.IntegrationEvents;
-using Fgs.User.Application.TenantProvisioning;
+using Fgs.User.Application.Features.TenantProvisioning;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

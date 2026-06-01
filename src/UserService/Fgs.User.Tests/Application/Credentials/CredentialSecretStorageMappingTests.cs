@@ -1,4 +1,4 @@
-using Fgs.User.Application.Credentials;
+using Fgs.User.Application.Features.Credentials;
 using Fgs.User.Domain.Entities;
 
 namespace Fgs.User.Tests.Application.Credentials;

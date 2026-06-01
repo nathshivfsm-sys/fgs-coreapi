@@ -11,7 +11,7 @@ using Fgs.User.Application.Features.Auth;
 using Fgs.User.Application.Features.Auth.Queries.EntraCallback;
 using Fgs.User.Application.Features.Signup;
 using Fgs.Contracts.IntegrationEvents;
-using Fgs.User.Application.TenantProvisioning;
+using Fgs.User.Application.Features.TenantProvisioning;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 using Fgs.User.Infrastructure.Common.Time;

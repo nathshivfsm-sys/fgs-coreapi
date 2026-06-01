@@ -1,4 +1,4 @@
-namespace Fgs.User.Application.TenantProvisioning;
+namespace Fgs.User.Application.Features.TenantProvisioning;
 
 public enum TenantSeedTableOutcome
 {

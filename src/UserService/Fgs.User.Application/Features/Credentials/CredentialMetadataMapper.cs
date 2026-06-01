@@ -1,4 +1,3 @@
-using Fgs.User.Application.Credentials;
 using Fgs.User.Application.Features.Credentials.DTOs;
 using Fgs.User.Domain.Entities;
 
