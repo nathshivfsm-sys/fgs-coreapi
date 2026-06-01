@@ -60,8 +60,8 @@ services:
       rabbitmq:
         condition: service_healthy
     volumes:
-      - ../UserService/Fgs.User.API/appsettings.json:/app/appsettings.json:ro
-      - ../UserService/Fgs.User.API/appsettings.Development.json:/app/appsettings.Development.json:ro
+      - ../UserService/Fgs.User.API/appsettings.json:/src/src/UserService/Fgs.User.API/appsettings.json:ro
+      - ../UserService/Fgs.User.API/appsettings.Development.json:/src/src/UserService/Fgs.User.API/appsettings.Development.json:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     expose:
@@ -81,8 +81,8 @@ services:
       rabbitmq:
         condition: service_healthy
     volumes:
-      - ../PlatformService/Fgs.Platform.API/appsettings.json:/app/appsettings.json:ro
-      - ../PlatformService/Fgs.Platform.API/appsettings.Development.json:/app/appsettings.Development.json:ro
+      - ../PlatformService/Fgs.Platform.API/appsettings.json:/src/src/PlatformService/Fgs.Platform.API/appsettings.json:ro
+      - ../PlatformService/Fgs.Platform.API/appsettings.Development.json:/src/src/PlatformService/Fgs.Platform.API/appsettings.Development.json:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     expose:
@@ -98,8 +98,8 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
     volumes:
-      - ../WorkOrderService/Fgs.WorkOrder.API/appsettings.json:/app/appsettings.json:ro
-      - ../WorkOrderService/Fgs.WorkOrder.API/appsettings.Development.json:/app/appsettings.Development.json:ro
+      - ../WorkOrderService/Fgs.WorkOrder.API/appsettings.json:/src/src/WorkOrderService/Fgs.WorkOrder.API/appsettings.json:ro
+      - ../WorkOrderService/Fgs.WorkOrder.API/appsettings.Development.json:/src/src/WorkOrderService/Fgs.WorkOrder.API/appsettings.Development.json:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     expose:

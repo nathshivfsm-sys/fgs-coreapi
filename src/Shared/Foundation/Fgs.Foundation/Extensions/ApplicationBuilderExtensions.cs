@@ -33,8 +33,14 @@ public static class ApplicationBuilderExtensions
 
         if (options.UseRequestResponseLogging)
         {
-            app.UseMiddleware<RequestResponseLoggingMiddleware>(
-                options.OmitRequestBodyLoggingForPath);
+            if (options.OmitRequestBodyLoggingForPath is { } omitBodyForPath)
+            {
+                app.UseMiddleware<RequestResponseLoggingMiddleware>(omitBodyForPath);
+            }
+            else
+            {
+                app.UseMiddleware<RequestResponseLoggingMiddleware>();
+            }
         }
 
         if (options.UseExceptionHandling)
