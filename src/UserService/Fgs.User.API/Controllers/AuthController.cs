@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Asp.Versioning;
 using Fgs.Foundation.Api;
 using Fgs.Security.Abstractions;
@@ -27,12 +28,13 @@ public sealed class AuthController : ControllerBase
     /// OAuth2 callback after Entra login: exchanges code, validates email vs invitation, stores Entra object id, returns Entra access token.
     /// </summary>
     /// <remarks>
-    /// On success, responds with HTTP 302 to the configured dashboard URL with Entra access token in query string (browser flow).
-    /// On failure, returns the standard JSON error envelope.
+    /// On success, returns a small HTML page that navigates to the configured dashboard URL with the Entra access token
+    /// in the query string (avoids oversized Location headers through the gateway). On failure, returns the standard JSON error envelope.
     /// </remarks>
     [AllowAnonymous]
     [HttpGet("entra/callback")]
-    [ProducesResponseType(StatusCodes.Status302Found)]
+    [Produces("text/html", "application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<EntraCallbackResultDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
@@ -48,8 +50,25 @@ public sealed class AuthController : ControllerBase
             return StatusCode(response.StatusCode, response);
         }
 
-        return Redirect($"{response.Data.RedirectUrl}?token={Uri.EscapeDataString(response.Data.AccessToken)}");
+        var destination = $"{response.Data.RedirectUrl}?token={Uri.EscapeDataString(response.Data.AccessToken)}";
+        return Content(BuildSignInRedirectHtml(destination), "text/html; charset=utf-8");
     }
+
+    private static string BuildSignInRedirectHtml(string destinationUrl) =>
+        $"""
+         <!DOCTYPE html>
+         <html lang="en">
+         <head>
+           <meta charset="utf-8" />
+           <meta name="viewport" content="width=device-width, initial-scale=1" />
+           <title>Signing in…</title>
+         </head>
+         <body>
+           <p>Signing you in…</p>
+           <script>window.location.replace({JsonSerializer.Serialize(destinationUrl)});</script>
+         </body>
+         </html>
+         """;
 
     /// <summary>Returns the authenticated FGS user profile resolved from Entra identity and database roles.</summary>
     [HttpGet("me")]
