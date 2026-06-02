@@ -7,13 +7,25 @@ using RabbitMQ.Client;
 
 namespace Fgs.Messaging.RabbitMq;
 
-public sealed class RabbitMqConnectionFactory(
-    IOptions<RabbitMqOptions> options,
-    ILogger<RabbitMqConnectionFactory> logger) : IAsyncDisposable
+public sealed class RabbitMqConnectionFactory : IAsyncDisposable
 {
-    private readonly RabbitMqOptions _options = options.Value;
+    private readonly IRabbitMqEffectiveOptionsProvider _effectiveOptions;
+    private readonly IOptionsMonitor<RabbitMqOptions> _optionsMonitor;
+    private readonly ILogger<RabbitMqConnectionFactory> _logger;
     private readonly SemaphoreSlim _initLock = new(1, 1);
+    private readonly IDisposable? _optionsChangeSubscription;
     private IConnection? _connection;
+
+    public RabbitMqConnectionFactory(
+        IRabbitMqEffectiveOptionsProvider effectiveOptions,
+        IOptionsMonitor<RabbitMqOptions> optionsMonitor,
+        ILogger<RabbitMqConnectionFactory> logger)
+    {
+        _effectiveOptions = effectiveOptions;
+        _optionsMonitor = optionsMonitor;
+        _logger = logger;
+        _optionsChangeSubscription = optionsMonitor.OnChange((_, _) => _ = ResetConnectionAsync());
+    }
 
     public async Task<IConnection> GetConnectionAsync(CancellationToken cancellationToken)
     {
@@ -30,18 +42,22 @@ public sealed class RabbitMqConnectionFactory(
                 return _connection;
             }
 
-            var factory = CreateConnectionFactory();
+            var options = _effectiveOptions.GetEffectiveOptions();
+            var factory = CreateConnectionFactory(options);
             try
             {
                 _connection = await factory.CreateConnectionAsync(cancellationToken);
-                logger.LogInformation(
-                    "RabbitMQ connection established ({ClientName}).",
-                    _options.ClientProvidedName);
+                _logger.LogInformation(
+                    "RabbitMQ connection established ({ClientName}) to {HostName}:{Port} as {UserName}.",
+                    options.ClientProvidedName,
+                    options.HostName,
+                    options.Port,
+                    options.UserName);
                 return _connection;
             }
             catch (Exception ex)
             {
-                LogConnectionFailure(ex, factory);
+                LogConnectionFailure(ex, factory, options);
                 throw;
             }
         }
@@ -51,44 +67,69 @@ public sealed class RabbitMqConnectionFactory(
         }
     }
 
-    private ConnectionFactory CreateConnectionFactory()
+    private ConnectionFactory CreateConnectionFactory(RabbitMqOptions options)
     {
         var factory = new ConnectionFactory
         {
-            ClientProvidedName = _options.ClientProvidedName,
+            ClientProvidedName = options.ClientProvidedName,
             RequestedConnectionTimeout = TimeSpan.FromSeconds(
-                Math.Clamp(_options.ConnectionTimeoutSeconds, 5, 120)),
-            AutomaticRecoveryEnabled = _options.AutomaticRecoveryEnabled
+                Math.Clamp(options.ConnectionTimeoutSeconds, 5, 120)),
+            AutomaticRecoveryEnabled = options.AutomaticRecoveryEnabled
         };
 
-        ApplyBrokerUri(factory);
+        ApplyBrokerUri(factory, options);
 
-        if (!string.IsNullOrWhiteSpace(_options.UserName))
+        if (!string.IsNullOrWhiteSpace(options.UserName))
         {
-            factory.UserName = _options.UserName;
+            factory.UserName = options.UserName;
         }
 
-        if (_options.Password is { Length: > 0 })
+        if (options.Password is { Length: > 0 })
         {
-            factory.Password = _options.Password;
+            factory.Password = options.Password;
         }
 
         return factory;
     }
 
-    private void ApplyBrokerUri(ConnectionFactory factory)
+    private static void ApplyBrokerUri(ConnectionFactory factory, RabbitMqOptions options)
     {
-        var uri = RabbitMqBrokerUriResolver.Resolve(_options);
+        var uri = RabbitMqBrokerUriResolver.Resolve(options);
         factory.Uri = uri;
 
         if (string.Equals(uri.Scheme, "amqps", StringComparison.OrdinalIgnoreCase))
         {
             factory.Ssl.Version = SslProtocols.Tls12 | SslProtocols.Tls13;
-            factory.Ssl.CheckCertificateRevocation = _options.SslCheckCertificateRevocation;
+            factory.Ssl.CheckCertificateRevocation = options.SslCheckCertificateRevocation;
         }
     }
 
-    private void LogConnectionFailure(Exception ex, ConnectionFactory factory)
+    private async Task ResetConnectionAsync()
+    {
+        await _initLock.WaitAsync();
+        try
+        {
+            if (_connection is null)
+            {
+                return;
+            }
+
+            _logger.LogInformation("Resetting RabbitMQ connection after credential/options change.");
+            await _connection.CloseAsync();
+            await _connection.DisposeAsync();
+            _connection = null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Error while resetting RabbitMQ connection.");
+        }
+        finally
+        {
+            _initLock.Release();
+        }
+    }
+
+    private void LogConnectionFailure(Exception ex, ConnectionFactory factory, RabbitMqOptions options)
     {
         var safeEndpoint = factory.Uri is null
             ? "(no URI)"
@@ -98,7 +139,7 @@ public sealed class RabbitMqConnectionFactory(
             ? string.Join(" | ", agg.InnerExceptions.Select(e => e.Message))
             : ex.InnerException?.Message ?? ex.Message;
 
-        var hostForDns = factory.Uri?.Host ?? _options.HostName;
+        var hostForDns = factory.Uri?.Host ?? options.HostName;
         string? dnsHint = null;
         if (!string.IsNullOrWhiteSpace(hostForDns))
         {
@@ -114,7 +155,7 @@ public sealed class RabbitMqConnectionFactory(
             }
         }
 
-        logger.LogError(
+        _logger.LogError(
             ex,
             "RabbitMQ connection failed. Broker {Broker}, TLS {Tls}, SNI {Sni}. Inner: {Inner}. {DnsHint}.",
             safeEndpoint,
@@ -126,12 +167,8 @@ public sealed class RabbitMqConnectionFactory(
 
     public async ValueTask DisposeAsync()
     {
-        if (_connection is not null)
-        {
-            await _connection.CloseAsync();
-            await _connection.DisposeAsync();
-        }
-
+        _optionsChangeSubscription?.Dispose();
+        await ResetConnectionAsync();
         _initLock.Dispose();
     }
 }

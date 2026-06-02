@@ -2,6 +2,7 @@ using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Options;
 using Fgs.Messaging.Outbox;
 using Fgs.Messaging.RabbitMq;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Fgs.Messaging.Extensions;
@@ -18,6 +19,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddFgsRabbitMqConnectionFactory(this IServiceCollection services)
     {
+        services.TryAddSingleton<IRabbitMqEffectiveOptionsProvider, OptionsMonitorRabbitMqEffectiveOptionsProvider>();
         services.AddSingleton<RabbitMqConnectionFactory>();
         return services;
     }

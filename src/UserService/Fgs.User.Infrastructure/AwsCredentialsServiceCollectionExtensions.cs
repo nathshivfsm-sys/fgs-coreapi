@@ -11,30 +11,25 @@ public static class AwsCredentialsServiceCollectionExtensions
 {
     public static IServiceCollection AddAwsCredentialsServices(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IConfigurationBuilder configurationBuilder)
     {
-        services.AddMemoryCache();
-
-        var section = configuration.GetSection(AwsCredentialsOptions.SectionName);
-        services.Configure<AwsCredentialsOptions>(section);
-
-        services.AddSingleton<AmazonS3Client>(sp =>
-        {
-            var options = sp.GetRequiredService<IOptions<AwsCredentialsOptions>>().Value;
-            var config = new AmazonS3Config
-            {
-                RegionEndpoint = ResolveRegionEndpoint(options.Region)
-            };
-
-            if (HasExplicitCredentials(options))
-            {
-                return new AmazonS3Client(options.AccessKeyId!, options.SecretAccessKey!, config);
-            }
-
-            return new AmazonS3Client(config);
-        });
-
+        services.AddFgsCredentialConfigurationServices(configuration, configurationBuilder);
+        services.AddSingleton<AmazonS3Client>(CreateS3Client);
         return services;
+    }
+
+    private static AmazonS3Client CreateS3Client(IServiceProvider sp)
+    {
+        var options = sp.GetRequiredService<IOptions<AwsCredentialsOptions>>().Value;
+        var config = new AmazonS3Config
+        {
+            RegionEndpoint = ResolveRegionEndpoint(options.Region)
+        };
+
+        return HasExplicitCredentials(options)
+            ? new AmazonS3Client(options.AccessKeyId!, options.SecretAccessKey!, config)
+            : new AmazonS3Client(config);
     }
 
     private static bool HasExplicitCredentials(AwsCredentialsOptions options) =>

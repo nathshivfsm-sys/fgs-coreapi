@@ -7,19 +7,18 @@ using RabbitMQ.Client;
 namespace Fgs.Platform.Infrastructure.Messaging;
 
 public sealed class PlatformRabbitMqTopologyInitializer(
-    IOptions<RabbitMqOptions> options,
+    IOptionsMonitor<RabbitMqOptions> options,
     ILogger<PlatformRabbitMqTopologyInitializer> logger)
 {
-    private readonly RabbitMqOptions _options = options.Value;
-
     public async Task EnsureTopologyAsync(IChannel channel, CancellationToken cancellationToken)
     {
-        var exchangeName = _options.ExchangeName;
-        var deadLetterExchangeName = _options.DeadLetterExchangeName
+        var rabbit = options.CurrentValue;
+        var exchangeName = rabbit.ExchangeName;
+        var deadLetterExchangeName = rabbit.DeadLetterExchangeName
             ?? throw new InvalidOperationException("RabbitMq:DeadLetterExchangeName must be configured.");
-        var deadLetterQueueName = _options.DeadLetterQueueName
+        var deadLetterQueueName = rabbit.DeadLetterQueueName
             ?? throw new InvalidOperationException("RabbitMq:DeadLetterQueueName must be configured.");
-        var notificationQueueName = _options.NotificationQueueName
+        var notificationQueueName = rabbit.NotificationQueueName
             ?? throw new InvalidOperationException("RabbitMq:NotificationQueueName must be configured.");
 
         await channel.ExchangeDeclareAsync(
@@ -66,8 +65,8 @@ public sealed class PlatformRabbitMqTopologyInitializer(
             passive: false,
             cancellationToken: cancellationToken);
 
-        var bindings = _options.QueueBindings.Count > 0
-            ? _options.QueueBindings
+        var bindings = rabbit.QueueBindings.Count > 0
+            ? rabbit.QueueBindings
             :
             [
                 new RabbitMqQueueBindingOptions { QueueName = notificationQueueName, RoutingKey = IntegrationEventRoutingKeys.CompanySignupInviteEmail },

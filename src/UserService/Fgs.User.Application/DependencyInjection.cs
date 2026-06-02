@@ -17,6 +17,7 @@ public static class DependencyInjection
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
         services.AddValidatorsFromAssembly(assembly);
         services.AddScoped<ISignupUniquenessValidator, SignupUniquenessValidator>();
+        services.AddScoped<Features.Credentials.Services.CredentialMutationService>();
 
         return services;
     }

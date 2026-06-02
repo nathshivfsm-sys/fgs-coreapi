@@ -7,6 +7,7 @@ using Fgs.Platform.Application;
 using Fgs.Platform.Infrastructure;
 using Fgs.Platform.Infrastructure.Database;
 using Fgs.Platform.Infrastructure.Database.Seed;
+using Fgs.User.Application.Abstractions.Credentials;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Net.Sockets;
@@ -79,7 +80,7 @@ static async Task SeedCommunicationTemplatesAsync(WebApplication app)
 
 static void LogRabbitMqEffectiveConfig(WebApplication app)
 {
-    var rabbit = app.Services.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+    var rabbit = app.Services.GetRequiredService<IOptionsMonitor<RabbitMqOptions>>().CurrentValue;
     var routingKeys = string.Join(", ", rabbit.QueueBindings.Select(b => b.RoutingKey));
     app.Logger.LogInformation(
         "RabbitMQ consumer (Platform): HostName={HostName}, Port={Port}, Exchange={Exchange}, ConsumeQueue={Queue}, DLQ={Dlq}, RoutingKeys=[{RoutingKeys}]",
@@ -98,7 +99,7 @@ static void ProbeLocalRabbitMqTcpIfDevelopment(WebApplication app)
         return;
     }
 
-    var rabbit = app.Services.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+    var rabbit = app.Services.GetRequiredService<IOptionsMonitor<RabbitMqOptions>>().CurrentValue;
     if (rabbit.HostName is not ("127.0.0.1" or "localhost"))
     {
         return;

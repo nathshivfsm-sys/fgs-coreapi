@@ -3900,6 +3900,261 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsVehicle", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Vehicle exterior color.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the vehicle is active and available for service operations.");
+
+                    b.Property<bool?>("IsPurchasedNew")
+                        .HasColumnType("boolean")
+                        .HasComment("Indicates whether the vehicle was purchased new or used.");
+
+                    b.Property<string>("LicensePlate")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Vehicle registration plate number.");
+
+                    b.Property<string>("LicensePlateState")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("State or province issuing the vehicle registration.");
+
+                    b.Property<string>("Make")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Vehicle manufacturer such as Ford, Chevrolet, GMC, Ram, Toyota, etc.");
+
+                    b.Property<string>("Model")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Vehicle model such as F-150, Transit, Silverado, Express, etc.");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text")
+                        .HasComment("Internal notes and remarks regarding the vehicle.");
+
+                    b.Property<string>("OwnershipCompany")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Name of the leasing company, rental provider, or other organization that owns the vehicle when it is not company-owned.");
+
+                    b.Property<string>("OwnershipType")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Owned")
+                        .HasComment("Indicates whether the vehicle is owned, leased, or rented.");
+
+                    b.Property<DateOnly?>("PurchaseDate")
+                        .HasColumnType("date")
+                        .HasComment("Date the vehicle was purchased or acquired.");
+
+                    b.Property<decimal?>("PurchasePrice")
+                        .HasColumnType("numeric(18,2)")
+                        .HasComment("Amount paid to acquire the vehicle.");
+
+                    b.Property<string>("PurchasedFrom")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Name of the dealership, seller, auction, fleet provider, or other source from which the vehicle was acquired.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.Property<string>("VIN")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Vehicle Identification Number assigned by the manufacturer.");
+
+                    b.Property<long>("WarehouseId")
+                        .HasColumnType("bigint")
+                        .HasComment("Associated truck warehouse used as the vehicle inventory location.");
+
+                    b.Property<short?>("Year")
+                        .HasColumnType("smallint")
+                        .HasComment("Vehicle model year.");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("WarehouseId")
+                        .HasName("UQ_FgsVehicle_WarehouseId");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsVehicle_TenantId_CompanyId_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "WarehouseId")
+                        .HasDatabaseName("IX_FgsVehicle_TenantId_CompanyId_WarehouseId");
+
+                    b.ToTable("FgsVehicle", "setup", t =>
+                        {
+                            t.HasComment("Stores company-owned or leased vehicles used for field service operations. Each vehicle is associated with a truck warehouse that serves as an inventory location.");
+
+                            t.HasCheckConstraint("CK_FgsVehicle_OwnershipType", "\"OwnershipType\" IN ('Owned', 'Leased', 'Rented')");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsVehicleMaintenance", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasComment("Company identifier.");
+
+                    b.Property<decimal?>("Cost")
+                        .HasColumnType("numeric(18,2)")
+                        .HasComment("Total cost incurred for the maintenance activity.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Short summary of the maintenance activity performed or scheduled.");
+
+                    b.Property<string>("InvoiceNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Vendor invoice, receipt, repair order, or work order number associated with the maintenance activity.");
+
+                    b.Property<bool>("IsCompleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the maintenance activity has been completed. False indicates a scheduled or pending maintenance item.");
+
+                    b.Property<int?>("MileageAtService")
+                        .HasColumnType("integer")
+                        .HasComment("Vehicle odometer reading at the time the maintenance was performed.");
+
+                    b.Property<DateOnly?>("NextServiceDate")
+                        .HasColumnType("date")
+                        .HasComment("Recommended next service date based on maintenance provider recommendations.");
+
+                    b.Property<int?>("NextServiceMileage")
+                        .HasColumnType("integer")
+                        .HasComment("Recommended next service mileage based on maintenance provider recommendations.");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text")
+                        .HasComment("Detailed notes, observations, recommendations, or repair information related to the maintenance activity.");
+
+                    b.Property<DateOnly>("ServiceDate")
+                        .HasColumnType("date")
+                        .HasComment("Date the maintenance was performed or is scheduled to be performed.");
+
+                    b.Property<string>("ServiceProvider")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Name of the repair shop, dealership, service provider, or maintenance vendor.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.Property<long>("VehicleId")
+                        .HasColumnType("bigint")
+                        .HasComment("Vehicle that received or is scheduled to receive maintenance service.");
+
+                    b.Property<int>("VehicleMaintenanceTypeId")
+                        .HasColumnType("integer")
+                        .HasComment("Type of maintenance activity being performed or scheduled.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VehicleId");
+
+                    b.HasIndex("VehicleMaintenanceTypeId");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsCompleted")
+                        .HasDatabaseName("IX_FgsVehicleMaintenance_TenantId_CompanyId_IsCompleted");
+
+                    b.HasIndex("TenantId", "CompanyId", "NextServiceDate")
+                        .HasDatabaseName("IX_FgsVehicleMaintenance_TenantId_CompanyId_NextServiceDate");
+
+                    b.HasIndex("TenantId", "CompanyId", "ServiceDate")
+                        .HasDatabaseName("IX_FgsVehicleMaintenance_TenantId_CompanyId_ServiceDate");
+
+                    b.HasIndex("TenantId", "CompanyId", "VehicleId")
+                        .HasDatabaseName("IX_FgsVehicleMaintenance_TenantId_CompanyId_VehicleId");
+
+                    b.HasIndex("TenantId", "CompanyId", "VehicleMaintenanceTypeId")
+                        .HasDatabaseName("IX_FgsVehicleMaintenance_TenantId_CompanyId_VehicleMaintenanceTypeId");
+
+                    b.ToTable("FgsVehicleMaintenance", "setup", t =>
+                        {
+                            t.HasComment("Stores completed and scheduled maintenance activities, inspections, repairs, and service history for company vehicles.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsVendor", b =>
                 {
                     b.Property<long>("Id")
@@ -4114,6 +4369,105 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.ToTable("FgsVendorInventoryItem", "setup", t =>
                         {
                             t.HasComment("Stores vendor-specific inventory item relationships, vendor part information, pricing, and purchasing defaults.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsWarehouse", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasComment("Optional description or notes for the warehouse.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the warehouse is active and available for inventory operations.");
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether this warehouse is the default inventory location for the company.");
+
+                    b.Property<Guid?>("LocationId")
+                        .HasColumnType("uuid")
+                        .HasComment("Optional reference to the physical address or geo location in FgsLocation.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Display name of the warehouse or inventory location.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.Property<string>("WarehouseCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique warehouse code within the tenant and company scope.");
+
+                    b.Property<string>("WarehouseType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasComment("Type of inventory location. Allowed values: Warehouse, Truck, Trailer, JobSite, Consignment, Vendor.");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "WarehouseCode")
+                        .HasName("UQ_FgsWarehouse_TenantId_CompanyId_WarehouseCode");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsWarehouse_TenantId_CompanyId_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "WarehouseType")
+                        .HasDatabaseName("IX_FgsWarehouse_TenantId_CompanyId_WarehouseType");
+
+                    b.ToTable("FgsWarehouse", "setup", t =>
+                        {
+                            t.HasComment("Stores inventory warehouse, truck, trailer, job site, consignment, and vendor storage locations.");
+
+                            t.HasCheckConstraint("CK_FgsWarehouse_WarehouseType", "\"WarehouseType\" IN ('Warehouse', 'Truck', 'Trailer', 'JobSite', 'Consignment', 'Vendor')");
                         });
                 });
 
@@ -6055,6 +6409,68 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.ToTable("GloUnitOfMeasure", "glo");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.GloVehicleMaintenanceType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Description of the maintenance type.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls display order in lists and dropdowns.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the maintenance type is active and available for selection.");
+
+                    b.Property<string>("MaintenanceTypeCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique system code identifying the maintenance type.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Display name of the maintenance type.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("MaintenanceTypeCode")
+                        .HasName("UQ_GloVehicleMaintenanceType_MaintenanceTypeCode");
+
+                    b.HasIndex("DisplayOrder")
+                        .HasDatabaseName("IX_GloVehicleMaintenanceType_DisplayOrder");
+
+                    b.ToTable("GloVehicleMaintenanceType", "glo", t =>
+                        {
+                            t.HasComment("Stores standard vehicle maintenance types used when recording maintenance activities for company vehicles.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloZone", b =>
                 {
                     b.Property<short>("Id")
@@ -6964,6 +7380,49 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsVehicle", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsWarehouse", null)
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVehicle_FgsWarehouse_WarehouseId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVehicle_FgsTenantCompany_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsVehicleMaintenance", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsVehicle", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVehicleMaintenance_FgsVehicle_VehicleId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.GloVehicleMaintenanceType", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleMaintenanceTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVehicleMaintenance_GloVehicleMaintenanceType_VehicleMaintenanceTypeId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVehicleMaintenance_FgsTenantCompany_TenantId_CompanyId");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsVendor", b =>
                 {
                     b.HasOne("Fgs.User.Domain.Entities.FgsSetupPaymentTerm", null)
@@ -7004,6 +7463,23 @@ namespace Fgs.User.Infrastructure.Persistence.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsVendorInventoryItem_FgsTenantCompany_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsWarehouse", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsLocation", null)
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsWarehouse_FgsLocation_LocationId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsWarehouse_FgsTenantCompany_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.GloCommunicationTemplateToken", b =>

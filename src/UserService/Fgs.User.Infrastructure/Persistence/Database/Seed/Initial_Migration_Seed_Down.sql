@@ -28,7 +28,7 @@ WHERE ("CountryCode", "StateProvinceCode") IN (
 );
 
 DELETE FROM glo."GloCredentialProviderType"
-WHERE "ProviderCode" IN ('RABBITMQ');
+WHERE "ProviderCode" IN ('RABBITMQ', 'AWS', 'ENTRA_EXTERNAL_ID', 'SENDGRID');
 
 DELETE FROM glo."GloCountry"
 WHERE "CountryCode" IN (
@@ -257,6 +257,12 @@ WHERE "Code" IN (
     'CUSTOMER',
     'WORKORDER',
     'INVOICE',
+    'Warehouse',
+    'Vehicle',
+    'VehicleMaintenance',
+    'Warehouse',
+    'Vehicle',
+    'VehicleMaintenance',
     -- legacy codes from prior seed (safe if never inserted)
     'TENANT_COMPANY',
     'WORK_ORDER',
@@ -265,6 +271,20 @@ WHERE "Code" IN (
     'SUB_CONTRACTOR',
     'BILL_TO',
     'SERVICE_LOCATION'
+);
+
+DELETE FROM glo."GloVehicleMaintenanceType"
+WHERE "MaintenanceTypeCode" IN (
+    'OIL_CHANGE',
+    'TIRE_ROTATION',
+    'TIRE_REPLACEMENT',
+    'BRAKE_SERVICE',
+    'INSPECTION',
+    'BATTERY_REPLACEMENT',
+    'TRANSMISSION_SERVICE',
+    'REGISTRATION_RENEWAL',
+    'REPAIR',
+    'OTHER'
 );
 
 DELETE FROM glo."GloLocationType"

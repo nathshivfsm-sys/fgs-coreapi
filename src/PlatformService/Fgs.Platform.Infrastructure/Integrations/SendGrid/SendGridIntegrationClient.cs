@@ -10,10 +10,10 @@ using SendGrid.Helpers.Mail;
 namespace Fgs.Platform.Infrastructure.Integrations.SendGrid;
 
 public sealed class SendGridIntegrationClient(
-    IOptions<SendGridOptions> options,
+    IOptionsMonitor<SendGridOptions> options,
     ILogger<SendGridIntegrationClient> logger) : ISendGridIntegrationClient
 {
-    private readonly SendGridOptions _options = options.Value;
+    private SendGridOptions Options => options.CurrentValue;
 
     public string IntegrationName => "SendGrid";
 
@@ -21,7 +21,7 @@ public sealed class SendGridIntegrationClient(
         EmailNotificationMessage message,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(_options.ApiKey) || _options.ApiKey == "REPLACE_WITH_SENDGRID_API_KEY")
+        if (string.IsNullOrWhiteSpace(Options.ApiKey) || Options.ApiKey == "REPLACE_WITH_SENDGRID_API_KEY")
         {
             logger.LogWarning(
                 "SendGrid API key is not configured; skipping send (CorrelationId={CorrelationId}).",
@@ -29,8 +29,8 @@ public sealed class SendGridIntegrationClient(
             return new NotificationDispatchResult(false, null, "SendGrid API key is not configured.");
         }
 
-        var client = new SendGridClient(_options.ApiKey);
-        var from = new EmailAddress(_options.FromAddress, _options.FromName);
+        var client = new SendGridClient(Options.ApiKey);
+        var from = new EmailAddress(Options.FromAddress, Options.FromName);
         var to = new EmailAddress(message.ToAddress, message.ToName);
         var mail = MailHelper.CreateSingleEmail(
             from,

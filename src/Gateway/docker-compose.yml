@@ -77,9 +77,14 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       RabbitMq__HostName: rabbitmq
+      UserService__BaseUrl: http://user-service:5001
+      UserService__RequiredOnStartup: "true"
+      UserService__StartupRetryCount: "10"
     depends_on:
       rabbitmq:
         condition: service_healthy
+      user-service:
+        condition: service_started
     volumes:
       - ../PlatformService/Fgs.Platform.API/appsettings.json:/src/src/PlatformService/Fgs.Platform.API/appsettings.json:ro
       - ../PlatformService/Fgs.Platform.API/appsettings.Development.json:/src/src/PlatformService/Fgs.Platform.API/appsettings.Development.json:ro

@@ -12,6 +12,8 @@ public static class IntegrationEventTypes
 
     public const string CompanyCreated = "CompanyCreated";
 
+    public const string CredentialConfigurationChanged = "CredentialConfigurationChanged";
+
     public static class AggregateTypes
     {
         public const string Invitation = "Invitation";

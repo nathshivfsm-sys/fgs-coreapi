@@ -75,7 +75,10 @@ FROM (
         ('PROPOSAL',        true, true,  8),
         ('CUSTOMER',        true, true,  9),
         ('WORKORDER',       true, true, 10),
-        ('INVOICE',         true, true, 11)
+        ('INVOICE',         true, true, 11),
+        ('Warehouse',       true, true, 12),
+        ('Vehicle',         true, true, 13),
+        ('VehicleMaintenance', true, true, 14)
 ) AS v("Code", "IsDocumentAllowed", "IsActive", "SortOrder")
 WHERE NOT EXISTS (
     SELECT 1
@@ -86,6 +89,43 @@ WHERE NOT EXISTS (
 SELECT setval(
     pg_get_serial_sequence('glo."GloMasterEntityType"', 'Id'),
     COALESCE((SELECT MAX("Id") FROM glo."GloMasterEntityType"), 1),
+    true);
+
+-- GloVehicleMaintenanceType
+INSERT INTO glo."GloVehicleMaintenanceType"
+(
+    "MaintenanceTypeCode",
+    "Name",
+    "Description",
+    "DisplayOrder"
+)
+SELECT
+    v."MaintenanceTypeCode",
+    v."Name",
+    v."Description",
+    v."DisplayOrder"
+FROM (
+    VALUES
+        ('OIL_CHANGE',           'Oil Change',           'Engine oil and filter replacement.',                              1::smallint),
+        ('TIRE_ROTATION',        'Tire Rotation',        'Rotation of vehicle tires to promote even wear.',                 2::smallint),
+        ('TIRE_REPLACEMENT',     'Tire Replacement',     'Replacement of one or more vehicle tires.',                       3::smallint),
+        ('BRAKE_SERVICE',        'Brake Service',        'Inspection, repair, or replacement of brake components.',           4::smallint),
+        ('INSPECTION',           'Inspection',           'General vehicle inspection and safety check.',                    5::smallint),
+        ('BATTERY_REPLACEMENT',  'Battery Replacement',  'Replacement of vehicle battery.',                                 6::smallint),
+        ('TRANSMISSION_SERVICE', 'Transmission Service', 'Maintenance or repair of transmission system.',                   7::smallint),
+        ('REGISTRATION_RENEWAL', 'Registration Renewal', 'Vehicle registration renewal.',                                   8::smallint),
+        ('REPAIR',               'Repair',               'General repair work not covered by a specific maintenance type.', 9::smallint),
+        ('OTHER',                'Other',                'Other maintenance activity.',                                     99::smallint)
+) AS v("MaintenanceTypeCode", "Name", "Description", "DisplayOrder")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM glo."GloVehicleMaintenanceType" t
+    WHERE t."MaintenanceTypeCode" = v."MaintenanceTypeCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloVehicleMaintenanceType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloVehicleMaintenanceType"), 1),
     true);
 
 -- GloLanguage
@@ -316,7 +356,53 @@ FROM (
                 {"key":"Port","label":"Port","type":"number","required":true},
                 {"key":"Username","label":"Username","type":"text","required":true},
                 {"key":"Password","label":"Password","type":"password","required":true,"sensitive":true},
-                {"key":"VirtualHost","label":"Virtual Host","type":"text","required":false}
+                {"key":"VirtualHost","label":"Virtual Host","type":"text","required":false},
+                {"key":"SslEnabled","label":"SSL Enabled","type":"boolean","required":false},
+                {"key":"ConnectionUri","label":"Connection URI","type":"text","required":false},
+                {"key":"ExchangeName","label":"Exchange Name","type":"text","required":false},
+                {"key":"RoutingKeyPrefix","label":"Routing Key Prefix","type":"text","required":false},
+                {"key":"EnsureQueuesOnStartup","label":"Ensure Queues On Startup","type":"boolean","required":false},
+                {"key":"QueueBindings","label":"Queue Bindings","type":"json","required":false},
+                {"key":"Consumers","label":"Consumers","type":"json","required":false}
+            ]'
+        ),
+        (
+            'AWS',
+            'Amazon Web Services',
+            '[
+                {"key":"Region","label":"Region","type":"text","required":true},
+                {"key":"AccessKeyId","label":"Access Key ID","type":"text","required":false},
+                {"key":"SecretAccessKey","label":"Secret Access Key","type":"password","required":false,"sensitive":true},
+                {"key":"KmsKeyArn","label":"KMS Key ARN","type":"text","required":true},
+                {"key":"BucketNamePrefix","label":"Bucket Name Prefix","type":"text","required":false},
+                {"key":"ApplicationSlug","label":"Application Slug","type":"text","required":false},
+                {"key":"DefaultVaultProvider","label":"Default Vault Provider","type":"text","required":false},
+                {"key":"CacheTtlSeconds","label":"Cache TTL (seconds)","type":"number","required":false},
+                {"key":"EnableLocalProfileFallback","label":"Enable Local Profile Fallback","type":"boolean","required":false}
+            ]'
+        ),
+        (
+            'ENTRA_EXTERNAL_ID',
+            'Microsoft Entra External ID',
+            '[
+                {"key":"TenantId","label":"Entra Tenant ID","type":"text","required":true},
+                {"key":"ClientId","label":"Client ID","type":"text","required":true},
+                {"key":"ClientSecret","label":"Client Secret","type":"password","required":true,"sensitive":true},
+                {"key":"Authority","label":"Authority","type":"text","required":true},
+                {"key":"RedirectUri","label":"Redirect URI","type":"text","required":true},
+                {"key":"Scopes","label":"Scopes","type":"text","required":true},
+                {"key":"UserFlow","label":"User Flow","type":"text","required":false},
+                {"key":"AuthorizeEndpoint","label":"Authorize Endpoint","type":"text","required":false},
+                {"key":"TokenEndpoint","label":"Token Endpoint","type":"text","required":false}
+            ]'
+        ),
+        (
+            'SENDGRID',
+            'SendGrid',
+            '[
+                {"key":"ApiKey","label":"API Key","type":"password","required":true,"sensitive":true},
+                {"key":"FromAddress","label":"From Address","type":"text","required":true},
+                {"key":"FromName","label":"From Name","type":"text","required":true}
             ]'
         )
 ) AS v("ProviderCode", "ProviderName", "ConfigurationSchema")

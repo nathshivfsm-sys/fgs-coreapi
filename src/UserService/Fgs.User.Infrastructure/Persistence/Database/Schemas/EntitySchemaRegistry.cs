@@ -81,6 +81,7 @@ internal static class EntitySchemaRegistry
         [typeof(GloTitleOfCourtesy)] = FgsDatabaseSchemas.Glo,
         [typeof(GloTrade)] = FgsDatabaseSchemas.Glo,
         [typeof(GloUnitOfMeasure)] = FgsDatabaseSchemas.Glo,
+        [typeof(GloVehicleMaintenanceType)] = FgsDatabaseSchemas.Glo,
         [typeof(GloZone)] = FgsDatabaseSchemas.Glo,
 
         // identity — authentication and authorization (Fgs* only)
@@ -133,6 +134,9 @@ internal static class EntitySchemaRegistry
         [typeof(FgsInventoryItemDependency)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsVendor)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsVendorInventoryItem)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsVehicle)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsVehicleMaintenance)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsWarehouse)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsCredential)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsSetupCommunicationTemplate)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsSetupDescription)] = FgsDatabaseSchemas.Setup,

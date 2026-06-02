@@ -18,6 +18,7 @@ using Fgs.User.Infrastructure.Common.Identity;
 using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Common.Security;
 using Fgs.User.Infrastructure.Common.Time;
+using Fgs.User.Infrastructure.Credentials;
 using Fgs.User.Infrastructure.Messaging;
 using Fgs.User.Infrastructure.Outbox;
 using Fgs.User.Infrastructure.Persistence.Database.Seed;
@@ -34,7 +35,9 @@ namespace Fgs.User.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddFgsUserInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddFgsUserInfrastructure(
+        this IServiceCollection services,
+        ConfigurationManager configuration)
     {
         services.AddFgsEntraAuthentication(configuration);
         services.AddScoped<IFgsClaimsEnricher, DbFgsClaimsEnricher>();
@@ -49,7 +52,7 @@ public static class DependencyInjection
         services.Configure<EntraExternalIdOptions>(configuration.GetSection(EntraExternalIdOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
         services.Configure<SignupLocaleOptions>(configuration.GetSection(SignupLocaleOptions.SectionName));
-        services.AddAwsCredentialsServices(configuration);
+        services.AddAwsCredentialsServices(configuration, configuration);
         services.Configure<TenantProvisioningOptions>(configuration.GetSection(TenantProvisioningOptions.SectionName));
         services.Configure<RabbitMqConsumerOptions>(configuration.GetSection(RabbitMqConsumerOptions.SectionName));
 
@@ -65,7 +68,6 @@ public static class DependencyInjection
                     maxRetryDelay: TimeSpan.FromSeconds(10),
                     errorCodesToAdd: null);
             });
-            // SQL-script migrations may drift from the snapshot; do not block startup or drop constraints.
             options.ConfigureWarnings(w =>
                 w.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
@@ -76,12 +78,15 @@ public static class DependencyInjection
         services.AddScoped<IOutboxStore, GloOutboxStore>();
         services.AddSingleton<IOutboxRoutingResolver, UserOutboxRoutingResolver>();
         services.AddFgsRabbitMqPublisher();
+        services.AddScoped<ICredentialConfigurationChangePublisher, CredentialConfigurationChangePublisher>();
+        CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<RabbitMqOptions>(services);
         services.AddFgsOutboxProcessor();
         services.AddScoped<PlatformTenantSeeder>();
         services.AddScoped<IAddressLocaleResolver, AddressLocaleResolver>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IEmailNormalizer, EmailNormalizer>();
-        services.AddSingleton<IInvitationTokenService, InvitationTokenService>();        services.AddSingleton<RabbitMqTopologyService>();
+        services.AddSingleton<IInvitationTokenService, InvitationTokenService>();
+        services.AddSingleton<RabbitMqTopologyService>();
         services.AddSingleton<ITenantSeedDatabaseConnectionFactory>(sp =>
             new TenantSeedDatabaseConnectionFactory(
                 FgsUserConnectionString.ResolveRequired(configuration),

@@ -1,7 +1,7 @@
-using Fgs.Platform.Infrastructure.Options;
 using Fgs.Platform.Application.Notifications.Channels;
 using Fgs.Platform.Infrastructure.Integrations.SendGrid;
-using Fgs.Messaging.Options; using FluentAssertions;
+using Fgs.Platform.Infrastructure.Options;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -13,8 +13,14 @@ public sealed class SendGridIntegrationClientTests
     [Fact]
     public async Task SendEmailAsync_ReturnsFailure_WhenApiKeyMissing()
     {
+        var optionsMonitor = new Mock<IOptionsMonitor<SendGridOptions>>();
+        optionsMonitor.Setup(m => m.CurrentValue).Returns(new SendGridOptions
+        {
+            ApiKey = "REPLACE_WITH_SENDGRID_API_KEY"
+        });
+
         var client = new SendGridIntegrationClient(
-            Options.Create(new SendGridOptions { ApiKey = "REPLACE_WITH_SENDGRID_API_KEY" }),
+            optionsMonitor.Object,
             Mock.Of<ILogger<SendGridIntegrationClient>>());
 
         var result = await client.SendEmailAsync(

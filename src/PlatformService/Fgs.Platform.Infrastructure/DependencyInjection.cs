@@ -36,7 +36,9 @@ using Fgs.Security.Authorization;
 using Fgs.Security.Extensions;
 using Fgs.Messaging.Extensions;
 using Fgs.Messaging.Options;
+using Fgs.Messaging.RabbitMq;
 using Fgs.Platform.Infrastructure.Options;
+using Fgs.Platform.Infrastructure.Credentials;
 using Fgs.Platform.Infrastructure.Reporting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -48,10 +50,11 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddFgsPlatformInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration)
+        ConfigurationManager configuration)
     {
         services.AddFgsEntraAuthentication(configuration);
         services.AddFgsRemoteClaimsEnrichment(configuration);
+        services.AddPlatformResolvedCredentialConfiguration(configuration, configuration);
 
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
         services.PostConfigure<RabbitMqOptions>(options =>
@@ -77,6 +80,7 @@ public static class DependencyInjection
         });
 
         services.AddFgsRabbitMqConnectionFactory();
+        services.AddSingleton<IRabbitMqEffectiveOptionsProvider, PlatformRabbitMqEffectiveOptionsProvider>();
         services.AddSingleton<PlatformRabbitMqTopologyInitializer>();
 
         services.AddScoped<INotificationHistoryRepository, NotificationHistoryRepository>();
@@ -106,7 +110,9 @@ public static class DependencyInjection
         services.AddSingleton<IBackgroundJobQueue, InMemoryBackgroundJobQueue>();
         services.AddSingleton<IReportExporter, PlaceholderReportExporter>();
 
+        services.AddHostedService<CredentialConfigurationBootstrapHostedService>();
         services.AddHostedService<NotificationQueueWorker>();
+        services.AddHostedService<CredentialConfigurationReloadConsumerService>();
 
         return services;
     }

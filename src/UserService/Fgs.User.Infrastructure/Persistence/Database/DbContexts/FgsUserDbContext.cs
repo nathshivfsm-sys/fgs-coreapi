@@ -127,6 +127,14 @@ public class FgsUserDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsVendorInventoryItem> FgsVendorInventoryItems => Set<FgsVendorInventoryItem>();
 
+    public DbSet<FgsWarehouse> FgsWarehouses => Set<FgsWarehouse>();
+
+    public DbSet<FgsVehicle> FgsVehicles => Set<FgsVehicle>();
+
+    public DbSet<FgsVehicleMaintenance> FgsVehicleMaintenances => Set<FgsVehicleMaintenance>();
+
+    public DbSet<GloVehicleMaintenanceType> GloVehicleMaintenanceTypes => Set<GloVehicleMaintenanceType>();
+
     public DbSet<GloMasterEntityType> GloMasterEntityTypes => Set<GloMasterEntityType>();
 
     public DbSet<GloCommunicationToken> GloCommunicationTokens => Set<GloCommunicationToken>();
