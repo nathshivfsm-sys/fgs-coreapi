@@ -1,4 +1,4 @@
-# FGS NGINX API Gateway
+﻿# FGS NGINX API Gateway
 
 Production-ready NGINX reverse proxy setup for the local .NET 10 microservices stack. NGINX is the only public entry point; service containers are reachable only on the shared Docker network.
 
@@ -20,8 +20,8 @@ src/Gateway/
     site.prod.conf
   docker/
     user-service.Dockerfile
-    platform-service.Dockerfile
-    workorder-service.Dockerfile
+    notification-service.Dockerfile
+    job-service.Dockerfile
   logs/
   scripts/
     generate-local-cert.ps1
@@ -42,10 +42,10 @@ NGINX listens on `https://localhost:8443` locally.
 | `/api/v1/dashboard` | `user-service:5001` | `/api/v1/dashboard` |
 | `/api/v1/users` | `user-service:5001` | `/api/v1/` |
 | `/api/v1/users/{path}` | `user-service:5001` | `/api/v1/{path}` |
-| `/api/v1/platform` | `platform-service:5002` | `/api/v1/` |
-| `/api/v1/platform/{path}` | `platform-service:5002` | `/api/v1/{path}` |
-| `/api/v1/workorders` | `workorder-service:5003` | `/api/v1/` |
-| `/api/v1/workorders/{path}` | `workorder-service:5003` | `/api/v1/{path}` |
+| `/api/v1/notifications` | `notification-service:5002` | `/api/v1/` |
+| `/api/v1/notifications/{path}` | `notification-service:5002` | `/api/v1/{path}` |
+| `/api/v1/jobs` | `job-service:5003` | `/api/v1/` |
+| `/api/v1/jobs/{path}` | `job-service:5003` | `/api/v1/{path}` |
 
 OAuth and invitation URLs are exposed through the gateway (register the same values in Microsoft Entra):
 
@@ -77,16 +77,16 @@ Test the gateway:
 ```powershell
 curl.exe -k https://localhost:8443/nginx-health
 curl.exe -k https://localhost:8443/api/v1/users/health
-curl.exe -k https://localhost:8443/api/v1/platform/health
-curl.exe -k https://localhost:8443/api/v1/workorders/health
+curl.exe -k https://localhost:8443/api/v1/notifications/health
+curl.exe -k https://localhost:8443/api/v1/jobs/health
 ```
 
 The local Compose file starts:
 
 - `nginx`, published on host ports `8080` and `8443`.
 - `user-service`, private on container port `5001`.
-- `platform-service`, private on container port `5002`.
-- `workorder-service`, private on container port `5003`.
+- `notification-service`, private on container port `5002`.
+- `job-service`, private on container port `5003`.
 
 ### Application configuration (Postgres, RabbitMQ, Entra)
 
@@ -95,8 +95,8 @@ Each API container mounts the **same** files you edit for local `dotnet run`:
 | Service | Mounted files |
 | --- | --- |
 | User | `src/UserService/Fgs.User.API/appsettings.json` + `appsettings.Development.json` |
-| Platform | `src/PlatformService/Fgs.Platform.API/appsettings.json` + `appsettings.Development.json` |
-| Workorder | `src/WorkOrderService/Fgs.WorkOrder.API/appsettings.json` + `appsettings.Development.json` |
+| Platform | `src/NotificationService/Fgs.Notification.API/appsettings.json` + `appsettings.Development.json` |
+| Workorder | `src/JobService/Fgs.Job.API/appsettings.json` + `appsettings.Development.json` |
 
 Containers use `ASPNETCORE_ENVIRONMENT=Development`, so ASP.NET Core **merges** `appsettings.json` then `appsettings.Development.json` (same as Visual Studio / `dotnet run`). There are no duplicate Postgres or RabbitMQ settings in `docker-compose.yml`.
 
@@ -109,7 +109,7 @@ Change connection strings or RabbitMQ in those JSON files and restart the servic
 Do not add `container_name`; Docker Compose needs generated names for scaling.
 
 ```powershell
-docker compose up --build --scale user-service=2 --scale platform-service=2 --scale workorder-service=2
+docker compose up --build --scale user-service=2 --scale notification-service=2 --scale job-service=2
 ```
 
 NGINX resolves the Compose service names and load balances with `least_conn`. If you scale after NGINX has already started, recreate or reload NGINX so it refreshes upstream DNS:
@@ -175,10 +175,10 @@ sudo systemctl reload nginx
 
 For Kubernetes, keep this routing model but move responsibilities as follows:
 
-- Use Kubernetes `Service` objects for `user-service`, `platform-service`, and `workorder-service`.
+- Use Kubernetes `Service` objects for `user-service`, `notification-service`, and `job-service`.
 - Put TLS certificates in `kubernetes.io/tls` secrets, or use cert-manager.
 - Use NGINX Ingress Controller for path routing and prefix rewrite annotations.
-- Keep `/api/v1/users`, `/api/v1/platform`, and `/api/v1/workorders` as the stable external contract.
+- Keep `/api/v1/users`, `/api/v1/notifications`, and `/api/v1/jobs` as the stable external contract.
 - Move rate limiting, body size, gzip, timeouts, and security headers into Ingress annotations or a controller ConfigMap.
 
 The production NGINX files remain useful as the reference edge policy when converting to Ingress resources.

@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fgs.Inventory.Domain\Fgs.Inventory.Domain.csproj" />
+    <ProjectReference Include="..\..\Shared\Kernel\Fgs.Kernel\Fgs.Kernel.csproj" />
+    <ProjectReference Include="..\..\Shared\Foundation\Fgs.Foundation\Fgs.Foundation.csproj" />
+    <ProjectReference Include="..\..\Shared\Contracts\Fgs.Contracts\Fgs.Contracts.csproj" />
+    <ProjectReference Include="..\..\Shared\Persistence\Fgs.Persistence\Fgs.Persistence.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

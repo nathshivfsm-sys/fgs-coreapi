@@ -1,4 +1,4 @@
-**/bin/
+﻿**/bin/
 **/obj/
 **/.vs/
 **/.git/
@@ -10,4 +10,4 @@ src/Gateway/certs/*.crt
 src/Gateway/nginx-1.30.0/
 
 src/UserService/Fgs.User.API/appsettings*.json
-src/WorkOrderService/Fgs.WorkOrder.API/appsettings*.json
+src/JobService/Fgs.Job.API/appsettings*.json

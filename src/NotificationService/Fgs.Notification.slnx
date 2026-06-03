@@ -1,0 +1,18 @@
+﻿<Solution>
+  <Folder Name="/Shared/">
+    <Project Path="../Shared/Kernel/Fgs.Kernel/Fgs.Kernel.csproj" />
+    <Project Path="../Shared/Foundation/Fgs.Foundation/Fgs.Foundation.csproj" />
+    <Project Path="../Shared/Contracts/Fgs.Contracts/Fgs.Contracts.csproj" />
+    <Project Path="../Shared/Messaging/Fgs.Messaging/Fgs.Messaging.csproj" />
+    <Project Path="../Shared/Security/Fgs.Security/Fgs.Security.csproj" />
+    <Project Path="../Shared/MultiTenancy/Fgs.MultiTenancy/Fgs.MultiTenancy.csproj" />
+    <Project Path="../Shared/Observability/Fgs.Observability/Fgs.Observability.csproj" />
+  </Folder>
+  <Folder Name="/NotificationService/">
+    <Project Path="Fgs.Notification.Domain/Fgs.Notification.Domain.csproj" />
+    <Project Path="Fgs.Notification.Application/Fgs.Notification.Application.csproj" />
+    <Project Path="Fgs.Notification.Infrastructure/Fgs.Notification.Infrastructure.csproj" />
+    <Project Path="Fgs.Notification.API/Fgs.Notification.API.csproj" />
+    <Project Path="Fgs.Notification.Tests/Fgs.Notification.Tests.csproj" />
+  </Folder>
+</Solution>

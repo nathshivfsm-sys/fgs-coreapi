@@ -1,0 +1,6 @@
+﻿@Fgs.Crm.API_HostAddress = http://localhost:5075
+
+GET {{Fgs.Crm.API_HostAddress}}/health
+Accept: application/json
+
+###

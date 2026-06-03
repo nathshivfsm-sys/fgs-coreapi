@@ -1,4 +1,4 @@
-name: fgs-local
+﻿name: fgs-local
 
 services:
   rabbitmq:
@@ -33,9 +33,9 @@ services:
     depends_on:
       user-service:
         condition: service_healthy
-      platform-service:
+      notification-service:
         condition: service_healthy
-      workorder-service:
+      job-service:
         condition: service_healthy
     ports:
       - "8080:80"
@@ -70,10 +70,10 @@ services:
       - fgs-private
     restart: unless-stopped
 
-  platform-service:
+  notification-service:
     build:
       context: ../..
-      dockerfile: src/Gateway/docker/platform-service.Dockerfile
+      dockerfile: src/Gateway/docker/notification-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       RabbitMq__HostName: rabbitmq
@@ -86,8 +86,8 @@ services:
       user-service:
         condition: service_started
     volumes:
-      - ../PlatformService/Fgs.Platform.API/appsettings.json:/src/src/PlatformService/Fgs.Platform.API/appsettings.json:ro
-      - ../PlatformService/Fgs.Platform.API/appsettings.Development.json:/src/src/PlatformService/Fgs.Platform.API/appsettings.Development.json:ro
+      - ../NotificationService/Fgs.Notification.API/appsettings.json:/src/src/NotificationService/Fgs.Notification.API/appsettings.json:ro
+      - ../NotificationService/Fgs.Notification.API/appsettings.Development.json:/src/src/NotificationService/Fgs.Notification.API/appsettings.Development.json:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     expose:
@@ -96,15 +96,15 @@ services:
       - fgs-private
     restart: unless-stopped
 
-  workorder-service:
+  job-service:
     build:
       context: ../..
-      dockerfile: src/Gateway/docker/workorder-service.Dockerfile
+      dockerfile: src/Gateway/docker/job-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
     volumes:
-      - ../WorkOrderService/Fgs.WorkOrder.API/appsettings.json:/src/src/WorkOrderService/Fgs.WorkOrder.API/appsettings.json:ro
-      - ../WorkOrderService/Fgs.WorkOrder.API/appsettings.Development.json:/src/src/WorkOrderService/Fgs.WorkOrder.API/appsettings.Development.json:ro
+      - ../JobService/Fgs.Job.API/appsettings.json:/src/src/JobService/Fgs.Job.API/appsettings.json:ro
+      - ../JobService/Fgs.Job.API/appsettings.Development.json:/src/src/JobService/Fgs.Job.API/appsettings.Development.json:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     expose:

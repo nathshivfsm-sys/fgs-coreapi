@@ -1,4 +1,4 @@
-<Solution>
+﻿<Solution>
   <Folder Name="/Gateway/">
   </Folder>
   <Folder Name="/Shared/">
@@ -19,18 +19,109 @@
     <Project Path="UserService/Fgs.User.API/Fgs.User.API.csproj" />
     <Project Path="UserService/Fgs.User.Tests/Fgs.User.Tests.csproj" />
   </Folder>
-  <Folder Name="/PlatformService/">
-    <Project Path="PlatformService/Fgs.Platform.Domain/Fgs.Platform.Domain.csproj" />
-    <Project Path="PlatformService/Fgs.Platform.Application/Fgs.Platform.Application.csproj" />
-    <Project Path="PlatformService/Fgs.Platform.Infrastructure/Fgs.Platform.Infrastructure.csproj" />
-    <Project Path="PlatformService/Fgs.Platform.API/Fgs.Platform.API.csproj" />
-    <Project Path="PlatformService/Fgs.Platform.Tests/Fgs.Platform.Tests.csproj" />
+  <Folder Name="/SetupService/">
+    <Project Path="SetupService/Fgs.Setup.Domain/Fgs.Setup.Domain.csproj" />
+    <Project Path="SetupService/Fgs.Setup.Application/Fgs.Setup.Application.csproj" />
+    <Project Path="SetupService/Fgs.Setup.Infrastructure/Fgs.Setup.Infrastructure.csproj" />
+    <Project Path="SetupService/Fgs.Setup.API/Fgs.Setup.API.csproj" />
+    <Project Path="SetupService/Fgs.Setup.Tests/Fgs.Setup.Tests.csproj" />
   </Folder>
-  <Folder Name="/WorkOrderService/">
-    <Project Path="WorkOrderService/Fgs.WorkOrder.Domain/Fgs.WorkOrder.Domain.csproj" />
-    <Project Path="WorkOrderService/Fgs.WorkOrder.Application/Fgs.WorkOrder.Application.csproj" />
-    <Project Path="WorkOrderService/Fgs.WorkOrder.Infrastructure/Fgs.WorkOrder.Infrastructure.csproj" />
-    <Project Path="WorkOrderService/Fgs.WorkOrder.API/Fgs.WorkOrder.API.csproj" />
-    <Project Path="WorkOrderService/Fgs.WorkOrder.Tests/Fgs.WorkOrder.Tests.csproj" />
+  <Folder Name="/FileService/">
+    <Project Path="FileService/Fgs.File.Domain/Fgs.File.Domain.csproj" />
+    <Project Path="FileService/Fgs.File.Application/Fgs.File.Application.csproj" />
+    <Project Path="FileService/Fgs.File.Infrastructure/Fgs.File.Infrastructure.csproj" />
+    <Project Path="FileService/Fgs.File.API/Fgs.File.API.csproj" />
+    <Project Path="FileService/Fgs.File.Tests/Fgs.File.Tests.csproj" />
+  </Folder>
+  <Folder Name="/AuditService/">
+    <Project Path="AuditService/Fgs.Audit.Domain/Fgs.Audit.Domain.csproj" />
+    <Project Path="AuditService/Fgs.Audit.Application/Fgs.Audit.Application.csproj" />
+    <Project Path="AuditService/Fgs.Audit.Infrastructure/Fgs.Audit.Infrastructure.csproj" />
+    <Project Path="AuditService/Fgs.Audit.API/Fgs.Audit.API.csproj" />
+    <Project Path="AuditService/Fgs.Audit.Tests/Fgs.Audit.Tests.csproj" />
+  </Folder>
+  <Folder Name="/BillingService/">
+    <Project Path="BillingService/Fgs.Billing.Domain/Fgs.Billing.Domain.csproj" />
+    <Project Path="BillingService/Fgs.Billing.Application/Fgs.Billing.Application.csproj" />
+    <Project Path="BillingService/Fgs.Billing.Infrastructure/Fgs.Billing.Infrastructure.csproj" />
+    <Project Path="BillingService/Fgs.Billing.API/Fgs.Billing.API.csproj" />
+    <Project Path="BillingService/Fgs.Billing.Tests/Fgs.Billing.Tests.csproj" />
+  </Folder>
+  <Folder Name="/CrmService/">
+    <Project Path="CrmService/Fgs.Crm.Domain/Fgs.Crm.Domain.csproj" />
+    <Project Path="CrmService/Fgs.Crm.Application/Fgs.Crm.Application.csproj" />
+    <Project Path="CrmService/Fgs.Crm.Infrastructure/Fgs.Crm.Infrastructure.csproj" />
+    <Project Path="CrmService/Fgs.Crm.API/Fgs.Crm.API.csproj" />
+    <Project Path="CrmService/Fgs.Crm.Tests/Fgs.Crm.Tests.csproj" />
+  </Folder>
+  <Folder Name="/DispatchService/">
+    <Project Path="DispatchService/Fgs.Dispatch.Domain/Fgs.Dispatch.Domain.csproj" />
+    <Project Path="DispatchService/Fgs.Dispatch.Application/Fgs.Dispatch.Application.csproj" />
+    <Project Path="DispatchService/Fgs.Dispatch.Infrastructure/Fgs.Dispatch.Infrastructure.csproj" />
+    <Project Path="DispatchService/Fgs.Dispatch.API/Fgs.Dispatch.API.csproj" />
+    <Project Path="DispatchService/Fgs.Dispatch.Tests/Fgs.Dispatch.Tests.csproj" />
+  </Folder>
+  <Folder Name="/IntegrationService/">
+    <Project Path="IntegrationService/Fgs.Integration.Domain/Fgs.Integration.Domain.csproj" />
+    <Project Path="IntegrationService/Fgs.Integration.Application/Fgs.Integration.Application.csproj" />
+    <Project Path="IntegrationService/Fgs.Integration.Infrastructure/Fgs.Integration.Infrastructure.csproj" />
+    <Project Path="IntegrationService/Fgs.Integration.API/Fgs.Integration.API.csproj" />
+    <Project Path="IntegrationService/Fgs.Integration.Tests/Fgs.Integration.Tests.csproj" />
+  </Folder>
+  <Folder Name="/InventoryService/">
+    <Project Path="InventoryService/Fgs.Inventory.Domain/Fgs.Inventory.Domain.csproj" />
+    <Project Path="InventoryService/Fgs.Inventory.Application/Fgs.Inventory.Application.csproj" />
+    <Project Path="InventoryService/Fgs.Inventory.Infrastructure/Fgs.Inventory.Infrastructure.csproj" />
+    <Project Path="InventoryService/Fgs.Inventory.API/Fgs.Inventory.API.csproj" />
+    <Project Path="InventoryService/Fgs.Inventory.Tests/Fgs.Inventory.Tests.csproj" />
+  </Folder>
+  <Folder Name="/NotificationService/">
+    <Project Path="NotificationService/Fgs.Notification.Domain/Fgs.Notification.Domain.csproj" />
+    <Project Path="NotificationService/Fgs.Notification.Application/Fgs.Notification.Application.csproj" />
+    <Project Path="NotificationService/Fgs.Notification.Infrastructure/Fgs.Notification.Infrastructure.csproj" />
+    <Project Path="NotificationService/Fgs.Notification.API/Fgs.Notification.API.csproj" />
+    <Project Path="NotificationService/Fgs.Notification.Tests/Fgs.Notification.Tests.csproj" />
+  </Folder>
+  <Folder Name="/ReportingService/">
+    <Project Path="ReportingService/Fgs.Reporting.Domain/Fgs.Reporting.Domain.csproj" />
+    <Project Path="ReportingService/Fgs.Reporting.Application/Fgs.Reporting.Application.csproj" />
+    <Project Path="ReportingService/Fgs.Reporting.Infrastructure/Fgs.Reporting.Infrastructure.csproj" />
+    <Project Path="ReportingService/Fgs.Reporting.API/Fgs.Reporting.API.csproj" />
+    <Project Path="ReportingService/Fgs.Reporting.Tests/Fgs.Reporting.Tests.csproj" />
+  </Folder>
+  <Folder Name="/ContractService/">
+    <Project Path="ContractService/Fgs.Contract.Domain/Fgs.Contract.Domain.csproj" />
+    <Project Path="ContractService/Fgs.Contract.Application/Fgs.Contract.Application.csproj" />
+    <Project Path="ContractService/Fgs.Contract.Infrastructure/Fgs.Contract.Infrastructure.csproj" />
+    <Project Path="ContractService/Fgs.Contract.API/Fgs.Contract.API.csproj" />
+    <Project Path="ContractService/Fgs.Contract.Tests/Fgs.Contract.Tests.csproj" />
+  </Folder>
+  <Folder Name="/CommunicationService/">
+    <Project Path="CommunicationService/Fgs.Communication.Domain/Fgs.Communication.Domain.csproj" />
+    <Project Path="CommunicationService/Fgs.Communication.Application/Fgs.Communication.Application.csproj" />
+    <Project Path="CommunicationService/Fgs.Communication.Infrastructure/Fgs.Communication.Infrastructure.csproj" />
+    <Project Path="CommunicationService/Fgs.Communication.API/Fgs.Communication.API.csproj" />
+    <Project Path="CommunicationService/Fgs.Communication.Tests/Fgs.Communication.Tests.csproj" />
+  </Folder>
+  <Folder Name="/PublisherService/">
+    <Project Path="PublisherService/Fgs.Publisher.Domain/Fgs.Publisher.Domain.csproj" />
+    <Project Path="PublisherService/Fgs.Publisher.Application/Fgs.Publisher.Application.csproj" />
+    <Project Path="PublisherService/Fgs.Publisher.Infrastructure/Fgs.Publisher.Infrastructure.csproj" />
+    <Project Path="PublisherService/Fgs.Publisher.API/Fgs.Publisher.API.csproj" />
+    <Project Path="PublisherService/Fgs.Publisher.Tests/Fgs.Publisher.Tests.csproj" />
+  </Folder>
+  <Folder Name="/ConsumerService/">
+    <Project Path="ConsumerService/Fgs.Consumer.Domain/Fgs.Consumer.Domain.csproj" />
+    <Project Path="ConsumerService/Fgs.Consumer.Application/Fgs.Consumer.Application.csproj" />
+    <Project Path="ConsumerService/Fgs.Consumer.Infrastructure/Fgs.Consumer.Infrastructure.csproj" />
+    <Project Path="ConsumerService/Fgs.Consumer.API/Fgs.Consumer.API.csproj" />
+    <Project Path="ConsumerService/Fgs.Consumer.Tests/Fgs.Consumer.Tests.csproj" />
+  </Folder>
+  <Folder Name="/JobService/">
+    <Project Path="JobService/Fgs.Job.Domain/Fgs.Job.Domain.csproj" />
+    <Project Path="JobService/Fgs.Job.Application/Fgs.Job.Application.csproj" />
+    <Project Path="JobService/Fgs.Job.Infrastructure/Fgs.Job.Infrastructure.csproj" />
+    <Project Path="JobService/Fgs.Job.API/Fgs.Job.API.csproj" />
+    <Project Path="JobService/Fgs.Job.Tests/Fgs.Job.Tests.csproj" />
   </Folder>
 </Solution>
