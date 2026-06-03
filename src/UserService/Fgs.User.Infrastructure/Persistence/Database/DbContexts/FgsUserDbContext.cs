@@ -1,19 +1,29 @@
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Persistence.Database.Configurations;
+using Fgs.User.Infrastructure.Persistence.Database.Schemas;
+using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 
 /// <summary>
-/// Code-first EF Core context for FGS user / platform entities (PostgreSQL schema <c>dbo</c>).
+/// Code-first EF Core context for FGS user / platform entities (PostgreSQL domain schemas).
 /// Entity mappings live in <see cref="Configurations"/> (one file per entity).
 /// </summary>
-public class FgsUserDbContext : DbContext
+public class FgsUserDbContext : FgsTenantFilteredDbContext
 {
-    public const string FgsSchema = "dbo";
+    /// <summary>Schema for EF Core migration history (<c>shared</c>).</summary>
+    public const string MigrationHistorySchema = FgsDatabaseSchemas.MigrationHistory;
 
-    public FgsUserDbContext(DbContextOptions<FgsUserDbContext> options)
-        : base(options)
+    /// <summary>Legacy alias; use <see cref="MigrationHistorySchema"/>.</summary>
+    [Obsolete("Use MigrationHistorySchema. dbo is no longer the default schema.")]
+    public const string FgsSchema = MigrationHistorySchema;
+
+    public FgsUserDbContext(
+        DbContextOptions<FgsUserDbContext> options,
+        ITenantContextAccessor tenantContextAccessor)
+        : base(options, tenantContextAccessor)
     {
     }
 
@@ -25,14 +35,13 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<FgsLocation> FgsLocations => Set<FgsLocation>();
 
-    public DbSet<FgsCredentialProvider> FgsCredentialProviders => Set<FgsCredentialProvider>();
-
-    public DbSet<FgsCredentialProviderConfiguration> FgsCredentialProviderConfigurations =>
-        Set<FgsCredentialProviderConfiguration>();
-
-    public DbSet<FgsCredentialSecret> FgsCredentialSecrets => Set<FgsCredentialSecret>();
+    public DbSet<FgsCredential> FgsCredentials => Set<FgsCredential>();
 
     public DbSet<FgsCredentialAudit> FgsCredentialAudits => Set<FgsCredentialAudit>();
+
+    public DbSet<GloCredential> GloCredentials => Set<GloCredential>();
+
+    public DbSet<GloCredentialProviderType> GloCredentialProviderTypes => Set<GloCredentialProviderType>();
 
     public DbSet<FgsSetupTechTrade> FgsSetupTechTrades => Set<FgsSetupTechTrade>();
 
@@ -118,9 +127,22 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<FgsVendorInventoryItem> FgsVendorInventoryItems => Set<FgsVendorInventoryItem>();
 
+    public DbSet<FgsWarehouse> FgsWarehouses => Set<FgsWarehouse>();
+
+    public DbSet<FgsVehicle> FgsVehicles => Set<FgsVehicle>();
+
+    public DbSet<FgsVehicleMaintenance> FgsVehicleMaintenances => Set<FgsVehicleMaintenance>();
+
+    public DbSet<GloVehicleMaintenanceType> GloVehicleMaintenanceTypes => Set<GloVehicleMaintenanceType>();
+
     public DbSet<GloMasterEntityType> GloMasterEntityTypes => Set<GloMasterEntityType>();
 
     public DbSet<GloCommunicationToken> GloCommunicationTokens => Set<GloCommunicationToken>();
+
+    public DbSet<GloCommunicationTemplate> GloCommunicationTemplates => Set<GloCommunicationTemplate>();
+
+    public DbSet<GloCommunicationTemplateToken> GloCommunicationTemplateTokens =>
+        Set<GloCommunicationTemplateToken>();
 
     public DbSet<GloTimeCardOption> GloTimeCardOptions => Set<GloTimeCardOption>();
 
@@ -174,10 +196,6 @@ public class FgsUserDbContext : DbContext
 
     public DbSet<GloLocationType> GloLocationTypes => Set<GloLocationType>();
 
-    public DbSet<GloCredentialCategory> GloCredentialCategories => Set<GloCredentialCategory>();
-
-    public DbSet<GloCredentialProviderType> GloCredentialProviderTypes => Set<GloCredentialProviderType>();
-
     public DbSet<GloResolutionType> GloResolutionTypes => Set<GloResolutionType>();
 
     public DbSet<GloRole> GloRoles => Set<GloRole>();
@@ -204,9 +222,11 @@ public class FgsUserDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema(FgsSchema);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsUserDbContext).Assembly);
+        EntitySchemaRegistry.ApplySchemas(modelBuilder);
         ConfigureAuditActorColumns(modelBuilder);
+        ApplyFgsTenantQueryFilters(modelBuilder);
+        ApplyFgsNullableTenantCompanyQueryFilter<FgsSetupCommunicationTemplate>(modelBuilder);
     }
 
     private static void ConfigureAuditActorColumns(ModelBuilder modelBuilder)

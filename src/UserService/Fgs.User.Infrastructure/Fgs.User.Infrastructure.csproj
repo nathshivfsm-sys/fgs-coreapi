@@ -1,44 +1,102 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+
+
   <ItemGroup>
+
     <ProjectReference Include="..\Fgs.User.Application\Fgs.User.Application.csproj" />
+
     <ProjectReference Include="..\Fgs.User.Domain\Fgs.User.Domain.csproj" />
+
+    <ProjectReference Include="..\..\Shared\Kernel\Fgs.Kernel\Fgs.Kernel.csproj" />
+
+    <ProjectReference Include="..\..\Shared\Foundation\Fgs.Foundation\Fgs.Foundation.csproj" />
+
+    <ProjectReference Include="..\..\Shared\Contracts\Fgs.Contracts\Fgs.Contracts.csproj" />
+
+    <ProjectReference Include="..\..\Shared\Persistence\Fgs.Persistence\Fgs.Persistence.csproj" />
+
+    <ProjectReference Include="..\..\Shared\Messaging\Fgs.Messaging\Fgs.Messaging.csproj" />
+
+    <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
+
+    <ProjectReference Include="..\..\Shared\MultiTenancy\Fgs.MultiTenancy\Fgs.MultiTenancy.csproj" />
+
   </ItemGroup>
 
+
+
   <ItemGroup>
+
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.8" />
+
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
+
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.8" />
+
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
+
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.8" />
+
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.8" />
+
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.8" />
+
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.14.0" />
+
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
+
     <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.8" />
+
     <PackageReference Include="GeoTimeZone" Version="6.0.0" />
+
     <PackageReference Include="AWSSDK.S3" Version="3.7.410.12" />
-    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.400.32" />
+
+    <PackageReference Include="AWSSDK.KeyManagementService" Version="3.7.400.44" />
+
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.301" />
+
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.8" />
+
     <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
+
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
+
   </ItemGroup>
 
+
+
   <ItemGroup>
+
     <Folder Include="Persistence\Database\Migrations\" />
+
     <Folder Include="Persistence\Database\Scripts\" />
+
   </ItemGroup>
 
+
+
   <ItemGroup>
+
     <InternalsVisibleTo Include="Fgs.User.Tests" />
+
   </ItemGroup>
+
+
 
   <PropertyGroup>
+
     <TargetFramework>net10.0</TargetFramework>
+
     <ImplicitUsings>enable</ImplicitUsings>
+
     <Nullable>enable</Nullable>
+
   </PropertyGroup>
 
+
+
 </Project>
+

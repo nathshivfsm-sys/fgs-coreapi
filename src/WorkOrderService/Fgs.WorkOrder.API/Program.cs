@@ -1,29 +1,41 @@
+using Fgs.Foundation.Api;
+using Fgs.Foundation.Extensions;
+using Fgs.MultiTenancy.Extensions;
+using Fgs.Observability.Extensions;
 using Fgs.WorkOrder.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddOpenApi();
-builder.Services.AddHealthChecks();
+builder.Services.AddFgsApiVersioning();
+builder.Services.AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.ConfigureFgsApi());
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.ConfigureFgsApi());
+builder.Services.AddFgsSwagger(options =>
+{
+    options.Title = "FGS Work Order Service";
+    options.Description = "Work order lifecycle, dispatch, and field service operations.";
+    options.XmlCommentsAssembly = typeof(Program).Assembly;
+});
 builder.Services.AddFgsWorkOrderInfrastructure(builder.Configuration);
+builder.Services.AddFgsMultiTenancy();
+builder.Services.AddFgsObservability(builder.Configuration, "fgs-workorder-service");
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
+app.UseFgsFoundationMiddleware();
 if (ShouldUseHttpsRedirection(app.Configuration))
 {
     app.UseHttpsRedirection();
 }
 
+app.UseFgsSwagger();
+
+app.UseAuthentication();
+app.UseFgsTenantResolution();
 app.UseAuthorization();
-
 app.MapControllers();
-
-app.MapHealthChecks("/health");
+app.MapFgsHealthChecks();
 
 app.Run();
 
@@ -31,3 +43,5 @@ static bool ShouldUseHttpsRedirection(IConfiguration configuration) =>
     !string.Equals(configuration["DOTNET_RUNNING_IN_CONTAINER"], "true", StringComparison.OrdinalIgnoreCase)
     && (configuration["ASPNETCORE_URLS"]?.Contains("https://", StringComparison.OrdinalIgnoreCase) == true
         || !string.IsNullOrWhiteSpace(configuration["ASPNETCORE_HTTPS_PORT"]));
+
+public partial class Program;

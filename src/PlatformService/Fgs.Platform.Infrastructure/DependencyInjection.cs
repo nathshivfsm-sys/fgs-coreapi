@@ -32,7 +32,13 @@ using Fgs.Platform.Infrastructure.Notifications.Queues;
 using Fgs.Platform.Infrastructure.Notifications.Preferences;
 using Fgs.Platform.Infrastructure.Notifications.Templates;
 using Fgs.Platform.Infrastructure.Notifications.Workers;
+using Fgs.Security.Authorization;
+using Fgs.Security.Extensions;
+using Fgs.Messaging.Extensions;
+using Fgs.Messaging.Options;
+using Fgs.Messaging.RabbitMq;
 using Fgs.Platform.Infrastructure.Options;
+using Fgs.Platform.Infrastructure.Credentials;
 using Fgs.Platform.Infrastructure.Reporting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -44,9 +50,18 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddFgsPlatformInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration)
+        ConfigurationManager configuration)
     {
+        services.AddFgsEntraAuthentication(configuration);
+        services.AddFgsRemoteClaimsEnrichment(configuration);
+        services.AddPlatformResolvedCredentialConfiguration(configuration, configuration);
+
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
+        services.PostConfigure<RabbitMqOptions>(options =>
+        {
+            options.ClientProvidedName = "Fgs.Platform";
+            options.AutomaticRecoveryEnabled = true;
+        });
         services.Configure<SendGridOptions>(configuration.GetSection(SendGridOptions.SectionName));
         services.Configure<TenantProviderOptions>(configuration.GetSection(TenantProviderOptions.SectionName));
         services.Configure<PlatformFeatureFlagsOptions>(configuration.GetSection(PlatformFeatureFlagsOptions.SectionName));
@@ -64,7 +79,9 @@ public static class DependencyInjection
             });
         });
 
-        services.AddSingleton<RabbitMqConnectionFactory>();
+        services.AddFgsRabbitMqConnectionFactory();
+        services.AddSingleton<IRabbitMqEffectiveOptionsProvider, PlatformRabbitMqEffectiveOptionsProvider>();
+        services.AddSingleton<PlatformRabbitMqTopologyInitializer>();
 
         services.AddScoped<INotificationHistoryRepository, NotificationHistoryRepository>();
         services.AddScoped<IIdempotencyStore, IdempotencyStore>();
@@ -93,7 +110,9 @@ public static class DependencyInjection
         services.AddSingleton<IBackgroundJobQueue, InMemoryBackgroundJobQueue>();
         services.AddSingleton<IReportExporter, PlaceholderReportExporter>();
 
+        services.AddHostedService<CredentialConfigurationBootstrapHostedService>();
         services.AddHostedService<NotificationQueueWorker>();
+        services.AddHostedService<CredentialConfigurationReloadConsumerService>();
 
         return services;
     }

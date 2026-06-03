@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Quantity-on-hand and cost snapshot for an inventory item.
 /// </summary>
-public class FgsInventoryStock
+public class FgsInventoryStock : ITenantCompanyScoped
 {
     public long Id { get; set; }
 

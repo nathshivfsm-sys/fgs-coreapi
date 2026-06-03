@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Fgs.User.Application.Abstractions.Provisioning;
-using Fgs.User.Application.IntegrationEvents;
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Messaging;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+
+using Fgs.Messaging.Options;
 
 namespace Fgs.User.Infrastructure.Background;
 

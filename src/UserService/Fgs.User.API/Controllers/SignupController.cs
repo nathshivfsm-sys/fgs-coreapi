@@ -1,7 +1,10 @@
-using Fgs.User.Application.Common;
+using Asp.Versioning;
+using Fgs.Foundation.Api;
+using Fgs.Foundation.Result;
 using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 using Fgs.User.Application.Features.Signup.DTOs;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -9,8 +12,10 @@ namespace Fgs.User.API.Controllers;
 /// <summary>
 /// Company signup and tenant onboarding.
 /// </summary>
+[AllowAnonymous]
 [ApiController]
-[Route("api/signup")]
+[ApiVersion(FgsApiVersions.V1)]
+[FgsVersionedRoute("signup")]
 [Produces("application/json")]
 public sealed class SignupController(IMediator mediator) : ControllerBase
 {

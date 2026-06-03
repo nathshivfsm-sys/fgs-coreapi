@@ -1,6 +1,7 @@
+using Fgs.Messaging.Options;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Domain.Enums;
-using Fgs.User.Infrastructure.Common.Options;
+using Fgs.Security.Options;
 using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Infrastructure.Messaging;
 using Microsoft.Extensions.Options;

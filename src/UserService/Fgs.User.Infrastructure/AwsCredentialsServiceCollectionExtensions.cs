@@ -1,5 +1,5 @@
 using Amazon;
-using Amazon.SecretsManager;
+using Amazon.S3;
 using Fgs.User.Infrastructure.Common.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,40 +11,31 @@ public static class AwsCredentialsServiceCollectionExtensions
 {
     public static IServiceCollection AddAwsCredentialsServices(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IConfigurationBuilder configurationBuilder)
     {
-        services.AddMemoryCache();
-
-        var section = configuration.GetSection(AwsCredentialsOptions.SectionName);
-        services.Configure<AwsCredentialsOptions>(section);
-
-        services.AddSingleton<IAmazonSecretsManager>(sp =>
-        {
-            var options = sp.GetRequiredService<IOptions<AwsCredentialsOptions>>().Value;
-            var regionEndpoint = RegionEndpoint.GetBySystemName(
-                string.IsNullOrWhiteSpace(options.Region) ? "us-east-1" : options.Region);
-
-            var config = new AmazonSecretsManagerConfig
-            {
-                RegionEndpoint = regionEndpoint
-            };
-
-            if (HasExplicitCredentials(options))
-            {
-                return new AmazonSecretsManagerClient(
-                    options.AccessKeyId!,
-                    options.SecretAccessKey!,
-                    config);
-            }
-
-            // Production: ECS/EC2/EKS IAM role, or ~/.aws/credentials when EnableLocalProfileFallback is true.
-            return new AmazonSecretsManagerClient(config);
-        });
-
+        services.AddFgsCredentialConfigurationServices(configuration, configurationBuilder);
+        services.AddSingleton<AmazonS3Client>(CreateS3Client);
         return services;
+    }
+
+    private static AmazonS3Client CreateS3Client(IServiceProvider sp)
+    {
+        var options = sp.GetRequiredService<IOptions<AwsCredentialsOptions>>().Value;
+        var config = new AmazonS3Config
+        {
+            RegionEndpoint = ResolveRegionEndpoint(options.Region)
+        };
+
+        return HasExplicitCredentials(options)
+            ? new AmazonS3Client(options.AccessKeyId!, options.SecretAccessKey!, config)
+            : new AmazonS3Client(config);
     }
 
     private static bool HasExplicitCredentials(AwsCredentialsOptions options) =>
         !string.IsNullOrWhiteSpace(options.AccessKeyId)
         && !string.IsNullOrWhiteSpace(options.SecretAccessKey);
+
+    private static RegionEndpoint ResolveRegionEndpoint(string? region) =>
+        RegionEndpoint.GetBySystemName(string.IsNullOrWhiteSpace(region) ? "us-east-1" : region);
 }

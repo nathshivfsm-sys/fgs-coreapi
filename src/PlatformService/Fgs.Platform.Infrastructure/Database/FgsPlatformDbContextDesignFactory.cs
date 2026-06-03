@@ -1,3 +1,4 @@
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +20,6 @@ public sealed class FgsPlatformDbContextDesignFactory : IDesignTimeDbContextFact
             FgsPlatformConnectionString.ResolveRequired(configuration),
             npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsPlatformDbContext.FgsSchema));
 
-        return new FgsPlatformDbContext(optionsBuilder.Options);
+        return new FgsPlatformDbContext(optionsBuilder.Options, new DesignTimeTenantContextAccessor());
     }
 }

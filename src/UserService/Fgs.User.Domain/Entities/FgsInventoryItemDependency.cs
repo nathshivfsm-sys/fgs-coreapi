@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Dependent inventory item required or bundled with a parent item (e.g. kit components).
 /// </summary>
-public class FgsInventoryItemDependency : FgsEntityBase
+public class FgsInventoryItemDependency : FgsEntityBase, ITenantCompanyScoped
 {
     public long Id { get; set; }
 

@@ -1,78 +1,67 @@
-using Fgs.User.Application.Abstractions.Credentials;
-using Fgs.User.Application.Abstractions.Persistence;
-using Fgs.User.Application.Abstractions.Time;
-using Fgs.User.Application.Common;
-using Fgs.User.Application.Credentials;
+using Fgs.Foundation.Result;
 using Fgs.User.Application.Features.Credentials.DTOs;
-using Fgs.User.Domain.Constants;
-using Fgs.User.Domain.Entities;
+using Fgs.User.Application.Features.Credentials.Services;
+using Fgs.User.Domain.Enums;
 using MediatR;
 
 namespace Fgs.User.Application.Features.Credentials.Commands.RotateCredential;
 
-public sealed class RotateCredentialCommandHandler(
-    IUnitOfWork unitOfWork,
-    ISecretsManagerService secretsManager,
-    ISecretCache secretCache,
-    ICredentialAuditWriter auditWriter,
-    ICorrelationContext correlationContext,
-    IDateTimeProvider dateTime) : IRequestHandler<RotateCredentialCommand, ApiResponse<CredentialSecretMetadataDto>>
+public sealed class RotateCredentialCommandHandler
+    : IRequestHandler<RotateCredentialCommand, ApiResponse<CredentialMutationResultDto>>
 {
-    public async Task<ApiResponse<CredentialSecretMetadataDto>> Handle(
+    private readonly CredentialMutationService _mutationService;
+
+    public RotateCredentialCommandHandler(CredentialMutationService mutationService) =>
+        _mutationService = mutationService;
+
+    public async Task<ApiResponse<CredentialMutationResultDto>> Handle(
         RotateCredentialCommand request,
         CancellationToken cancellationToken)
     {
-        var secretRepo = unitOfWork.Repository<FgsCredentialSecret>();
-        var secret = await secretRepo.GetByIdAsync(request.SecretId, cancellationToken);
-
-        if (secret is null
-            || secret.TenantId != request.TenantId
-            || secret.CompanyId != request.CompanyId)
+        try
         {
-            return ApiResponse<CredentialSecretMetadataDto>.Fail(
-                [CredentialErrorMessages.SecretNotFound],
-                ApiStatusCodes.NotFound);
+            return request.Scope switch
+            {
+                CredentialScope.Global when CredentialRequestHelpers.TryParseGlobalId(request.Id, out var globalId) =>
+                    await RotateGlobalAsync(globalId, request, cancellationToken),
+                CredentialScope.Tenant when CredentialRequestHelpers.TryParseTenantId(request.Id, out var tenantId) =>
+                    await RotateTenantAsync(tenantId, request, cancellationToken),
+                _ => ApiResponse<CredentialMutationResultDto>.Fail(
+                    [CredentialErrorMessages.InvalidScope],
+                    ApiStatusCodes.BadRequest)
+            };
         }
-
-        var provider = await unitOfWork.Repository<FgsCredentialProvider>()
-            .GetByIdAsync(secret.CredentialProviderId, cancellationToken);
-
-        if (provider is null)
+        catch (Exception ex)
         {
-            return ApiResponse<CredentialSecretMetadataDto>.Fail(
-                [CredentialErrorMessages.ProviderNotFound],
-                ApiStatusCodes.NotFound);
+            return CredentialRequestHelpers.MapException<CredentialMutationResultDto>(ex);
         }
+    }
 
-        var providerType = await unitOfWork.Repository<GloCredentialProviderType>()
-            .FirstOrDefaultAsync(p => p.Id == provider.CredentialProviderTypeId, cancellationToken);
+    private async Task<ApiResponse<CredentialMutationResultDto>> RotateGlobalAsync(
+        int id,
+        RotateCredentialCommand request,
+        CancellationToken cancellationToken)
+    {
+        var credential = await _mutationService.RotateGlobalAsync(id, request.RotationMode, cancellationToken);
+        return ApiResponse<CredentialMutationResultDto>.Ok(
+            CredentialRequestHelpers.ToMutationResult(
+                CredentialScope.Global,
+                credential.Id.ToString(),
+                credential.ProviderType.ProviderCode,
+                credential.CredentialName));
+    }
 
-        var oldVersion = secret.VersionNo;
-        var arn = CredentialSecretStorageMapping.GetAwsSecretArn(secret);
-
-        await secretsManager.RotateSecretAsync(arn, request.RotationLambdaArn, cancellationToken);
-
-        secret.VersionNo++;
-        secret.LastRotatedOn = dateTime.UtcNow;
-        secret.UpdatedOn = dateTime.UtcNow;
-        secret.UpdatedBy = request.RotatedBy;
-        secretRepo.Update(secret);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
-        secretCache.Invalidate(request.TenantId, request.CompanyId, secret.Id);
-
-        await auditWriter.WriteAsync(
-            request.TenantId,
-            request.CompanyId,
-            secret.Id,
-            CredentialAuditActions.Rotated,
-            oldVersion,
-            secret.VersionNo,
-            CredentialAuditRemarks.Format(correlationContext.GetCorrelationId(), "Rotation initiated."),
-            request.RotatedBy,
-            cancellationToken: cancellationToken);
-
-        return ApiResponse<CredentialSecretMetadataDto>.Ok(
-            CredentialMetadataMapper.ToSecretMetadata(secret, provider, providerType?.Code));
+    private async Task<ApiResponse<CredentialMutationResultDto>> RotateTenantAsync(
+        Guid id,
+        RotateCredentialCommand request,
+        CancellationToken cancellationToken)
+    {
+        var credential = await _mutationService.RotateTenantAsync(id, request.RotationMode, cancellationToken);
+        return ApiResponse<CredentialMutationResultDto>.Ok(
+            CredentialRequestHelpers.ToMutationResult(
+                CredentialScope.Tenant,
+                credential.Id.ToString("D"),
+                credential.ProviderType.ProviderCode,
+                credential.CredentialName));
     }
 }

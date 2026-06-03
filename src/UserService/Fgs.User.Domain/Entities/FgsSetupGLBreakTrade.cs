@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Trade-to-GL-break mapping for financial segmentation and reporting.
 /// </summary>
-public class FgsSetupGLBreakTrade
+public class FgsSetupGLBreakTrade : ITenantCompanyScoped
 {
     public long Id { get; set; }
 

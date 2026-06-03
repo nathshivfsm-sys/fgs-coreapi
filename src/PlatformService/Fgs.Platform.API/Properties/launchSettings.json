@@ -8,9 +8,7 @@
       "applicationUrl": "http://localhost:5084",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "RabbitMq__HostName": "127.0.0.1",
-        "RabbitMq__UserName": "fgs",
-        "RabbitMq__Password": "fgsdevlocal"
+        "UserService__BaseUrl": "http://localhost:5001"
       }
     },
     "https": {
@@ -20,9 +18,7 @@
       "applicationUrl": "https://localhost:7114;http://localhost:5084",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "RabbitMq__HostName": "127.0.0.1",
-        "RabbitMq__UserName": "fgs",
-        "RabbitMq__Password": "fgsdevlocal"
+        "UserService__BaseUrl": "https://localhost:5002"
       }
     }
   }

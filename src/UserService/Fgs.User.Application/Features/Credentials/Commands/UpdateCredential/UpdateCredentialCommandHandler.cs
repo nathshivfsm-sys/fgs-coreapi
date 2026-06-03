@@ -1,96 +1,85 @@
-using Fgs.User.Application.Abstractions.Credentials;
-using Fgs.User.Application.Abstractions.Persistence;
-using Fgs.User.Application.Abstractions.Time;
-using Fgs.User.Application.Common;
-using Fgs.User.Application.Credentials;
+using Fgs.Foundation.Result;
 using Fgs.User.Application.Features.Credentials.DTOs;
-using Fgs.User.Domain.Constants;
-using Fgs.User.Domain.Entities;
+using Fgs.User.Application.Features.Credentials.Services;
+using Fgs.User.Domain.Enums;
 using MediatR;
 
 namespace Fgs.User.Application.Features.Credentials.Commands.UpdateCredential;
 
-public sealed class UpdateCredentialCommandHandler(
-    IUnitOfWork unitOfWork,
-    ISecretsManagerService secretsManager,
-    ISecretCache secretCache,
-    ICredentialAuditWriter auditWriter,
-    ICorrelationContext correlationContext,
-    IDateTimeProvider dateTime) : IRequestHandler<UpdateCredentialCommand, ApiResponse<CredentialSecretMetadataDto>>
+public sealed class UpdateCredentialCommandHandler
+    : IRequestHandler<UpdateCredentialCommand, ApiResponse<CredentialMutationResultDto>>
 {
-    public async Task<ApiResponse<CredentialSecretMetadataDto>> Handle(
+    private readonly CredentialMutationService _mutationService;
+
+    public UpdateCredentialCommandHandler(CredentialMutationService mutationService) =>
+        _mutationService = mutationService;
+
+    public async Task<ApiResponse<CredentialMutationResultDto>> Handle(
         UpdateCredentialCommand request,
         CancellationToken cancellationToken)
     {
-        var secretRepo = unitOfWork.Repository<FgsCredentialSecret>();
-        var secret = await secretRepo.GetByIdAsync(request.SecretId, cancellationToken);
-
-        if (secret is null
-            || secret.TenantId != request.TenantId
-            || secret.CompanyId != request.CompanyId)
+        try
         {
-            return ApiResponse<CredentialSecretMetadataDto>.Fail(
-                [CredentialErrorMessages.SecretNotFound],
-                ApiStatusCodes.NotFound);
+            byte[]? payload = request.Payload is null ? null : CredentialRequestHelpers.ParsePayload(request.Payload);
+
+            return request.Scope switch
+            {
+                CredentialScope.Global when CredentialRequestHelpers.TryParseGlobalId(request.Id, out var globalId) =>
+                    await UpdateGlobalAsync(globalId, request, payload, cancellationToken),
+                CredentialScope.Tenant when CredentialRequestHelpers.TryParseTenantId(request.Id, out var tenantCredentialId) =>
+                    await UpdateTenantAsync(tenantCredentialId, request, payload, cancellationToken),
+                _ => ApiResponse<CredentialMutationResultDto>.Fail(
+                    [CredentialErrorMessages.InvalidScope],
+                    ApiStatusCodes.BadRequest)
+            };
         }
-
-        if (secret.IsRevoked)
+        catch (Exception ex)
         {
-            return ApiResponse<CredentialSecretMetadataDto>.Fail(
-                [CredentialErrorMessages.SecretAlreadyRevoked],
-                ApiStatusCodes.Conflict);
+            return CredentialRequestHelpers.MapException<CredentialMutationResultDto>(ex);
         }
+    }
 
-        var provider = await unitOfWork.Repository<FgsCredentialProvider>()
-            .GetByIdAsync(secret.CredentialProviderId, cancellationToken);
+    private async Task<ApiResponse<CredentialMutationResultDto>> UpdateGlobalAsync(
+        int id,
+        UpdateCredentialCommand request,
+        byte[]? payload,
+        CancellationToken cancellationToken)
+    {
+        var credential = await _mutationService.UpdateGlobalAsync(
+            id,
+            request.CredentialName,
+            request.Description,
+            payload,
+            request.IsActive,
+            cancellationToken);
 
-        if (provider is null)
-        {
-            return ApiResponse<CredentialSecretMetadataDto>.Fail(
-                [CredentialErrorMessages.ProviderNotFound],
-                ApiStatusCodes.NotFound);
-        }
+        return ApiResponse<CredentialMutationResultDto>.Ok(
+            CredentialRequestHelpers.ToMutationResult(
+                CredentialScope.Global,
+                credential.Id.ToString(),
+                credential.ProviderType.ProviderCode,
+                credential.CredentialName));
+    }
 
-        var providerType = await unitOfWork.Repository<GloCredentialProviderType>()
-            .FirstOrDefaultAsync(p => p.Id == provider.CredentialProviderTypeId, cancellationToken);
+    private async Task<ApiResponse<CredentialMutationResultDto>> UpdateTenantAsync(
+        Guid id,
+        UpdateCredentialCommand request,
+        byte[]? payload,
+        CancellationToken cancellationToken)
+    {
+        var credential = await _mutationService.UpdateTenantAsync(
+            id,
+            request.CredentialName,
+            request.Description,
+            payload,
+            request.IsActive,
+            cancellationToken);
 
-        if (request.SecretPayload is not { } payload
-            || payload.ValueKind is System.Text.Json.JsonValueKind.Undefined
-            || payload.ValueKind is System.Text.Json.JsonValueKind.Null)
-        {
-            return ApiResponse<CredentialSecretMetadataDto>.Fail(
-                [CredentialErrorMessages.SecretPayloadRequiredForUpdate],
-                ApiStatusCodes.BadRequest);
-        }
-
-        var oldVersion = secret.VersionNo;
-
-        return await unitOfWork.ExecuteInTransactionAsync(async ct =>
-        {
-            var arn = CredentialSecretStorageMapping.GetAwsSecretArn(secret);
-            await secretsManager.PutSecretValueAsync(arn, payload.GetRawText(), ct);
-            secret.VersionNo++;
-
-            secret.UpdatedOn = dateTime.UtcNow;
-            secret.UpdatedBy = request.UpdatedBy;
-            secretRepo.Update(secret);
-
-            secretCache.Invalidate(request.TenantId, request.CompanyId, secret.Id);
-
-            await auditWriter.WriteAsync(
-                request.TenantId,
-                request.CompanyId,
-                secret.Id,
-                CredentialAuditActions.Updated,
-                oldVersion,
-                secret.VersionNo,
-                CredentialAuditRemarks.Format(correlationContext.GetCorrelationId(), "Secret updated."),
-                request.UpdatedBy,
-                saveImmediately: false,
-                ct);
-
-            return ApiResponse<CredentialSecretMetadataDto>.Ok(
-                CredentialMetadataMapper.ToSecretMetadata(secret, provider, providerType?.Code));
-        }, cancellationToken);
+        return ApiResponse<CredentialMutationResultDto>.Ok(
+            CredentialRequestHelpers.ToMutationResult(
+                CredentialScope.Tenant,
+                credential.Id.ToString("D"),
+                credential.ProviderType.ProviderCode,
+                credential.CredentialName));
     }
 }

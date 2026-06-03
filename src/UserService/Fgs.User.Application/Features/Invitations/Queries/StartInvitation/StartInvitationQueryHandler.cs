@@ -1,7 +1,8 @@
 using Fgs.User.Application.Abstractions.Identity;
+using Fgs.Foundation.Result;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Invitations;
-using Fgs.User.Application.Abstractions.Persistence;
+using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Domain.Entities;

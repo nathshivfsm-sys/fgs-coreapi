@@ -1,19 +1,23 @@
+using Fgs.User.Infrastructure.Common.Security;
+using Fgs.Messaging.Options;
+using Fgs.User.Infrastructure.Common.Options;
 using System.Linq.Expressions;
 using System.Text.Json;
 using Fgs.User.Application.Abstractions.Geo;
-using Fgs.User.Application.Abstractions.Messaging;
-using Fgs.User.Application.Abstractions.Persistence;
+using Fgs.Messaging.Abstractions;
+using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
+using Fgs.Foundation.Result;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Signup;
-using Fgs.User.Application.IntegrationEvents;
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 using Fgs.User.Application.Features.Signup.DTOs;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Common.Geo;
-using Fgs.User.Infrastructure.Common.Options;
-using Fgs.User.Infrastructure.Common.Security;
+using Fgs.Security.Options;
+using Fgs.Security.Constants;
 using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Infrastructure.Messaging;
 using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
@@ -306,7 +310,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 [ConfigurationKeys.Invitation.ExpiryDays] = "7",
-                [ConfigurationKeys.Invitation.InviteBaseUrl] = "https://localhost/api/invite/start"
+                [ConfigurationKeys.Invitation.InviteBaseUrl] = "https://localhost/api/v1/invite/start"
             })
             .Build();
 

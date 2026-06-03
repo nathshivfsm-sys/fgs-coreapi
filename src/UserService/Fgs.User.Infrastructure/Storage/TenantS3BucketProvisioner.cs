@@ -10,10 +10,10 @@ namespace Fgs.User.Infrastructure.Storage;
 
 public sealed class TenantS3BucketProvisioner(
     AmazonS3Client s3Client,
-    IOptions<AwsS3Options> awsOptions,
+    IOptions<AwsCredentialsOptions> awsOptions,
     ILogger<TenantS3BucketProvisioner> logger) : ITenantS3BucketProvisioner
 {
-    private readonly AwsS3Options _options = awsOptions.Value;
+    private readonly AwsCredentialsOptions _options = awsOptions.Value;
 
     public async Task<string> EnsureTenantBucketAsync(
         long tenantId,

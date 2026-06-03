@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Assigns a tenant tag to a specific master entity instance.
 /// </summary>
-public class FgsEntityTag
+public class FgsEntityTag : ITenantCompanyScoped
 {
     public long Id { get; set; }
 

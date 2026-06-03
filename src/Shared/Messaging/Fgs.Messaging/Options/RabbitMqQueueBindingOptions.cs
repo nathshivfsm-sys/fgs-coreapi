@@ -1,0 +1,11 @@
+namespace Fgs.Messaging.Options;
+
+/// <summary>
+/// Durable queue bound to <see cref="RabbitMqOptions.ExchangeName"/> before publishing or consuming.
+/// </summary>
+public sealed class RabbitMqQueueBindingOptions
+{
+    public string QueueName { get; set; } = string.Empty;
+
+    public string RoutingKey { get; set; } = string.Empty;
+}

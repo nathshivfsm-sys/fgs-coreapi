@@ -9,13 +9,31 @@ internal class GloCredentialProviderTypeConfiguration : IEntityTypeConfiguration
 {
     public void Configure(EntityTypeBuilder<GloCredentialProviderType> entity)
     {
-        entity.ToTable("GloCredentialProviderType");
+        entity.ToTable(
+            "GloCredentialProviderType",
+            t => t.HasComment(
+                "Master list of supported credential providers and integrations available within the FSM platform."));
+
         entity.HasKey(e => e.Id);
-        entity.Property(e => e.Id).UseIdentityByDefaultColumn();
-        entity.HasIndex(e => e.Code).IsUnique();
-        entity.Property(e => e.Code).HasMaxLength(100);
-        entity.Property(e => e.Name).HasMaxLength(200);
-        entity.Property(e => e.CreatedOn).IsRequired().HasColumnType("timestamptz");
+        entity.Property(e => e.Id).UseIdentityAlwaysColumn();
+        entity.Property(e => e.ProviderCode)
+            .HasMaxLength(50)
+            .HasComment("System unique code used by application logic and integration services.");
+        entity.Property(e => e.ProviderName)
+            .HasMaxLength(200)
+            .HasComment("User friendly provider name displayed in setup screens.");
+        entity.Property(e => e.ConfigurationSchema)
+            .HasColumnType("jsonb")
+            .HasComment(
+                "JSON schema used by the UI to dynamically render provider configuration fields and perform validation.");
+        entity.Property(e => e.IsActive)
+            .HasDefaultValue(true)
+            .HasComment("Indicates whether the provider can be selected for new credential configurations.");
+        entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+
+        entity.HasIndex(e => e.ProviderCode)
+            .IsUnique()
+            .HasDatabaseName("UQ_GloCredentialProviderType_ProviderCode");
     }
 }

@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Assigns a user to either a global (<see cref="GloRole"/>) or tenant custom (<see cref="FgsRole"/>) role.
 /// </summary>
-public class FgsUserRole
+public class FgsUserRole : ITenantCompanyScoped
 {
     public long Id { get; set; }
 

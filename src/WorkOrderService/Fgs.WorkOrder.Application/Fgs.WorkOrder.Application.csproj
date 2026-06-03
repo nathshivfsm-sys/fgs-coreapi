@@ -2,6 +2,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Fgs.WorkOrder.Domain\Fgs.WorkOrder.Domain.csproj" />
+    <ProjectReference Include="..\..\Shared\Kernel\Fgs.Kernel\Fgs.Kernel.csproj" />
+    <ProjectReference Include="..\..\Shared\Foundation\Fgs.Foundation\Fgs.Foundation.csproj" />
+    <ProjectReference Include="..\..\Shared\Contracts\Fgs.Contracts\Fgs.Contracts.csproj" />
+    <ProjectReference Include="..\..\Shared\Persistence\Fgs.Persistence\Fgs.Persistence.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

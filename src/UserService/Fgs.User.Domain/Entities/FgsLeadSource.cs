@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Tenant- and company-scoped lead source catalog.
 /// </summary>
-public class FgsLeadSource : FgsEntityBase
+public class FgsLeadSource : FgsEntityBase, ITenantCompanyScoped
 {
     public long Id { get; set; }
 

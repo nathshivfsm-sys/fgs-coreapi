@@ -1,0 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+
+namespace Fgs.Security.Authorization.Requirements;
+
+public sealed class FgsPlatformScopeRequirement : IAuthorizationRequirement;

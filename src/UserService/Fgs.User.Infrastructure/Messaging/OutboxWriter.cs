@@ -1,8 +1,8 @@
-using Fgs.User.Application.Abstractions.Messaging;
+using Fgs.Messaging.Abstractions;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
-using Fgs.User.Infrastructure.Common.Options;
+using Fgs.Messaging.Options;
 using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 using Microsoft.Extensions.Options;
 

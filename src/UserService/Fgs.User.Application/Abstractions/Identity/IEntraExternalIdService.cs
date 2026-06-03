@@ -8,6 +8,7 @@ public interface IEntraExternalIdService
 }
 
 public sealed record EntraTokenResult(
+    string AccessToken,
     string ObjectId,
     string Email,
     string? DisplayName);

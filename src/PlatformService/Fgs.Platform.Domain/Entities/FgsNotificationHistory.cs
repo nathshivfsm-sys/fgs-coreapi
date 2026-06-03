@@ -1,8 +1,9 @@
+using Fgs.Kernel.Entities;
 using Fgs.Platform.Domain.Notifications;
 
 namespace Fgs.Platform.Domain.Entities;
 
-public sealed class FgsNotificationHistory
+public sealed class FgsNotificationHistory : ITenantScoped
 {
     public Guid Id { get; set; }
 

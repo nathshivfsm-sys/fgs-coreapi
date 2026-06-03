@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Reusable address / geo row scoped to a tenant company. <see cref="MasterEntityTypeId"/> references <see cref="GloMasterEntityType"/>.
 /// </summary>
-public class FgsLocation : FgsEntityBase
+public class FgsLocation : FgsEntityBase, ITenantCompanyScoped
 {
     public Guid Id { get; set; }
 

@@ -1,3 +1,4 @@
+using Fgs.Foundation.Result;
 using Fgs.User.Application.Common;
 
 namespace Fgs.User.Infrastructure.Common.Options;

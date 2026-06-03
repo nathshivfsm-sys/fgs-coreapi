@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Seed: CleanUpTables global reference data (User Service)
--- Run manually after: 20260518163137_Initial_Migration_Up.sql
+-- Run manually after migrations (including 20260601115438_AddGloCommunicationTemplateAndSchemaComments).
 -- Not part of EF migration / Up / Down scripts.
 --
 -- Idempotent: each insert skips rows that already exist (matched by natural key).
@@ -12,7 +12,7 @@
 START TRANSACTION;
 
 -- GloLocationType (Code = Name)
-INSERT INTO dbo."GloLocationType"
+INSERT INTO glo."GloLocationType"
 (
     "Code",
     "Name",
@@ -37,17 +37,17 @@ FROM (
 ) AS v("Code", "Name", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloLocationType" t
+    FROM glo."GloLocationType" t
     WHERE t."Code" = v."Code"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloLocationType"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloLocationType"), 1),
+    pg_get_serial_sequence('glo."GloLocationType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloLocationType"), 1),
     true);
 
 -- GloMasterEntityType
-INSERT INTO dbo."GloMasterEntityType"
+INSERT INTO glo."GloMasterEntityType"
 (
     "Code",
     "IsDocumentAllowed",
@@ -75,21 +75,61 @@ FROM (
         ('PROPOSAL',        true, true,  8),
         ('CUSTOMER',        true, true,  9),
         ('WORKORDER',       true, true, 10),
-        ('INVOICE',         true, true, 11)
+        ('INVOICE',         true, true, 11),
+        ('Warehouse',       true, true, 12),
+        ('Vehicle',         true, true, 13),
+        ('VehicleMaintenance', true, true, 14)
 ) AS v("Code", "IsDocumentAllowed", "IsActive", "SortOrder")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloMasterEntityType" t
+    FROM glo."GloMasterEntityType" t
     WHERE t."Code" = v."Code"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloMasterEntityType"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloMasterEntityType"), 1),
+    pg_get_serial_sequence('glo."GloMasterEntityType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloMasterEntityType"), 1),
+    true);
+
+-- GloVehicleMaintenanceType
+INSERT INTO glo."GloVehicleMaintenanceType"
+(
+    "MaintenanceTypeCode",
+    "Name",
+    "Description",
+    "DisplayOrder"
+)
+SELECT
+    v."MaintenanceTypeCode",
+    v."Name",
+    v."Description",
+    v."DisplayOrder"
+FROM (
+    VALUES
+        ('OIL_CHANGE',           'Oil Change',           'Engine oil and filter replacement.',                              1::smallint),
+        ('TIRE_ROTATION',        'Tire Rotation',        'Rotation of vehicle tires to promote even wear.',                 2::smallint),
+        ('TIRE_REPLACEMENT',     'Tire Replacement',     'Replacement of one or more vehicle tires.',                       3::smallint),
+        ('BRAKE_SERVICE',        'Brake Service',        'Inspection, repair, or replacement of brake components.',           4::smallint),
+        ('INSPECTION',           'Inspection',           'General vehicle inspection and safety check.',                    5::smallint),
+        ('BATTERY_REPLACEMENT',  'Battery Replacement',  'Replacement of vehicle battery.',                                 6::smallint),
+        ('TRANSMISSION_SERVICE', 'Transmission Service', 'Maintenance or repair of transmission system.',                   7::smallint),
+        ('REGISTRATION_RENEWAL', 'Registration Renewal', 'Vehicle registration renewal.',                                   8::smallint),
+        ('REPAIR',               'Repair',               'General repair work not covered by a specific maintenance type.', 9::smallint),
+        ('OTHER',                'Other',                'Other maintenance activity.',                                     99::smallint)
+) AS v("MaintenanceTypeCode", "Name", "Description", "DisplayOrder")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM glo."GloVehicleMaintenanceType" t
+    WHERE t."MaintenanceTypeCode" = v."MaintenanceTypeCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloVehicleMaintenanceType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloVehicleMaintenanceType"), 1),
     true);
 
 -- GloLanguage
-INSERT INTO dbo."GloLanguage"
+INSERT INTO glo."GloLanguage"
 (
     "LanguageCode",
     "LanguageName",
@@ -109,12 +149,12 @@ FROM (
 ) AS v("LanguageCode", "LanguageName", "CultureCode", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloLanguage" t
+    FROM glo."GloLanguage" t
     WHERE t."LanguageCode" = v."LanguageCode"
 );
 
 -- GloAccountingIntegrationType
-INSERT INTO dbo."GloAccountingIntegrationType"
+INSERT INTO glo."GloAccountingIntegrationType"
 (
     "Code",
     "Name",
@@ -134,17 +174,17 @@ FROM (
 ) AS v("Code", "Name", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloAccountingIntegrationType" t
+    FROM glo."GloAccountingIntegrationType" t
     WHERE t."Code" = v."Code"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloAccountingIntegrationType"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloAccountingIntegrationType"), 1),
+    pg_get_serial_sequence('glo."GloAccountingIntegrationType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloAccountingIntegrationType"), 1),
     true);
 
 -- GloTimeCardOption
-INSERT INTO dbo."GloTimeCardOption"
+INSERT INTO glo."GloTimeCardOption"
 (
     "Code",
     "Name"
@@ -160,17 +200,17 @@ FROM (
 ) AS v("Code", "Name")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloTimeCardOption" t
+    FROM glo."GloTimeCardOption" t
     WHERE t."Code" = v."Code"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloTimeCardOption"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloTimeCardOption"), 1),
+    pg_get_serial_sequence('glo."GloTimeCardOption"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloTimeCardOption"), 1),
     true);
 
 -- GloBusinessType (explicit Id: sequential 1..n; OTHER last)
-INSERT INTO dbo."GloBusinessType"
+INSERT INTO glo."GloBusinessType"
 (
     "Id",
     "Code",
@@ -202,67 +242,73 @@ FROM (
 ) AS v("Id", "Code", "Name", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloBusinessType" t
+    FROM glo."GloBusinessType" t
     WHERE t."Code" = v."Code"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloBusinessType"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloBusinessType"), 1),
+    pg_get_serial_sequence('glo."GloBusinessType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloBusinessType"), 1),
     true);
 
 -- GloBillingCategory (no CreatedOn/CreatedBy columns)
-INSERT INTO dbo."GloBillingCategory"
+INSERT INTO glo."GloBillingCategory"
 (
     "BillingCategoryType",
     "BillingCategoryName",
     "Description",
-    "DisplayOrder"
+    "DisplayOrder",
+    "ShowToFieldTech",
+    "AllowToPick"
 )
 SELECT
     v."BillingCategoryType",
     v."BillingCategoryName",
     v."Description",
-    v."DisplayOrder"
+    v."DisplayOrder",
+    v."ShowToFieldTech",
+    v."AllowToPick"
 FROM (
     VALUES
-        ('DS', 'Discount',       'Used for discounts applied to invoices, quotes, or transactions.', 1::smallint),
-        ('IN', 'Inventory',      'Charges for stocked inventory items.', 2::smallint),
-        ('LB', 'Labor',          'Labor and technician service charges.', 3::smallint),
-        ('NI', 'Non-Inventory',  'Charges for non-inventory items or services.', 4::smallint),
-        ('OT', 'Other',          'Miscellaneous charges not covered by other categories.', 5::smallint),
-        ('SB', 'Sub Contractor', 'Charges related to subcontractor work or outsourced services.', 6::smallint),
-        ('SF', 'Service Fee',    'General service-related fees.', 7::smallint),
-        ('SH', 'Shipping',       'Shipping, freight, and delivery charges.', 8::smallint),
-        ('TX', 'Tax',            'Sales tax or other applicable tax charges.', 9::smallint)
-) AS v("BillingCategoryType", "BillingCategoryName", "Description", "DisplayOrder")
+        ('DS', 'Discount',       'Used for discounts applied to invoices, quotes, or transactions.', 1::smallint, true,  true),
+        ('IN', 'Inventory',      'Charges for stocked inventory items.', 2::smallint, true,  true),
+        ('LB', 'Labor',          'Labor and technician service charges.', 3::smallint, true,  true),
+        ('NI', 'Non-Inventory',  'Charges for non-inventory items or services.', 4::smallint, true,  true),
+        ('OT', 'Other',          'Miscellaneous charges not covered by other categories.', 5::smallint, true,  true),
+        ('SB', 'Sub Contractor', 'Charges related to subcontractor work or outsourced services.', 6::smallint, true,  true),
+        ('SF', 'Service Fee',    'General service-related fees.', 7::smallint, true,  true),
+        ('SH', 'Shipping',       'Shipping, freight, and delivery charges.', 8::smallint, true,  true),
+        ('TX', 'Tax',            'Sales tax or other applicable tax charges.', 9::smallint, true,  false)
+) AS v("BillingCategoryType", "BillingCategoryName", "Description", "DisplayOrder", "ShowToFieldTech", "AllowToPick")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloBillingCategory" t
+    FROM glo."GloBillingCategory" t
     WHERE t."BillingCategoryType" = v."BillingCategoryType"
 );
 
-UPDATE dbo."GloBillingCategory" AS t
+UPDATE glo."GloBillingCategory" AS t
 SET
     "BillingCategoryName" = v."BillingCategoryName",
     "Description" = v."Description",
-    "DisplayOrder" = v."DisplayOrder"
+    "DisplayOrder" = v."DisplayOrder",
+    "ShowToFieldTech" = v."ShowToFieldTech",
+    "AllowToPick" = v."AllowToPick"
 FROM (
     VALUES
-        ('DS', 'Discount',       'Used for discounts applied to invoices, quotes, or transactions.', 1::smallint),
-        ('IN', 'Inventory',      'Charges for stocked inventory items.', 2::smallint),
-        ('LB', 'Labor',          'Labor and technician service charges.', 3::smallint),
-        ('NI', 'Non-Inventory',  'Charges for non-inventory items or services.', 4::smallint),
-        ('OT', 'Other',          'Miscellaneous charges not covered by other categories.', 5::smallint),
-        ('SB', 'Sub Contractor', 'Charges related to subcontractor work or outsourced services.', 6::smallint),
-        ('SF', 'Service Fee',    'General service-related fees.', 7::smallint),
-        ('SH', 'Shipping',       'Shipping, freight, and delivery charges.', 8::smallint),
-        ('TX', 'Tax',            'Sales tax or other applicable tax charges.', 9::smallint)
-) AS v("BillingCategoryType", "BillingCategoryName", "Description", "DisplayOrder")
+        ('DS', 'Discount',       'Used for discounts applied to invoices, quotes, or transactions.', 1::smallint, true,  true),
+        ('IN', 'Inventory',      'Charges for stocked inventory items.', 2::smallint, true,  true),
+        ('LB', 'Labor',          'Labor and technician service charges.', 3::smallint, true,  true),
+        ('NI', 'Non-Inventory',  'Charges for non-inventory items or services.', 4::smallint, true,  true),
+        ('OT', 'Other',          'Miscellaneous charges not covered by other categories.', 5::smallint, true,  true),
+        ('SB', 'Sub Contractor', 'Charges related to subcontractor work or outsourced services.', 6::smallint, true,  true),
+        ('SF', 'Service Fee',    'General service-related fees.', 7::smallint, true,  true),
+        ('SH', 'Shipping',       'Shipping, freight, and delivery charges.', 8::smallint, true,  true),
+        ('TX', 'Tax',            'Sales tax or other applicable tax charges.', 9::smallint, true,  false)
+) AS v("BillingCategoryType", "BillingCategoryName", "Description", "DisplayOrder", "ShowToFieldTech", "AllowToPick")
 WHERE t."BillingCategoryType" = v."BillingCategoryType";
 
 -- GloCountry (no CreatedOn/CreatedBy columns)
-INSERT INTO dbo."GloCountry"
+INSERT INTO glo."GloCountry"
 (
     "CountryCode",
     "CountryName",
@@ -281,100 +327,98 @@ FROM (
 ) AS v("CountryCode", "CountryName", "CurrencyCode", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloCountry" t
+    FROM glo."GloCountry" t
     WHERE t."CountryCode" = v."CountryCode"
 );
 
--- GloCredentialCategory
-INSERT INTO dbo."GloCredentialCategory"
-(
-    "Code",
-    "Name",
-    "IsActive",
-    "CreatedOn",
-    "UpdatedOn"
-)
-SELECT
-    v."Code",
-    v."Name",
-    v."IsActive",
-    timezone('utc', now()),
-    NULL::timestamptz
-FROM (
-    VALUES
-        ('API_KEY', 'API Key', true),
-        ('OAUTH', 'OAuth Credentials', true),
-        ('DATABASE', 'Database Credentials', true),
-        ('SMTP', 'SMTP Email Credentials', true),
-        ('AWS', 'AWS Access Credentials', true),
-        ('AZURE', 'Azure Access Credentials', true),
-        ('PAYMENT_GATEWAY', 'Payment Gateway Credentials', true),
-        ('TWILIO', 'Twilio Credentials', true),
-        ('STRIPE', 'Stripe Credentials', true),
-        ('QUICKBOOKS', 'QuickBooks Credentials', true),
-        ('SERVICE_ACCOUNT', 'Service Account Credentials', true),
-        ('SSH', 'SSH Credentials', true),
-        ('ENCRYPTION', 'Encryption Keys', true),
-        ('WEBHOOK', 'Webhook Secret', true)
-) AS v("Code", "Name", "IsActive")
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM dbo."GloCredentialCategory" t
-    WHERE t."Code" = v."Code"
-);
-
-SELECT setval(
-    pg_get_serial_sequence('dbo."GloCredentialCategory"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloCredentialCategory"), 1),
-    true);
-
 -- GloCredentialProviderType
-INSERT INTO dbo."GloCredentialProviderType"
+INSERT INTO glo."GloCredentialProviderType"
 (
-    "Code",
-    "Name",
-    "IsActive",
+    "ProviderCode",
+    "ProviderName",
+    "ConfigurationSchema",
     "CreatedOn",
-    "UpdatedOn"
+    "CreatedBy"
 )
 SELECT
-    v."Code",
-    v."Name",
-    v."IsActive",
+    v."ProviderCode",
+    v."ProviderName",
+    v."ConfigurationSchema"::jsonb,
     timezone('utc', now()),
-    NULL::timestamptz
+    'SYSTEM'
 FROM (
     VALUES
-        ('AWS', 'Amazon Web Services', true),
-        ('AZURE', 'Microsoft Azure', true),
-        ('TWILIO', 'Twilio', true),
-        ('STRIPE', 'Stripe', true),
-        ('PAYPAL', 'PayPal', true),
-        ('QUICKBOOKS', 'QuickBooks', true),
-        ('SHOPIFY', 'Shopify', true),
-        ('HUBSPOT', 'HubSpot', true),
-        ('MAILCHIMP', 'Mailchimp', true),
-        ('SENDGRID', 'SendGrid', true),
-        ('GOOGLE', 'Google Services', true),
-        ('MICROSOFT', 'Microsoft Services', true),
-        ('META', 'Meta / Facebook', true),
-        ('DOCUSIGN', 'DocuSign', true),
-        ('CUSTOM', 'Custom Provider', true),
-        ('OTHER', 'Other Provider', true)
-) AS v("Code", "Name", "IsActive")
+        (
+            'RABBITMQ',
+            'RabbitMQ',
+            '[
+                {"key":"Host","label":"Host","type":"text","required":true},
+                {"key":"Port","label":"Port","type":"number","required":true},
+                {"key":"Username","label":"Username","type":"text","required":true},
+                {"key":"Password","label":"Password","type":"password","required":true,"sensitive":true},
+                {"key":"VirtualHost","label":"Virtual Host","type":"text","required":false},
+                {"key":"SslEnabled","label":"SSL Enabled","type":"boolean","required":false},
+                {"key":"ConnectionUri","label":"Connection URI","type":"text","required":false},
+                {"key":"ExchangeName","label":"Exchange Name","type":"text","required":false},
+                {"key":"RoutingKeyPrefix","label":"Routing Key Prefix","type":"text","required":false},
+                {"key":"EnsureQueuesOnStartup","label":"Ensure Queues On Startup","type":"boolean","required":false},
+                {"key":"QueueBindings","label":"Queue Bindings","type":"json","required":false},
+                {"key":"Consumers","label":"Consumers","type":"json","required":false}
+            ]'
+        ),
+        (
+            'AWS',
+            'Amazon Web Services',
+            '[
+                {"key":"Region","label":"Region","type":"text","required":true},
+                {"key":"AccessKeyId","label":"Access Key ID","type":"text","required":false},
+                {"key":"SecretAccessKey","label":"Secret Access Key","type":"password","required":false,"sensitive":true},
+                {"key":"KmsKeyArn","label":"KMS Key ARN","type":"text","required":true},
+                {"key":"BucketNamePrefix","label":"Bucket Name Prefix","type":"text","required":false},
+                {"key":"ApplicationSlug","label":"Application Slug","type":"text","required":false},
+                {"key":"DefaultVaultProvider","label":"Default Vault Provider","type":"text","required":false},
+                {"key":"CacheTtlSeconds","label":"Cache TTL (seconds)","type":"number","required":false},
+                {"key":"EnableLocalProfileFallback","label":"Enable Local Profile Fallback","type":"boolean","required":false}
+            ]'
+        ),
+        (
+            'ENTRA_EXTERNAL_ID',
+            'Microsoft Entra External ID',
+            '[
+                {"key":"TenantId","label":"Entra Tenant ID","type":"text","required":true},
+                {"key":"ClientId","label":"Client ID","type":"text","required":true},
+                {"key":"ClientSecret","label":"Client Secret","type":"password","required":true,"sensitive":true},
+                {"key":"Authority","label":"Authority","type":"text","required":true},
+                {"key":"RedirectUri","label":"Redirect URI","type":"text","required":true},
+                {"key":"Scopes","label":"Scopes","type":"text","required":true},
+                {"key":"UserFlow","label":"User Flow","type":"text","required":false},
+                {"key":"AuthorizeEndpoint","label":"Authorize Endpoint","type":"text","required":false},
+                {"key":"TokenEndpoint","label":"Token Endpoint","type":"text","required":false}
+            ]'
+        ),
+        (
+            'SENDGRID',
+            'SendGrid',
+            '[
+                {"key":"ApiKey","label":"API Key","type":"password","required":true,"sensitive":true},
+                {"key":"FromAddress","label":"From Address","type":"text","required":true},
+                {"key":"FromName","label":"From Name","type":"text","required":true}
+            ]'
+        )
+) AS v("ProviderCode", "ProviderName", "ConfigurationSchema")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloCredentialProviderType" t
-    WHERE t."Code" = v."Code"
+    FROM glo."GloCredentialProviderType" t
+    WHERE t."ProviderCode" = v."ProviderCode"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloCredentialProviderType"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloCredentialProviderType"), 1),
+    pg_get_serial_sequence('glo."GloCredentialProviderType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloCredentialProviderType"), 1),
     true);
 
 -- GloStateProvince (requires GloCountry; no CreatedOn/CreatedBy columns)
-INSERT INTO dbo."GloStateProvince"
+INSERT INTO glo."GloStateProvince"
 (
     "CountryCode",
     "StateProvinceCode",
@@ -457,18 +501,18 @@ FROM (
 ) AS v("CountryCode", "StateProvinceCode", "StateProvinceName", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloStateProvince" t
+    FROM glo."GloStateProvince" t
     WHERE t."CountryCode" = v."CountryCode"
       AND t."StateProvinceCode" = v."StateProvinceCode"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloStateProvince"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloStateProvince"), 1),
+    pg_get_serial_sequence('glo."GloStateProvince"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloStateProvince"), 1),
     true);
 
 -- GloPaymentMethodType (no CreatedOn/CreatedBy columns)
-INSERT INTO dbo."GloPaymentMethodType"
+INSERT INTO glo."GloPaymentMethodType"
 (
     "Code",
     "DisplayName",
@@ -493,17 +537,17 @@ FROM (
 ) AS v("Code", "DisplayName", "SortOrder", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloPaymentMethodType" t
+    FROM glo."GloPaymentMethodType" t
     WHERE t."Code" = v."Code"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloPaymentMethodType"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloPaymentMethodType"), 1),
+    pg_get_serial_sequence('glo."GloPaymentMethodType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloPaymentMethodType"), 1),
     true);
 
 -- GloResolutionType
-INSERT INTO dbo."GloResolutionType"
+INSERT INTO glo."GloResolutionType"
 (
     "Id",
     "ResolutionTypeCode",
@@ -529,17 +573,17 @@ FROM (
 ) AS v("Id", "ResolutionTypeCode", "ResolutionTypeName", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloResolutionType" t
+    FROM glo."GloResolutionType" t
     WHERE t."ResolutionTypeCode" = v."ResolutionTypeCode"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloResolutionType"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloResolutionType"), 1),
+    pg_get_serial_sequence('glo."GloResolutionType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloResolutionType"), 1),
     true);
 
 -- GloRole (global system roles)
-INSERT INTO dbo."GloRole"
+INSERT INTO glo."GloRole"
 (
     "RoleCode",
     "Name",
@@ -586,17 +630,82 @@ FROM (
 ) AS v("RoleCode", "Name", "Description", "RoleLevel", "IsAssignable", "IsSystemRole", "SortOrder", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloRole" t
+    FROM glo."GloRole" t
     WHERE t."RoleCode" = v."RoleCode"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloRole"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloRole"), 1),
+    pg_get_serial_sequence('glo."GloRole"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloRole"), 1),
+    true);
+
+-- GloCommunicationTemplate (FSM-provided communication templates)
+INSERT INTO glo."GloCommunicationTemplate"
+(
+    "TemplateScope",
+    "CommunicationChannel",
+    "TemplateCode",
+    "Name",
+    "Subject",
+    "Body",
+    "IsMobileVisible",
+    "DisplayOrder",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."TemplateScope",
+    v."CommunicationChannel",
+    v."TemplateCode",
+    v."Name",
+    v."Subject",
+    v."Body",
+    v."IsMobileVisible",
+    v."DisplayOrder",
+    v."IsActive",
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('System', 'Email', 'USER_INVITATION', 'User Invitation', 'You have been invited to {{CompanyName}}', E'Hello {{UserName}},\n\nYou have been invited to join {{CompanyName}}.\n\nClick the link below to activate your account:\n\n{{ActivationLink}}', false, 10::smallint, true),
+        ('System', 'Email', 'PASSWORD_RESET', 'Password Reset', 'Password Reset Request', E'Hello {{UserName}},\n\nA password reset was requested for your account.\n\nReset your password using the link below:\n\n{{ResetLink}}', false, 20::smallint, true),
+        ('System', 'Email', 'EMAIL_VERIFICATION', 'Email Verification', 'Verify Your Email Address', E'Hello {{UserName}},\n\nPlease verify your email address using the link below:\n\n{{VerificationLink}}', false, 30::smallint, true),
+        ('System', 'SystemNotification', 'ACCOUNT_LOCKED', 'Account Locked', NULL::text, 'Your account has been locked due to multiple failed login attempts.', false, 40::smallint, true),
+        ('System', 'SystemNotification', 'MFA_CODE', 'Multi-Factor Authentication Code', NULL::text, 'Your verification code is {{VerificationCode}}.', false, 50::smallint, true),
+        ('Tenant', 'Email', 'CUSTOMER_WELCOME', 'Customer Welcome', 'Welcome to {{CompanyName}}', E'Hello {{CustomerName}},\n\nThank you for choosing {{CompanyName}}.', false, 100::smallint, true),
+        ('Tenant', 'Email', 'ESTIMATE_SENT', 'Estimate Sent', 'Estimate {{EstimateNumber}}', E'Hello {{CustomerName}},\n\nYour estimate {{EstimateNumber}} is ready.\n\nAmount: {{EstimateAmount}}\n\n{{EstimateLink}}', false, 110::smallint, true),
+        ('Tenant', 'Email', 'ESTIMATE_APPROVED', 'Estimate Approved', 'Estimate Approved', 'Estimate {{EstimateNumber}} has been approved.', false, 120::smallint, true),
+        ('Tenant', 'Email', 'INVOICE_SENT', 'Invoice Sent', 'Invoice {{InvoiceNumber}}', E'Hello {{CustomerName}},\n\nInvoice {{InvoiceNumber}} is ready.\n\nAmount Due: {{InvoiceAmount}}\n\n{{PaymentLink}}', false, 130::smallint, true),
+        ('Tenant', 'Email', 'PAYMENT_RECEIVED', 'Payment Received', 'Payment Receipt', E'Payment of {{PaymentAmount}} has been received.\n\nInvoice: {{InvoiceNumber}}\n\nThank you.', false, 140::smallint, true),
+        ('Tenant', 'Email', 'PAST_DUE_NOTICE', 'Past Due Notice', 'Past Due Invoice {{InvoiceNumber}}', E'Invoice {{InvoiceNumber}} is now past due.\n\nBalance Due: {{BalanceDue}}', false, 150::smallint, true),
+        ('Tenant', 'Email', 'WORKORDER_CREATED', 'Work Order Created', 'Work Order {{WorkOrderNumber}} Created', 'Your work order has been scheduled for {{ScheduledDate}}.', true, 160::smallint, true),
+        ('Tenant', 'Email', 'WORKORDER_COMPLETED', 'Work Order Completed', 'Work Order Completed', 'Your work order {{WorkOrderNumber}} has been completed.', true, 170::smallint, true),
+        ('Tenant', 'Email', 'APPOINTMENT_REMINDER', 'Appointment Reminder', 'Upcoming Appointment Reminder', 'Reminder: Your appointment is scheduled for {{AppointmentDate}} at {{AppointmentTime}}.', true, 180::smallint, true),
+        ('Tenant', 'SMS', 'APPOINTMENT_REMINDER', 'Appointment Reminder SMS', NULL::text, 'Reminder: Appointment on {{AppointmentDate}} at {{AppointmentTime}}.', true, 200::smallint, true),
+        ('Tenant', 'SMS', 'TECHNICIAN_EN_ROUTE', 'Technician En Route', NULL::text, '{{TechnicianName}} is on the way for work order {{WorkOrderNumber}}.', true, 210::smallint, true),
+        ('Tenant', 'SMS', 'TECHNICIAN_ARRIVED', 'Technician Arrived', NULL::text, '{{TechnicianName}} has arrived.', true, 220::smallint, true),
+        ('Tenant', 'SMS', 'INVOICE_SENT', 'Invoice Sent SMS', NULL::text, 'Invoice {{InvoiceNumber}} for {{InvoiceAmount}} is ready. {{PaymentLink}}', true, 230::smallint, true),
+        ('Tenant', 'SMS', 'PAYMENT_RECEIVED', 'Payment Received SMS', NULL::text, 'Payment of {{PaymentAmount}} received. Thank you.', true, 240::smallint, true),
+        ('Tenant', 'PushNotification', 'WORKORDER_ASSIGNED', 'Work Order Assigned', NULL::text, 'You have been assigned work order {{WorkOrderNumber}}.', true, 300::smallint, true),
+        ('Tenant', 'PushNotification', 'WORKORDER_COMPLETED', 'Work Order Completed', NULL::text, 'Work order {{WorkOrderNumber}} completed.', true, 310::smallint, true),
+        ('Tenant', 'PushNotification', 'APPOINTMENT_REMINDER', 'Appointment Reminder', NULL::text, 'Upcoming appointment at {{AppointmentTime}}.', true, 320::smallint, true),
+        ('Tenant', 'SystemNotification', 'ESTIMATE_APPROVED', 'Estimate Approved', NULL::text, 'Estimate {{EstimateNumber}} approved.', true, 400::smallint, true),
+        ('Tenant', 'SystemNotification', 'PAYMENT_RECEIVED', 'Payment Received', NULL::text, 'Payment of {{PaymentAmount}} received.', true, 410::smallint, true),
+        ('Tenant', 'SystemNotification', 'WORKORDER_COMPLETED', 'Work Order Completed', NULL::text, 'Work order {{WorkOrderNumber}} completed.', true, 420::smallint, true)
+) AS v("TemplateScope", "CommunicationChannel", "TemplateCode", "Name", "Subject", "Body", "IsMobileVisible", "DisplayOrder", "IsActive")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM glo."GloCommunicationTemplate" t
+    WHERE t."CommunicationChannel" = v."CommunicationChannel"
+      AND t."TemplateCode" = v."TemplateCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloCommunicationTemplate"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloCommunicationTemplate"), 1),
     true);
 
 -- GloSetupDescriptionType
-INSERT INTO dbo."GloSetupDescriptionType"
+INSERT INTO glo."GloSetupDescriptionType"
 (
     "Code",
     "Name",
@@ -619,12 +728,12 @@ FROM (
 ) AS v("Code", "Name", "Description")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloSetupDescriptionType" t
+    FROM glo."GloSetupDescriptionType" t
     WHERE t."Code" = v."Code"
 );
 
 -- GloSetupLaborRateType
-INSERT INTO dbo."GloSetupLaborRateType"
+INSERT INTO glo."GloSetupLaborRateType"
 (
     "Name",
     "Description",
@@ -652,17 +761,17 @@ FROM (
 ) AS v("Name", "Description", "SortOrder", "IsSystem", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloSetupLaborRateType" t
+    FROM glo."GloSetupLaborRateType" t
     WHERE t."Name" = v."Name"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloSetupLaborRateType"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloSetupLaborRateType"), 1),
+    pg_get_serial_sequence('glo."GloSetupLaborRateType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloSetupLaborRateType"), 1),
     true);
 
 -- GloSetupPaymentTerm
-INSERT INTO dbo."GloSetupPaymentTerm"
+INSERT INTO glo."GloSetupPaymentTerm"
 (
     "Name",
     "DueDateMethod",
@@ -690,17 +799,17 @@ FROM (
 ) AS v("Name", "DueDateMethod", "NumberOfDays", "IsAccountsReceivable", "IsAccountsPayable", "IsMobileVisible", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloSetupPaymentTerm" t
+    FROM glo."GloSetupPaymentTerm" t
     WHERE t."Name" = v."Name"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloSetupPaymentTerm"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloSetupPaymentTerm"), 1),
+    pg_get_serial_sequence('glo."GloSetupPaymentTerm"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloSetupPaymentTerm"), 1),
     true);
 
 -- GloSetupTenantStatus (Id 1 = default FK on FgsTenant)
-INSERT INTO dbo."GloSetupTenantStatus" ("Id", "Name", "Description", "IsActive", "CreatedOn")
+INSERT INTO glo."GloSetupTenantStatus" ("Id", "Name", "Description", "IsActive", "CreatedOn")
 OVERRIDING SYSTEM VALUE
 SELECT v."Id", v."Name", v."Description", v."IsActive", timezone('utc', now())
 FROM (
@@ -713,16 +822,16 @@ FROM (
         (6::smallint, 'Cancelled', 'Tenant subscription cancelled',     true)
 ) AS v("Id", "Name", "Description", "IsActive")
 WHERE NOT EXISTS (
-    SELECT 1 FROM dbo."GloSetupTenantStatus" t WHERE t."Id" = v."Id"
+    SELECT 1 FROM glo."GloSetupTenantStatus" t WHERE t."Id" = v."Id"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloSetupTenantStatus"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloSetupTenantStatus"), 1),
+    pg_get_serial_sequence('glo."GloSetupTenantStatus"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloSetupTenantStatus"), 1),
     true);
 
 -- GloTrade
-INSERT INTO dbo."GloTrade"
+INSERT INTO glo."GloTrade"
 (
     "BusinessTypeId",
     "TradeCode",
@@ -753,20 +862,20 @@ FROM (
         ('HVAC',          'HVAC',          'HVAC',           'Heating and air conditioning services'),
         ('PAINTING',      'PAINTING',      'Painting',       'Interior and exterior painting')
 ) AS v("BusinessTypeCode", "TradeCode", "TradeName", "Description")
-INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+INNER JOIN glo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloTrade" t
+    FROM glo."GloTrade" t
     WHERE t."TradeCode" = v."TradeCode"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloTrade"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloTrade"), 1),
+    pg_get_serial_sequence('glo."GloTrade"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloTrade"), 1),
     true);
 
 -- GloSkill (HVAC, Plumbing, Electrical)
-INSERT INTO dbo."GloSkill"
+INSERT INTO glo."GloSkill"
 (
     "BusinessTypeId",
     "TradeId",
@@ -795,21 +904,21 @@ FROM (
         ('ELECTRICAL', 'ELECTRICAL', 'ELECTRICALEXPERT', 'Electrical Expert', 'Experienced electrical technician', false),
         ('ELECTRICAL', 'ELECTRICAL', 'ELECTRICALHELPER', 'Electrical Helper', 'Electrical helper and assistant technician', false)
 ) AS v("BusinessTypeCode", "TradeCode", "SkillCode", "SkillName", "Description", "RequiresCertification")
-INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
-INNER JOIN dbo."GloTrade" tr ON tr."TradeCode" = v."TradeCode"
+INNER JOIN glo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+INNER JOIN glo."GloTrade" tr ON tr."TradeCode" = v."TradeCode"
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloSkill" s
+    FROM glo."GloSkill" s
     WHERE s."SkillCode" = v."SkillCode"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloSkill"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloSkill"), 1),
+    pg_get_serial_sequence('glo."GloSkill"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloSkill"), 1),
     true);
 
 -- GloZone
-INSERT INTO dbo."GloZone"
+INSERT INTO glo."GloZone"
 (
     "Code",
     "Name",
@@ -829,17 +938,17 @@ FROM (
 ) AS v("Code", "Name", "Description", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloZone" z
+    FROM glo."GloZone" z
     WHERE z."Code" = v."Code"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloZone"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloZone"), 1),
+    pg_get_serial_sequence('glo."GloZone"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloZone"), 1),
     true);
 
 -- GloJobTypeSubCategory
-INSERT INTO dbo."GloJobTypeSubCategory"
+INSERT INTO glo."GloJobTypeSubCategory"
 (
     "Code",
     "Name",
@@ -868,17 +977,17 @@ FROM (
 ) AS v("Code", "Name", "Description", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloJobTypeSubCategory" sc
+    FROM glo."GloJobTypeSubCategory" sc
     WHERE sc."Code" = v."Code"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloJobTypeSubCategory"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloJobTypeSubCategory"), 1),
+    pg_get_serial_sequence('glo."GloJobTypeSubCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloJobTypeSubCategory"), 1),
     true);
 
 -- GloJobTypeCategory
-INSERT INTO dbo."GloJobTypeCategory"
+INSERT INTO glo."GloJobTypeCategory"
 (
     "BusinessTypeId",
     "Code",
@@ -906,21 +1015,21 @@ FROM (
         ('ELECTRICAL', 'LIGHTING',    'Lighting',             'Lighting systems'),
         ('ELECTRICAL', 'OUTLET',      'Outlet',               'Electrical outlet systems')
 ) AS v("BusinessTypeCode", "Code", "Name", "Description")
-INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+INNER JOIN glo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloJobTypeCategory" c
+    FROM glo."GloJobTypeCategory" c
     WHERE c."BusinessTypeId" = bt."Id"
       AND c."Code" = v."Code"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloJobTypeCategory"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloJobTypeCategory"), 1),
+    pg_get_serial_sequence('glo."GloJobTypeCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloJobTypeCategory"), 1),
     true);
 
 -- GloInventoryItemType
-INSERT INTO dbo."GloInventoryItemType"
+INSERT INTO glo."GloInventoryItemType"
 (
     "ItemTypeCode",
     "Name",
@@ -948,17 +1057,17 @@ FROM (
 ) AS v("ItemTypeCode", "Name", "Description", "TracksQuantity", "DisplayOrder", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloInventoryItemType" t
+    FROM glo."GloInventoryItemType" t
     WHERE t."ItemTypeCode" = v."ItemTypeCode"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloInventoryItemType"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloInventoryItemType"), 1),
+    pg_get_serial_sequence('glo."GloInventoryItemType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloInventoryItemType"), 1),
     true);
 
 -- GloInventoryCategory
-INSERT INTO dbo."GloInventoryCategory"
+INSERT INTO glo."GloInventoryCategory"
 (
     "BusinessTypeId",
     "CategoryCode",
@@ -1015,21 +1124,21 @@ FROM (
         ('LAWNCARE',       'PLANTS',           'Plants',            'Plants and landscaping materials',           5::smallint),
         ('LAWNCARE',       'TOOLS',            'Tools',             'Landscaping tools and equipment',            6::smallint)
 ) AS v("BusinessTypeCode", "CategoryCode", "Name", "Description", "DisplayOrder")
-INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+INNER JOIN glo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloInventoryCategory" c
+    FROM glo."GloInventoryCategory" c
     WHERE c."BusinessTypeId" = bt."Id"
       AND c."CategoryCode" = v."CategoryCode"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloInventoryCategory"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloInventoryCategory"), 1),
+    pg_get_serial_sequence('glo."GloInventoryCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloInventoryCategory"), 1),
     true);
 
 -- GloInventorySubCategory
-INSERT INTO dbo."GloInventorySubCategory"
+INSERT INTO glo."GloInventorySubCategory"
 (
     "InventoryCategoryId",
     "SubCategoryCode",
@@ -1086,24 +1195,24 @@ FROM (
         ('ELECTRICAL',     'TOOLS',        'MULTIMETERS',             'Multimeters',              'Electrical multimeters',                  1::smallint),
         ('ELECTRICAL',     'TOOLS',        'WIRESTRIPPERS',           'Wire Strippers',           'Wire stripping tools',                    2::smallint)
 ) AS v("BusinessTypeCode", "CategoryCode", "SubCategoryCode", "Name", "Description", "DisplayOrder")
-INNER JOIN dbo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
-INNER JOIN dbo."GloInventoryCategory" c
+INNER JOIN glo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
+INNER JOIN glo."GloInventoryCategory" c
     ON c."BusinessTypeId" = bt."Id"
    AND c."CategoryCode" = v."CategoryCode"
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloInventorySubCategory" sc
+    FROM glo."GloInventorySubCategory" sc
     WHERE sc."InventoryCategoryId" = c."Id"
       AND sc."SubCategoryCode" = v."SubCategoryCode"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloInventorySubCategory"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloInventorySubCategory"), 1),
+    pg_get_serial_sequence('glo."GloInventorySubCategory"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloInventorySubCategory"), 1),
     true);
 
 -- GloLeadSource (global lead acquisition sources for tenant provisioning seed)
-INSERT INTO dbo."GloLeadSource"
+INSERT INTO glo."GloLeadSource"
 (
     "SourceCode",
     "SourceName",
@@ -1132,17 +1241,17 @@ FROM (
 ) AS v("SourceCode", "SourceName", "Description", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloLeadSource" ls
+    FROM glo."GloLeadSource" ls
     WHERE ls."SourceCode" = v."SourceCode"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloLeadSource"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloLeadSource"), 1),
+    pg_get_serial_sequence('glo."GloLeadSource"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloLeadSource"), 1),
     true);
 
 -- GloUnitOfMeasure (global units of measure)
-INSERT INTO dbo."GloUnitOfMeasure"
+INSERT INTO glo."GloUnitOfMeasure"
 (
     "UnitCode",
     "Name",
@@ -1179,17 +1288,17 @@ FROM (
 ) AS v("UnitCode", "Name", "Abbreviation", "Description", "UnitType", "DecimalPlaces", "DisplayOrder", "IsSystem", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloUnitOfMeasure" u
+    FROM glo."GloUnitOfMeasure" u
     WHERE u."UnitCode" = v."UnitCode"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloUnitOfMeasure"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloUnitOfMeasure"), 1),
+    pg_get_serial_sequence('glo."GloUnitOfMeasure"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloUnitOfMeasure"), 1),
     true);
 
 -- GloTag (global system tags)
-INSERT INTO dbo."GloTag"
+INSERT INTO glo."GloTag"
 (
     "TagCode",
     "Name",
@@ -1222,17 +1331,17 @@ FROM (
 ) AS v("TagCode", "Name", "NormalizedName", "Description", "BackgroundColor", "TextColor", "DisplayOrder", "IsSystemGenerated", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloTag" t
+    FROM glo."GloTag" t
     WHERE t."TagCode" = v."TagCode"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloTag"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloTag"), 1),
+    pg_get_serial_sequence('glo."GloTag"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloTag"), 1),
     true);
 
 -- GloTitleOfCourtesy (global courtesy titles)
-INSERT INTO dbo."GloTitleOfCourtesy"
+INSERT INTO glo."GloTitleOfCourtesy"
 (
     "Code",
     "DisplayName",
@@ -1256,13 +1365,13 @@ FROM (
 ) AS v("Code", "DisplayName", "SortOrder", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloTitleOfCourtesy" t
+    FROM glo."GloTitleOfCourtesy" t
     WHERE t."Code" = v."Code"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloTitleOfCourtesy"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloTitleOfCourtesy"), 1),
+    pg_get_serial_sequence('glo."GloTitleOfCourtesy"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloTitleOfCourtesy"), 1),
     true);
 
 -- =============================================================================
@@ -1272,7 +1381,7 @@ SELECT setval(
 -- Transformation types: TENANT_ID, COMPANY_ID, STATIC, CURRENT_TIMESTAMP, SEED_CREATED_BY
 -- =============================================================================
 
-INSERT INTO dbo."GloSeedTableMapping"
+INSERT INTO glo."GloSeedTableMapping"
 (
     "SeedCode",
     "SourceDatabaseName",
@@ -1302,30 +1411,30 @@ SELECT
     NULL::bigint
 FROM (
     VALUES
-        ('ALL_GloBillingCategory', 'fgs_dev_db', 'dbo', 'GloBillingCategory', 'fgs_dev_db', 'dbo', 'FgsBillingCategory', 100, 'Billing Category', true),
-        ('ALL_GloJobTypeCategory', 'fgs_dev_db', 'dbo', 'GloJobTypeCategory', 'fgs_dev_db', 'dbo', 'FgsJobTypeCategory', 130, 'JobType Categories', true),
-        ('ALL_GloJobTypeSubCategory', 'fgs_dev_db', 'dbo', 'GloJobTypeSubCategory', 'fgs_dev_db', 'dbo', 'FgsJobTypeSubCategory', 160, 'JobType Sub Categories', true),
-        ('ALL_GloLeadSource', 'fgs_dev_db', 'dbo', 'GloLeadSource', 'fgs_dev_db', 'dbo', 'FgsLeadSource', 190, 'Lead Source', true),
-        ('ALL_GloPaymentMethodType', 'fgs_dev_db', 'dbo', 'GloPaymentMethodType', 'fgs_dev_db', 'dbo', 'FgsSetupPaymentMethod', 220, 'Payment Method', true),
-        ('ALL_GloResolutionType', 'fgs_dev_db', 'dbo', 'GloResolutionType', 'fgs_dev_db', 'dbo', 'FgsResolutionCode', 250, 'Resolution Code', true),
-        ('ALL_GloSetupLaborRateType', 'fgs_dev_db', 'dbo', 'GloSetupLaborRateType', 'fgs_dev_db', 'dbo', 'FgsSetupLaborRateType', 280, 'Labor Rate Type', true),
-        ('GloSkill', 'fgs_dev_db', 'dbo', 'GloSkill', 'fgs_dev_db', 'dbo', 'FgsSetupTechSkillLevel', 310, 'Technician Skill', true),
-        ('ALL_GloTag', 'fgs_dev_db', 'dbo', 'GloTag', 'fgs_dev_db', 'dbo', 'FgsTag', 340, 'Tags', true),
-        ('GloTrade', 'fgs_dev_db', 'dbo', 'GloTrade', 'fgs_dev_db', 'dbo', 'FgsSetupTechTrade', 410, 'Technician Trade', true),
-        ('ALL_GloTitleOfCourtesy', 'fgs_dev_db', 'dbo', 'GloTitleOfCourtesy', 'fgs_dev_db', 'dbo', 'FgsSetupTitleOfCourtesy', 440, 'Title Of Courtesy', true),
-        ('ALL_GloZone', 'fgs_dev_db', 'dbo', 'GloZone', 'fgs_dev_db', 'dbo', 'FgsSetupZone', 470, 'Zone', true),
-        ('ALL_GloSetupPaymentTerm', 'fgs_dev_db', 'dbo', 'GloSetupPaymentTerm', 'fgs_dev_db', 'dbo', 'FgsSetupPaymentTerm', 500, 'Payment Term', true)
+        ('ALL_GloBillingCategory', 'fgs_dev_db', 'glo', 'GloBillingCategory', 'fgs_dev_db', 'setup', 'FgsBillingCategory', 100, 'Billing Category', true),
+        ('ALL_GloJobTypeCategory', 'fgs_dev_db', 'glo', 'GloJobTypeCategory', 'fgs_dev_db', 'setup', 'FgsJobTypeCategory', 130, 'JobType Categories', true),
+        ('ALL_GloJobTypeSubCategory', 'fgs_dev_db', 'glo', 'GloJobTypeSubCategory', 'fgs_dev_db', 'setup', 'FgsJobTypeSubCategory', 160, 'JobType Sub Categories', true),
+        ('ALL_GloLeadSource', 'fgs_dev_db', 'glo', 'GloLeadSource', 'fgs_dev_db', 'setup', 'FgsLeadSource', 190, 'Lead Source', true),
+        ('ALL_GloPaymentMethodType', 'fgs_dev_db', 'glo', 'GloPaymentMethodType', 'fgs_dev_db', 'setup', 'FgsSetupPaymentMethod', 220, 'Payment Method', true),
+        ('ALL_GloResolutionType', 'fgs_dev_db', 'glo', 'GloResolutionType', 'fgs_dev_db', 'setup', 'FgsResolutionCode', 250, 'Resolution Code', true),
+        ('ALL_GloSetupLaborRateType', 'fgs_dev_db', 'glo', 'GloSetupLaborRateType', 'fgs_dev_db', 'setup', 'FgsSetupLaborRateType', 280, 'Labor Rate Type', true),
+        ('GloSkill', 'fgs_dev_db', 'glo', 'GloSkill', 'fgs_dev_db', 'setup', 'FgsSetupTechSkillLevel', 310, 'Technician Skill', true),
+        ('ALL_GloTag', 'fgs_dev_db', 'glo', 'GloTag', 'fgs_dev_db', 'shared', 'FgsTag', 340, 'Tags', true),
+        ('GloTrade', 'fgs_dev_db', 'glo', 'GloTrade', 'fgs_dev_db', 'setup', 'FgsSetupTechTrade', 410, 'Technician Trade', true),
+        ('ALL_GloTitleOfCourtesy', 'fgs_dev_db', 'glo', 'GloTitleOfCourtesy', 'fgs_dev_db', 'setup', 'FgsSetupTitleOfCourtesy', 440, 'Title Of Courtesy', true),
+        ('ALL_GloZone', 'fgs_dev_db', 'glo', 'GloZone', 'fgs_dev_db', 'setup', 'FgsSetupZone', 470, 'Zone', true),
+        ('ALL_GloSetupPaymentTerm', 'fgs_dev_db', 'glo', 'GloSetupPaymentTerm', 'fgs_dev_db', 'setup', 'FgsSetupPaymentTerm', 500, 'Payment Term', true)
 ) AS v("SeedCode", "SourceDatabaseName", "SourceSchemaName", "SourceTableName", "TargetDatabaseName", "TargetSchemaName", "TargetTableName", "SeedOrder", "Description", "IsActive")
 WHERE NOT EXISTS (
-    SELECT 1 FROM dbo."GloSeedTableMapping" m WHERE m."SeedCode" = v."SeedCode"
+    SELECT 1 FROM glo."GloSeedTableMapping" m WHERE m."SeedCode" = v."SeedCode"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloSeedTableMapping"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloSeedTableMapping"), 1),
+    pg_get_serial_sequence('glo."GloSeedTableMapping"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloSeedTableMapping"), 1),
     true);
 
-INSERT INTO dbo."GloSeedTableColumnMapping"
+INSERT INTO glo."GloSeedTableColumnMapping"
 (
     "SeedTableMappingId",
     "SourceColumnName",
@@ -1349,7 +1458,7 @@ SELECT
     c."IsActive",
     timezone('utc', now()),
     NULL::bigint
-FROM dbo."GloSeedTableMapping" m
+FROM glo."GloSeedTableMapping" m
 INNER JOIN (
     VALUES
         -- ALL_GloBillingCategory -> FgsBillingCategory
@@ -1360,10 +1469,11 @@ INNER JOIN (
         ('ALL_GloBillingCategory', 'Description', 'Description', NULL, NULL, 5, false, true),
         ('ALL_GloBillingCategory', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 6, true, true),
         ('ALL_GloBillingCategory', NULL, 'IsSystemDefined', 'STATIC', 'true', 7, true, true),
-        ('ALL_GloBillingCategory', NULL, 'ShowToFieldTech', 'STATIC', 'true', 8, true, true),
-        ('ALL_GloBillingCategory', NULL, 'IsActive', 'STATIC', 'true', 9, true, true),
-        ('ALL_GloBillingCategory', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 10, true, true),
-        ('ALL_GloBillingCategory', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 11, false, true),
+        ('ALL_GloBillingCategory', 'ShowToFieldTech', 'ShowToFieldTech', NULL, NULL, 8, true, true),
+        ('ALL_GloBillingCategory', 'AllowToPick', 'AllowToPick', NULL, NULL, 9, true, true),
+        ('ALL_GloBillingCategory', NULL, 'IsActive', 'STATIC', 'true', 10, true, true),
+        ('ALL_GloBillingCategory', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 11, true, true),
+        ('ALL_GloBillingCategory', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 12, false, true),
 
         -- ALL_GloJobTypeCategory -> FgsJobTypeCategory
         ('ALL_GloJobTypeCategory', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
@@ -1502,14 +1612,28 @@ INNER JOIN (
     ON c."SeedCode" = m."SeedCode"
 WHERE NOT EXISTS (
     SELECT 1
-    FROM dbo."GloSeedTableColumnMapping" existing
+    FROM glo."GloSeedTableColumnMapping" existing
     WHERE existing."SeedTableMappingId" = m."Id"
       AND existing."TargetColumnName" = c."TargetColumnName"
 );
 
+UPDATE glo."GloSeedTableColumnMapping" AS existing
+SET
+    "SourceColumnName" = 'ShowToFieldTech',
+    "TransformationType" = NULL,
+    "StaticValue" = NULL,
+    "ColumnOrder" = 8,
+    "IsRequired" = true,
+    "IsActive" = true
+FROM glo."GloSeedTableMapping" m
+WHERE existing."SeedTableMappingId" = m."Id"
+  AND m."SeedCode" = 'ALL_GloBillingCategory'
+  AND existing."TargetColumnName" = 'ShowToFieldTech'
+  AND existing."TransformationType" = 'STATIC';
+
 SELECT setval(
-    pg_get_serial_sequence('dbo."GloSeedTableColumnMapping"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM dbo."GloSeedTableColumnMapping"), 1),
+    pg_get_serial_sequence('glo."GloSeedTableColumnMapping"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloSeedTableColumnMapping"), 1),
     true);
 
 COMMIT;

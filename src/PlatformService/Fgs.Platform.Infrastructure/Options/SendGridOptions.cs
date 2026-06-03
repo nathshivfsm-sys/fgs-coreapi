@@ -1,3 +1,4 @@
+using Fgs.Platform.Infrastructure.Options;
 namespace Fgs.Platform.Infrastructure.Options;
 
 public sealed class SendGridOptions

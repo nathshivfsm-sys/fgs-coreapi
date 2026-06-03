@@ -11,6 +11,10 @@ public class GloCommunicationToken : FgsEntityBase
 
     public string DisplayName { get; set; } = null!;
 
+    public string SourceDatabaseName { get; set; } = null!;
+
+    public string SourceSchemaName { get; set; } = null!;
+
     public string SourceTableName { get; set; } = null!;
 
     public string SourceColumnName { get; set; } = null!;

@@ -1,4 +1,4 @@
-using Fgs.User.Application.Common;
+using Fgs.Foundation.Result;
 using Fgs.User.Application.Features.Signup.DTOs;
 using MediatR;
 

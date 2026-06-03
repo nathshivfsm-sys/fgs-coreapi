@@ -1,5 +1,5 @@
 using System.Text;
-using Fgs.User.Application.TenantProvisioning;
+using Fgs.User.Application.Features.TenantProvisioning;
 using Fgs.User.Domain.Entities;
 
 namespace Fgs.User.Infrastructure.Provisioning;

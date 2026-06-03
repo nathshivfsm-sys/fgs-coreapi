@@ -1,4 +1,4 @@
-using Fgs.User.Application.TenantProvisioning;
+using Fgs.User.Application.Features.TenantProvisioning;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Provisioning;
 

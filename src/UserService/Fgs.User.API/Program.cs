@@ -1,15 +1,18 @@
-using System.Text.Json;
-using Fgs.User.API.Json;
-using Fgs.User.API.Middleware;
-using Fgs.User.API.Swagger;
+using Fgs.Foundation.Api;
+using Fgs.Foundation.Extensions;
+using Fgs.Messaging.Options;
+using Fgs.MultiTenancy.Extensions;
+using Fgs.Observability.Extensions;
+using Fgs.Foundation.Middleware;
 using Fgs.User.Application;
 using Fgs.User.Infrastructure;
+using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
+using Fgs.User.Infrastructure.Persistence.Database.Seed;
+using Fgs.User.Infrastructure.Credentials;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Net.Sockets;
-using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
-using Fgs.User.Infrastructure.Common.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,48 +28,72 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 });
 
-builder.Services.AddHttpContextAccessor();
+builder.Services.AddFgsApiVersioning();
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.ConfigureFgsApi());
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.ConfigureFgsApi());
-builder.Services.AddFgsUserSwagger();
+builder.Services.AddFgsSwagger(options =>
+{
+    options.Title = "FGS User Service";
+    options.Description =
+        "Multi-tenant company onboarding (signup), email invitations, Microsoft Entra External ID callback, "
+        + "transactional outbox, and platform user management.";
+    options.ContactName = "FGS Platform";
+    options.XmlCommentsAssembly = typeof(Program).Assembly;
+});
 builder.Services.AddFgsUserApplication();
 builder.Services.AddFgsUserInfrastructure(builder.Configuration);
-builder.Services.AddHealthChecks();
+builder.Services.AddFgsMultiTenancy();
+builder.Services.AddFgsObservability(builder.Configuration, "fgs-user-service");
 
 var app = builder.Build();
 
 await ApplyMigrationsAsync(app);
+await SeedPlatformTenantAsync(app);
+await LoadCredentialConfigurationAsync(app);
 
 LogRabbitMqEffectiveConfig(app);
 ProbeLocalRabbitMqTcpIfDevelopment(app);
 
 app.UseForwardedHeaders();
-app.UseMiddleware<CorrelationIdMiddleware>();
-app.UseMiddleware<RequestResponseLoggingMiddleware>();
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseFgsFoundationMiddleware();
 if (ShouldUseHttpsRedirection(app.Configuration))
 {
     app.UseHttpsRedirection();
 }
 
-if (app.Configuration.IsSwaggerEnabled(app.Environment))
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "FGS User Service v1");
-        options.DocumentTitle = "FGS User Service — API";
-        options.DisplayRequestDuration();
-    });
-}
+app.UseFgsSwagger();
 
+app.UseAuthentication();
+app.UseFgsTenantResolution();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapFgsHealthChecks();
 
 app.Run();
+
+static async Task SeedPlatformTenantAsync(WebApplication app)
+{
+    if (!app.Configuration.GetValue("Database:SeedPlatformTenantOnStartup", true))
+    {
+        return;
+    }
+
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider.GetRequiredService<PlatformTenantSeeder>();
+    await seeder.SeedAsync();
+}
+
+static async Task LoadCredentialConfigurationAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var loader = scope.ServiceProvider.GetRequiredService<CredentialConfigurationLoader>();
+    await loader.ReloadAsync();
+    app.Logger.LogInformation(
+        "Resolved credential configuration loaded with {Count} entries.",
+        app.Services.GetRequiredService<CredentialConfigurationHolder>().Values.Count);
+}
 
 static async Task ApplyMigrationsAsync(WebApplication app)
 {
@@ -111,7 +138,6 @@ static void LogRabbitMqEffectiveConfig(WebApplication app)
     }
 }
 
-// If nothing accepts TCP on the AMQP port, AMQP will fail with "endpoints were unreachable" — distinguish that early.
 static void ProbeLocalRabbitMqTcpIfDevelopment(WebApplication app)
 {
     if (!app.Environment.IsDevelopment())

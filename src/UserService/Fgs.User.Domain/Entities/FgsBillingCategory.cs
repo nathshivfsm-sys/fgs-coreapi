@@ -15,5 +15,7 @@ public class FgsBillingCategory : FgsTenantCompanySetupEntityBase<long>
 
     public bool IsSystemDefined { get; set; }
 
-    public bool ShowToFieldTech { get; set; } = true;
+    public bool ShowToFieldTech { get; set; }
+
+    public bool AllowToPick { get; set; } = true;
 }

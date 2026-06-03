@@ -3,7 +3,7 @@ namespace Fgs.User.Domain.Entities;
 /// <summary>
 /// Defines which tags apply to which master entity types for a tenant/company.
 /// </summary>
-public class FgsTagEntityType
+public class FgsTagEntityType : ITenantCompanyScoped
 {
     public long TenantId { get; set; }
 

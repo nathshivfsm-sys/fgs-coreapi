@@ -1,6 +1,6 @@
 # RabbitMQ only — for running Fgs.Platform.API on the host (see launchSettings.json).
 # For the full stack (nginx, user, platform, workorder, postgres, rabbitmq), use:
-#   cd deployment/nginx && docker compose up --build
+#   cd src/Gateway && docker compose up --build
 services:
   rabbitmq:
     image: rabbitmq:4-management-alpine

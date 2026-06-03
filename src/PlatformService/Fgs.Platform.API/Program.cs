@@ -1,21 +1,35 @@
-using Fgs.Platform.API.Middleware;
-using Fgs.Platform.API.Swagger;
+using Fgs.Foundation.Api;
+using Fgs.Foundation.Extensions;
+using Fgs.Messaging.Options;
+using Fgs.MultiTenancy.Extensions;
+using Fgs.Observability.Extensions;
 using Fgs.Platform.Application;
 using Fgs.Platform.Infrastructure;
 using Fgs.Platform.Infrastructure.Database;
 using Fgs.Platform.Infrastructure.Database.Seed;
-using Fgs.Platform.Infrastructure.Options;
+using Fgs.User.Application.Abstractions.Credentials;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Net.Sockets;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddFgsPlatformSwagger();
+builder.Services.AddFgsApiVersioning();
+builder.Services.AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.ConfigureFgsApi());
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.ConfigureFgsApi());
+builder.Services.AddFgsSwagger(options =>
+{
+    options.Title = "FGS Platform Service";
+    options.Description =
+        "Shared platform capabilities: notifications (email/SMS/push), integrations, audit, background jobs, and reporting foundations.";
+    options.XmlCommentsAssembly = typeof(Program).Assembly;
+});
 builder.Services.AddFgsPlatformApplication();
 builder.Services.AddFgsPlatformInfrastructure(builder.Configuration);
-builder.Services.AddHealthChecks();
+builder.Services.AddFgsMultiTenancy();
+builder.Services.AddFgsObservability(builder.Configuration, "fgs-platform-service");
 
 var app = builder.Build();
 
@@ -24,25 +38,19 @@ await SeedCommunicationTemplatesAsync(app);
 LogRabbitMqEffectiveConfig(app);
 ProbeLocalRabbitMqTcpIfDevelopment(app);
 
-app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseFgsFoundationMiddleware();
 if (ShouldUseHttpsRedirection(app.Configuration))
 {
     app.UseHttpsRedirection();
 }
 
-if (app.Configuration.IsSwaggerEnabled(app.Environment))
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "FGS Platform Service v1");
-        options.DocumentTitle = "FGS Platform Service — API";
-    });
-}
+app.UseFgsSwagger();
 
+app.UseAuthentication();
+app.UseFgsTenantResolution();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapFgsHealthChecks();
 
 app.Run();
 
@@ -72,7 +80,7 @@ static async Task SeedCommunicationTemplatesAsync(WebApplication app)
 
 static void LogRabbitMqEffectiveConfig(WebApplication app)
 {
-    var rabbit = app.Services.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+    var rabbit = app.Services.GetRequiredService<IOptionsMonitor<RabbitMqOptions>>().CurrentValue;
     var routingKeys = string.Join(", ", rabbit.QueueBindings.Select(b => b.RoutingKey));
     app.Logger.LogInformation(
         "RabbitMQ consumer (Platform): HostName={HostName}, Port={Port}, Exchange={Exchange}, ConsumeQueue={Queue}, DLQ={Dlq}, RoutingKeys=[{RoutingKeys}]",
@@ -91,7 +99,7 @@ static void ProbeLocalRabbitMqTcpIfDevelopment(WebApplication app)
         return;
     }
 
-    var rabbit = app.Services.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+    var rabbit = app.Services.GetRequiredService<IOptionsMonitor<RabbitMqOptions>>().CurrentValue;
     if (rabbit.HostName is not ("127.0.0.1" or "localhost"))
     {
         return;

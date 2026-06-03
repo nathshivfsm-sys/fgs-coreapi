@@ -1,7 +1,10 @@
+using Fgs.Messaging.Options;
+using Fgs.Messaging.RabbitMq;
 using System.Text;
 using System.Text.Json;
 using Fgs.Platform.Application.Notifications.Channels;
 using Fgs.Platform.Application.Notifications.Queues;
+using Fgs.Platform.Infrastructure.Credentials;
 using Fgs.Platform.Infrastructure.Messaging;
 using Fgs.Platform.Infrastructure.Options;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,16 +18,18 @@ namespace Fgs.Platform.Infrastructure.Notifications.Workers;
 
 public sealed class NotificationQueueWorker(
     RabbitMqConnectionFactory connectionFactory,
+    PlatformRabbitMqTopologyInitializer topologyInitializer,
     IServiceScopeFactory scopeFactory,
-    IOptions<RabbitMqOptions> rabbitOptions,
+    IRabbitMqEffectiveOptionsProvider rabbitMqOptions,
     IOptions<NotificationWorkerOptions> workerOptions,
+    RabbitMqConsumerStartupGate rabbitMqConsumerStartupGate,
     ILogger<NotificationQueueWorker> logger) : BackgroundService
 {
-    private readonly RabbitMqOptions _rabbit = rabbitOptions.Value;
     private readonly NotificationWorkerOptions _worker = workerOptions.Value;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        await rabbitMqConsumerStartupGate.WaitAsync(stoppingToken);
         logger.LogInformation("Notification queue worker starting.");
 
         while (!stoppingToken.IsCancellationRequested)
@@ -47,15 +52,24 @@ public sealed class NotificationQueueWorker(
 
     private async Task ConsumeAsync(CancellationToken stoppingToken)
     {
+        var rabbit = rabbitMqOptions.GetEffectiveOptions();
+        logger.LogInformation(
+            "Notification consumer connecting to RabbitMQ {Host}:{Port} as {User}.",
+            rabbit.HostName,
+            rabbit.Port,
+            rabbit.UserName);
         var connection = await connectionFactory.GetConnectionAsync(stoppingToken);
         var channel = await connection.CreateChannelAsync(cancellationToken: stoppingToken);
 
-        if (_rabbit.EnsureQueuesOnStartup)
+        if (rabbit.EnsureQueuesOnStartup)
         {
-            await connectionFactory.EnsureTopologyAsync(channel, stoppingToken);
+            await topologyInitializer.EnsureTopologyAsync(channel, stoppingToken);
         }
 
         await channel.BasicQosAsync(0, _worker.PrefetchCount, false, stoppingToken);
+
+        var notificationQueueName = rabbit.NotificationQueueName
+            ?? throw new InvalidOperationException("RabbitMq:NotificationQueueName must be configured.");
 
         var consumer = new AsyncEventingBasicConsumer(channel);
         consumer.ReceivedAsync += async (_, args) =>
@@ -142,7 +156,7 @@ public sealed class NotificationQueueWorker(
         };
 
         await channel.BasicConsumeAsync(
-            _rabbit.NotificationQueueName,
+            notificationQueueName,
             autoAck: false,
             consumer: consumer,
             cancellationToken: stoppingToken);
@@ -186,7 +200,7 @@ public sealed class NotificationQueueWorker(
         };
 
         await channel.BasicPublishAsync(
-            _rabbit.ExchangeName,
+            rabbitMqOptions.GetEffectiveOptions().ExchangeName,
             routingKey,
             mandatory: false,
             basicProperties: properties,
