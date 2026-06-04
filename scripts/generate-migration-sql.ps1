@@ -19,6 +19,7 @@ $serviceMap = @{
     Dispatch     = @{ Infra = 'DispatchService\Fgs.Dispatch.Infrastructure'; Api = 'DispatchService\Fgs.Dispatch.API'; Conn = 'FgsDispatch' }
     Inventory    = @{ Infra = 'InventoryService\Fgs.Inventory.Infrastructure'; Api = 'InventoryService\Fgs.Inventory.API'; Conn = 'FgsInventory' }
     Reporting    = @{ Infra = 'ReportingService\Fgs.Reporting.Infrastructure'; Api = 'ReportingService\Fgs.Reporting.API'; Conn = 'FgsReporting' }
+    Integration  = @{ Infra = 'IntegrationService\Fgs.Integration.Infrastructure'; Api = 'IntegrationService\Fgs.Integration.API'; Conn = 'FgsIntegration' }
     Job          = @{ Infra = 'JobService\Fgs.Job.Infrastructure'; Api = 'JobService\Fgs.Job.API'; Conn = 'FgsJob' }
 }
 

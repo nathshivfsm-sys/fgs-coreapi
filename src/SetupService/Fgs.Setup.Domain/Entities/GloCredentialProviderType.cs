@@ -28,6 +28,4 @@ public class GloCredentialProviderType
     public string? UpdatedBy { get; set; }
 
     public ICollection<GloCredential> Credentials { get; set; } = [];
-
-    public ICollection<FgsCredential> TenantCredentials { get; set; } = [];
 }

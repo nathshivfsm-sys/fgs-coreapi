@@ -295,7 +295,7 @@ Service-specific exception mapping via `IExceptionStatusMapper` (e.g. `Credentia
 - [x] Generic outbox processor abstraction (`IOutboxStore`, `OutboxBatchProcessor`, `OutboxPollingBackgroundService`)
 - [x] OpenTelemetry in `Fgs.Observability` (`AddFgsObservability(configuration, serviceName)`)
 - [x] JWT authentication middleware in `Fgs.Security` (`AddFgsJwtAuthentication`)
-- [x] Platform credential `(0,0)` support with seeded sentinel rows (`PlatformTenantSeeder`, validators `>= 0`)
+- [x] Global credentials in `glo.GloCredential` (no tenant/company scope); tenant validators allow `>= 0` where applicable
 
 **New shared APIs:**
 - `Fgs.Messaging`: `AddFgsRabbitMqPublisher()`, `AddFgsRabbitMqConnectionFactory()`, `AddFgsOutboxProcessor()`

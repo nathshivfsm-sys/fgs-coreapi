@@ -33,5 +33,5 @@ public class FgsCredential : FgsEntityBase, ITenantCompanyScoped
     /// <summary>Indicates whether the credential is active and available for use.</summary>
     public bool IsActive { get; set; } = true;
 
-    public GloCredentialProviderType ProviderType { get; set; } = null!;
+    public GloCredentialProviderTypeCache ProviderType { get; set; } = null!;
 }

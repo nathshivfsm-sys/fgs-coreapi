@@ -26,6 +26,8 @@ public class FgsUserDbContext : FgsTenantFilteredDbContext
     public DbSet<FgsRole> FgsRoles => Set<FgsRole>();
     public DbSet<FgsInvitation> FgsInvitations => Set<FgsInvitation>();
 
+    public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsUserDbContext).Assembly);

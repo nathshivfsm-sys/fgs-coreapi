@@ -311,16 +311,21 @@ public sealed class TenantDataSeedingEngine(
         long companyId,
         CancellationToken cancellationToken)
     {
-        var businessTypeClause = TenantSeedSqlBuilder.BuildBusinessTypeFilterClause(
-            sourceMetadata.HasBusinessTypeId,
-            sourceMetadata.BusinessTypeIdIsNullable,
-            hasBusinessTypeFilter);
+        var whereClause = TenantSeedSqlBuilder.CombineWhereClauses(
+            TenantSeedSqlBuilder.BuildTenantScopeFilterClause(
+                mapping,
+                columns,
+                sourceMetadata.Columns.ContainsKey(SeedTransformationTypes.TargetColumns.TenantId)),
+            TenantSeedSqlBuilder.BuildBusinessTypeFilterClause(
+                sourceMetadata.HasBusinessTypeId,
+                sourceMetadata.BusinessTypeIdIsNullable,
+                hasBusinessTypeFilter));
 
         var sql = TenantSeedSqlBuilder.BuildInsertSelectSql(
             TenantSeedSqlBuilder.QualifyTable(mapping.TargetSchemaName, mapping.TargetTableName),
             TenantSeedSqlBuilder.QualifyTable(mapping.SourceSchemaName, mapping.SourceTableName),
             columns,
-            businessTypeClause);
+            whereClause);
 
         await using var command = targetConnection.CreateCommand();
         command.Transaction = transaction;

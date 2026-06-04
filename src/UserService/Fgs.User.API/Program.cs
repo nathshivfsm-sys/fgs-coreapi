@@ -7,7 +7,6 @@ using Fgs.Foundation.Middleware;
 using Fgs.User.Application;
 using Fgs.User.Infrastructure;
 using Fgs.User.Infrastructure.Database;
-using Fgs.User.Infrastructure.Database.Seeds;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -49,7 +48,6 @@ builder.Services.AddFgsObservability(builder.Configuration, "fgs-user-service");
 var app = builder.Build();
 
 await ApplyMigrationsAsync(app);
-await SeedPlatformTenantAsync(app);
 LogRabbitMqEffectiveConfig(app);
 ProbeLocalRabbitMqTcpIfDevelopment(app);
 
@@ -69,18 +67,6 @@ app.MapControllers();
 app.MapFgsHealthChecks();
 
 app.Run();
-
-static async Task SeedPlatformTenantAsync(WebApplication app)
-{
-    if (!app.Configuration.GetValue("Database:SeedPlatformTenantOnStartup", true))
-    {
-        return;
-    }
-
-    using var scope = app.Services.CreateScope();
-    var seeder = scope.ServiceProvider.GetRequiredService<PlatformTenantSeeder>();
-    await seeder.SeedAsync();
-}
 
 static async Task ApplyMigrationsAsync(WebApplication app)
 {

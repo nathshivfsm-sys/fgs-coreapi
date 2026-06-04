@@ -11,8 +11,10 @@ public sealed record TenantCompanyDto(
     long Id,
     long TenantId,
     long CompanyNumber,
+    Guid CompanyGuid,
     string Code,
-    string Name);
+    string Name,
+    bool IsActive);
 
 public sealed record UpdateTenantStatusRequest(short FgsTenantStatusId);
 

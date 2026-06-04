@@ -13,5 +13,5 @@ public class FgsResolutionCode : FgsTenantCompanySetupEntityBase<long>
 
     public bool IsMobileVisible { get; set; } = true;
 
-    public GloResolutionType? ResolutionType { get; set; }
+    public GloResolutionTypeCache? ResolutionType { get; set; }
 }

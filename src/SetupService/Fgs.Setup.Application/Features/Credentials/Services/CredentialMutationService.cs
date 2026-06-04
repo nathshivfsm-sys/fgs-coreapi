@@ -108,7 +108,7 @@ public sealed class CredentialMutationService
         await _repository.AddTenantAsync(credential, cancellationToken);
         await WriteAuditAsync(credential, CredentialAuditActions.Created, "Credential created.", null, null, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        credential.ProviderType = providerType;
+        credential.ProviderType = ToProviderTypeCache(providerType);
         await _configurationProvider.ReloadAsync(cancellationToken);
         return (credential, providerType.ProviderCode);
     }
@@ -318,6 +318,16 @@ public sealed class CredentialMutationService
 
         return providerType;
     }
+
+    private static GloCredentialProviderTypeCache ToProviderTypeCache(GloCredentialProviderType providerType) =>
+        new()
+        {
+            ProviderTypeId = providerType.Id,
+            ProviderCode = providerType.ProviderCode,
+            ProviderName = providerType.ProviderName,
+            ConfigurationSchema = providerType.ConfigurationSchema,
+            IsActive = providerType.IsActive
+        };
 
     private Task WriteAuditAsync(
         FgsCredential credential,

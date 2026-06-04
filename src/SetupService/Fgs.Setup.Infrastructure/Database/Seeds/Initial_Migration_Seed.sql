@@ -1411,6 +1411,15 @@ SELECT
     NULL::bigint
 FROM (
     VALUES
+        ('TENANT_FgsTenantCompany_setup_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'setup', 'FgsTenantCompanyCache', 1, 'Tenant company cache (setup)', true),
+        ('TENANT_FgsTenantCompany_identity_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'identity', 'FgsTenantCompanyCache', 2, 'Tenant company cache (identity)', true),
+        ('TENANT_FgsTenantCompany_billing_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'billing', 'FgsTenantCompanyCache', 3, 'Tenant company cache (billing)', true),
+        ('TENANT_FgsTenantCompany_crm_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'crm', 'FgsTenantCompanyCache', 4, 'Tenant company cache (crm)', true),
+        ('TENANT_FgsTenantCompany_dispatch_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'dispatch', 'FgsTenantCompanyCache', 5, 'Tenant company cache (dispatch)', true),
+        ('TENANT_FgsTenantCompany_inventory_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'inventory', 'FgsTenantCompanyCache', 6, 'Tenant company cache (inventory)', true),
+        ('TENANT_FgsTenantCompany_notification_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'notification', 'FgsTenantCompanyCache', 7, 'Tenant company cache (notification)', true),
+        ('TENANT_FgsTenantCompany_reporting_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'reporting', 'FgsTenantCompanyCache', 8, 'Tenant company cache (reporting)', true),
+        ('TENANT_FgsTenantCompany_integration_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'integration', 'FgsTenantCompanyCache', 9, 'Tenant company cache (integration)', true),
         ('ALL_GloBillingCategory', 'fgs_dev_db', 'glo', 'GloBillingCategory', 'fgs_dev_db', 'setup', 'FgsBillingCategory', 100, 'Billing Category', true),
         ('ALL_GloJobTypeCategory', 'fgs_dev_db', 'glo', 'GloJobTypeCategory', 'fgs_dev_db', 'setup', 'FgsJobTypeCategory', 130, 'JobType Categories', true),
         ('ALL_GloJobTypeSubCategory', 'fgs_dev_db', 'glo', 'GloJobTypeSubCategory', 'fgs_dev_db', 'setup', 'FgsJobTypeSubCategory', 160, 'JobType Sub Categories', true),
@@ -1461,6 +1470,87 @@ SELECT
 FROM glo."GloSeedTableMapping" m
 INNER JOIN (
     VALUES
+        -- TENANT_FgsTenantCompany -> setup.FgsTenantCompanyCache
+        ('TENANT_FgsTenantCompany_setup_cache', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('TENANT_FgsTenantCompany_setup_cache', 'CompanyNumber', 'CompanyId', NULL, NULL, 2, true, true),
+        ('TENANT_FgsTenantCompany_setup_cache', 'CompanyGuid', 'CompanyGuid', NULL, NULL, 3, true, true),
+        ('TENANT_FgsTenantCompany_setup_cache', 'Code', 'Code', NULL, NULL, 4, true, true),
+        ('TENANT_FgsTenantCompany_setup_cache', 'Name', 'Name', NULL, NULL, 5, true, true),
+        ('TENANT_FgsTenantCompany_setup_cache', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('TENANT_FgsTenantCompany_setup_cache', NULL, 'UpdatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+
+        -- TENANT_FgsTenantCompany -> identity.FgsTenantCompanyCache
+        ('TENANT_FgsTenantCompany_identity_cache', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('TENANT_FgsTenantCompany_identity_cache', 'CompanyNumber', 'CompanyId', NULL, NULL, 2, true, true),
+        ('TENANT_FgsTenantCompany_identity_cache', 'CompanyGuid', 'CompanyGuid', NULL, NULL, 3, true, true),
+        ('TENANT_FgsTenantCompany_identity_cache', 'Code', 'CompanyCode', NULL, NULL, 4, true, true),
+        ('TENANT_FgsTenantCompany_identity_cache', 'Name', 'CompanyName', NULL, NULL, 5, true, true),
+        ('TENANT_FgsTenantCompany_identity_cache', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('TENANT_FgsTenantCompany_identity_cache', NULL, 'UpdatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+
+        -- TENANT_FgsTenantCompany -> billing.FgsTenantCompanyCache
+        ('TENANT_FgsTenantCompany_billing_cache', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('TENANT_FgsTenantCompany_billing_cache', 'CompanyNumber', 'CompanyId', NULL, NULL, 2, true, true),
+        ('TENANT_FgsTenantCompany_billing_cache', 'CompanyGuid', 'CompanyGuid', NULL, NULL, 3, true, true),
+        ('TENANT_FgsTenantCompany_billing_cache', 'Code', 'CompanyCode', NULL, NULL, 4, true, true),
+        ('TENANT_FgsTenantCompany_billing_cache', 'Name', 'CompanyName', NULL, NULL, 5, true, true),
+        ('TENANT_FgsTenantCompany_billing_cache', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('TENANT_FgsTenantCompany_billing_cache', NULL, 'UpdatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+
+        -- TENANT_FgsTenantCompany -> crm.FgsTenantCompanyCache
+        ('TENANT_FgsTenantCompany_crm_cache', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('TENANT_FgsTenantCompany_crm_cache', 'CompanyNumber', 'CompanyId', NULL, NULL, 2, true, true),
+        ('TENANT_FgsTenantCompany_crm_cache', 'CompanyGuid', 'CompanyGuid', NULL, NULL, 3, true, true),
+        ('TENANT_FgsTenantCompany_crm_cache', 'Code', 'CompanyCode', NULL, NULL, 4, true, true),
+        ('TENANT_FgsTenantCompany_crm_cache', 'Name', 'CompanyName', NULL, NULL, 5, true, true),
+        ('TENANT_FgsTenantCompany_crm_cache', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('TENANT_FgsTenantCompany_crm_cache', NULL, 'UpdatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+
+        -- TENANT_FgsTenantCompany -> dispatch.FgsTenantCompanyCache
+        ('TENANT_FgsTenantCompany_dispatch_cache', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('TENANT_FgsTenantCompany_dispatch_cache', 'CompanyNumber', 'CompanyId', NULL, NULL, 2, true, true),
+        ('TENANT_FgsTenantCompany_dispatch_cache', 'CompanyGuid', 'CompanyGuid', NULL, NULL, 3, true, true),
+        ('TENANT_FgsTenantCompany_dispatch_cache', 'Code', 'CompanyCode', NULL, NULL, 4, true, true),
+        ('TENANT_FgsTenantCompany_dispatch_cache', 'Name', 'CompanyName', NULL, NULL, 5, true, true),
+        ('TENANT_FgsTenantCompany_dispatch_cache', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('TENANT_FgsTenantCompany_dispatch_cache', NULL, 'UpdatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+
+        -- TENANT_FgsTenantCompany -> inventory.FgsTenantCompanyCache
+        ('TENANT_FgsTenantCompany_inventory_cache', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('TENANT_FgsTenantCompany_inventory_cache', 'CompanyNumber', 'CompanyId', NULL, NULL, 2, true, true),
+        ('TENANT_FgsTenantCompany_inventory_cache', 'CompanyGuid', 'CompanyGuid', NULL, NULL, 3, true, true),
+        ('TENANT_FgsTenantCompany_inventory_cache', 'Code', 'CompanyCode', NULL, NULL, 4, true, true),
+        ('TENANT_FgsTenantCompany_inventory_cache', 'Name', 'CompanyName', NULL, NULL, 5, true, true),
+        ('TENANT_FgsTenantCompany_inventory_cache', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('TENANT_FgsTenantCompany_inventory_cache', NULL, 'UpdatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+
+        -- TENANT_FgsTenantCompany -> notification.FgsTenantCompanyCache
+        ('TENANT_FgsTenantCompany_notification_cache', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('TENANT_FgsTenantCompany_notification_cache', 'CompanyNumber', 'CompanyId', NULL, NULL, 2, true, true),
+        ('TENANT_FgsTenantCompany_notification_cache', 'CompanyGuid', 'CompanyGuid', NULL, NULL, 3, true, true),
+        ('TENANT_FgsTenantCompany_notification_cache', 'Code', 'CompanyCode', NULL, NULL, 4, true, true),
+        ('TENANT_FgsTenantCompany_notification_cache', 'Name', 'CompanyName', NULL, NULL, 5, true, true),
+        ('TENANT_FgsTenantCompany_notification_cache', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('TENANT_FgsTenantCompany_notification_cache', NULL, 'UpdatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+
+        -- TENANT_FgsTenantCompany -> reporting.FgsTenantCompanyCache
+        ('TENANT_FgsTenantCompany_reporting_cache', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('TENANT_FgsTenantCompany_reporting_cache', 'CompanyNumber', 'CompanyId', NULL, NULL, 2, true, true),
+        ('TENANT_FgsTenantCompany_reporting_cache', 'CompanyGuid', 'CompanyGuid', NULL, NULL, 3, true, true),
+        ('TENANT_FgsTenantCompany_reporting_cache', 'Code', 'CompanyCode', NULL, NULL, 4, true, true),
+        ('TENANT_FgsTenantCompany_reporting_cache', 'Name', 'CompanyName', NULL, NULL, 5, true, true),
+        ('TENANT_FgsTenantCompany_reporting_cache', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('TENANT_FgsTenantCompany_reporting_cache', NULL, 'UpdatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+
+        -- TENANT_FgsTenantCompany -> integration.FgsTenantCompanyCache
+        ('TENANT_FgsTenantCompany_integration_cache', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('TENANT_FgsTenantCompany_integration_cache', 'CompanyNumber', 'CompanyId', NULL, NULL, 2, true, true),
+        ('TENANT_FgsTenantCompany_integration_cache', 'CompanyGuid', 'CompanyGuid', NULL, NULL, 3, true, true),
+        ('TENANT_FgsTenantCompany_integration_cache', 'Code', 'CompanyCode', NULL, NULL, 4, true, true),
+        ('TENANT_FgsTenantCompany_integration_cache', 'Name', 'CompanyName', NULL, NULL, 5, true, true),
+        ('TENANT_FgsTenantCompany_integration_cache', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('TENANT_FgsTenantCompany_integration_cache', NULL, 'UpdatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+
         -- ALL_GloBillingCategory -> FgsBillingCategory
         ('ALL_GloBillingCategory', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
         ('ALL_GloBillingCategory', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),

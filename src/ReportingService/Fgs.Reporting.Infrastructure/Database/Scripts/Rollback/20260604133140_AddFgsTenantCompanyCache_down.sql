@@ -1,0 +1,2 @@
+﻿-- Rollback for 20260604133140_AddFgsTenantCompanyCache
+-- TODO: author idempotent DROP statements mirroring schema objects created in 20260604133140_AddFgsTenantCompanyCache_up.sql

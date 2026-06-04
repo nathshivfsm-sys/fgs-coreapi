@@ -60,6 +60,50 @@ internal static class TenantSeedSqlBuilder
             : $"{column} = ANY({parameter})";
     }
 
+    public static string? BuildTenantScopeFilterClause(
+        GloSeedTableMapping mapping,
+        IReadOnlyList<GloSeedTableColumnMapping> columns,
+        bool sourceHasTenantId)
+    {
+        if (!string.Equals(mapping.SourceSchemaName, "tenant", StringComparison.OrdinalIgnoreCase)
+            || !sourceHasTenantId)
+        {
+            return null;
+        }
+
+        var seedsTenantId = columns.Any(c =>
+            string.Equals(c.TargetColumnName, SeedTransformationTypes.TargetColumns.TenantId, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(c.TransformationType, SeedTransformationTypes.TenantId, StringComparison.Ordinal));
+
+        if (!seedsTenantId)
+        {
+            return null;
+        }
+
+        var tenantColumn = QuoteIdentifier(SeedTransformationTypes.TargetColumns.TenantId);
+        return $"{tenantColumn} = @{SeedTransformationTypes.SqlParameters.TenantId}";
+    }
+
+    public static string? CombineWhereClauses(string? tenantScopeClause, string? businessTypeClause)
+    {
+        if (string.IsNullOrWhiteSpace(tenantScopeClause) && string.IsNullOrWhiteSpace(businessTypeClause))
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(tenantScopeClause))
+        {
+            return businessTypeClause;
+        }
+
+        if (string.IsNullOrWhiteSpace(businessTypeClause))
+        {
+            return tenantScopeClause;
+        }
+
+        return $"{tenantScopeClause} AND {businessTypeClause}";
+    }
+
     internal static string BuildSelectExpression(GloSeedTableColumnMapping column)
     {
         if (string.IsNullOrWhiteSpace(column.TransformationType))

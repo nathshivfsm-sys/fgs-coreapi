@@ -54,5 +54,6 @@ internal static class EntitySchemaRegistry
         [typeof(FgsTenantCompany)] = FgsDatabaseSchemas.Tenant,
         [typeof(FgsTenantServiceSetup)] = FgsDatabaseSchemas.Tenant,
         [typeof(FgsLocation)] = FgsDatabaseSchemas.Tenant,
+        [typeof(FgsTenantCompanyCache)] = FgsDatabaseSchemas.Identity,
     };
 }

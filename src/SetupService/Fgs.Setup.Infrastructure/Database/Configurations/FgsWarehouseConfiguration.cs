@@ -46,8 +46,8 @@ internal class FgsWarehouseConfiguration : IEntityTypeConfiguration<FgsWarehouse
             .HasComment(
                 "Type of inventory location. Allowed values: Warehouse, Truck, Trailer, JobSite, Consignment, Vendor.");
 
-        entity.Property(e => e.LocationId)
-            .HasComment("Optional reference to the physical address or geo location in FgsLocation.");
+        entity.Property(e => e.AddressId)
+            .HasComment("Optional reference to the warehouse address record.");
 
         entity.Property(e => e.Description)
             .HasColumnType("text")

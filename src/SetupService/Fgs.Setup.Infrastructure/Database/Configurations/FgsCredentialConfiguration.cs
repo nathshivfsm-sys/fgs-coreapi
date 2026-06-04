@@ -41,9 +41,10 @@ internal class FgsCredentialConfiguration : IEntityTypeConfiguration<FgsCredenti
         entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
         entity.HasOne(e => e.ProviderType)
-            .WithMany(p => p.TenantCredentials)
+            .WithMany()
             .HasForeignKey(e => e.CredentialProviderTypeId)
-            .HasConstraintName("FK_FgsCredential_GloCredentialProviderType")
+            .HasPrincipalKey(p => p.ProviderTypeId)
+            .HasConstraintName("FK_FgsCredential_GloCredentialProviderTypeCache_ProviderTypeId")
             .OnDelete(DeleteBehavior.Restrict);
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId })

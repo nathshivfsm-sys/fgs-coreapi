@@ -47,23 +47,25 @@ internal static class TenantSeedCrossDatabaseCopier
             ", ",
             sourceColumns.Select(TenantSeedSqlBuilder.QuoteIdentifier));
 
-        var businessTypeClause = TenantSeedSqlBuilder.BuildBusinessTypeFilterClause(
-            sourceMetadata.HasBusinessTypeId,
-            sourceMetadata.BusinessTypeIdIsNullable,
-            hasBusinessTypeFilter);
+        var whereClause = TenantSeedSqlBuilder.CombineWhereClauses(
+            TenantSeedSqlBuilder.BuildTenantScopeFilterClause(
+                mapping,
+                orderedColumns,
+                sourceMetadata.Columns.ContainsKey(SeedTransformationTypes.TargetColumns.TenantId)),
+            TenantSeedSqlBuilder.BuildBusinessTypeFilterClause(
+                sourceMetadata.HasBusinessTypeId,
+                sourceMetadata.BusinessTypeIdIsNullable,
+                hasBusinessTypeFilter));
 
-        var selectSql = string.IsNullOrWhiteSpace(businessTypeClause)
+        var selectSql = string.IsNullOrWhiteSpace(whereClause)
             ? $"SELECT {selectColumns} FROM {qualifiedSource}"
-            : $"SELECT {selectColumns} FROM {qualifiedSource} WHERE {businessTypeClause}";
+            : $"SELECT {selectColumns} FROM {qualifiedSource} WHERE {whereClause}";
 
         var sourceRows = new List<IReadOnlyDictionary<string, object?>>();
         await using (var selectCommand = sourceConnection.CreateCommand())
         {
             selectCommand.CommandText = selectSql;
-            if (businessTypeClause is not null)
-            {
-                TenantSeedCommandExtensions.AddBusinessTypeIdsParameter(selectCommand, businessTypeIds);
-            }
+            TenantSeedCommandExtensions.AddSeedParameters(selectCommand, tenantId, companyId, businessTypeIds);
 
             await using var reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
             var ordinals = sourceColumns.ToDictionary(

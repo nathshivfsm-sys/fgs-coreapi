@@ -11,7 +11,7 @@ public class FgsWarehouse : FgsTenantCompanySetupEntityBase<long>
 
     public string WarehouseType { get; set; } = null!;
 
-    public Guid? LocationId { get; set; }
+    public Guid? AddressId { get; set; }
 
     public string? Description { get; set; }
 

@@ -99,6 +99,59 @@ namespace Fgs.Notification.Infrastructure.Database.Migrations
 
                     b.ToTable("FgsProcessedIntegrationEvent", "notification");
                 });
+
+            modelBuilder.Entity("Fgs.Notification.Domain.Entities.FgsTenantCompanyCache", b =>
+                {
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasComment("Company identifier mapped from tenant.FgsTenantCompany.CompanyNumber.");
+
+                    b.Property<string>("CompanyCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Unique company code within a tenant.");
+
+                    b.Property<Guid>("CompanyGuid")
+                        .HasColumnType("uuid")
+                        .HasComment("Globally unique company identifier used by integrations and external systems.");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Display name of the company.");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasComment("Indicates whether the company is active.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Timestamp of the most recent synchronization from tenant.FgsTenantCompany.");
+
+                    b.HasKey("TenantId", "CompanyId")
+                        .HasName("PK_FgsTenantCompanyCache");
+
+                    b.HasIndex("CompanyGuid")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_FgsTenantCompanyCache_CompanyGuid");
+
+                    b.HasIndex("CompanyName")
+                        .HasDatabaseName("IX_FgsTenantCompanyCache_CompanyName");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_FgsTenantCompanyCache_IsActive");
+
+                    b.ToTable("FgsTenantCompanyCache", "notification", t =>
+                        {
+                            t.HasComment("Local cache of tenant company information used by the notification schema to eliminate cross-schema dependencies on tenant.FgsTenantCompany.");
+                        });
+                });
 #pragma warning restore 612, 618
         }
     }

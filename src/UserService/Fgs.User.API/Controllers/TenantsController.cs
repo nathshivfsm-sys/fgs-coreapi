@@ -34,7 +34,14 @@ public sealed class TenantsController(FgsUserDbContext dbContext) : ControllerBa
         var companies = await dbContext.FgsTenantCompanies
             .AsNoTracking()
             .Where(c => c.TenantId == tenantId)
-            .Select(c => new TenantCompanyDto(c.Id, c.TenantId, c.CompanyNumber, c.Code, c.Name))
+            .Select(c => new TenantCompanyDto(
+                c.Id,
+                c.TenantId,
+                c.CompanyNumber,
+                c.CompanyGuid,
+                c.Code,
+                c.Name,
+                c.IsActive))
             .ToListAsync(cancellationToken);
 
         return Ok(companies);

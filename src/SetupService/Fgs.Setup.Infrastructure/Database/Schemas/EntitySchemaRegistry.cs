@@ -123,6 +123,9 @@ internal static class EntitySchemaRegistry
         [typeof(FgsTag)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsEntityTag)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsTagEntityType)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsTenantCompanyCache)] = FgsDatabaseSchemas.Setup,
+        [typeof(GloCredentialProviderTypeCache)] = FgsDatabaseSchemas.Setup,
+        [typeof(GloResolutionTypeCache)] = FgsDatabaseSchemas.Setup,
     };
 
     private static Dictionary<string, string> BuildTableSchemas()

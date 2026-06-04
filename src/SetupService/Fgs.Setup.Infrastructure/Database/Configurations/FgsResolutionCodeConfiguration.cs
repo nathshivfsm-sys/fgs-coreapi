@@ -15,7 +15,8 @@ internal class FgsResolutionCodeConfiguration : IEntityTypeConfiguration<FgsReso
         entity.Property(e => e.CompanyId).HasColumnOrder(2);        entity.HasOne(e => e.ResolutionType)
             .WithMany()
             .HasForeignKey(e => e.GloResolutionTypeId)
-            .HasConstraintName("FK_FgsResolutionCode_GloResType")
+            .HasPrincipalKey(p => p.ResolutionTypeId)
+            .HasConstraintName("FK_FgsResolutionCode_GloResolutionTypeCache_ResolutionTypeId")
             .OnDelete(DeleteBehavior.Restrict);
         entity.Property(e => e.ResolutionCode).HasMaxLength(50);
         entity.Property(e => e.ResolutionName).HasMaxLength(200);

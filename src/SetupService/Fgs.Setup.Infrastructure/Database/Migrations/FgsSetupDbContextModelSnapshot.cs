@@ -3059,6 +3059,59 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.ToTable("FgsTagEntityType", "setup");
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", b =>
+                {
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifier of the tenant that owns the company.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasComment("Company identifier used throughout FSM. Maps to tenant.FgsTenantCompany.CompanyNumber.");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Human-readable company code.");
+
+                    b.Property<Guid>("CompanyGuid")
+                        .HasColumnType("uuid")
+                        .HasComment("Globally unique public identifier used by external integrations and APIs.");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasComment("Indicates whether the company is active.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Display name of the company.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Timestamp of the most recent synchronization from tenant.FgsTenantCompany.");
+
+                    b.HasKey("TenantId", "CompanyId")
+                        .HasName("PK_FgsTenantCompanyCache");
+
+                    b.HasIndex("CompanyGuid")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsTenantCompanyCache_CompanyGuid");
+
+                    b.HasIndex("TenantId", "Code")
+                        .HasDatabaseName("IX_FgsTenantCompanyCache_TenantId_Code");
+
+                    b.HasIndex("TenantId", "Name")
+                        .HasDatabaseName("IX_FgsTenantCompanyCache_TenantId_Name");
+
+                    b.ToTable("FgsTenantCompanyCache", "setup", t =>
+                        {
+                            t.HasComment("Local cache of tenant company identity information used for CompanyGuid resolution and elimination of cross-schema dependencies.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsVehicle", b =>
                 {
                     b.Property<long>("Id")
@@ -3541,6 +3594,10 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uuid")
+                        .HasComment("Optional reference to the warehouse address record.");
+
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
                         .HasColumnOrder(2)
@@ -3572,10 +3629,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false)
                         .HasComment("Indicates whether this warehouse is the default inventory location for the company.");
-
-                    b.Property<Guid?>("LocationId")
-                        .HasColumnType("uuid")
-                        .HasComment("Optional reference to the physical address or geo location in FgsLocation.");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -4084,6 +4137,53 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.ToTable("GloCredentialProviderType", "glo", t =>
                         {
                             t.HasComment("Master list of supported credential providers and integrations available within the FSM platform.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloCredentialProviderTypeCache", b =>
+                {
+                    b.Property<int>("ProviderTypeId")
+                        .HasColumnType("integer")
+                        .HasComment("Identifier from glo.GloCredentialProviderType.Id.");
+
+                    b.Property<string>("ConfigurationSchema")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasComment("JSON schema used by the UI to dynamically render provider configuration fields and perform validation.");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasComment("Indicates whether the provider can be selected for new credential configurations.");
+
+                    b.Property<string>("ProviderCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("System unique provider code used by application logic and integration services.");
+
+                    b.Property<string>("ProviderName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("User friendly provider name displayed in setup screens.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Timestamp of the most recent synchronization from glo.GloCredentialProviderType.");
+
+                    b.HasKey("ProviderTypeId")
+                        .HasName("PK_GloCredentialProviderTypeCache");
+
+                    b.HasIndex("ProviderCode")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_GloCredentialProviderTypeCache_ProviderCode");
+
+                    b.HasIndex("ProviderName")
+                        .HasDatabaseName("IX_GloCredentialProviderTypeCache_ProviderName");
+
+                    b.ToTable("GloCredentialProviderTypeCache", "setup", t =>
+                        {
+                            t.HasComment("Local cache of globally defined credential providers used to eliminate cross-schema dependencies.");
                         });
                 });
 
@@ -4738,6 +4838,48 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasName("UQ_GloResolutionType_Code");
 
                     b.ToTable("GloResolutionType", "glo");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloResolutionTypeCache", b =>
+                {
+                    b.Property<int>("ResolutionTypeId")
+                        .HasColumnType("integer")
+                        .HasComment("Identifier from glo.GloResolutionType.Id.");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasComment("Indicates whether the resolution type can be used for new configurations.");
+
+                    b.Property<string>("ResolutionTypeCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("System unique resolution type code.");
+
+                    b.Property<string>("ResolutionTypeName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("User friendly resolution type name displayed in setup screens.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Timestamp of the most recent synchronization from glo.GloResolutionType.");
+
+                    b.HasKey("ResolutionTypeId")
+                        .HasName("PK_GloResolutionTypeCache");
+
+                    b.HasIndex("ResolutionTypeCode")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_GloResolutionTypeCache_ResolutionTypeCode");
+
+                    b.HasIndex("ResolutionTypeName")
+                        .HasDatabaseName("IX_GloResolutionTypeCache_ResolutionTypeName");
+
+                    b.ToTable("GloResolutionTypeCache", "setup", t =>
+                        {
+                            t.HasComment("Local cache of globally defined resolution types used to eliminate cross-schema dependencies.");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloRole", b =>
@@ -5683,14 +5825,41 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsBillingCategory", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsBillingCategory_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsBusinessType", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsBusinessType_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsCredential", b =>
                 {
-                    b.HasOne("Fgs.Setup.Domain.Entities.GloCredentialProviderType", "ProviderType")
-                        .WithMany("TenantCredentials")
+                    b.HasOne("Fgs.Setup.Domain.Entities.GloCredentialProviderTypeCache", "ProviderType")
+                        .WithMany()
                         .HasForeignKey("CredentialProviderTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_FgsCredential_GloCredentialProviderType");
+                        .HasConstraintName("FK_FgsCredential_GloCredentialProviderTypeCache_ProviderTypeId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsCredential_FgsTenantCompanyCache_TenantId_CompanyId");
 
                     b.Navigation("ProviderType");
                 });
@@ -5710,6 +5879,23 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_FgsEntityTag_FgsTag_TagId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEntityTag_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsInventoryCategory", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryCategory_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsInventoryItem", b =>
@@ -5732,6 +5918,13 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasForeignKey("InventorySubCategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("FK_FgsInventoryItem_FgsInventorySubCategory");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItem_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsInventoryItemAlternate", b =>
@@ -5749,6 +5942,13 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsInventoryItemAlternate_FgsInventoryItem_InventoryItemId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemAlternate_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsInventoryItemDependency", b =>
@@ -5766,6 +5966,23 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsInventoryItemDependency_FgsInventoryItem_InventoryItemId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemDependency_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsInventoryItemType", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemType_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsInventoryStock", b =>
@@ -5776,6 +5993,13 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsInventoryStock_FgsInventoryItem");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryStock_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsInventorySubCategory", b =>
@@ -5786,6 +6010,13 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsInventorySubCategory_FgsInventoryCategory");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventorySubCategory_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobType", b =>
@@ -5803,19 +6034,63 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("FK_FgsJobType_FgsJobTypeSubCategory");
 
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsJobType_FgsTenantCompanyCache_TenantId_CompanyId");
+
                     b.Navigation("JobTypeCategory");
 
                     b.Navigation("JobTypeSubCategory");
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobTypeCategory", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsJobTypeCategory_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobTypeSubCategory", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsJobTypeSubCategory_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsLeadSource", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsLeadSource_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsResolutionCode", b =>
                 {
-                    b.HasOne("Fgs.Setup.Domain.Entities.GloResolutionType", "ResolutionType")
+                    b.HasOne("Fgs.Setup.Domain.Entities.GloResolutionTypeCache", "ResolutionType")
                         .WithMany()
                         .HasForeignKey("GloResolutionTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_FgsResolutionCode_GloResType");
+                        .HasConstraintName("FK_FgsResolutionCode_GloResolutionTypeCache_ResolutionTypeId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsResolutionCode_FgsTenantCompanyCache_TenantId_CompanyId");
 
                     b.Navigation("ResolutionType");
                 });
@@ -5827,6 +6102,23 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasForeignKey("FgsSetupTechTradeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("FK_FgsSetupDescription_TechTrade");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupDescription_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupGLBreak", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupGLBreak_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupGLBreakTrade", b =>
@@ -5838,7 +6130,44 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_FgsSetupGLBreakTrade_FgsSetupGLBreak_GLBreakId");
 
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupGLBreakTrade_FgsTenantCompanyCache_TenantId_CompanyId");
+
                     b.Navigation("GLBreak");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupLaborRateType", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupLaborRateType_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPaymentMethod", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupPaymentMethod_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPaymentTerm", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupPaymentTerm_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPostalCode", b =>
@@ -5854,6 +6183,23 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasForeignKey("FgsSetupZoneId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("FK_FgsSetupPostalCode_Zone");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupPostalCode_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrix", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupPricingMatrix_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrixLabor", b =>
@@ -5877,6 +6223,13 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasForeignKey("FgsSetupTechSkillLevelId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("FK_FgsSetupPricingMatrixLabor_TechSkillLevel");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupPricingMatrixLabor_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrixLaborTier", b =>
@@ -5887,6 +6240,13 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsSetupPricingMatrixLaborTier_Labor");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupPricingMatrixLaborTier_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrixMaterialTier", b =>
@@ -5897,6 +6257,13 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsSetupPricingMatrixMaterialTier_PricingMatrix");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupPricingMatrixMaterialTier_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrixOther", b =>
@@ -5907,6 +6274,23 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsSetupPricingMatrixOther_PricingMatrix");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupPricingMatrixOther_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAssetManufacturer", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupServiceAssetManufacturer_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAssetModelReference", b =>
@@ -5925,9 +6309,46 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_FgsSvcAssetModelRef_AssetType");
 
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupServiceAssetModelReference_FgsTenantCompanyCache_TenantId_CompanyId");
+
                     b.Navigation("ServiceAssetManufacturer");
 
                     b.Navigation("ServiceAssetType");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAssetType", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupServiceAssetType_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupTax", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupTax_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupTaxAuthority", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupTaxAuthority_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupTaxDetail", b =>
@@ -5945,6 +6366,33 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsSetupTaxDetail_Tax");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupTaxDetail_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupTechSkillLevel", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupTechSkillLevel_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupTechTrade", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupTechTrade_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupTimeSlot", b =>
@@ -5954,6 +6402,43 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasForeignKey("FgsSetupZoneId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("FK_FgsSetupTimeSlot_Zone");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupTimeSlot_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupTitleOfCourtesy", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupTitleOfCourtesy_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupZone", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupZone_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsTag", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsTag_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsTagEntityType", b =>
@@ -5971,6 +6456,13 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_FgsTagEntityType_FgsTag_TagId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsTagEntityType_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsVehicle", b =>
@@ -5981,6 +6473,13 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsVehicle_FgsWarehouse_WarehouseId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVehicle_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsVehicleMaintenance", b =>
@@ -5998,6 +6497,13 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsVehicleMaintenance_GloVehicleMaintenanceType_VehicleMaintenanceTypeId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVehicleMaintenance_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsVendor", b =>
@@ -6007,6 +6513,13 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasForeignKey("PaymentTermId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("FK_FgsVendor_FgsSetupPaymentTerm");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVendor_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsVendorInventoryItem", b =>
@@ -6024,6 +6537,23 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsVendorInventoryItem_FgsVendor");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVendorInventoryItem_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsWarehouse", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsWarehouse_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloCommunicationTemplateToken", b =>
@@ -6162,8 +6692,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloCredentialProviderType", b =>
                 {
                     b.Navigation("Credentials");
-
-                    b.Navigation("TenantCredentials");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloSeedTableMapping", b =>

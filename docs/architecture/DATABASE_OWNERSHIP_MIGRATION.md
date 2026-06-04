@@ -17,6 +17,7 @@ This document records the service-per-schema database ownership split executed f
 | **InventoryService** | `inventory` (placeholder) | `FgsInventory` | `20260603213321_InitialSchema` |
 | **ReportingService** | `reporting` (placeholder) | `FgsReporting` | `20260603214016_InitialSchema` |
 | **JobService** | `workflow` (placeholder) | `FgsJob` | `20260603214323_InitialSchema` |
+| **IntegrationService** | `integration` (placeholder) | `FgsIntegration` | `AddFgsTenantCompanyCache` |
 
 > **Dev vs prod:** All services can share one PostgreSQL instance using schema-per-service. Each DbContext uses its own connection string name so physical DB separation later requires only connection string changes. See [`init-postgres.sql`](../Gateway/scripts/init-postgres.sql) for per-service database creation.
 
@@ -62,21 +63,34 @@ See `Fgs.Setup.Infrastructure/Database/Schemas/EntitySchemaRegistry.cs` for the 
 
 **Removed:** duplicate `FgsSetupCommunicationTemplate` table — templates are read from SetupService via Refit.
 
+## Cache tables (cross-schema decoupling)
+
+Each service owns a local `FgsTenantCompanyCache` (and Setup additionally owns `GloCredentialProviderTypeCache` / `GloResolutionTypeCache`). Tenant company cache rows are populated during **tenant provisioning** as the **first** seed step (`GloSeedTableMapping` / `GloSeedTableColumnMapping` with `SeedOrder` 1–9 in `Initial_Migration_Seed.sql`): `tenant.FgsTenantCompany` → each schema’s `FgsTenantCompanyCache` via `TenantDataSeedingEngine`. Global credentials use `glo.GloCredential` (no tenant/company scope); platform tenant seed scripts are not required.
+
+| Schema | Cache table(s) | Column naming |
+|--------|----------------|---------------|
+| `setup` | `FgsTenantCompanyCache`, `GloCredentialProviderTypeCache`, `GloResolutionTypeCache` | `Code` / `Name` on tenant company cache |
+| `identity`, `billing`, `crm`, `dispatch`, `inventory`, `notification`, `reporting`, `integration` | `FgsTenantCompanyCache` | `CompanyCode` / `CompanyName` |
+
+Setup `FgsCredential` / `FgsResolutionCode` FKs point at glo cache tables (not `glo.*` directly). Setup tenant-company-scoped entities FK to `setup.FgsTenantCompanyCache`.
+
 ## Removed cross-service foreign keys
 
-Cross-service FKs were replaced with indexed scalar columns validated via API/events:
+Cross-service FKs were replaced with cache tables, indexed scalar columns, or API/event validation:
 
 | Dependent | Former FK target | Replacement |
 |-----------|-------------------|-------------|
-| `identity.*` | `tenant.FgsTenantCompany` | `TenantId` / `CompanyId` columns; UserService validates |
+| `identity.*` | `tenant.FgsTenantCompany` | `identity.FgsTenantCompanyCache` + validation |
 | `tenant.FgsTenant` | `glo.GloSetupTenantStatus` | `FgsTenantStatusId` scalar; SetupService owns lookup |
-| `setup.*` tenant rows | `tenant.FgsTenantCompany` | Removed `ConfigureTenantCompanySetupFk`; scalar IDs only |
-| `setup.FgsSetupGLBreak` | `tenant.FgsLocation` | `AddressId` Guid; resolve via UserService |
-| `setup.FgsWarehouse` | `tenant.FgsLocation` | `LocationId` Guid |
+| `setup.*` tenant rows | `tenant.FgsTenantCompany` | `setup.FgsTenantCompanyCache` FK |
+| `setup.FgsCredential` | `glo.GloCredentialProviderType` | `setup.GloCredentialProviderTypeCache` FK |
+| `setup.FgsResolutionCode` | `glo.GloResolutionType` | `setup.GloResolutionTypeCache` FK |
+| `setup.FgsSetupGLBreak` | `tenant.FgsLocation` / `file.FgsFile` | `AddressId` Guid; no cross-schema FK |
+| `setup.FgsWarehouse` | `tenant.FgsLocation` | `AddressId` Guid (renamed from `LocationId`) |
 | `setup`/`glo` tag tables | `file.FgsFile` (icon) | `IconFileId` scalar; resolve via FileService |
 | `audit.FgsCredentialAudit` | `setup.FgsCredential` | `CredentialId` long scalar |
 
-**Preserved:** `setup`↔`glo` FKs within SetupService (single DbContext, tightly coupled reference data).
+**Preserved:** `setup`↔`glo` data coupling via cache seed (`Glo_Cache_Tables_Seed.sql`) and in-process glo tables on the same DbContext.
 
 ## Migration artifacts
 
@@ -101,9 +115,11 @@ Generate new migrations with [`scripts/generate-migration-sql.ps1`](../../script
 
 | Seed | Owner | Path |
 |------|-------|------|
-| Platform tenant (Id 0) | UserService | `Fgs.User.Infrastructure/Database/Seeds/Platform_Tenant_Seed.sql` |
-| Global + glo reference data | SetupService | `Fgs.Setup.Infrastructure/Database/Seeds/Initial_Migration_Seed.sql` |
+| Global + glo reference data + seed mappings | SetupService | `Fgs.Setup.Infrastructure/Database/Seeds/Initial_Migration_Seed.sql` |
+| Glo cache tables (provider + resolution types) | SetupService | `Fgs.Setup.Infrastructure/Database/Seeds/Glo_Cache_Tables_Seed.sql` |
 | Glo seed rollback | SetupService | `Fgs.Setup.Infrastructure/Database/Seeds/Initial_Migration_Seed_Down.sql` |
+
+**Run order (greenfield):** all service `dotnet ef database update` → `Initial_Migration_Seed.sql` → `Glo_Cache_Tables_Seed.sql`. `FgsTenantCompanyCache` rows are filled on first tenant provision (`SeedOrder` 1–9), before glo→setup catalog copy (`SeedOrder` 100+).
 
 ## Refit / integration contracts
 
@@ -122,7 +138,9 @@ Added in `Fgs.Contracts`:
 ```text
 RabbitMQ: TenantProvisionRequested
   → SetupService: IUserTenantClient.UpdateStatus(Provisioning)
-  → TenantDataSeedingEngine seeds glo/setup tables (Setup DB only)
+  → TenantDataSeedingEngine: FgsTenantCompanyCache all schemas (SeedOrder 1-9)
+  → TenantDataSeedingEngine: glo/setup catalog (SeedOrder 100+)
+  → IUserTenantClient.GetCompaniesAsync (file bucket company list)
   → IFileTenantClient.ProvisionBucket(tenantId)
   → IUserTenantClient.UpdateStatus(Active) + TenantProvisionCompletedEvent
 ```

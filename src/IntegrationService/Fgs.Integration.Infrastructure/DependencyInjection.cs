@@ -1,5 +1,7 @@
 ﻿using Fgs.Foundation.Extensions;
+using Fgs.Integration.Infrastructure.Database;
 using Fgs.Security.Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,7 +17,16 @@ public static class DependencyInjection
         services.AddFgsEntraAuthentication(configuration);
         services.AddFgsRemoteClaimsEnrichment(configuration);
 
-        _ = configuration.GetConnectionString("FgsIntegration");
+        var connectionString = FgsIntegrationConnectionString.ResolveRequired(configuration);
+        services.AddDbContext<FgsIntegrationDbContext>((_, options) =>
+        {
+            options.UseNpgsql(connectionString, npgsql =>
+            {
+                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsIntegrationDbContext.MigrationHistorySchema);
+                npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
+            });
+        });
+
         return services;
     }
 }

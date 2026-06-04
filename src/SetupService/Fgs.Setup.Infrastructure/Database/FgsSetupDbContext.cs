@@ -1,4 +1,5 @@
 using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Infrastructure.Database.Configurations;
 using Fgs.Setup.Infrastructure.Database.Schemas;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
@@ -199,10 +200,17 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<GloSeedTableColumnMapping> GloSeedTableColumnMappings => Set<GloSeedTableColumnMapping>();
 
+    public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
+
+    public DbSet<GloCredentialProviderTypeCache> GloCredentialProviderTypeCaches => Set<GloCredentialProviderTypeCache>();
+
+    public DbSet<GloResolutionTypeCache> GloResolutionTypeCaches => Set<GloResolutionTypeCache>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsSetupDbContext).Assembly);
         EntitySchemaRegistry.ApplySchemas(modelBuilder);
+        FgsSetupDbContextConfigurationExtensions.ApplyTenantCompanyCacheForeignKeys(modelBuilder);
         ConfigureAuditActorColumns(modelBuilder);
         ApplyFgsTenantQueryFilters(modelBuilder);
         ApplyFgsNullableTenantCompanyQueryFilter<FgsSetupCommunicationTemplate>(modelBuilder);

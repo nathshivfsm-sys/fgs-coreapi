@@ -15,7 +15,6 @@ using Fgs.User.Infrastructure.Common.Security;
 using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Infrastructure.Database;
-using Fgs.User.Infrastructure.Database.Seeds;
 using Fgs.User.Infrastructure.Database.UnitOfWorks;
 using Fgs.User.Infrastructure.Database.Repositories;
 using Fgs.User.Infrastructure.Outbox;
@@ -76,7 +75,6 @@ public static class DependencyInjection
         services.AddSingleton<IOutboxRoutingResolver, UserOutboxRoutingResolver>();
         services.AddFgsRabbitMqPublisher();
         services.AddFgsOutboxProcessor();
-        services.AddScoped<PlatformTenantSeeder>();
         services.AddScoped<IAddressLocaleResolver, AddressLocaleResolver>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IEmailNormalizer, EmailNormalizer>();
