@@ -1,9 +1,8 @@
-﻿using Fgs.Notification.Domain.Notifications;
+﻿using Fgs.Contracts.IntegrationEvents;
 using Fgs.Notification.Application.Notifications.Templates;
-using Fgs.Contracts.IntegrationEvents;
-using Fgs.Notification.Infrastructure.Database.Seed;
+using Fgs.Notification.Domain.Entities;
+using Fgs.Notification.Domain.Notifications;
 using Fgs.Notification.Infrastructure.Notifications.Templates;
-using Fgs.Notification.Tests;
 using Moq;
 
 namespace Fgs.Notification.Tests.Notifications;
@@ -13,14 +12,39 @@ public sealed class DatabaseNotificationTemplateRendererTests
     [Fact]
     public async Task RenderAsync_Email_ProducesSubjectHtmlAndPlainText()
     {
-        await using var context = TestDbContextFactory.Create();
-        var seed = CommunicationTemplateSeedData.CompanyAdminInvitationEmail();
-        context.CommunicationTemplates.Add(seed);
-        await context.SaveChangesAsync();
+        var templateService = new Mock<ICommunicationTemplateService>();
+        templateService
+            .Setup(s => s.GetActiveTemplateAsync(
+                1L,
+                null,
+                NotificationChannel.Email,
+                CommunicationTemplateCodes.CompanyAdminInvitation,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FgsSetupCommunicationTemplate
+            {
+                Id = 1,
+                TemplateType = CommunicationTemplateTypes.Email,
+                Code = CommunicationTemplateCodes.CompanyAdminInvitation,
+                Name = "Company Admin Invitation Email",
+                Subject = "Welcome to {{PlatformName}} – Activate Your Admin Account",
+                Body = """
+                    Hello {{Name}},
 
-        var templateService = new CommunicationTemplateService(new CommunicationTemplateRepository(context));
+                    Welcome to {{PlatformName}}.
+
+                    To complete your setup, please click the link below:
+                    {{InviteLink}}
+
+                    Thank you,
+                    {{CompanyName}}
+                    {{SupportEmail}}
+                    """,
+                IsActive = true,
+                CreatedOn = DateTimeOffset.UtcNow
+            });
+
         var renderer = new DatabaseNotificationTemplateRenderer(
-            templateService,
+            templateService.Object,
             new TemplateRenderer());
 
         var tokens = new Dictionary<string, string>
@@ -59,7 +83,7 @@ public sealed class DatabaseNotificationTemplateRendererTests
                 NotificationChannel.Sms,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Domain.Entities.FgsSetupCommunicationTemplate
+            .ReturnsAsync(new FgsSetupCommunicationTemplate
             {
                 Id = 99,
                 TemplateType = CommunicationTemplateTypes.Sms,

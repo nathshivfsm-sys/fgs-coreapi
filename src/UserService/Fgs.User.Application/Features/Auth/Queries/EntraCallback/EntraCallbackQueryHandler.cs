@@ -6,7 +6,11 @@ using Fgs.Messaging.Abstractions;
 
 using Fgs.Persistence.Abstractions;
 
+using Fgs.User.Application.Abstractions.Persistence;
+
 using Fgs.User.Application.Abstractions.Time;
+
+using Fgs.Setup.Domain.Entities;
 
 using Fgs.Foundation.Result;
 
@@ -18,7 +22,7 @@ using Fgs.User.Application.Features.Signup;
 
 using Fgs.Contracts.IntegrationEvents;
 
-using Fgs.User.Application.Features.TenantProvisioning;
+using Fgs.Contracts.Clients;
 
 using Fgs.User.Domain.Entities;
 
@@ -44,6 +48,8 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
 
     private readonly IUnitOfWork _unitOfWork;
 
+    private readonly ISetupUnitOfWork _setupUnitOfWork;
+
     private readonly IEntraExternalIdService _entraService;
 
     private readonly IEmailNormalizer _emailNormalizer;
@@ -60,6 +66,8 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
 
         IUnitOfWork unitOfWork,
 
+        ISetupUnitOfWork setupUnitOfWork,
+
         IEntraExternalIdService entraService,
 
         IEmailNormalizer emailNormalizer,
@@ -73,6 +81,8 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
     {
 
         _unitOfWork = unitOfWork;
+
+        _setupUnitOfWork = setupUnitOfWork;
 
         _entraService = entraService;
 
@@ -316,7 +326,7 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
 
 
 
-        var companyBusinessTypeCodes = (await _unitOfWork.Repository<FgsBusinessType>()
+        var companyBusinessTypeCodes = (await _setupUnitOfWork.Repository<FgsBusinessType>()
 
                 .ListAsync(
 
@@ -334,7 +344,7 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
 
             ? []
 
-            : (await _unitOfWork.Repository<GloBusinessType>()
+            : (await _setupUnitOfWork.Repository<GloBusinessType>()
 
                 .ListAsync(
 

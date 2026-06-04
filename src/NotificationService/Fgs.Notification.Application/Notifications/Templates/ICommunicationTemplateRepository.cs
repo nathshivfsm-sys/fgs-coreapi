@@ -10,8 +10,4 @@ public interface ICommunicationTemplateRepository
         string templateType,
         string code,
         CancellationToken cancellationToken = default);
-
-    Task<bool> ExistsAsync(long id, CancellationToken cancellationToken = default);
-
-    Task AddAsync(FgsSetupCommunicationTemplate template, CancellationToken cancellationToken = default);
 }

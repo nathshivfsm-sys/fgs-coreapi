@@ -6,8 +6,7 @@ using Fgs.Observability.Extensions;
 using Fgs.Notification.Application;
 using Fgs.Notification.Infrastructure;
 using Fgs.Notification.Infrastructure.Database;
-using Fgs.Notification.Infrastructure.Database.Seed;
-using Fgs.User.Application.Abstractions.Credentials;
+using Fgs.Setup.Application.Abstractions.Credentials;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Net.Sockets;
@@ -34,7 +33,6 @@ builder.Services.AddFgsObservability(builder.Configuration, "fgs-notification-se
 var app = builder.Build();
 
 await ApplyMigrationsAsync(app);
-await SeedCommunicationTemplatesAsync(app);
 LogRabbitMqEffectiveConfig(app);
 ProbeLocalRabbitMqTcpIfDevelopment(app);
 
@@ -64,18 +62,6 @@ static async Task ApplyMigrationsAsync(WebApplication app)
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<FgsNotificationDbContext>();
     await db.Database.MigrateAsync();
-}
-
-static async Task SeedCommunicationTemplatesAsync(WebApplication app)
-{
-    if (!app.Configuration.GetValue("Database:SeedCommunicationTemplatesOnStartup", true))
-    {
-        return;
-    }
-
-    using var scope = app.Services.CreateScope();
-    var seeder = scope.ServiceProvider.GetRequiredService<CommunicationTemplateSeeder>();
-    await seeder.SeedAsync();
 }
 
 static void LogRabbitMqEffectiveConfig(WebApplication app)

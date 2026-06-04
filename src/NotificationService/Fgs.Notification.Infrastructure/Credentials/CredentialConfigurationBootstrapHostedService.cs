@@ -1,5 +1,5 @@
 ﻿using Fgs.Notification.Infrastructure.Options;
-using Fgs.User.Application.Abstractions.Credentials;
+using Fgs.Setup.Application.Abstractions.Credentials;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

@@ -7,6 +7,7 @@
     <ProjectReference Include="..\..\Shared\Contracts\Fgs.Contracts\Fgs.Contracts.csproj" />
     <ProjectReference Include="..\..\Shared\Persistence\Fgs.Persistence\Fgs.Persistence.csproj" />
     <ProjectReference Include="..\..\Shared\Messaging\Fgs.Messaging\Fgs.Messaging.csproj" />
+    <ProjectReference Include="..\..\SetupService\Fgs.Setup.Domain\Fgs.Setup.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

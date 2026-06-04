@@ -2,7 +2,11 @@
 using Fgs.Foundation.Extensions;
 using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
+using Fgs.Setup.Application;
 using Fgs.Setup.Infrastructure;
+using Fgs.Setup.Infrastructure.Credentials;
+using Microsoft.EntityFrameworkCore;
+using Fgs.Setup.Infrastructure.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,11 +21,24 @@ builder.Services.AddFgsSwagger(options =>
     options.Description = "Tenant and system setup configuration.";
     options.XmlCommentsAssembly = typeof(Program).Assembly;
 });
+builder.Services.AddFgsSetupApplication();
 builder.Services.AddFgsSetupInfrastructure(builder.Configuration);
 builder.Services.AddFgsMultiTenancy();
 builder.Services.AddFgsObservability(builder.Configuration, "fgs-setup-service");
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var loader = scope.ServiceProvider.GetRequiredService<CredentialConfigurationLoader>();
+    await loader.ReloadAsync();
+}
+
+if (app.Configuration.GetValue("Database:ApplyMigrationsOnStartup", false))
+{
+    using var scope = app.Services.CreateScope();
+    await scope.ServiceProvider.GetRequiredService<FgsSetupDbContext>().Database.MigrateAsync();
+}
 
 app.UseFgsFoundationMiddleware();
 if (ShouldUseHttpsRedirection(app.Configuration))

@@ -1,7 +1,9 @@
 using System.Text.Json;
 using Fgs.User.Application.Abstractions.Geo;
+using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.Messaging.Abstractions;
 using Fgs.Persistence.Abstractions;
+using Fgs.Setup.Domain.Entities;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.Foundation.Result;
@@ -23,6 +25,7 @@ public sealed class CreateCompanySignupCommandHandler
     private const int TenantCompanyMasterEntityTypeId = 2;
 
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ISetupUnitOfWork _setupUnitOfWork;
     private readonly IInvitationTokenService _tokenService;
     private readonly IOutboxWriter _outboxWriter;
     private readonly IDateTimeProvider _dateTime;
@@ -32,6 +35,7 @@ public sealed class CreateCompanySignupCommandHandler
 
     public CreateCompanySignupCommandHandler(
         IUnitOfWork unitOfWork,
+        ISetupUnitOfWork setupUnitOfWork,
         IInvitationTokenService tokenService,
         IOutboxWriter outboxWriter,
         IDateTimeProvider dateTime,
@@ -40,6 +44,7 @@ public sealed class CreateCompanySignupCommandHandler
         ISignupUniquenessValidator signupUniquenessValidator)
     {
         _unitOfWork = unitOfWork;
+        _setupUnitOfWork = setupUnitOfWork;
         _tokenService = tokenService;
         _outboxWriter = outboxWriter;
         _dateTime = dateTime;
@@ -56,7 +61,7 @@ public sealed class CreateCompanySignupCommandHandler
         var company = request.Company;
         var tenantRepo = _unitOfWork.Repository<FgsTenant>();
         var userRepo = _unitOfWork.Repository<FgsUser>();
-        var businessTypeRepo = _unitOfWork.Repository<GloBusinessType>();
+        var businessTypeRepo = _setupUnitOfWork.Repository<GloBusinessType>();
         var selectedBusinessTypeIds = request.BusinessTypeIds
             .Distinct()
             .ToList();
@@ -183,7 +188,7 @@ public sealed class CreateCompanySignupCommandHandler
                         CreatedBy = prospectActor
                     };
 
-                    var gloRoleRepo = _unitOfWork.Repository<GloRole>();
+                    var gloRoleRepo = _setupUnitOfWork.Repository<GloRole>();
                     var tenantAdminRole = await gloRoleRepo.FirstOrDefaultAsync(
                             r => r.RoleCode == SignupConstants.TenantAdminRoleCode,
                             ct)
@@ -218,7 +223,7 @@ public sealed class CreateCompanySignupCommandHandler
                     };
 
                     var gloById = activeSelectedTypes.ToDictionary(g => g.Id);
-                    var fgsBusinessTypeRepo = _unitOfWork.Repository<FgsBusinessType>();
+                    var fgsBusinessTypeRepo = _setupUnitOfWork.Repository<FgsBusinessType>();
                     short displayOrder = 1;
                     foreach (var gloBusinessTypeId in selectedBusinessTypeIds)
                     {
@@ -257,6 +262,7 @@ public sealed class CreateCompanySignupCommandHandler
                         (int)Math.Ceiling((invitation.ExpiresAtUtc - now).TotalHours));
 
                     await _unitOfWork.SaveChangesAsync(ct);
+                    await _setupUnitOfWork.SaveChangesAsync(ct);
 
                     var outboxPayload = JsonSerializer.Serialize(new CompanySignupInviteEmailEvent(
                         tenantId,

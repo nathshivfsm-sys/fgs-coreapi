@@ -9,6 +9,8 @@ public static class IntegrationEventRoutingKeys
 
     public const string TenantProvisionRequested = "tenant.provision.requested";
 
+    public const string TenantProvisionCompleted = "tenant.provision.completed";
+
     public const string CompanySignupInviteEmail = "user.CompanySignupInviteEmail";
 
     public const string UserInvited = "user.UserInvited";
@@ -23,6 +25,7 @@ public static class IntegrationEventRoutingKeys
         eventType switch
         {
             IntegrationEventTypes.TenantProvisionRequested => TenantProvisionRequested,
+            IntegrationEventTypes.TenantProvisionCompleted => TenantProvisionCompleted,
             IntegrationEventTypes.CompanySignupInviteEmail => CompanySignupInviteEmail,
             IntegrationEventTypes.UserInvited => UserInvited,
             IntegrationEventTypes.PasswordReset => PasswordReset,

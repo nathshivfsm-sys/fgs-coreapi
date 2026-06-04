@@ -6,9 +6,8 @@ using Fgs.Observability.Extensions;
 using Fgs.Foundation.Middleware;
 using Fgs.User.Application;
 using Fgs.User.Infrastructure;
-using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
-using Fgs.User.Infrastructure.Persistence.Database.Seed;
-using Fgs.User.Infrastructure.Credentials;
+using Fgs.User.Infrastructure.Database;
+using Fgs.User.Infrastructure.Database.Seeds;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -51,8 +50,6 @@ var app = builder.Build();
 
 await ApplyMigrationsAsync(app);
 await SeedPlatformTenantAsync(app);
-await LoadCredentialConfigurationAsync(app);
-
 LogRabbitMqEffectiveConfig(app);
 ProbeLocalRabbitMqTcpIfDevelopment(app);
 
@@ -83,16 +80,6 @@ static async Task SeedPlatformTenantAsync(WebApplication app)
     using var scope = app.Services.CreateScope();
     var seeder = scope.ServiceProvider.GetRequiredService<PlatformTenantSeeder>();
     await seeder.SeedAsync();
-}
-
-static async Task LoadCredentialConfigurationAsync(WebApplication app)
-{
-    using var scope = app.Services.CreateScope();
-    var loader = scope.ServiceProvider.GetRequiredService<CredentialConfigurationLoader>();
-    await loader.ReloadAsync();
-    app.Logger.LogInformation(
-        "Resolved credential configuration loaded with {Count} entries.",
-        app.Services.GetRequiredService<CredentialConfigurationHolder>().Values.Count);
 }
 
 static async Task ApplyMigrationsAsync(WebApplication app)

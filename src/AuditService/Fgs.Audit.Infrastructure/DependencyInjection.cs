@@ -1,5 +1,8 @@
-﻿using Fgs.Foundation.Extensions;
+﻿using Fgs.Audit.Infrastructure.Database;
+using Fgs.Foundation.Extensions;
+using Fgs.MultiTenancy;
 using Fgs.Security.Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,7 +18,15 @@ public static class DependencyInjection
         services.AddFgsEntraAuthentication(configuration);
         services.AddFgsRemoteClaimsEnrichment(configuration);
 
-        _ = configuration.GetConnectionString("FgsAudit");
+        var connectionString = configuration.GetConnectionString("FgsAudit")
+            ?? throw new InvalidOperationException("ConnectionStrings:FgsAudit is required.");
+
+        services.AddDbContext<FgsAuditDbContext>((_, options) =>
+        {
+            options.UseNpgsql(connectionString, npgsql =>
+                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsAuditDbContext.MigrationHistorySchema));
+        });
+
         return services;
     }
 }

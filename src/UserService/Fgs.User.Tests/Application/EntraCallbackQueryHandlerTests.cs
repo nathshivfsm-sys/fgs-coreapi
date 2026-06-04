@@ -1,4 +1,4 @@
-using Fgs.Foundation.Result;
+﻿using Fgs.Foundation.Result;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Infrastructure.Common.Security;
@@ -11,13 +11,18 @@ using Fgs.User.Application.Features.Auth;
 using Fgs.User.Application.Features.Auth.Queries.EntraCallback;
 using Fgs.User.Application.Features.Signup;
 using Fgs.Contracts.IntegrationEvents;
-using Fgs.User.Application.Features.TenantProvisioning;
+using Fgs.Contracts.Clients;
+using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 using Fgs.User.Infrastructure.Common.Time;
-using Fgs.User.Infrastructure.Messaging;
-using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
-using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
+using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Infrastructure.Database;
+using Fgs.Setup.Infrastructure.Common.Time;
+using SetupDateTimeProvider = Fgs.Setup.Infrastructure.Common.Time.DateTimeProvider;
+using SetupOutboxWriter = Fgs.Setup.Infrastructure.Messaging.OutboxWriter;
+using Fgs.User.Infrastructure.Database;
+using Fgs.User.Infrastructure.Database.UnitOfWorks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -54,8 +59,10 @@ public sealed class EntraCallbackQueryHandlerTests
     public async Task Handle_WhenEntraExchangeFails_ReturnsUnauthorized()
     {
         var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        var setupContext = await TestSetupDbContextFactory.CreateAndInitializeAsync();
         var invitationId = await SeedInvitationAsync(
             context,
+            setupContext,
             "admin@test.com",
             InvitationStatus.Pending,
             DateTimeOffset.UtcNow.AddDays(1));
@@ -65,8 +72,9 @@ public sealed class EntraCallbackQueryHandlerTests
             .Setup(s => s.ExchangeCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("entra down"));
 
-        var handler = await CreateHandlerForContextAsync(
+        var handler = CreateHandlerForContextAsync(
             context,
+            setupContext,
             "admin@test.com",
             entraEmail: "admin@test.com",
             entraMock.Object);
@@ -96,13 +104,15 @@ public sealed class EntraCallbackQueryHandlerTests
     public async Task Handle_WhenInvitationExpired_ReturnsBadRequest()
     {
         var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        var setupContext = await TestSetupDbContextFactory.CreateAndInitializeAsync();
         var invitationId = await SeedInvitationAsync(
             context,
+            setupContext,
             "admin@test.com",
             InvitationStatus.Pending,
             DateTimeOffset.UtcNow.AddDays(-1));
 
-        var handler = await CreateHandlerForContextAsync(context, "admin@test.com", entraEmail: "admin@test.com");
+        var handler = CreateHandlerForContextAsync(context, setupContext, "admin@test.com", entraEmail: "admin@test.com");
         var response = await handler.Handle(
             new EntraCallbackQuery("code", invitationId.ToString()),
             CancellationToken.None);
@@ -115,13 +125,15 @@ public sealed class EntraCallbackQueryHandlerTests
     public async Task Handle_WhenAlreadyAccepted_ReturnsTokenWithoutUpdatingInvitation()
     {
         var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        var setupContext = await TestSetupDbContextFactory.CreateAndInitializeAsync();
         var invitationId = await SeedInvitationAsync(
             context,
+            setupContext,
             "admin@test.com",
             InvitationStatus.Accepted,
             DateTimeOffset.UtcNow.AddDays(1));
 
-        var handler = await CreateHandlerForContextAsync(context, "admin@test.com", entraEmail: "admin@test.com");
+        var handler = CreateHandlerForContextAsync(context, setupContext, "admin@test.com", entraEmail: "admin@test.com");
         var response = await handler.Handle(
             new EntraCallbackQuery("code", invitationId.ToString()),
             CancellationToken.None);
@@ -147,9 +159,10 @@ public sealed class EntraCallbackQueryHandlerTests
     public async Task Handle_WithFgsRole_IncludesRoleInToken()
     {
         var context = await TestDbContextFactory.CreateAndInitializeAsync();
-        var invitationId = await SeedInvitationWithFgsRoleAsync(context, "admin@test.com");
+        var setupContext = await TestSetupDbContextFactory.CreateAndInitializeAsync();
+        var invitationId = await SeedInvitationWithFgsRoleAsync(context, setupContext, "admin@test.com");
 
-        var handler = await CreateHandlerForContextAsync(context, "admin@test.com", entraEmail: "admin@test.com");
+        var handler = CreateHandlerForContextAsync(context, setupContext, "admin@test.com", entraEmail: "admin@test.com");
         var response = await handler.Handle(
             new EntraCallbackQuery("code", invitationId.ToString()),
             CancellationToken.None);
@@ -162,8 +175,10 @@ public sealed class EntraCallbackQueryHandlerTests
     public async Task Handle_WhenUserMissing_ReturnsInternalServerError()
     {
         var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        var setupContext = await TestSetupDbContextFactory.CreateAndInitializeAsync();
         var invitationId = await SeedInvitationAsync(
             context,
+            setupContext,
             "admin@test.com",
             InvitationStatus.Pending,
             DateTimeOffset.UtcNow.AddDays(1));
@@ -173,7 +188,7 @@ public sealed class EntraCallbackQueryHandlerTests
         invitation.UserId = orphanUserId;
         await context.SaveChangesAsync();
 
-        var handler = await CreateHandlerForContextAsync(context, "admin@test.com", entraEmail: "admin@test.com");
+        var handler = CreateHandlerForContextAsync(context, setupContext, "admin@test.com", entraEmail: "admin@test.com");
         var response = await handler.Handle(
             new EntraCallbackQuery("code", invitationId.ToString()),
             CancellationToken.None);
@@ -187,28 +202,32 @@ public sealed class EntraCallbackQueryHandlerTests
     public async Task Handle_WhenTenantAlreadyActive_SkipsProvisionOutbox()
     {
         var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        var setupContext = await TestSetupDbContextFactory.CreateAndInitializeAsync();
         var invitationId = await SeedInvitationAsync(
             context,
+            setupContext,
             "admin@test.com",
             InvitationStatus.Pending,
             DateTimeOffset.UtcNow.AddDays(1),
             tenantStatusId: TenantStatusIds.Active);
 
-        var handler = await CreateHandlerForContextAsync(context, "admin@test.com", entraEmail: "admin@test.com");
+        var handler = CreateHandlerForContextAsync(context, setupContext, "admin@test.com", entraEmail: "admin@test.com");
         var response = await handler.Handle(
             new EntraCallbackQuery("code", invitationId.ToString()),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
-        (await context.GloOutboxMessages.CountAsync()).Should().Be(0);
+        (await setupContext.GloOutboxMessages.CountAsync()).Should().Be(0);
     }
 
     [Fact]
     public async Task Handle_WhenTenantMissing_ReturnsInternalServerError()
     {
         var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        var setupContext = await TestSetupDbContextFactory.CreateAndInitializeAsync();
         var invitationId = await SeedInvitationAsync(
             context,
+            setupContext,
             "admin@test.com",
             InvitationStatus.Pending,
             DateTimeOffset.UtcNow.AddDays(1));
@@ -217,7 +236,7 @@ public sealed class EntraCallbackQueryHandlerTests
         invitation.TenantId = 99_999;
         await context.SaveChangesAsync();
 
-        var handler = await CreateHandlerForContextAsync(context, "admin@test.com", entraEmail: "admin@test.com");
+        var handler = CreateHandlerForContextAsync(context, setupContext, "admin@test.com", entraEmail: "admin@test.com");
         var response = await handler.Handle(
             new EntraCallbackQuery("code", invitationId.ToString()),
             CancellationToken.None);
@@ -232,17 +251,20 @@ public sealed class EntraCallbackQueryHandlerTests
         string entraEmail)
     {
         var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        var setupContext = await TestSetupDbContextFactory.CreateAndInitializeAsync();
         var invitationId = await SeedInvitationAsync(
             context,
+            setupContext,
             inviteEmail,
             InvitationStatus.Pending,
             DateTimeOffset.UtcNow.AddDays(1));
-        var handler = await CreateHandlerForContextAsync(context, inviteEmail, entraEmail);
+        var handler = CreateHandlerForContextAsync(context, setupContext, inviteEmail, entraEmail);
         return (handler, invitationId);
     }
 
-    private static async Task<EntraCallbackQueryHandler> CreateHandlerForContextAsync(
+    private static EntraCallbackQueryHandler CreateHandlerForContextAsync(
         FgsUserDbContext context,
+        FgsSetupDbContext setupContext,
         string inviteEmail,
         string entraEmail,
         IEntraExternalIdService? entraService = null)
@@ -256,16 +278,17 @@ public sealed class EntraCallbackQueryHandlerTests
             })
             .Build();
 
-        IOutboxWriter outboxWriter = new OutboxWriter(
-            context,
-            new DateTimeProvider(),
+        IOutboxWriter outboxWriter = new SetupOutboxWriter(
+            setupContext,
+            new SetupDateTimeProvider(),
             Microsoft.Extensions.Options.Options.Create(new OutboxOptions()));
 
         return new EntraCallbackQueryHandler(
             new UnitOfWork(context),
+            new SetupUnitOfWork(setupContext),
             entraMock,
             new EmailNormalizer(),
-            new DateTimeProvider(),
+            new Fgs.User.Infrastructure.Common.Time.DateTimeProvider(),
             configuration,
             outboxWriter);
     }
@@ -281,6 +304,7 @@ public sealed class EntraCallbackQueryHandlerTests
 
     private static async Task<Guid> SeedInvitationAsync(
         FgsUserDbContext context,
+        FgsSetupDbContext setupContext,
         string inviteEmail,
         InvitationStatus status,
         DateTimeOffset expiresAtUtc,
@@ -312,10 +336,18 @@ public sealed class EntraCallbackQueryHandlerTests
             Name = "Company",
             CreatedOn = DateTimeOffset.UtcNow
         });
-        context.FgsBusinessTypes.Add(new FgsBusinessType
+        setupContext.FgsBusinessTypes.Add(new FgsBusinessType
         {
             TenantId = tenantId,
             CompanyId = 1,
+            Code = "HVAC",
+            Name = "HVAC",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        setupContext.GloBusinessTypes.Add(new GloBusinessType
+        {
+            Id = 1,
             Code = "HVAC",
             Name = "HVAC",
             IsActive = true,
@@ -328,15 +360,6 @@ public sealed class EntraCallbackQueryHandlerTests
             CompanyId = 1,
             Email = inviteEmail,
             DisplayName = "Admin",
-            CreatedOn = DateTimeOffset.UtcNow
-        });
-        context.GloRoles.Add(new GloRole
-        {
-            Id = 1,
-            RoleCode = SignupConstants.TenantAdminRoleCode,
-            Name = "Tenant Administrator",
-            RoleLevel = "TENANT",
-            IsActive = true,
             CreatedOn = DateTimeOffset.UtcNow
         });
         context.FgsUserRoles.Add(new FgsUserRole
@@ -359,11 +382,13 @@ public sealed class EntraCallbackQueryHandlerTests
             CreatedOn = DateTimeOffset.UtcNow
         });
         await context.SaveChangesAsync();
+        await setupContext.SaveChangesAsync();
         return id;
     }
 
     private static async Task<Guid> SeedInvitationWithFgsRoleAsync(
         FgsUserDbContext context,
+        FgsSetupDbContext setupContext,
         string inviteEmail)
     {
         var companyId = Guid.NewGuid();
@@ -390,7 +415,7 @@ public sealed class EntraCallbackQueryHandlerTests
             Name = "Company",
             CreatedOn = DateTimeOffset.UtcNow
         });
-        context.FgsBusinessTypes.Add(new FgsBusinessType
+        setupContext.FgsBusinessTypes.Add(new FgsBusinessType
         {
             TenantId = tenantId,
             CompanyId = 1,
@@ -437,6 +462,7 @@ public sealed class EntraCallbackQueryHandlerTests
             CreatedOn = DateTimeOffset.UtcNow
         });
         await context.SaveChangesAsync();
+        await setupContext.SaveChangesAsync();
         return invitationId;
     }
 }

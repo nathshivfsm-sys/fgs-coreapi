@@ -1,25 +1,23 @@
-using Fgs.User.Infrastructure.Common.Options;
-using Fgs.Persistence.Abstractions;
-using Fgs.User.Application.Features.Signup.DTOs;
-using Fgs.User.Domain.Entities;
+﻿using Fgs.User.Application.Features.Signup.DTOs;
 using Fgs.User.Infrastructure.Common.Geo;
-using Fgs.Security.Options;
-using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
-using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
+using Fgs.User.Infrastructure.Common.Options;
 using Microsoft.Extensions.Options;
 
 namespace Fgs.User.Tests.Application;
 
 public sealed class AddressLocaleResolverTests
 {
+    private static AddressLocaleResolver CreateResolver() =>
+        new(Options.Create(new SignupLocaleOptions
+        {
+            DefaultTimeZone = "UTC",
+            DefaultCurrency = "USD"
+        }));
+
     [Fact]
     public async Task ResolveAsync_ForTexasAddress_ReturnsCentralTimeAndUsd()
     {
-        var context = await TestDbContextFactory.CreateAndInitializeAsync();
-        SeedUnitedStates(context);
-        var resolver = CreateResolver(context);
-
-        var locale = await resolver.ResolveAsync(
+        var locale = await CreateResolver().ResolveAsync(
             new SignupAddressDto(
                 AddressLine1: "100 Main St",
                 AddressLine2: null,
@@ -35,11 +33,7 @@ public sealed class AddressLocaleResolverTests
     [Fact]
     public async Task ResolveAsync_WithCoordinates_UsesGeoTimeZone()
     {
-        var context = await TestDbContextFactory.CreateAndInitializeAsync();
-        SeedUnitedStates(context);
-        var resolver = CreateResolver(context);
-
-        var locale = await resolver.ResolveAsync(
+        var locale = await CreateResolver().ResolveAsync(
             new SignupAddressDto(
                 AddressLine1: "1 Dr Carlton B Goodlett Pl",
                 AddressLine2: null,
@@ -57,11 +51,7 @@ public sealed class AddressLocaleResolverTests
     [Fact]
     public async Task ResolveAsync_WithoutCountry_InfersUsFromState()
     {
-        var context = await TestDbContextFactory.CreateAndInitializeAsync();
-        SeedUnitedStates(context);
-        var resolver = CreateResolver(context);
-
-        var locale = await resolver.ResolveAsync(
+        var locale = await CreateResolver().ResolveAsync(
             new SignupAddressDto(
                 AddressLine1: "1 Main",
                 AddressLine2: null,
@@ -71,29 +61,5 @@ public sealed class AddressLocaleResolverTests
 
         locale.TimeZoneId.Should().Be("America/New_York");
         locale.CurrencyCode.Should().Be("USD");
-    }
-
-    private static void SeedUnitedStates(FgsUserDbContext context)
-    {
-        context.GloCountries.Add(new GloCountry
-        {
-            CountryCode = "US",
-            CountryName = "United States",
-            CurrencyCode = "USD",
-            IsActive = true
-        });
-        context.SaveChanges();
-    }
-
-    private static AddressLocaleResolver CreateResolver(FgsUserDbContext context)
-    {
-        IUnitOfWork unitOfWork = new UnitOfWork(context);
-        var options = Options.Create(new SignupLocaleOptions
-        {
-            DefaultTimeZone = "UTC",
-            DefaultCurrency = "USD"
-        });
-
-        return new AddressLocaleResolver(unitOfWork.Repository<GloCountry>(), options);
     }
 }

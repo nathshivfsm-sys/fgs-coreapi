@@ -1,40 +1,44 @@
-﻿using Fgs.Notification.Application.Notifications.Templates;
+﻿using Fgs.Contracts.Clients;
+using Fgs.Notification.Application.Notifications.Templates;
 using Fgs.Notification.Domain.Entities;
-using Fgs.Notification.Infrastructure.Database;
-using Microsoft.EntityFrameworkCore;
+using Fgs.Notification.Infrastructure.Options;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.Notification.Infrastructure.Notifications.Templates;
 
-public sealed class CommunicationTemplateRepository(FgsNotificationDbContext context) : ICommunicationTemplateRepository
+public sealed class CommunicationTemplateRepository(
+    ISetupTemplateClient setupTemplateClient,
+    IOptions<UserServiceCredentialClientOptions> clientOptions) : ICommunicationTemplateRepository
 {
-    public Task<FgsSetupCommunicationTemplate?> GetActiveTemplateAsync(
+    public async Task<FgsSetupCommunicationTemplate?> GetActiveTemplateAsync(
         long? tenantId,
         long? companyId,
         string templateType,
         string code,
         CancellationToken cancellationToken = default)
     {
-        var normalizedCode = code.Trim();
-        var normalizedType = templateType.Trim();
+        var dto = await setupTemplateClient.GetActiveTemplateAsync(
+            tenantId,
+            companyId,
+            templateType.Trim(),
+            code.Trim(),
+            clientOptions.Value.InternalServiceKey,
+            cancellationToken);
 
-        return context.CommunicationTemplates
-            .AsNoTracking()
-            .Where(t =>
-                t.TemplateType == normalizedType
-                && t.Code == normalizedCode
-                && t.IsActive
-                && t.TenantId == tenantId
-                && t.CompanyId == companyId)
-            .OrderByDescending(t => t.Id)
-            .FirstOrDefaultAsync(cancellationToken);
+        return dto is null ? null : Map(dto);
     }
 
-    public Task<bool> ExistsAsync(long id, CancellationToken cancellationToken = default) =>
-        context.CommunicationTemplates.AnyAsync(t => t.Id == id, cancellationToken);
-
-    public async Task AddAsync(FgsSetupCommunicationTemplate template, CancellationToken cancellationToken = default)
+    private static FgsSetupCommunicationTemplate Map(CommunicationTemplateDto dto) => new()
     {
-        await context.CommunicationTemplates.AddAsync(template, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
-    }
+        Id = dto.Id,
+        TenantId = dto.TenantId,
+        CompanyId = dto.CompanyId,
+        TemplateType = dto.TemplateType,
+        Code = dto.Code,
+        Name = dto.Name,
+        Subject = dto.Subject,
+        Body = dto.Body,
+        IsMobileVisible = dto.IsMobileVisible,
+        IsActive = dto.IsActive
+    };
 }

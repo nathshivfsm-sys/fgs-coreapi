@@ -1,5 +1,5 @@
 ﻿using Fgs.Notification.Infrastructure.Options;
-using Fgs.User.Application.Features.Credentials.DTOs;
+using Fgs.Setup.Application.Features.Credentials.DTOs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Refit;
@@ -8,12 +8,12 @@ namespace Fgs.Notification.Infrastructure.Credentials;
 
 public sealed class RemoteCredentialConfigurationLoader
 {
-    private readonly IUserCredentialConfigurationClient _client;
+    private readonly ISetupCredentialConfigurationClient _client;
     private readonly UserServiceCredentialClientOptions _options;
     private readonly ILogger<RemoteCredentialConfigurationLoader> _logger;
 
     public RemoteCredentialConfigurationLoader(
-        IUserCredentialConfigurationClient client,
+        ISetupCredentialConfigurationClient client,
         IOptions<UserServiceCredentialClientOptions> options,
         ILogger<RemoteCredentialConfigurationLoader> logger)
     {
@@ -26,7 +26,7 @@ public sealed class RemoteCredentialConfigurationLoader
     {
         if (string.IsNullOrWhiteSpace(_options.BaseUrl))
         {
-            throw new InvalidOperationException("UserService:BaseUrl is required to load credential configuration.");
+            throw new InvalidOperationException("SetupService:BaseUrl is required to load credential configuration.");
         }
 
         if (string.IsNullOrWhiteSpace(_options.InternalServiceKey))

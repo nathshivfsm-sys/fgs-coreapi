@@ -4,6 +4,11 @@
     <ProjectReference Include="..\Fgs.File.Application\Fgs.File.Application.csproj" />
     <ProjectReference Include="..\Fgs.File.Domain\Fgs.File.Domain.csproj" />
     <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
+    <ProjectReference Include="..\..\Shared\MultiTenancy\Fgs.MultiTenancy\Fgs.MultiTenancy.csproj" />
+    <ProjectReference Include="..\..\Shared\Contracts\Fgs.Contracts\Fgs.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="3.7.410.12" />
   </ItemGroup>
 
   <ItemGroup>

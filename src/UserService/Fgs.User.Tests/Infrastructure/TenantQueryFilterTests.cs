@@ -1,6 +1,6 @@
-using Fgs.MultiTenancy;
+﻿using Fgs.MultiTenancy;
 using Fgs.User.Domain.Entities;
-using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
+using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.User.Tests.Infrastructure;

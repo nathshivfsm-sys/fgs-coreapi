@@ -17,7 +17,6 @@ namespace Fgs.Notification.Infrastructure.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("dbo")
                 .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -37,7 +36,7 @@ namespace Fgs.Notification.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(64)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Error")
                         .HasMaxLength(2000)
@@ -52,7 +51,7 @@ namespace Fgs.Notification.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(512)");
 
                     b.Property<DateTimeOffset?>("SentOn")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamptz");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -67,9 +66,10 @@ namespace Fgs.Notification.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId", "CreatedOn");
+                    b.HasIndex("TenantId", "CreatedOn")
+                        .HasDatabaseName("IX_FgsNotificationHistory_TenantId_CreatedOn");
 
-                    b.ToTable("FgsNotificationHistory", "dbo");
+                    b.ToTable("FgsNotificationHistory", "notification");
                 });
 
             modelBuilder.Entity("Fgs.Notification.Domain.Entities.FgsProcessedIntegrationEvent", b =>
@@ -89,75 +89,15 @@ namespace Fgs.Notification.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(128)");
 
                     b.Property<DateTimeOffset>("ProcessedOn")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
                     b.HasIndex("MessageId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsProcessedIntegrationEvent_MessageId");
 
-                    b.ToTable("FgsProcessedIntegrationEvent", "dbo");
-                });
-
-            modelBuilder.Entity("Fgs.Notification.Domain.Entities.FgsSetupCommunicationTemplate", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long?>("CompanyId")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsMobileVisible")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Subject")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TemplateType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long?>("TenantId")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset?>("UpdatedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId", "CompanyId");
-
-                    b.HasIndex("TenantId", "CompanyId", "TemplateType", "Code")
-                        .IsUnique();
-
-                    b.ToTable("FgsSetupCommunicationTemplate", "dbo");
+                    b.ToTable("FgsProcessedIntegrationEvent", "notification");
                 });
 #pragma warning restore 612, 618
         }

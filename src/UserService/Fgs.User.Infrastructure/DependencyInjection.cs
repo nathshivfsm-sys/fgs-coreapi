@@ -4,32 +4,28 @@ using Fgs.Messaging.Options;
 using Fgs.Persistence.Abstractions;
 using Fgs.Security.Abstractions;
 using Fgs.Security.Extensions;
-using Fgs.User.Infrastructure.Provisioning;
-using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 using Fgs.User.Application.Abstractions.Geo;
 using Fgs.User.Application.Abstractions.Identity;
-using Fgs.User.Application.Abstractions.Provisioning;
 using Fgs.User.Application.Abstractions.Security;
-using Fgs.User.Application.Abstractions.Storage;
 using Fgs.User.Application.Abstractions.Time;
-using Fgs.User.Infrastructure.Background;
 using Fgs.User.Infrastructure.Common.Geo;
 using Fgs.User.Infrastructure.Common.Identity;
 using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Common.Security;
 using Fgs.User.Infrastructure.Common.Time;
-using Fgs.User.Infrastructure.Credentials;
-using Fgs.User.Infrastructure.Messaging;
+using Fgs.User.Application.Abstractions.Persistence;
+using Fgs.User.Infrastructure.Database;
+using Fgs.User.Infrastructure.Database.Seeds;
+using Fgs.User.Infrastructure.Database.UnitOfWorks;
+using Fgs.User.Infrastructure.Database.Repositories;
 using Fgs.User.Infrastructure.Outbox;
-using Fgs.User.Infrastructure.Persistence.Database.Seed;
-using Fgs.User.Infrastructure.Storage;
-using Fgs.User.Infrastructure.Persistence.Database.Repositories;
-using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
+using Fgs.Setup.Infrastructure.Database;
+using Fgs.Setup.Infrastructure.Messaging;
+using SetupOutboxWriter = Fgs.Setup.Infrastructure.Messaging.OutboxWriter;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Fgs.User.Infrastructure;
 
@@ -52,34 +48,33 @@ public static class DependencyInjection
         services.Configure<EntraExternalIdOptions>(configuration.GetSection(EntraExternalIdOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
         services.Configure<SignupLocaleOptions>(configuration.GetSection(SignupLocaleOptions.SectionName));
-        services.AddAwsCredentialsServices(configuration, configuration);
-        services.Configure<TenantProvisioningOptions>(configuration.GetSection(TenantProvisioningOptions.SectionName));
-        services.Configure<RabbitMqConsumerOptions>(configuration.GetSection(RabbitMqConsumerOptions.SectionName));
 
         var connectionString = FgsUserConnectionString.ResolveRequired(configuration);
-
+        var setupConnectionString = configuration.GetConnectionString("FgsSetup") ?? connectionString;
+        services.AddDbContext<FgsSetupDbContext>((_, options) =>
+        {
+            options.UseNpgsql(setupConnectionString, npgsql =>
+            {
+                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsSetupDbContext.MigrationHistorySchema);
+            });
+        });
         services.AddDbContext<FgsUserDbContext>((_, options) =>
         {
             options.UseNpgsql(connectionString, npgsql =>
             {
                 npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsUserDbContext.MigrationHistorySchema);
-                npgsql.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: TimeSpan.FromSeconds(10),
-                    errorCodesToAdd: null);
+                npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
             });
-            options.ConfigureWarnings(w =>
-                w.Ignore(RelationalEventId.PendingModelChangesWarning));
+            options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
 
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-        services.AddScoped<IOutboxWriter, OutboxWriter>();
-        services.AddScoped<IOutboxStore, GloOutboxStore>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<ISetupUnitOfWork, SetupUnitOfWork>();
+        services.AddScoped<IOutboxWriter, SetupOutboxWriter>();
+        services.AddScoped<IOutboxStore, Fgs.Setup.Infrastructure.Outbox.GloOutboxStore>();
         services.AddSingleton<IOutboxRoutingResolver, UserOutboxRoutingResolver>();
         services.AddFgsRabbitMqPublisher();
-        services.AddScoped<ICredentialConfigurationChangePublisher, CredentialConfigurationChangePublisher>();
-        CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<RabbitMqOptions>(services);
         services.AddFgsOutboxProcessor();
         services.AddScoped<PlatformTenantSeeder>();
         services.AddScoped<IAddressLocaleResolver, AddressLocaleResolver>();
@@ -87,16 +82,7 @@ public static class DependencyInjection
         services.AddSingleton<IEmailNormalizer, EmailNormalizer>();
         services.AddSingleton<IInvitationTokenService, InvitationTokenService>();
         services.AddSingleton<RabbitMqTopologyService>();
-        services.AddSingleton<ITenantSeedDatabaseConnectionFactory>(sp =>
-            new TenantSeedDatabaseConnectionFactory(
-                FgsUserConnectionString.ResolveRequired(configuration),
-                sp.GetRequiredService<IOptions<TenantProvisioningOptions>>()));
-        services.AddScoped<ITenantDataSeedingEngine, TenantDataSeedingEngine>();
-        services.AddScoped<ITenantS3BucketProvisioner, TenantS3BucketProvisioner>();
-        services.AddScoped<ITenantProvisioningOrchestrator, TenantProvisioningOrchestrator>();
-        services.AddSingleton<IS3ObjectKeyBuilder, S3ObjectKeyBuilder>();
         services.AddHttpClient<IEntraExternalIdService, EntraExternalIdService>();
-        services.AddHostedService<TenantProvisionConsumerService>();
 
         return services;
     }

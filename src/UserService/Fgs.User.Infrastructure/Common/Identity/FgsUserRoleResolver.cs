@@ -1,4 +1,4 @@
-using Fgs.Persistence.Abstractions;
+﻿using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Domain.Entities;
 
@@ -18,23 +18,11 @@ public sealed class FgsUserRoleResolver(IUnitOfWork unitOfWork) : IFgsUserRoleRe
             return [];
         }
 
-        var gloRoleRepo = unitOfWork.Repository<GloRole>();
         var fgsRoleRepo = unitOfWork.Repository<FgsRole>();
         var roleCodes = new List<string>(userRoles.Count);
 
         foreach (var userRole in userRoles)
         {
-            if (userRole.GloRoleId is { } gloRoleId)
-            {
-                var gloRole = await gloRoleRepo.FirstOrDefaultAsync(r => r.Id == gloRoleId, cancellationToken);
-                if (gloRole is not null)
-                {
-                    roleCodes.Add(gloRole.RoleCode);
-                }
-
-                continue;
-            }
-
             if (userRole.FgsRoleId is { } fgsRoleId)
             {
                 var fgsRole = await fgsRoleRepo.FirstOrDefaultAsync(r => r.Id == fgsRoleId, cancellationToken);

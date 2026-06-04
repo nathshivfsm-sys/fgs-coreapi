@@ -1,5 +1,5 @@
-using Fgs.User.Domain.Entities;
-using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
+﻿using Fgs.User.Domain.Entities;
+using Fgs.User.Infrastructure.Database.UnitOfWorks;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.User.Tests.Infrastructure;

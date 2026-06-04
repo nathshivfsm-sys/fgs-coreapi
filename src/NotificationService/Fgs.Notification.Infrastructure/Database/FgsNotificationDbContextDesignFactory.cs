@@ -18,7 +18,9 @@ public sealed class FgsNotificationDbContextDesignFactory : IDesignTimeDbContext
         var optionsBuilder = new DbContextOptionsBuilder<FgsNotificationDbContext>();
         optionsBuilder.UseNpgsql(
             FgsNotificationConnectionString.ResolveRequired(configuration),
-            npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsNotificationDbContext.FgsSchema));
+            npgsql => npgsql.MigrationsHistoryTable(
+                "__EFMigrationsHistory",
+                FgsNotificationDbContext.MigrationHistorySchema));
 
         return new FgsNotificationDbContext(optionsBuilder.Options, new DesignTimeTenantContextAccessor());
     }

@@ -1,10 +1,8 @@
-﻿using Fgs.Notification.Domain.Notifications;
+﻿using Fgs.Contracts.IntegrationEvents;
 using Fgs.Notification.Application.Notifications.Templates;
 using Fgs.Notification.Domain.Entities;
-using Fgs.Contracts.IntegrationEvents;
-using Fgs.Notification.Infrastructure.Database.Seed;
+using Fgs.Notification.Domain.Notifications;
 using Fgs.Notification.Infrastructure.Notifications.Templates;
-using Fgs.Notification.Tests;
 
 namespace Fgs.Notification.Tests.Notifications;
 
@@ -13,29 +11,16 @@ public sealed class CommunicationTemplateServiceTests
     [Fact]
     public async Task GetActiveTemplateAsync_ReturnsCompanyScoped_WhenPresent()
     {
-        await using var context = TestDbContextFactory.Create();
         var tenantId = 100L;
         var companyId = 200L;
-        var global = CommunicationTemplateSeedData.CompanyAdminInvitationEmail();
-        var companyTemplate = new FgsSetupCommunicationTemplate
-        {
-            Id = 2,
-            TenantId = tenantId,
-            CompanyId = companyId,
-            TemplateType = CommunicationTemplateTypes.Email,
-            Code = CommunicationTemplateCodes.CompanyAdminInvitation,
-            Name = "Company-scoped invite",
-            Subject = "Tenant subject {{Name}}",
-            Body = "Company body",
-            IsActive = true,
-            CreatedOn = DateTimeOffset.UtcNow
-        };
+        var global = CreateTemplate(null, null, id: 1);
+        var companyTemplate = CreateTemplate(tenantId, companyId, id: 2, subject: "Tenant subject {{Name}}");
 
-        context.CommunicationTemplates.Add(global);
-        context.CommunicationTemplates.Add(companyTemplate);
-        await context.SaveChangesAsync();
+        var repository = new StubCommunicationTemplateRepository(
+            (tenantId, companyId, _, _) => companyTemplate,
+            (_, _, _, _) => global);
 
-        var service = new CommunicationTemplateService(new CommunicationTemplateRepository(context));
+        var service = new CommunicationTemplateService(repository);
 
         var result = await service.GetActiveTemplateAsync(
             tenantId,
@@ -49,12 +34,12 @@ public sealed class CommunicationTemplateServiceTests
     [Fact]
     public async Task GetActiveTemplateAsync_FallsBackToGlobal_WhenScopedTemplateMissing()
     {
-        await using var context = TestDbContextFactory.Create();
-        var global = CommunicationTemplateSeedData.CompanyAdminInvitationEmail();
-        context.CommunicationTemplates.Add(global);
-        await context.SaveChangesAsync();
+        var global = CreateTemplate(null, null, id: 1);
+        var repository = new StubCommunicationTemplateRepository(
+            (_, _, _, _) => null,
+            (_, _, _, _) => global);
 
-        var service = new CommunicationTemplateService(new CommunicationTemplateRepository(context));
+        var service = new CommunicationTemplateService(repository);
 
         var result = await service.GetActiveTemplateAsync(
             999L,
@@ -70,8 +55,8 @@ public sealed class CommunicationTemplateServiceTests
     [Fact]
     public async Task GetActiveTemplateAsync_WhenNotFound_Throws()
     {
-        await using var context = TestDbContextFactory.Create();
-        var service = new CommunicationTemplateService(new CommunicationTemplateRepository(context));
+        var repository = new StubCommunicationTemplateRepository((_, _, _, _) => null);
+        var service = new CommunicationTemplateService(repository);
 
         var act = () => service.GetActiveTemplateAsync(
             999L,
@@ -80,5 +65,42 @@ public sealed class CommunicationTemplateServiceTests
             "MISSING_CODE");
 
         await act.Should().ThrowAsync<CommunicationTemplateNotFoundException>();
+    }
+
+    private static FgsSetupCommunicationTemplate CreateTemplate(
+        long? tenantId,
+        long? companyId,
+        long id = 1,
+        string? subject = "Welcome to {{PlatformName}} – Activate Your Admin Account") =>
+        new()
+        {
+            Id = id,
+            TenantId = tenantId,
+            CompanyId = companyId,
+            TemplateType = CommunicationTemplateTypes.Email,
+            Code = CommunicationTemplateCodes.CompanyAdminInvitation,
+            Name = "Company Admin Invitation Email",
+            Subject = subject,
+            Body = "Hello {{Name}}",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        };
+
+    private sealed class StubCommunicationTemplateRepository(
+        params Func<long?, long?, string, string, FgsSetupCommunicationTemplate?>[] handlers)
+        : ICommunicationTemplateRepository
+    {
+        private int _callIndex;
+
+        public Task<FgsSetupCommunicationTemplate?> GetActiveTemplateAsync(
+            long? tenantId,
+            long? companyId,
+            string templateType,
+            string code,
+            CancellationToken cancellationToken = default)
+        {
+            var handler = handlers[Math.Min(_callIndex++, handlers.Length - 1)];
+            return Task.FromResult(handler(tenantId, companyId, templateType, code));
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Notification.Domain.Entities;
+using Fgs.Notification.Domain.Notifications;
 using Fgs.Notification.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -10,21 +11,21 @@ namespace Fgs.Notification.Tests.Infrastructure;
 public sealed class NotificationTenantQueryFilterTests
 {
     [Fact]
-    public async Task CommunicationTemplates_WhenUnresolved_ReturnsGlobalAndTenantRows()
+    public async Task NotificationHistory_WhenUnresolved_ReturnsAllRows()
     {
         var context = await CreateContextAsync();
-        context.CommunicationTemplates.AddRange(
-            CreateTemplate(null, null, "GLOBAL"),
-            CreateTemplate(1, 1, "TENANT"));
+        context.NotificationHistory.AddRange(
+            CreateHistory(1, "TENANT_A"),
+            CreateHistory(2, "TENANT_B"));
         await context.SaveChangesAsync();
 
-        var templates = await context.CommunicationTemplates.ToListAsync();
+        var history = await context.NotificationHistory.ToListAsync();
 
-        templates.Should().HaveCount(2);
+        history.Should().HaveCount(2);
     }
 
     [Fact]
-    public async Task CommunicationTemplates_WhenResolved_FiltersTenantRowsAndKeepsGlobal()
+    public async Task NotificationHistory_WhenResolved_FiltersToCurrentTenant()
     {
         var accessor = new NotificationTestTenantContextAccessor
         {
@@ -37,17 +38,15 @@ public sealed class NotificationTenantQueryFilterTests
         };
 
         var context = await CreateContextAsync(accessor);
-        context.CommunicationTemplates.AddRange(
-            CreateTemplate(null, null, "GLOBAL"),
-            CreateTemplate(1, 1, "TENANT_MATCH"),
-            CreateTemplate(2, 1, "OTHER_TENANT"));
+        context.NotificationHistory.AddRange(
+            CreateHistory(1, "MATCH"),
+            CreateHistory(2, "OTHER"));
         await context.SaveChangesAsync();
 
-        var templates = await context.CommunicationTemplates.ToListAsync();
+        var history = await context.NotificationHistory.ToListAsync();
 
-        templates.Should().HaveCount(2);
-        templates.Should().Contain(t => t.Code == "GLOBAL");
-        templates.Should().Contain(t => t.Code == "TENANT_MATCH");
+        history.Should().ContainSingle();
+        history[0].TemplateName.Should().Be("MATCH");
     }
 
     private static async Task<FgsNotificationDbContext> CreateContextAsync(
@@ -65,19 +64,14 @@ public sealed class NotificationTenantQueryFilterTests
         return context;
     }
 
-    private static FgsSetupCommunicationTemplate CreateTemplate(
-        long? tenantId,
-        long? companyId,
-        string code) =>
+    private static FgsNotificationHistory CreateHistory(long tenantId, string templateName) =>
         new()
         {
+            Id = Guid.NewGuid(),
             TenantId = tenantId,
-            CompanyId = companyId,
-            TemplateType = "EMAIL",
-            Code = code,
-            Name = code,
-            Body = "body",
-            IsActive = true,
+            Channel = NotificationChannel.Email,
+            TemplateName = templateName,
+            Status = NotificationDeliveryStatus.Pending,
             CreatedOn = DateTimeOffset.UtcNow
         };
 

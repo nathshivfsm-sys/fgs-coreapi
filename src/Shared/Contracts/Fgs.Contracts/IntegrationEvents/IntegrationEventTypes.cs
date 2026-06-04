@@ -6,6 +6,8 @@ public static class IntegrationEventTypes
 
     public const string TenantProvisionRequested = "TenantProvisionRequested";
 
+    public const string TenantProvisionCompleted = "TenantProvisionCompleted";
+
     public const string UserInvited = "UserInvited";
 
     public const string PasswordReset = "PasswordReset";

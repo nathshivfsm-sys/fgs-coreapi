@@ -1,7 +1,7 @@
 ﻿using Fgs.Messaging.Options;
 using Fgs.Notification.Infrastructure.Integrations.SendGrid;
 using Fgs.Notification.Infrastructure.Options;
-using Fgs.User.Application.Abstractions.Credentials;
+using Fgs.Setup.Application.Abstractions.Credentials;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -34,7 +34,7 @@ public static class NotificationCredentialServiceCollectionExtensions
         services.AddSingleton<IOptionsChangeTokenSource<RabbitMqOptions>, CredentialOptionsChangeTokenSource<RabbitMqOptions>>();
 
         services
-            .AddRefitClient<IUserCredentialConfigurationClient>()
+            .AddRefitClient<ISetupCredentialConfigurationClient>()
             .ConfigureHttpClient((sp, client) =>
             {
                 var options = sp.GetRequiredService<IOptions<UserServiceCredentialClientOptions>>().Value;

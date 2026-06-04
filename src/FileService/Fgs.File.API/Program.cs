@@ -19,6 +19,7 @@ builder.Services.AddFgsSwagger(options =>
 });
 builder.Services.AddFgsFileInfrastructure(builder.Configuration);
 builder.Services.AddFgsMultiTenancy();
+builder.Services.AddFgsMultiTenancy();
 builder.Services.AddFgsObservability(builder.Configuration, "fgs-file-service");
 
 var app = builder.Build();

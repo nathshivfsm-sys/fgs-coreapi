@@ -4,6 +4,7 @@
     <ProjectReference Include="..\Fgs.Audit.Application\Fgs.Audit.Application.csproj" />
     <ProjectReference Include="..\Fgs.Audit.Domain\Fgs.Audit.Domain.csproj" />
     <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
+    <ProjectReference Include="..\..\Shared\MultiTenancy\Fgs.MultiTenancy\Fgs.MultiTenancy.csproj" />
   </ItemGroup>
 
   <ItemGroup>

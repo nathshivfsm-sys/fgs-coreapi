@@ -6,7 +6,7 @@ public sealed class UserServiceCredentialClientOptions
 
     /// <summary>
     /// User Service base URL. Use <c>http://localhost:5001</c> when debugging locally;
-    /// use <c>http://user-service:5001</c> inside the Docker compose network.
+    /// use <c>http://setup-service:5001</c> inside the Docker compose network.
     /// </summary>
     public string BaseUrl { get; set; } = "http://localhost:5001";
 

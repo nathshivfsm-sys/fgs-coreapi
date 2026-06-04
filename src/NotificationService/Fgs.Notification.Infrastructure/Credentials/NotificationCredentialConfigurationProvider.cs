@@ -1,4 +1,4 @@
-﻿using Fgs.User.Application.Abstractions.Credentials;
+﻿using Fgs.Setup.Application.Abstractions.Credentials;
 
 namespace Fgs.Notification.Infrastructure.Credentials;
 

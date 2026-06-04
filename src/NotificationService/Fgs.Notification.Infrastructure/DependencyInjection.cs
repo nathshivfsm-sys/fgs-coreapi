@@ -16,7 +16,7 @@ using Fgs.Notification.Infrastructure.Audit;
 using Fgs.Notification.Infrastructure.BackgroundJobs;
 using Fgs.Notification.Infrastructure.Configuration;
 using Fgs.Notification.Infrastructure.Database;
-using Fgs.Notification.Infrastructure.Database.Seed;
+using Fgs.Notification.Infrastructure.Templates;
 using Fgs.Notification.Infrastructure.Integrations.QuickBooks;
 using Fgs.Notification.Infrastructure.Integrations.SendGrid;
 using Fgs.Notification.Infrastructure.Integrations.Stripe;
@@ -74,7 +74,7 @@ public static class DependencyInjection
         {
             options.UseNpgsql(connectionString, npgsql =>
             {
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsNotificationDbContext.FgsSchema);
+                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsNotificationDbContext.MigrationHistorySchema);
                 npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
             });
         });
@@ -85,11 +85,11 @@ public static class DependencyInjection
 
         services.AddScoped<INotificationHistoryRepository, NotificationHistoryRepository>();
         services.AddScoped<IIdempotencyStore, IdempotencyStore>();
+        services.AddSetupTemplateClient();
         services.AddScoped<ICommunicationTemplateRepository, CommunicationTemplateRepository>();
         services.AddScoped<ICommunicationTemplateService, CommunicationTemplateService>();
         services.AddSingleton<ITemplateRenderer, TemplateRenderer>();
         services.AddScoped<INotificationTemplateRenderer, DatabaseNotificationTemplateRenderer>();
-        services.AddScoped<CommunicationTemplateSeeder>();
         services.AddSingleton<INotificationPreferenceService, PlaceholderNotificationPreferenceService>();
         services.AddSingleton<IIntegrationEventMapper, IntegrationEventMapper>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();

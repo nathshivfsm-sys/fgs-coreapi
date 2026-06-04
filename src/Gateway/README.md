@@ -47,6 +47,20 @@ NGINX listens on `https://localhost:8443` locally.
 | `/api/v1/jobs` | `job-service:5003` | `/api/v1/` |
 | `/api/v1/jobs/{path}` | `job-service:5003` | `/api/v1/{path}` |
 
+### Database-backed services (local dev)
+
+Each service uses its own connection string (`FgsUser`, `FgsSetup`, `FgsFile`, etc.). PostgreSQL init script: [`scripts/init-postgres.sql`](scripts/init-postgres.sql). Ownership map: [`docs/architecture/DATABASE_OWNERSHIP_MIGRATION.md`](../../docs/architecture/DATABASE_OWNERSHIP_MIGRATION.md).
+
+When Setup and File services are added to this Compose stack, expose routes such as:
+
+| Public route | Upstream | Notes |
+| --- | --- | --- |
+| `/api/v1/credentials/{path}` | `setup-service:5004` | KMS-backed credential admin |
+| `/api/v1/communication-templates/{path}` | `setup-service:5004` | Template reads for Notification |
+| `/api/v1/tenants/{tenantId}/bucket` | `file-service:5005` | S3 bucket provisioning |
+
+Generate EF SQL scripts: [`scripts/generate-migration-sql.ps1`](../../scripts/generate-migration-sql.ps1).
+
 OAuth and invitation URLs are exposed through the gateway (register the same values in Microsoft Entra):
 
 | Setting | Local gateway value |

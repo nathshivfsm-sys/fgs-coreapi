@@ -1,8 +1,10 @@
 # FGS Shared Architecture Review & Refactoring Report
 
-**Date:** 2026-05-30  
-**Scope:** `src/Shared/*`, UserService, PlatformService, WorkOrderService  
+**Date:** 2026-05-30 (updated 2026-06-04 for database ownership split)  
+**Scope:** `src/Shared/*`, UserService, NotificationService, JobService, SetupService, FileService, AuditService  
 **Target:** Enterprise microservices on .NET 10 with Clean Architecture, CQRS, DDD, SOLID
+
+> **Database ownership (2026-06):** The monolithic `FgsUserDbContext` was split into per-service DbContexts (`identity`/`tenant` → User, `setup`/`glo` → Setup, `file` → File, `audit` → Audit, `notification` → Notification). See [DATABASE_OWNERSHIP_MIGRATION.md](./DATABASE_OWNERSHIP_MIGRATION.md).
 
 ---
 
@@ -107,12 +109,13 @@ Microservice.API          → Foundation, MultiTenancy, Observability
 
 | Component | Owner | Reason |
 |-----------|-------|--------|
-| `FgsUser`, `FgsTenant`, `FgsTenantCompany`, all domain entities | UserService.Domain | Bounded context ownership |
-| `FgsUserDbContext`, EF configurations, migrations | UserService.Infrastructure | Service-specific persistence |
-| `Repository<T>`, `UnitOfWork` implementations | UserService.Infrastructure | Tied to `FgsUserDbContext` |
-| `OutboxWriter`, `OutboxProcessorService`, `RabbitMqPublisher` | UserService.Infrastructure | Service-specific outbox table |
+| `FgsUser`, `FgsTenant`, `FgsTenantCompany`, `FgsLocation` (identity/tenant) | UserService.Domain | Bounded context ownership |
+| `FgsUserDbContext`, EF configurations, migrations | UserService.Infrastructure | User DB (`identity`, `tenant`) only |
+| `FgsSetupDbContext`, glo/setup entities, provisioning, credentials | SetupService | Reference + tenant setup data |
+| `Repository<T>`, `UnitOfWork` implementations | Each service Infrastructure | Per-service DbContext |
+| `OutboxWriter` / `GloOutboxStore` | SetupService (glo outbox) | Cross-service events via RabbitMQ |
 | `JwtTokenService`, `EntraExternalIdService` | UserService.Infrastructure | User identity implementation |
-| Credential feature (commands, handlers, AWS secrets) | UserService | Integration bounded context |
+| Credential feature (commands, handlers, AWS KMS) | SetupService | Credential store in Setup DB |
 | Notification subsystem | PlatformService | Platform bounded context |
 | `NotificationQueueWorker`, `IntegrationEventMapper` | PlatformService.Infrastructure | Consumer-side logic |
 | Feature commands/queries/handlers | Each service Application | CQRS — never shared |
