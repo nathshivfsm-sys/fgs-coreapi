@@ -3477,7 +3477,9 @@ END $EF$;
 DO $EF$
 BEGIN
     IF NOT EXISTS(SELECT 1 FROM setup."__EFMigrationsHistory" WHERE "MigrationId" = '20260604133506_AddCacheTablesAndRewireFks') THEN
-    ALTER TABLE setup."FgsCredential" ADD CONSTRAINT "FK_FgsCredential_FgsTenantCompanyCache_TenantId_CompanyId" FOREIGN KEY ("TenantId", "CompanyId") REFERENCES setup."FgsTenantCompanyCache" ("TenantId", "CompanyId") ON DELETE RESTRICT;
+    ALTER TABLE IF EXISTS setup."FgsCredential"
+        DROP CONSTRAINT IF EXISTS "FK_FgsCredential_FgsTenantCompany_TenantId_CompanyId";
+    ALTER TABLE setup."FgsCredential" ADD CONSTRAINT "FK_FgsCredential_FgsTenantCompanyCache_TenantId_CompanyId" FOREIGN KEY ("TenantId", "CompanyId") REFERENCES setup."FgsTenantCompanyCache" ("TenantId", "CompanyId") MATCH SIMPLE ON UPDATE NO ACTION ON DELETE RESTRICT;
     END IF;
 END $EF$;
 

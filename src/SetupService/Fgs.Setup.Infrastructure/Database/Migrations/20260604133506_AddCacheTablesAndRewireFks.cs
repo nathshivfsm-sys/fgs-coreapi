@@ -153,6 +153,12 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                 principalColumns: new[] { "TenantId", "CompanyId" },
                 onDelete: ReferentialAction.Restrict);
 
+            migrationBuilder.Sql(
+                """
+                ALTER TABLE IF EXISTS setup."FgsCredential"
+                    DROP CONSTRAINT IF EXISTS "FK_FgsCredential_FgsTenantCompany_TenantId_CompanyId";
+                """);
+
             migrationBuilder.AddForeignKey(
                 name: "FK_FgsCredential_FgsTenantCompanyCache_TenantId_CompanyId",
                 schema: "setup",
