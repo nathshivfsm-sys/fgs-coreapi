@@ -61,7 +61,7 @@ public static class DependencyInjection
         services.AddRefitClient<IUserTenantClient>()
             .ConfigureHttpClient(c => c.BaseAddress = new Uri(userBaseUrl));
 
-        var fileBaseUrl = configuration["FileService:BaseUrl"] ?? "http://file-service:5004";
+        var fileBaseUrl = configuration["FileService:BaseUrl"] ?? "http://file-service:5005";
         services.AddRefitClient<IFileTenantClient>()
             .ConfigureHttpClient(c => c.BaseAddress = new Uri(fileBaseUrl));
 

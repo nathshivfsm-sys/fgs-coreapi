@@ -22,13 +22,15 @@ src/Gateway/
     user-service.Dockerfile
     notification-service.Dockerfile
     job-service.Dockerfile
+    setup-service.Dockerfile
+    file-service.Dockerfile
   logs/
   scripts/
     generate-local-cert.ps1
     generate-local-cert.sh
 ```
 
-PostgreSQL and RabbitMQ are **not** part of this Compose file. Start them on the host before bringing up the gateway stack (for example `docker compose up -d` in `src/UserService` for RabbitMQ, plus your local PostgreSQL instance).
+RabbitMQ runs in this Compose file. PostgreSQL is expected on the host (or reachable via connection strings in mounted `appsettings.Development.json`).
 
 ## Routes
 
@@ -46,18 +48,13 @@ NGINX listens on `https://localhost:8443` locally.
 | `/api/v1/notifications/{path}` | `notification-service:5002` | `/api/v1/{path}` |
 | `/api/v1/jobs` | `job-service:5003` | `/api/v1/` |
 | `/api/v1/jobs/{path}` | `job-service:5003` | `/api/v1/{path}` |
+| `/api/v1/credentials/{path}` | `setup-service:5004` | KMS-backed credential admin |
+| `/api/v1/communication-templates/{path}` | `setup-service:5004` | Template reads for Notification |
+| `/api/v1/tenants/{path}` | `file-service:5005` | S3 bucket and folder provisioning |
 
 ### Database-backed services (local dev)
 
 Each service uses its own connection string (`FgsUser`, `FgsSetup`, `FgsFile`, etc.). PostgreSQL init script: [`scripts/init-postgres.sql`](scripts/init-postgres.sql). Ownership map: [`docs/architecture/DATABASE_OWNERSHIP_MIGRATION.md`](../../docs/architecture/DATABASE_OWNERSHIP_MIGRATION.md).
-
-When Setup and File services are added to this Compose stack, expose routes such as:
-
-| Public route | Upstream | Notes |
-| --- | --- | --- |
-| `/api/v1/credentials/{path}` | `setup-service:5004` | KMS-backed credential admin |
-| `/api/v1/communication-templates/{path}` | `setup-service:5004` | Template reads for Notification |
-| `/api/v1/tenants/{tenantId}/bucket` | `file-service:5005` | S3 bucket provisioning |
 
 Generate EF SQL scripts: [`scripts/generate-migration-sql.ps1`](../../scripts/generate-migration-sql.ps1).
 
@@ -95,12 +92,17 @@ curl.exe -k https://localhost:8443/api/v1/notifications/health
 curl.exe -k https://localhost:8443/api/v1/jobs/health
 ```
 
+Container health checks use each service's `/health` endpoint (see Dockerfiles). Setup and File API routes are reachable under `/api/v1/credentials/` and `/api/v1/tenants/` without a path prefix rewrite.
+
 The local Compose file starts:
 
+- `rabbitmq`, published on host ports `5672` and `15672`.
 - `nginx`, published on host ports `8080` and `8443`.
 - `user-service`, private on container port `5001`.
 - `notification-service`, private on container port `5002`.
 - `job-service`, private on container port `5003`.
+- `setup-service`, private on container port `5004`.
+- `file-service`, private on container port `5005`.
 
 ### Application configuration (Postgres, RabbitMQ, Entra)
 
@@ -111,6 +113,8 @@ Each API container mounts the **same** files you edit for local `dotnet run`:
 | User | `src/UserService/Fgs.User.API/appsettings.json` + `appsettings.Development.json` |
 | Platform | `src/NotificationService/Fgs.Notification.API/appsettings.json` + `appsettings.Development.json` |
 | Workorder | `src/JobService/Fgs.Job.API/appsettings.json` + `appsettings.Development.json` |
+| Setup | `src/SetupService/Fgs.Setup.API/appsettings.json` + `appsettings.Development.json` |
+| File | `src/FileService/Fgs.File.API/appsettings.json` + `appsettings.Development.json` |
 
 Containers use `ASPNETCORE_ENVIRONMENT=Development`, so ASP.NET Core **merges** `appsettings.json` then `appsettings.Development.json` (same as Visual Studio / `dotnet run`). There are no duplicate Postgres or RabbitMQ settings in `docker-compose.yml`.
 
@@ -123,7 +127,7 @@ Change connection strings or RabbitMQ in those JSON files and restart the servic
 Do not add `container_name`; Docker Compose needs generated names for scaling.
 
 ```powershell
-docker compose up --build --scale user-service=2 --scale notification-service=2 --scale job-service=2
+docker compose up --build --scale user-service=2 --scale notification-service=2 --scale job-service=2 --scale setup-service=2 --scale file-service=2
 ```
 
 NGINX resolves the Compose service names and load balances with `least_conn`. If you scale after NGINX has already started, recreate or reload NGINX so it refreshes upstream DNS:
@@ -189,10 +193,10 @@ sudo systemctl reload nginx
 
 For Kubernetes, keep this routing model but move responsibilities as follows:
 
-- Use Kubernetes `Service` objects for `user-service`, `notification-service`, and `job-service`.
+- Use Kubernetes `Service` objects for `user-service`, `notification-service`, `job-service`, `setup-service`, and `file-service`.
 - Put TLS certificates in `kubernetes.io/tls` secrets, or use cert-manager.
 - Use NGINX Ingress Controller for path routing and prefix rewrite annotations.
-- Keep `/api/v1/users`, `/api/v1/notifications`, and `/api/v1/jobs` as the stable external contract.
+- Keep `/api/v1/users`, `/api/v1/notifications`, `/api/v1/jobs`, `/api/v1/credentials`, `/api/v1/communication-templates`, and `/api/v1/tenants` as the stable external contract.
 - Move rate limiting, body size, gzip, timeouts, and security headers into Ingress annotations or a controller ConfigMap.
 
 The production NGINX files remain useful as the reference edge policy when converting to Ingress resources.

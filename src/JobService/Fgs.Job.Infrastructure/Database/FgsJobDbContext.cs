@@ -9,6 +9,6 @@ public sealed class FgsJobDbContext(DbContextOptions<FgsJobDbContext> options) :
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema(FgsDatabaseSchemas.Job);
+        modelBuilder.HasDefaultSchema(FgsDatabaseSchemas.Workflow);
     }
 }

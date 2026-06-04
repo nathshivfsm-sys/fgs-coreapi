@@ -2,6 +2,6 @@
 
 public static class FgsDatabaseSchemas
 {
-    public const string Job = "job";
-    public const string MigrationHistory = Job;
+    public const string Workflow = "workflow";
+    public const string MigrationHistory = Workflow;
 }

@@ -37,6 +37,10 @@ services:
         condition: service_healthy
       job-service:
         condition: service_healthy
+      setup-service:
+        condition: service_healthy
+      file-service:
+        condition: service_healthy
     ports:
       - "8080:80"
       - "8443:443"
@@ -109,6 +113,50 @@ services:
       - "host.docker.internal:host-gateway"
     expose:
       - "5003"
+    networks:
+      - fgs-private
+    restart: unless-stopped
+
+  file-service:
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/file-service.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    volumes:
+      - ../FileService/Fgs.File.API/appsettings.json:/src/src/FileService/Fgs.File.API/appsettings.json:ro
+      - ../FileService/Fgs.File.API/appsettings.Development.json:/src/src/FileService/Fgs.File.API/appsettings.Development.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "5005"
+    networks:
+      - fgs-private
+    restart: unless-stopped
+
+  setup-service:
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/setup-service.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      RabbitMq__HostName: rabbitmq
+      FileService__BaseUrl: http://file-service:5005
+      UserService__BaseUrl: http://user-service:5001
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      file-service:
+        condition: service_healthy
+    volumes:
+      - ../SetupService/Fgs.Setup.API/appsettings.json:/src/src/SetupService/Fgs.Setup.API/appsettings.json:ro
+      - ../SetupService/Fgs.Setup.API/appsettings.Development.json:/src/src/SetupService/Fgs.Setup.API/appsettings.Development.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "5004"
     networks:
       - fgs-private
     restart: unless-stopped
