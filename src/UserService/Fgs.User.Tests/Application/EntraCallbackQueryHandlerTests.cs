@@ -1,4 +1,4 @@
-﻿using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Infrastructure.Common.Security;
@@ -22,6 +22,7 @@ using Fgs.Setup.Infrastructure.Common.Time;
 using SetupDateTimeProvider = Fgs.Setup.Infrastructure.Common.Time.DateTimeProvider;
 using SetupOutboxWriter = Fgs.Setup.Infrastructure.Messaging.OutboxWriter;
 using Fgs.User.Infrastructure.Database;
+using Fgs.Persistence.Implementations;
 using Fgs.User.Infrastructure.Database.UnitOfWorks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -284,7 +285,7 @@ public sealed class EntraCallbackQueryHandlerTests
             Microsoft.Extensions.Options.Options.Create(new OutboxOptions()));
 
         return new EntraCallbackQueryHandler(
-            new UnitOfWork(context),
+            new EfUnitOfWork<FgsUserDbContext>(context),
             new SetupUnitOfWork(setupContext),
             entraMock,
             new EmailNormalizer(),
@@ -466,3 +467,4 @@ public sealed class EntraCallbackQueryHandlerTests
         return invitationId;
     }
 }
+

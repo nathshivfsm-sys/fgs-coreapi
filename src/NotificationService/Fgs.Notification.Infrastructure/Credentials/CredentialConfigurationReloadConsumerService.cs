@@ -75,8 +75,10 @@ public sealed class CredentialConfigurationReloadConsumerService(
             try
             {
                 using var scope = scopeFactory.CreateScope();
-                var configurationProvider = scope.ServiceProvider.GetRequiredService<ICredentialConfigurationProvider>();
-                await configurationProvider.ReloadAsync(stoppingToken);
+                var mediator = scope.ServiceProvider.GetRequiredService<MediatR.IMediator>();
+                await mediator.Send(
+                    new Fgs.Notification.Application.Features.Credentials.Commands.ReloadCredentialConfiguration.ReloadCredentialConfigurationCommand(),
+                    stoppingToken);
 
                 logger.LogInformation(
                     "Reloaded credential configuration after {RoutingKey} (delivery tag {Tag}).",

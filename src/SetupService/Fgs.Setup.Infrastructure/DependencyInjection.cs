@@ -18,7 +18,9 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Refit;
+using Fgs.Contracts.Clients;
+using Fgs.Foundation.Extensions;
+using Fgs.Persistence.Extensions;
 
 namespace Fgs.Setup.Infrastructure;
 
@@ -28,7 +30,6 @@ public static class DependencyInjection
         this IServiceCollection services,
         ConfigurationManager configuration)
     {
-        services.AddFgsFoundation();
         services.AddFgsEntraAuthentication(configuration);
         services.AddFgsRemoteClaimsEnrichment(configuration);
 
@@ -41,13 +42,14 @@ public static class DependencyInjection
         var connectionString = FgsSetupConnectionString.ResolveRequired(configuration);
         services.AddDbContext<FgsSetupDbContext>((_, options) =>
         {
-            options.UseNpgsql(connectionString, npgsql =>
-            {
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsSetupDbContext.MigrationHistorySchema);
-                npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
-            });
+            options.UseFgsNpgsql(
+                connectionString,
+                "__EFMigrationsHistory",
+                FgsSetupDbContext.MigrationHistorySchema);
             options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
+
+        services.AddFgsPersistence<FgsSetupDbContext>();
 
         var auditConnectionString = configuration.GetConnectionString("FgsAudit")
             ?? connectionString;
@@ -57,13 +59,15 @@ public static class DependencyInjection
                 npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsAuditDbContext.MigrationHistorySchema));
         });
 
-        var userBaseUrl = configuration["UserService:BaseUrl"] ?? "http://user-service:5001";
-        services.AddRefitClient<IUserTenantClient>()
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(userBaseUrl));
+        services.AddFgsRefitClient<IUserTenantClient>(
+            configuration,
+            "UserService:BaseUrl",
+            "http://user-service:5001");
 
-        var fileBaseUrl = configuration["FileService:BaseUrl"] ?? "http://file-service:5005";
-        services.AddRefitClient<IFileTenantClient>()
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(fileBaseUrl));
+        services.AddFgsRefitClient<IFileTenantClient>(
+            configuration,
+            "FileService:BaseUrl",
+            "http://file-service:5005");
 
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<ITenantSeedDatabaseConnectionFactory>(sp =>

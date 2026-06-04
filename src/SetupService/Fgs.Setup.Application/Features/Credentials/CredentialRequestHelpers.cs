@@ -1,5 +1,5 @@
-﻿using System.Text;
-using Fgs.Foundation.Result;
+using System.Text;
+using Fgs.Contracts.Api;
 using Fgs.Setup.Application.Features.Credentials.DTOs;
 using Fgs.Setup.Domain.Enums;
 
@@ -35,3 +35,4 @@ internal static class CredentialRequestHelpers
     public static CredentialMutationResultDto ToMutationResult(CredentialScope scope, string id, string providerCode, string credentialName) =>
         new(scope, id, providerCode, credentialName);
 }
+

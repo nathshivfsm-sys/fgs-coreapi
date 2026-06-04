@@ -1,5 +1,5 @@
-﻿using System.Text;
-using Fgs.Foundation.Result;
+using System.Text;
+using Fgs.Contracts.Api;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Application.Features.Credentials.DTOs;
 using Fgs.Setup.Application.Features.Credentials.Services;
@@ -85,3 +85,4 @@ public sealed class ResolveCredentialSecretQueryHandler
             Encoding.UTF8.GetString(plaintext)));
     }
 }
+

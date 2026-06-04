@@ -12,7 +12,7 @@ using Fgs.User.Application.Abstractions.Time;
 
 using Fgs.Setup.Domain.Entities;
 
-using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 
 using Fgs.User.Application.Common;
 
@@ -403,5 +403,6 @@ public sealed class EntraCallbackQueryHandler : IRequestHandler<EntraCallbackQue
     }
 
 }
+
 
 

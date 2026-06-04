@@ -8,13 +8,13 @@ namespace Fgs.Contracts.Clients;
 public interface IFileTenantClient
 {
     [Post("/api/v1/tenants/{tenantId}/bucket")]
-    Task<ProvisionTenantBucketResponse> ProvisionBucketAsync(
+    Task<Fgs.Contracts.Api.ApiResponse<ProvisionTenantBucketResponse>> ProvisionBucketAsync(
         long tenantId,
         [Body] ProvisionTenantBucketRequest request,
         CancellationToken cancellationToken = default);
 
     [Post("/api/v1/tenants/{tenantId}/folders")]
-    Task InitializeFoldersAsync(
+    Task<Fgs.Contracts.Api.ApiResponse<object>> InitializeFoldersAsync(
         long tenantId,
         [Body] InitializeTenantFoldersRequest request,
         CancellationToken cancellationToken = default);

@@ -40,6 +40,8 @@ using Fgs.Messaging.RabbitMq;
 using Fgs.Notification.Infrastructure.Options;
 using Fgs.Notification.Infrastructure.Credentials;
 using Fgs.Notification.Infrastructure.Reporting;
+using System.Reflection;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,6 +57,8 @@ public static class DependencyInjection
         services.AddFgsEntraAuthentication(configuration);
         services.AddFgsRemoteClaimsEnrichment(configuration);
         services.AddNotificationResolvedCredentialConfiguration(configuration, configuration);
+
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
         services.PostConfigure<RabbitMqOptions>(options =>
@@ -85,7 +89,7 @@ public static class DependencyInjection
 
         services.AddScoped<INotificationHistoryRepository, NotificationHistoryRepository>();
         services.AddScoped<IIdempotencyStore, IdempotencyStore>();
-        services.AddSetupTemplateClient();
+        services.AddSetupTemplateClient(configuration);
         services.AddScoped<ICommunicationTemplateRepository, CommunicationTemplateRepository>();
         services.AddScoped<ICommunicationTemplateService, CommunicationTemplateService>();
         services.AddSingleton<ITemplateRenderer, TemplateRenderer>();

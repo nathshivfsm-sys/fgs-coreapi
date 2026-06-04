@@ -1,5 +1,5 @@
 ﻿using Fgs.Audit.Infrastructure.Database;
-using Fgs.Foundation.Extensions;
+using Fgs.Persistence.Extensions;
 using Fgs.MultiTenancy;
 using Fgs.Security.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +14,6 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddFgsFoundation();
         services.AddFgsEntraAuthentication(configuration);
         services.AddFgsRemoteClaimsEnrichment(configuration);
 
@@ -23,9 +22,13 @@ public static class DependencyInjection
 
         services.AddDbContext<FgsAuditDbContext>((_, options) =>
         {
-            options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsAuditDbContext.MigrationHistorySchema));
+            options.UseFgsNpgsql(
+                connectionString,
+                "__EFMigrationsHistory",
+                FgsAuditDbContext.MigrationHistorySchema);
         });
+
+        services.AddFgsPersistence<FgsAuditDbContext>();
 
         return services;
     }

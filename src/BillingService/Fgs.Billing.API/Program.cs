@@ -1,4 +1,5 @@
-﻿using Fgs.Foundation.Api;
+using Fgs.Billing.Application;
+using Fgs.Foundation.Api;
 using Fgs.Foundation.Extensions;
 using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
@@ -17,6 +18,7 @@ builder.Services.AddFgsSwagger(options =>
     options.Description = "Billing, invoicing, and payment terms.";
     options.XmlCommentsAssembly = typeof(Program).Assembly;
 });
+builder.Services.AddFgsBillingApplication();
 builder.Services.AddFgsBillingInfrastructure(builder.Configuration);
 builder.Services.AddFgsMultiTenancy();
 builder.Services.AddFgsObservability(builder.Configuration, "fgs-billing-service");

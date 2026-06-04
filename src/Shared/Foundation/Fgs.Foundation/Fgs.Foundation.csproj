@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\..\Kernel\Fgs.Kernel\Fgs.Kernel.csproj" />
+    <ProjectReference Include="..\..\Contracts\Fgs.Contracts\Fgs.Contracts.csproj" />
     <ProjectReference Include="..\..\MultiTenancy\Fgs.MultiTenancy\Fgs.MultiTenancy.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -11,5 +12,9 @@
     <PackageReference Include="Microsoft.OpenApi" Version="2.4.1" />
     <PackageReference Include="FluentValidation" Version="12.0.0" />
     <PackageReference Include="MediatR" Version="13.0.0" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.8" />
   </ItemGroup>
 </Project>

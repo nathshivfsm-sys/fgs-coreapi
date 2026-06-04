@@ -1,4 +1,4 @@
-using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 using Fgs.User.Application.Features.Signup.DTOs;
 using MediatR;
 
@@ -13,3 +13,4 @@ public sealed record CreateCompanySignupCommand(
     IReadOnlyList<int> BusinessTypeIds,
     string? TimeZone = null,
     string? DefaultCurrency = null) : IRequest<ApiResponse<CompanySignupResultDto>>;
+

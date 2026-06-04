@@ -1,4 +1,4 @@
-﻿using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 using Fgs.Setup.Application.Features.Credentials.DTOs;
 using Fgs.Setup.Application.Features.Credentials.Services;
 using Fgs.Setup.Domain.Enums;
@@ -83,3 +83,4 @@ public sealed class UpdateCredentialCommandHandler
                 credential.CredentialName));
     }
 }
+

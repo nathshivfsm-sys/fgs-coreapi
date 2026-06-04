@@ -1,4 +1,4 @@
-﻿using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 using Fgs.Setup.Application.Features.Credentials.DTOs;
 using Fgs.Setup.Domain.Enums;
 using MediatR;
@@ -13,3 +13,4 @@ public sealed record CreateCredentialCommand(
     string? Description = null,
     long? TenantId = null,
     long? CompanyId = null) : IRequest<ApiResponse<CredentialMutationResultDto>>;
+

@@ -3,8 +3,10 @@ using Asp.Versioning;
 using Fgs.Foundation.Api;
 using Fgs.Security.Abstractions;
 using Fgs.Security.Models;
+using Fgs.Contracts.Api;
+using Fgs.Contracts.Clients;
 using Fgs.User.Application.Features.Auth.Queries.EntraCallback;
-using Fgs.Foundation.Result;
+using Fgs.User.Application.Features.Auth.Queries.GetAuthMe;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,15 +16,10 @@ namespace Fgs.User.API.Controllers;
 /// <summary>
 /// Authentication endpoints (Microsoft Entra External ID).
 /// </summary>
-[ApiController]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("auth")]
-[Produces("application/json")]
-public sealed class AuthController : ControllerBase
+public sealed class AuthController(IMediator mediator) : FgsApiControllerBase(mediator)
 {
-    private readonly IMediator _mediator;
-
-    public AuthController(IMediator mediator) => _mediator = mediator;
 
     /// <summary>
     /// OAuth2 callback after Entra login: exchanges code, validates email vs invitation, stores Entra object id, returns Entra access token.
@@ -44,7 +41,7 @@ public sealed class AuthController : ControllerBase
         [FromQuery] string state,
         CancellationToken cancellationToken)
     {
-        var response = await _mediator.Send(new EntraCallbackQuery(code, state), cancellationToken);
+        var response = await Mediator.Send(new EntraCallbackQuery(code, state), cancellationToken);
         if (!response.Success || response.Data is null)
         {
             return StatusCode(response.StatusCode, response);
@@ -72,26 +69,9 @@ public sealed class AuthController : ControllerBase
 
     /// <summary>Returns the authenticated FGS user profile resolved from Entra identity and database roles.</summary>
     [HttpGet("me")]
-    [ProducesResponseType(typeof(FgsAuthenticatedUserProfile), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public IActionResult Me([FromServices] IFgsUserContext userContext)
-    {
-        if (!userContext.IsAuthenticated
-            || userContext.UserId is null
-            || userContext.EntraObjectId is null
-            || userContext.TenantId is null
-            || userContext.CompanyId is null
-            || string.IsNullOrWhiteSpace(userContext.Email))
-        {
-            return Unauthorized();
-        }
-
-        return Ok(new FgsAuthenticatedUserProfile(
-            userContext.UserId.Value,
-            userContext.Email,
-            userContext.EntraObjectId,
-            userContext.TenantId.Value,
-            userContext.CompanyId.Value,
-            userContext.Roles));
-    }
+    [ProducesResponseType(typeof(ApiResponse<FgsAuthMeDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Me(CancellationToken cancellationToken) =>
+        FromApiResponse(await Mediator.Send(new GetAuthMeQuery(), cancellationToken));
 }
+

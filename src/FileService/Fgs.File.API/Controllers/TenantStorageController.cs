@@ -1,44 +1,37 @@
 using Asp.Versioning;
+using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
-using Fgs.File.Application.Abstractions.Provisioning;
+using Fgs.File.Application.Features.TenantStorage.Commands.InitializeTenantFolders;
+using Fgs.File.Application.Features.TenantStorage.Commands.ProvisionTenantBucket;
 using Fgs.Foundation.Api;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.File.API.Controllers;
 
 [AllowAnonymous]
-[ApiController]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("tenants")]
-public sealed class TenantStorageController(ITenantS3BucketProvisioner bucketProvisioner) : ControllerBase
+public sealed class TenantStorageController(IMediator mediator) : FgsApiControllerBase(mediator)
 {
     [HttpPost("{tenantId:long}/bucket")]
-    public async Task<ActionResult<ProvisionTenantBucketResponse>> ProvisionBucket(
+    [ProducesResponseType(typeof(ApiResponse<ProvisionTenantBucketResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ProvisionBucket(
         long tenantId,
         [FromBody] ProvisionTenantBucketRequest request,
-        CancellationToken cancellationToken)
-    {
-        var bucket = await bucketProvisioner.EnsureTenantBucketAsync(
-            tenantId,
-            request.ExistingBucketName,
-            cancellationToken);
-
-        return new ProvisionTenantBucketResponse(bucket);
-    }
+        CancellationToken cancellationToken) =>
+        FromApiResponse(await Mediator.Send(
+            new ProvisionTenantBucketCommand(tenantId, request),
+            cancellationToken));
 
     [HttpPost("{tenantId:long}/folders")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> InitializeFolders(
         long tenantId,
         [FromBody] InitializeTenantFoldersRequest request,
-        CancellationToken cancellationToken)
-    {
-        await bucketProvisioner.InitializeFolderStructureAsync(
-            request.BucketName,
-            request.TenantId,
-            request.CompanyNumbers,
-            cancellationToken);
-
-        return NoContent();
-    }
+        CancellationToken cancellationToken) =>
+        NoContentFromApiResponse(await Mediator.Send(
+            new InitializeTenantFoldersCommand(tenantId, request),
+            cancellationToken));
 }

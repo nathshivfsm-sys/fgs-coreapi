@@ -1,90 +1,52 @@
 using Asp.Versioning;
+using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
 using Fgs.Foundation.Api;
-using Fgs.User.Infrastructure.Database;
+using Fgs.User.Application.Features.Tenants.Commands.UpdateTenantStatus;
+using Fgs.User.Application.Features.Tenants.Commands.UpdateTenantStorageBucket;
+using Fgs.User.Application.Features.Tenants.Queries.GetTenant;
+using Fgs.User.Application.Features.Tenants.Queries.ListTenantCompanies;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.User.API.Controllers;
 
 [AllowAnonymous]
-[ApiController]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("tenants")]
-public sealed class TenantsController(FgsUserDbContext dbContext) : ControllerBase
+public sealed class TenantsController(IMediator mediator) : FgsApiControllerBase(mediator)
 {
     [HttpGet("{tenantId:long}")]
-    public async Task<ActionResult<TenantDto>> GetTenant(long tenantId, CancellationToken cancellationToken)
-    {
-        var tenant = await dbContext.FgsTenants
-            .AsNoTracking()
-            .FirstOrDefaultAsync(t => t.Id == tenantId, cancellationToken);
-
-        return tenant is null
-            ? NotFound()
-            : new TenantDto(tenant.Id, tenant.TenantCode, tenant.Name, tenant.FgsTenantStatusId, tenant.StorageBucketName);
-    }
+    [ProducesResponseType(typeof(ApiResponse<TenantDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetTenant(long tenantId, CancellationToken cancellationToken) =>
+        FromApiResponse(await Mediator.Send(new GetTenantQuery(tenantId), cancellationToken));
 
     [HttpGet("{tenantId:long}/companies")]
-    public async Task<ActionResult<IReadOnlyList<TenantCompanyDto>>> GetCompanies(
-        long tenantId,
-        CancellationToken cancellationToken)
-    {
-        var companies = await dbContext.FgsTenantCompanies
-            .AsNoTracking()
-            .Where(c => c.TenantId == tenantId)
-            .Select(c => new TenantCompanyDto(
-                c.Id,
-                c.TenantId,
-                c.CompanyNumber,
-                c.CompanyGuid,
-                c.Code,
-                c.Name,
-                c.IsActive))
-            .ToListAsync(cancellationToken);
-
-        return Ok(companies);
-    }
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<TenantCompanyDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCompanies(long tenantId, CancellationToken cancellationToken) =>
+        FromApiResponse(await Mediator.Send(new ListTenantCompaniesQuery(tenantId), cancellationToken));
 
     [HttpPatch("{tenantId:long}/status")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateStatus(
         long tenantId,
         [FromBody] UpdateTenantStatusRequest request,
-        CancellationToken cancellationToken)
-    {
-        var tenant = await dbContext.FgsTenants.FirstOrDefaultAsync(t => t.Id == tenantId, cancellationToken);
-        if (tenant is null)
-        {
-            return NotFound();
-        }
-
-        tenant.FgsTenantStatusId = request.FgsTenantStatusId;
-        tenant.UpdatedOn = DateTimeOffset.UtcNow;
-        if (request.FgsTenantStatusId == TenantStatusIds.Active)
-        {
-            tenant.IsActive = true;
-        }
-
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return NoContent();
-    }
+        CancellationToken cancellationToken) =>
+        NoContentFromApiResponse(await Mediator.Send(
+            new UpdateTenantStatusCommand(tenantId, request),
+            cancellationToken));
 
     [HttpPatch("{tenantId:long}/storage-bucket")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateStorageBucket(
         long tenantId,
         [FromBody] UpdateTenantStorageBucketRequest request,
-        CancellationToken cancellationToken)
-    {
-        var tenant = await dbContext.FgsTenants.FirstOrDefaultAsync(t => t.Id == tenantId, cancellationToken);
-        if (tenant is null)
-        {
-            return NotFound();
-        }
-
-        tenant.StorageBucketName = request.StorageBucketName;
-        tenant.UpdatedOn = DateTimeOffset.UtcNow;
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return NoContent();
-    }
+        CancellationToken cancellationToken) =>
+        NoContentFromApiResponse(await Mediator.Send(
+            new UpdateTenantStorageBucketCommand(tenantId, request),
+            cancellationToken));
 }

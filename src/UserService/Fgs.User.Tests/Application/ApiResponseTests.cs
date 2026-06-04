@@ -1,4 +1,4 @@
-using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 
 namespace Fgs.User.Tests.Application;
 
@@ -21,3 +21,4 @@ public sealed class ApiResponseTests
         response.Errors.Should().ContainSingle("error");
     }
 }
+

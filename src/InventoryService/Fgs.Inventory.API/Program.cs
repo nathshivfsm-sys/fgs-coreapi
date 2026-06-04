@@ -1,4 +1,5 @@
-﻿using Fgs.Foundation.Api;
+using Fgs.Inventory.Application;
+using Fgs.Foundation.Api;
 using Fgs.Foundation.Extensions;
 using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
@@ -17,6 +18,7 @@ builder.Services.AddFgsSwagger(options =>
     options.Description = "Inventory and stock management.";
     options.XmlCommentsAssembly = typeof(Program).Assembly;
 });
+builder.Services.AddFgsInventoryApplication();
 builder.Services.AddFgsInventoryInfrastructure(builder.Configuration);
 builder.Services.AddFgsMultiTenancy();
 builder.Services.AddFgsObservability(builder.Configuration, "fgs-inventory-service");

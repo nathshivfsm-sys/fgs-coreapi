@@ -1,4 +1,5 @@
-﻿using Fgs.Contracts.Clients;
+﻿using Fgs.Contracts.Api;
+using Fgs.Contracts.Clients;
 using Fgs.Notification.Application.Notifications.Templates;
 using Fgs.Notification.Domain.Entities;
 using Fgs.Notification.Infrastructure.Options;
@@ -17,7 +18,7 @@ public sealed class CommunicationTemplateRepository(
         string code,
         CancellationToken cancellationToken = default)
     {
-        var dto = await setupTemplateClient.GetActiveTemplateAsync(
+        var response = await setupTemplateClient.GetActiveTemplateAsync(
             tenantId,
             companyId,
             templateType.Trim(),
@@ -25,7 +26,12 @@ public sealed class CommunicationTemplateRepository(
             clientOptions.Value.InternalServiceKey,
             cancellationToken);
 
-        return dto is null ? null : Map(dto);
+        if (!response.Success || response.Data is null)
+        {
+            return null;
+        }
+
+        return Map(response.Data);
     }
 
     private static FgsSetupCommunicationTemplate Map(CommunicationTemplateDto dto) => new()

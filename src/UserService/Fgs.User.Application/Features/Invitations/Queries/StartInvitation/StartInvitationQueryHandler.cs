@@ -1,5 +1,5 @@
 using Fgs.User.Application.Abstractions.Identity;
-using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Invitations;
 using Fgs.Persistence.Abstractions;
@@ -65,3 +65,4 @@ public sealed class StartInvitationQueryHandler(
         return new StartInvitationResult(true, authorizeUrl, null);
     }
 }
+

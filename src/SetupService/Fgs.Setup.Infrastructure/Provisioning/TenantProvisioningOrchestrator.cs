@@ -1,4 +1,5 @@
-﻿using Fgs.Contracts.Clients;
+﻿using Fgs.Contracts.Api;
+using Fgs.Contracts.Clients;
 using TenantStatusIds = Fgs.Contracts.Clients.TenantStatusIds;
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.Setup.Application.Abstractions.Provisioning;
@@ -22,7 +23,8 @@ public sealed class TenantProvisioningOrchestrator(
             request.TenantId,
             request.CorrelationId);
 
-        var tenant = await userTenantClient.GetTenantAsync(request.TenantId, cancellationToken);
+        var tenantResponse = await userTenantClient.GetTenantAsync(request.TenantId, cancellationToken);
+        var tenant = tenantResponse.EnsureSuccess();
 
         if (tenant.FgsTenantStatusId == TenantStatusIds.Active
             && !string.IsNullOrWhiteSpace(tenant.StorageBucketName))
@@ -57,23 +59,24 @@ public sealed class TenantProvisioningOrchestrator(
                     seedResult.FailedCount);
             }
 
-            var companies = await userTenantClient.GetCompaniesAsync(request.TenantId, cancellationToken);
+            var companies = (await userTenantClient.GetCompaniesAsync(request.TenantId, cancellationToken))
+                .EnsureSuccess();
             var companyNumbers = companies.Select(c => c.CompanyNumber).ToList();
 
-            var bucketResponse = await fileTenantClient.ProvisionBucketAsync(
+            var bucketResponse = (await fileTenantClient.ProvisionBucketAsync(
                 request.TenantId,
                 new ProvisionTenantBucketRequest(request.TenantId, tenant.StorageBucketName, companyNumbers),
-                cancellationToken);
+                cancellationToken)).EnsureSuccess();
 
-            await fileTenantClient.InitializeFoldersAsync(
+            (await fileTenantClient.InitializeFoldersAsync(
                 request.TenantId,
                 new InitializeTenantFoldersRequest(bucketResponse.BucketName, request.TenantId, companyNumbers),
-                cancellationToken);
+                cancellationToken)).ThrowIfFailed();
 
-            await userTenantClient.UpdateStorageBucketAsync(
+            (await userTenantClient.UpdateStorageBucketAsync(
                 request.TenantId,
                 new UpdateTenantStorageBucketRequest(bucketResponse.BucketName),
-                cancellationToken);
+                cancellationToken)).ThrowIfFailed();
 
             await userTenantClient.UpdateStatusAsync(
                 request.TenantId,

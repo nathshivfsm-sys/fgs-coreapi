@@ -1,4 +1,5 @@
-﻿using Fgs.Foundation.Api;
+using Fgs.Integration.Application;
+using Fgs.Foundation.Api;
 using Fgs.Foundation.Extensions;
 using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
@@ -17,6 +18,7 @@ builder.Services.AddFgsSwagger(options =>
     options.Description = "Third-party integrations and connectors.";
     options.XmlCommentsAssembly = typeof(Program).Assembly;
 });
+builder.Services.AddFgsIntegrationApplication();
 builder.Services.AddFgsIntegrationInfrastructure(builder.Configuration);
 builder.Services.AddFgsMultiTenancy();
 builder.Services.AddFgsObservability(builder.Configuration, "fgs-integration-service");

@@ -1,4 +1,4 @@
-﻿using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 using Fgs.Setup.Application.Features.Credentials.DTOs;
 using Fgs.Setup.Domain.Enums;
 using MediatR;
@@ -9,3 +9,4 @@ public sealed record RotateCredentialCommand(
     CredentialScope Scope,
     string Id,
     CredentialRotationMode RotationMode = CredentialRotationMode.Full) : IRequest<ApiResponse<CredentialMutationResultDto>>;
+

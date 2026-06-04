@@ -1,6 +1,6 @@
 using Asp.Versioning;
 using Fgs.Foundation.Api;
-using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 using Fgs.User.Application.Features.Signup.DTOs;
 using MediatR;
@@ -40,3 +40,4 @@ public sealed class SignupController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 }
+

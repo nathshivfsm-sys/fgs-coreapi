@@ -6,7 +6,7 @@ using Fgs.Persistence.Abstractions;
 using Fgs.Setup.Domain.Entities;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
-using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Signup.DTOs;
 using Fgs.Contracts.IntegrationEvents;
@@ -331,3 +331,4 @@ public sealed class CreateCompanySignupCommandHandler
         return null;
     }
 }
+

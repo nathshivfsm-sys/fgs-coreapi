@@ -1,4 +1,4 @@
-using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
 
 namespace Fgs.User.Infrastructure.Common.Options;
@@ -31,3 +31,4 @@ public sealed class EntraExternalIdOptions
     /// </summary>
     public string UserFlow { get; set; } = string.Empty;
 }
+

@@ -2,8 +2,8 @@
 using Fgs.Messaging.RabbitMq;
 using System.Text;
 using System.Text.Json;
-using Fgs.Notification.Application.Notifications.Channels;
-using Fgs.Notification.Application.Notifications.Queues;
+using Fgs.Notification.Application.Features.Notifications.Commands.ProcessNotificationQueueMessage;
+using MediatR;
 using Fgs.Notification.Infrastructure.Credentials;
 using Fgs.Notification.Infrastructure.Messaging;
 using Fgs.Notification.Infrastructure.Options;
@@ -80,51 +80,20 @@ public sealed class NotificationQueueWorker(
             var body = Encoding.UTF8.GetString(args.Body.ToArray());
 
             using var scope = scopeFactory.CreateScope();
-            var mapper = scope.ServiceProvider.GetRequiredService<IIntegrationEventMapper>();
-            var idempotency = scope.ServiceProvider.GetRequiredService<IIdempotencyStore>();
-            var dispatcher = scope.ServiceProvider.GetRequiredService<INotificationDispatcher>();
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
             try
             {
-                if (!mapper.CanMap(routingKey))
-                {
-                    logger.LogWarning(
-                        "No mapper for routing key {RoutingKey} (MessageId={MessageId}, CorrelationId={CorrelationId}).",
-                        routingKey,
-                        messageId,
-                        correlationId);
-                    await channel.BasicAckAsync(args.DeliveryTag, false, stoppingToken);
-                    return;
-                }
+                var response = await mediator.Send(
+                    new ProcessNotificationQueueMessageCommand(routingKey, body, correlationId, messageId),
+                    stoppingToken);
 
-                if (!await idempotency.TryMarkProcessedAsync(messageId, routingKey, stoppingToken))
+                if (!response.Success)
                 {
-                    logger.LogInformation(
-                        "Skipping duplicate message {MessageId} (CorrelationId={CorrelationId}).",
-                        messageId,
-                        correlationId);
-                    await channel.BasicAckAsync(args.DeliveryTag, false, stoppingToken);
-                    return;
-                }
-
-                var request = mapper.Map(routingKey, body, correlationId, messageId);
-                if (request is null)
-                {
-                    await channel.BasicAckAsync(args.DeliveryTag, false, stoppingToken);
-                    return;
-                }
-
-                logger.LogInformation(
-                    "Dispatching notification (TenantId={TenantId}, Channel={Channel}, Template={Template}, CorrelationId={CorrelationId}).",
-                    request.TenantId,
-                    request.Channel,
-                    request.TemplateCode,
-                    request.CorrelationId);
-
-                var result = await dispatcher.DispatchAsync(request, stoppingToken);
-                if (!result.Success)
-                {
-                    throw new InvalidOperationException(result.Error ?? "Notification dispatch failed.");
+                    throw new InvalidOperationException(
+                        response.Errors.Count > 0
+                            ? string.Join("; ", response.Errors)
+                            : "Notification processing failed.");
                 }
 
                 await channel.BasicAckAsync(args.DeliveryTag, false, stoppingToken);

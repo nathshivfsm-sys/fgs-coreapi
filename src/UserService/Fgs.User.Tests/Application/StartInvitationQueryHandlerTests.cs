@@ -1,5 +1,5 @@
-﻿using Fgs.User.Infrastructure.Common.Security;
-using Fgs.Foundation.Result;
+using Fgs.User.Infrastructure.Common.Security;
+using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Invitations;
 using Fgs.User.Application.Abstractions.Identity;
@@ -12,7 +12,7 @@ using Fgs.User.Domain.Enums;
 using Fgs.Security.Constants;
 using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Infrastructure.Database;
-using Fgs.User.Infrastructure.Database.UnitOfWorks;
+using Fgs.Persistence.Implementations;
 using Microsoft.Extensions.Configuration;
 using Moq;
 
@@ -70,7 +70,7 @@ public sealed class StartInvitationQueryHandlerTests
             .Build();
 
         var handler = new StartInvitationQueryHandler(
-            new UnitOfWork(context),
+            new EfUnitOfWork<FgsUserDbContext>(context),
             tokenService,
             entraMock.Object,
             new DateTimeProvider(),
@@ -121,7 +121,7 @@ public sealed class StartInvitationQueryHandlerTests
             .Build();
 
         var handler = new StartInvitationQueryHandler(
-            new UnitOfWork(context),
+            new EfUnitOfWork<FgsUserDbContext>(context),
             tokenService,
             entraMock.Object,
             new DateTimeProvider(),
@@ -217,10 +217,11 @@ public sealed class StartInvitationQueryHandlerTests
             .Build();
 
         return new StartInvitationQueryHandler(
-            new UnitOfWork(context),
+            new EfUnitOfWork<FgsUserDbContext>(context),
             new InvitationTokenService(),
             Mock.Of<IEntraExternalIdService>(),
             new DateTimeProvider(),
             configuration);
     }
 }
+

@@ -8,21 +8,21 @@ namespace Fgs.Contracts.Clients;
 public interface IUserTenantClient
 {
     [Get("/api/v1/tenants/{tenantId}")]
-    Task<TenantDto> GetTenantAsync(long tenantId, CancellationToken cancellationToken = default);
+    Task<Fgs.Contracts.Api.ApiResponse<TenantDto>> GetTenantAsync(long tenantId, CancellationToken cancellationToken = default);
 
     [Get("/api/v1/tenants/{tenantId}/companies")]
-    Task<IReadOnlyList<TenantCompanyDto>> GetCompaniesAsync(
+    Task<Fgs.Contracts.Api.ApiResponse<IReadOnlyList<TenantCompanyDto>>> GetCompaniesAsync(
         long tenantId,
         CancellationToken cancellationToken = default);
 
     [Patch("/api/v1/tenants/{tenantId}/status")]
-    Task UpdateStatusAsync(
+    Task<Fgs.Contracts.Api.ApiResponse<object>> UpdateStatusAsync(
         long tenantId,
         [Body] UpdateTenantStatusRequest request,
         CancellationToken cancellationToken = default);
 
     [Patch("/api/v1/tenants/{tenantId}/storage-bucket")]
-    Task UpdateStorageBucketAsync(
+    Task<Fgs.Contracts.Api.ApiResponse<object>> UpdateStorageBucketAsync(
         long tenantId,
         [Body] UpdateTenantStorageBucketRequest request,
         CancellationToken cancellationToken = default);

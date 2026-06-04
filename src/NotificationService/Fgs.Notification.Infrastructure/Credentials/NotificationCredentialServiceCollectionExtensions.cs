@@ -5,7 +5,8 @@ using Fgs.Setup.Application.Abstractions.Credentials;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Refit;
+using Fgs.Contracts.Clients;
+using Fgs.Foundation.Extensions;
 
 namespace Fgs.Notification.Infrastructure.Credentials;
 
@@ -33,14 +34,9 @@ public static class NotificationCredentialServiceCollectionExtensions
         services.AddSingleton<IOptionsChangeTokenSource<SendGridOptions>, CredentialOptionsChangeTokenSource<SendGridOptions>>();
         services.AddSingleton<IOptionsChangeTokenSource<RabbitMqOptions>, CredentialOptionsChangeTokenSource<RabbitMqOptions>>();
 
-        services
-            .AddRefitClient<ISetupCredentialConfigurationClient>()
-            .ConfigureHttpClient((sp, client) =>
-            {
-                var options = sp.GetRequiredService<IOptions<UserServiceCredentialClientOptions>>().Value;
-                client.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/') + "/");
-                client.Timeout = TimeSpan.FromSeconds(30);
-            });
+        services.AddFgsRefitClient<ISetupCredentialConfigurationClient>(
+            configuration,
+            $"{UserServiceCredentialClientOptions.SectionName}:BaseUrl");
 
         return services;
     }

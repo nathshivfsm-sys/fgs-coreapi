@@ -9,6 +9,8 @@ using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Infrastructure.Common.Geo;
+using Fgs.Contracts.Clients;
+using Fgs.Foundation.Extensions;
 using Fgs.User.Infrastructure.Common.Identity;
 using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Common.Security;
@@ -16,7 +18,9 @@ using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Infrastructure.Database;
 using Fgs.User.Infrastructure.Database.UnitOfWorks;
-using Fgs.User.Infrastructure.Database.Repositories;
+using Fgs.Persistence.Extensions;
+using Microsoft.Extensions.Http.Resilience;
+using Refit;
 using Fgs.User.Infrastructure.Outbox;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Messaging;
@@ -59,17 +63,16 @@ public static class DependencyInjection
         });
         services.AddDbContext<FgsUserDbContext>((_, options) =>
         {
-            options.UseNpgsql(connectionString, npgsql =>
-            {
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsUserDbContext.MigrationHistorySchema);
-                npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
-            });
+            options.UseFgsNpgsql(
+                connectionString,
+                "__EFMigrationsHistory",
+                FgsUserDbContext.MigrationHistorySchema);
             options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
 
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<ISetupUnitOfWork, SetupUnitOfWork>();
+        services.AddFgsPersistence<FgsUserDbContext>();
+        services.AddScoped<SetupUnitOfWork>();
+        services.AddScoped<ISetupUnitOfWork>(sp => sp.GetRequiredService<SetupUnitOfWork>());
         services.AddScoped<IOutboxWriter, SetupOutboxWriter>();
         services.AddScoped<IOutboxStore, Fgs.Setup.Infrastructure.Outbox.GloOutboxStore>();
         services.AddSingleton<IOutboxRoutingResolver, UserOutboxRoutingResolver>();
@@ -80,7 +83,17 @@ public static class DependencyInjection
         services.AddSingleton<IEmailNormalizer, EmailNormalizer>();
         services.AddSingleton<IInvitationTokenService, InvitationTokenService>();
         services.AddSingleton<RabbitMqTopologyService>();
-        services.AddHttpClient<IEntraExternalIdService, EntraExternalIdService>();
+        services.AddScoped<IEntraExternalIdService, EntraExternalIdRefitService>();
+        services.AddRefitClient<IEntraOAuthClient>()
+            .ConfigureHttpClient((sp, client) =>
+            {
+                var entra = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<EntraExternalIdOptions>>().Value;
+                var tokenEndpoint = string.IsNullOrWhiteSpace(entra.TokenEndpoint)
+                    ? $"{entra.Authority.TrimEnd('/')}/{entra.TenantId.Trim('/')}/oauth2/v2.0/token"
+                    : entra.TokenEndpoint;
+                client.BaseAddress = new Uri(tokenEndpoint);
+            })
+            .AddStandardResilienceHandler();
 
         return services;
     }

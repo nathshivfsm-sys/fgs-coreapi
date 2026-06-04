@@ -1,5 +1,6 @@
-﻿using Fgs.Notification.Infrastructure.Options;
-using Fgs.Setup.Application.Features.Credentials.DTOs;
+using Fgs.Contracts.Api;
+using Fgs.Contracts.Clients;
+using Fgs.Notification.Infrastructure.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Refit;
@@ -35,7 +36,7 @@ public sealed class RemoteCredentialConfigurationLoader
                 "UserService:InternalServiceKey is required to load credential configuration.");
         }
 
-        Fgs.Foundation.Result.ApiResponse<ResolvedCredentialConfigurationDto> envelope;
+        Fgs.Contracts.Api.ApiResponse<ResolvedCredentialConfigurationDto> envelope;
         try
         {
             envelope = await _client.GetResolvedAsync(_options.InternalServiceKey, cancellationToken);
@@ -43,23 +44,16 @@ public sealed class RemoteCredentialConfigurationLoader
         catch (ApiException ex)
         {
             throw new InvalidOperationException(
-                $"User Service returned HTTP {(int)ex.StatusCode} while loading credential configuration.",
+                $"Setup Service returned HTTP {(int)ex.StatusCode} while loading credential configuration.",
                 ex);
         }
 
-        if (envelope is not { Success: true, Data: not null })
-        {
-            var errors = envelope?.Errors is { Count: > 0 } errorsList
-                ? string.Join("; ", errorsList)
-                : "Unknown error";
-            throw new InvalidOperationException(
-                $"User Service returned an error while loading credential configuration: {errors}");
-        }
+        var data = Fgs.Contracts.Api.ApiResponseExtensions.EnsureSuccess(envelope);
 
         _logger.LogInformation(
-            "Loaded {Count} credential configuration entries from User Service.",
-            envelope.Data.Values.Count);
+            "Loaded {Count} credential configuration entries from Setup Service.",
+            data.Values.Count);
 
-        return envelope.Data.Values;
+        return data.Values;
     }
 }

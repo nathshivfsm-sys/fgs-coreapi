@@ -1,4 +1,4 @@
-﻿using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 using Fgs.Setup.Application.Features.Credentials.Services;
 using Fgs.Setup.Domain.Enums;
 using MediatR;
@@ -38,3 +38,4 @@ public sealed class DeleteCredentialCommandHandler : IRequestHandler<DeleteCrede
         }
     }
 }
+

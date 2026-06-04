@@ -1,4 +1,5 @@
-﻿using Fgs.Foundation.Api;
+using Fgs.Audit.Application;
+using Fgs.Foundation.Api;
 using Fgs.Foundation.Extensions;
 using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
@@ -17,6 +18,7 @@ builder.Services.AddFgsSwagger(options =>
     options.Description = "Audit logging and compliance trails.";
     options.XmlCommentsAssembly = typeof(Program).Assembly;
 });
+builder.Services.AddFgsAuditApplication();
 builder.Services.AddFgsAuditInfrastructure(builder.Configuration);
 builder.Services.AddFgsMultiTenancy();
 builder.Services.AddFgsObservability(builder.Configuration, "fgs-audit-service");

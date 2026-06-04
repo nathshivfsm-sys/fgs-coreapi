@@ -1,4 +1,5 @@
-﻿using Fgs.Foundation.Api;
+using Fgs.Crm.Application;
+using Fgs.Foundation.Api;
 using Fgs.Foundation.Extensions;
 using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
@@ -17,6 +18,7 @@ builder.Services.AddFgsSwagger(options =>
     options.Description = "Customer relationship management.";
     options.XmlCommentsAssembly = typeof(Program).Assembly;
 });
+builder.Services.AddFgsCrmApplication();
 builder.Services.AddFgsCrmInfrastructure(builder.Configuration);
 builder.Services.AddFgsMultiTenancy();
 builder.Services.AddFgsObservability(builder.Configuration, "fgs-crm-service");

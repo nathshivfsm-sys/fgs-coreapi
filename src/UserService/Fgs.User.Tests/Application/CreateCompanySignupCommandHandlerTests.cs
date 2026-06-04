@@ -1,4 +1,4 @@
-﻿using Fgs.User.Infrastructure.Common.Security;
+using Fgs.User.Infrastructure.Common.Security;
 using Fgs.Messaging.Options;
 using Fgs.User.Infrastructure.Common.Options;
 using System.Linq.Expressions;
@@ -8,7 +8,7 @@ using Fgs.Messaging.Abstractions;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
-using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Signup;
 using Fgs.Contracts.IntegrationEvents;
@@ -25,6 +25,7 @@ using Fgs.Setup.Infrastructure.Database;
 using SetupOutboxWriter = Fgs.Setup.Infrastructure.Messaging.OutboxWriter;
 using Fgs.Setup.Infrastructure.Common.Time;
 using SetupDateTimeProvider = Fgs.Setup.Infrastructure.Common.Time.DateTimeProvider;
+using Fgs.Persistence.Implementations;
 using Fgs.User.Infrastructure.Database.UnitOfWorks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -297,7 +298,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
         FgsUserDbContext userContext,
         FgsSetupDbContext setupContext)
     {
-        IUnitOfWork unitOfWork = new UnitOfWork(userContext);
+        IUnitOfWork unitOfWork = new EfUnitOfWork<FgsUserDbContext>(userContext);
         ISetupUnitOfWork setupUnitOfWork = new SetupUnitOfWork(setupContext);
         IDateTimeProvider dateTime = new Fgs.User.Infrastructure.Common.Time.DateTimeProvider();
         IOutboxWriter outboxWriter = new SetupOutboxWriter(
@@ -336,3 +337,4 @@ public sealed class CreateCompanySignupCommandHandlerTests
             signupUniquenessValidator);
     }
 }
+

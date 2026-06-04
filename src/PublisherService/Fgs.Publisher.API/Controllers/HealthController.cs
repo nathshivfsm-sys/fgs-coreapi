@@ -1,17 +1,21 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
+using Fgs.Contracts.Api;
+using Fgs.Contracts.Health;
+using Fgs.Publisher.Application.Features.Health.Queries.GetServiceHealth;
 using Fgs.Foundation.Api;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Publisher.API.Controllers;
 
 [AllowAnonymous]
-[ApiController]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("[controller]")]
-public sealed class HealthController : ControllerBase
+public sealed class HealthController(IMediator mediator) : FgsApiControllerBase(mediator)
 {
     [HttpGet]
-    public IActionResult Get() =>
-        Ok(new { status = "healthy", service = "Fgs.Publisher", apiVersion = FgsApiVersions.V1 });
+    [ProducesResponseType(typeof(ApiResponse<ServiceHealthDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Get(CancellationToken cancellationToken) =>
+        FromApiResponse(await Mediator.Send(new GetServiceHealthQuery(), cancellationToken));
 }

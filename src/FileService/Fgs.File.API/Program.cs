@@ -2,6 +2,7 @@
 using Fgs.Foundation.Extensions;
 using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
+using Fgs.File.Application;
 using Fgs.File.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,8 +18,8 @@ builder.Services.AddFgsSwagger(options =>
     options.Description = "File storage and document management.";
     options.XmlCommentsAssembly = typeof(Program).Assembly;
 });
+builder.Services.AddFgsFileApplication();
 builder.Services.AddFgsFileInfrastructure(builder.Configuration);
-builder.Services.AddFgsMultiTenancy();
 builder.Services.AddFgsMultiTenancy();
 builder.Services.AddFgsObservability(builder.Configuration, "fgs-file-service");
 

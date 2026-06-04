@@ -1,5 +1,8 @@
 using System.Security.Claims;
+using Fgs.Contracts.Clients;
 using Fgs.Security.Abstractions;
+using Microsoft.Extensions.Http.Resilience;
+using Refit;
 using Fgs.Security.Options;
 using Fgs.Security.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -87,10 +90,12 @@ public static class ServiceCollectionExtensions
                                      .Get<UserServiceClientOptions>()
                                  ?? new UserServiceClientOptions();
 
-        services.AddHttpClient<IFgsClaimsEnricher, RemoteFgsClaimsEnricher>(client =>
-        {
-            client.BaseAddress = new Uri(userServiceOptions.BaseUrl.TrimEnd('/') + "/");
-        });
+        services.AddScoped<IFgsClaimsEnricher, RemoteFgsClaimsEnricher>();
+        services
+            .AddRefitClient<IFgsClaimsClient>()
+            .ConfigureHttpClient(client =>
+                client.BaseAddress = new Uri(userServiceOptions.BaseUrl.TrimEnd('/') + "/"))
+            .AddStandardResilienceHandler();
 
         return services;
     }

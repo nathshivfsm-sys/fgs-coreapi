@@ -1,6 +1,6 @@
 using Asp.Versioning;
 using Fgs.Foundation.Api;
-using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 using Fgs.Setup.Application.Features.Credentials.Commands.CreateCredential;
 using Fgs.Setup.Application.Features.Credentials.Commands.DeleteCredential;
 using Fgs.Setup.Application.Features.Credentials.Commands.RotateCredential;
@@ -198,3 +198,4 @@ public sealed record UpdateCredentialRequest(
     bool? IsActive = null);
 
 public sealed record RotateCredentialRequest(CredentialRotationMode RotationMode = CredentialRotationMode.Full);
+

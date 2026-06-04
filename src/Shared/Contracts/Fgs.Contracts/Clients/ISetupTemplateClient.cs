@@ -8,7 +8,7 @@ namespace Fgs.Contracts.Clients;
 public interface ISetupTemplateClient
 {
     [Get("/api/v1/communication-templates/active")]
-    Task<CommunicationTemplateDto?> GetActiveTemplateAsync(
+    Task<Fgs.Contracts.Api.ApiResponse<CommunicationTemplateDto>> GetActiveTemplateAsync(
         [Query] long? tenantId,
         [Query] long? companyId,
         [Query] string templateType,
