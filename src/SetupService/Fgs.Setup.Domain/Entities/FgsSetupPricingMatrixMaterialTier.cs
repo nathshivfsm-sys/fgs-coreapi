@@ -1,4 +1,6 @@
-﻿namespace Fgs.Setup.Domain.Entities;
+﻿using Fgs.Setup.Domain.Enums;
+
+namespace Fgs.Setup.Domain.Entities;
 
 public class FgsSetupPricingMatrixMaterialTier : FgsTenantCompanySetupEntityBase<long>
 {
@@ -8,7 +10,7 @@ public class FgsSetupPricingMatrixMaterialTier : FgsTenantCompanySetupEntityBase
 
     public decimal? ToCost { get; set; }
 
-    public decimal MarkupPercent { get; set; }
+    public PriceAdjustmentType PriceAdjustmentTypeId { get; set; }
 
-    public decimal? DiscountPercent { get; set; }
+    public decimal AdjustmentValue { get; set; }
 }

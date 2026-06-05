@@ -28,6 +28,8 @@ public class FgsUserDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
 
+    public DbSet<TenantOutboxMessage> TenantOutboxMessages => Set<TenantOutboxMessage>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsUserDbContext).Assembly);

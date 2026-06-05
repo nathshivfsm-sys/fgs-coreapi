@@ -196,6 +196,8 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<GloOutboxMessage> GloOutboxMessages => Set<GloOutboxMessage>();
 
+    public DbSet<SetupOutboxMessage> SetupOutboxMessages => Set<SetupOutboxMessage>();
+
     public DbSet<GloSeedTableMapping> GloSeedTableMappings => Set<GloSeedTableMapping>();
 
     public DbSet<GloSeedTableColumnMapping> GloSeedTableColumnMappings => Set<GloSeedTableColumnMapping>();

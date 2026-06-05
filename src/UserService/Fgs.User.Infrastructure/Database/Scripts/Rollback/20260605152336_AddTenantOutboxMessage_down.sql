@@ -1,0 +1,2 @@
+-- Rollback for 20260605152336_AddTenantOutboxMessage
+-- TODO: author idempotent DROP statements mirroring schema objects created in 20260605152336_AddTenantOutboxMessage_up.sql

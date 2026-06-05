@@ -10,6 +10,8 @@ public sealed class FgsCrmDbContext(DbContextOptions<FgsCrmDbContext> options) :
 
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
 
+    public DbSet<CrmOutboxMessage> CrmOutboxMessages => Set<CrmOutboxMessage>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(FgsDatabaseSchemas.Crm);

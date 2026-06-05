@@ -58,6 +58,7 @@ internal static class EntitySchemaRegistry
         [typeof(GloLocationType)] = FgsDatabaseSchemas.Glo,
         [typeof(GloMasterEntityType)] = FgsDatabaseSchemas.Glo,
         [typeof(GloOutboxMessage)] = FgsDatabaseSchemas.Glo,
+        [typeof(SetupOutboxMessage)] = FgsDatabaseSchemas.Setup,
         [typeof(GloPaymentMethodType)] = FgsDatabaseSchemas.Glo,
         [typeof(GloResolutionType)] = FgsDatabaseSchemas.Glo,
         [typeof(GloRole)] = FgsDatabaseSchemas.Glo,
