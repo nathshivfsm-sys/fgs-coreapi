@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.Api;
+using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
 using TenantStatusIds = Fgs.Contracts.Clients.TenantStatusIds;
 using Fgs.Contracts.IntegrationEvents;

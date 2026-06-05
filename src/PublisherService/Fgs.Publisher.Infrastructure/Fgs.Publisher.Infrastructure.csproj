@@ -3,10 +3,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Fgs.Publisher.Application\Fgs.Publisher.Application.csproj" />
     <ProjectReference Include="..\Fgs.Publisher.Domain\Fgs.Publisher.Domain.csproj" />
+    <ProjectReference Include="..\..\Shared\Messaging\Fgs.Messaging\Fgs.Messaging.csproj" />
     <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Npgsql" Version="10.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
       <PrivateAssets>all</PrivateAssets>
@@ -28,5 +30,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Fgs.Publisher.Tests" />
+  </ItemGroup>
 
 </Project>

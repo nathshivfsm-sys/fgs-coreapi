@@ -1,21 +1,23 @@
 using Fgs.Messaging.Models;
 
-namespace Fgs.Messaging.Abstractions;
+namespace Fgs.Publisher.Infrastructure.Outbox;
 
-public interface IOutboxStore
+public sealed record ClaimedOutboxRow(PendingOutboxMessage Message, DateTimeOffset CreatedOn);
+
+public interface ISchemaOutboxSource
 {
-    Task<IReadOnlyList<PendingOutboxMessage>> ClaimPendingBatchAsync(
+    string SourceKey { get; }
+
+    Task<IReadOnlyList<ClaimedOutboxRow>> ClaimPendingBatchAsync(
         int batchSize,
         CancellationToken cancellationToken);
 
     Task MarkPublishedAsync(
-        string sourceKey,
         long messageId,
         DateTimeOffset processedOn,
         CancellationToken cancellationToken);
 
     Task MarkRetryOrFailedAsync(
-        string sourceKey,
         long messageId,
         int retryCount,
         string lastError,

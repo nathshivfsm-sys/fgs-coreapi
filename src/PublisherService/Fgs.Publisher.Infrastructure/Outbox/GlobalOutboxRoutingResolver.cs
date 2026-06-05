@@ -2,12 +2,12 @@ using Fgs.Contracts.IntegrationEvents;
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Models;
 using Fgs.Messaging.Options;
-using Fgs.User.Infrastructure.Common.Options;
+using Fgs.Publisher.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 
-namespace Fgs.User.Infrastructure.Outbox;
+namespace Fgs.Publisher.Infrastructure.Outbox;
 
-public sealed class UserOutboxRoutingResolver(
+public sealed class GlobalOutboxRoutingResolver(
     IOptions<RabbitMqOptions> rabbitOptions,
     IOptions<TenantProvisioningOptions> tenantProvisioningOptions) : IOutboxRoutingResolver
 {

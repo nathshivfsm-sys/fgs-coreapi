@@ -1,6 +1,5 @@
 ﻿using Fgs.Audit.Infrastructure.Database;
 using Fgs.Contracts.Clients;
-using Fgs.Messaging.Extensions;
 using Fgs.Messaging.Options;
 using Fgs.Setup.Application.Abstractions.Provisioning;
 using Fgs.Setup.Application.Abstractions.Time;
@@ -8,12 +7,10 @@ using Fgs.Setup.Infrastructure.Common.Options;
 using Fgs.Setup.Infrastructure.Common.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Messaging;
-using Fgs.Setup.Infrastructure.Outbox;
 using Fgs.Setup.Application.Abstractions.Tenants;
 using Fgs.Setup.Infrastructure.Provisioning;
 using Fgs.Setup.Infrastructure.Tenants;
 using Fgs.Foundation.Extensions;
-using Fgs.Messaging.Abstractions;
 using Fgs.Security.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -78,9 +75,6 @@ public static class DependencyInjection
         services.AddScoped<ITenantProvisioningOrchestrator, TenantProvisioningOrchestrator>();
         services.AddScoped<ICompanyBusinessTypeService, CompanyBusinessTypeService>();
         services.AddScoped<IOutboxWriter, OutboxWriter>();
-        services.AddScoped<IOutboxStore, GloOutboxStore>();
-        services.AddFgsRabbitMqPublisher();
-        services.AddFgsOutboxProcessor();
         services.AddHostedService<Background.TenantProvisionConsumerService>();
         CredentialServiceCollectionExtensions.AddFgsCredentialConfigurationServices(
             services,
