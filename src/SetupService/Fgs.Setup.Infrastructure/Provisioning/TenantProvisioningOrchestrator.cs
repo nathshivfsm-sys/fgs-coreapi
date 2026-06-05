@@ -4,6 +4,8 @@ using TenantStatusIds = Fgs.Contracts.Clients.TenantStatusIds;
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.Setup.Application.Abstractions.Provisioning;
 using Fgs.Setup.Application.Features.TenantProvisioning;
+using Fgs.Setup.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Fgs.Setup.Infrastructure.Provisioning;
@@ -12,6 +14,7 @@ public sealed class TenantProvisioningOrchestrator(
     IUserTenantClient userTenantClient,
     IFileTenantClient fileTenantClient,
     ITenantDataSeedingEngine seedingEngine,
+    FgsSetupDbContext dbContext,
     ILogger<TenantProvisioningOrchestrator> logger) : ITenantProvisioningOrchestrator
 {
     public async Task ProvisionAsync(
@@ -22,6 +25,11 @@ public sealed class TenantProvisioningOrchestrator(
             "Starting tenant provisioning for tenant {TenantId}, correlation {CorrelationId}",
             request.TenantId,
             request.CorrelationId);
+
+        var gloBusinessTypeIds = await ResolveGloBusinessTypeIdsAsync(
+            request.TenantId,
+            request.CompanyId,
+            cancellationToken);
 
         var tenantResponse = await userTenantClient.GetTenantAsync(request.TenantId, cancellationToken);
         var tenant = tenantResponse.EnsureSuccess();
@@ -46,7 +54,7 @@ public sealed class TenantProvisioningOrchestrator(
             var seedResult = await seedingEngine.SeedTenantDataAsync(
                 request.TenantId,
                 request.CompanyId,
-                request.BusinessTypeIds,
+                gloBusinessTypeIds,
                 cancellationToken);
 
             if (seedResult.HasFailures)
@@ -103,5 +111,28 @@ public sealed class TenantProvisioningOrchestrator(
 
             throw;
         }
+    }
+
+    private async Task<IReadOnlyList<int>> ResolveGloBusinessTypeIdsAsync(
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var codes = await dbContext.FgsBusinessTypes
+            .AsNoTracking()
+            .Where(b => b.TenantId == tenantId && b.CompanyId == companyId && b.IsActive)
+            .Select(b => b.Code)
+            .ToListAsync(cancellationToken);
+
+        if (codes.Count == 0)
+        {
+            return [];
+        }
+
+        return await dbContext.GloBusinessTypes
+            .AsNoTracking()
+            .Where(g => codes.Contains(g.Code) && g.IsActive)
+            .Select(g => g.Id)
+            .ToListAsync(cancellationToken);
     }
 }

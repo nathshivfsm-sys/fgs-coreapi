@@ -1,12 +1,12 @@
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Models;
 using Fgs.User.Domain.Enums;
-using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
+using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.User.Infrastructure.Outbox;
 
-public sealed class GloOutboxStore(FgsUserDbContext context) : IOutboxStore
+public sealed class TenantOutboxStore(FgsUserDbContext context) : IOutboxStore
 {
     public async Task<IReadOnlyList<PendingOutboxMessage>> ClaimPendingBatchAsync(
         int batchSize,
@@ -14,7 +14,7 @@ public sealed class GloOutboxStore(FgsUserDbContext context) : IOutboxStore
     {
         var now = DateTimeOffset.UtcNow;
 
-        var messages = await context.GloOutboxMessages
+        var messages = await context.TenantOutboxMessages
             .Where(m => (m.Status == OutboxMessageStatus.Pending || m.Status == OutboxMessageStatus.Retry)
                 && (m.NextRetryOn == null || m.NextRetryOn <= now)
                 && m.RetryCount < m.MaxRetryCount)
@@ -50,7 +50,7 @@ public sealed class GloOutboxStore(FgsUserDbContext context) : IOutboxStore
         DateTimeOffset processedOn,
         CancellationToken cancellationToken)
     {
-        var message = await context.GloOutboxMessages
+        var message = await context.TenantOutboxMessages
             .FirstAsync(m => m.Id == messageId, cancellationToken);
 
         message.Status = OutboxMessageStatus.Published;
@@ -69,7 +69,7 @@ public sealed class GloOutboxStore(FgsUserDbContext context) : IOutboxStore
         DateTimeOffset? nextRetryOn,
         CancellationToken cancellationToken)
     {
-        var message = await context.GloOutboxMessages
+        var message = await context.TenantOutboxMessages
             .FirstAsync(m => m.Id == messageId, cancellationToken);
 
         message.RetryCount = retryCount;

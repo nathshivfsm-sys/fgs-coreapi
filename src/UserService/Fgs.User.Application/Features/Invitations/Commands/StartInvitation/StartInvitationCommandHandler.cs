@@ -1,5 +1,4 @@
 using Fgs.User.Application.Abstractions.Identity;
-using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Invitations;
 using Fgs.Persistence.Abstractions;
@@ -10,17 +9,17 @@ using Fgs.User.Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 
-namespace Fgs.User.Application.Features.Invitations.Queries.StartInvitation;
+namespace Fgs.User.Application.Features.Invitations.Commands.StartInvitation;
 
-public sealed class StartInvitationQueryHandler(
+public sealed class StartInvitationCommandHandler(
     IUnitOfWork unitOfWork,
     IInvitationTokenService tokenService,
     IEntraExternalIdService entraService,
     IDateTimeProvider dateTime,
-    IConfiguration configuration) : IRequestHandler<StartInvitationQuery, StartInvitationResult>
+    IConfiguration configuration) : IRequestHandler<StartInvitationCommand, StartInvitationResult>
 {
     public async Task<StartInvitationResult> Handle(
-        StartInvitationQuery request,
+        StartInvitationCommand request,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Token))
@@ -65,4 +64,3 @@ public sealed class StartInvitationQueryHandler(
         return new StartInvitationResult(true, authorizeUrl, null);
     }
 }
-

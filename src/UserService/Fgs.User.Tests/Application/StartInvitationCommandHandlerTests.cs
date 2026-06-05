@@ -6,7 +6,7 @@ using Fgs.User.Application.Abstractions.Identity;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
-using Fgs.User.Application.Features.Invitations.Queries.StartInvitation;
+using Fgs.User.Application.Features.Invitations.Commands.StartInvitation;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 using Fgs.Security.Constants;
@@ -18,7 +18,7 @@ using Moq;
 
 namespace Fgs.User.Tests.Application;
 
-public sealed class StartInvitationQueryHandlerTests
+public sealed class StartInvitationCommandHandlerTests
 {
     [Fact]
     public async Task Handle_WithValidToken_ReturnsEntraRedirect()
@@ -69,14 +69,14 @@ public sealed class StartInvitationQueryHandlerTests
             })
             .Build();
 
-        var handler = new StartInvitationQueryHandler(
+        var handler = new StartInvitationCommandHandler(
             new EfUnitOfWork<FgsUserDbContext>(context),
             tokenService,
             entraMock.Object,
             new DateTimeProvider(),
             configuration);
 
-        var result = await handler.Handle(new StartInvitationQuery(plain), CancellationToken.None);
+        var result = await handler.Handle(new StartInvitationCommand(plain), CancellationToken.None);
 
         result.Success.Should().BeTrue();
         result.RedirectUrl.Should().StartWith("https://login.example");
@@ -120,14 +120,14 @@ public sealed class StartInvitationQueryHandlerTests
             })
             .Build();
 
-        var handler = new StartInvitationQueryHandler(
+        var handler = new StartInvitationCommandHandler(
             new EfUnitOfWork<FgsUserDbContext>(context),
             tokenService,
             entraMock.Object,
             new DateTimeProvider(),
             configuration);
 
-        var result = await handler.Handle(new StartInvitationQuery(plain), CancellationToken.None);
+        var result = await handler.Handle(new StartInvitationCommand(plain), CancellationToken.None);
 
         result.Success.Should().BeTrue();
         result.RedirectUrl.Should().StartWith("https://login.example/signin");
@@ -137,7 +137,7 @@ public sealed class StartInvitationQueryHandlerTests
     public async Task Handle_WhenTokenMissing_ReturnsError()
     {
         var handler = CreateHandler(await TestDbContextFactory.CreateAndInitializeAsync());
-        var result = await handler.Handle(new StartInvitationQuery(string.Empty), CancellationToken.None);
+        var result = await handler.Handle(new StartInvitationCommand(string.Empty), CancellationToken.None);
 
         result.Success.Should().BeFalse();
         result.ErrorMessage.Should().Be(InvitationErrorMessages.TokenRequired);
@@ -147,7 +147,7 @@ public sealed class StartInvitationQueryHandlerTests
     public async Task Handle_WhenTokenInvalid_ReturnsError()
     {
         var handler = CreateHandler(await TestDbContextFactory.CreateAndInitializeAsync());
-        var result = await handler.Handle(new StartInvitationQuery("bad-token"), CancellationToken.None);
+        var result = await handler.Handle(new StartInvitationCommand("bad-token"), CancellationToken.None);
 
         result.Success.Should().BeFalse();
         result.ErrorMessage.Should().Be(InvitationErrorMessages.InvalidToken);
@@ -174,7 +174,7 @@ public sealed class StartInvitationQueryHandlerTests
         });
         await context.SaveChangesAsync();
 
-        var result = await CreateHandler(context).Handle(new StartInvitationQuery(plain), CancellationToken.None);
+        var result = await CreateHandler(context).Handle(new StartInvitationCommand(plain), CancellationToken.None);
 
         result.Success.Should().BeFalse();
         result.ErrorMessage.Should().Be(InvitationErrorMessages.Expired);
@@ -201,13 +201,13 @@ public sealed class StartInvitationQueryHandlerTests
         });
         await context.SaveChangesAsync();
 
-        var result = await CreateHandler(context).Handle(new StartInvitationQuery(plain), CancellationToken.None);
+        var result = await CreateHandler(context).Handle(new StartInvitationCommand(plain), CancellationToken.None);
 
         result.Success.Should().BeFalse();
         result.ErrorMessage.Should().Be(InvitationErrorMessages.NotActive);
     }
 
-    private static StartInvitationQueryHandler CreateHandler(FgsUserDbContext context)
+    private static StartInvitationCommandHandler CreateHandler(FgsUserDbContext context)
     {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
@@ -216,7 +216,7 @@ public sealed class StartInvitationQueryHandlerTests
             })
             .Build();
 
-        return new StartInvitationQueryHandler(
+        return new StartInvitationCommandHandler(
             new EfUnitOfWork<FgsUserDbContext>(context),
             new InvitationTokenService(),
             Mock.Of<IEntraExternalIdService>(),

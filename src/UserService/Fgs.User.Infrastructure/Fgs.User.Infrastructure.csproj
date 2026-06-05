@@ -22,8 +22,6 @@
 
     <ProjectReference Include="..\..\Shared\MultiTenancy\Fgs.MultiTenancy\Fgs.MultiTenancy.csproj" />
 
-    <ProjectReference Include="..\..\SetupService\Fgs.Setup.Infrastructure\Fgs.Setup.Infrastructure.csproj" />
-
   </ItemGroup>
 
 
@@ -107,8 +105,6 @@
     <Compile Remove="CredentialConfigurationExtensions.cs" />
     <Compile Remove="AwsCredentialsServiceCollectionExtensions.cs" />
     <Compile Remove="Credentials\**\*.cs" />
-    <Compile Remove="Messaging\OutboxWriter.cs" />
-    <Compile Remove="Outbox\GloOutboxStore.cs" />
     <Compile Remove="Provisioning\**\*.cs" />
     <Compile Remove="Security\**\*.cs" />
     <Compile Remove="Storage\**\*.cs" />

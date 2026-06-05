@@ -3,7 +3,7 @@ using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 using Fgs.Messaging.Options;
-using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
+using Fgs.User.Infrastructure.Database;
 using Microsoft.Extensions.Options;
 
 namespace Fgs.User.Infrastructure.Messaging;
@@ -39,7 +39,7 @@ public sealed class OutboxWriter : IOutboxWriter
         long? createdBy = null,
         CancellationToken cancellationToken = default)
     {
-        var message = new GloOutboxMessage
+        var message = new TenantOutboxMessage
         {
             TenantId = tenantId,
             CompanyId = companyId,
@@ -58,6 +58,6 @@ public sealed class OutboxWriter : IOutboxWriter
             CreatedBy = createdBy?.ToString()
         };
 
-        await _context.GloOutboxMessages.AddAsync(message, cancellationToken);
+        await _context.TenantOutboxMessages.AddAsync(message, cancellationToken);
     }
 }

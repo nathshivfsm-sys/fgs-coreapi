@@ -1,7 +1,7 @@
 using Asp.Versioning;
 using Fgs.Foundation.Api;
 using Fgs.User.API.Constants;
-using Fgs.User.Application.Features.Invitations.Queries.StartInvitation;
+using Fgs.User.Application.Features.Invitations.Commands.StartInvitation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +35,7 @@ public sealed class InviteController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Start([FromQuery] string token, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new StartInvitationQuery(token), cancellationToken);
+        var result = await _mediator.Send(new StartInvitationCommand(token), cancellationToken);
         if (!result.Success || string.IsNullOrWhiteSpace(result.RedirectUrl))
         {
             return BadRequest(new { success = false, errors = new[] { result.ErrorMessage ?? ApiErrorMessages.InvalidInvitation } });

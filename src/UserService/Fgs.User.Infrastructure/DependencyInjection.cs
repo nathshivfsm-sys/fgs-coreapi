@@ -1,7 +1,6 @@
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Extensions;
 using Fgs.Messaging.Options;
-using Fgs.Persistence.Abstractions;
 using Fgs.Security.Abstractions;
 using Fgs.Security.Extensions;
 using Fgs.User.Application.Abstractions.Geo;
@@ -15,17 +14,12 @@ using Fgs.User.Infrastructure.Common.Identity;
 using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Common.Security;
 using Fgs.User.Infrastructure.Common.Time;
-using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Infrastructure.Database;
-using Fgs.User.Infrastructure.Database.UnitOfWorks;
 using Fgs.Persistence.Extensions;
 using Microsoft.Extensions.Http.Resilience;
 using Refit;
 using Fgs.User.Infrastructure.Outbox;
-using Fgs.Setup.Infrastructure.Database;
-using Fgs.Setup.Infrastructure.Messaging;
-using SetupOutboxWriter = Fgs.Setup.Infrastructure.Messaging.OutboxWriter;
-using Microsoft.EntityFrameworkCore;
+using Fgs.User.Infrastructure.Messaging;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,14 +47,6 @@ public static class DependencyInjection
         services.Configure<SignupLocaleOptions>(configuration.GetSection(SignupLocaleOptions.SectionName));
 
         var connectionString = FgsUserConnectionString.ResolveRequired(configuration);
-        var setupConnectionString = configuration.GetConnectionString("FgsSetup") ?? connectionString;
-        services.AddDbContext<FgsSetupDbContext>((_, options) =>
-        {
-            options.UseNpgsql(setupConnectionString, npgsql =>
-            {
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsSetupDbContext.MigrationHistorySchema);
-            });
-        });
         services.AddDbContext<FgsUserDbContext>((_, options) =>
         {
             options.UseFgsNpgsql(
@@ -71,10 +57,8 @@ public static class DependencyInjection
         });
 
         services.AddFgsPersistence<FgsUserDbContext>();
-        services.AddScoped<SetupUnitOfWork>();
-        services.AddScoped<ISetupUnitOfWork>(sp => sp.GetRequiredService<SetupUnitOfWork>());
-        services.AddScoped<IOutboxWriter, SetupOutboxWriter>();
-        services.AddScoped<IOutboxStore, Fgs.Setup.Infrastructure.Outbox.GloOutboxStore>();
+        services.AddScoped<IOutboxWriter, OutboxWriter>();
+        services.AddScoped<IOutboxStore, TenantOutboxStore>();
         services.AddSingleton<IOutboxRoutingResolver, UserOutboxRoutingResolver>();
         services.AddFgsRabbitMqPublisher();
         services.AddFgsOutboxProcessor();
@@ -94,6 +78,11 @@ public static class DependencyInjection
                 client.BaseAddress = new Uri(tokenEndpoint);
             })
             .AddStandardResilienceHandler();
+
+        services.AddFgsRefitClient<ISetupClient>(
+            configuration,
+            "SetupService:BaseUrl",
+            "http://setup-service:5002");
 
         return services;
     }

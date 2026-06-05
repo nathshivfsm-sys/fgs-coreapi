@@ -38,8 +38,6 @@
     <ProjectReference Include="..\Fgs.User.Application\Fgs.User.Application.csproj" />
     <ProjectReference Include="..\Fgs.User.Domain\Fgs.User.Domain.csproj" />
     <ProjectReference Include="..\Fgs.User.Infrastructure\Fgs.User.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\SetupService\Fgs.Setup.Infrastructure\Fgs.Setup.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\SetupService\Fgs.Setup.Domain\Fgs.Setup.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,7 +5,7 @@ using Fgs.Security.Abstractions;
 using Fgs.Security.Models;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
-using Fgs.User.Application.Features.Auth.Queries.EntraCallback;
+using Fgs.User.Application.Features.Auth.Commands.EntraCallback;
 using Fgs.User.Application.Features.Auth.Queries.GetAuthMe;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -41,7 +41,7 @@ public sealed class AuthController(IMediator mediator) : FgsApiControllerBase(me
         [FromQuery] string state,
         CancellationToken cancellationToken)
     {
-        var response = await Mediator.Send(new EntraCallbackQuery(code, state), cancellationToken);
+        var response = await Mediator.Send(new EntraCallbackCommand(code, state), cancellationToken);
         if (!response.Success || response.Data is null)
         {
             return StatusCode(response.StatusCode, response);

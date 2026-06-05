@@ -9,7 +9,9 @@ using Fgs.Setup.Infrastructure.Common.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Messaging;
 using Fgs.Setup.Infrastructure.Outbox;
+using Fgs.Setup.Application.Abstractions.Tenants;
 using Fgs.Setup.Infrastructure.Provisioning;
+using Fgs.Setup.Infrastructure.Tenants;
 using Fgs.Foundation.Extensions;
 using Fgs.Messaging.Abstractions;
 using Fgs.Security.Extensions;
@@ -18,8 +20,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Fgs.Contracts.Clients;
-using Fgs.Foundation.Extensions;
 using Fgs.Persistence.Extensions;
 
 namespace Fgs.Setup.Infrastructure;
@@ -76,6 +76,7 @@ public static class DependencyInjection
                 sp.GetRequiredService<IOptions<TenantProvisioningOptions>>()));
         services.AddScoped<ITenantDataSeedingEngine, TenantDataSeedingEngine>();
         services.AddScoped<ITenantProvisioningOrchestrator, TenantProvisioningOrchestrator>();
+        services.AddScoped<ICompanyBusinessTypeService, CompanyBusinessTypeService>();
         services.AddScoped<IOutboxWriter, OutboxWriter>();
         services.AddScoped<IOutboxStore, GloOutboxStore>();
         services.AddFgsRabbitMqPublisher();
