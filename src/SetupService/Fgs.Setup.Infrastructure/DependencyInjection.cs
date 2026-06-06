@@ -1,5 +1,6 @@
 ﻿using Fgs.Audit.Infrastructure.Database;
 using Fgs.Contracts.Clients;
+using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Options;
 using Fgs.Setup.Application.Abstractions.Provisioning;
 using Fgs.Setup.Application.Abstractions.Time;
@@ -33,8 +34,6 @@ public static class DependencyInjection
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
         services.Configure<TenantProvisioningOptions>(configuration.GetSection(TenantProvisioningOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
-        services.Configure<RabbitMqConsumerOptions>(configuration.GetSection(RabbitMqConsumerOptions.SectionName));
-        services.AddSingleton<RabbitMqTopologyService>();
 
         var connectionString = FgsSetupConnectionString.ResolveRequired(configuration);
         services.AddDbContext<FgsSetupDbContext>((_, options) =>
@@ -75,7 +74,6 @@ public static class DependencyInjection
         services.AddScoped<ITenantProvisioningOrchestrator, TenantProvisioningOrchestrator>();
         services.AddScoped<ICompanyBusinessTypeService, CompanyBusinessTypeService>();
         services.AddScoped<IOutboxWriter, OutboxWriter>();
-        services.AddHostedService<Background.TenantProvisionConsumerService>();
         CredentialServiceCollectionExtensions.AddFgsCredentialConfigurationServices(
             services,
             configuration,

@@ -3,6 +3,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Fgs.Consumer.Application\Fgs.Consumer.Application.csproj" />
     <ProjectReference Include="..\Fgs.Consumer.Domain\Fgs.Consumer.Domain.csproj" />
+    <ProjectReference Include="..\..\Shared\Contracts\Fgs.Contracts\Fgs.Contracts.csproj" />
+    <ProjectReference Include="..\..\Shared\Messaging\Fgs.Messaging\Fgs.Messaging.csproj" />
+    <ProjectReference Include="..\..\Shared\Foundation\Fgs.Foundation\Fgs.Foundation.csproj" />
     <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
   </ItemGroup>
 

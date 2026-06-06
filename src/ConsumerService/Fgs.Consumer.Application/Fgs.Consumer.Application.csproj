@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Shared\Messaging\Fgs.Messaging\Fgs.Messaging.csproj" />
     <ProjectReference Include="..\Fgs.Consumer.Domain\Fgs.Consumer.Domain.csproj" />
     <ProjectReference Include="..\..\Shared\Kernel\Fgs.Kernel\Fgs.Kernel.csproj" />
     <ProjectReference Include="..\..\Shared\Foundation\Fgs.Foundation\Fgs.Foundation.csproj" />

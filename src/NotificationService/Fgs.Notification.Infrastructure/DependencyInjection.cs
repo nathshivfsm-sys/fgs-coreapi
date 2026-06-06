@@ -21,7 +21,6 @@ using Fgs.Notification.Infrastructure.Integrations.QuickBooks;
 using Fgs.Notification.Infrastructure.Integrations.SendGrid;
 using Fgs.Notification.Infrastructure.Integrations.Stripe;
 using Fgs.Notification.Infrastructure.Integrations.Twilio;
-using Fgs.Notification.Infrastructure.Messaging;
 using Fgs.Notification.Infrastructure.Notifications.Channels;
 using Fgs.Notification.Infrastructure.Notifications.History;
 using Fgs.Notification.Infrastructure.Notifications.Providers;
@@ -31,12 +30,8 @@ using Fgs.Notification.Infrastructure.Notifications.Providers.Sms;
 using Fgs.Notification.Infrastructure.Notifications.Queues;
 using Fgs.Notification.Infrastructure.Notifications.Preferences;
 using Fgs.Notification.Infrastructure.Notifications.Templates;
-using Fgs.Notification.Infrastructure.Notifications.Workers;
-using Fgs.Security.Authorization;
 using Fgs.Security.Extensions;
-using Fgs.Messaging.Extensions;
 using Fgs.Messaging.Options;
-using Fgs.Messaging.RabbitMq;
 using Fgs.Notification.Infrastructure.Options;
 using Fgs.Notification.Infrastructure.Credentials;
 using Fgs.Notification.Infrastructure.Reporting;
@@ -69,7 +64,6 @@ public static class DependencyInjection
         services.Configure<SendGridOptions>(configuration.GetSection(SendGridOptions.SectionName));
         services.Configure<TenantProviderOptions>(configuration.GetSection(TenantProviderOptions.SectionName));
         services.Configure<NotificationFeatureFlagsOptions>(configuration.GetSection(NotificationFeatureFlagsOptions.SectionName));
-        services.Configure<NotificationWorkerOptions>(configuration.GetSection(NotificationWorkerOptions.SectionName));
         services.Configure<NotificationOptions>(configuration.GetSection(NotificationOptions.SectionName));
 
         var connectionString = FgsNotificationConnectionString.ResolveRequired(configuration);
@@ -82,10 +76,6 @@ public static class DependencyInjection
                 npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
             });
         });
-
-        services.AddFgsRabbitMqConnectionFactory();
-        services.AddSingleton<IRabbitMqEffectiveOptionsProvider, NotificationRabbitMqEffectiveOptionsProvider>();
-        services.AddSingleton<NotificationRabbitMqTopologyInitializer>();
 
         services.AddScoped<INotificationHistoryRepository, NotificationHistoryRepository>();
         services.AddScoped<IIdempotencyStore, IdempotencyStore>();
@@ -115,8 +105,6 @@ public static class DependencyInjection
         services.AddSingleton<IReportExporter, PlaceholderReportExporter>();
 
         services.AddHostedService<CredentialConfigurationBootstrapHostedService>();
-        services.AddHostedService<NotificationQueueWorker>();
-        services.AddHostedService<CredentialConfigurationReloadConsumerService>();
 
         return services;
     }
