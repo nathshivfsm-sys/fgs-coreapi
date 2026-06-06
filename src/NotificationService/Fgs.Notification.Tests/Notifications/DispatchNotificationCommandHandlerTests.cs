@@ -4,6 +4,7 @@ using Fgs.Contracts.Requests;
 using Fgs.Notification.Application.Features.Notifications.Commands.DispatchNotification;
 using Fgs.Notification.Application.Notifications.Channels;
 using Fgs.Notification.Application.Notifications.Channels.Models;
+using Fgs.Notification.Application.Notifications.Dispatch;
 using Fgs.Notification.Application.Notifications.Queues;
 using Fgs.Notification.Domain.Notifications;
 using Moq;
@@ -18,7 +19,7 @@ public sealed class DispatchNotificationCommandHandlerTests
     private readonly Mock<INotificationDispatcher> _dispatcher = new();
 
     [Fact]
-    public async Task Handle_IntegrationEvent_DispatchesMappedNotification()
+    public async Task Handle_EventShape_DispatchesMappedNotification()
     {
         _mapper.Setup(m => m.CanMap(IntegrationEventRoutingKeys.CompanySignupInviteEmail)).Returns(true);
         _idempotency.Setup(i => i.TryMarkProcessedAsync("msg-1", IntegrationEventRoutingKeys.CompanySignupInviteEmail, It.IsAny<CancellationToken>()))
@@ -52,7 +53,6 @@ public sealed class DispatchNotificationCommandHandlerTests
         var response = await handler.Handle(
             new DispatchNotificationCommand(new DispatchNotificationRequest
             {
-                Source = NotificationDispatchSource.IntegrationEvent,
                 RoutingKey = IntegrationEventRoutingKeys.CompanySignupInviteEmail,
                 Payload = payload,
                 CorrelationId = "corr-1",
@@ -65,7 +65,7 @@ public sealed class DispatchNotificationCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_Direct_DispatchesNotification()
+    public async Task Handle_ExplicitShape_DispatchesNotification()
     {
         _dispatcher.Setup(d => d.DispatchAsync(It.IsAny<NotificationDispatchRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new NotificationDispatchResult(true, "provider-id", null));
@@ -74,7 +74,6 @@ public sealed class DispatchNotificationCommandHandlerTests
         var response = await handler.Handle(
             new DispatchNotificationCommand(new DispatchNotificationRequest
             {
-                Source = NotificationDispatchSource.Direct,
                 TenantId = 1,
                 CompanyId = 2,
                 Channel = "Email",
@@ -97,6 +96,26 @@ public sealed class DispatchNotificationCommandHandlerTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task Handle_InvalidShape_ReturnsBadRequest()
+    {
+        var handler = CreateHandler();
+
+        var response = await handler.Handle(
+            new DispatchNotificationCommand(new DispatchNotificationRequest
+            {
+                RoutingKey = IntegrationEventRoutingKeys.CompanySignupInviteEmail
+            }),
+            CancellationToken.None);
+
+        response.Success.Should().BeFalse();
+        response.StatusCode.Should().Be(ApiStatusCodes.BadRequest);
+        _dispatcher.Verify(d => d.DispatchAsync(It.IsAny<NotificationDispatchRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     private DispatchNotificationCommandHandler CreateHandler() =>
-        new(_mapper.Object, _idempotency.Object, _dispatcher.Object);
+        new(
+            new NotificationDispatchRequestResolver(_mapper.Object),
+            _idempotency.Object,
+            _dispatcher.Object);
 }

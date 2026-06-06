@@ -5,10 +5,12 @@ using Fgs.Foundation.Api;
 using Fgs.Setup.Application.Common;
 using Fgs.Setup.Application.Features.CommunicationTemplates.Queries.GetActiveCommunicationTemplate;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
 
+[AllowAnonymous]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("communication-templates")]
 public sealed class CommunicationTemplatesController(IMediator mediator) : FgsApiControllerBase(mediator)

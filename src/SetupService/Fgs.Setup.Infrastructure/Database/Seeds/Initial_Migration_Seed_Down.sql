@@ -77,6 +77,7 @@ WHERE "Code" IN (
 
 DELETE FROM glo."GloCommunicationTemplate"
 WHERE ("CommunicationChannel", "TemplateCode") IN (
+    ('Email', 'COMPANY_ADMIN_INVITATION'),
     ('Email', 'USER_INVITATION'),
     ('Email', 'PASSWORD_RESET'),
     ('Email', 'EMAIL_VERIFICATION'),

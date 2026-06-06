@@ -19,7 +19,6 @@ public sealed class ProcessCompanySignupInviteEmailCommandHandler(INotificationD
         var context = request.Context;
         var dispatchRequest = new DispatchNotificationRequest
         {
-            Source = NotificationDispatchSource.IntegrationEvent,
             RoutingKey = IntegrationEventRoutingKeys.CompanySignupInviteEmail,
             Payload = JsonSerializer.Serialize(request.Event, JsonOptions),
             CorrelationId = context.CorrelationId,

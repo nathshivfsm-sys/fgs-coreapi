@@ -12,7 +12,7 @@ namespace Fgs.Notification.API.Controllers;
 [AllowAnonymous]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("notifications")]
-public sealed class NotificationsController(IMediator mediator) : ControllerBase
+public sealed class NotificationsController(IMediator mediator) : FgsApiControllerBase(mediator)
 {
     [HttpPost("dispatch")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
@@ -20,9 +20,6 @@ public sealed class NotificationsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Dispatch(
         [FromBody] DispatchNotificationRequest request,
-        CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DispatchNotificationCommand(request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
+        CancellationToken cancellationToken) =>
+        FromApiResponse(await Mediator.Send(new DispatchNotificationCommand(request), cancellationToken));
 }

@@ -29,8 +29,7 @@ public sealed class ProcessCompanySignupInviteEmailCommandHandlerTests
         client.Verify(
             c => c.DispatchAsync(
                 It.Is<DispatchNotificationRequest>(r =>
-                    r.Source == NotificationDispatchSource.IntegrationEvent
-                    && r.RoutingKey == IntegrationEventRoutingKeys.CompanySignupInviteEmail
+                    r.RoutingKey == IntegrationEventRoutingKeys.CompanySignupInviteEmail
                     && r.MessageId == "message-1"
                     && r.CorrelationId == "correlation-1"
                     && !string.IsNullOrWhiteSpace(r.Payload)),

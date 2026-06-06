@@ -1,15 +1,7 @@
 namespace Fgs.Contracts.Requests;
 
-public enum NotificationDispatchSource
-{
-    IntegrationEvent = 1,
-    Direct = 2
-}
-
 public sealed record DispatchNotificationRequest
 {
-    public NotificationDispatchSource Source { get; init; }
-
     public string? RoutingKey { get; init; }
 
     public string? Payload { get; init; }

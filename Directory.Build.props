@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <MediatRVersion>12.4.1</MediatRVersion>
+  </PropertyGroup>
+</Project>

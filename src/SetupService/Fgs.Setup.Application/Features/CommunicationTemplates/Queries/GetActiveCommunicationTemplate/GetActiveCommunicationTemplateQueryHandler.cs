@@ -2,6 +2,7 @@ using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
 using Fgs.Persistence.Abstractions;
 using Fgs.Setup.Application.Common.Options;
+using Fgs.Setup.Application.Features.CommunicationTemplates;
 using Fgs.Setup.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -17,13 +18,6 @@ public sealed class GetActiveCommunicationTemplateQueryHandler(
         GetActiveCommunicationTemplateQuery request,
         CancellationToken cancellationToken)
     {
-        if (!IsInternalServiceAuthorized(request.InternalServiceKey, distributionOptions.Value))
-        {
-            return ApiResponse<CommunicationTemplateDto>.Fail(
-                ["Unauthorized."],
-                ApiStatusCodes.Unauthorized);
-        }
-
         var normalizedType = request.TemplateType.Trim();
         var normalizedCode = request.Code.Trim();
 
@@ -37,14 +31,40 @@ public sealed class GetActiveCommunicationTemplateQueryHandler(
                 cancellationToken);
 
         var template = templates.OrderByDescending(t => t.Id).FirstOrDefault();
-        if (template is null)
+        if (template is not null)
+        {
+            return ApiResponse<CommunicationTemplateDto>.Ok(MapFgsTemplate(template));
+        }
+
+        if (!CommunicationTemplateChannelMapper.TryMapTemplateTypeToCommunicationChannel(
+                normalizedType,
+                out var communicationChannel))
         {
             return ApiResponse<CommunicationTemplateDto>.Fail(
                 ["Template not found."],
                 ApiStatusCodes.NotFound);
         }
 
-        return ApiResponse<CommunicationTemplateDto>.Ok(new CommunicationTemplateDto(
+        var gloTemplates = await unitOfWork.Repository<GloCommunicationTemplate>()
+            .ListAsync(
+                t => t.TemplateCode == normalizedCode
+                     && t.CommunicationChannel == communicationChannel
+                     && t.IsActive,
+                cancellationToken);
+
+        var gloTemplate = gloTemplates.OrderByDescending(t => t.Id).FirstOrDefault();
+        if (gloTemplate is null)
+        {
+            return ApiResponse<CommunicationTemplateDto>.Fail(
+                ["Template not found."],
+                ApiStatusCodes.NotFound);
+        }
+
+        return ApiResponse<CommunicationTemplateDto>.Ok(MapGloTemplate(gloTemplate, normalizedType));
+    }
+
+    private static CommunicationTemplateDto MapFgsTemplate(FgsSetupCommunicationTemplate template) =>
+        new(
             template.Id,
             template.TenantId,
             template.CompanyId,
@@ -54,8 +74,22 @@ public sealed class GetActiveCommunicationTemplateQueryHandler(
             template.Subject,
             template.Body,
             template.IsMobileVisible,
-            template.IsActive));
-    }
+            template.IsActive);
+
+    private static CommunicationTemplateDto MapGloTemplate(
+        GloCommunicationTemplate template,
+        string templateType) =>
+        new(
+            template.Id,
+            TenantId: null,
+            CompanyId: null,
+            templateType,
+            template.TemplateCode,
+            template.Name,
+            template.Subject,
+            template.Body,
+            template.IsMobileVisible,
+            template.IsActive);
 
     private static bool IsInternalServiceAuthorized(
         string? providedKey,

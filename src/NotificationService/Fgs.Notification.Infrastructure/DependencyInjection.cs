@@ -8,6 +8,7 @@ using Fgs.Notification.Application.Integrations.Twilio;
 using Fgs.Notification.Application.Notifications.Channels;
 using Fgs.Notification.Application.Notifications.History;
 using Fgs.Notification.Application.Notifications.Providers;
+using Fgs.Notification.Application.Notifications.Dispatch;
 using Fgs.Notification.Application.Notifications.Queues;
 using Fgs.Notification.Application.Notifications.Preferences;
 using Fgs.Notification.Application.Notifications.Templates;
@@ -78,6 +79,7 @@ public static class DependencyInjection
         services.AddScoped<INotificationTemplateRenderer, DatabaseNotificationTemplateRenderer>();
         services.AddSingleton<INotificationPreferenceService, PlaceholderNotificationPreferenceService>();
         services.AddSingleton<IIntegrationEventMapper, IntegrationEventMapper>();
+        services.AddSingleton<INotificationDispatchRequestResolver, NotificationDispatchRequestResolver>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
         services.AddSingleton<INotificationProviderFactory, NotificationProviderFactory>();
 
