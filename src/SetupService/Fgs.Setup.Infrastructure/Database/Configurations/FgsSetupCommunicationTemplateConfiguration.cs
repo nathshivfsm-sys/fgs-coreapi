@@ -27,6 +27,8 @@ internal class FgsSetupCommunicationTemplateConfiguration : IEntityTypeConfigura
         entity.Property(e => e.Body).HasColumnType("text");
         entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        entity.Property(e => e.CreatedBy).HasMaxLength(100);
+        entity.Property(e => e.UpdatedBy).HasMaxLength(100);
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId })
             .HasDatabaseName("IX_FgsSetupCommunicationTemplate_TenantId_CompanyId");

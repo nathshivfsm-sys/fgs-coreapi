@@ -1,4 +1,5 @@
-﻿using Fgs.Setup.Domain.Entities;
+﻿using Fgs.Persistence.Extensions;
+using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -38,7 +39,7 @@ internal class GloOutboxMessageConfiguration : IEntityTypeConfiguration<GloOutbo
         entity.Property(e => e.NextRetryOn).HasColumnType("timestamptz");
         entity.Property(e => e.ProcessedOn).HasColumnType("timestamptz");
         entity.Property(e => e.LastError).HasColumnType("text");
-        entity.ConfigureGloEntityBigintAuditColumns();
+        entity.ConfigureGloEntityAuditColumns();
 
         entity.HasIndex(e => new { e.Status, e.NextRetryOn })
             .HasDatabaseName("IX_GloOutboxMessage_Status_NextRetryOn");

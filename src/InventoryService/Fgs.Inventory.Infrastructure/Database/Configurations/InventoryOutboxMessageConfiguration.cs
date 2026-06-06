@@ -1,5 +1,6 @@
 using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Domain.Enums;
+using Fgs.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -38,7 +39,7 @@ internal sealed class InventoryOutboxMessageConfiguration : IEntityTypeConfigura
         entity.Property(e => e.NextRetryOn).HasColumnType("timestamptz");
         entity.Property(e => e.ProcessedOn).HasColumnType("timestamptz");
         entity.Property(e => e.LastError).HasColumnType("text");
-        entity.ConfigureGloEntityBigintAuditColumns();
+        entity.ConfigureGloEntityAuditColumns();
 
         entity.HasIndex(e => new { e.Status, e.NextRetryOn })
             .HasDatabaseName("IX_InventoryOutboxMessage_Status_NextRetryOn");

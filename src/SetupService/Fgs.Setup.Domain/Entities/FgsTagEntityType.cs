@@ -17,5 +17,5 @@ public class FgsTagEntityType : ITenantCompanyScoped
 
     public DateTimeOffset CreatedOn { get; set; }
 
-    public long? CreatedBy { get; set; }
+    public string? CreatedBy { get; set; }
 }

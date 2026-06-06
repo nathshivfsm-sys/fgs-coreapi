@@ -6,7 +6,7 @@
 -- Idempotent: each insert skips rows that already exist (matched by natural key).
 -- Defaults where applicable:
 --   CreatedOn = UTC now
---   CreatedBy = 'System' (varchar audit columns only; GloSeed* mapping tables use bigint CreatedBy = NULL)
+--   CreatedBy = 'System' (varchar(100) audit columns)
 -- =============================================================================
 
 START TRANSACTION;

@@ -44,15 +44,13 @@ public class FgsUserDbContext : FgsTenantFilteredDbContext
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             var createdBy = entityType.FindProperty("CreatedBy");
-            if (createdBy?.ClrType == typeof(string)
-                && !string.Equals(createdBy.GetColumnType(), "bigint", StringComparison.OrdinalIgnoreCase))
+            if (createdBy?.ClrType == typeof(string))
             {
                 createdBy.SetMaxLength(maxLength);
             }
 
             var updatedBy = entityType.FindProperty("UpdatedBy");
-            if (updatedBy?.ClrType == typeof(string)
-                && !string.Equals(updatedBy.GetColumnType(), "bigint", StringComparison.OrdinalIgnoreCase))
+            if (updatedBy?.ClrType == typeof(string))
             {
                 updatedBy.SetMaxLength(maxLength);
             }

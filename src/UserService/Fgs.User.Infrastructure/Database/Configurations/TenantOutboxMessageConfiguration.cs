@@ -1,3 +1,4 @@
+using Fgs.Persistence.Extensions;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +39,7 @@ internal sealed class TenantOutboxMessageConfiguration : IEntityTypeConfiguratio
         entity.Property(e => e.NextRetryOn).HasColumnType("timestamptz");
         entity.Property(e => e.ProcessedOn).HasColumnType("timestamptz");
         entity.Property(e => e.LastError).HasColumnType("text");
-        entity.ConfigureGloEntityBigintAuditColumns();
+        entity.ConfigureGloEntityAuditColumns();
 
         entity.HasIndex(e => new { e.Status, e.NextRetryOn })
             .HasDatabaseName("IX_TenantOutboxMessage_Status_NextRetryOn");

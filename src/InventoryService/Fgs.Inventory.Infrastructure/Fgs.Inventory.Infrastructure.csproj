@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Fgs.Inventory.Application\Fgs.Inventory.Application.csproj" />
     <ProjectReference Include="..\Fgs.Inventory.Domain\Fgs.Inventory.Domain.csproj" />
+    <ProjectReference Include="..\..\Shared\Persistence\Fgs.Persistence\Fgs.Persistence.csproj" />
     <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
   </ItemGroup>
 

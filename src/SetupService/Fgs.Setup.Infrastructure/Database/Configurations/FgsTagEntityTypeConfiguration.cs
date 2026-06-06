@@ -15,7 +15,7 @@ internal class FgsTagEntityTypeConfiguration : IEntityTypeConfiguration<FgsTagEn
             .IsRequired()
             .HasColumnType("timestamptz")
             .HasDefaultValueSql("now()");
-        entity.Property(e => e.CreatedBy).HasColumnType("bigint");
+        entity.Property(e => e.CreatedBy).HasMaxLength(100);
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.TagId })
             .HasDatabaseName("IX_FgsTagEntityType_TagId");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.MasterEntityTypeId })

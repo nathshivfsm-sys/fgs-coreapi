@@ -33,10 +33,10 @@ public class FgsTag : ITenantCompanyScoped
 
     public DateTimeOffset CreatedOn { get; set; }
 
-    public long? CreatedBy { get; set; }
+    public string? CreatedBy { get; set; }
 
     public DateTimeOffset? UpdatedOn { get; set; }
 
-    public long? UpdatedBy { get; set; }
+    public string? UpdatedBy { get; set; }
 
 }

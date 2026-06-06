@@ -1,5 +1,6 @@
 using Fgs.Crm.Domain.Entities;
 using Fgs.Crm.Domain.Enums;
+using Fgs.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -38,7 +39,7 @@ internal sealed class CrmOutboxMessageConfiguration : IEntityTypeConfiguration<C
         entity.Property(e => e.NextRetryOn).HasColumnType("timestamptz");
         entity.Property(e => e.ProcessedOn).HasColumnType("timestamptz");
         entity.Property(e => e.LastError).HasColumnType("text");
-        entity.ConfigureGloEntityBigintAuditColumns();
+        entity.ConfigureGloEntityAuditColumns();
 
         entity.HasIndex(e => new { e.Status, e.NextRetryOn })
             .HasDatabaseName("IX_CrmOutboxMessage_Status_NextRetryOn");

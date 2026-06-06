@@ -1,4 +1,5 @@
-﻿using Fgs.Setup.Domain.Entities;
+﻿using Fgs.Persistence.Extensions;
+using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -16,7 +17,7 @@ internal class GloSeedTableMappingConfiguration : IEntityTypeConfiguration<GloSe
             .UseIdentityByDefaultColumn();
 
         entity.Property(e => e.IsActive).HasDefaultValue(true);
-        entity.ConfigureGloEntityBigintAuditColumns();
+        entity.ConfigureGloEntityAuditColumns();
 
         entity.Property(e => e.SeedCode).HasMaxLength(100);
         entity.HasIndex(e => e.SeedCode)

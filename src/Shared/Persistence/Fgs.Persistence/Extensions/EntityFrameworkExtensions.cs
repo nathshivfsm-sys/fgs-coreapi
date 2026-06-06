@@ -1,4 +1,6 @@
+using Fgs.Kernel.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Configuration;
 
 namespace Fgs.Persistence.Extensions;
@@ -42,5 +44,17 @@ public static class EntityFrameworkExtensions
             ?? throw new InvalidOperationException($"ConnectionStrings:{connectionStringName} is required.");
 
         return options.UseFgsNpgsql(connectionString, migrationsHistoryTable, migrationsHistorySchema);
+    }
+
+    public static void ConfigureGloEntityAuditColumns<T>(this EntityTypeBuilder<T> entity)
+        where T : GloEntityBase
+    {
+        entity.Property(e => e.CreatedOn)
+            .IsRequired()
+            .HasColumnType("timestamptz")
+            .HasDefaultValueSql("now()");
+        entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        entity.Property(e => e.CreatedBy).HasMaxLength(100);
+        entity.Property(e => e.UpdatedBy).HasMaxLength(100);
     }
 }

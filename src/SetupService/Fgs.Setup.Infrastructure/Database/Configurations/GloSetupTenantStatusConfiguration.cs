@@ -20,9 +20,9 @@ internal class GloSetupTenantStatusConfiguration : IEntityTypeConfiguration<GloS
         entity.Property(e => e.CreatedOn)
             .HasColumnType("timestamptz")
             .HasDefaultValueSql("now()");
-        entity.Property(e => e.CreatedBy).HasColumnType("bigint");
+        entity.Property(e => e.CreatedBy).HasMaxLength(100);
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
-        entity.Property(e => e.UpdatedBy).HasColumnType("bigint");
+        entity.Property(e => e.UpdatedBy).HasMaxLength(100);
         entity.HasIndex(e => e.Name)
             .IsUnique()
             .HasDatabaseName("UX_GloSetupTenantStatus_Name");
