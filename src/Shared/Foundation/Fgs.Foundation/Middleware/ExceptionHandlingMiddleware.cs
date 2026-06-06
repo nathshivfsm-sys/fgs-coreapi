@@ -2,7 +2,7 @@ using System.Net;
 using System.Text.Json;
 using FluentValidation;
 using Fgs.Foundation.Constants;
-using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 

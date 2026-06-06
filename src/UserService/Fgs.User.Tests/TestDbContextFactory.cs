@@ -1,6 +1,6 @@
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
-using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
+using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 

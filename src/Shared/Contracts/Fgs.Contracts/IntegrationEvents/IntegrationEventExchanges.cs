@@ -9,5 +9,22 @@ public static class IntegrationEventExchanges
 
     public const string TenantEvents = "tenant.events";
 
-    public const string PlatformEvents = "fgs.platform";
+    public static IReadOnlyList<string> All { get; } =
+    [
+        UserEvents,
+        TenantEvents
+    ];
+
+    /// <summary>
+    /// Resolves the topic exchange for an integration event type.
+    /// </summary>
+    public static string ForEventType(string eventType) =>
+        eventType switch
+        {
+            IntegrationEventTypes.TenantProvisionRequested => TenantEvents,
+            IntegrationEventTypes.TenantProvisionCompleted => TenantEvents,
+            IntegrationEventTypes.CompanySignupInviteEmail => UserEvents,
+
+            _ => UserEvents
+        };
 }

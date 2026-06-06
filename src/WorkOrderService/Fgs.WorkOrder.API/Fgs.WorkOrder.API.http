@@ -1,6 +1,0 @@
-@Fgs.WorkOrder.API_HostAddress = http://localhost:5070
-
-GET {{Fgs.WorkOrder.API_HostAddress}}/health
-Accept: application/json
-
-###

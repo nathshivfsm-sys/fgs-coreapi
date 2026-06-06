@@ -1,5 +1,9 @@
 using System.Security.Claims;
+using Fgs.Contracts.Clients;
+using Fgs.Contracts.Options;
 using Fgs.Security.Abstractions;
+using Microsoft.Extensions.Http.Resilience;
+using Refit;
 using Fgs.Security.Options;
 using Fgs.Security.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -82,15 +86,18 @@ public static class ServiceCollectionExtensions
         services.Configure<UserServiceClientOptions>(
             configuration.GetSection(UserServiceClientOptions.SectionName));
 
-        var userServiceOptions = configuration
-                                     .GetSection(UserServiceClientOptions.SectionName)
-                                     .Get<UserServiceClientOptions>()
-                                 ?? new UserServiceClientOptions();
+        var resilience = configuration.GetSection(HttpResilienceOptions.SectionName).Get<HttpResilienceOptions>()
+            ?? new HttpResilienceOptions();
 
-        services.AddHttpClient<IFgsClaimsEnricher, RemoteFgsClaimsEnricher>(client =>
-        {
-            client.BaseAddress = new Uri(userServiceOptions.BaseUrl.TrimEnd('/') + "/");
-        });
+        var baseUrl = configuration[$"{UserServiceClientOptions.SectionName}:BaseUrl"]
+            ?? "http://user-service:5001";
+
+        services.AddScoped<IFgsClaimsEnricher, RemoteFgsClaimsEnricher>();
+        services
+            .AddRefitClient<IFgsClaimsClient>()
+            .ConfigureHttpClient(client =>
+                client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/"))
+            .AddStandardResilienceHandler(options => HttpResilienceConfigurator.Configure(options, resilience));
 
         return services;
     }

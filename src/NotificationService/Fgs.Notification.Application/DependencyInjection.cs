@@ -1,0 +1,21 @@
+﻿using System.Reflection;
+using Fgs.Foundation.Extensions;
+using FluentValidation;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Fgs.Notification.Application;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddFgsNotificationApplication(this IServiceCollection services)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+
+        services.AddFgsFoundation();
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
+        services.AddValidatorsFromAssembly(assembly);
+
+        return services;
+    }
+}

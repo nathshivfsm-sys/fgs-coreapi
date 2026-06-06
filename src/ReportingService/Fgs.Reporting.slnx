@@ -1,0 +1,18 @@
+﻿<Solution>
+  <Folder Name="/Shared/">
+    <Project Path="../Shared/Kernel/Fgs.Kernel/Fgs.Kernel.csproj" />
+    <Project Path="../Shared/Foundation/Fgs.Foundation/Fgs.Foundation.csproj" />
+    <Project Path="../Shared/Contracts/Fgs.Contracts/Fgs.Contracts.csproj" />
+    <Project Path="../Shared/Persistence/Fgs.Persistence/Fgs.Persistence.csproj" />
+    <Project Path="../Shared/Security/Fgs.Security/Fgs.Security.csproj" />
+    <Project Path="../Shared/MultiTenancy/Fgs.MultiTenancy/Fgs.MultiTenancy.csproj" />
+    <Project Path="../Shared/Observability/Fgs.Observability/Fgs.Observability.csproj" />
+  </Folder>
+  <Folder Name="/ReportingService/">
+    <Project Path="Fgs.Reporting.Domain/Fgs.Reporting.Domain.csproj" />
+    <Project Path="Fgs.Reporting.Application/Fgs.Reporting.Application.csproj" />
+    <Project Path="Fgs.Reporting.Infrastructure/Fgs.Reporting.Infrastructure.csproj" />
+    <Project Path="Fgs.Reporting.API/Fgs.Reporting.API.csproj" />
+    <Project Path="Fgs.Reporting.Tests/Fgs.Reporting.Tests.csproj" />
+  </Folder>
+</Solution>

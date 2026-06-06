@@ -19,12 +19,6 @@ internal sealed class CredentialApplicationConfigurationSource : IConfigurationS
 
 internal sealed class CredentialApplicationConfigurationProvider : ConfigurationProvider
 {
-    private static readonly Dictionary<string, string> RabbitMqPropertyAliases = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["Host"] = "HostName",
-        ["Username"] = "UserName"
-    };
-
     private readonly CredentialConfigurationHolder _holder;
 
     public CredentialApplicationConfigurationProvider(CredentialConfigurationHolder holder) => _holder = holder;
@@ -37,28 +31,6 @@ internal sealed class CredentialApplicationConfigurationProvider : Configuration
         {
             var property = key["SendGrid:".Length..];
             return TryGetGlobalProviderValue("SENDGRID", property, out value);
-        }
-
-        if (key.StartsWith("RabbitMq:", StringComparison.OrdinalIgnoreCase))
-        {
-            var property = key["RabbitMq:".Length..];
-            if (TryGetGlobalProviderValue("RABBITMQ", property, out value))
-            {
-                return true;
-            }
-
-            foreach (var alias in RabbitMqPropertyAliases)
-            {
-                if (!string.Equals(property, alias.Value, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                if (TryGetGlobalProviderValue("RABBITMQ", alias.Key, out value))
-                {
-                    return true;
-                }
-            }
         }
 
         return false;

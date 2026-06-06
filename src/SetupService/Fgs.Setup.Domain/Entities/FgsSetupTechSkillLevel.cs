@@ -1,0 +1,12 @@
+﻿namespace Fgs.Setup.Domain.Entities;
+
+public class FgsSetupTechSkillLevel : FgsTenantCompanySetupEntityBase<long>
+{
+    public string Code { get; set; } = null!;
+
+    public string Name { get; set; } = null!;
+
+    public string? Description { get; set; }
+
+    public int? SortOrder { get; set; }
+}

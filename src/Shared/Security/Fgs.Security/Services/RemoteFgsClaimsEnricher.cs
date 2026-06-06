@@ -1,6 +1,6 @@
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Security.Claims;
+using Fgs.Contracts.Api;
+using Fgs.Contracts.Clients;
 using Fgs.Security.Abstractions;
 using Fgs.Security.Models;
 using Microsoft.AspNetCore.Http;
@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 namespace Fgs.Security.Services;
 
 public sealed class RemoteFgsClaimsEnricher(
-    HttpClient httpClient,
+    IFgsClaimsClient claimsClient,
     IHttpContextAccessor httpContextAccessor) : IFgsClaimsEnricher
 {
     public async Task EnrichAsync(ClaimsPrincipal principal, CancellationToken cancellationToken = default)
@@ -24,22 +24,31 @@ public sealed class RemoteFgsClaimsEnricher(
             return;
         }
 
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/auth/me");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-        using var response = await httpClient.SendAsync(request, cancellationToken);
-        if (!response.IsSuccessStatusCode)
+        ApiResponse<FgsAuthMeDto> response;
+        try
+        {
+            response = await claimsClient.GetMeAsync($"Bearer {accessToken}", cancellationToken);
+        }
+        catch
         {
             return;
         }
 
-        var profile = await response.Content.ReadFromJsonAsync<FgsAuthenticatedUserProfile>(cancellationToken);
-        if (profile is null)
+        if (!response.Success || response.Data is null)
         {
             return;
         }
 
-        FgsClaimsEnrichment.Apply(principal, profile);
+        var dto = response.Data;
+        FgsClaimsEnrichment.Apply(
+            principal,
+            new FgsAuthenticatedUserProfile(
+                dto.UserId,
+                dto.Email,
+                dto.EntraObjectId,
+                dto.TenantId,
+                dto.CompanyId,
+                dto.Roles));
     }
 
     private static string? ExtractBearerToken(HttpContext? httpContext)

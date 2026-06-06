@@ -1,6 +1,7 @@
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Options;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,7 @@ public sealed class RabbitMqPublisher(
     private IConnection? _connection;
     private IChannel? _channel;
     private readonly SemaphoreSlim _initLock = new(1, 1);
+    private readonly HashSet<string> _declaredExchanges = new(StringComparer.Ordinal);
 
     public Task PublishAsync(
         string routingKey,
@@ -50,6 +52,7 @@ public sealed class RabbitMqPublisher(
         CancellationToken cancellationToken = default)
     {
         await EnsureChannelAsync(cancellationToken);
+        await EnsureExchangeDeclaredAsync(exchangeName, cancellationToken);
 
         var properties = new BasicProperties
         {
@@ -140,11 +143,10 @@ public sealed class RabbitMqPublisher(
     private async Task EnsureExchangeAndQueuesAsync(CancellationToken cancellationToken)
     {
         var channel = _channel!;
-        await channel.ExchangeDeclareAsync(
-            exchange: _options.ExchangeName,
-            type: ExchangeType.Topic,
-            durable: true,
-            cancellationToken: cancellationToken);
+        foreach (var exchangeName in ResolveExchangeNames())
+        {
+            await EnsureExchangeDeclaredAsync(exchangeName, cancellationToken);
+        }
 
         if (!_options.EnsureQueuesOnStartup || _options.QueueBindings.Count == 0)
         {
@@ -156,36 +158,78 @@ public sealed class RabbitMqPublisher(
             if (string.IsNullOrWhiteSpace(binding.QueueName) || string.IsNullOrWhiteSpace(binding.RoutingKey))
             {
                 logger.LogWarning(
-                    "Skipping RabbitMQ queue binding with empty QueueName or RoutingKey on exchange {Exchange}.",
-                    _options.ExchangeName);
+                    "Skipping RabbitMQ queue binding with empty QueueName or RoutingKey.");
                 continue;
             }
 
+            var exchangeName = ResolveBindingExchangeName(binding);
             var queueName = binding.QueueName.Trim();
             var routingKey = binding.RoutingKey.Trim();
 
-            await channel.QueueDeclareAsync(
-                queue: queueName,
-                durable: true,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null,
-                passive: false,
-                cancellationToken: cancellationToken);
+            await EnsureExchangeDeclaredAsync(exchangeName, cancellationToken);
+            if (!string.IsNullOrWhiteSpace(binding.DeadLetterExchangeName))
+            {
+                await EnsureExchangeDeclaredAsync(binding.DeadLetterExchangeName.Trim(), cancellationToken);
+            }
 
-            await channel.QueueBindAsync(
-                queue: queueName,
-                exchange: _options.ExchangeName,
-                routingKey: routingKey,
-                arguments: null,
-                cancellationToken: cancellationToken);
+            await RabbitMqQueueTopology.EnsureQueueBindingAsync(
+                channel,
+                exchangeName,
+                queueName,
+                routingKey,
+                binding.DeadLetterExchangeName,
+                binding.DeadLetterQueueName,
+                binding.DeadLetterRoutingKey,
+                cancellationToken);
 
             logger.LogInformation(
                 "Queue {Queue} ready on exchange {Exchange} (routing key {RoutingKey}).",
                 queueName,
-                _options.ExchangeName,
+                exchangeName,
                 routingKey);
         }
+    }
+
+    private IEnumerable<string> ResolveExchangeNames()
+    {
+        if (_options.ExchangeNames.Count > 0)
+        {
+            foreach (var exchangeName in _options.ExchangeNames)
+            {
+                if (!string.IsNullOrWhiteSpace(exchangeName))
+                {
+                    yield return exchangeName.Trim();
+                }
+            }
+
+            yield break;
+        }
+
+        foreach (var exchangeName in IntegrationEventExchanges.All)
+        {
+            yield return exchangeName;
+        }
+    }
+
+    private string ResolveBindingExchangeName(RabbitMqQueueBindingOptions binding) =>
+        string.IsNullOrWhiteSpace(binding.ExchangeName)
+            ? _options.ExchangeName
+            : binding.ExchangeName.Trim();
+
+    private async Task EnsureExchangeDeclaredAsync(string exchangeName, CancellationToken cancellationToken)
+    {
+        if (_channel is null || _declaredExchanges.Contains(exchangeName))
+        {
+            return;
+        }
+
+        await _channel.ExchangeDeclareAsync(
+            exchange: exchangeName,
+            type: ExchangeType.Topic,
+            durable: true,
+            cancellationToken: cancellationToken);
+
+        _declaredExchanges.Add(exchangeName);
     }
 
     private void LogConnectionFailure(Exception ex, ConnectionFactory factory)

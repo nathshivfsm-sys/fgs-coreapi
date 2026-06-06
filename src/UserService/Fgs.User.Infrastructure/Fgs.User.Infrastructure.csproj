@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 
 
@@ -39,6 +39,8 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.8" />
 
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.0.0" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
 
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.8" />
 
@@ -59,8 +61,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
 
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.8" />
-
-    <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
 
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
 
@@ -98,5 +98,14 @@
 
 
 
-</Project>
+  <ItemGroup>
+    <Compile Remove="CredentialServiceCollectionExtensions.cs" />
+    <Compile Remove="CredentialConfigurationExtensions.cs" />
+    <Compile Remove="AwsCredentialsServiceCollectionExtensions.cs" />
+    <Compile Remove="Credentials\**\*.cs" />
+    <Compile Remove="Provisioning\**\*.cs" />
+    <Compile Remove="Security\**\*.cs" />
+    <Compile Remove="Storage\**\*.cs" />
+  </ItemGroup>
 
+</Project>

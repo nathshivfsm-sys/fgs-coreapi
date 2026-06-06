@@ -1,5 +1,24 @@
+-- Per-service databases for FGS microservices (schema-per-service within each DB in dev).
 CREATE DATABASE fgs_user;
-CREATE DATABASE fgs_workorder;
+CREATE DATABASE fgs_setup;
+CREATE DATABASE fgs_file;
+CREATE DATABASE fgs_audit;
+CREATE DATABASE fgs_notification;
+CREATE DATABASE fgs_billing;
+CREATE DATABASE fgs_crm;
+CREATE DATABASE fgs_dispatch;
+CREATE DATABASE fgs_inventory;
+CREATE DATABASE fgs_reporting;
+CREATE DATABASE fgs_job;
 
 GRANT ALL PRIVILEGES ON DATABASE fgs_user TO fgs;
-GRANT ALL PRIVILEGES ON DATABASE fgs_workorder TO fgs;
+GRANT ALL PRIVILEGES ON DATABASE fgs_setup TO fgs;
+GRANT ALL PRIVILEGES ON DATABASE fgs_file TO fgs;
+GRANT ALL PRIVILEGES ON DATABASE fgs_audit TO fgs;
+GRANT ALL PRIVILEGES ON DATABASE fgs_notification TO fgs;
+GRANT ALL PRIVILEGES ON DATABASE fgs_billing TO fgs;
+GRANT ALL PRIVILEGES ON DATABASE fgs_crm TO fgs;
+GRANT ALL PRIVILEGES ON DATABASE fgs_dispatch TO fgs;
+GRANT ALL PRIVILEGES ON DATABASE fgs_inventory TO fgs;
+GRANT ALL PRIVILEGES ON DATABASE fgs_reporting TO fgs;
+GRANT ALL PRIVILEGES ON DATABASE fgs_job TO fgs;

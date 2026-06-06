@@ -8,24 +8,24 @@ using Fgs.Messaging.Abstractions;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
-using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
+using Fgs.Contracts.Clients;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Signup;
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 using Fgs.User.Application.Features.Signup.DTOs;
 using Fgs.User.Domain.Entities;
+using Fgs.User.Domain.Enums;
 using Fgs.User.Infrastructure.Common.Geo;
-using Fgs.Security.Options;
-using Fgs.Security.Constants;
 using Fgs.User.Infrastructure.Common.Time;
+using Fgs.Persistence.Implementations;
+using Fgs.User.Infrastructure.Database;
 using Fgs.User.Infrastructure.Messaging;
-using Fgs.User.Infrastructure.Persistence.Database.UnitOfWorks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
-using Fgs.User.Infrastructure.Persistence.Database.DbContexts;
 
 namespace Fgs.User.Tests.Application;
 
@@ -34,20 +34,20 @@ public sealed class CreateCompanySignupCommandHandlerTests
     [Fact]
     public async Task Handle_WithDuplicateCompanyName_AllowsSecondSignup()
     {
-        var (handler, context) = await CreateHandlerAsync();
+        var (handler, user, _) = await CreateHandlerAsync();
         var companyName = $"Dup Co {Guid.NewGuid():N}"[..20];
         var command = ValidCommand(companyName: companyName);
         var second = ValidCommand(companyName: companyName);
 
         (await handler.Handle(command, CancellationToken.None)).Success.Should().BeTrue();
         (await handler.Handle(second, CancellationToken.None)).Success.Should().BeTrue();
-        (await context.FgsTenants.CountAsync()).Should().Be(2);
+        (await user.FgsTenants.CountAsync()).Should().Be(2);
     }
 
     [Fact]
     public async Task Handle_WithDuplicateEmail_ReturnsConflict()
     {
-        var (handler, _) = await CreateHandlerAsync();
+        var (handler, _, _) = await CreateHandlerAsync();
         var email = $"dup-{Guid.NewGuid():N}@test.com";
         var first = ValidCommand(companyName: $"First {Guid.NewGuid():N}"[..20]);
         var second = ValidCommand(companyName: $"Second {Guid.NewGuid():N}"[..20]) with
@@ -68,7 +68,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
     [Fact]
     public async Task Handle_WithValidRequest_CreatesTenantCompanyUserInvitationLocationAndOutbox()
     {
-        var (handler, context) = await CreateHandlerAsync();
+        var (handler, userContext, setupClientMock) = await CreateHandlerAsync();
         var companyName = $"Acme {Guid.NewGuid():N}"[..16];
         var command = ValidCommand(companyName: companyName);
         var response = await handler.Handle(command, CancellationToken.None);
@@ -77,14 +77,14 @@ public sealed class CreateCompanySignupCommandHandlerTests
         response.StatusCode.Should().Be(ApiStatusCodes.Created);
         response.Data.Should().NotBeNull();
 
-        (await context.FgsTenants.CountAsync()).Should().Be(1);
-        (await context.FgsTenantCompanies.CountAsync()).Should().Be(1);
-        (await context.FgsUsers.CountAsync()).Should().Be(1);
-        (await context.FgsInvitations.CountAsync()).Should().Be(1);
-        (await context.FgsLocations.CountAsync()).Should().Be(1);
-        (await context.GloOutboxMessages.CountAsync()).Should().Be(1);
+        (await userContext.FgsTenants.CountAsync()).Should().Be(1);
+        (await userContext.FgsTenantCompanies.CountAsync()).Should().Be(1);
+        (await userContext.FgsUsers.CountAsync()).Should().Be(1);
+        (await userContext.FgsInvitations.CountAsync()).Should().Be(1);
+        (await userContext.FgsLocations.CountAsync()).Should().Be(1);
+        (await userContext.TenantOutboxMessages.CountAsync()).Should().Be(1);
 
-        var tenant = await context.FgsTenants.SingleAsync();
+        var tenant = await userContext.FgsTenants.SingleAsync();
         tenant.Name.Should().Be(companyName);
         tenant.LegalName.Should().Be(companyName);
         tenant.PhoneNumber.Should().Be("15550199");
@@ -96,7 +96,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
         tenant.BillingLocationId.Should().Be(tenant.PhysicalLocationId);
         tenant.CreatedBy.Should().Be(SignupConstants.ProspectActor);
 
-        var company = await context.FgsTenantCompanies.SingleAsync();
+        var company = await userContext.FgsTenantCompanies.SingleAsync();
         company.Name.Should().Be(companyName);
         company.LegalName.Should().Be(companyName);
         company.PhoneNumber.Should().Be("15550199");
@@ -107,7 +107,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
         company.BillingLocationId.Should().Be(tenant.PhysicalLocationId);
         company.CreatedBy.Should().Be(SignupConstants.ProspectActor);
 
-        var location = await context.FgsLocations.SingleAsync();
+        var location = await userContext.FgsLocations.SingleAsync();
         location.AddressLine1.Should().Be(command.Company.Address.AddressLine1);
         location.City.Should().Be(command.Company.Address.City);
         location.State.Should().Be(command.Company.Address.State);
@@ -117,66 +117,83 @@ public sealed class CreateCompanySignupCommandHandlerTests
         location.CompanyId.Should().Be(1);
         location.CreatedBy.Should().Be(SignupConstants.ProspectActor);
 
-        var user = await context.FgsUsers.SingleAsync();
-        user.Email.Should().Be(command.Contact.Email.Trim());
-        user.DisplayName.Should().Be(command.Contact.Name);
-        user.CompanyId.Should().Be(1);
-        user.CreatedBy.Should().Be(SignupConstants.ProspectActor);
+        var createdUser = await userContext.FgsUsers.SingleAsync();
+        createdUser.Email.Should().Be(command.Contact.Email.Trim());
+        createdUser.DisplayName.Should().Be(command.Contact.Name);
+        createdUser.CompanyId.Should().Be(1);
+        createdUser.CreatedBy.Should().Be(SignupConstants.ProspectActor);
 
-        var userRole = await context.FgsUserRoles.SingleAsync();
-        userRole.UserId.Should().Be(user.Id);
-        userRole.GloRoleId.Should().Be(1);
+        var userRole = await userContext.FgsUserRoles.SingleAsync();
+        userRole.UserId.Should().Be(createdUser.Id);
+        userRole.GloRoleId.Should().Be(SignupConstants.TenantAdminGloRoleId);
         userRole.FgsRoleId.Should().BeNull();
 
-        var outbox = await context.GloOutboxMessages.SingleAsync();
+        var outbox = await userContext.TenantOutboxMessages.SingleAsync();
         outbox.ExchangeName.Should().Be(IntegrationEventExchanges.UserEvents);
         outbox.RoutingKey.Should().Be(IntegrationEventRoutingKeys.CompanySignupInviteEmail);
         outbox.CreatedBy.Should().Be(SignupConstants.ProspectActorUserId.ToString());
         var evt = JsonSerializer.Deserialize<CompanySignupInviteEmailEvent>(outbox.Payload);
         evt.Should().NotBeNull();
-        evt!.Email.Should().Be(user.Email);
+        evt!.Email.Should().Be(createdUser.Email);
         evt.CompanyId.Should().Be(1);
         evt.TenantId.Should().Be(tenant.Id);
         evt.EmailTemplateCode.Should().Be(CommunicationTemplateCodes.CompanyAdminInvitation);
         evt.Name.Should().Be(command.Contact.Name);
         evt.InviteLink.Should().Contain("token=");
         evt.ExpirationHours.Should().Be("168");
+
+        setupClientMock.Verify(
+            c => c.AddCompanyBusinessTypesAsync(
+                tenant.Id,
+                1L,
+                It.Is<AddCompanyBusinessTypesRequest>(r =>
+                    r.BusinessTypeIds.SequenceEqual(new[] { 1 })
+                    && r.CompanyGuid == company.CompanyGuid
+                    && r.Code == tenant.TenantCode
+                    && r.Name == companyName),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
-    public async Task Handle_WithMultipleBusinessTypes_PersistsAllSelections()
+    public async Task Handle_WithMultipleBusinessTypes_PersistsPrimaryAndCallsSetupClient()
     {
-        var (handler, context) = await CreateHandlerAsync();
-        context.GloBusinessTypes.Add(new GloBusinessType
-        {
-            Id = 2,
-            Code = "PLUMBING",
-            Name = "Plumbing",
-            IsActive = true,
-            CreatedOn = DateTimeOffset.UtcNow
-        });
-        await context.SaveChangesAsync();
-
+        var (handler, userContext, setupClientMock) = await CreateHandlerAsync();
         var command = ValidCommand() with { BusinessTypeIds = [1, 2] };
         var response = await handler.Handle(command, CancellationToken.None);
 
         response.Success.Should().BeTrue();
-        (await context.FgsBusinessTypes.CountAsync()).Should().Be(2);
-        var company = await context.FgsTenantCompanies.SingleAsync();
+        var company = await userContext.FgsTenantCompanies.SingleAsync();
         company.BusinessTypeId.Should().Be(1);
+
+        setupClientMock.Verify(
+            c => c.AddCompanyBusinessTypesAsync(
+                It.IsAny<long>(),
+                It.IsAny<long>(),
+                It.Is<AddCompanyBusinessTypesRequest>(r => r.BusinessTypeIds.SequenceEqual(new[] { 1, 2 })),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
-    public async Task Handle_WithInvalidBusinessType_ReturnsBadRequest()
+    public async Task Handle_WhenSetupClientFails_DoesNotEnqueueOutboxOrCommitSignup()
     {
-        var (handler, _) = await CreateHandlerAsync();
-        var command = ValidCommand() with { BusinessTypeIds = [9999] };
+        var userContext = await TestDbContextFactory.CreateAndInitializeAsync();
+        var setupClientMock = new Mock<ISetupClient>();
+        setupClientMock
+            .Setup(c => c.AddCompanyBusinessTypesAsync(
+                It.IsAny<long>(),
+                It.IsAny<long>(),
+                It.IsAny<AddCompanyBusinessTypesRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponse<object>.Fail(["Setup unavailable"], ApiStatusCodes.BadRequest));
 
-        var response = await handler.Handle(command, CancellationToken.None);
+        var handler = CreateHandlerFromContext(userContext, setupClientMock.Object);
 
-        response.Success.Should().BeFalse();
-        response.StatusCode.Should().Be(ApiStatusCodes.BadRequest);
-        response.Errors.Should().Contain(SignupErrorMessages.InvalidBusinessType);
+        var act = () => handler.Handle(ValidCommand(), CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        (await userContext.TenantOutboxMessages.CountAsync()).Should().Be(0);
     }
 
     [Fact]
@@ -187,14 +204,8 @@ public sealed class CreateCompanySignupCommandHandlerTests
             .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<FgsTenant, bool>>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        var businessTypeRepoMock = new Mock<IRepository<GloBusinessType>>();
-        businessTypeRepoMock
-            .Setup(r => r.ListAsync(It.IsAny<Expression<Func<GloBusinessType, bool>>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([new GloBusinessType { Id = 1, Code = "HVAC", Name = "HVAC", IsActive = true }]);
-
         var unitOfWorkMock = new Mock<IUnitOfWork>();
         unitOfWorkMock.Setup(u => u.Repository<FgsTenant>()).Returns(tenantRepoMock.Object);
-        unitOfWorkMock.Setup(u => u.Repository<GloBusinessType>()).Returns(businessTypeRepoMock.Object);
 
         var signupUniquenessValidatorMock = new Mock<ISignupUniquenessValidator>();
         signupUniquenessValidatorMock
@@ -203,6 +214,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
 
         var handler = new CreateCompanySignupCommandHandler(
             unitOfWorkMock.Object,
+            Mock.Of<ISetupClient>(),
             new InvitationTokenService(),
             Mock.Of<IOutboxWriter>(),
             new DateTimeProvider(),
@@ -215,35 +227,6 @@ public sealed class CreateCompanySignupCommandHandlerTests
         response.Success.Should().BeFalse();
         response.StatusCode.Should().Be(ApiStatusCodes.Conflict);
         response.Errors.Should().Contain(SignupErrorMessages.UniqueTenantCodeFailed);
-    }
-
-    [Fact]
-    public async Task Handle_WhenTenantAdminRoleMissing_Throws()
-    {
-        var context = await TestDbContextFactory.CreateAndInitializeAsync();
-        context.GloBusinessTypes.Add(new GloBusinessType
-        {
-            Id = 1,
-            Code = "HVAC",
-            Name = "HVAC",
-            IsActive = true,
-            CreatedOn = DateTimeOffset.UtcNow
-        });
-        context.GloCountries.Add(new GloCountry
-        {
-            CountryCode = "US",
-            CountryName = "United States",
-            CurrencyCode = "USD",
-            IsActive = true
-        });
-        await context.SaveChangesAsync();
-
-        var handler = await CreateHandlerFromContextAsync(context);
-
-        var act = async () => await handler.Handle(ValidCommand(), CancellationToken.None);
-
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage(SignupErrorMessages.TenantAdminRoleNotFound);
     }
 
     private static CreateCompanySignupCommand ValidCommand(string? companyName = null) =>
@@ -265,46 +248,31 @@ public sealed class CreateCompanySignupCommandHandlerTests
                 CompanySize: "1-2"),
             BusinessTypeIds: [1]);
 
-    private static async Task<(CreateCompanySignupCommandHandler Handler, FgsUserDbContext Context)> CreateHandlerAsync()
+    private static async Task<(CreateCompanySignupCommandHandler Handler, FgsUserDbContext User, Mock<ISetupClient> SetupClient)> CreateHandlerAsync()
     {
-        var context = await TestDbContextFactory.CreateAndInitializeAsync();
-        context.GloBusinessTypes.Add(new GloBusinessType
-        {
-            Id = 1,
-            Code = "HVAC",
-            Name = "HVAC",
-            IsActive = true,
-            CreatedOn = DateTimeOffset.UtcNow
-        });
-        context.GloCountries.Add(new GloCountry
-        {
-            CountryCode = "US",
-            CountryName = "United States",
-            CurrencyCode = "USD",
-            IsActive = true
-        });
-        context.GloRoles.Add(new GloRole
-        {
-            Id = 1,
-            RoleCode = SignupConstants.TenantAdminRoleCode,
-            Name = "Tenant Administrator",
-            RoleLevel = "TENANT",
-            IsActive = true,
-            CreatedOn = DateTimeOffset.UtcNow
-        });
-        await context.SaveChangesAsync();
+        var userContext = await TestDbContextFactory.CreateAndInitializeAsync();
+        var setupClientMock = new Mock<ISetupClient>();
+        setupClientMock
+            .Setup(c => c.AddCompanyBusinessTypesAsync(
+                It.IsAny<long>(),
+                It.IsAny<long>(),
+                It.IsAny<AddCompanyBusinessTypesRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponse<object>.Ok(new object()));
 
-        return (await CreateHandlerFromContextAsync(context), context);
+        return (CreateHandlerFromContext(userContext, setupClientMock.Object), userContext, setupClientMock);
     }
 
-    private static Task<CreateCompanySignupCommandHandler> CreateHandlerFromContextAsync(FgsUserDbContext context)
+    private static CreateCompanySignupCommandHandler CreateHandlerFromContext(
+        FgsUserDbContext userContext,
+        ISetupClient setupClient)
     {
-        IUnitOfWork unitOfWork = new UnitOfWork(context);
+        IUnitOfWork unitOfWork = new EfUnitOfWork<FgsUserDbContext>(userContext);
         IDateTimeProvider dateTime = new DateTimeProvider();
         IOutboxWriter outboxWriter = new OutboxWriter(
-            context,
+            userContext,
             dateTime,
-            Microsoft.Extensions.Options.Options.Create(new OutboxOptions()));
+            Options.Create(new OutboxOptions()));
 
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
@@ -315,7 +283,6 @@ public sealed class CreateCompanySignupCommandHandlerTests
             .Build();
 
         IAddressLocaleResolver localeResolver = new AddressLocaleResolver(
-            unitOfWork.Repository<GloCountry>(),
             Options.Create(new SignupLocaleOptions
             {
                 DefaultTimeZone = "UTC",
@@ -327,15 +294,14 @@ public sealed class CreateCompanySignupCommandHandlerTests
             new EmailNormalizer(),
             dateTime);
 
-        var handler = new CreateCompanySignupCommandHandler(
+        return new CreateCompanySignupCommandHandler(
             unitOfWork,
+            setupClient,
             new InvitationTokenService(),
             outboxWriter,
             dateTime,
             configuration,
             localeResolver,
             signupUniquenessValidator);
-
-        return Task.FromResult(handler);
     }
 }

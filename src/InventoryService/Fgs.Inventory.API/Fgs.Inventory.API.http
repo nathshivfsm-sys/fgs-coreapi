@@ -1,0 +1,6 @@
+﻿@Fgs.Inventory.API_HostAddress = http://localhost:5078
+
+GET {{Fgs.Inventory.API_HostAddress}}/health
+Accept: application/json
+
+###

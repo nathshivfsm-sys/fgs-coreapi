@@ -1,0 +1,2 @@
+-- Rollback for 20260605152149_AddCrmOutboxMessage
+-- TODO: author idempotent DROP statements mirroring schema objects created in 20260605152149_AddCrmOutboxMessage_up.sql

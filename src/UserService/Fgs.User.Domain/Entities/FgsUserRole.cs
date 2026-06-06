@@ -21,7 +21,5 @@ public class FgsUserRole : ITenantCompanyScoped
 
     public FgsUser? User { get; set; }
 
-    public GloRole? GloRole { get; set; }
-
     public FgsRole? FgsRole { get; set; }
 }

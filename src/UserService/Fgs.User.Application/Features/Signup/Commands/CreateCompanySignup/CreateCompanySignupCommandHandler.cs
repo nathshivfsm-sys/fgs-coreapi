@@ -4,7 +4,8 @@ using Fgs.Messaging.Abstractions;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
-using Fgs.Foundation.Result;
+using Fgs.Contracts.Api;
+using Fgs.Contracts.Clients;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Signup.DTOs;
 using Fgs.Contracts.IntegrationEvents;
@@ -20,9 +21,8 @@ namespace Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 public sealed class CreateCompanySignupCommandHandler
     : IRequestHandler<CreateCompanySignupCommand, ApiResponse<CompanySignupResultDto>>
 {
-    private const int TenantCompanyMasterEntityTypeId = 2;
-
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ISetupClient _setupClient;
     private readonly IInvitationTokenService _tokenService;
     private readonly IOutboxWriter _outboxWriter;
     private readonly IDateTimeProvider _dateTime;
@@ -32,6 +32,7 @@ public sealed class CreateCompanySignupCommandHandler
 
     public CreateCompanySignupCommandHandler(
         IUnitOfWork unitOfWork,
+        ISetupClient setupClient,
         IInvitationTokenService tokenService,
         IOutboxWriter outboxWriter,
         IDateTimeProvider dateTime,
@@ -40,6 +41,7 @@ public sealed class CreateCompanySignupCommandHandler
         ISignupUniquenessValidator signupUniquenessValidator)
     {
         _unitOfWork = unitOfWork;
+        _setupClient = setupClient;
         _tokenService = tokenService;
         _outboxWriter = outboxWriter;
         _dateTime = dateTime;
@@ -56,21 +58,9 @@ public sealed class CreateCompanySignupCommandHandler
         var company = request.Company;
         var tenantRepo = _unitOfWork.Repository<FgsTenant>();
         var userRepo = _unitOfWork.Repository<FgsUser>();
-        var businessTypeRepo = _unitOfWork.Repository<GloBusinessType>();
         var selectedBusinessTypeIds = request.BusinessTypeIds
             .Distinct()
             .ToList();
-
-        var activeSelectedTypes = await businessTypeRepo.ListAsync(
-            b => selectedBusinessTypeIds.Contains(b.Id) && b.IsActive,
-            cancellationToken);
-
-        if (activeSelectedTypes.Count != selectedBusinessTypeIds.Count)
-        {
-            return ApiResponse<CompanySignupResultDto>.Fail(
-                [SignupErrorMessages.InvalidBusinessType],
-                ApiStatusCodes.BadRequest);
-        }
 
         var primaryBusinessTypeId = selectedBusinessTypeIds[0];
 
@@ -183,18 +173,12 @@ public sealed class CreateCompanySignupCommandHandler
                         CreatedBy = prospectActor
                     };
 
-                    var gloRoleRepo = _unitOfWork.Repository<GloRole>();
-                    var tenantAdminRole = await gloRoleRepo.FirstOrDefaultAsync(
-                            r => r.RoleCode == SignupConstants.TenantAdminRoleCode,
-                            ct)
-                        ?? throw new InvalidOperationException(SignupErrorMessages.TenantAdminRoleNotFound);
-
                     var userRole = new FgsUserRole
                     {
                         UserId = userId,
                         TenantId = tenantId,
                         CompanyId = companyNumber,
-                        GloRoleId = tenantAdminRole.Id,
+                        GloRoleId = SignupConstants.TenantAdminGloRoleId,
                         CreatedOn = now
                     };
 
@@ -217,31 +201,6 @@ public sealed class CreateCompanySignupCommandHandler
                         CreatedBy = prospectActor
                     };
 
-                    var gloById = activeSelectedTypes.ToDictionary(g => g.Id);
-                    var fgsBusinessTypeRepo = _unitOfWork.Repository<FgsBusinessType>();
-                    short displayOrder = 1;
-                    foreach (var gloBusinessTypeId in selectedBusinessTypeIds)
-                    {
-                        if (!gloById.TryGetValue(gloBusinessTypeId, out var gloType))
-                        {
-                            continue;
-                        }
-
-                        await fgsBusinessTypeRepo.AddAsync(
-                            new FgsBusinessType
-                            {
-                                TenantId = tenantId,
-                                CompanyId = companyNumber,
-                                Code = gloType.Code,
-                                Name = gloType.Name,
-                                DisplayOrder = displayOrder++,
-                                IsActive = true,
-                                CreatedOn = now,
-                                CreatedBy = prospectActor
-                            },
-                            ct);
-                    }
-
                     await _unitOfWork.Repository<FgsLocation>().AddAsync(location, ct);
                     await _unitOfWork.Repository<FgsTenantCompany>().AddAsync(tenantCompany, ct);
                     await userRepo.AddAsync(user, ct);
@@ -257,6 +216,16 @@ public sealed class CreateCompanySignupCommandHandler
                         (int)Math.Ceiling((invitation.ExpiresAtUtc - now).TotalHours));
 
                     await _unitOfWork.SaveChangesAsync(ct);
+
+                    (await _setupClient.AddCompanyBusinessTypesAsync(
+                        tenantId,
+                        tenantCompany.CompanyNumber,
+                        new AddCompanyBusinessTypesRequest(
+                            selectedBusinessTypeIds,
+                            companyUid,
+                            tenantCode,
+                            companyNameTrimmed),
+                        ct)).ThrowIfFailed();
 
                     var outboxPayload = JsonSerializer.Serialize(new CompanySignupInviteEmailEvent(
                         tenantId,

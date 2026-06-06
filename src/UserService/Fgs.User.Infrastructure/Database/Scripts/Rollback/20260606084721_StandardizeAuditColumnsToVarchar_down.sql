@@ -1,0 +1,2 @@
+﻿-- Rollback for 20260606084721_StandardizeAuditColumnsToVarchar
+-- TODO: author idempotent DROP statements mirroring schema objects created in 20260606084721_StandardizeAuditColumnsToVarchar_up.sql

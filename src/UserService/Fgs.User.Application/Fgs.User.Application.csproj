@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\Fgs.User.Domain\Fgs.User.Domain.csproj" />
@@ -7,12 +7,13 @@
     <ProjectReference Include="..\..\Shared\Contracts\Fgs.Contracts\Fgs.Contracts.csproj" />
     <ProjectReference Include="..\..\Shared\Persistence\Fgs.Persistence\Fgs.Persistence.csproj" />
     <ProjectReference Include="..\..\Shared\Messaging\Fgs.Messaging\Fgs.Messaging.csproj" />
+    <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.0.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
-    <PackageReference Include="MediatR" Version="13.0.0" />
+    <PackageReference Include="MediatR" Version="$(MediatRVersion)" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.8" />

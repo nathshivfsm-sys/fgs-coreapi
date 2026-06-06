@@ -9,11 +9,13 @@ public interface IOutboxStore
         CancellationToken cancellationToken);
 
     Task MarkPublishedAsync(
+        string sourceKey,
         long messageId,
         DateTimeOffset processedOn,
         CancellationToken cancellationToken);
 
     Task MarkRetryOrFailedAsync(
+        string sourceKey,
         long messageId,
         int retryCount,
         string lastError,

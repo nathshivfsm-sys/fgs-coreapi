@@ -1,6 +1,5 @@
 using Amazon;
 using Amazon.KeyManagementService;
-using Fgs.Messaging.Options;
 using Fgs.User.Application.Abstractions.Credentials;
 using Fgs.User.Application.Common.Options;
 using Fgs.User.Infrastructure.Common.Options;
@@ -50,7 +49,6 @@ public static class CredentialServiceCollectionExtensions
         configurationBuilder.Add(new CredentialApplicationConfigurationSource(credentialConfigurationHolder));
 
         services.AddSingleton<CredentialOptionsChangeNotifier>();
-        services.AddSingleton<IPostConfigureOptions<RabbitMqOptions>, RabbitMqCredentialOptionsPostConfigure>();
         services.AddSingleton<ICredentialConfigurationProvider, CredentialConfigurationProvider>();
         services.AddScoped<CredentialConfigurationLoader>();
 

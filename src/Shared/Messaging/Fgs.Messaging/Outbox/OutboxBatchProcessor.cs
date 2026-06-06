@@ -46,7 +46,7 @@ public sealed class OutboxBatchProcessor(
                     message.CorrelationId.ToString(),
                     cancellationToken);
 
-                await store.MarkPublishedAsync(message.Id, now, cancellationToken);
+                await store.MarkPublishedAsync(message.SourceKey, message.Id, now, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -77,6 +77,7 @@ public sealed class OutboxBatchProcessor(
                 }
 
                 await store.MarkRetryOrFailedAsync(
+                    message.SourceKey,
                     message.Id,
                     retryCount,
                     ex.Message,

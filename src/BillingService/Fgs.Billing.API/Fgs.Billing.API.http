@@ -1,0 +1,6 @@
+﻿@Fgs.Billing.API_HostAddress = http://localhost:5074
+
+GET {{Fgs.Billing.API_HostAddress}}/health
+Accept: application/json
+
+###

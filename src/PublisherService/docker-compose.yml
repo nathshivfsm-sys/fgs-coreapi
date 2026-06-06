@@ -1,0 +1,27 @@
+# RabbitMQ only — for running Fgs.Publisher.API and Fgs.Consumer.API on the host.
+# For the full stack (nginx, user, notification, setup, postgres, rabbitmq), use:
+#   cd src/Gateway && docker compose up --build
+services:
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    container_name: fgs-rabbitmq
+    hostname: rabbitmq
+    user: "100:101"
+    environment:
+      RABBITMQ_DEFAULT_USER: fgs
+      RABBITMQ_DEFAULT_PASS: fgsdevlocal
+      RABBITMQ_ERLANG_COOKIE: fgs-publisher-dev-cookie
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 6
+      start_period: 40s
+
+volumes:
+  rabbitmq-data:

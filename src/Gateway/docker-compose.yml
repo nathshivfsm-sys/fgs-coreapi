@@ -1,4 +1,4 @@
-name: fgs-local
+﻿name: fgs-local
 
 services:
   rabbitmq:
@@ -33,9 +33,13 @@ services:
     depends_on:
       user-service:
         condition: service_healthy
-      platform-service:
+      notification-service:
         condition: service_healthy
-      workorder-service:
+      job-service:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+      file-service:
         condition: service_healthy
     ports:
       - "8080:80"
@@ -55,10 +59,7 @@ services:
       dockerfile: src/Gateway/docker/user-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      RabbitMq__HostName: rabbitmq
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
+      SetupService__BaseUrl: http://setup-service:5004
     volumes:
       - ../UserService/Fgs.User.API/appsettings.json:/src/src/UserService/Fgs.User.API/appsettings.json:ro
       - ../UserService/Fgs.User.API/appsettings.Development.json:/src/src/UserService/Fgs.User.API/appsettings.Development.json:ro
@@ -70,24 +71,20 @@ services:
       - fgs-private
     restart: unless-stopped
 
-  platform-service:
+  notification-service:
     build:
       context: ../..
-      dockerfile: src/Gateway/docker/platform-service.Dockerfile
+      dockerfile: src/Gateway/docker/notification-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      RabbitMq__HostName: rabbitmq
+      SetupService__BaseUrl: http://setup-service:5004
       UserService__BaseUrl: http://user-service:5001
-      UserService__RequiredOnStartup: "true"
-      UserService__StartupRetryCount: "10"
     depends_on:
-      rabbitmq:
-        condition: service_healthy
       user-service:
         condition: service_started
     volumes:
-      - ../PlatformService/Fgs.Platform.API/appsettings.json:/src/src/PlatformService/Fgs.Platform.API/appsettings.json:ro
-      - ../PlatformService/Fgs.Platform.API/appsettings.Development.json:/src/src/PlatformService/Fgs.Platform.API/appsettings.Development.json:ro
+      - ../NotificationService/Fgs.Notification.API/appsettings.json:/src/src/NotificationService/Fgs.Notification.API/appsettings.json:ro
+      - ../NotificationService/Fgs.Notification.API/appsettings.Development.json:/src/src/NotificationService/Fgs.Notification.API/appsettings.Development.json:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     expose:
@@ -96,19 +93,114 @@ services:
       - fgs-private
     restart: unless-stopped
 
-  workorder-service:
+  job-service:
     build:
       context: ../..
-      dockerfile: src/Gateway/docker/workorder-service.Dockerfile
+      dockerfile: src/Gateway/docker/job-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
     volumes:
-      - ../WorkOrderService/Fgs.WorkOrder.API/appsettings.json:/src/src/WorkOrderService/Fgs.WorkOrder.API/appsettings.json:ro
-      - ../WorkOrderService/Fgs.WorkOrder.API/appsettings.Development.json:/src/src/WorkOrderService/Fgs.WorkOrder.API/appsettings.Development.json:ro
+      - ../JobService/Fgs.Job.API/appsettings.json:/src/src/JobService/Fgs.Job.API/appsettings.json:ro
+      - ../JobService/Fgs.Job.API/appsettings.Development.json:/src/src/JobService/Fgs.Job.API/appsettings.Development.json:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     expose:
       - "5003"
+    networks:
+      - fgs-private
+    restart: unless-stopped
+
+  file-service:
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/file-service.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    volumes:
+      - ../FileService/Fgs.File.API/appsettings.json:/src/src/FileService/Fgs.File.API/appsettings.json:ro
+      - ../FileService/Fgs.File.API/appsettings.Development.json:/src/src/FileService/Fgs.File.API/appsettings.Development.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "5005"
+    networks:
+      - fgs-private
+    restart: unless-stopped
+
+  setup-service:
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/setup-service.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      FileService__BaseUrl: http://file-service:5005
+      UserService__BaseUrl: http://user-service:5001
+    depends_on:
+      user-service:
+        condition: service_started
+      file-service:
+        condition: service_healthy
+    volumes:
+      - ../SetupService/Fgs.Setup.API/appsettings.json:/src/src/SetupService/Fgs.Setup.API/appsettings.json:ro
+      - ../SetupService/Fgs.Setup.API/appsettings.Development.json:/src/src/SetupService/Fgs.Setup.API/appsettings.Development.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "5004"
+    networks:
+      - fgs-private
+    restart: unless-stopped
+
+  publisher-service:
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/publisher-service.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      RabbitMq__HostName: rabbitmq
+      UserService__BaseUrl: http://user-service:5001
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    volumes:
+      - ../PublisherService/Fgs.Publisher.API/appsettings.json:/src/src/PublisherService/Fgs.Publisher.API/appsettings.json:ro
+      - ../PublisherService/Fgs.Publisher.API/appsettings.Development.json:/src/src/PublisherService/Fgs.Publisher.API/appsettings.Development.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "5006"
+    networks:
+      - fgs-private
+    restart: unless-stopped
+
+  consumer-service:
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/consumer-service.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      SetupService__BaseUrl: http://setup-service:5004
+      NotificationService__BaseUrl: http://notification-service:5002
+      UserService__BaseUrl: http://user-service:5001
+      RabbitMq__HostName: rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+    volumes:
+      - ../ConsumerService/Fgs.Consumer.API/appsettings.json:/src/src/ConsumerService/Fgs.Consumer.API/appsettings.json:ro
+      - ../ConsumerService/Fgs.Consumer.API/appsettings.Development.json:/src/src/ConsumerService/Fgs.Consumer.API/appsettings.Development.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "5007"
     networks:
       - fgs-private
     restart: unless-stopped

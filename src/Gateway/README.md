@@ -1,4 +1,4 @@
-# FGS NGINX API Gateway
+﻿# FGS NGINX API Gateway
 
 Production-ready NGINX reverse proxy setup for the local .NET 10 microservices stack. NGINX is the only public entry point; service containers are reachable only on the shared Docker network.
 
@@ -20,15 +20,19 @@ src/Gateway/
     site.prod.conf
   docker/
     user-service.Dockerfile
-    platform-service.Dockerfile
-    workorder-service.Dockerfile
+    notification-service.Dockerfile
+    job-service.Dockerfile
+    setup-service.Dockerfile
+    file-service.Dockerfile
+    publisher-service.Dockerfile
+    consumer-service.Dockerfile
   logs/
   scripts/
     generate-local-cert.ps1
     generate-local-cert.sh
 ```
 
-PostgreSQL and RabbitMQ are **not** part of this Compose file. Start them on the host before bringing up the gateway stack (for example `docker compose up -d` in `src/UserService` for RabbitMQ, plus your local PostgreSQL instance).
+RabbitMQ runs in this Compose file for **PublisherService** and **ConsumerService** (host ports `5672` / `15672`). Publisher and Consumer are containerized on the private Docker network; they are not exposed through NGINX. PostgreSQL is expected on the host or reachable via connection strings in mounted `appsettings.Development.json`.
 
 ## Routes
 
@@ -42,10 +46,19 @@ NGINX listens on `https://localhost:8443` locally.
 | `/api/v1/dashboard` | `user-service:5001` | `/api/v1/dashboard` |
 | `/api/v1/users` | `user-service:5001` | `/api/v1/` |
 | `/api/v1/users/{path}` | `user-service:5001` | `/api/v1/{path}` |
-| `/api/v1/platform` | `platform-service:5002` | `/api/v1/` |
-| `/api/v1/platform/{path}` | `platform-service:5002` | `/api/v1/{path}` |
-| `/api/v1/workorders` | `workorder-service:5003` | `/api/v1/` |
-| `/api/v1/workorders/{path}` | `workorder-service:5003` | `/api/v1/{path}` |
+| `/api/v1/notifications` | `notification-service:5002` | `/api/v1/` |
+| `/api/v1/notifications/{path}` | `notification-service:5002` | `/api/v1/{path}` |
+| `/api/v1/jobs` | `job-service:5003` | `/api/v1/` |
+| `/api/v1/jobs/{path}` | `job-service:5003` | `/api/v1/{path}` |
+| `/api/v1/credentials/{path}` | `setup-service:5004` | KMS-backed credential admin |
+| `/api/v1/communication-templates/{path}` | `setup-service:5004` | Template reads for Notification |
+| `/api/v1/tenants/{path}` | `file-service:5005` | S3 bucket and folder provisioning |
+
+### Database-backed services (local dev)
+
+Each service uses its own connection string (`FgsUser`, `FgsSetup`, `FgsFile`, etc.). PostgreSQL init script: [`scripts/init-postgres.sql`](scripts/init-postgres.sql). Ownership map: [`docs/architecture/DATABASE_OWNERSHIP_MIGRATION.md`](../../docs/architecture/DATABASE_OWNERSHIP_MIGRATION.md).
+
+Generate EF SQL scripts: [`scripts/generate-migration-sql.ps1`](../../scripts/generate-migration-sql.ps1).
 
 OAuth and invitation URLs are exposed through the gateway (register the same values in Microsoft Entra):
 
@@ -55,6 +68,23 @@ OAuth and invitation URLs are exposed through the gateway (register the same val
 | `Invitation:InviteBaseUrl` | `https://localhost:8443/api/v1/invite/start` |
 
 Both upstreams use `least_conn`, keepalive connections, passive health checks with `max_fails` and `fail_timeout`, and Docker health checks against each service's `/health` endpoint.
+
+### Inter-service Refit URLs (Docker)
+
+Inter-service Refit clients use **direct container DNS and ports** on the `fgs-private` network — not the NGINX gateway. NGINX path rewrites break several internal routes (for example `/api/v1/notifications/dispatch` and `/api/v1/tenants/*`).
+
+| Caller | Refit client | Base URL |
+| --- | --- | --- |
+| All services with remote auth | `IFgsClaimsClient` | `http://user-service:5001` |
+| Setup | `IUserTenantClient` | `http://user-service:5001` |
+| Setup | `IFileTenantClient` | `http://file-service:5005` |
+| User | `ISetupClient` | `http://setup-service:5004` |
+| Notification | `ISetupTemplateClient` | `http://setup-service:5004` |
+| Consumer | `ISetupProvisioningClient` | `http://setup-service:5004` |
+| Consumer | `INotificationDispatchClient` | `http://notification-service:5002` |
+| Publisher | `IFgsClaimsClient` | `http://user-service:5001` |
+
+Public-facing URLs (OAuth, invites, dashboard) use the NGINX gateway at `https://localhost:8443`.
 
 ## Run Locally
 
@@ -77,39 +107,50 @@ Test the gateway:
 ```powershell
 curl.exe -k https://localhost:8443/nginx-health
 curl.exe -k https://localhost:8443/api/v1/users/health
-curl.exe -k https://localhost:8443/api/v1/platform/health
-curl.exe -k https://localhost:8443/api/v1/workorders/health
+curl.exe -k https://localhost:8443/api/v1/notifications/health
+curl.exe -k https://localhost:8443/api/v1/jobs/health
 ```
+
+Container health checks use each service's `/health` endpoint (see Dockerfiles). Setup and File API routes are reachable under `/api/v1/credentials/` and `/api/v1/tenants/` without a path prefix rewrite.
 
 The local Compose file starts:
 
+- `rabbitmq`, published on host ports `5672` and `15672`.
 - `nginx`, published on host ports `8080` and `8443`.
 - `user-service`, private on container port `5001`.
-- `platform-service`, private on container port `5002`.
-- `workorder-service`, private on container port `5003`.
+- `notification-service`, private on container port `5002`.
+- `job-service`, private on container port `5003`.
+- `setup-service`, private on container port `5004`.
+- `file-service`, private on container port `5005`.
+- `publisher-service`, private on container port `5006` (outbox relay to RabbitMQ).
+- `consumer-service`, private on container port `5007` (RabbitMQ consumer, Refit to Setup/Notification).
 
-### Application configuration (Postgres, RabbitMQ, Entra)
+### Application configuration (Postgres, Entra)
 
 Each API container mounts the **same** files you edit for local `dotnet run`:
 
 | Service | Mounted files |
 | --- | --- |
 | User | `src/UserService/Fgs.User.API/appsettings.json` + `appsettings.Development.json` |
-| Platform | `src/PlatformService/Fgs.Platform.API/appsettings.json` + `appsettings.Development.json` |
-| Workorder | `src/WorkOrderService/Fgs.WorkOrder.API/appsettings.json` + `appsettings.Development.json` |
+| Platform | `src/NotificationService/Fgs.Notification.API/appsettings.json` + `appsettings.Development.json` |
+| Workorder | `src/JobService/Fgs.Job.API/appsettings.json` + `appsettings.Development.json` |
+| Setup | `src/SetupService/Fgs.Setup.API/appsettings.json` + `appsettings.Development.json` |
+| File | `src/FileService/Fgs.File.API/appsettings.json` + `appsettings.Development.json` |
+| Publisher | `src/PublisherService/Fgs.Publisher.API/appsettings.json` + `appsettings.Development.json` |
+| Consumer | `src/ConsumerService/Fgs.Consumer.API/appsettings.json` + `appsettings.Development.json` |
 
-Containers use `ASPNETCORE_ENVIRONMENT=Development`, so ASP.NET Core **merges** `appsettings.json` then `appsettings.Development.json` (same as Visual Studio / `dotnet run`). There are no duplicate Postgres or RabbitMQ settings in `docker-compose.yml`.
+Containers use `ASPNETCORE_ENVIRONMENT=Development`, so ASP.NET Core **merges** `appsettings.json` then `appsettings.Development.json` (same as Visual Studio / `dotnet run`). There are no duplicate Postgres settings in `docker-compose.yml`.
 
-Change connection strings or RabbitMQ in those JSON files and restart the service container; no image rebuild is required for config-only changes.
+Change connection strings in those JSON files and restart the service container; no image rebuild is required for config-only changes.
 
-`appsettings.Development.json` overrides `Host` / `HostName` to `host.docker.internal` so containers can reach Postgres and RabbitMQ on the host. Base `appsettings.json` keeps `localhost` for `dotnet run` on the machine when you use a profile without the Development override, or when `host.docker.internal` resolves on your OS.
+`appsettings.Development.json` overrides `Host` to `host.docker.internal` so containers can reach Postgres on the host. Base `appsettings.json` keeps `localhost` for `dotnet run` on the machine when you use a profile without the Development override, or when `host.docker.internal` resolves on your OS.
 
 ## Scale Services Locally
 
 Do not add `container_name`; Docker Compose needs generated names for scaling.
 
 ```powershell
-docker compose up --build --scale user-service=2 --scale platform-service=2 --scale workorder-service=2
+docker compose up --build --scale user-service=2 --scale notification-service=2 --scale job-service=2 --scale setup-service=2 --scale file-service=2
 ```
 
 NGINX resolves the Compose service names and load balances with `least_conn`. If you scale after NGINX has already started, recreate or reload NGINX so it refreshes upstream DNS:
@@ -175,10 +216,10 @@ sudo systemctl reload nginx
 
 For Kubernetes, keep this routing model but move responsibilities as follows:
 
-- Use Kubernetes `Service` objects for `user-service`, `platform-service`, and `workorder-service`.
+- Use Kubernetes `Service` objects for `user-service`, `notification-service`, `job-service`, `setup-service`, `file-service`, `publisher-service`, and `consumer-service`.
 - Put TLS certificates in `kubernetes.io/tls` secrets, or use cert-manager.
 - Use NGINX Ingress Controller for path routing and prefix rewrite annotations.
-- Keep `/api/v1/users`, `/api/v1/platform`, and `/api/v1/workorders` as the stable external contract.
+- Keep `/api/v1/users`, `/api/v1/notifications`, `/api/v1/jobs`, `/api/v1/credentials`, `/api/v1/communication-templates`, and `/api/v1/tenants` as the stable external contract.
 - Move rate limiting, body size, gzip, timeouts, and security headers into Ingress annotations or a controller ConfigMap.
 
 The production NGINX files remain useful as the reference edge policy when converting to Ingress resources.

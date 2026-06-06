@@ -1,11 +1,8 @@
 using Fgs.Messaging.Options;
-using Fgs.User.Application.Abstractions.Time;
-using Fgs.User.Domain.Enums;
-using Fgs.Security.Options;
-using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Infrastructure.Messaging;
-using Microsoft.Extensions.Options;
+using Fgs.User.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.User.Tests.Infrastructure;
 
@@ -14,8 +11,8 @@ public sealed class OutboxWriterTests
     [Fact]
     public async Task EnqueueAsync_PersistsPendingMessage()
     {
-        await using var context = TestDbContextFactory.Create();
-        IDateTimeProvider dateTime = new DateTimeProvider();
+        await using var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        var dateTime = new Fgs.User.Infrastructure.Common.Time.DateTimeProvider();
         var writer = new OutboxWriter(context, dateTime, Options.Create(new OutboxOptions()));
         var correlationId = Guid.NewGuid();
 
@@ -30,7 +27,7 @@ public sealed class OutboxWriterTests
 
         await context.SaveChangesAsync();
 
-        var message = await context.GloOutboxMessages.SingleAsync();
+        var message = await context.TenantOutboxMessages.SingleAsync();
         message.EventType.Should().Be("TestEvent");
         message.Status.Should().Be(OutboxMessageStatus.Pending);
         message.CorrelationId.Should().Be(correlationId);

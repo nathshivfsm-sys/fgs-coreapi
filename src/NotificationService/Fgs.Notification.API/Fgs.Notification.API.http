@@ -1,0 +1,6 @@
+﻿@Fgs.Notification.API_HostAddress = http://localhost:5084
+
+GET {{Fgs.Notification.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
