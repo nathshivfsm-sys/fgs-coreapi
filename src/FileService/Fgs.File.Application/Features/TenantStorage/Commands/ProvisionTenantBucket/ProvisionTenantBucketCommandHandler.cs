@@ -17,6 +17,12 @@ public sealed class ProvisionTenantBucketCommandHandler(ITenantS3BucketProvision
             request.Request.ExistingBucketName,
             cancellationToken);
 
+        await provisioner.InitializeFolderStructureAsync(
+            bucket,
+            request.TenantId,
+            request.Request.CompanyNumbers,
+            cancellationToken);
+
         return ApiResponse<ProvisionTenantBucketResponse>.Ok(new ProvisionTenantBucketResponse(bucket));
     }
 }

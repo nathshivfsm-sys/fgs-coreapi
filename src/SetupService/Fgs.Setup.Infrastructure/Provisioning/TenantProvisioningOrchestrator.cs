@@ -76,11 +76,6 @@ public sealed class TenantProvisioningOrchestrator(
                 new ProvisionTenantBucketRequest(request.TenantId, tenant.StorageBucketName, companyNumbers),
                 cancellationToken)).EnsureSuccess();
 
-            (await fileTenantClient.InitializeFoldersAsync(
-                request.TenantId,
-                new InitializeTenantFoldersRequest(bucketResponse.BucketName, request.TenantId, companyNumbers),
-                cancellationToken)).ThrowIfFailed();
-
             (await userTenantClient.UpdateStorageBucketAsync(
                 request.TenantId,
                 new UpdateTenantStorageBucketRequest(bucketResponse.BucketName),

@@ -31,6 +31,6 @@ public sealed class UpdateTenantStatusCommandHandler(IUnitOfWork unitOfWork)
         unitOfWork.Repository<FgsTenant>().Update(tenant);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<object>.Ok(new object(), ApiStatusCodes.NoContent);
+        return ApiResponse<object>.Ok(new object());
     }
 }

@@ -101,8 +101,6 @@ public sealed class TenantProvisioningOrchestratorTests
         var mock = new Mock<IFileTenantClient>();
         mock.Setup(c => c.ProvisionBucketAsync(10, It.IsAny<ProvisionTenantBucketRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ApiResponse<ProvisionTenantBucketResponse>.Ok(new ProvisionTenantBucketResponse("tenant-10-bucket")));
-        mock.Setup(c => c.InitializeFoldersAsync(10, It.IsAny<InitializeTenantFoldersRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ApiResponse<object>.Ok(new object()));
         return mock;
     }
 

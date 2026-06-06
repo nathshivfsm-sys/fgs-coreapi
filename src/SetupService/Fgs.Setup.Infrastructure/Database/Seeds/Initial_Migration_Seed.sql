@@ -1429,7 +1429,7 @@ FROM (
         ('ALL_GloResolutionType', 'fgs_dev_db', 'glo', 'GloResolutionType', 'fgs_dev_db', 'setup', 'FgsResolutionCode', 250, 'Resolution Code', true),
         ('ALL_GloSetupLaborRateType', 'fgs_dev_db', 'glo', 'GloSetupLaborRateType', 'fgs_dev_db', 'setup', 'FgsSetupLaborRateType', 280, 'Labor Rate Type', true),
         ('GloSkill', 'fgs_dev_db', 'glo', 'GloSkill', 'fgs_dev_db', 'setup', 'FgsSetupTechSkillLevel', 310, 'Technician Skill', true),
-        ('ALL_GloTag', 'fgs_dev_db', 'glo', 'GloTag', 'fgs_dev_db', 'shared', 'FgsTag', 340, 'Tags', true),
+        ('ALL_GloTag', 'fgs_dev_db', 'glo', 'GloTag', 'fgs_dev_db', 'setup', 'FgsTag', 340, 'Tags', true),
         ('GloTrade', 'fgs_dev_db', 'glo', 'GloTrade', 'fgs_dev_db', 'setup', 'FgsSetupTechTrade', 410, 'Technician Trade', true),
         ('ALL_GloTitleOfCourtesy', 'fgs_dev_db', 'glo', 'GloTitleOfCourtesy', 'fgs_dev_db', 'setup', 'FgsSetupTitleOfCourtesy', 440, 'Title Of Courtesy', true),
         ('ALL_GloZone', 'fgs_dev_db', 'glo', 'GloZone', 'fgs_dev_db', 'setup', 'FgsSetupZone', 470, 'Zone', true),
@@ -1443,6 +1443,11 @@ SELECT setval(
     pg_get_serial_sequence('glo."GloSeedTableMapping"', 'Id'),
     COALESCE((SELECT MAX("Id") FROM glo."GloSeedTableMapping"), 1),
     true);
+
+UPDATE glo."GloSeedTableMapping"
+SET "TargetSchemaName" = 'setup'
+WHERE "SeedCode" = 'ALL_GloTag'
+  AND "TargetSchemaName" = 'shared';
 
 INSERT INTO glo."GloSeedTableColumnMapping"
 (

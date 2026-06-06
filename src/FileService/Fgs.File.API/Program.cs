@@ -7,6 +7,12 @@ using Fgs.File.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var kmsKeyArnFromEnv = Environment.GetEnvironmentVariable("KMS_KEY_ARN");
+if (!string.IsNullOrWhiteSpace(kmsKeyArnFromEnv))
+{
+    builder.Configuration["AwsCredentials:KmsKeyArn"] = kmsKeyArnFromEnv;
+}
+
 builder.Services.AddFgsApiVersioning();
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.ConfigureFgsApi());

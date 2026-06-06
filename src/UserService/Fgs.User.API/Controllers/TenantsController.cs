@@ -29,24 +29,24 @@ public sealed class TenantsController(IMediator mediator) : FgsApiControllerBase
         FromApiResponse(await Mediator.Send(new ListTenantCompaniesQuery(tenantId), cancellationToken));
 
     [HttpPatch("{tenantId:long}/status")]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateStatus(
         long tenantId,
         [FromBody] UpdateTenantStatusRequest request,
         CancellationToken cancellationToken) =>
-        NoContentFromApiResponse(await Mediator.Send(
+        FromApiResponse(await Mediator.Send(
             new UpdateTenantStatusCommand(tenantId, request),
             cancellationToken));
 
     [HttpPatch("{tenantId:long}/storage-bucket")]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateStorageBucket(
         long tenantId,
         [FromBody] UpdateTenantStorageBucketRequest request,
         CancellationToken cancellationToken) =>
-        NoContentFromApiResponse(await Mediator.Send(
+        FromApiResponse(await Mediator.Send(
             new UpdateTenantStorageBucketCommand(tenantId, request),
             cancellationToken));
 }

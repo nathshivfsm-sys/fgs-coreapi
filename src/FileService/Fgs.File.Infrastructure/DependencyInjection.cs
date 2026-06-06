@@ -1,5 +1,4 @@
-﻿using Amazon.S3;
-using Fgs.File.Application.Abstractions.Provisioning;
+﻿using Fgs.File.Application.Abstractions.Provisioning;
 using Fgs.File.Infrastructure.Common.Options;
 using Fgs.File.Infrastructure.Database;
 using Fgs.File.Infrastructure.Storage;
@@ -33,7 +32,7 @@ public static class DependencyInjection
 
         services.AddFgsPersistence<FgsFileDbContext>();
 
-        services.AddSingleton<AmazonS3Client>();
+        services.AddAwsS3Services();
         services.AddScoped<ITenantS3BucketProvisioner, TenantS3BucketProvisioner>();
 
         return services;

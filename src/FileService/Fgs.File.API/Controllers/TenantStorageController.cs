@@ -1,7 +1,6 @@
 using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
-using Fgs.File.Application.Features.TenantStorage.Commands.InitializeTenantFolders;
 using Fgs.File.Application.Features.TenantStorage.Commands.ProvisionTenantBucket;
 using Fgs.Foundation.Api;
 using MediatR;
@@ -23,15 +22,5 @@ public sealed class TenantStorageController(IMediator mediator) : FgsApiControll
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(
             new ProvisionTenantBucketCommand(tenantId, request),
-            cancellationToken));
-
-    [HttpPost("{tenantId:long}/folders")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> InitializeFolders(
-        long tenantId,
-        [FromBody] InitializeTenantFoldersRequest request,
-        CancellationToken cancellationToken) =>
-        NoContentFromApiResponse(await Mediator.Send(
-            new InitializeTenantFoldersCommand(tenantId, request),
             cancellationToken));
 }

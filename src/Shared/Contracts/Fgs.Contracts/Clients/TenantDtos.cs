@@ -26,8 +26,3 @@ public sealed record ProvisionTenantBucketRequest(
     IReadOnlyList<long> CompanyNumbers);
 
 public sealed record ProvisionTenantBucketResponse(string BucketName);
-
-public sealed record InitializeTenantFoldersRequest(
-    string BucketName,
-    long TenantId,
-    IReadOnlyList<long> CompanyNumbers);

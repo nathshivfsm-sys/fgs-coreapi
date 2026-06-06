@@ -12,10 +12,4 @@ public interface IFileTenantClient
         long tenantId,
         [Body] ProvisionTenantBucketRequest request,
         CancellationToken cancellationToken = default);
-
-    [Post("/api/v1/tenants/{tenantId}/folders")]
-    Task<Fgs.Contracts.Api.ApiResponse<object>> InitializeFoldersAsync(
-        long tenantId,
-        [Body] InitializeTenantFoldersRequest request,
-        CancellationToken cancellationToken = default);
 }
