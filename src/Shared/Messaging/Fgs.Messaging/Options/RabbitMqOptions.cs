@@ -1,3 +1,5 @@
+using Fgs.Contracts.IntegrationEvents;
+
 namespace Fgs.Messaging.Options;
 
 public sealed class RabbitMqOptions
@@ -34,13 +36,17 @@ public sealed class RabbitMqOptions
 
     public bool AutomaticRecoveryEnabled { get; set; }
 
-    public string ExchangeName { get; set; } = "fgs.user";
+    public string ExchangeName { get; set; } = IntegrationEventExchanges.UserEvents;
 
     public string RoutingKeyPrefix { get; set; } = "user.";
 
     /// <summary>
-    /// When true, idempotently declares each <see cref="QueueBindings"/> queue and binds it to
-    /// <see cref="ExchangeName"/> on first connect.
+    /// Topic exchanges declared on first connect. When empty, <see cref="IntegrationEventExchanges.All"/> is used.
+    /// </summary>
+    public IList<string> ExchangeNames { get; set; } = [];
+
+    /// <summary>
+    /// When true, idempotently declares each <see cref="QueueBindings"/> queue and binds it on first connect.
     /// </summary>
     public bool EnsureQueuesOnStartup { get; set; } = true;
 

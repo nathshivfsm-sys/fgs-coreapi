@@ -9,7 +9,7 @@ namespace Fgs.Notification.Infrastructure.Notifications.Templates;
 
 public sealed class CommunicationTemplateRepository(
     ISetupTemplateClient setupTemplateClient,
-    IOptions<UserServiceCredentialClientOptions> clientOptions) : ICommunicationTemplateRepository
+    IOptions<SetupServiceClientOptions> clientOptions) : ICommunicationTemplateRepository
 {
     public async Task<FgsSetupCommunicationTemplate?> GetActiveTemplateAsync(
         long? tenantId,

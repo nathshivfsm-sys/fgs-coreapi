@@ -9,9 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Notification.API.Controllers;
 
+[AllowAnonymous]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("notifications")]
-[Authorize]
 public sealed class NotificationsController(IMediator mediator) : ControllerBase
 {
     [HttpPost("dispatch")]

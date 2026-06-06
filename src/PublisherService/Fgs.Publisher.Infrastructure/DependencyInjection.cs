@@ -23,8 +23,6 @@ public static class DependencyInjection
         services.Configure<OutboxSourcesOptions>(configuration.GetSection(OutboxSourcesOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
-        services.Configure<TenantProvisioningOptions>(
-            configuration.GetSection(TenantProvisioningOptions.SectionName));
 
         services.PostConfigure<RabbitMqOptions>(options =>
         {

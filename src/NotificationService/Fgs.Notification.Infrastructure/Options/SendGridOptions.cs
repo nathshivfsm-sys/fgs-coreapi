@@ -1,5 +1,4 @@
-﻿using Fgs.Notification.Infrastructure.Options;
-namespace Fgs.Notification.Infrastructure.Options;
+﻿namespace Fgs.Notification.Infrastructure.Options;
 
 public sealed class SendGridOptions
 {

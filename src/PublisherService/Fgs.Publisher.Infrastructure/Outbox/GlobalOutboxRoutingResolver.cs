@@ -2,17 +2,13 @@ using Fgs.Contracts.IntegrationEvents;
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Models;
 using Fgs.Messaging.Options;
-using Fgs.Publisher.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 
 namespace Fgs.Publisher.Infrastructure.Outbox;
 
-public sealed class GlobalOutboxRoutingResolver(
-    IOptions<RabbitMqOptions> rabbitOptions,
-    IOptions<TenantProvisioningOptions> tenantProvisioningOptions) : IOutboxRoutingResolver
+public sealed class GlobalOutboxRoutingResolver(IOptions<RabbitMqOptions> rabbitOptions) : IOutboxRoutingResolver
 {
     private readonly RabbitMqOptions _rabbitOptions = rabbitOptions.Value;
-    private readonly TenantProvisioningOptions _tenantProvisioningOptions = tenantProvisioningOptions.Value;
 
     public string ResolveRoutingKey(PendingOutboxMessage message) =>
         !string.IsNullOrWhiteSpace(message.RoutingKey)
@@ -21,17 +17,6 @@ public sealed class GlobalOutboxRoutingResolver(
                 message.EventType,
                 _rabbitOptions.RoutingKeyPrefix);
 
-    public string ResolveExchangeName(PendingOutboxMessage message)
-    {
-        if (!string.IsNullOrWhiteSpace(message.ExchangeName))
-        {
-            return message.ExchangeName;
-        }
-
-        return message.EventType switch
-        {
-            IntegrationEventTypes.TenantProvisionRequested => _tenantProvisioningOptions.TenantEventsExchangeName,
-            _ => _rabbitOptions.ExchangeName
-        };
-    }
+    public string ResolveExchangeName(PendingOutboxMessage message) =>
+        IntegrationEventExchanges.ForEventType(message.EventType);
 }

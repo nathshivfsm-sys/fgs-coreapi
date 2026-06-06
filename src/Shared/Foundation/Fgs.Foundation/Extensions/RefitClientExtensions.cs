@@ -22,12 +22,13 @@ public static class RefitClientExtensions
             ?? throw new InvalidOperationException(
                 $"Configuration key '{baseUrlConfigurationKey}' (or defaultBaseUrl) is required for Refit client {typeof(TClient).Name}.");
 
-        services.Configure<HttpResilienceOptions>(configuration.GetSection(HttpResilienceOptions.SectionName));
+        var resilience = configuration.GetSection(HttpResilienceOptions.SectionName).Get<HttpResilienceOptions>()
+            ?? new HttpResilienceOptions();
 
         services
             .AddRefitClient<TClient>()
             .ConfigureHttpClient(client => client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/"))
-            .AddStandardResilienceHandler();
+            .AddStandardResilienceHandler(options => ConfigureResilience(options, resilience));
 
         return services;
     }
@@ -37,13 +38,35 @@ public static class RefitClientExtensions
         Uri baseAddress)
         where TClient : class
     {
-        services.Configure<HttpResilienceOptions>(_ => { });
+        var resilience = new HttpResilienceOptions();
 
         services
             .AddRefitClient<TClient>()
             .ConfigureHttpClient(client => client.BaseAddress = baseAddress)
-            .AddStandardResilienceHandler();
+            .AddStandardResilienceHandler(options => ConfigureResilience(options, resilience));
 
         return services;
+    }
+
+    private static void ConfigureResilience(
+        HttpStandardResilienceOptions options,
+        HttpResilienceOptions resilience)
+    {
+        var attemptTimeout = TimeSpan.FromSeconds(resilience.AttemptTimeoutSeconds);
+        var minimumSamplingDuration = TimeSpan.FromTicks(attemptTimeout.Ticks * 2);
+        var samplingDuration = TimeSpan.FromSeconds(resilience.CircuitBreakerSamplingDurationSeconds);
+        if (samplingDuration < minimumSamplingDuration)
+        {
+            samplingDuration = minimumSamplingDuration;
+        }
+
+        options.Retry.MaxRetryAttempts = resilience.MaxRetryAttempts;
+        options.Retry.Delay = TimeSpan.FromSeconds(resilience.RetryDelaySeconds);
+        options.AttemptTimeout.Timeout = attemptTimeout;
+        options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(resilience.TotalRequestTimeoutSeconds);
+        options.CircuitBreaker.FailureRatio = resilience.CircuitBreakerFailureRatio / 100.0;
+        options.CircuitBreaker.MinimumThroughput = resilience.CircuitBreakerMinimumThroughput;
+        options.CircuitBreaker.BreakDuration = TimeSpan.FromSeconds(resilience.CircuitBreakerBreakDurationSeconds);
+        options.CircuitBreaker.SamplingDuration = samplingDuration;
     }
 }

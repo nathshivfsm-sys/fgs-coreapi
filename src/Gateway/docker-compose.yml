@@ -76,9 +76,7 @@ services:
       dockerfile: src/Gateway/docker/notification-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      UserService__BaseUrl: http://user-service:5001
-      UserService__RequiredOnStartup: "true"
-      UserService__StartupRetryCount: "10"
+      SetupService__BaseUrl: http://setup-service:5003
     depends_on:
       user-service:
         condition: service_started

@@ -1,7 +1,6 @@
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.Messaging.Models;
 using Fgs.Messaging.Options;
-using Fgs.Publisher.Infrastructure.Options;
 using Fgs.Publisher.Infrastructure.Outbox;
 using Microsoft.Extensions.Options;
 
@@ -10,7 +9,7 @@ namespace Fgs.Publisher.Tests;
 public sealed class GlobalOutboxRoutingResolverTests
 {
     [Fact]
-    public void ResolveExchangeName_UsesRowValueWhenPresent()
+    public void ResolveExchangeName_UsesPlatformEventsForCompanySignupInviteEmail()
     {
         var resolver = CreateResolver();
 
@@ -20,12 +19,12 @@ public sealed class GlobalOutboxRoutingResolverTests
             IntegrationEventTypes.CompanySignupInviteEmail,
             "{}",
             Guid.NewGuid(),
-            "custom.exchange",
+            "fgs.user",
             "custom.routing",
             0,
             5));
 
-        exchange.Should().Be("custom.exchange");
+        exchange.Should().Be(IntegrationEventExchanges.UserEvents);
     }
 
     [Fact]
@@ -44,7 +43,7 @@ public sealed class GlobalOutboxRoutingResolverTests
             0,
             5));
 
-        exchange.Should().Be("tenant.events");
+        exchange.Should().Be(IntegrationEventExchanges.TenantEvents);
     }
 
     [Fact]
@@ -67,14 +66,9 @@ public sealed class GlobalOutboxRoutingResolverTests
     }
 
     private static GlobalOutboxRoutingResolver CreateResolver() =>
-        new(
-            Options.Create(new RabbitMqOptions
-            {
-                ExchangeName = "fgs.user",
-                RoutingKeyPrefix = "user."
-            }),
-            Options.Create(new TenantProvisioningOptions
-            {
-                TenantEventsExchangeName = "tenant.events"
-            }));
+        new(Options.Create(new RabbitMqOptions
+        {
+            ExchangeName = IntegrationEventExchanges.UserEvents,
+            RoutingKeyPrefix = "user."
+        }));
 }

@@ -3,6 +3,7 @@ using Fgs.Messaging.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Exceptions;
 
 namespace Fgs.Messaging.Consumer;
 
@@ -53,6 +54,12 @@ public sealed class ConsumerRetryPolicy(
 
         await Task.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
 
+        if (!channel.IsOpen)
+        {
+            throw new ConsumerChannelClosedException(
+                $"Channel closed during retry delay for message {messageId}.");
+        }
+
         var properties = new BasicProperties
         {
             ContentType = originalProperties.ContentType ?? "application/json",
@@ -62,13 +69,22 @@ public sealed class ConsumerRetryPolicy(
             Headers = new Dictionary<string, object?> { ["x-retry-count"] = retryCount + 1 }
         };
 
-        await channel.BasicPublishAsync(
-            exchangeName,
-            routingKey,
-            mandatory: false,
-            basicProperties: properties,
-            body: body,
-            cancellationToken: cancellationToken);
+        try
+        {
+            await channel.BasicPublishAsync(
+                exchangeName,
+                routingKey,
+                mandatory: false,
+                basicProperties: properties,
+                body: body,
+                cancellationToken: cancellationToken);
+        }
+        catch (AlreadyClosedException ex)
+        {
+            throw new ConsumerChannelClosedException(
+                $"Channel closed while republishing message {messageId} for retry.",
+                ex);
+        }
     }
 
     public static int GetRetryCount(IDictionary<string, object?>? headers)
@@ -90,4 +106,7 @@ public sealed class ConsumerRetryPolicy(
 }
 
 public sealed class ConsumerRetryExhaustedException(string message, Exception innerException)
+    : Exception(message, innerException);
+
+public sealed class ConsumerChannelClosedException(string message, Exception? innerException = null)
     : Exception(message, innerException);

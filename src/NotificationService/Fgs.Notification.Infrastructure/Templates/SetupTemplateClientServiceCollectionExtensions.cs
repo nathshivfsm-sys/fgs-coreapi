@@ -14,7 +14,7 @@ public static class SetupTemplateClientServiceCollectionExtensions
     {
         services.AddFgsRefitClient<ISetupTemplateClient>(
             configuration,
-            $"{UserServiceCredentialClientOptions.SectionName}:BaseUrl");
+            $"{SetupServiceClientOptions.SectionName}:BaseUrl");
 
         return services;
     }

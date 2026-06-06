@@ -32,7 +32,6 @@ using Fgs.Notification.Infrastructure.Notifications.Preferences;
 using Fgs.Notification.Infrastructure.Notifications.Templates;
 using Fgs.Security.Extensions;
 using Fgs.Notification.Infrastructure.Options;
-using Fgs.Notification.Infrastructure.Credentials;
 using Fgs.Notification.Infrastructure.Reporting;
 using System.Reflection;
 using MediatR;
@@ -50,11 +49,11 @@ public static class DependencyInjection
     {
         services.AddFgsEntraAuthentication(configuration);
         services.AddFgsRemoteClaimsEnrichment(configuration);
-        services.AddNotificationResolvedCredentialConfiguration(configuration, configuration);
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
         services.Configure<SendGridOptions>(configuration.GetSection(SendGridOptions.SectionName));
+        services.Configure<SetupServiceClientOptions>(configuration.GetSection(SetupServiceClientOptions.SectionName));
         services.Configure<TenantProviderOptions>(configuration.GetSection(TenantProviderOptions.SectionName));
         services.Configure<NotificationFeatureFlagsOptions>(configuration.GetSection(NotificationFeatureFlagsOptions.SectionName));
         services.Configure<NotificationOptions>(configuration.GetSection(NotificationOptions.SectionName));
@@ -96,8 +95,6 @@ public static class DependencyInjection
         services.AddSingleton<IAuditLogger, NoOpAuditLogger>();
         services.AddSingleton<IBackgroundJobQueue, InMemoryBackgroundJobQueue>();
         services.AddSingleton<IReportExporter, PlaceholderReportExporter>();
-
-        services.AddHostedService<CredentialConfigurationBootstrapHostedService>();
 
         return services;
     }

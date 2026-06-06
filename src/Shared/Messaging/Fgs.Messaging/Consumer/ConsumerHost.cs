@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Exceptions;
 
 namespace Fgs.Messaging.Consumer;
 
@@ -16,11 +17,9 @@ public sealed class ConsumerHost(
     SubscriptionManager subscriptionManager,
     ConsumerRetryPolicy retryPolicy,
     IOptions<ConsumerOptions> consumerOptions,
-    IOptions<RabbitMqOptions> rabbitMqOptions,
     ILogger<ConsumerHost> logger) : BackgroundService
 {
     private readonly ConsumerOptions _consumerOptions = consumerOptions.Value;
-    private readonly RabbitMqOptions _rabbitMqOptions = rabbitMqOptions.Value;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -63,6 +62,23 @@ public sealed class ConsumerHost(
     {
         var connection = await connectionFactory.GetConnectionAsync(stoppingToken);
         var channels = new List<IChannel>();
+        using var connectionLostCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+
+        AsyncEventHandler<ShutdownEventArgs>? shutdownHandler = (_, args) =>
+        {
+            if (args.Initiator != ShutdownInitiator.Application)
+            {
+                logger.LogWarning(
+                    "RabbitMQ connection shut down ({ReplyCode} {ReplyText}); restarting consumers.",
+                    args.ReplyCode,
+                    args.ReplyText);
+                connectionLostCts.Cancel();
+            }
+
+            return Task.CompletedTask;
+        };
+
+        connection.ConnectionShutdownAsync += shutdownHandler;
 
         try
         {
@@ -90,17 +106,30 @@ public sealed class ConsumerHost(
                     subscription.RoutingKey);
             }
 
-            await Task.Delay(Timeout.Infinite, stoppingToken);
+            await Task.Delay(Timeout.Infinite, connectionLostCts.Token);
         }
-        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        catch (OperationCanceledException) when (connectionLostCts.IsCancellationRequested && !stoppingToken.IsCancellationRequested)
         {
-            // shutdown
+            // Connection lost; outer loop will recreate consumers.
         }
         finally
         {
+            connection.ConnectionShutdownAsync -= shutdownHandler;
+
             foreach (var channel in channels)
             {
-                await channel.CloseAsync(stoppingToken);
+                try
+                {
+                    if (channel.IsOpen)
+                    {
+                        await channel.CloseAsync(stoppingToken);
+                    }
+                }
+                catch (AlreadyClosedException)
+                {
+                    // Ignore shutdown races.
+                }
+
                 await channel.DisposeAsync();
             }
         }
@@ -138,7 +167,7 @@ public sealed class ConsumerHost(
             using var scope = scopeFactory.CreateScope();
             var dispatcher = scope.ServiceProvider.GetRequiredService<MessageDispatcher>();
             await dispatcher.DispatchAsync(routingKey, body, context, stoppingToken);
-            await channel.BasicAckAsync(args.DeliveryTag, false, stoppingToken);
+            await SafeAckAsync(channel, args.DeliveryTag, messageId, stoppingToken);
         }
         catch (ConsumerRetryExhaustedException ex)
         {
@@ -148,7 +177,14 @@ public sealed class ConsumerHost(
                 messageId,
                 correlationId,
                 routingKey);
-            await channel.BasicNackAsync(args.DeliveryTag, false, requeue: false, stoppingToken);
+            await SafeNackAsync(channel, args.DeliveryTag, messageId, stoppingToken);
+        }
+        catch (ConsumerChannelClosedException ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Broker channel closed while processing message {MessageId}; RabbitMQ will redeliver it.",
+                messageId);
         }
         catch (Exception ex)
         {
@@ -165,12 +201,93 @@ public sealed class ConsumerHost(
                     correlationId,
                     ex,
                     stoppingToken);
-                await channel.BasicAckAsync(args.DeliveryTag, false, stoppingToken);
+                await SafeAckAsync(channel, args.DeliveryTag, messageId, stoppingToken);
             }
-            catch (ConsumerRetryExhaustedException)
+            catch (ConsumerRetryExhaustedException retryExhausted)
             {
-                await channel.BasicNackAsync(args.DeliveryTag, false, requeue: false, stoppingToken);
+                logger.LogError(
+                    retryExhausted,
+                    "Dead-lettering message {MessageId} (CorrelationId={CorrelationId}, RoutingKey={RoutingKey})",
+                    messageId,
+                    correlationId,
+                    routingKey);
+                await SafeNackAsync(channel, args.DeliveryTag, messageId, stoppingToken);
             }
+            catch (ConsumerChannelClosedException channelClosed)
+            {
+                logger.LogWarning(
+                    channelClosed,
+                    "Broker channel closed while retrying message {MessageId}; RabbitMQ will redeliver it.",
+                    messageId);
+            }
+        }
+    }
+
+    private async Task SafeAckAsync(
+        IChannel channel,
+        ulong deliveryTag,
+        string messageId,
+        CancellationToken cancellationToken)
+    {
+        if (!channel.IsOpen)
+        {
+            logger.LogWarning(
+                "Skipping ack for message {MessageId} because the channel is already closed; RabbitMQ will redeliver it.",
+                messageId);
+            return;
+        }
+
+        try
+        {
+            await channel.BasicAckAsync(deliveryTag, false, cancellationToken);
+        }
+        catch (AlreadyClosedException ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Channel closed before ack for message {MessageId}; RabbitMQ will redeliver it.",
+                messageId);
+        }
+        catch (OperationInterruptedException ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Ack interrupted for message {MessageId}; RabbitMQ will redeliver it.",
+                messageId);
+        }
+    }
+
+    private async Task SafeNackAsync(
+        IChannel channel,
+        ulong deliveryTag,
+        string messageId,
+        CancellationToken cancellationToken)
+    {
+        if (!channel.IsOpen)
+        {
+            logger.LogWarning(
+                "Skipping nack for message {MessageId} because the channel is already closed; RabbitMQ will redeliver or dead-letter it.",
+                messageId);
+            return;
+        }
+
+        try
+        {
+            await channel.BasicNackAsync(deliveryTag, false, requeue: false, cancellationToken);
+        }
+        catch (AlreadyClosedException ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Channel closed before nack for message {MessageId}; RabbitMQ will redeliver or dead-letter it.",
+                messageId);
+        }
+        catch (OperationInterruptedException ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Nack interrupted for message {MessageId}; RabbitMQ will redeliver or dead-letter it.",
+                messageId);
         }
     }
 }

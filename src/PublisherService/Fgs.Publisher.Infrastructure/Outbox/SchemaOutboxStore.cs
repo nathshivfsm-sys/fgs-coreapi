@@ -6,11 +6,11 @@ namespace Fgs.Publisher.Infrastructure.Outbox;
 
 public sealed partial class SchemaOutboxStore : ISchemaOutboxSource
 {
-    private const short StatusPending = 1;
-    private const short StatusProcessing = 2;
-    private const short StatusPublished = 3;
-    private const short StatusRetry = 4;
-    private const short StatusFailed = 5;
+    private const string StatusPending = "Pending";
+    private const string StatusProcessing = "Processing";
+    private const string StatusPublished = "Published";
+    private const string StatusRetry = "Retry";
+    private const string StatusFailed = "Failed";
 
     private readonly string _connectionString;
     private readonly string _qualifiedTable;
