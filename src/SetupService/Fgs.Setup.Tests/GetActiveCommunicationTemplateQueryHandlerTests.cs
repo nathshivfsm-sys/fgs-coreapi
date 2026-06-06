@@ -46,6 +46,80 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
     }
 
     [Fact]
+    public async Task Handle_WhenCompanyTenantAndGlobalExist_ReturnsCompanyScoped()
+    {
+        var global = CreateFgsTemplate(null, null, id: 1, name: "Global");
+        var tenantTemplate = CreateFgsTemplate(100, null, id: 2, name: "Tenant");
+        var companyTemplate = CreateFgsTemplate(100, 200, id: 3, name: "Company");
+
+        var handler = CreateHandler(
+            fgsTemplates: [global, tenantTemplate, companyTemplate],
+            gloTemplates: []);
+
+        var response = await handler.Handle(
+            new GetActiveCommunicationTemplateQuery(
+                100,
+                200,
+                "EMAIL",
+                CommunicationTemplateCodes.CompanyAdminInvitation,
+                InternalServiceKey),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.Id.Should().Be(3);
+        response.Data.Name.Should().Be("Company");
+    }
+
+    [Fact]
+    public async Task Handle_WhenCompanyMissing_FallsBackToTenantScoped()
+    {
+        var global = CreateFgsTemplate(null, null, id: 1, name: "Global");
+        var tenantTemplate = CreateFgsTemplate(100, null, id: 2, name: "Tenant");
+
+        var handler = CreateHandler(
+            fgsTemplates: [global, tenantTemplate],
+            gloTemplates: []);
+
+        var response = await handler.Handle(
+            new GetActiveCommunicationTemplateQuery(
+                100,
+                200,
+                "EMAIL",
+                CommunicationTemplateCodes.CompanyAdminInvitation,
+                InternalServiceKey),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.Id.Should().Be(2);
+        response.Data.TenantId.Should().Be(100);
+        response.Data.CompanyId.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Handle_WhenTenantMissing_FallsBackToGlobal()
+    {
+        var global = CreateFgsTemplate(null, null, id: 1, name: "Global");
+
+        var handler = CreateHandler(
+            fgsTemplates: [global],
+            gloTemplates: []);
+
+        var response = await handler.Handle(
+            new GetActiveCommunicationTemplateQuery(
+                999,
+                888,
+                "EMAIL",
+                CommunicationTemplateCodes.CompanyAdminInvitation,
+                InternalServiceKey),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.Id.Should().Be(1);
+        response.Data.TenantId.Should().BeNull();
+        response.Data.CompanyId.Should().BeNull();
+    }
+
+    [Fact]
     public async Task Handle_WhenFgsTemplateMissing_FallsBackToGloTemplateByCode()
     {
         var gloTemplate = new GloCommunicationTemplate
@@ -100,6 +174,24 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
         response.Success.Should().BeFalse();
         response.StatusCode.Should().Be(ApiStatusCodes.Unauthorized);
     }
+
+    private static FgsSetupCommunicationTemplate CreateFgsTemplate(
+        long? tenantId,
+        long? companyId,
+        long id,
+        string name) =>
+        new()
+        {
+            Id = id,
+            TenantId = tenantId,
+            CompanyId = companyId,
+            TemplateType = "EMAIL",
+            Code = CommunicationTemplateCodes.CompanyAdminInvitation,
+            Name = name,
+            Subject = "Subject",
+            Body = "Body",
+            IsActive = true
+        };
 
     private static GetActiveCommunicationTemplateQueryHandler CreateHandler(
         IReadOnlyList<FgsSetupCommunicationTemplate> fgsTemplates,

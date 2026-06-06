@@ -26,11 +26,23 @@ public sealed class GetActiveCommunicationTemplateQueryHandler(
                 t => t.TemplateType == normalizedType
                      && t.Code == normalizedCode
                      && t.IsActive
-                     && t.TenantId == request.TenantId
-                     && t.CompanyId == request.CompanyId,
+                     && (
+                         (request.CompanyId.HasValue
+                          && t.TenantId == request.TenantId
+                          && t.CompanyId == request.CompanyId)
+                         || (request.TenantId.HasValue
+                             && t.TenantId == request.TenantId
+                             && t.CompanyId == null)
+                         || (t.TenantId == null && t.CompanyId == null)),
                 cancellationToken);
 
-        var template = templates.OrderByDescending(t => t.Id).FirstOrDefault();
+        var template = templates
+            .Select(t => (Template: t, Priority: GetScopePriority(t, request)))
+            .Where(x => x.Priority > 0)
+            .OrderByDescending(x => x.Priority)
+            .ThenByDescending(x => x.Template.Id)
+            .Select(x => x.Template)
+            .FirstOrDefault();
         if (template is not null)
         {
             return ApiResponse<CommunicationTemplateDto>.Ok(MapFgsTemplate(template));
@@ -61,6 +73,32 @@ public sealed class GetActiveCommunicationTemplateQueryHandler(
         }
 
         return ApiResponse<CommunicationTemplateDto>.Ok(MapGloTemplate(gloTemplate, normalizedType));
+    }
+
+    private static int GetScopePriority(
+        FgsSetupCommunicationTemplate template,
+        GetActiveCommunicationTemplateQuery request)
+    {
+        if (request.CompanyId.HasValue
+            && template.TenantId == request.TenantId
+            && template.CompanyId == request.CompanyId)
+        {
+            return 3;
+        }
+
+        if (request.TenantId.HasValue
+            && template.TenantId == request.TenantId
+            && template.CompanyId is null)
+        {
+            return 2;
+        }
+
+        if (template.TenantId is null && template.CompanyId is null)
+        {
+            return 1;
+        }
+
+        return 0;
     }
 
     private static CommunicationTemplateDto MapFgsTemplate(FgsSetupCommunicationTemplate template) =>

@@ -6,7 +6,7 @@ namespace Fgs.Notification.Application.Notifications.Templates;
 public interface ICommunicationTemplateService
 {
     /// <summary>
-    /// Resolves the active template using tenant/company scope, then tenant-only, then global defaults.
+    /// Resolves the active template via SetupService (company scope, tenant scope, global, then Glo fallback).
     /// </summary>
     Task<FgsSetupCommunicationTemplate> GetActiveTemplateAsync(
         long tenantId,

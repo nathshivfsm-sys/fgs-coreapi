@@ -1,4 +1,4 @@
-namespace Fgs.Foundation.Options;
+namespace Fgs.Contracts.Options;
 
 public sealed class HttpResilienceOptions
 {

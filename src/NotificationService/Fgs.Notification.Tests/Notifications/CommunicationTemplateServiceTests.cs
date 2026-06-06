@@ -9,17 +9,13 @@ namespace Fgs.Notification.Tests.Notifications;
 public sealed class CommunicationTemplateServiceTests
 {
     [Fact]
-    public async Task GetActiveTemplateAsync_ReturnsCompanyScoped_WhenPresent()
+    public async Task GetActiveTemplateAsync_ReturnsTemplateFromRepository()
     {
         var tenantId = 100L;
         var companyId = 200L;
-        var global = CreateTemplate(null, null, id: 1);
-        var companyTemplate = CreateTemplate(tenantId, companyId, id: 2, subject: "Tenant subject {{Name}}");
+        var expected = CreateTemplate(tenantId, companyId, id: 2, subject: "Tenant subject {{Name}}");
 
-        var repository = new StubCommunicationTemplateRepository(
-            (tenantId, companyId, _, _) => companyTemplate,
-            (_, _, _, _) => global);
-
+        var repository = new StubCommunicationTemplateRepository(expected);
         var service = new CommunicationTemplateService(repository);
 
         var result = await service.GetActiveTemplateAsync(
@@ -28,34 +24,13 @@ public sealed class CommunicationTemplateServiceTests
             NotificationChannel.Email,
             CommunicationTemplateCodes.CompanyAdminInvitation);
 
-        result.Id.Should().Be(companyTemplate.Id);
-    }
-
-    [Fact]
-    public async Task GetActiveTemplateAsync_FallsBackToGlobal_WhenScopedTemplateMissing()
-    {
-        var global = CreateTemplate(null, null, id: 1);
-        var repository = new StubCommunicationTemplateRepository(
-            (_, _, _, _) => null,
-            (_, _, _, _) => global);
-
-        var service = new CommunicationTemplateService(repository);
-
-        var result = await service.GetActiveTemplateAsync(
-            999L,
-            888L,
-            NotificationChannel.Email,
-            CommunicationTemplateCodes.CompanyAdminInvitation);
-
-        result.Id.Should().Be(global.Id);
-        result.TenantId.Should().BeNull();
-        result.CompanyId.Should().BeNull();
+        result.Id.Should().Be(expected.Id);
     }
 
     [Fact]
     public async Task GetActiveTemplateAsync_WhenNotFound_Throws()
     {
-        var repository = new StubCommunicationTemplateRepository((_, _, _, _) => null);
+        var repository = new StubCommunicationTemplateRepository(null);
         var service = new CommunicationTemplateService(repository);
 
         var act = () => service.GetActiveTemplateAsync(
@@ -87,20 +62,14 @@ public sealed class CommunicationTemplateServiceTests
         };
 
     private sealed class StubCommunicationTemplateRepository(
-        params Func<long?, long?, string, string, FgsSetupCommunicationTemplate?>[] handlers)
-        : ICommunicationTemplateRepository
+        FgsSetupCommunicationTemplate? template) : ICommunicationTemplateRepository
     {
-        private int _callIndex;
-
         public Task<FgsSetupCommunicationTemplate?> GetActiveTemplateAsync(
             long? tenantId,
             long? companyId,
             string templateType,
             string code,
-            CancellationToken cancellationToken = default)
-        {
-            var handler = handlers[Math.Min(_callIndex++, handlers.Length - 1)];
-            return Task.FromResult(handler(tenantId, companyId, templateType, code));
-        }
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(template);
     }
 }

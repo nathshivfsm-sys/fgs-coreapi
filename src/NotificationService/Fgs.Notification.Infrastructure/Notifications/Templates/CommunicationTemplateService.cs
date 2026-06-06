@@ -16,45 +16,14 @@ public sealed class CommunicationTemplateService(ICommunicationTemplateRepositor
     {
         var templateType = channel.ToCommunicationTemplateType();
 
-        if (companyId.HasValue)
-        {
-            var companyScoped = await repository.GetActiveTemplateAsync(
-                tenantId,
-                companyId,
-                templateType,
-                templateCode,
-                cancellationToken);
-
-            if (companyScoped is not null)
-            {
-                return companyScoped;
-            }
-        }
-
-        var tenantScoped = await repository.GetActiveTemplateAsync(
+        var template = await repository.GetActiveTemplateAsync(
             tenantId,
-            companyId: null,
+            companyId,
             templateType,
             templateCode,
             cancellationToken);
 
-        if (tenantScoped is not null)
-        {
-            return tenantScoped;
-        }
-
-        var global = await repository.GetActiveTemplateAsync(
-            tenantId: null,
-            companyId: null,
-            templateType,
-            templateCode,
-            cancellationToken);
-
-        if (global is not null)
-        {
-            return global;
-        }
-
-        throw new CommunicationTemplateNotFoundException(tenantId, companyId, templateCode, channel);
+        return template
+            ?? throw new CommunicationTemplateNotFoundException(tenantId, companyId, templateCode, channel);
     }
 }
