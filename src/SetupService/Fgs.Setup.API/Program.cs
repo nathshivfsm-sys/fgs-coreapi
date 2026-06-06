@@ -5,8 +5,6 @@ using Fgs.Observability.Extensions;
 using Fgs.Setup.Application;
 using Fgs.Setup.Infrastructure;
 using Fgs.Setup.Infrastructure.Credentials;
-using Microsoft.EntityFrameworkCore;
-using Fgs.Setup.Infrastructure.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,12 +30,6 @@ using (var scope = app.Services.CreateScope())
 {
     var loader = scope.ServiceProvider.GetRequiredService<CredentialConfigurationLoader>();
     await loader.ReloadAsync();
-}
-
-if (app.Configuration.GetValue("Database:ApplyMigrationsOnStartup", false))
-{
-    using var scope = app.Services.CreateScope();
-    await scope.ServiceProvider.GetRequiredService<FgsSetupDbContext>().Database.MigrateAsync();
 }
 
 app.UseFgsFoundationMiddleware();

@@ -4,8 +4,6 @@ using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
 using Fgs.Notification.Application;
 using Fgs.Notification.Infrastructure;
-using Fgs.Notification.Infrastructure.Database;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,8 +26,6 @@ builder.Services.AddFgsObservability(builder.Configuration, "fgs-notification-se
 
 var app = builder.Build();
 
-await ApplyMigrationsAsync(app);
-
 app.UseFgsFoundationMiddleware();
 if (ShouldUseHttpsRedirection(app.Configuration))
 {
@@ -45,18 +41,6 @@ app.MapControllers();
 app.MapFgsHealthChecks();
 
 app.Run();
-
-static async Task ApplyMigrationsAsync(WebApplication app)
-{
-    if (!app.Configuration.GetValue("Database:ApplyMigrationsOnStartup", true))
-    {
-        return;
-    }
-
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<FgsNotificationDbContext>();
-    await db.Database.MigrateAsync();
-}
 
 static bool ShouldUseHttpsRedirection(IConfiguration configuration) =>
     !string.Equals(configuration["DOTNET_RUNNING_IN_CONTAINER"], "true", StringComparison.OrdinalIgnoreCase)

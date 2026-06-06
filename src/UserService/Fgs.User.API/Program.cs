@@ -5,9 +5,7 @@ using Fgs.Observability.Extensions;
 using Fgs.Foundation.Middleware;
 using Fgs.User.Application;
 using Fgs.User.Infrastructure;
-using Fgs.User.Infrastructure.Database;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,8 +42,6 @@ builder.Services.AddFgsObservability(builder.Configuration, "fgs-user-service");
 
 var app = builder.Build();
 
-await ApplyMigrationsAsync(app);
-
 app.UseForwardedHeaders();
 app.UseFgsFoundationMiddleware();
 if (ShouldUseHttpsRedirection(app.Configuration))
@@ -62,18 +58,6 @@ app.MapControllers();
 app.MapFgsHealthChecks();
 
 app.Run();
-
-static async Task ApplyMigrationsAsync(WebApplication app)
-{
-    if (!app.Configuration.GetValue("Database:ApplyMigrationsOnStartup", false))
-    {
-        return;
-    }
-
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<FgsUserDbContext>();
-    await db.Database.MigrateAsync();
-}
 
 static bool ShouldUseHttpsRedirection(IConfiguration configuration) =>
     !string.Equals(configuration["DOTNET_RUNNING_IN_CONTAINER"], "true", StringComparison.OrdinalIgnoreCase)
