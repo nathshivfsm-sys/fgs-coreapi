@@ -17,7 +17,7 @@ public sealed class MediatrPipelineBehaviourTests
 
         var act = () => behavior.Handle(
             new EntraCallbackCommand(string.Empty, string.Empty),
-            _ => Task.FromResult("ok"),
+            () => Task.FromResult("ok"),
             CancellationToken.None);
 
         await act.Should().ThrowAsync<ValidationException>();
@@ -30,7 +30,7 @@ public sealed class MediatrPipelineBehaviourTests
 
         var result = await behavior.Handle(
             new EntraCallbackCommand("code", Guid.NewGuid().ToString()),
-            _ => Task.FromResult("ok"),
+            () => Task.FromResult("ok"),
             CancellationToken.None);
 
         result.Should().Be("ok");
@@ -44,7 +44,7 @@ public sealed class MediatrPipelineBehaviourTests
 
         var result = await behavior.Handle(
             new EntraCallbackCommand("code", Guid.NewGuid().ToString()),
-            _ => Task.FromResult("ok"),
+            () => Task.FromResult("ok"),
             CancellationToken.None);
 
         result.Should().Be("ok");
@@ -66,7 +66,7 @@ public sealed class MediatrPipelineBehaviourTests
 
         var act = () => behavior.Handle(
             new EntraCallbackCommand("code", Guid.NewGuid().ToString()),
-            _ => throw new InvalidOperationException("boom"),
+            () => throw new InvalidOperationException("boom"),
             CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>();
