@@ -1,15 +1,20 @@
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Fgs.Publisher.Infrastructure.Outbox;
 
 public sealed class CompositeOutboxStore : IOutboxStore
 {
     private readonly IReadOnlyDictionary<string, ISchemaOutboxSource> _sources;
+    private readonly ILogger<CompositeOutboxStore> _logger;
 
-    public CompositeOutboxStore(IEnumerable<ISchemaOutboxSource> sources)
+    public CompositeOutboxStore(
+        IEnumerable<ISchemaOutboxSource> sources,
+        ILogger<CompositeOutboxStore> logger)
     {
         _sources = sources.ToDictionary(source => source.SourceKey, StringComparer.OrdinalIgnoreCase);
+        _logger = logger;
     }
 
     public async Task<IReadOnlyList<PendingOutboxMessage>> ClaimPendingBatchAsync(
@@ -26,8 +31,18 @@ public sealed class CompositeOutboxStore : IOutboxStore
 
         foreach (var source in _sources.Values)
         {
-            var batch = await source.ClaimPendingBatchAsync(perSourceBatchSize, cancellationToken);
-            claimed.AddRange(batch);
+            try
+            {
+                var batch = await source.ClaimPendingBatchAsync(perSourceBatchSize, cancellationToken);
+                claimed.AddRange(batch);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Skipping outbox source {SourceKey} during claim batch; other sources will continue",
+                    source.SourceKey);
+            }
         }
 
         return claimed

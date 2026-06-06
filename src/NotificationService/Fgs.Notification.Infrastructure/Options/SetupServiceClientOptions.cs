@@ -4,7 +4,7 @@ public sealed class SetupServiceClientOptions
 {
     public const string SectionName = "SetupService";
 
-    public string BaseUrl { get; set; } = "http://localhost:5003";
+    public string BaseUrl { get; set; } = "http://setup-service:5004";
 
     public string InternalServiceKey { get; set; } = string.Empty;
 }

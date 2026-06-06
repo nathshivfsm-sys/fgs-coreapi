@@ -59,6 +59,7 @@ services:
       dockerfile: src/Gateway/docker/user-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      SetupService__BaseUrl: http://setup-service:5004
     volumes:
       - ../UserService/Fgs.User.API/appsettings.json:/src/src/UserService/Fgs.User.API/appsettings.json:ro
       - ../UserService/Fgs.User.API/appsettings.Development.json:/src/src/UserService/Fgs.User.API/appsettings.Development.json:ro
@@ -76,7 +77,8 @@ services:
       dockerfile: src/Gateway/docker/notification-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      SetupService__BaseUrl: http://setup-service:5003
+      SetupService__BaseUrl: http://setup-service:5004
+      UserService__BaseUrl: http://user-service:5001
     depends_on:
       user-service:
         condition: service_started
@@ -145,6 +147,60 @@ services:
       - "host.docker.internal:host-gateway"
     expose:
       - "5004"
+    networks:
+      - fgs-private
+    restart: unless-stopped
+
+  publisher-service:
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/publisher-service.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      RabbitMq__HostName: rabbitmq
+      UserService__BaseUrl: http://user-service:5001
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    volumes:
+      - ../PublisherService/Fgs.Publisher.API/appsettings.json:/src/src/PublisherService/Fgs.Publisher.API/appsettings.json:ro
+      - ../PublisherService/Fgs.Publisher.API/appsettings.Development.json:/src/src/PublisherService/Fgs.Publisher.API/appsettings.Development.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "5006"
+    networks:
+      - fgs-private
+    restart: unless-stopped
+
+  consumer-service:
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/consumer-service.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      SetupService__BaseUrl: http://setup-service:5004
+      NotificationService__BaseUrl: http://notification-service:5002
+      UserService__BaseUrl: http://user-service:5001
+      RabbitMq__HostName: rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+    volumes:
+      - ../ConsumerService/Fgs.Consumer.API/appsettings.json:/src/src/ConsumerService/Fgs.Consumer.API/appsettings.json:ro
+      - ../ConsumerService/Fgs.Consumer.API/appsettings.Development.json:/src/src/ConsumerService/Fgs.Consumer.API/appsettings.Development.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "5007"
     networks:
       - fgs-private
     restart: unless-stopped

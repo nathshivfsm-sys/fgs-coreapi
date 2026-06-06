@@ -11,6 +11,7 @@ public sealed partial class SchemaOutboxStore : ISchemaOutboxSource
     private const string StatusPublished = "Published";
     private const string StatusRetry = "Retry";
     private const string StatusFailed = "Failed";
+    private static readonly TimeSpan StaleProcessingThreshold = TimeSpan.FromMinutes(2);
 
     private readonly string _connectionString;
     private readonly string _qualifiedTable;
@@ -40,14 +41,34 @@ public sealed partial class SchemaOutboxStore : ISchemaOutboxSource
         }
 
         var now = DateTimeOffset.UtcNow;
+        var staleBefore = now.Subtract(StaleProcessingThreshold);
 
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
+        const string reclaimSql = """
+            UPDATE {0}
+            SET "Status" = @pendingStatus
+            WHERE "Status" = @processingStatus
+                AND COALESCE("UpdatedOn", "CreatedOn") < @staleBefore
+            """;
+
+        await using (var reclaimCommand = new NpgsqlCommand(
+            string.Format(reclaimSql, _qualifiedTable),
+            connection,
+            transaction))
+        {
+            reclaimCommand.Parameters.AddWithValue("pendingStatus", StatusPending);
+            reclaimCommand.Parameters.AddWithValue("processingStatus", StatusProcessing);
+            reclaimCommand.Parameters.AddWithValue("staleBefore", staleBefore);
+            await reclaimCommand.ExecuteNonQueryAsync(cancellationToken);
+        }
+
         var claimSql = $"""
             UPDATE {_qualifiedTable} AS outbox
-            SET "Status" = @processingStatus
+            SET "Status" = @processingStatus,
+                "UpdatedOn" = @now
             FROM (
                 SELECT "Id"
                 FROM {_qualifiedTable}

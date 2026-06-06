@@ -24,12 +24,12 @@ public static class DependencyInjection
         services.AddFgsRefitClient<ISetupProvisioningClient>(
             configuration,
             "SetupService:BaseUrl",
-            "http://setup-service:5003");
+            "http://setup-service:5004");
 
         services.AddFgsRefitClient<INotificationDispatchClient>(
             configuration,
             "NotificationService:BaseUrl",
-            "http://notification-service:5006");
+            "http://notification-service:5002");
 
         services.AddFgsRabbitMqConsumerFramework(configuration);
         services.AddScoped<IConsumerMessageRouter, MediatRConsumerMessageRouter>();

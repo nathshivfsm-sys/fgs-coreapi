@@ -1,5 +1,6 @@
 using Fgs.Messaging.Models;
 using Fgs.Publisher.Infrastructure.Outbox;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace Fgs.Publisher.Tests;
@@ -28,7 +29,9 @@ public sealed class CompositeOutboxStoreTests
                 new ClaimedOutboxRow(CreateMessage("glo", 1), older)
             ]);
 
-        var store = new CompositeOutboxStore([tenantSource.Object, setupSource.Object]);
+        var store = new CompositeOutboxStore(
+            [tenantSource.Object, setupSource.Object],
+            NullLogger<CompositeOutboxStore>.Instance);
 
         var messages = await store.ClaimPendingBatchAsync(20, CancellationToken.None);
 
@@ -43,7 +46,9 @@ public sealed class CompositeOutboxStoreTests
         var tenantSource = new Mock<ISchemaOutboxSource>();
         tenantSource.Setup(s => s.SourceKey).Returns("tenant");
 
-        var store = new CompositeOutboxStore([tenantSource.Object]);
+        var store = new CompositeOutboxStore(
+            [tenantSource.Object],
+            NullLogger<CompositeOutboxStore>.Instance);
 
         await store.MarkPublishedAsync("tenant", 42, DateTimeOffset.UtcNow, CancellationToken.None);
 

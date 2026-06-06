@@ -69,7 +69,7 @@ public static class DependencyInjection
         services.AddFgsRefitClient<ISetupClient>(
             configuration,
             "SetupService:BaseUrl",
-            "http://setup-service:5002");
+            "http://setup-service:5004");
 
         return services;
     }

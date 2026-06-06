@@ -24,13 +24,15 @@ src/Gateway/
     job-service.Dockerfile
     setup-service.Dockerfile
     file-service.Dockerfile
+    publisher-service.Dockerfile
+    consumer-service.Dockerfile
   logs/
   scripts/
     generate-local-cert.ps1
     generate-local-cert.sh
 ```
 
-RabbitMQ runs in this Compose file for **PublisherService** and **ConsumerService** local development (host ports `5672` / `15672`). Domain services in this stack do not connect to RabbitMQ directly. PostgreSQL is expected on the host (or reachable via connection strings in mounted `appsettings.Development.json`).
+RabbitMQ runs in this Compose file for **PublisherService** and **ConsumerService** (host ports `5672` / `15672`). Publisher and Consumer are containerized on the private Docker network; they are not exposed through NGINX. PostgreSQL is expected on the host or reachable via connection strings in mounted `appsettings.Development.json`.
 
 ## Routes
 
@@ -67,6 +69,23 @@ OAuth and invitation URLs are exposed through the gateway (register the same val
 
 Both upstreams use `least_conn`, keepalive connections, passive health checks with `max_fails` and `fail_timeout`, and Docker health checks against each service's `/health` endpoint.
 
+### Inter-service Refit URLs (Docker)
+
+Inter-service Refit clients use **direct container DNS and ports** on the `fgs-private` network — not the NGINX gateway. NGINX path rewrites break several internal routes (for example `/api/v1/notifications/dispatch` and `/api/v1/tenants/*`).
+
+| Caller | Refit client | Base URL |
+| --- | --- | --- |
+| All services with remote auth | `IFgsClaimsClient` | `http://user-service:5001` |
+| Setup | `IUserTenantClient` | `http://user-service:5001` |
+| Setup | `IFileTenantClient` | `http://file-service:5005` |
+| User | `ISetupClient` | `http://setup-service:5004` |
+| Notification | `ISetupTemplateClient` | `http://setup-service:5004` |
+| Consumer | `ISetupProvisioningClient` | `http://setup-service:5004` |
+| Consumer | `INotificationDispatchClient` | `http://notification-service:5002` |
+| Publisher | `IFgsClaimsClient` | `http://user-service:5001` |
+
+Public-facing URLs (OAuth, invites, dashboard) use the NGINX gateway at `https://localhost:8443`.
+
 ## Run Locally
 
 From `C:\SourceCode\FGS\src\Gateway`:
@@ -96,13 +115,15 @@ Container health checks use each service's `/health` endpoint (see Dockerfiles).
 
 The local Compose file starts:
 
-- `rabbitmq`, published on host ports `5672` and `15672` (for Publisher/Consumer; see `src/PublisherService/docker-compose.yml` for broker-only startup).
+- `rabbitmq`, published on host ports `5672` and `15672`.
 - `nginx`, published on host ports `8080` and `8443`.
 - `user-service`, private on container port `5001`.
 - `notification-service`, private on container port `5002`.
 - `job-service`, private on container port `5003`.
 - `setup-service`, private on container port `5004`.
 - `file-service`, private on container port `5005`.
+- `publisher-service`, private on container port `5006` (outbox relay to RabbitMQ).
+- `consumer-service`, private on container port `5007` (RabbitMQ consumer, Refit to Setup/Notification).
 
 ### Application configuration (Postgres, Entra)
 
@@ -115,6 +136,8 @@ Each API container mounts the **same** files you edit for local `dotnet run`:
 | Workorder | `src/JobService/Fgs.Job.API/appsettings.json` + `appsettings.Development.json` |
 | Setup | `src/SetupService/Fgs.Setup.API/appsettings.json` + `appsettings.Development.json` |
 | File | `src/FileService/Fgs.File.API/appsettings.json` + `appsettings.Development.json` |
+| Publisher | `src/PublisherService/Fgs.Publisher.API/appsettings.json` + `appsettings.Development.json` |
+| Consumer | `src/ConsumerService/Fgs.Consumer.API/appsettings.json` + `appsettings.Development.json` |
 
 Containers use `ASPNETCORE_ENVIRONMENT=Development`, so ASP.NET Core **merges** `appsettings.json` then `appsettings.Development.json` (same as Visual Studio / `dotnet run`). There are no duplicate Postgres settings in `docker-compose.yml`.
 
@@ -193,7 +216,7 @@ sudo systemctl reload nginx
 
 For Kubernetes, keep this routing model but move responsibilities as follows:
 
-- Use Kubernetes `Service` objects for `user-service`, `notification-service`, `job-service`, `setup-service`, and `file-service`.
+- Use Kubernetes `Service` objects for `user-service`, `notification-service`, `job-service`, `setup-service`, `file-service`, `publisher-service`, and `consumer-service`.
 - Put TLS certificates in `kubernetes.io/tls` secrets, or use cert-manager.
 - Use NGINX Ingress Controller for path routing and prefix rewrite annotations.
 - Keep `/api/v1/users`, `/api/v1/notifications`, `/api/v1/jobs`, `/api/v1/credentials`, `/api/v1/communication-templates`, and `/api/v1/tenants` as the stable external contract.

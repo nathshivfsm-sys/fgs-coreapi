@@ -7,6 +7,7 @@ using Fgs.Foundation.Extensions;
 using Fgs.Security.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Fgs.Publisher.Infrastructure;
@@ -49,7 +50,9 @@ public static class DependencyInjection
                 })
                 .ToList();
 
-            return new CompositeOutboxStore(sources);
+            return new CompositeOutboxStore(
+                sources,
+                sp.GetRequiredService<ILogger<CompositeOutboxStore>>());
         });
 
         services.AddSingleton<IOutboxRoutingResolver, GlobalOutboxRoutingResolver>();

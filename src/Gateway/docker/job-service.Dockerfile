@@ -2,6 +2,8 @@
 RUN apk add --no-cache curl
 WORKDIR /src
 
+COPY Directory.Build.props .
+COPY src/Directory.Build.props src/
 COPY src/Shared/Directory.Build.props src/Shared/
 COPY src/Shared/Kernel/Fgs.Kernel/Fgs.Kernel.csproj src/Shared/Kernel/Fgs.Kernel/
 COPY src/Shared/Contracts/Fgs.Contracts/Fgs.Contracts.csproj src/Shared/Contracts/Fgs.Contracts/

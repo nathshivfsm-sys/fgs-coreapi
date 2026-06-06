@@ -15,7 +15,7 @@ public static class SetupTemplateClientServiceCollectionExtensions
         services.AddFgsRefitClient<ISetupTemplateClient>(
             configuration,
             $"{SetupServiceClientOptions.SectionName}:BaseUrl",
-            "http://setup-service:5003");
+            "http://setup-service:5004");
 
         return services;
     }
