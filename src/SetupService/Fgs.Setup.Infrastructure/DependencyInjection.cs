@@ -31,7 +31,6 @@ public static class DependencyInjection
         services.AddFgsEntraAuthentication(configuration);
         services.AddFgsRemoteClaimsEnrichment(configuration);
 
-        services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
         services.Configure<TenantProvisioningOptions>(configuration.GetSection(TenantProvisioningOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
 

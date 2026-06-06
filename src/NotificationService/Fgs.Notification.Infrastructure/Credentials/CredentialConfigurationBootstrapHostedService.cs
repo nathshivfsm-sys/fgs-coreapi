@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Infrastructure.Options;
+﻿using Fgs.Notification.Infrastructure.Credentials;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,8 +15,6 @@ namespace Fgs.Notification.Infrastructure.Credentials;
 public sealed class CredentialConfigurationBootstrapHostedService(
     IServiceScopeFactory scopeFactory,
     IOptions<UserServiceCredentialClientOptions> options,
-    RabbitMqConsumerStartupGate rabbitMqConsumerStartupGate,
-    RabbitMqOptionsResolver rabbitMqOptionsResolver,
     ILogger<CredentialConfigurationBootstrapHostedService> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -41,7 +39,7 @@ public sealed class CredentialConfigurationBootstrapHostedService(
             }
 
             logger.LogWarning(
-                "User Service is not available at {BaseUrl}. Platform is using appsettings credentials until User Service starts.",
+                "User Service is not available at {BaseUrl}. Notification is using appsettings credentials until User Service starts.",
                 settings.BaseUrl);
 
             var interval = TimeSpan.FromSeconds(Math.Max(5, settings.BackgroundRetryIntervalSeconds));
@@ -58,22 +56,7 @@ public sealed class CredentialConfigurationBootstrapHostedService(
         }
         finally
         {
-            if (rabbitMqOptionsResolver.HasVaultConnectionSettings())
-            {
-                var resolved = rabbitMqOptionsResolver.Resolve();
-                logger.LogInformation(
-                    "RabbitMQ credentials ready for consumers (Host={Host}, Port={Port}, User={User}).",
-                    resolved.HostName,
-                    resolved.Port,
-                    resolved.UserName);
-            }
-            else
-            {
-                logger.LogWarning(
-                    "RabbitMQ vault connection settings are not loaded; consumers will use appsettings until credentials arrive.");
-            }
-
-            rabbitMqConsumerStartupGate.Release();
+            logger.LogInformation("Credential configuration bootstrap completed.");
         }
     }
 
@@ -110,7 +93,7 @@ public sealed class CredentialConfigurationBootstrapHostedService(
             using var scope = scopeFactory.CreateScope();
             var provider = scope.ServiceProvider.GetRequiredService<ICredentialConfigurationProvider>();
             await provider.ReloadAsync(cancellationToken);
-            return provider.Values.Count > 0 && rabbitMqOptionsResolver.HasVaultConnectionSettings();
+            return provider.Values.Count > 0 && HasSendGridVaultSettings(provider);
         }
         catch (Exception ex) when (IsUserServiceUnreachable(ex))
         {
@@ -118,6 +101,9 @@ public sealed class CredentialConfigurationBootstrapHostedService(
             return false;
         }
     }
+
+    private static bool HasSendGridVaultSettings(ICredentialConfigurationProvider provider) =>
+        !string.IsNullOrWhiteSpace(provider.GetValue("Global:SENDGRID:ApiKey"));
 
     private static bool IsUserServiceUnreachable(Exception ex) =>
         ex is HttpRequestException or ApiException

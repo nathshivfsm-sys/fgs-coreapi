@@ -29,11 +29,5 @@ public sealed class CredentialConfigurationProvider : ICredentialConfigurationPr
         var loader = scope.ServiceProvider.GetRequiredService<CredentialConfigurationLoader>();
         await loader.ReloadAsync(cancellationToken);
         _changeNotifier.NotifyChange();
-
-        var changePublisher = scope.ServiceProvider.GetService<ICredentialConfigurationChangePublisher>();
-        if (changePublisher is not null)
-        {
-            await changePublisher.PublishAsync(cancellationToken);
-        }
     }
 }

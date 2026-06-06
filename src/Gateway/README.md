@@ -30,7 +30,7 @@ src/Gateway/
     generate-local-cert.sh
 ```
 
-RabbitMQ runs in this Compose file. PostgreSQL is expected on the host (or reachable via connection strings in mounted `appsettings.Development.json`).
+RabbitMQ runs in this Compose file for **PublisherService** and **ConsumerService** local development (host ports `5672` / `15672`). Domain services in this stack do not connect to RabbitMQ directly. PostgreSQL is expected on the host (or reachable via connection strings in mounted `appsettings.Development.json`).
 
 ## Routes
 
@@ -96,7 +96,7 @@ Container health checks use each service's `/health` endpoint (see Dockerfiles).
 
 The local Compose file starts:
 
-- `rabbitmq`, published on host ports `5672` and `15672`.
+- `rabbitmq`, published on host ports `5672` and `15672` (for Publisher/Consumer; see `src/PublisherService/docker-compose.yml` for broker-only startup).
 - `nginx`, published on host ports `8080` and `8443`.
 - `user-service`, private on container port `5001`.
 - `notification-service`, private on container port `5002`.
@@ -104,7 +104,7 @@ The local Compose file starts:
 - `setup-service`, private on container port `5004`.
 - `file-service`, private on container port `5005`.
 
-### Application configuration (Postgres, RabbitMQ, Entra)
+### Application configuration (Postgres, Entra)
 
 Each API container mounts the **same** files you edit for local `dotnet run`:
 
@@ -116,11 +116,11 @@ Each API container mounts the **same** files you edit for local `dotnet run`:
 | Setup | `src/SetupService/Fgs.Setup.API/appsettings.json` + `appsettings.Development.json` |
 | File | `src/FileService/Fgs.File.API/appsettings.json` + `appsettings.Development.json` |
 
-Containers use `ASPNETCORE_ENVIRONMENT=Development`, so ASP.NET Core **merges** `appsettings.json` then `appsettings.Development.json` (same as Visual Studio / `dotnet run`). There are no duplicate Postgres or RabbitMQ settings in `docker-compose.yml`.
+Containers use `ASPNETCORE_ENVIRONMENT=Development`, so ASP.NET Core **merges** `appsettings.json` then `appsettings.Development.json` (same as Visual Studio / `dotnet run`). There are no duplicate Postgres settings in `docker-compose.yml`.
 
-Change connection strings or RabbitMQ in those JSON files and restart the service container; no image rebuild is required for config-only changes.
+Change connection strings in those JSON files and restart the service container; no image rebuild is required for config-only changes.
 
-`appsettings.Development.json` overrides `Host` / `HostName` to `host.docker.internal` so containers can reach Postgres and RabbitMQ on the host. Base `appsettings.json` keeps `localhost` for `dotnet run` on the machine when you use a profile without the Development override, or when `host.docker.internal` resolves on your OS.
+`appsettings.Development.json` overrides `Host` to `host.docker.internal` so containers can reach Postgres on the host. Base `appsettings.json` keeps `localhost` for `dotnet run` on the machine when you use a profile without the Development override, or when `host.docker.internal` resolves on your OS.
 
 ## Scale Services Locally
 

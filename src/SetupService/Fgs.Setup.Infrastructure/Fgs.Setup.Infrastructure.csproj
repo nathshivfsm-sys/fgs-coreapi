@@ -25,7 +25,6 @@
     <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
     <PackageReference Include="AWSSDK.KeyManagementService" Version="3.7.400.44" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.8" />
-    <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.8" />
   </ItemGroup>
 

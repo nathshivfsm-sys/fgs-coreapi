@@ -31,7 +31,6 @@ using Fgs.Notification.Infrastructure.Notifications.Queues;
 using Fgs.Notification.Infrastructure.Notifications.Preferences;
 using Fgs.Notification.Infrastructure.Notifications.Templates;
 using Fgs.Security.Extensions;
-using Fgs.Messaging.Options;
 using Fgs.Notification.Infrastructure.Options;
 using Fgs.Notification.Infrastructure.Credentials;
 using Fgs.Notification.Infrastructure.Reporting;
@@ -55,12 +54,6 @@ public static class DependencyInjection
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
-        services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
-        services.PostConfigure<RabbitMqOptions>(options =>
-        {
-            options.ClientProvidedName = "Fgs.Notification";
-            options.AutomaticRecoveryEnabled = true;
-        });
         services.Configure<SendGridOptions>(configuration.GetSection(SendGridOptions.SectionName));
         services.Configure<TenantProviderOptions>(configuration.GetSection(TenantProviderOptions.SectionName));
         services.Configure<NotificationFeatureFlagsOptions>(configuration.GetSection(NotificationFeatureFlagsOptions.SectionName));

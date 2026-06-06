@@ -1,5 +1,4 @@
-﻿using Fgs.Messaging.Options;
-using Fgs.Notification.Infrastructure.Integrations.SendGrid;
+﻿using Fgs.Notification.Infrastructure.Integrations.SendGrid;
 using Fgs.Notification.Infrastructure.Options;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Microsoft.Extensions.Configuration;
@@ -25,14 +24,10 @@ public static class NotificationCredentialServiceCollectionExtensions
         configurationBuilder.Add(new CredentialApplicationConfigurationSource(credentialConfigurationHolder));
 
         services.AddSingleton<CredentialOptionsChangeNotifier>();
-        services.AddSingleton<RabbitMqConsumerStartupGate>();
-        services.AddSingleton<RabbitMqOptionsResolver>();
-        services.AddSingleton<IPostConfigureOptions<RabbitMqOptions>, RabbitMqCredentialOptionsPostConfigure>();
         services.AddSingleton<ICredentialConfigurationProvider, NotificationCredentialConfigurationProvider>();
         services.AddSingleton<RemoteCredentialConfigurationLoader>();
 
         services.AddSingleton<IOptionsChangeTokenSource<SendGridOptions>, CredentialOptionsChangeTokenSource<SendGridOptions>>();
-        services.AddSingleton<IOptionsChangeTokenSource<RabbitMqOptions>, CredentialOptionsChangeTokenSource<RabbitMqOptions>>();
 
         services.AddFgsRefitClient<ISetupCredentialConfigurationClient>(
             configuration,
