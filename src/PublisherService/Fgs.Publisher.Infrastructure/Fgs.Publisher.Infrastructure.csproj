@@ -5,6 +5,8 @@
     <ProjectReference Include="..\Fgs.Publisher.Domain\Fgs.Publisher.Domain.csproj" />
     <ProjectReference Include="..\..\Shared\Messaging\Fgs.Messaging\Fgs.Messaging.csproj" />
     <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
+    <ProjectReference Include="..\..\Shared\Foundation\Fgs.Foundation\Fgs.Foundation.csproj" />
+    <ProjectReference Include="..\..\Shared\Credentials\Fgs.Credentials\Fgs.Credentials.csproj" />
   </ItemGroup>
 
   <ItemGroup>

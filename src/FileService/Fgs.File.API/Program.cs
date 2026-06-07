@@ -2,6 +2,7 @@
 using Fgs.Foundation.Extensions;
 using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
+using Fgs.Credentials;
 using Fgs.File.Application;
 using Fgs.File.Infrastructure;
 
@@ -30,6 +31,8 @@ builder.Services.AddFgsMultiTenancy();
 builder.Services.AddFgsObservability(builder.Configuration, "fgs-file-service");
 
 var app = builder.Build();
+
+await app.Services.GetRequiredService<RemoteCredentialConfigurationLoader>().LoadAsync();
 
 app.UseFgsFoundationMiddleware();
 if (ShouldUseHttpsRedirection(app.Configuration))

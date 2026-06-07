@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace Fgs.Notification.Infrastructure.Notifications.Templates;
 
 public sealed class CommunicationTemplateRepository(
-    ISetupTemplateClient setupTemplateClient,
+    ISetupClient setupClient,
     IOptions<SetupServiceClientOptions> clientOptions) : ICommunicationTemplateRepository
 {
     public async Task<FgsSetupCommunicationTemplate?> GetActiveTemplateAsync(
@@ -18,7 +18,7 @@ public sealed class CommunicationTemplateRepository(
         string code,
         CancellationToken cancellationToken = default)
     {
-        var response = await setupTemplateClient.GetActiveTemplateAsync(
+        var response = await setupClient.GetActiveTemplateAsync(
             tenantId,
             companyId,
             templateType.Trim(),

@@ -95,14 +95,29 @@ public static class CredentialServiceCollectionExtensions
             RegionEndpoint = ResolveRegionEndpoint(options.Region)
         };
 
-        return HasExplicitCredentials(options)
-            ? new AmazonKeyManagementServiceClient(options.AccessKeyId!, options.SecretAccessKey!, config)
-            : new AmazonKeyManagementServiceClient(config);
+        if (TryResolveExplicitCredentials(options, out var accessKeyId, out var secretAccessKey))
+        {
+            return new AmazonKeyManagementServiceClient(accessKeyId, secretAccessKey, config);
+        }
+
+        return new AmazonKeyManagementServiceClient(config);
     }
 
-    private static bool HasExplicitCredentials(AwsCredentialsOptions options) =>
-        !string.IsNullOrWhiteSpace(options.AccessKeyId)
-        && !string.IsNullOrWhiteSpace(options.SecretAccessKey);
+    private static bool TryResolveExplicitCredentials(
+        AwsCredentialsOptions options,
+        out string accessKeyId,
+        out string secretAccessKey)
+    {
+        accessKeyId = options.AccessKeyId
+            ?? Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID")
+            ?? string.Empty;
+        secretAccessKey = options.SecretAccessKey
+            ?? Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY")
+            ?? string.Empty;
+
+        return !string.IsNullOrWhiteSpace(accessKeyId)
+            && !string.IsNullOrWhiteSpace(secretAccessKey);
+    }
 
     private static RegionEndpoint ResolveRegionEndpoint(string? region) =>
         RegionEndpoint.GetBySystemName(string.IsNullOrWhiteSpace(region) ? "us-east-1" : region);

@@ -6,4 +6,4 @@ namespace Fgs.Contracts.IntegrationEvents;
 /// </summary>
 public sealed record CredentialConfigurationChangedEvent(
     DateTimeOffset OccurredAtUtc,
-    string Source = "Fgs.User");
+    string Source = "Fgs.Setup");

@@ -1,4 +1,6 @@
-﻿using Fgs.Audit.Infrastructure.Database;
+﻿using Fgs.Audit.Application.Abstractions;
+using Fgs.Audit.Infrastructure.Audit;
+using Fgs.Audit.Infrastructure.Database;
 using Fgs.Persistence.Extensions;
 using Fgs.MultiTenancy;
 using Fgs.Security.Extensions;
@@ -29,6 +31,7 @@ public static class DependencyInjection
         });
 
         services.AddFgsPersistence<FgsAuditDbContext>();
+        services.AddScoped<ICredentialAuditWriter, CredentialAuditWriter>();
 
         return services;
     }

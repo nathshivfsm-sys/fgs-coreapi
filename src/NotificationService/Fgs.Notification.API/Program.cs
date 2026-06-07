@@ -2,6 +2,7 @@
 using Fgs.Foundation.Extensions;
 using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
+using Fgs.Credentials;
 using Fgs.Notification.Application;
 using Fgs.Notification.Infrastructure;
 
@@ -26,6 +27,8 @@ builder.Services.AddFgsObservability(builder.Configuration, "fgs-notification-se
 
 var app = builder.Build();
 
+await app.Services.GetRequiredService<RemoteCredentialConfigurationLoader>().LoadAsync();
+
 app.UseFgsFoundationMiddleware();
 if (ShouldUseHttpsRedirection(app.Configuration))
 {
@@ -34,9 +37,6 @@ if (ShouldUseHttpsRedirection(app.Configuration))
 
 app.UseFgsSwagger();
 
-app.UseAuthentication();
-app.UseFgsTenantResolution();
-app.UseAuthorization();
 app.MapControllers();
 app.MapFgsHealthChecks();
 

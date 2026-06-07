@@ -1,6 +1,4 @@
-﻿using Fgs.Audit.Domain.Entities;
-using Fgs.Audit.Infrastructure.Database;
-using Fgs.Setup.Application.Abstractions.Credentials;
+﻿using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,13 +7,8 @@ namespace Fgs.Setup.Infrastructure.Database.Repositories;
 public sealed class CredentialRepository : ICredentialRepository
 {
     private readonly FgsSetupDbContext _setupContext;
-    private readonly FgsAuditDbContext _auditContext;
 
-    public CredentialRepository(FgsSetupDbContext setupContext, FgsAuditDbContext auditContext)
-    {
-        _setupContext = setupContext;
-        _auditContext = auditContext;
-    }
+    public CredentialRepository(FgsSetupDbContext setupContext) => _setupContext = setupContext;
 
     public Task<GloCredential?> GetGlobalByIdAsync(int id, CancellationToken cancellationToken = default) =>
         _setupContext.GloCredentials
@@ -117,7 +110,4 @@ public sealed class CredentialRepository : ICredentialRepository
     public void RemoveGlobal(GloCredential credential) => _setupContext.GloCredentials.Remove(credential);
 
     public void RemoveTenant(FgsCredential credential) => _setupContext.FgsCredentials.Remove(credential);
-
-    public Task AddAuditAsync(FgsCredentialAudit audit, CancellationToken cancellationToken = default) =>
-        _auditContext.FgsCredentialAudits.AddAsync(audit, cancellationToken).AsTask();
 }

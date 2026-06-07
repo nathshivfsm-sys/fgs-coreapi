@@ -13,7 +13,7 @@ public sealed class ProcessTenantProvisionRequestedCommandHandlerTests
     [Fact]
     public async Task Handle_CallsSetupProvisioningClient()
     {
-        var client = new Mock<ISetupProvisioningClient>();
+        var client = new Mock<ISetupClient>();
         client.Setup(c => c.ProvisionTenantAsync(It.IsAny<ProvisionTenantRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ApiResponse<object>.Ok(new object(), ApiStatusCodes.NoContent));
 
@@ -39,7 +39,7 @@ public sealed class ProcessTenantProvisionRequestedCommandHandlerTests
     [Fact]
     public async Task Handle_WhenClientFails_Throws()
     {
-        var client = new Mock<ISetupProvisioningClient>();
+        var client = new Mock<ISetupClient>();
         client.Setup(c => c.ProvisionTenantAsync(It.IsAny<ProvisionTenantRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ApiResponse<object>.Fail(["failed"], ApiStatusCodes.InternalServerError));
 

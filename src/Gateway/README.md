@@ -78,9 +78,8 @@ Inter-service Refit clients use **direct container DNS and ports** on the `fgs-p
 | All services with remote auth | `IFgsClaimsClient` | `http://user-service:5001` |
 | Setup | `IUserTenantClient` | `http://user-service:5001` |
 | Setup | `IFileTenantClient` | `http://file-service:5005` |
-| User | `ISetupClient` | `http://setup-service:5004` |
-| Notification | `ISetupTemplateClient` | `http://setup-service:5004` |
-| Consumer | `ISetupProvisioningClient` | `http://setup-service:5004` |
+| User, Notification, Consumer, Publisher, File | `ISetupClient` | `http://setup-service:5004` |
+| Setup | `IAuditClient` | `http://audit-service:5003` |
 | Consumer | `INotificationDispatchClient` | `http://notification-service:5002` |
 | Publisher | `IFgsClaimsClient` | `http://user-service:5001` |
 
@@ -124,6 +123,22 @@ The local Compose file starts:
 - `file-service`, private on container port `5005`.
 - `publisher-service`, private on container port `5006` (outbox relay to RabbitMQ).
 - `consumer-service`, private on container port `5007` (RabbitMQ consumer, Refit to Setup/Notification).
+
+### Credential bootstrap environment variables
+
+Consuming services load secrets from Setup Service at startup (`GET /api/v1/credentials/resolved`). Configure these bootstrap values (non-secret) in appsettings or Docker env:
+
+| Variable / setting | Purpose |
+| --- | --- |
+| `SetupService__BaseUrl` | Setup Service URL for `ISetupClient` |
+| `CredentialDistribution__InternalServiceKey` | S2S key for `/credentials/resolved` |
+| `CredentialConsumer__ServiceName` | Service identity for access audit |
+| `CredentialConsumer__RequiredProviders__0` | Provider filter (e.g. `DATABASE`, `SENDGRID`) |
+| `FGS_SETUP_DB` | Setup Service DB bootstrap (Setup only) |
+| `FGS_USER_DB`, `FGS_FILE_DB`, etc. | Optional DB fallback during credential migration |
+| `KMS_KEY_ARN` | KMS key ARN for Setup Service encryption |
+
+See [tools/credential-migration/README.md](../../tools/credential-migration/README.md) for migrating legacy appsettings secrets into `GloCredential`.
 
 ### Application configuration (Postgres, Entra)
 

@@ -17,6 +17,8 @@ using Fgs.User.Infrastructure.Database;
 using Fgs.Persistence.Extensions;
 using Microsoft.Extensions.Http.Resilience;
 using Refit;
+using Fgs.Credentials.Abstractions;
+using Fgs.Credentials.Extensions;
 using Fgs.User.Infrastructure.Messaging;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -30,6 +32,9 @@ public static class DependencyInjection
         this IServiceCollection services,
         ConfigurationManager configuration)
     {
+        services.AddFgsRemoteCredentialConfiguration(configuration, configuration);
+        CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<EntraExternalIdOptions>(services);
+
         services.AddFgsEntraAuthentication(configuration);
         services.AddScoped<IFgsClaimsEnricher, DbFgsClaimsEnricher>();
         services.AddScoped<IFgsUserRoleResolver, FgsUserRoleResolver>();
@@ -38,9 +43,11 @@ public static class DependencyInjection
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
         services.Configure<SignupLocaleOptions>(configuration.GetSection(SignupLocaleOptions.SectionName));
 
-        var connectionString = FgsUserConnectionString.ResolveRequired(configuration);
-        services.AddDbContext<FgsUserDbContext>((_, options) =>
+        services.AddDbContext<FgsUserDbContext>((sp, options) =>
         {
+            var configuration = sp.GetRequiredService<IConfiguration>();
+            var credentialProvider = sp.GetService<ICredentialConfigurationProvider>();
+            var connectionString = FgsUserConnectionString.ResolveRequired(configuration, credentialProvider);
             options.UseFgsNpgsql(
                 connectionString,
                 "__EFMigrationsHistory",
@@ -65,11 +72,6 @@ public static class DependencyInjection
                 client.BaseAddress = new Uri(tokenEndpoint);
             })
             .AddStandardResilienceHandler();
-
-        services.AddFgsRefitClient<ISetupClient>(
-            configuration,
-            "SetupService:BaseUrl",
-            "http://setup-service:5004");
 
         return services;
     }

@@ -33,7 +33,8 @@ internal class SetupOutboxMessageConfiguration : IEntityTypeConfiguration<SetupO
         entity.Property(e => e.Status)
             .HasConversion<string>()
             .HasMaxLength(50)
-            .HasDefaultValue(OutboxMessageStatus.Pending);
+            .HasDefaultValue(OutboxMessageStatus.Pending)
+            .HasSentinel(default(OutboxMessageStatus));
         entity.Property(e => e.RetryCount).HasDefaultValue(0);
         entity.Property(e => e.MaxRetryCount).HasDefaultValue(10);
         entity.Property(e => e.NextRetryOn).HasColumnType("timestamptz");

@@ -3,6 +3,7 @@ using Fgs.Foundation.Extensions;
 using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
 using Fgs.Foundation.Middleware;
+using Fgs.Credentials;
 using Fgs.User.Application;
 using Fgs.User.Infrastructure;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -41,6 +42,8 @@ builder.Services.AddFgsMultiTenancy();
 builder.Services.AddFgsObservability(builder.Configuration, "fgs-user-service");
 
 var app = builder.Build();
+
+await app.Services.GetRequiredService<RemoteCredentialConfigurationLoader>().LoadAsync();
 
 app.UseForwardedHeaders();
 app.UseFgsFoundationMiddleware();

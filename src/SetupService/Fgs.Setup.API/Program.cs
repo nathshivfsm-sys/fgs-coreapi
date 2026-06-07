@@ -8,6 +8,30 @@ using Fgs.Setup.Infrastructure.Credentials;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var kmsKeyArnFromEnv = Environment.GetEnvironmentVariable("KMS_KEY_ARN");
+if (!string.IsNullOrWhiteSpace(kmsKeyArnFromEnv))
+{
+    builder.Configuration["AwsCredentials:KmsKeyArn"] = kmsKeyArnFromEnv;
+}
+
+var awsAccessKeyFromEnv = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
+if (!string.IsNullOrWhiteSpace(awsAccessKeyFromEnv))
+{
+    builder.Configuration["AwsCredentials:AccessKeyId"] = awsAccessKeyFromEnv;
+}
+
+var awsSecretKeyFromEnv = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+if (!string.IsNullOrWhiteSpace(awsSecretKeyFromEnv))
+{
+    builder.Configuration["AwsCredentials:SecretAccessKey"] = awsSecretKeyFromEnv;
+}
+
+var credentialDistributionKeyFromEnv = Environment.GetEnvironmentVariable("CREDENTIAL_DISTRIBUTION_KEY");
+if (!string.IsNullOrWhiteSpace(credentialDistributionKeyFromEnv))
+{
+    builder.Configuration["CredentialDistribution:InternalServiceKey"] = credentialDistributionKeyFromEnv;
+}
+
 builder.Services.AddFgsApiVersioning();
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.ConfigureFgsApi());

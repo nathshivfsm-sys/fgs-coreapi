@@ -1,22 +1,21 @@
 using Asp.Versioning;
 using Fgs.Foundation.Api;
 using Fgs.Contracts.Api;
+using Fgs.Contracts.Clients;
 using Fgs.Setup.Application.Features.Credentials.Commands.CreateCredential;
 using Fgs.Setup.Application.Features.Credentials.Commands.DeleteCredential;
 using Fgs.Setup.Application.Features.Credentials.Commands.RotateCredential;
 using Fgs.Setup.Application.Features.Credentials.Commands.UpdateCredential;
 using Fgs.Setup.Application.Features.Credentials.DTOs;
 using Fgs.Setup.Application.Features.Credentials.Queries.GetCredential;
+using Fgs.Setup.Application.Features.Credentials.Queries.GetResolvedCredentialConfiguration;
 using Fgs.Setup.Application.Features.Credentials.Queries.ListCredentials;
 using Fgs.Setup.Application.Common;
-using Fgs.Setup.Application.Common.Options;
 using Fgs.Setup.Application.Features.Credentials.Queries.ResolveCredentialSecret;
 using Fgs.Setup.Domain.Enums;
-using Fgs.Setup.Infrastructure.Credentials;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace Fgs.Setup.API.Controllers;
 
@@ -134,27 +133,15 @@ public sealed class CredentialsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<ResolvedCredentialConfigurationDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
-    public IActionResult GetResolvedConfiguration(
-        [FromServices] CredentialConfigurationHolder holder,
-        [FromServices] IOptions<CredentialDistributionOptions> distributionOptions,
-        [FromHeader(Name = CredentialDistributionHeaders.InternalServiceKey)] string? serviceKey)
+    public async Task<IActionResult> GetResolvedConfiguration(
+        [FromHeader(Name = CredentialDistributionHeaders.InternalServiceKey)] string? serviceKey,
+        [FromHeader(Name = CredentialDistributionHeaders.ServiceName)] string? serviceName,
+        CancellationToken cancellationToken)
     {
-        if (!IsInternalServiceAuthorized(serviceKey, distributionOptions.Value))
-        {
-            return Unauthorized();
-        }
-
-        if (holder.Values.Count == 0)
-        {
-            return StatusCode(
-                StatusCodes.Status503ServiceUnavailable,
-                ApiResponse<ResolvedCredentialConfigurationDto>.Fail(
-                    ["Resolved credential configuration is not loaded yet."],
-                    StatusCodes.Status503ServiceUnavailable));
-        }
-
-        return Ok(ApiResponse<ResolvedCredentialConfigurationDto>.Ok(
-            new ResolvedCredentialConfigurationDto(holder.Values)));
+        var response = await mediator.Send(
+            new GetResolvedCredentialConfigurationQuery(serviceKey, serviceName),
+            cancellationToken);
+        return StatusCode(response.StatusCode, response);
     }
 
     [HttpGet("{id}/resolve")]
@@ -167,18 +154,6 @@ public sealed class CredentialsController(IMediator mediator) : ControllerBase
     {
         var response = await mediator.Send(new ResolveCredentialSecretQuery(scope, id), cancellationToken);
         return StatusCode(response.StatusCode, response);
-    }
-
-    private static bool IsInternalServiceAuthorized(
-        string? providedKey,
-        CredentialDistributionOptions options)
-    {
-        if (string.IsNullOrWhiteSpace(options.InternalServiceKey))
-        {
-            return false;
-        }
-
-        return string.Equals(providedKey, options.InternalServiceKey, StringComparison.Ordinal);
     }
 }
 

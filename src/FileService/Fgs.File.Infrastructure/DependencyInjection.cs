@@ -1,4 +1,6 @@
-﻿using Fgs.File.Application.Abstractions.Provisioning;
+﻿using Fgs.Credentials.Abstractions;
+using Fgs.Credentials.Extensions;
+using Fgs.File.Application.Abstractions.Provisioning;
 using Fgs.File.Infrastructure.Common.Options;
 using Fgs.File.Infrastructure.Database;
 using Fgs.File.Infrastructure.Storage;
@@ -15,15 +17,20 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddFgsFileInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration)
+        ConfigurationManager configuration)
     {
+        services.AddFgsRemoteCredentialConfiguration(configuration, configuration);
+        CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<AwsCredentialsOptions>(services);
+
         services.AddFgsEntraAuthentication(configuration);
         services.AddFgsRemoteClaimsEnrichment(configuration);
         services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));
 
-        var connectionString = FgsFileConnectionString.ResolveRequired(configuration);
-        services.AddDbContext<FgsFileDbContext>((_, options) =>
+        services.AddDbContext<FgsFileDbContext>((sp, options) =>
         {
+            var connectionString = FgsFileConnectionString.ResolveRequired(
+                sp.GetRequiredService<IConfiguration>(),
+                sp.GetService<ICredentialConfigurationProvider>());
             options.UseFgsNpgsql(
                 connectionString,
                 "__EFMigrationsHistory",

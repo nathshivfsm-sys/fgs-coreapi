@@ -17,7 +17,6 @@ using Fgs.Notification.Infrastructure.Audit;
 using Fgs.Notification.Infrastructure.BackgroundJobs;
 using Fgs.Notification.Infrastructure.Configuration;
 using Fgs.Notification.Infrastructure.Database;
-using Fgs.Notification.Infrastructure.Templates;
 using Fgs.Notification.Infrastructure.Integrations.QuickBooks;
 using Fgs.Notification.Infrastructure.Integrations.SendGrid;
 using Fgs.Notification.Infrastructure.Integrations.Stripe;
@@ -31,9 +30,10 @@ using Fgs.Notification.Infrastructure.Notifications.Providers.Sms;
 using Fgs.Notification.Infrastructure.Notifications.Queues;
 using Fgs.Notification.Infrastructure.Notifications.Preferences;
 using Fgs.Notification.Infrastructure.Notifications.Templates;
-using Fgs.Security.Extensions;
 using Fgs.Notification.Infrastructure.Options;
 using Fgs.Notification.Infrastructure.Reporting;
+using Fgs.Credentials.Abstractions;
+using Fgs.Credentials.Extensions;
 using System.Reflection;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -48,8 +48,8 @@ public static class DependencyInjection
         this IServiceCollection services,
         ConfigurationManager configuration)
     {
-        services.AddFgsEntraAuthentication(configuration);
-        services.AddFgsRemoteClaimsEnrichment(configuration);
+        services.AddFgsRemoteCredentialConfiguration(configuration, configuration);
+        CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<SendGridOptions>(services);
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
@@ -59,10 +59,11 @@ public static class DependencyInjection
         services.Configure<NotificationFeatureFlagsOptions>(configuration.GetSection(NotificationFeatureFlagsOptions.SectionName));
         services.Configure<NotificationOptions>(configuration.GetSection(NotificationOptions.SectionName));
 
-        var connectionString = FgsNotificationConnectionString.ResolveRequired(configuration);
-
-        services.AddDbContext<FgsNotificationDbContext>((_, options) =>
+        services.AddDbContext<FgsNotificationDbContext>((sp, options) =>
         {
+            var connectionString = FgsNotificationConnectionString.ResolveRequired(
+                sp.GetRequiredService<IConfiguration>(),
+                sp.GetService<ICredentialConfigurationProvider>());
             options.UseNpgsql(connectionString, npgsql =>
             {
                 npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsNotificationDbContext.MigrationHistorySchema);
@@ -72,7 +73,6 @@ public static class DependencyInjection
 
         services.AddScoped<INotificationHistoryRepository, NotificationHistoryRepository>();
         services.AddScoped<IIdempotencyStore, IdempotencyStore>();
-        services.AddSetupTemplateClient(configuration);
         services.AddScoped<ICommunicationTemplateRepository, CommunicationTemplateRepository>();
         services.AddScoped<ICommunicationTemplateService, CommunicationTemplateService>();
         services.AddSingleton<ITemplateRenderer, TemplateRenderer>();

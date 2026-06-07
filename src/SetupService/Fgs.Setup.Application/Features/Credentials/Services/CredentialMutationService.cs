@@ -1,7 +1,9 @@
-﻿using Fgs.Audit.Domain.Entities;
+﻿using System.Text.Json;
+using Fgs.Contracts.CredentialAudit;
+using Fgs.Contracts.IntegrationEvents;
+using Fgs.Messaging.Abstractions;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Application.Abstractions.Time;
-using Fgs.Setup.Domain.Constants;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Domain.Enums;
 using Fgs.Persistence.Abstractions;
@@ -16,6 +18,10 @@ public sealed class CredentialMutationService
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICredentialConfigurationProvider _configurationProvider;
+    private readonly ICredentialAuditRecorder _auditRecorder;
+    private readonly IOutboxWriter _outboxWriter;
+
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     public CredentialMutationService(
         ICredentialRepository repository,
@@ -23,7 +29,9 @@ public sealed class CredentialMutationService
         ICredentialActorResolver actorResolver,
         IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork,
-        ICredentialConfigurationProvider configurationProvider)
+        ICredentialConfigurationProvider configurationProvider,
+        ICredentialAuditRecorder auditRecorder,
+        IOutboxWriter outboxWriter)
     {
         _repository = repository;
         _encryptionService = encryptionService;
@@ -31,6 +39,8 @@ public sealed class CredentialMutationService
         _dateTimeProvider = dateTimeProvider;
         _unitOfWork = unitOfWork;
         _configurationProvider = configurationProvider;
+        _auditRecorder = auditRecorder;
+        _outboxWriter = outboxWriter;
     }
 
     public async Task<(GloCredential Credential, string ProviderCode)> CreateGlobalAsync(
@@ -107,6 +117,7 @@ public sealed class CredentialMutationService
 
         await _repository.AddTenantAsync(credential, cancellationToken);
         await WriteAuditAsync(credential, CredentialAuditActions.Created, "Credential created.", null, null, cancellationToken);
+        await PublishConfigurationChangedAsync(cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         credential.ProviderType = ToProviderTypeCache(providerType);
         await _configurationProvider.ReloadAsync(cancellationToken);
@@ -142,6 +153,7 @@ public sealed class CredentialMutationService
         credential.UpdatedOn = _dateTimeProvider.UtcNow;
         credential.UpdatedBy = _actorResolver.ResolveActorId();
         _repository.UpdateGlobal(credential);
+        await PublishConfigurationChangedAsync(cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _configurationProvider.ReloadAsync(cancellationToken);
         return credential;
@@ -188,6 +200,7 @@ public sealed class CredentialMutationService
             ?? throw new InvalidOperationException(CredentialErrorMessages.GlobalCredentialNotFound);
 
         _repository.RemoveGlobal(credential);
+        await PublishConfigurationChangedAsync(cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _configurationProvider.ReloadAsync(cancellationToken);
     }
@@ -199,6 +212,7 @@ public sealed class CredentialMutationService
 
         await WriteAuditAsync(credential, CredentialAuditActions.Revoked, "Credential deleted.", null, null, cancellationToken);
         _repository.RemoveTenant(credential);
+        await PublishConfigurationChangedAsync(cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _configurationProvider.ReloadAsync(cancellationToken);
     }
@@ -227,6 +241,7 @@ public sealed class CredentialMutationService
             cancellationToken);
 
         _repository.UpdateGlobal(credential);
+        await PublishConfigurationChangedAsync(cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _configurationProvider.ReloadAsync(cancellationToken);
         return credential;
@@ -257,6 +272,7 @@ public sealed class CredentialMutationService
 
         _repository.UpdateTenant(credential);
         await WriteAuditAsync(credential, CredentialAuditActions.Rotated, $"Credential rotated ({rotationMode}).", null, null, cancellationToken);
+        await PublishConfigurationChangedAsync(cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _configurationProvider.ReloadAsync(cancellationToken);
         return credential;
@@ -335,22 +351,29 @@ public sealed class CredentialMutationService
         string? remarks,
         int? oldVersion,
         int? newVersion,
-        CancellationToken cancellationToken)
-    {
-        var audit = new FgsCredentialAudit
-        {
-            Id = Guid.NewGuid(),
-            TenantId = credential.TenantId,
-            CompanyId = credential.CompanyId,
-            CredentialId = credential.Id,
-            ActionType = actionType,
-            Remarks = remarks,
-            OldVersionNo = oldVersion,
-            NewVersionNo = newVersion,
-            CreatedOn = _dateTimeProvider.UtcNow,
-            CreatedBy = _actorResolver.ResolveActorId()
-        };
+        CancellationToken cancellationToken) =>
+        _auditRecorder.RecordAsync(
+            new RecordCredentialAuditRequest(
+                credential.TenantId,
+                credential.CompanyId,
+                credential.Id,
+                actionType,
+                remarks,
+                oldVersion,
+                newVersion,
+                _actorResolver.ResolveActorId()),
+            cancellationToken);
 
-        return _repository.AddAuditAsync(audit, cancellationToken);
+    private Task PublishConfigurationChangedAsync(CancellationToken cancellationToken)
+    {
+        var evt = new CredentialConfigurationChangedEvent(_dateTimeProvider.UtcNow);
+        var payload = JsonSerializer.Serialize(evt, JsonOptions);
+        return _outboxWriter.EnqueueAsync(
+            IntegrationEventTypes.CredentialConfigurationChanged,
+            payload,
+            correlationId: Guid.NewGuid(),
+            exchangeName: IntegrationEventExchanges.SetupEvents,
+            routingKey: IntegrationEventRoutingKeys.CredentialConfigurationChanged,
+            cancellationToken: cancellationToken);
     }
 }

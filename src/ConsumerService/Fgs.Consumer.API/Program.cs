@@ -1,7 +1,7 @@
+using Fgs.Credentials;
 using Fgs.Consumer.Application;
 using Fgs.Foundation.Api;
 using Fgs.Foundation.Extensions;
-using Fgs.MultiTenancy.Extensions;
 using Fgs.Observability.Extensions;
 using Fgs.Consumer.Infrastructure;
 
@@ -20,10 +20,11 @@ builder.Services.AddFgsSwagger(options =>
 });
 builder.Services.AddFgsConsumerApplication();
 builder.Services.AddFgsConsumerInfrastructure(builder.Configuration);
-builder.Services.AddFgsMultiTenancy();
 builder.Services.AddFgsObservability(builder.Configuration, "fgs-consumer-service");
 
 var app = builder.Build();
+
+await app.Services.GetRequiredService<RemoteCredentialConfigurationLoader>().LoadAsync();
 
 app.UseFgsFoundationMiddleware();
 if (ShouldUseHttpsRedirection(app.Configuration))
@@ -33,9 +34,6 @@ if (ShouldUseHttpsRedirection(app.Configuration))
 
 app.UseFgsSwagger();
 
-app.UseAuthentication();
-app.UseFgsTenantResolution();
-app.UseAuthorization();
 app.MapControllers();
 app.MapFgsHealthChecks();
 

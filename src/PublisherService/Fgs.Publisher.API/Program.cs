@@ -1,3 +1,4 @@
+using Fgs.Credentials;
 using Fgs.Publisher.Application;
 using Fgs.Foundation.Api;
 using Fgs.Foundation.Extensions;
@@ -24,6 +25,8 @@ builder.Services.AddFgsMultiTenancy();
 builder.Services.AddFgsObservability(builder.Configuration, "fgs-publisher-service");
 
 var app = builder.Build();
+
+await app.Services.GetRequiredService<RemoteCredentialConfigurationLoader>().LoadAsync();
 
 app.UseFgsFoundationMiddleware();
 if (ShouldUseHttpsRedirection(app.Configuration))
