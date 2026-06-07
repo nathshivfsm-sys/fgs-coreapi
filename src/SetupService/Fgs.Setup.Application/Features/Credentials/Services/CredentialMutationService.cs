@@ -2,6 +2,7 @@
 using Fgs.Contracts.CredentialAudit;
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.Messaging.Abstractions;
+using Fgs.Credentials.Abstractions;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Application.Abstractions.Time;
 using Fgs.Setup.Domain.Entities;

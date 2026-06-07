@@ -1,7 +1,15 @@
 param(
     [string]$BaseUrl = "http://localhost:5071",
-    [switch]$UpdateDatabaseOnly
+    [switch]$UpdateDatabaseOnly,
+    [switch]$UpdateAwsOnly
 )
+
+$platformKmsKeyArn = "arn:aws:kms:us-east-1:286093098927:key/8ad55556-fcb0-4dd7-8ed1-4de526a38a78"
+$platformAwsPayloadJson = (@{
+    AccessKeyId     = "AKIAUFHD2H6XTIMP765N"
+    SecretAccessKey = "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"
+    KmsKeyArn       = $platformKmsKeyArn
+} | ConvertTo-Json -Compress)
 
 $ErrorActionPreference = "Stop"
 $endpoint = "$BaseUrl/api/v1/credentials"
@@ -39,6 +47,29 @@ foreach ($entry in $databaseConnections.GetEnumerator()) {
     $databasePayload[$entry.Key] = Get-RdsConnectionString -Database $entry.Value
 }
 $databasePayloadJson = $databasePayload | ConvertTo-Json -Compress
+
+if ($UpdateAwsOnly) {
+    Write-Host "Updating AWS credential on $BaseUrl..."
+    $list = Invoke-RestMethod -Uri "${endpoint}?scope=global&activeOnly=true" -Method Get
+    $awsCred = $list.data | Where-Object { $_.providerCode -eq "AWS" } | Select-Object -First 1
+    if (-not $awsCred) {
+        throw "AWS credential not found. Run post-credentials.ps1 without -UpdateAwsOnly first."
+    }
+
+    $body = @{
+        credentialName = $awsCred.credentialName
+        payload        = $platformAwsPayloadJson
+    } | ConvertTo-Json -Compress
+
+    $response = Invoke-RestMethod -Uri "${endpoint}/$($awsCred.id)?scope=global" -Method Put -ContentType "application/json" -Body $body
+    if (-not $response.success) {
+        throw "Failed: $($response.errors -join '; ')"
+    }
+
+    Write-Host "  OK ($($response.statusCode)) id=$($awsCred.id)"
+    Write-Host "AWS credential updated (AccessKeyId, SecretAccessKey, KmsKeyArn for consumer services)."
+    return
+}
 
 if ($UpdateDatabaseOnly) {
     Write-Host "Updating DATABASE credential on $BaseUrl..."
@@ -80,7 +111,7 @@ $payloads = @(
         scope          = "global"
         providerCode   = "AWS"
         credentialName = "platform-aws"
-        payload        = '{"AccessKeyId":"AKIAUFHD2H6XTIMP765N","SecretAccessKey":"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"}'
+        payload        = $platformAwsPayloadJson
     },
     @{
         scope          = "global"

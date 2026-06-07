@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Fgs.Credentials;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Application.Features.Credentials;
 using Fgs.Setup.Domain.Enums;

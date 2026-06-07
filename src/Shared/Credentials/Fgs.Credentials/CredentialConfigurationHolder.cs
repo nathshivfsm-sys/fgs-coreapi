@@ -10,6 +10,6 @@ public sealed class CredentialConfigurationHolder
     public string? GetValue(string key) =>
         _values.TryGetValue(key, out var value) ? value : null;
 
-    internal void ReplaceValues(IReadOnlyDictionary<string, string> values) =>
+    public void ReplaceValues(IReadOnlyDictionary<string, string> values) =>
         _values = values;
 }

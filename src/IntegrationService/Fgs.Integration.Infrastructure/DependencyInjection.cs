@@ -1,5 +1,8 @@
-﻿using Fgs.Persistence.Extensions;
+﻿using Fgs.Credentials;
+using Fgs.Credentials.Abstractions;
+using Fgs.Credentials.Extensions;
 using Fgs.Integration.Infrastructure.Database;
+using Fgs.Persistence.Extensions;
 using Fgs.Security.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -11,13 +14,26 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddFgsIntegrationInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration)
-    {        services.AddFgsEntraAuthentication(configuration);
-        services.AddFgsRemoteClaimsEnrichment(configuration);
+        ConfigurationManager configuration)
+    {
+        services.AddFgsCredentialConsumer(
+            configuration,
+            configuration,
+            options =>
+            {
+                options.ServiceName = "fgs-integration-service";
+                options.RequiredProviders = ["DATABASE"];
+            });
 
-        var connectionString = FgsIntegrationConnectionString.ResolveRequired(configuration);
-        services.AddDbContext<FgsIntegrationDbContext>((_, options) =>
+        services.AddFgsApiSecurity(configuration);
+
+        services.AddDbContext<FgsIntegrationDbContext>((sp, options) =>
         {
+            var connectionString = ConnectionStringResolver.ResolveRequired(
+                sp.GetRequiredService<IConfiguration>(),
+                ConnectionStringNames.FgsIntegration,
+                "FGS_INTEGRATION_DB",
+                sp.GetService<ICredentialConfigurationProvider>());
             options.UseFgsNpgsql(
                 connectionString,
                 "__EFMigrationsHistory",

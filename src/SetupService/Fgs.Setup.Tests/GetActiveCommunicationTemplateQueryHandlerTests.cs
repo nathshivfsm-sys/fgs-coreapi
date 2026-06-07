@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.Persistence.Abstractions;
-using Fgs.Setup.Application.Common.Options;
+using Fgs.Credentials.Options;
 using Fgs.Setup.Application.Features.CommunicationTemplates.Queries.GetActiveCommunicationTemplate;
 using Fgs.Setup.Domain.Entities;
 using Microsoft.Extensions.Options;

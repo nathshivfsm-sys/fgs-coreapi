@@ -4,7 +4,6 @@
     <ProjectReference Include="..\Fgs.Publisher.Application\Fgs.Publisher.Application.csproj" />
     <ProjectReference Include="..\Fgs.Publisher.Infrastructure\Fgs.Publisher.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Shared\Foundation\Fgs.Foundation\Fgs.Foundation.csproj" />
-    <ProjectReference Include="..\..\Shared\MultiTenancy\Fgs.MultiTenancy\Fgs.MultiTenancy.csproj" />
     <ProjectReference Include="..\..\Shared\Observability\Fgs.Observability\Fgs.Observability.csproj" />
   </ItemGroup>
 

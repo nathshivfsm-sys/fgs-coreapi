@@ -1,8 +1,9 @@
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
 using Fgs.Contracts.CredentialAudit;
+using Fgs.Credentials.Abstractions;
+using Fgs.Credentials.Options;
 using Fgs.Setup.Application.Abstractions.Credentials;
-using Fgs.Setup.Application.Common.Options;
 using MediatR;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;

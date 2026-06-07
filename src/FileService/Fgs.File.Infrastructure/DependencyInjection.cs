@@ -1,4 +1,5 @@
-﻿using Fgs.Credentials.Abstractions;
+﻿using Fgs.Credentials;
+using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using Fgs.File.Application.Abstractions.Provisioning;
 using Fgs.File.Infrastructure.Common.Options;
@@ -19,17 +20,25 @@ public static class DependencyInjection
         this IServiceCollection services,
         ConfigurationManager configuration)
     {
-        services.AddFgsRemoteCredentialConfiguration(configuration, configuration);
-        CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<AwsCredentialsOptions>(services);
+        services.AddFgsCredentialConsumer(
+            configuration,
+            configuration,
+            options =>
+            {
+                options.ServiceName = "fgs-file-service";
+                options.RequiredProviders = ["DATABASE", "AWS"];
+            },
+            typeof(AwsCredentialsOptions));
 
-        services.AddFgsEntraAuthentication(configuration);
-        services.AddFgsRemoteClaimsEnrichment(configuration);
+        services.AddFgsApiSecurity(configuration);
         services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));
 
         services.AddDbContext<FgsFileDbContext>((sp, options) =>
         {
-            var connectionString = FgsFileConnectionString.ResolveRequired(
+            var connectionString = ConnectionStringResolver.ResolveRequired(
                 sp.GetRequiredService<IConfiguration>(),
+                ConnectionStringNames.FgsFile,
+                "FGS_FILE_DB",
                 sp.GetService<ICredentialConfigurationProvider>());
             options.UseFgsNpgsql(
                 connectionString,

@@ -1,4 +1,4 @@
-using Fgs.Foundation.Extensions;
+using Fgs.Credentials.Extensions;
 using Fgs.Security.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,11 +9,18 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddFgsReportingInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration)
-    {        services.AddFgsEntraAuthentication(configuration);
-        services.AddFgsRemoteClaimsEnrichment(configuration);
+        ConfigurationManager configuration)
+    {
+        services.AddFgsCredentialConsumer(
+            configuration,
+            configuration,
+            options =>
+            {
+                options.ServiceName = "fgs-reporting-service";
+                options.RequiredProviders = ["DATABASE"];
+            });
 
-        _ = configuration.GetConnectionString("FgsReporting");
+        services.AddFgsApiSecurity(configuration);
         return services;
     }
 }

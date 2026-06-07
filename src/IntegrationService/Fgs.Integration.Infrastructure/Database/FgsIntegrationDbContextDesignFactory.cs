@@ -1,3 +1,4 @@
+using Fgs.Credentials;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -9,8 +10,10 @@ public sealed class FgsIntegrationDbContextDesignFactory : IDesignTimeDbContextF
     public FgsIntegrationDbContext CreateDbContext(string[] args)
     {
         var configuration = BuildConfiguration();
-        var connectionString = Environment.GetEnvironmentVariable("FGS_INTEGRATION_DB")
-            ?? FgsIntegrationConnectionString.ResolveRequired(configuration);
+        var connectionString = ConnectionStringResolver.ResolveRequired(
+            configuration,
+            ConnectionStringNames.FgsIntegration,
+            "FGS_INTEGRATION_DB");
 
         var options = new DbContextOptionsBuilder<FgsIntegrationDbContext>()
             .UseNpgsql(connectionString, npgsql =>

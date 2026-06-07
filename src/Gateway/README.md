@@ -79,7 +79,7 @@ Inter-service Refit clients use **direct container DNS and ports** on the `fgs-p
 | Setup | `IUserTenantClient` | `http://user-service:5001` |
 | Setup | `IFileTenantClient` | `http://file-service:5005` |
 | User, Notification, Consumer, Publisher, File | `ISetupClient` | `http://setup-service:5004` |
-| Setup | `IAuditClient` | `http://audit-service:5003` |
+| Setup | `IAuditClient` | `http://audit-service:5008` |
 | Consumer | `INotificationDispatchClient` | `http://notification-service:5002` |
 | Publisher | `IFgsClaimsClient` | `http://user-service:5001` |
 
@@ -112,17 +112,15 @@ curl.exe -k https://localhost:8443/api/v1/jobs/health
 
 Container health checks use each service's `/health` endpoint (see Dockerfiles). Setup and File API routes are reachable under `/api/v1/credentials/` and `/api/v1/tenants/` without a path prefix rewrite.
 
-The local Compose file starts:
+The local Compose file starts services in credential-safe order:
 
-- `rabbitmq`, published on host ports `5672` and `15672`.
-- `nginx`, published on host ports `8080` and `8443`.
-- `user-service`, private on container port `5001`.
-- `notification-service`, private on container port `5002`.
-- `job-service`, private on container port `5003`.
-- `setup-service`, private on container port `5004`.
-- `file-service`, private on container port `5005`.
-- `publisher-service`, private on container port `5006` (outbox relay to RabbitMQ).
-- `consumer-service`, private on container port `5007` (RabbitMQ consumer, Refit to Setup/Notification).
+1. `rabbitmq` — host ports `5672` / `15672`
+2. `setup-service` (`5004`) — credential authority; bootstraps `ConnectionStrings:FgsSetup` from mounted appsettings (no dependency on other FGS APIs)
+3. Credential consumers (wait for Setup `/health`): `audit-service` (`5008`), `user-service` (`5001`), `file-service` (`5005`), `notification-service` (`5002`), `job-service` (`5003`)
+4. Messaging workers: `publisher-service` (`5006`), `consumer-service` (`5007`)
+5. `nginx` — host ports `8080` / `8443` (waits for gateway upstream health checks)
+
+Scaffold APIs (Billing, Crm, Contract, etc.) are not containerized here; run them with `dotnet run` against Setup when needed.
 
 ### Credential bootstrap environment variables
 
@@ -136,7 +134,7 @@ Consuming services load secrets from Setup Service at startup (`GET /api/v1/cred
 | `CredentialConsumer__RequiredProviders__0` | Provider filter (e.g. `DATABASE`, `SENDGRID`) |
 | `FGS_SETUP_DB` | Setup Service DB bootstrap (Setup only) |
 | `FGS_USER_DB`, `FGS_FILE_DB`, etc. | Optional DB fallback during credential migration |
-| `KMS_KEY_ARN` | KMS key ARN for Setup Service encryption |
+| `KMS_KEY_ARN` | KMS key ARN for Setup Service bootstrap only (File/User load `AwsCredentials:KmsKeyArn` from Setup) |
 
 See [tools/credential-migration/README.md](../../tools/credential-migration/README.md) for migrating legacy appsettings secrets into `GloCredential`.
 
@@ -150,6 +148,7 @@ Each API container mounts the **same** files you edit for local `dotnet run`:
 | Platform | `src/NotificationService/Fgs.Notification.API/appsettings.json` + `appsettings.Development.json` |
 | Workorder | `src/JobService/Fgs.Job.API/appsettings.json` + `appsettings.Development.json` |
 | Setup | `src/SetupService/Fgs.Setup.API/appsettings.json` + `appsettings.Development.json` |
+| Audit | `src/AuditService/Fgs.Audit.API/appsettings.json` + `appsettings.Development.json` |
 | File | `src/FileService/Fgs.File.API/appsettings.json` + `appsettings.Development.json` |
 | Publisher | `src/PublisherService/Fgs.Publisher.API/appsettings.json` + `appsettings.Development.json` |
 | Consumer | `src/ConsumerService/Fgs.Consumer.API/appsettings.json` + `appsettings.Development.json` |

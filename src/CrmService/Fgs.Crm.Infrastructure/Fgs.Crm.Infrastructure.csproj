@@ -5,6 +5,7 @@
     <ProjectReference Include="..\Fgs.Crm.Domain\Fgs.Crm.Domain.csproj" />
     <ProjectReference Include="..\..\Shared\Persistence\Fgs.Persistence\Fgs.Persistence.csproj" />
     <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
+    <ProjectReference Include="..\..\Shared\Credentials\Fgs.Credentials\Fgs.Credentials.csproj" />
   </ItemGroup>
 
   <ItemGroup>

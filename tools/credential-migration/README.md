@@ -13,7 +13,7 @@ Migrate secrets from legacy `appsettings.json` values into Setup Service `GloCre
 | Script | Purpose |
 |--------|---------|
 | [`seed-provider-types.sql`](seed-provider-types.sql) | Idempotent `GloCredentialProviderType` INSERT/UPDATE + cache sync |
-| [`post-credentials.ps1`](post-credentials.ps1) | POST all 5 global credentials; `-UpdateDatabaseOnly` PUTs all 15 RDS connection strings |
+| [`post-credentials.ps1`](post-credentials.ps1) | POST all 5 global credentials; `-UpdateDatabaseOnly` PUTs RDS strings; `-UpdateAwsOnly` PUTs AWS keys + `KmsKeyArn` for consumers |
 
 ```powershell
 # Seed provider types (requires psql or Docker)
@@ -25,6 +25,9 @@ docker run --rm -e PGPASSWORD -v "${PWD}/seed-provider-types.sql:/seed.sql:ro" p
 
 # Update only DATABASE connections (all services -> RDS)
 .\post-credentials.ps1 -BaseUrl http://localhost:5071 -UpdateDatabaseOnly
+
+# Update AWS credential (keys + KmsKeyArn for File/User consumers)
+.\post-credentials.ps1 -BaseUrl http://localhost:5071 -UpdateAwsOnly
 ```
 
 All platform `DATABASE` keys use AWS RDS `fgs_dev_db`.
@@ -87,7 +90,7 @@ For a single named connection, either use `ConnectionString` + `ConnectionString
   "scope": "Global",
   "providerCode": "AWS",
   "credentialName": "platform-aws",
-  "payload": "{\"AccessKeyId\":\"<key>\",\"SecretAccessKey\":\"<secret>\"}"
+  "payload": "{\"AccessKeyId\":\"<key>\",\"SecretAccessKey\":\"<secret>\",\"KmsKeyArn\":\"<kms-key-arn>\"}"
 }
 ```
 
@@ -99,7 +102,7 @@ For a single named connection, either use `ConnectionString` + `ConnectionString
 | `FGS_USER_DB` | User Service DB fallback during migration |
 | `FGS_FILE_DB` | File Service DB fallback |
 | `FGS_NOTIFICATION_DB` | Notification Service DB fallback |
-| `KMS_KEY_ARN` | Setup/User/File KMS bootstrap |
+| `KMS_KEY_ARN` | Setup Service KMS bootstrap only (consumers read `KmsKeyArn` from Setup AWS credential) |
 | `CREDENTIAL_DISTRIBUTION_KEY` | S2S key for `/credentials/resolved` |
 
 After migration, remove secrets from committed appsettings and rely on Setup credential storage plus env overrides for local bootstrap only.

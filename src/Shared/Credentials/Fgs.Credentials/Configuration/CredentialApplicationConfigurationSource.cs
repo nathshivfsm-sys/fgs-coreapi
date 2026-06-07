@@ -3,6 +3,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace Fgs.Credentials.Configuration;
 
+public static class CredentialApplicationConfigurationExtensions
+{
+    public static IConfigurationBuilder AddFgsCredentialApplicationConfiguration(
+        this IConfigurationBuilder builder,
+        CredentialConfigurationHolder holder) =>
+        builder.Add(new CredentialApplicationConfigurationSource(holder));
+}
+
 internal sealed class CredentialApplicationConfigurationSource(CredentialConfigurationHolder holder)
     : IConfigurationSource
 {

@@ -32,6 +32,7 @@ using Fgs.Notification.Infrastructure.Notifications.Preferences;
 using Fgs.Notification.Infrastructure.Notifications.Templates;
 using Fgs.Notification.Infrastructure.Options;
 using Fgs.Notification.Infrastructure.Reporting;
+using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using System.Reflection;
@@ -48,8 +49,15 @@ public static class DependencyInjection
         this IServiceCollection services,
         ConfigurationManager configuration)
     {
-        services.AddFgsRemoteCredentialConfiguration(configuration, configuration);
-        CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<SendGridOptions>(services);
+        services.AddFgsCredentialConsumer(
+            configuration,
+            configuration,
+            options =>
+            {
+                options.ServiceName = "fgs-notification-service";
+                options.RequiredProviders = ["DATABASE", "SENDGRID"];
+            },
+            typeof(SendGridOptions));
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
@@ -61,8 +69,10 @@ public static class DependencyInjection
 
         services.AddDbContext<FgsNotificationDbContext>((sp, options) =>
         {
-            var connectionString = FgsNotificationConnectionString.ResolveRequired(
+            var connectionString = ConnectionStringResolver.ResolveRequired(
                 sp.GetRequiredService<IConfiguration>(),
+                ConnectionStringNames.FgsNotification,
+                "FGS_NOTIFICATION_DB",
                 sp.GetService<ICredentialConfigurationProvider>());
             options.UseNpgsql(connectionString, npgsql =>
             {

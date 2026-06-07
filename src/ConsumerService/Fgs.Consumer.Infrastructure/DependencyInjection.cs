@@ -19,8 +19,16 @@ public static class DependencyInjection
         this IServiceCollection services,
         ConfigurationManager configuration)
     {
-        services.AddFgsRemoteCredentialConfiguration(configuration, configuration, registerSetupClient: false);
-        CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<RabbitMqOptions>(services);
+        services.AddFgsCredentialConsumer(
+            configuration,
+            configuration,
+            options =>
+            {
+                options.ServiceName = "fgs-consumer-service";
+                options.RequiredProviders = ["RABBITMQ"];
+                options.RegisterSetupClient = false;
+            },
+            typeof(RabbitMqOptions));
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
 
         services.AddFgsRefitClient<ISetupClient>(

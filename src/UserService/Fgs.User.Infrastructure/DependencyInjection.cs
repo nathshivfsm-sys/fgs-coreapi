@@ -1,7 +1,6 @@
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Options;
-using Fgs.Security.Abstractions;
-using Fgs.Security.Extensions;
+using Fgs.User.Infrastructure.Extensions;
 using Fgs.User.Application.Abstractions.Geo;
 using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Abstractions.Security;
@@ -17,6 +16,7 @@ using Fgs.User.Infrastructure.Database;
 using Fgs.Persistence.Extensions;
 using Microsoft.Extensions.Http.Resilience;
 using Refit;
+using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using Fgs.User.Infrastructure.Messaging;
@@ -32,11 +32,19 @@ public static class DependencyInjection
         this IServiceCollection services,
         ConfigurationManager configuration)
     {
-        services.AddFgsRemoteCredentialConfiguration(configuration, configuration);
-        CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<EntraExternalIdOptions>(services);
+        services.AddFgsCredentialConsumer(
+            configuration,
+            configuration,
+            options =>
+            {
+                options.ServiceName = "fgs-user-service";
+                options.RequiredProviders = ["DATABASE", "ENTRA_EXTERNAL_ID", "AWS"];
+            },
+            typeof(EntraExternalIdOptions),
+            typeof(AwsCredentialsOptions));
 
-        services.AddFgsEntraAuthentication(configuration);
-        services.AddScoped<IFgsClaimsEnricher, DbFgsClaimsEnricher>();
+        services.AddFgsUserFacingSecurity(configuration);
+        services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));
         services.AddScoped<IFgsUserRoleResolver, FgsUserRoleResolver>();
         services.AddScoped<IFgsUserProfileResolver, FgsUserProfileResolver>();
         services.Configure<EntraExternalIdOptions>(configuration.GetSection(EntraExternalIdOptions.SectionName));
@@ -47,7 +55,14 @@ public static class DependencyInjection
         {
             var configuration = sp.GetRequiredService<IConfiguration>();
             var credentialProvider = sp.GetService<ICredentialConfigurationProvider>();
-            var connectionString = FgsUserConnectionString.ResolveRequired(configuration, credentialProvider);
+            var connectionString = ConnectionStringResolver.Resolve(
+                    configuration,
+                    ConnectionStringNames.FgsUser,
+                    "FGS_USER_DB",
+                    credentialProvider)
+                ?? configuration["Database:ConnectionString"]
+                ?? throw new InvalidOperationException(
+                    $"PostgreSQL connection string is required. Set ConnectionStrings:{ConnectionStringNames.FgsUser}, FGS_USER_DB, or load DATABASE credentials from Setup Service.");
             options.UseFgsNpgsql(
                 connectionString,
                 "__EFMigrationsHistory",

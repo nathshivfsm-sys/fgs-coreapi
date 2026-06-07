@@ -21,11 +21,17 @@ public static class DependencyInjection
         this IServiceCollection services,
         ConfigurationManager configuration)
     {
-        services.AddFgsRemoteCredentialConfiguration(configuration, configuration);
-        CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<RabbitMqOptions>(services);
+        services.AddFgsCredentialConsumer(
+            configuration,
+            configuration,
+            options =>
+            {
+                options.ServiceName = "fgs-publisher-service";
+                options.RequiredProviders = ["DATABASE", "RABBITMQ"];
+            },
+            typeof(RabbitMqOptions));
 
-        services.AddFgsEntraAuthentication(configuration);
-        services.AddFgsRemoteClaimsEnrichment(configuration);
+        services.AddFgsApiSecurity(configuration);
 
         services.Configure<OutboxSourcesOptions>(configuration.GetSection(OutboxSourcesOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
