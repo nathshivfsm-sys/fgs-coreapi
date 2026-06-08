@@ -1,5 +1,10 @@
 ﻿using Amazon;
 using Amazon.KeyManagementService;
+using Fgs.Credentials;
+using Fgs.Credentials.Abstractions;
+using Fgs.Credentials.Configuration;
+using Fgs.Credentials.Extensions;
+using Fgs.Credentials.Options;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Application.Common.Options;
 using Fgs.Setup.Infrastructure.Common.Options;
@@ -46,10 +51,10 @@ public static class CredentialServiceCollectionExtensions
         var credentialConfigurationHolder = new CredentialConfigurationHolder();
         services.AddSingleton(credentialConfigurationHolder);
         configurationBuilder.AddResolvedCredentialConfiguration(credentialConfigurationHolder);
-        configurationBuilder.Add(new CredentialApplicationConfigurationSource(credentialConfigurationHolder));
+        configurationBuilder.AddFgsCredentialApplicationConfiguration(credentialConfigurationHolder);
 
         services.AddSingleton<CredentialOptionsChangeNotifier>();
-        services.AddSingleton<ICredentialConfigurationProvider, CredentialConfigurationProvider>();
+        services.AddSingleton<ICredentialConfigurationProvider, SetupCredentialConfigurationProvider>();
         services.AddScoped<CredentialConfigurationLoader>();
 
         if (registerCredentialStoreDbContext)
@@ -62,13 +67,14 @@ public static class CredentialServiceCollectionExtensions
 
     public static void RegisterCredentialOptionsChangeSource<TOptions>(IServiceCollection services)
         where TOptions : class =>
-        services.AddSingleton<IOptionsChangeTokenSource<TOptions>, CredentialOptionsChangeTokenSource<TOptions>>();
+        Fgs.Credentials.Extensions.CredentialServiceCollectionExtensions
+            .RegisterCredentialOptionsChangeSource<TOptions>(services);
 
     private static void RegisterCredentialStoreDbContext(
         IServiceCollection services,
         IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("FgsSetup")
+        var connectionString = FgsSetupConnectionString.ResolveRequired(configuration)
             ?? throw new InvalidOperationException(
                 "ConnectionStrings:FgsSetup is required to load credentials from the credential store.");
 
@@ -95,14 +101,29 @@ public static class CredentialServiceCollectionExtensions
             RegionEndpoint = ResolveRegionEndpoint(options.Region)
         };
 
-        return HasExplicitCredentials(options)
-            ? new AmazonKeyManagementServiceClient(options.AccessKeyId!, options.SecretAccessKey!, config)
-            : new AmazonKeyManagementServiceClient(config);
+        if (TryResolveExplicitCredentials(options, out var accessKeyId, out var secretAccessKey))
+        {
+            return new AmazonKeyManagementServiceClient(accessKeyId, secretAccessKey, config);
+        }
+
+        return new AmazonKeyManagementServiceClient(config);
     }
 
-    private static bool HasExplicitCredentials(AwsCredentialsOptions options) =>
-        !string.IsNullOrWhiteSpace(options.AccessKeyId)
-        && !string.IsNullOrWhiteSpace(options.SecretAccessKey);
+    private static bool TryResolveExplicitCredentials(
+        AwsCredentialsOptions options,
+        out string accessKeyId,
+        out string secretAccessKey)
+    {
+        accessKeyId = options.AccessKeyId
+            ?? Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID")
+            ?? string.Empty;
+        secretAccessKey = options.SecretAccessKey
+            ?? Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY")
+            ?? string.Empty;
+
+        return !string.IsNullOrWhiteSpace(accessKeyId)
+            && !string.IsNullOrWhiteSpace(secretAccessKey);
+    }
 
     private static RegionEndpoint ResolveRegionEndpoint(string? region) =>
         RegionEndpoint.GetBySystemName(string.IsNullOrWhiteSpace(region) ? "us-east-1" : region);

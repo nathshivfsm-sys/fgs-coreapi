@@ -79,6 +79,15 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddFgsApiSecurity(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddFgsEntraAuthentication(configuration);
+        services.AddFgsRemoteClaimsEnrichment(configuration);
+        return services;
+    }
+
     public static IServiceCollection AddFgsRemoteClaimsEnrichment(
         this IServiceCollection services,
         IConfiguration configuration)
@@ -101,4 +110,8 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    public static IServiceCollection AddFgsWorkerSecurity(
+        this IServiceCollection services,
+        IConfiguration configuration) => services;
 }

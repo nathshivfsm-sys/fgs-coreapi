@@ -4,6 +4,7 @@
     <ProjectReference Include="..\Fgs.Dispatch.Application\Fgs.Dispatch.Application.csproj" />
     <ProjectReference Include="..\Fgs.Dispatch.Domain\Fgs.Dispatch.Domain.csproj" />
     <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
+    <ProjectReference Include="..\..\Shared\Credentials\Fgs.Credentials\Fgs.Credentials.csproj" />
   </ItemGroup>
 
   <ItemGroup>

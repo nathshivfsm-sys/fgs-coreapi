@@ -1,5 +1,6 @@
-﻿using Fgs.Audit.Infrastructure.Database;
-using Fgs.Contracts.Clients;
+﻿using Fgs.Contracts.Clients;
+using Fgs.Setup.Application.Abstractions.Credentials;
+using Fgs.Setup.Infrastructure.Audit;
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Options;
 using Fgs.Setup.Application.Abstractions.Provisioning;
@@ -28,8 +29,7 @@ public static class DependencyInjection
         this IServiceCollection services,
         ConfigurationManager configuration)
     {
-        services.AddFgsEntraAuthentication(configuration);
-        services.AddFgsRemoteClaimsEnrichment(configuration);
+        services.AddFgsApiSecurity(configuration);
 
         services.Configure<TenantProvisioningOptions>(configuration.GetSection(TenantProvisioningOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
@@ -46,13 +46,19 @@ public static class DependencyInjection
 
         services.AddFgsPersistence<FgsSetupDbContext>();
 
-        var auditConnectionString = configuration.GetConnectionString("FgsAudit")
-            ?? connectionString;
-        services.AddDbContext<FgsAuditDbContext>((_, options) =>
+        var auditServiceEnabled = configuration.GetValue("AuditService:Enabled", true);
+        if (auditServiceEnabled)
         {
-            options.UseNpgsql(auditConnectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsAuditDbContext.MigrationHistorySchema));
-        });
+            services.AddFgsRefitClient<IAuditClient>(
+                configuration,
+                "AuditService:BaseUrl",
+                "http://audit-service:5003");
+            services.AddScoped<ICredentialAuditRecorder, RefitCredentialAuditRecorder>();
+        }
+        else
+        {
+            services.AddSingleton<ICredentialAuditRecorder, NoOpCredentialAuditRecorder>();
+        }
 
         services.AddFgsRefitClient<IUserTenantClient>(
             configuration,

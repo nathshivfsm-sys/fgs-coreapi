@@ -1,0 +1,108 @@
+# Credential Migration Tooling
+
+Migrate secrets from legacy `appsettings.json` values into Setup Service `GloCredential` records.
+
+## Prerequisites
+
+1. Setup Service running with **bootstrap** KMS configured (`AwsCredentials:KmsKeyArn` or `KMS_KEY_ARN`, plus `AccessKeyId`/`SecretAccessKey` or `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` for local dev). Setup cannot use the AWS credential stored in `GloCredential` to decrypt credentials — that would be circular.
+2. Provider types seeded (`Initial_Migration_Seed.sql` or `seed-provider-types.sql`).
+3. `CredentialDistribution:InternalServiceKey` configured on Setup and consuming services.
+
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| [`seed-provider-types.sql`](seed-provider-types.sql) | Idempotent `GloCredentialProviderType` INSERT/UPDATE + cache sync |
+| [`post-credentials.ps1`](post-credentials.ps1) | POST all 5 global credentials; `-UpdateDatabaseOnly` PUTs RDS strings; `-UpdateAwsOnly` PUTs AWS keys + `KmsKeyArn` for consumers |
+
+```powershell
+# Seed provider types (requires psql or Docker)
+docker run --rm -e PGPASSWORD -v "${PWD}/seed-provider-types.sql:/seed.sql:ro" postgres:16-alpine `
+  psql -h <host> -p 5432 -U <user> -d <database> -f /seed.sql
+
+# Post credentials (Setup API on http://localhost:5071)
+.\post-credentials.ps1 -BaseUrl http://localhost:5071
+
+# Update only DATABASE connections (all services -> RDS)
+.\post-credentials.ps1 -BaseUrl http://localhost:5071 -UpdateDatabaseOnly
+
+# Update AWS credential (keys + KmsKeyArn for File/User consumers)
+.\post-credentials.ps1 -BaseUrl http://localhost:5071 -UpdateAwsOnly
+```
+
+All platform `DATABASE` keys use AWS RDS `fgs_dev_db`.
+
+## Example payloads
+
+### Database (User Service)
+
+```http
+POST /api/v1/credentials
+Content-Type: application/json
+
+{
+  "scope": "Global",
+  "providerCode": "DATABASE",
+  "credentialName": "fgs-user-db",
+  "payload": "{\"ConnectionStringName\":\"FgsUser\",\"FgsUser\":\"Host=localhost;Port=5432;Database=fgs_dev_db;Username=postgres;Password=postgres\"}"
+}
+```
+
+For a single named connection, either use `ConnectionString` + `ConnectionStringName`, or map each key directly (e.g. `FgsUser`).
+
+### SendGrid
+
+```json
+{
+  "scope": "Global",
+  "providerCode": "SENDGRID",
+  "credentialName": "platform-sendgrid",
+  "payload": "{\"ApiKey\":\"<from-appsettings>\",\"FromAddress\":\"noreply@example.com\",\"FromName\":\"FGS\"}"
+}
+```
+
+### RabbitMQ
+
+```json
+{
+  "scope": "Global",
+  "providerCode": "RABBITMQ",
+  "credentialName": "platform-rabbitmq",
+  "payload": "{\"Username\":\"fgs\",\"Password\":\"<from-appsettings>\"}"
+}
+```
+
+### Entra client secret
+
+```json
+{
+  "scope": "Global",
+  "providerCode": "ENTRA_EXTERNAL_ID",
+  "credentialName": "platform-entra",
+  "payload": "{\"ClientSecret\":\"<from-appsettings>\"}"
+}
+```
+
+### AWS keys
+
+```json
+{
+  "scope": "Global",
+  "providerCode": "AWS",
+  "credentialName": "platform-aws",
+  "payload": "{\"AccessKeyId\":\"<key>\",\"SecretAccessKey\":\"<secret>\",\"KmsKeyArn\":\"<kms-key-arn>\"}"
+}
+```
+
+## Environment variables (bootstrap fallback)
+
+| Variable | Purpose |
+|----------|---------|
+| `FGS_SETUP_DB` | Setup Service database bootstrap |
+| `FGS_USER_DB` | User Service DB fallback during migration |
+| `FGS_FILE_DB` | File Service DB fallback |
+| `FGS_NOTIFICATION_DB` | Notification Service DB fallback |
+| `KMS_KEY_ARN` | Setup Service KMS bootstrap only (consumers read `KmsKeyArn` from Setup AWS credential) |
+| `CREDENTIAL_DISTRIBUTION_KEY` | S2S key for `/credentials/resolved` |
+
+After migration, remove secrets from committed appsettings and rely on Setup credential storage plus env overrides for local bootstrap only.

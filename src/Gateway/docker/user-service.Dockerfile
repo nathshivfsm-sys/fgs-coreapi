@@ -13,6 +13,7 @@ COPY src/Shared/Security/Fgs.Security/Fgs.Security.csproj src/Shared/Security/Fg
 COPY src/Shared/MultiTenancy/Fgs.MultiTenancy/Fgs.MultiTenancy.csproj src/Shared/MultiTenancy/Fgs.MultiTenancy/
 COPY src/Shared/Foundation/Fgs.Foundation/Fgs.Foundation.csproj src/Shared/Foundation/Fgs.Foundation/
 COPY src/Shared/Observability/Fgs.Observability/Fgs.Observability.csproj src/Shared/Observability/Fgs.Observability/
+COPY src/Shared/Credentials/Fgs.Credentials/Fgs.Credentials.csproj src/Shared/Credentials/Fgs.Credentials/
 COPY src/UserService/Fgs.User.API/Fgs.User.API.csproj src/UserService/Fgs.User.API/
 COPY src/UserService/Fgs.User.Application/Fgs.User.Application.csproj src/UserService/Fgs.User.Application/
 COPY src/UserService/Fgs.User.Domain/Fgs.User.Domain.csproj src/UserService/Fgs.User.Domain/

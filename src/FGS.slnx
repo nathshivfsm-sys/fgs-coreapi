@@ -11,6 +11,8 @@
     <Project Path="Shared/Security/Fgs.Security.Tests/Fgs.Security.Tests.csproj" />
     <Project Path="Shared/MultiTenancy/Fgs.MultiTenancy/Fgs.MultiTenancy.csproj" />
     <Project Path="Shared/Observability/Fgs.Observability/Fgs.Observability.csproj" />
+    <Project Path="Shared/Credentials/Fgs.Credentials/Fgs.Credentials.csproj" />
+    <Project Path="Shared/Credentials/Fgs.Credentials.Tests/Fgs.Credentials.Tests.csproj" />
   </Folder>
   <Folder Name="/UserService/">
     <Project Path="UserService/Fgs.User.Domain/Fgs.User.Domain.csproj" />

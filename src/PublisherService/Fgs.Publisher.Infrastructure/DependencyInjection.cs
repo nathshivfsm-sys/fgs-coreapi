@@ -1,3 +1,6 @@
+using Fgs.Credentials;
+using Fgs.Credentials.Abstractions;
+using Fgs.Credentials.Extensions;
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Extensions;
 using Fgs.Messaging.Options;
@@ -16,10 +19,19 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddFgsPublisherInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration)
+        ConfigurationManager configuration)
     {
-        services.AddFgsEntraAuthentication(configuration);
-        services.AddFgsRemoteClaimsEnrichment(configuration);
+        services.AddFgsCredentialConsumer(
+            configuration,
+            configuration,
+            options =>
+            {
+                options.ServiceName = "fgs-publisher-service";
+                options.RequiredProviders = ["DATABASE", "RABBITMQ"];
+            },
+            typeof(RabbitMqOptions));
+
+        services.AddFgsApiSecurity(configuration);
 
         services.Configure<OutboxSourcesOptions>(configuration.GetSection(OutboxSourcesOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
@@ -35,12 +47,14 @@ public static class DependencyInjection
         {
             var sourceOptions = sp.GetRequiredService<IOptions<OutboxSourcesOptions>>().Value;
             var config = sp.GetRequiredService<IConfiguration>();
+            var credentialProvider = sp.GetService<ICredentialConfigurationProvider>();
             var sources = sourceOptions.Sources
                 .Select(source =>
                 {
-                    var connectionString = config.GetConnectionString(source.ConnectionStringName)
-                        ?? throw new InvalidOperationException(
-                            $"Connection string '{source.ConnectionStringName}' is not configured for outbox source '{source.SourceKey}'.");
+                    var connectionString = ConnectionStringResolver.ResolveRequired(
+                        config,
+                        source.ConnectionStringName,
+                        credentialProvider: credentialProvider);
 
                     return (ISchemaOutboxSource)new SchemaOutboxStore(
                         source.SourceKey,

@@ -1,4 +1,5 @@
-﻿using Fgs.MultiTenancy.Persistence;
+﻿using Fgs.Credentials;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +18,10 @@ public sealed class FgsNotificationDbContextDesignFactory : IDesignTimeDbContext
 
         var optionsBuilder = new DbContextOptionsBuilder<FgsNotificationDbContext>();
         optionsBuilder.UseNpgsql(
-            FgsNotificationConnectionString.ResolveRequired(configuration),
+            ConnectionStringResolver.ResolveRequired(
+                configuration,
+                ConnectionStringNames.FgsNotification,
+                "FGS_NOTIFICATION_DB"),
             npgsql => npgsql.MigrationsHistoryTable(
                 "__EFMigrationsHistory",
                 FgsNotificationDbContext.MigrationHistorySchema));

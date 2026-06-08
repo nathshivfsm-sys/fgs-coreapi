@@ -9,10 +9,13 @@ public static class IntegrationEventExchanges
 
     public const string TenantEvents = "tenant.events";
 
+    public const string SetupEvents = "setup.events";
+
     public static IReadOnlyList<string> All { get; } =
     [
         UserEvents,
-        TenantEvents
+        TenantEvents,
+        SetupEvents
     ];
 
     /// <summary>
@@ -24,6 +27,7 @@ public static class IntegrationEventExchanges
             IntegrationEventTypes.TenantProvisionRequested => TenantEvents,
             IntegrationEventTypes.TenantProvisionCompleted => TenantEvents,
             IntegrationEventTypes.CompanySignupInviteEmail => UserEvents,
+            IntegrationEventTypes.CredentialConfigurationChanged => SetupEvents,
 
             _ => UserEvents
         };

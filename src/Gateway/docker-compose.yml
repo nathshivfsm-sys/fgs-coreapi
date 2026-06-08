@@ -1,11 +1,32 @@
 ﻿name: fgs-local
 
+# Startup order (credential consolidation):
+#   1. rabbitmq
+#   2. setup-service  — bootstraps DB/KMS credentials (no consumer deps)
+#   3. audit + credential consumers — load secrets from Setup at startup
+#   4. publisher / consumer — messaging workers
+#   5. nginx — public gateway after upstream health checks pass
+
+x-service-network: &service-network
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  networks:
+    - fgs-private
+  restart: unless-stopped
+
+x-credential-consumer-env: &credential-consumer-env
+  ASPNETCORE_ENVIRONMENT: Development
+  SetupService__BaseUrl: http://setup-service:5004
+  CredentialDistribution__InternalServiceKey: fgs-internal-credential-distribution-key
+
+x-depends-on-setup: &depends-on-setup
+  setup-service:
+    condition: service_healthy
+
 services:
   rabbitmq:
     image: rabbitmq:4-management-alpine
     hostname: rabbitmq
-    # Run as rabbitmq (uid 100) so .erlang.cookie is created with correct ownership.
-    # Do not use tmpfs with uid/gid on Docker Desktop for Windows — it often causes EACCES.
     user: "100:101"
     environment:
       RABBITMQ_DEFAULT_USER: fgs
@@ -26,18 +47,234 @@ services:
       - fgs-private
     restart: unless-stopped
 
+  # Tier 1 — credential authority (bootstrap ConnectionStrings:FgsSetup from mounted appsettings)
+  setup-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/setup-service.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      UserService__BaseUrl: http://user-service:5001
+      FileService__BaseUrl: http://file-service:5005
+      AuditService__BaseUrl: http://audit-service:5008
+      AuditService__Enabled: "true"
+    volumes:
+      - ../SetupService/Fgs.Setup.API/appsettings.json:/src/src/SetupService/Fgs.Setup.API/appsettings.json:ro
+      - ../SetupService/Fgs.Setup.API/appsettings.Development.json:/src/src/SetupService/Fgs.Setup.API/appsettings.Development.json:ro
+    expose:
+      - "5004"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5004/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  # Tier 2 — credential consumers (Setup must be healthy before these start)
+  audit-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/audit-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      CredentialConsumer__ServiceName: fgs-audit-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+    depends_on:
+      <<: *depends-on-setup
+    volumes:
+      - ../AuditService/Fgs.Audit.API/appsettings.json:/src/src/AuditService/Fgs.Audit.API/appsettings.json:ro
+      - ../AuditService/Fgs.Audit.API/appsettings.Development.json:/src/src/AuditService/Fgs.Audit.API/appsettings.Development.json:ro
+    expose:
+      - "5008"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5008/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  user-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/user-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      CredentialConsumer__ServiceName: fgs-user-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: ENTRA_EXTERNAL_ID
+      CredentialConsumer__RequiredProviders__2: AWS
+    depends_on:
+      <<: *depends-on-setup
+    volumes:
+      - ../UserService/Fgs.User.API/appsettings.json:/src/src/UserService/Fgs.User.API/appsettings.json:ro
+      - ../UserService/Fgs.User.API/appsettings.Development.json:/src/src/UserService/Fgs.User.API/appsettings.Development.json:ro
+    expose:
+      - "5001"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  file-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/file-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      CredentialConsumer__ServiceName: fgs-file-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: AWS
+    depends_on:
+      <<: *depends-on-setup
+    volumes:
+      - ../FileService/Fgs.File.API/appsettings.json:/src/src/FileService/Fgs.File.API/appsettings.json:ro
+      - ../FileService/Fgs.File.API/appsettings.Development.json:/src/src/FileService/Fgs.File.API/appsettings.Development.json:ro
+    expose:
+      - "5005"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5005/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  notification-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/notification-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      CredentialConsumer__ServiceName: fgs-notification-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: SENDGRID
+      UserService__BaseUrl: http://user-service:5001
+    depends_on:
+      setup-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    volumes:
+      - ../NotificationService/Fgs.Notification.API/appsettings.json:/src/src/NotificationService/Fgs.Notification.API/appsettings.json:ro
+      - ../NotificationService/Fgs.Notification.API/appsettings.Development.json:/src/src/NotificationService/Fgs.Notification.API/appsettings.Development.json:ro
+    expose:
+      - "5002"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5002/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  job-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/job-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      CredentialConsumer__ServiceName: fgs-job-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      UserService__BaseUrl: http://user-service:5001
+    depends_on:
+      <<: *depends-on-setup
+    volumes:
+      - ../JobService/Fgs.Job.API/appsettings.json:/src/src/JobService/Fgs.Job.API/appsettings.json:ro
+      - ../JobService/Fgs.Job.API/appsettings.Development.json:/src/src/JobService/Fgs.Job.API/appsettings.Development.json:ro
+    expose:
+      - "5003"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5003/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  # Tier 3 — messaging workers
+  publisher-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/publisher-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      CredentialConsumer__ServiceName: fgs-publisher-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: RABBITMQ
+      RabbitMq__HostName: rabbitmq
+      UserService__BaseUrl: http://user-service:5001
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    volumes:
+      - ../PublisherService/Fgs.Publisher.API/appsettings.json:/src/src/PublisherService/Fgs.Publisher.API/appsettings.json:ro
+      - ../PublisherService/Fgs.Publisher.API/appsettings.Development.json:/src/src/PublisherService/Fgs.Publisher.API/appsettings.Development.json:ro
+    expose:
+      - "5006"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5006/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  consumer-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/consumer-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      CredentialConsumer__ServiceName: fgs-consumer-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: RABBITMQ
+      NotificationService__BaseUrl: http://notification-service:5002
+      UserService__BaseUrl: http://user-service:5001
+      RabbitMq__HostName: rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+    volumes:
+      - ../ConsumerService/Fgs.Consumer.API/appsettings.json:/src/src/ConsumerService/Fgs.Consumer.API/appsettings.json:ro
+      - ../ConsumerService/Fgs.Consumer.API/appsettings.Development.json:/src/src/ConsumerService/Fgs.Consumer.API/appsettings.Development.json:ro
+    expose:
+      - "5007"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5007/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  # Tier 4 — public gateway
   nginx:
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
+      setup-service:
+        condition: service_healthy
       user-service:
         condition: service_healthy
       notification-service:
         condition: service_healthy
       job-service:
-        condition: service_healthy
-      setup-service:
         condition: service_healthy
       file-service:
         condition: service_healthy
@@ -51,158 +288,6 @@ services:
     networks:
       - fgs-private
       - fgs-edge
-    restart: unless-stopped
-
-  user-service:
-    build:
-      context: ../..
-      dockerfile: src/Gateway/docker/user-service.Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      SetupService__BaseUrl: http://setup-service:5004
-    volumes:
-      - ../UserService/Fgs.User.API/appsettings.json:/src/src/UserService/Fgs.User.API/appsettings.json:ro
-      - ../UserService/Fgs.User.API/appsettings.Development.json:/src/src/UserService/Fgs.User.API/appsettings.Development.json:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    expose:
-      - "5001"
-    networks:
-      - fgs-private
-    restart: unless-stopped
-
-  notification-service:
-    build:
-      context: ../..
-      dockerfile: src/Gateway/docker/notification-service.Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      SetupService__BaseUrl: http://setup-service:5004
-      UserService__BaseUrl: http://user-service:5001
-    depends_on:
-      user-service:
-        condition: service_started
-    volumes:
-      - ../NotificationService/Fgs.Notification.API/appsettings.json:/src/src/NotificationService/Fgs.Notification.API/appsettings.json:ro
-      - ../NotificationService/Fgs.Notification.API/appsettings.Development.json:/src/src/NotificationService/Fgs.Notification.API/appsettings.Development.json:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    expose:
-      - "5002"
-    networks:
-      - fgs-private
-    restart: unless-stopped
-
-  job-service:
-    build:
-      context: ../..
-      dockerfile: src/Gateway/docker/job-service.Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-    volumes:
-      - ../JobService/Fgs.Job.API/appsettings.json:/src/src/JobService/Fgs.Job.API/appsettings.json:ro
-      - ../JobService/Fgs.Job.API/appsettings.Development.json:/src/src/JobService/Fgs.Job.API/appsettings.Development.json:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    expose:
-      - "5003"
-    networks:
-      - fgs-private
-    restart: unless-stopped
-
-  file-service:
-    build:
-      context: ../..
-      dockerfile: src/Gateway/docker/file-service.Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-    volumes:
-      - ../FileService/Fgs.File.API/appsettings.json:/src/src/FileService/Fgs.File.API/appsettings.json:ro
-      - ../FileService/Fgs.File.API/appsettings.Development.json:/src/src/FileService/Fgs.File.API/appsettings.Development.json:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    expose:
-      - "5005"
-    networks:
-      - fgs-private
-    restart: unless-stopped
-
-  setup-service:
-    build:
-      context: ../..
-      dockerfile: src/Gateway/docker/setup-service.Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      FileService__BaseUrl: http://file-service:5005
-      UserService__BaseUrl: http://user-service:5001
-    depends_on:
-      user-service:
-        condition: service_started
-      file-service:
-        condition: service_healthy
-    volumes:
-      - ../SetupService/Fgs.Setup.API/appsettings.json:/src/src/SetupService/Fgs.Setup.API/appsettings.json:ro
-      - ../SetupService/Fgs.Setup.API/appsettings.Development.json:/src/src/SetupService/Fgs.Setup.API/appsettings.Development.json:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    expose:
-      - "5004"
-    networks:
-      - fgs-private
-    restart: unless-stopped
-
-  publisher-service:
-    build:
-      context: ../..
-      dockerfile: src/Gateway/docker/publisher-service.Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      RabbitMq__HostName: rabbitmq
-      UserService__BaseUrl: http://user-service:5001
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      user-service:
-        condition: service_healthy
-    volumes:
-      - ../PublisherService/Fgs.Publisher.API/appsettings.json:/src/src/PublisherService/Fgs.Publisher.API/appsettings.json:ro
-      - ../PublisherService/Fgs.Publisher.API/appsettings.Development.json:/src/src/PublisherService/Fgs.Publisher.API/appsettings.Development.json:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    expose:
-      - "5006"
-    networks:
-      - fgs-private
-    restart: unless-stopped
-
-  consumer-service:
-    build:
-      context: ../..
-      dockerfile: src/Gateway/docker/consumer-service.Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      SetupService__BaseUrl: http://setup-service:5004
-      NotificationService__BaseUrl: http://notification-service:5002
-      UserService__BaseUrl: http://user-service:5001
-      RabbitMq__HostName: rabbitmq
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      user-service:
-        condition: service_healthy
-      notification-service:
-        condition: service_healthy
-      setup-service:
-        condition: service_healthy
-    volumes:
-      - ../ConsumerService/Fgs.Consumer.API/appsettings.json:/src/src/ConsumerService/Fgs.Consumer.API/appsettings.json:ro
-      - ../ConsumerService/Fgs.Consumer.API/appsettings.Development.json:/src/src/ConsumerService/Fgs.Consumer.API/appsettings.Development.json:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    expose:
-      - "5007"
-    networks:
-      - fgs-private
     restart: unless-stopped
 
 networks:

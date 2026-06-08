@@ -1,28 +1,25 @@
-﻿using Fgs.Foundation.Api;
-using Fgs.Foundation.Extensions;
-using Fgs.MultiTenancy.Extensions;
+﻿using Fgs.Credentials;
+using Fgs.Foundation.Hosting;
 using Fgs.Observability.Extensions;
 using Fgs.Setup.Application;
 using Fgs.Setup.Infrastructure;
 using Fgs.Setup.Infrastructure.Credentials;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.ApplyFgsAwsCredentialEnvironmentVariables();
 
-builder.Services.AddFgsApiVersioning();
-builder.Services.AddControllers()
-    .AddJsonOptions(options => options.JsonSerializerOptions.ConfigureFgsApi());
-builder.Services.ConfigureHttpJsonOptions(options =>
-    options.SerializerOptions.ConfigureFgsApi());
-builder.Services.AddFgsSwagger(options =>
+var hostOptions = builder.AddFgsApiHost(options =>
 {
-    options.Title = "FGS Setup Service";
-    options.Description = "Tenant and system setup configuration.";
+    options.ServiceName = "fgs-setup-service";
+    options.SwaggerTitle = "FGS Setup Service";
+    options.SwaggerDescription = "Tenant and system setup configuration.";
     options.XmlCommentsAssembly = typeof(Program).Assembly;
+    options.UseMultiTenancy = true;
 });
+
 builder.Services.AddFgsSetupApplication();
 builder.Services.AddFgsSetupInfrastructure(builder.Configuration);
-builder.Services.AddFgsMultiTenancy();
-builder.Services.AddFgsObservability(builder.Configuration, "fgs-setup-service");
+builder.Services.AddFgsObservability(builder.Configuration, hostOptions.ServiceName);
 
 var app = builder.Build();
 
@@ -32,25 +29,8 @@ using (var scope = app.Services.CreateScope())
     await loader.ReloadAsync();
 }
 
-app.UseFgsFoundationMiddleware();
-if (ShouldUseHttpsRedirection(app.Configuration))
-{
-    app.UseHttpsRedirection();
-}
-
-app.UseFgsSwagger();
-
-app.UseAuthentication();
-app.UseFgsTenantResolution();
-app.UseAuthorization();
-app.MapControllers();
+app.UseFgsApiHost(hostOptions);
 app.MapFgsHealthChecks();
-
 app.Run();
-
-static bool ShouldUseHttpsRedirection(IConfiguration configuration) =>
-    !string.Equals(configuration["DOTNET_RUNNING_IN_CONTAINER"], "true", StringComparison.OrdinalIgnoreCase)
-    && (configuration["ASPNETCORE_URLS"]?.Contains("https://", StringComparison.OrdinalIgnoreCase) == true
-        || !string.IsNullOrWhiteSpace(configuration["ASPNETCORE_HTTPS_PORT"]));
 
 public partial class Program;

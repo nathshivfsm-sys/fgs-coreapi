@@ -1,3 +1,4 @@
+using Fgs.Contracts.Requests;
 using Refit;
 
 namespace Fgs.Contracts.Clients;
@@ -13,6 +14,26 @@ public interface ISetupClient
         long companyId,
         [Body] AddCompanyBusinessTypesRequest request,
         CancellationToken cancellationToken = default);
+
+    [Get("/api/v1/communication-templates/active")]
+    Task<Fgs.Contracts.Api.ApiResponse<CommunicationTemplateDto>> GetActiveTemplateAsync(
+        [Query] long? tenantId,
+        [Query] long? companyId,
+        [Query] string templateType,
+        [Query] string code,
+        [Header(InternalServiceHeaders.ServiceKey)] string internalServiceKey,
+        CancellationToken cancellationToken = default);
+
+    [Post("/api/v1/tenant-provisioning")]
+    Task<Fgs.Contracts.Api.ApiResponse<object>> ProvisionTenantAsync(
+        [Body] ProvisionTenantRequest request,
+        CancellationToken cancellationToken = default);
+
+    [Get("/api/v1/credentials/resolved")]
+    Task<Fgs.Contracts.Api.ApiResponse<ResolvedCredentialConfigurationDto>> GetResolvedCredentialsAsync(
+        [Header(InternalServiceHeaders.ServiceKey)] string internalServiceKey,
+        [Header(InternalServiceHeaders.ServiceName)] string? serviceName = null,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record AddCompanyBusinessTypesRequest(
@@ -21,3 +42,6 @@ public sealed record AddCompanyBusinessTypesRequest(
     string Code,
     string Name,
     bool IsActive = true);
+
+public sealed record ResolvedCredentialConfigurationDto(
+    IReadOnlyDictionary<string, string> Values);

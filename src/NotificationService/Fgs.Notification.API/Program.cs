@@ -1,50 +1,30 @@
-﻿using Fgs.Foundation.Api;
-using Fgs.Foundation.Extensions;
-using Fgs.MultiTenancy.Extensions;
-using Fgs.Observability.Extensions;
+﻿using Fgs.Credentials.Extensions;
+using Fgs.Foundation.Hosting;
 using Fgs.Notification.Application;
 using Fgs.Notification.Infrastructure;
+using Fgs.Observability.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddFgsApiVersioning();
-builder.Services.AddControllers()
-    .AddJsonOptions(options => options.JsonSerializerOptions.ConfigureFgsApi());
-builder.Services.ConfigureHttpJsonOptions(options =>
-    options.SerializerOptions.ConfigureFgsApi());
-builder.Services.AddFgsSwagger(options =>
+var hostOptions = builder.AddFgsApiHost(options =>
 {
-    options.Title = "FGS Notification Service";
-    options.Description =
+    options.ServiceName = "fgs-notification-service";
+    options.SwaggerTitle = "FGS Notification Service";
+    options.SwaggerDescription =
         "Shared platform capabilities: notifications (email/SMS/push), integrations, audit, background jobs, and reporting foundations.";
     options.XmlCommentsAssembly = typeof(Program).Assembly;
+    options.UseAuthenticationPipeline = false;
+    options.UseMultiTenancy = true;
 });
+
 builder.Services.AddFgsNotificationApplication();
 builder.Services.AddFgsNotificationInfrastructure(builder.Configuration);
-builder.Services.AddFgsMultiTenancy();
-builder.Services.AddFgsObservability(builder.Configuration, "fgs-notification-service");
+builder.Services.AddFgsObservability(builder.Configuration, hostOptions.ServiceName);
 
 var app = builder.Build();
-
-app.UseFgsFoundationMiddleware();
-if (ShouldUseHttpsRedirection(app.Configuration))
-{
-    app.UseHttpsRedirection();
-}
-
-app.UseFgsSwagger();
-
-app.UseAuthentication();
-app.UseFgsTenantResolution();
-app.UseAuthorization();
-app.MapControllers();
+await app.LoadFgsRemoteCredentialsAsync();
+app.UseFgsApiHost(hostOptions);
 app.MapFgsHealthChecks();
-
 app.Run();
-
-static bool ShouldUseHttpsRedirection(IConfiguration configuration) =>
-    !string.Equals(configuration["DOTNET_RUNNING_IN_CONTAINER"], "true", StringComparison.OrdinalIgnoreCase)
-    && (configuration["ASPNETCORE_URLS"]?.Contains("https://", StringComparison.OrdinalIgnoreCase) == true
-        || !string.IsNullOrWhiteSpace(configuration["ASPNETCORE_HTTPS_PORT"]));
 
 public partial class Program;

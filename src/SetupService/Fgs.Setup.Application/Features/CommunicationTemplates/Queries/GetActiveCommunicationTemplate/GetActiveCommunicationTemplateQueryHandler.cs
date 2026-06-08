@@ -1,7 +1,7 @@
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
 using Fgs.Persistence.Abstractions;
-using Fgs.Setup.Application.Common.Options;
+using Fgs.Credentials.Options;
 using Fgs.Setup.Application.Features.CommunicationTemplates;
 using Fgs.Setup.Domain.Entities;
 using MediatR;

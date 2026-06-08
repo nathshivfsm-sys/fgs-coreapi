@@ -22,6 +22,8 @@
 
     <ProjectReference Include="..\..\Shared\MultiTenancy\Fgs.MultiTenancy\Fgs.MultiTenancy.csproj" />
 
+    <ProjectReference Include="..\..\Shared\Credentials\Fgs.Credentials\Fgs.Credentials.csproj" />
+
   </ItemGroup>
 
 
@@ -96,16 +98,12 @@
 
   </PropertyGroup>
 
-
-
   <ItemGroup>
-    <Compile Remove="CredentialServiceCollectionExtensions.cs" />
-    <Compile Remove="CredentialConfigurationExtensions.cs" />
-    <Compile Remove="AwsCredentialsServiceCollectionExtensions.cs" />
-    <Compile Remove="Credentials\**\*.cs" />
     <Compile Remove="Provisioning\**\*.cs" />
     <Compile Remove="Security\**\*.cs" />
     <Compile Remove="Storage\**\*.cs" />
   </ItemGroup>
+
+
 
 </Project>

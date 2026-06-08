@@ -19,7 +19,7 @@ public static class IntegrationEventRoutingKeys
 
     public const string CompanyCreated = "user.CompanyCreated";
 
-    public const string CredentialConfigurationChanged = "user.CredentialConfigurationChanged";
+    public const string CredentialConfigurationChanged = "setup.CredentialConfigurationChanged";
 
     public static string ForEventType(string eventType, string? routingKeyPrefix = null) =>
         eventType switch

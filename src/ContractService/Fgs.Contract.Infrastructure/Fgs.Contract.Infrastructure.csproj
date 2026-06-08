@@ -4,6 +4,7 @@
     <ProjectReference Include="..\Fgs.Contract.Application\Fgs.Contract.Application.csproj" />
     <ProjectReference Include="..\Fgs.Contract.Domain\Fgs.Contract.Domain.csproj" />
     <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
+    <ProjectReference Include="..\..\Shared\Credentials\Fgs.Credentials\Fgs.Credentials.csproj" />
   </ItemGroup>
 
   <ItemGroup>

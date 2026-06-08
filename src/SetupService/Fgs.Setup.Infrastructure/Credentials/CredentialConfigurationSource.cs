@@ -1,4 +1,5 @@
-﻿using Fgs.Setup.Application.Common.Options;
+﻿using Fgs.Credentials;
+using Fgs.Setup.Application.Common.Options;
 using Microsoft.Extensions.Configuration;
 
 namespace Fgs.Setup.Infrastructure.Credentials;

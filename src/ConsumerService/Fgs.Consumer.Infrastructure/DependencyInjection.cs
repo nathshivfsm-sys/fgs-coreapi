@@ -1,12 +1,13 @@
 using Fgs.Contracts.Clients;
 using Fgs.Contracts.IntegrationEvents;
+using Fgs.Credentials.Extensions;
+using Fgs.Messaging.Options;
 using Fgs.Consumer.Application.Features.Notifications.Commands.ProcessCompanySignupInviteEmail;
 using Fgs.Consumer.Application.Features.TenantProvisioning.Commands.ProcessTenantProvisionRequested;
 using Fgs.Consumer.Infrastructure.Messaging;
 using Fgs.Foundation.Extensions;
 using Fgs.Messaging.Consumer;
 using Fgs.Messaging.Extensions;
-using Fgs.Security.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,12 +17,21 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddFgsConsumerInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration)
+        ConfigurationManager configuration)
     {
-        services.AddFgsEntraAuthentication(configuration);
-        services.AddFgsRemoteClaimsEnrichment(configuration);
+        services.AddFgsCredentialConsumer(
+            configuration,
+            configuration,
+            options =>
+            {
+                options.ServiceName = "fgs-consumer-service";
+                options.RequiredProviders = ["RABBITMQ"];
+                options.RegisterSetupClient = false;
+            },
+            typeof(RabbitMqOptions));
+        services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
 
-        services.AddFgsRefitClient<ISetupProvisioningClient>(
+        services.AddFgsRefitClient<ISetupClient>(
             configuration,
             "SetupService:BaseUrl",
             "http://setup-service:5004");
@@ -42,7 +52,6 @@ public static class DependencyInjection
             IntegrationEventRoutingKeys.CompanySignupInviteEmail,
             (evt, ctx) => new ProcessCompanySignupInviteEmailCommand(evt, ctx));
 
-        _ = configuration.GetConnectionString("FgsConsumer");
         return services;
     }
 }

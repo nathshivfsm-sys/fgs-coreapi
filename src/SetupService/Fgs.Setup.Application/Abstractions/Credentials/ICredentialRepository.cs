@@ -1,5 +1,4 @@
-﻿using Fgs.Audit.Domain.Entities;
-using Fgs.Setup.Domain.Entities;
+﻿using Fgs.Setup.Domain.Entities;
 
 namespace Fgs.Setup.Application.Abstractions.Credentials;
 
@@ -44,6 +43,4 @@ public interface ICredentialRepository
     void RemoveGlobal(GloCredential credential);
 
     void RemoveTenant(FgsCredential credential);
-
-    Task AddAuditAsync(FgsCredentialAudit audit, CancellationToken cancellationToken = default);
 }

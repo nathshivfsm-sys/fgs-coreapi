@@ -1,49 +1,51 @@
 using Fgs.Inventory.Application;
-using Fgs.Foundation.Api;
-using Fgs.Foundation.Extensions;
-using Fgs.MultiTenancy.Extensions;
-using Fgs.Observability.Extensions;
+
 using Fgs.Inventory.Infrastructure;
+
+using Fgs.Credentials.Extensions;
+using Fgs.Foundation.Hosting;
+using Fgs.Observability.Extensions;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddFgsApiVersioning();
-builder.Services.AddControllers()
-    .AddJsonOptions(options => options.JsonSerializerOptions.ConfigureFgsApi());
-builder.Services.ConfigureHttpJsonOptions(options =>
-    options.SerializerOptions.ConfigureFgsApi());
-builder.Services.AddFgsSwagger(options =>
+
+
+var hostOptions = builder.AddFgsApiHost(options =>
+
 {
-    options.Title = "FGS Inventory Service";
-    options.Description = "Inventory and stock management.";
+
+    options.ServiceName = "fgs-inventory-service";
+
+    options.SwaggerTitle = "FGS Inventory Service";
+
+    options.SwaggerDescription = "Inventory management.";
+
     options.XmlCommentsAssembly = typeof(Program).Assembly;
+
 });
+
+
+
 builder.Services.AddFgsInventoryApplication();
+
 builder.Services.AddFgsInventoryInfrastructure(builder.Configuration);
-builder.Services.AddFgsMultiTenancy();
-builder.Services.AddFgsObservability(builder.Configuration, "fgs-inventory-service");
+
+builder.Services.AddFgsObservability(builder.Configuration, hostOptions.ServiceName);
+
+
 
 var app = builder.Build();
+await app.LoadFgsRemoteCredentialsAsync();
+app.UseFgsApiHost(hostOptions);
 
-app.UseFgsFoundationMiddleware();
-if (ShouldUseHttpsRedirection(app.Configuration))
-{
-    app.UseHttpsRedirection();
-}
-
-app.UseFgsSwagger();
-
-app.UseAuthentication();
-app.UseFgsTenantResolution();
-app.UseAuthorization();
-app.MapControllers();
 app.MapFgsHealthChecks();
 
 app.Run();
 
-static bool ShouldUseHttpsRedirection(IConfiguration configuration) =>
-    !string.Equals(configuration["DOTNET_RUNNING_IN_CONTAINER"], "true", StringComparison.OrdinalIgnoreCase)
-    && (configuration["ASPNETCORE_URLS"]?.Contains("https://", StringComparison.OrdinalIgnoreCase) == true
-        || !string.IsNullOrWhiteSpace(configuration["ASPNETCORE_HTTPS_PORT"]));
+
 
 public partial class Program;
+
+

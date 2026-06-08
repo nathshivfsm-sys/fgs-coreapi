@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Fgs.Consumer.Application.Features.TenantProvisioning.Commands.ProcessTenantProvisionRequested;
 
-public sealed class ProcessTenantProvisionRequestedCommandHandler(ISetupProvisioningClient setupClient)
+public sealed class ProcessTenantProvisionRequestedCommandHandler(ISetupClient setupClient)
     : IRequestHandler<ProcessTenantProvisionRequestedCommand>
 {
     public async Task Handle(
