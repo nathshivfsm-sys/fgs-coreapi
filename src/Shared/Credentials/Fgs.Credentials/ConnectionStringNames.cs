@@ -4,6 +4,7 @@ public static class ConnectionStringNames
 {
     public const string FgsUser = "FgsUser";
     public const string FgsSetup = "FgsSetup";
+    public const string FgsSetupReadOnly = "FgsSetupReadOnly";
     public const string FgsFile = "FgsFile";
     public const string FgsNotification = "FgsNotification";
     public const string FgsConsumer = "FgsConsumer";

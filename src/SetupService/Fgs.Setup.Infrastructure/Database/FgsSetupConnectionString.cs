@@ -27,4 +27,14 @@ public static class FgsSetupConnectionString
         ?? throw new InvalidOperationException(
             $"PostgreSQL connection string is required. Set ConnectionStrings:{ConnectionStringNames.FgsSetup}, "
             + $"Database:ConnectionString, {EnvironmentVariable}, or load DATABASE credentials from Setup Service.");
+
+    public static string ResolveReadOnly(
+        IConfiguration configuration,
+        ICredentialConfigurationProvider? credentialProvider = null) =>
+        ConnectionStringResolver.Resolve(
+            configuration,
+            ConnectionStringNames.FgsSetupReadOnly,
+            "FGS_SETUP_DB_READONLY",
+            credentialProvider)
+        ?? ResolveRequired(configuration, credentialProvider);
 }

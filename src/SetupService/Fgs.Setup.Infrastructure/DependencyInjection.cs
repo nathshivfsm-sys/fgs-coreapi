@@ -5,21 +5,26 @@ using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Options;
 using Fgs.Setup.Application.Abstractions.Provisioning;
 using Fgs.Setup.Application.Abstractions.Time;
+using Fgs.Setup.Application.Common.Catalog;
 using Fgs.Setup.Infrastructure.Common.Options;
 using Fgs.Setup.Infrastructure.Common.Time;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.Setup.Infrastructure.Database.Read;
 using Fgs.Setup.Infrastructure.Messaging;
 using Fgs.Setup.Application.Abstractions.Tenants;
 using Fgs.Setup.Infrastructure.Provisioning;
+using Fgs.Setup.Infrastructure.Setup;
 using Fgs.Setup.Infrastructure.Tenants;
+using Fgs.Foundation.CatalogCrud.Abstractions;
 using Fgs.Foundation.Extensions;
+using Fgs.Persistence.CatalogCrud;
+using Fgs.Persistence.Extensions;
 using Fgs.Security.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Fgs.Persistence.Extensions;
 
 namespace Fgs.Setup.Infrastructure;
 
@@ -79,6 +84,10 @@ public static class DependencyInjection
         services.AddScoped<ITenantProvisioningOrchestrator, TenantProvisioningOrchestrator>();
         services.AddScoped<ICompanyBusinessTypeService, CompanyBusinessTypeService>();
         services.AddScoped<IOutboxWriter, OutboxWriter>();
+        services.AddSetupCatalogEntities();
+        services.AddScoped<ICatalogDateTimeProvider, SetupCatalogDateTimeProvider>();
+        services.AddCatalogCrudInfrastructure<FgsSetupDbContext>()
+            .WithReadConnectionFactory<FgsSetupReadConnectionFactory>();
         CredentialServiceCollectionExtensions.AddFgsCredentialConfigurationServices(
             services,
             configuration,
