@@ -16,11 +16,12 @@ $serviceMap = @{
     Notification = @{ Infra = 'NotificationService\Fgs.Notification.Infrastructure'; Api = 'NotificationService\Fgs.Notification.API'; Conn = 'FgsNotification' }
     Billing      = @{ Infra = 'BillingService\Fgs.Billing.Infrastructure'; Api = 'BillingService\Fgs.Billing.API'; Conn = 'FgsBilling' }
     Crm          = @{ Infra = 'CrmService\Fgs.Crm.Infrastructure'; Api = 'CrmService\Fgs.Crm.API'; Conn = 'FgsCrm' }
-    Dispatch     = @{ Infra = 'DispatchService\Fgs.Dispatch.Infrastructure'; Api = 'DispatchService\Fgs.Dispatch.API'; Conn = 'FgsDispatch' }
+    Scheduling   = @{ Infra = 'SchedulingService\Fgs.Scheduling.Infrastructure'; Api = 'SchedulingService\Fgs.Scheduling.API'; Conn = 'FgsDispatch' }
     Inventory    = @{ Infra = 'InventoryService\Fgs.Inventory.Infrastructure'; Api = 'InventoryService\Fgs.Inventory.API'; Conn = 'FgsInventory' }
     Reporting    = @{ Infra = 'ReportingService\Fgs.Reporting.Infrastructure'; Api = 'ReportingService\Fgs.Reporting.API'; Conn = 'FgsReporting' }
-    Integration  = @{ Infra = 'IntegrationService\Fgs.Integration.Infrastructure'; Api = 'IntegrationService\Fgs.Integration.API'; Conn = 'FgsIntegration' }
-    Job          = @{ Infra = 'JobService\Fgs.Job.Infrastructure'; Api = 'JobService\Fgs.Job.API'; Conn = 'FgsJob' }
+    Integration      = @{ Infra = 'IntegrationService\Fgs.Integration.Infrastructure'; Api = 'IntegrationService\Fgs.Integration.API'; Conn = 'FgsIntegration' }
+    Asset            = @{ Infra = 'AssetService\Fgs.Asset.Infrastructure'; Api = 'AssetService\Fgs.Asset.API'; Conn = 'FgsAsset' }
+    ServiceAgreement = @{ Infra = 'ServiceAgreementService\Fgs.ServiceAgreement.Infrastructure'; Api = 'ServiceAgreementService\Fgs.ServiceAgreement.API'; Conn = 'FgsServiceAgreement' }
 }
 
 if (-not $serviceMap.ContainsKey($ServiceName)) {

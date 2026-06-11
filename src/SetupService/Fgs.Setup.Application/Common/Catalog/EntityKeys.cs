@@ -27,9 +27,6 @@ public static class EntityKeys
     public const string SetupPricingMatrixLaborTier = "SetupPricingMatrixLaborTier";
     public const string SetupPricingMatrixMaterialTier = "SetupPricingMatrixMaterialTier";
     public const string SetupPricingMatrixOther = "SetupPricingMatrixOther";
-    public const string SetupServiceAssetManufacturer = "SetupServiceAssetManufacturer";
-    public const string SetupServiceAssetModelReference = "SetupServiceAssetModelReference";
-    public const string SetupServiceAssetType = "SetupServiceAssetType";
     public const string SetupTax = "SetupTax";
     public const string SetupTaxAuthority = "SetupTaxAuthority";
     public const string SetupTaxDetail = "SetupTaxDetail";

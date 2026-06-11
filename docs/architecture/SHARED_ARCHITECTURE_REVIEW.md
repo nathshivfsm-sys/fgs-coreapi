@@ -1,7 +1,7 @@
 # FGS Shared Architecture Review & Refactoring Report
 
 **Date:** 2026-05-30 (updated 2026-06-04 for database ownership split)  
-**Scope:** `src/Shared/*`, UserService, NotificationService, JobService, SetupService, FileService, AuditService  
+**Scope:** `src/Shared/*`, UserService, NotificationService, SetupService, FileService, AuditService  
 **Target:** Enterprise microservices on .NET 10 with Clean Architecture, CQRS, DDD, SOLID
 
 > **Database ownership (2026-06):** The monolithic `FgsUserDbContext` was split into per-service DbContexts (`identity`/`tenant` → User, `setup`/`glo` → Setup, `file` → File, `audit` → Audit, `notification` → Notification). See [DATABASE_OWNERSHIP_MIGRATION.md](./DATABASE_OWNERSHIP_MIGRATION.md).

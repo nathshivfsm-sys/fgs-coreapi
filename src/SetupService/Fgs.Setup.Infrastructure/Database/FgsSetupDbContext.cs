@@ -53,14 +53,6 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsSetupDescription> FgsSetupDescriptions => Set<FgsSetupDescription>();
 
-    public DbSet<FgsSetupServiceAssetType> FgsSetupServiceAssetTypes => Set<FgsSetupServiceAssetType>();
-
-    public DbSet<FgsSetupServiceAssetManufacturer> FgsSetupServiceAssetManufacturers =>
-        Set<FgsSetupServiceAssetManufacturer>();
-
-    public DbSet<FgsSetupServiceAssetModelReference> FgsSetupServiceAssetModelReferences =>
-        Set<FgsSetupServiceAssetModelReference>();
-
     public DbSet<FgsResolutionCode> FgsResolutionCodes => Set<FgsResolutionCode>();
 
     public DbSet<FgsSetupPricingMatrix> FgsSetupPricingMatrices => Set<FgsSetupPricingMatrix>();

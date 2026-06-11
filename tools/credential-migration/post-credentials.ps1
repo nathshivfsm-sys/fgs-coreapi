@@ -31,14 +31,14 @@ $databaseConnections = [ordered]@{
     FgsNotification   = "fgs_dev_db"
     FgsConsumer       = "fgs_dev_db"
     FgsAudit          = "fgs_dev_db"
+    FgsAsset          = "fgs_dev_db"
     FgsBilling        = "fgs_dev_db"
     FgsCommunication  = "fgs_dev_db"
-    FgsContract       = "fgs_dev_db"
+    FgsServiceAgreement = "fgs_dev_db"
     FgsCrm            = "fgs_dev_db"
     FgsDispatch       = "fgs_dev_db"
     FgsIntegration    = "fgs_dev_db"
     FgsInventory      = "fgs_dev_db"
-    FgsJob            = "fgs_dev_db"
     FgsReporting      = "fgs_dev_db"
 }
 

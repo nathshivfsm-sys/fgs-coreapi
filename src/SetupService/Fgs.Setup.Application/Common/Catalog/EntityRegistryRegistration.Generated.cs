@@ -33,9 +33,6 @@ public static class EntityRegistryRegistration
         registry.Register(FgsSetupPricingMatrixLaborTierDescriptor.Create());
         registry.Register(FgsSetupPricingMatrixMaterialTierDescriptor.Create());
         registry.Register(FgsSetupPricingMatrixOtherDescriptor.Create());
-        registry.Register(FgsSetupServiceAssetManufacturerDescriptor.Create());
-        registry.Register(FgsSetupServiceAssetModelReferenceDescriptor.Create());
-        registry.Register(FgsSetupServiceAssetTypeDescriptor.Create());
         registry.Register(FgsSetupTaxDescriptor.Create());
         registry.Register(FgsSetupTaxAuthorityDescriptor.Create());
         registry.Register(FgsSetupTaxDetailDescriptor.Create());

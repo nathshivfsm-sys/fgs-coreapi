@@ -1,0 +1,6 @@
+@Fgs.Scheduling.API_HostAddress = http://localhost:5076
+
+GET {{Fgs.Scheduling.API_HostAddress}}/health
+Accept: application/json
+
+###
