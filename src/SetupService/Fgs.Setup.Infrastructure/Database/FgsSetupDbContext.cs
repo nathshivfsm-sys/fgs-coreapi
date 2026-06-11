@@ -202,6 +202,18 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<GloSeedTableColumnMapping> GloSeedTableColumnMappings => Set<GloSeedTableColumnMapping>();
 
+    public DbSet<FgsSetupServiceAgreementTemplate> FgsSetupServiceAgreementTemplates =>
+        Set<FgsSetupServiceAgreementTemplate>();
+
+    public DbSet<FgsSetupServiceAgreementPricingComponent> FgsSetupServiceAgreementPricingComponents =>
+        Set<FgsSetupServiceAgreementPricingComponent>();
+
+    public DbSet<FgsSetupServiceAgreementTemplatePricingComponent> FgsSetupServiceAgreementTemplatePricingComponents =>
+        Set<FgsSetupServiceAgreementTemplatePricingComponent>();
+
+    public DbSet<FgsSetupServiceAgreementTemplateCoverage> FgsSetupServiceAgreementTemplateCoverages =>
+        Set<FgsSetupServiceAgreementTemplateCoverage>();
+
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
 
     public DbSet<GloCredentialProviderTypeCache> GloCredentialProviderTypeCaches => Set<GloCredentialProviderTypeCache>();

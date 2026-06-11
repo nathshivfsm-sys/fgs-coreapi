@@ -1631,7 +1631,7 @@ SELECT
     v."Description",
     v."IsActive",
     timezone('utc', now()),
-    NULL::bigint
+    'System'
 FROM (
     VALUES
         ('TENANT_FgsTenantCompany_setup_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'setup', 'FgsTenantCompanyCache', 1, 'Tenant company cache (setup)', true),
@@ -1694,7 +1694,7 @@ SELECT
     c."IsRequired",
     c."IsActive",
     timezone('utc', now()),
-    NULL::bigint
+    'System'
 FROM glo."GloSeedTableMapping" m
 INNER JOIN (
     VALUES
