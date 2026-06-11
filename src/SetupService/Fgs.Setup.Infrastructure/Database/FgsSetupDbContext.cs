@@ -162,6 +162,22 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsLeadDisqualificationReason> FgsLeadDisqualificationReasons => Set<FgsLeadDisqualificationReason>();
 
+    public DbSet<GloSalesPipelineStatus> GloSalesPipelineStatuses => Set<GloSalesPipelineStatus>();
+
+    public DbSet<FgsSalesPipelineStatus> FgsSalesPipelineStatuses => Set<FgsSalesPipelineStatus>();
+
+    public DbSet<GloSalesDispositionReason> GloSalesDispositionReasons => Set<GloSalesDispositionReason>();
+
+    public DbSet<FgsSalesDispositionReason> FgsSalesDispositionReasons => Set<FgsSalesDispositionReason>();
+
+    public DbSet<GloSalesActivityType> GloSalesActivityTypes => Set<GloSalesActivityType>();
+
+    public DbSet<FgsSalesActivityType> FgsSalesActivityTypes => Set<FgsSalesActivityType>();
+
+    public DbSet<GloSalesActivityOutcome> GloSalesActivityOutcomes => Set<GloSalesActivityOutcome>();
+
+    public DbSet<FgsSalesActivityOutcome> FgsSalesActivityOutcomes => Set<FgsSalesActivityOutcome>();
+
     public DbSet<GloZone> GloZones => Set<GloZone>();
 
     public DbSet<GloJobTypeCategory> GloJobTypeCategories => Set<GloJobTypeCategory>();

@@ -104,11 +104,5 @@ internal class FgsVehicleMaintenanceConfiguration : IEntityTypeConfiguration<Fgs
             .HasForeignKey(e => e.VehicleId)
             .HasConstraintName("FK_FgsVehicleMaintenance_FgsVehicle_VehicleId")
             .OnDelete(DeleteBehavior.Restrict);
-
-        entity.HasOne<GloVehicleMaintenanceType>()
-            .WithMany()
-            .HasForeignKey(e => e.VehicleMaintenanceTypeId)
-            .HasConstraintName("FK_FgsVehicleMaintenance_GloVehicleMaintenanceType_VehicleMaintenanceTypeId")
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

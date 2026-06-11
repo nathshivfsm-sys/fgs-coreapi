@@ -59,12 +59,6 @@ internal class FgsSetupPricingMatrixLaborConfiguration : IEntityTypeConfiguratio
             .HasConstraintName("FK_FgsSetupPricingMatrixLabor_PricingMatrix")
             .OnDelete(DeleteBehavior.Cascade);
 
-        entity.HasOne<GloSetupLaborRateType>()
-            .WithMany()
-            .HasForeignKey(e => e.LaborRateTypeId)
-            .HasConstraintName("FK_FgsSetupPricingMatrixLabor_LaborRateType")
-            .OnDelete(DeleteBehavior.Restrict);
-
         entity.HasOne<FgsSetupTechSkillLevel>()
             .WithMany()
             .HasForeignKey(e => e.TechSkillLevelId)
