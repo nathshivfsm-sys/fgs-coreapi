@@ -154,6 +154,14 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsLeadSource> FgsLeadSources => Set<FgsLeadSource>();
 
+    public DbSet<GloLeadStatus> GloLeadStatuses => Set<GloLeadStatus>();
+
+    public DbSet<FgsLeadStatus> FgsLeadStatuses => Set<FgsLeadStatus>();
+
+    public DbSet<GloLeadDisqualificationReason> GloLeadDisqualificationReasons => Set<GloLeadDisqualificationReason>();
+
+    public DbSet<FgsLeadDisqualificationReason> FgsLeadDisqualificationReasons => Set<FgsLeadDisqualificationReason>();
+
     public DbSet<GloZone> GloZones => Set<GloZone>();
 
     public DbSet<GloJobTypeCategory> GloJobTypeCategories => Set<GloJobTypeCategory>();

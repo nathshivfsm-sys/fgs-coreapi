@@ -26,10 +26,5 @@ internal class FgsTagEntityTypeConfiguration : IEntityTypeConfiguration<FgsTagEn
             .HasForeignKey(e => e.TagId)
             .HasConstraintName("FK_FgsTagEntityType_FgsTag_TagId")
             .OnDelete(DeleteBehavior.Cascade);
-        entity.HasOne<GloMasterEntityType>()
-            .WithMany()
-            .HasForeignKey(e => e.MasterEntityTypeId)
-            .HasConstraintName("FK_FgsTagEntityType_GloMasterEntityType_MasterEntityTypeId")
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }
