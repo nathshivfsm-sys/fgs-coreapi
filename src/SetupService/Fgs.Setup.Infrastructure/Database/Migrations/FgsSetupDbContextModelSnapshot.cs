@@ -312,9 +312,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .IsDescending()
                         .HasDatabaseName("IX_FgsEntityTag_CreatedOn");
 
-                    b.HasIndex("MasterEntityTypeId")
-                        .HasDatabaseName("IX_FgsEntityTag_MasterEntityTypeId1");
-
                     b.HasIndex("TagId")
                         .HasDatabaseName("IX_FgsEntityTag_TagId1");
 
@@ -1160,6 +1157,93 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.ToTable("FgsJobTypeSubCategory", "setup");
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsLeadDisqualificationReason", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the reason.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the order in which reasons are displayed in dropdowns and lists.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the reason is available for selection.");
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the reason was seeded by the system or created by a user.");
+
+                    b.Property<string>("ReasonCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique business code for the disqualification reason within a company.");
+
+                    b.Property<string>("ReasonName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly name displayed throughout the application.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsLeadDisqualificationReason_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "DisplayOrder")
+                        .HasDatabaseName("IX_FgsLeadDisqualificationReason_TenantId_CompanyId_DisplayOrder");
+
+                    b.HasIndex("TenantId", "CompanyId", "ReasonCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsLeadDisqualificationReason_TenantId_CompanyId_ReasonCode");
+
+                    b.HasIndex("TenantId", "CompanyId", "ReasonName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsLeadDisqualificationReason_TenantId_CompanyId_ReasonName");
+
+                    b.ToTable("FgsLeadDisqualificationReason", "setup", t =>
+                        {
+                            t.HasComment("Stores tenant/company specific lead disqualification reasons used when leads are marked as disqualified.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsLeadSource", b =>
                 {
                     b.Property<long>("Id")
@@ -1216,6 +1300,96 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasDatabaseName("UX_FgsLeadSource_TenantId_CompanyId_SourceCode");
 
                     b.ToTable("FgsLeadSource", "setup");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsLeadStatus", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifier of the company that owns the lead status.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time when the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the purpose of the lead status.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Determines the order in which statuses appear in dropdowns, lists, and reports.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the status is available for selection and use.");
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the record was seeded by the system or created by a user.");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique business code for the lead status within a company. Examples: NEW, CONTACTED, QUALIFIED, CONVERTED.");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly name displayed throughout the application.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifier of the tenant that owns the lead status.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time when the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId", "DisplayOrder")
+                        .HasDatabaseName("IX_FgsLeadStatus_TenantId_CompanyId_DisplayOrder");
+
+                    b.HasIndex("TenantId", "CompanyId", "StatusCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsLeadStatus_TenantId_CompanyId_StatusCode");
+
+                    b.HasIndex("TenantId", "CompanyId", "StatusName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsLeadStatus_TenantId_CompanyId_StatusName");
+
+                    b.ToTable("FgsLeadStatus", "setup", t =>
+                        {
+                            t.HasComment("Stores tenant/company specific lead statuses used in the CRM lead lifecycle. Seeded from glo.GloLeadStatus during onboarding and may be customized by users.");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsResolutionCode", b =>
@@ -1281,6 +1455,513 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.ToTable("FgsResolutionCode", "setup", t =>
                         {
                             t.HasCheckConstraint("CK_FgsResolutionCode_Code_Upper", "\"ResolutionCode\" = UPPER(\"ResolutionCode\")");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSalesActivityOutcome", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Unique identifier for the sales activity outcome.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("AllowManualSelection")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether users may manually select this outcome.");
+
+                    b.Property<bool>("AppliesToLead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the outcome can be used by Leads.");
+
+                    b.Property<bool>("AppliesToOpportunity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the outcome can be used by Opportunities.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasComment("Company identifier that owns the record.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the sales activity outcome.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the order in which outcomes are displayed.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the outcome is available for use.");
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the outcome was seeded by the system. System records should have immutable business codes.");
+
+                    b.Property<bool>("IsTerminal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether selecting this outcome typically results in a terminal sales pipeline status.");
+
+                    b.Property<long?>("NextSalesPipelineStatusId")
+                        .HasColumnType("bigint")
+                        .HasComment("Suggested sales pipeline status that should be applied when this outcome is selected.");
+
+                    b.Property<string>("OutcomeCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Immutable business code for the sales activity outcome.");
+
+                    b.Property<string>("OutcomeName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly name displayed throughout the application.");
+
+                    b.Property<bool>("RequireComment")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether users must provide additional comments when selecting this outcome.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasComment("Tenant identifier that owns the record.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NextSalesPipelineStatusId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsSalesActivityOutcome_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "DisplayOrder")
+                        .HasDatabaseName("IX_FgsSalesActivityOutcome_TenantId_CompanyId_DisplayOrder");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsSalesActivityOutcome_TenantId_CompanyId_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "NextSalesPipelineStatusId")
+                        .HasDatabaseName("IX_FgsSalesActivityOutcome_TenantId_CompanyId_NextStatusId");
+
+                    b.HasIndex("TenantId", "CompanyId", "OutcomeCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsSalesActivityOutcome_TenantId_CompanyId_OutcomeCode");
+
+                    b.HasIndex("TenantId", "CompanyId", "OutcomeName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsSalesActivityOutcome_TenantId_CompanyId_OutcomeName");
+
+                    b.ToTable("FgsSalesActivityOutcome", "setup", t =>
+                        {
+                            t.HasComment("Stores tenant/company specific sales activity outcomes used by Leads and Opportunities. Outcomes represent the result of a sales interaction and may optionally suggest the next sales pipeline status. Seeded from glo.GloSalesActivityOutcome.");
+
+                            t.HasCheckConstraint("CK_FgsSalesActivityOutcome_AppliesToEntity", "\"AppliesToLead\" = true OR \"AppliesToOpportunity\" = true");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSalesActivityType", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Unique identifier for the sales activity type.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ActivityTypeCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Immutable business code for the sales activity type.");
+
+                    b.Property<string>("ActivityTypeName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly name displayed throughout the application.");
+
+                    b.Property<bool>("AllowManualSelection")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether users may manually select this activity type.");
+
+                    b.Property<bool>("AppliesToLead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the activity type can be used by Leads.");
+
+                    b.Property<bool>("AppliesToOpportunity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the activity type can be used by Opportunities.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasComment("Company identifier that owns the record.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the sales activity type.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the order in which activity types are displayed.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the activity type is available for use.");
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the activity type was seeded by the system. System records should have immutable business codes.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasComment("Tenant identifier that owns the record.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsSalesActivityType_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ActivityTypeCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsSalesActivityType_TenantId_CompanyId_ActivityTypeCode");
+
+                    b.HasIndex("TenantId", "CompanyId", "ActivityTypeName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsSalesActivityType_TenantId_CompanyId_ActivityTypeName");
+
+                    b.HasIndex("TenantId", "CompanyId", "DisplayOrder")
+                        .HasDatabaseName("IX_FgsSalesActivityType_TenantId_CompanyId_DisplayOrder");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsSalesActivityType_TenantId_CompanyId_IsActive");
+
+                    b.ToTable("FgsSalesActivityType", "setup", t =>
+                        {
+                            t.HasComment("Stores tenant/company specific sales activity types used by Leads and Opportunities. Seeded from glo.GloSalesActivityType.");
+
+                            t.HasCheckConstraint("CK_FgsSalesActivityType_AppliesToEntity", "\"AppliesToLead\" = true OR \"AppliesToOpportunity\" = true");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSalesDispositionReason", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Unique identifier for the sales disposition reason.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("AllowManualSelection")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether users may manually select this disposition reason.");
+
+                    b.Property<bool>("AppliesToLead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the reason can be used when a Lead is Disqualified.");
+
+                    b.Property<bool>("AppliesToOpportunity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the reason can be used when an Opportunity is Lost.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasComment("Company identifier that owns the record.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the disposition reason.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the order in which disposition reasons are displayed.");
+
+                    b.Property<string>("DispositionReasonCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Immutable business code for the disposition reason.");
+
+                    b.Property<string>("DispositionReasonName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly name displayed throughout the application.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the disposition reason is available for use.");
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the disposition reason was seeded by the system. System records should have immutable business codes.");
+
+                    b.Property<bool>("IsTerminal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether selecting this disposition reason should result in a terminal pipeline status.");
+
+                    b.Property<bool>("RequireComment")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether users must provide additional comments when selecting this disposition reason.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasComment("Tenant identifier that owns the record.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsSalesDispositionReason_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "DisplayOrder")
+                        .HasDatabaseName("IX_FgsSalesDispositionReason_TenantId_CompanyId_DisplayOrder");
+
+                    b.HasIndex("TenantId", "CompanyId", "DispositionReasonCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsSalesDispReason_TenantId_CompanyId_ReasonCode");
+
+                    b.HasIndex("TenantId", "CompanyId", "DispositionReasonName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsSalesDispReason_TenantId_CompanyId_ReasonName");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsSalesDispositionReason_TenantId_CompanyId_IsActive");
+
+                    b.ToTable("FgsSalesDispositionReason", "setup", t =>
+                        {
+                            t.HasComment("Stores tenant/company specific sales disposition reasons used when a Lead is Disqualified or an Opportunity is Lost. Seeded from glo.GloSalesDispositionReason.");
+
+                            t.HasCheckConstraint("CK_FgsSalesDispositionReason_AppliesToEntity", "\"AppliesToLead\" = true OR \"AppliesToOpportunity\" = true");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSalesPipelineStatus", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Unique identifier for the sales pipeline status.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("AllowManualSelection")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether users may manually select this status.");
+
+                    b.Property<bool>("AppliesToLead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the status can be used by Leads.");
+
+                    b.Property<bool>("AppliesToOpportunity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the status can be used by Opportunities.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasComment("Company identifier that owns the record.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the purpose of the status.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the order in which statuses are displayed.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the status is available for use.");
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the status was seeded by the system. System records should have immutable business codes.");
+
+                    b.Property<bool>("IsTerminal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the status represents a terminal end state such as Won, Lost, or Disqualified.");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Immutable business code for the sales pipeline status.");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly name displayed throughout the application.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasComment("Tenant identifier that owns the record.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsSalesPipelineStatus_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "DisplayOrder")
+                        .HasDatabaseName("IX_FgsSalesPipelineStatus_TenantId_CompanyId_DisplayOrder");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsSalesPipelineStatus_TenantId_CompanyId_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "StatusCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsSalesPipelineStatus_TenantId_CompanyId_StatusCode");
+
+                    b.HasIndex("TenantId", "CompanyId", "StatusName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsSalesPipelineStatus_TenantId_CompanyId_StatusName");
+
+                    b.ToTable("FgsSalesPipelineStatus", "setup", t =>
+                        {
+                            t.HasComment("Stores tenant/company specific sales pipeline statuses used by Leads and Opportunities. Seeded from glo.GloSalesPipelineStatus.");
+
+                            t.HasCheckConstraint("CK_FgsSalesPipelineStatus_AppliesToEntity", "\"AppliesToLead\" = true OR \"AppliesToOpportunity\" = true");
                         });
                 });
 
@@ -1826,14 +2507,17 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrix", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -1844,7 +2528,9 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamptz");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
 
                     b.Property<DateOnly>("EffectiveFrom")
                         .HasColumnType("date");
@@ -1853,20 +2539,29 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("date");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
 
                     b.Property<bool>("IsLaborRateBySkillLevel")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsLaborTierStructure")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsMobileVisible")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
@@ -1882,19 +2577,28 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasAlternateKey("TenantId", "CompanyId", "Code")
-                        .HasName("UQ_FgsSetupPricingMatrix");
+                        .HasName("UQ_FgsSetupPricingMatrix_TenantId_CompanyId_Code");
 
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsSetupPricingMatrix_TenantId_CompanyId_IsActive");
 
-                    b.ToTable("FgsSetupPricingMatrix", "setup");
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .HasDatabaseName("IX_FgsSetupPricingMatrix_TenantId_CompanyId_Name");
+
+                    b.ToTable("FgsSetupPricingMatrix", "setup", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupPricingMatrix_EffectiveDates", "\"EffectiveTo\" IS NULL OR \"EffectiveTo\" >= \"EffectiveFrom\"");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrixLabor", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<decimal>("BaseRate")
                         .HasPrecision(18, 2)
@@ -1909,7 +2613,9 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamptz");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
 
                     b.Property<decimal?>("DiscountPercent")
                         .HasPrecision(18, 2)
@@ -1919,22 +2625,24 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
-                    b.Property<int>("FgsSetupLaborRateTypeId")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("FgsSetupPricingMatrixId")
-                        .HasColumnType("uuid");
-
-                    b.Property<long?>("FgsSetupTechSkillLevelId")
-                        .HasColumnType("bigint");
-
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("LaborRateTypeId")
+                        .HasColumnType("integer");
 
                     b.Property<decimal?>("OvertimeMultiplier")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<long>("PricingMatrixId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TechSkillLevelId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
                         .HasColumnOrder(1);
@@ -1948,25 +2656,42 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FgsSetupLaborRateTypeId");
+                    b.HasAlternateKey("TenantId", "CompanyId", "PricingMatrixId", "LaborRateTypeId", "TechSkillLevelId")
+                        .HasName("UQ_FgsSetupPricingMatrixLabor");
 
-                    b.HasIndex("FgsSetupPricingMatrixId");
+                    b.HasIndex("PricingMatrixId");
 
-                    b.HasIndex("FgsSetupTechSkillLevelId");
+                    b.HasIndex("TechSkillLevelId");
 
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasIndex("TenantId", "CompanyId", "LaborRateTypeId")
+                        .HasDatabaseName("IX_FgsSetupPricingMatrixLabor_TenantId_CompanyId_LaborRateTypeId");
 
-                    b.ToTable("FgsSetupPricingMatrixLabor", "setup");
+                    b.HasIndex("TenantId", "CompanyId", "PricingMatrixId")
+                        .HasDatabaseName("IX_FgsSetupPricingMatrixLabor_TenantId_CompanyId_PricingMatrixId");
+
+                    b.HasIndex("TenantId", "CompanyId", "TechSkillLevelId")
+                        .HasDatabaseName("IX_FgsSetupPricingMatrixLabor_TenantId_CompanyId_TechSkillLevelId");
+
+                    b.ToTable("FgsSetupPricingMatrixLabor", "setup", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixLabor_BaseRate", "\"BaseRate\" >= 0");
+
+                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixLabor_DiscountPercent", "\"DiscountPercent\" IS NULL OR (\"DiscountPercent\" >= 0 AND \"DiscountPercent\" <= 100)");
+
+                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixLabor_DoubleTimeMultiplier", "\"DoubleTimeMultiplier\" IS NULL OR \"DoubleTimeMultiplier\" >= 1");
+
+                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixLabor_OvertimeMultiplier", "\"OvertimeMultiplier\" IS NULL OR \"OvertimeMultiplier\" >= 1");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrixLaborTier", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(0);
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -1977,23 +2702,27 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamptz");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
 
                     b.Property<int>("DurationMinutes")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("FgsSetupPricingMatrixLaborId")
-                        .HasColumnType("uuid");
-
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<long>("PricingMatrixLaborId")
+                        .HasColumnType("bigint");
 
                     b.Property<decimal>("Rate")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
-                    b.Property<int>("SequenceOrder")
-                        .HasColumnType("integer");
+                    b.Property<short>("SequenceOrder")
+                        .HasColumnType("smallint");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
@@ -2008,26 +2737,40 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FgsSetupPricingMatrixLaborId");
+                    b.HasAlternateKey("TenantId", "CompanyId", "PricingMatrixLaborId", "SequenceOrder")
+                        .HasName("UQ_FgsSetupPricingMatrixLaborTier_PricingMatrixLaborId_SequenceOrder");
 
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasIndex("PricingMatrixLaborId");
 
-                    b.ToTable("FgsSetupPricingMatrixLaborTier", "setup");
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsSetupPricingMatrixLaborTier_TenantId_CompanyId_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "PricingMatrixLaborId")
+                        .HasDatabaseName("IX_FgsSetupPricingMatrixLaborTier_TenantId_CompanyId_PricingMatrixLaborId");
+
+                    b.ToTable("FgsSetupPricingMatrixLaborTier", "setup", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixLaborTier_DurationMinutes", "\"DurationMinutes\" > 0");
+
+                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixLaborTier_Rate", "\"Rate\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrixMaterialTier", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(0);
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<decimal>("AdjustmentValue")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 6)
                         .HasColumnType("numeric(18,6)")
-                        .HasComment("Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = $150 markup, 1.75 = multiplier.");
+                        .HasDefaultValue(0m)
+                        .HasComment("Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = fixed dollar markup, 1.75 = multiplier.");
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -2038,11 +2781,9 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<Guid>("FgsSetupPricingMatrixId")
-                        .HasColumnType("uuid")
-                        .HasComment("Reference to the pricing matrix that contains this tier.");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
 
                     b.Property<decimal>("FromCost")
                         .HasPrecision(18, 2)
@@ -2050,11 +2791,17 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasComment("Inclusive minimum material cost for this pricing tier.");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
 
                     b.Property<short>("PriceAdjustmentTypeId")
                         .HasColumnType("smallint")
                         .HasComment("Pricing adjustment method. Valid values: 1=Markup Percent, 2=Markup Amount, 3=Multiplier.");
+
+                    b.Property<long>("PricingMatrixId")
+                        .HasColumnType("bigint")
+                        .HasComment("Reference to the pricing matrix that contains this tier.");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
@@ -2074,15 +2821,15 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FgsSetupPricingMatrixId");
+                    b.HasIndex("PricingMatrixId");
 
-                    b.HasIndex("PriceAdjustmentTypeId")
-                        .HasDatabaseName("IX_FgsSetupPricingMatrixMaterialTier_PriceAdjustmentTypeId");
+                    b.HasIndex("TenantId", "CompanyId", "PriceAdjustmentTypeId")
+                        .HasDatabaseName("IX_FgsSetupPricingMatrixMaterialTier_TenantId_CompanyId_PriceAdjustmentTypeId");
 
-                    b.HasIndex("TenantId", "CompanyId", "FgsSetupPricingMatrixId")
-                        .HasDatabaseName("IX_FgsSetupPricingMatrixMaterialTier_TenantId_CompanyId_FgsSetupPricingMatrixId");
+                    b.HasIndex("TenantId", "CompanyId", "PricingMatrixId")
+                        .HasDatabaseName("IX_FgsSetupPricingMatrixMaterialTier_TenantId_CompanyId_PricingMatrixId");
 
-                    b.HasIndex("TenantId", "CompanyId", "FgsSetupPricingMatrixId", "FromCost")
+                    b.HasIndex("TenantId", "CompanyId", "PricingMatrixId", "FromCost")
                         .IsUnique()
                         .HasDatabaseName("UQ_FgsSetupPricingMatrixMaterialTier_Matrix_FromCost");
 
@@ -2102,14 +2849,18 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrixOther", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("bigint")
                         .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("CategoryCode")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique category code within the pricing matrix.");
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -2120,25 +2871,34 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamptz");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
 
                     b.Property<decimal?>("DiscountPercent")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<Guid>("FgsSetupPricingMatrixId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("numeric(18,2)")
+                        .HasComment("Optional discount percentage applied after markup.");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
 
                     b.Property<decimal?>("MarkupPercent")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric(18,2)")
+                        .HasComment("Markup percentage applied to the base cost.");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("User-friendly category name.");
+
+                    b.Property<long>("PricingMatrixId")
+                        .HasColumnType("bigint")
+                        .HasComment("Reference to the pricing matrix.");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
@@ -2153,22 +2913,28 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("TenantId", "CompanyId", "FgsSetupPricingMatrixId", "CategoryCode")
+                    b.HasAlternateKey("TenantId", "CompanyId", "PricingMatrixId", "CategoryCode")
                         .HasName("UQ_FgsSetupPricingMatrixOther");
 
-                    b.HasIndex("FgsSetupPricingMatrixId");
+                    b.HasIndex("PricingMatrixId");
 
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsSetupPricingMatrixOther_TenantId_CompanyId_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "PricingMatrixId")
+                        .HasDatabaseName("IX_FgsSetupPricingMatrixOther_TenantId_CompanyId_PricingMatrixId");
 
                     b.ToTable("FgsSetupPricingMatrixOther", "setup", t =>
                         {
+                            t.HasComment("Stores pricing adjustments for miscellaneous categories such as permits, disposal fees, equipment rentals, trip charges, crane services, and other non-material/non-labor costs.");
+
                             t.HasCheckConstraint("CK_FgsSetupPricingMatrixOther_DiscountPercent", "\"DiscountPercent\" IS NULL OR (\"DiscountPercent\" >= 0 AND \"DiscountPercent\" <= 100)");
 
                             t.HasCheckConstraint("CK_FgsSetupPricingMatrixOther_MarkupPercent", "\"MarkupPercent\" IS NULL OR \"MarkupPercent\" >= 0");
                         });
                 });
 
-            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAssetManufacturer", b =>
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAgreementPricingComponent", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -2177,9 +2943,9 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -2190,17 +2956,38 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamptz");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("PricingComponentCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("PricingComponentTypeCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("FIXED, FIRST_SYSTEM, SECOND_SYSTEM, THIRD_SYSTEM, FOURTH_SYSTEM, FIFTH_SYSTEM, or ADDITIONAL_SYSTEM.");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
@@ -2215,18 +3002,20 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("TenantId", "CompanyId", "Code")
-                        .HasName("UQ_FgsSetupServiceAssetManufacturer");
+                    b.HasAlternateKey("TenantId", "CompanyId", "PricingComponentCode")
+                        .HasName("UQ_FgsSetupServiceAgreementPricingComponent_TenantId_CompanyId_PricingComponentCode");
 
-                    b.HasIndex("TenantId", "CompanyId");
-
-                    b.ToTable("FgsSetupServiceAssetManufacturer", "setup", t =>
+                    b.ToTable("FgsSetupServiceAgreementPricingComponent", "setup", t =>
                         {
-                            t.HasCheckConstraint("CK_FgsSetupServiceAssetManufacturer_Code_Upper", "\"Code\" = UPPER(\"Code\")");
+                            t.HasComment("Stores reusable service agreement pricing components and their default pricing for a tenant-company. Component types: FIXED (applied once), FIRST_SYSTEM through FIFTH_SYSTEM (per-system tier), ADDITIONAL_SYSTEM (sixth and subsequent systems).");
+
+                            t.HasCheckConstraint("CK_FgsSetupServiceAgreementPricingComponent_Amount", "\"Amount\" >= 0");
+
+                            t.HasCheckConstraint("CK_FgsSetupServiceAgreementPricingComponent_TypeCode", "\"PricingComponentTypeCode\" IN ('FIXED','FIRST_SYSTEM','SECOND_SYSTEM','THIRD_SYSTEM','FOURTH_SYSTEM','FIFTH_SYSTEM','ADDITIONAL_SYSTEM')");
                         });
                 });
 
-            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAssetModelReference", b =>
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAgreementTemplate", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -2234,6 +3023,10 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnOrder(0);
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<short>("BillingFrequencyMonths")
+                        .HasColumnType("smallint")
+                        .HasComment("Billing frequency in months. 1 = Monthly, 3 = Quarterly, 6 = Semi-Annual, 12 = Annual.");
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -2244,107 +3037,48 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<long>("FgsSetupServiceAssetManufacturerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("FgsSetupServiceAssetTypeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("ModelDescription")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ModelNumber")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("text");
-
-                    b.Property<string>("SerialNumberPattern")
-                        .HasColumnType("text");
-
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
-                        .HasColumnOrder(1);
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTimeOffset?>("UpdatedOn")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<string>("UrlsJson")
-                        .HasColumnType("jsonb");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FgsSetupServiceAssetManufacturerId")
-                        .HasDatabaseName("IX_FgsSvcAssetModelRef_MfrId");
-
-                    b.HasIndex("FgsSetupServiceAssetTypeId")
-                        .HasDatabaseName("IX_FgsSvcAssetModelRef_TypeId");
-
-                    b.HasIndex("UrlsJson")
-                        .HasDatabaseName("IX_ServiceAsset_UrlsJson");
-
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("UrlsJson"), "gin");
-
-                    b.HasIndex("TenantId", "CompanyId");
-
-                    b.HasIndex("TenantId", "CompanyId", "FgsSetupServiceAssetManufacturerId")
-                        .HasDatabaseName("IX_FgsSvcAssetModelRef_Mfr");
-
-                    b.HasIndex("TenantId", "CompanyId", "FgsSetupServiceAssetTypeId")
-                        .HasDatabaseName("IX_FgsSvcAssetModelRef_Type");
-
-                    b.HasIndex("TenantId", "CompanyId", "FgsSetupServiceAssetTypeId", "FgsSetupServiceAssetManufacturerId")
-                        .HasDatabaseName("IX_FgsSvcAssetModelRef_TypeMfr");
-
-                    b.ToTable("FgsSetupServiceAssetModelReference", "setup", t =>
-                        {
-                            t.HasCheckConstraint("CK_FgsSvcAssetModelRef_UrlsJson", "\"UrlsJson\" IS NULL OR jsonb_typeof(\"UrlsJson\") = 'array'");
-                        });
-                });
-
-            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAssetType", b =>
-                {
-                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnOrder(0);
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("CompanyId")
-                        .HasColumnType("bigint")
-                        .HasColumnOrder(2);
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsAutoRenew")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<short>("MaintenanceFrequencyMonths")
+                        .HasColumnType("smallint")
+                        .HasComment("Maintenance frequency in months. 1 = Monthly, 3 = Quarterly, 6 = Semi-Annual, 12 = Annual.");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<decimal>("RepairDiscountPercent")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Discount given to service agreement customers on additional repairs.");
+
+                    b.Property<string>("TemplateCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
@@ -2359,14 +3093,163 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("TenantId", "CompanyId", "Code")
-                        .HasName("UQ_FgsSetupServiceAssetType");
+                    b.HasAlternateKey("TenantId", "CompanyId", "TemplateCode")
+                        .HasName("UQ_FgsSetupServiceAgreementTemplate_TenantId_CompanyId_TemplateCode");
 
-                    b.HasIndex("TenantId", "CompanyId");
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsSetupServiceAgreementTemplate_TenantId_CompanyId");
 
-                    b.ToTable("FgsSetupServiceAssetType", "setup", t =>
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .HasDatabaseName("IX_FgsSetupServiceAgreementTemplate_TenantId_CompanyId_Name");
+
+                    b.ToTable("FgsSetupServiceAgreementTemplate", "setup", t =>
                         {
-                            t.HasCheckConstraint("CK_FgsSetupServiceAssetType_Code_Upper", "\"Code\" = UPPER(\"Code\")");
+                            t.HasComment("Stores service agreement templates defining billing frequency, maintenance frequency, repair discounts, and default terms for a tenant-company.");
+
+                            t.HasCheckConstraint("CK_FgsSetupServiceAgreementTemplate_BillingFrequencyMonths", "\"BillingFrequencyMonths\" IN (1,3,6,12)");
+
+                            t.HasCheckConstraint("CK_FgsSetupServiceAgreementTemplate_MaintenanceFrequencyMonths", "\"MaintenanceFrequencyMonths\" IN (1,3,6,12)");
+
+                            t.HasCheckConstraint("CK_FgsSetupServiceAgreementTemplate_RepairDiscountPercent", "\"RepairDiscountPercent\" >= 0 AND \"RepairDiscountPercent\" <= 100");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAgreementTemplateCoverage", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CoverageTypeCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("INCLUDE or EXCLUDE.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<long>("ServiceAgreementTemplateId")
+                        .HasColumnType("bigint")
+                        .HasComment("Service agreement template that this coverage item belongs to.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceAgreementTemplateId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ServiceAgreementTemplateId")
+                        .HasDatabaseName("IX_FgsSetupServiceAgreementTemplateCoverage_TenantId_CompanyId_TemplateId");
+
+                    b.ToTable("FgsSetupServiceAgreementTemplateCoverage", "setup", t =>
+                        {
+                            t.HasComment("Stores included or excluded coverage items for a service agreement template.");
+
+                            t.HasCheckConstraint("CK_FgsSetupServiceAgreementTemplateCoverage_CoverageTypeCode", "\"CoverageTypeCode\" IN ('INCLUDE','EXCLUDE')");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAgreementTemplatePricingComponent", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("PricingComponentCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<long>("ServiceAgreementTemplateId")
+                        .HasColumnType("bigint")
+                        .HasComment("Service agreement template that includes this pricing component snapshot.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "ServiceAgreementTemplateId", "PricingComponentCode")
+                        .HasName("UQ_FgsSetupServiceAgreementTemplatePricingComponent_TenantId_CompanyId_TemplateId_ComponentCode");
+
+                    b.HasIndex("ServiceAgreementTemplateId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ServiceAgreementTemplateId")
+                        .HasDatabaseName("IX_FgsSetupServiceAgreementTemplatePricingComponent_TenantId_CompanyId_TemplateId");
+
+                    b.ToTable("FgsSetupServiceAgreementTemplatePricingComponent", "setup", t =>
+                        {
+                            t.HasComment("Stores pricing components included in a service agreement template. Rows are a snapshot copied from FgsSetupServiceAgreementPricingComponent when the template is configured and become independent of the master pricing component.");
+
+                            t.HasCheckConstraint("CK_FgsSetupServiceAgreementTemplatePricingComponent_Amount", "\"Amount\" >= 0");
                         });
                 });
 
@@ -3059,9 +3942,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     b.HasKey("TenantId", "CompanyId", "TagId", "MasterEntityTypeId");
 
-                    b.HasIndex("MasterEntityTypeId")
-                        .HasDatabaseName("IX_FgsTagEntityType_MasterEntityTypeId1");
-
                     b.HasIndex("TagId")
                         .HasDatabaseName("IX_FgsTagEntityType_TagId1");
 
@@ -3361,8 +4241,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("VehicleId");
-
-                    b.HasIndex("VehicleMaintenanceTypeId");
 
                     b.HasIndex("TenantId", "CompanyId", "IsCompleted")
                         .HasDatabaseName("IX_FgsVehicleMaintenance_TenantId_CompanyId_IsCompleted");
@@ -4527,6 +5405,78 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.ToTable("GloLanguage", "glo");
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloLeadDisqualificationReason", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the reason.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the order in which reasons are displayed.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the reason is available for seeding and use.");
+
+                    b.Property<string>("ReasonCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique business code for the disqualification reason.");
+
+                    b.Property<string>("ReasonName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly name displayed throughout the application.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DisplayOrder")
+                        .HasDatabaseName("IX_GloLeadDisqualificationReason_DisplayOrder");
+
+                    b.HasIndex("ReasonCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloLeadDisqualificationReason_ReasonCode");
+
+                    b.HasIndex("ReasonName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloLeadDisqualificationReason_ReasonName");
+
+                    b.ToTable("GloLeadDisqualificationReason", "glo", t =>
+                        {
+                            t.HasComment("Master list of lead disqualification reasons used to seed tenant-specific records into setup.FgsLeadDisqualificationReason.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloLeadSource", b =>
                 {
                     b.Property<short>("Id")
@@ -4577,6 +5527,66 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasDatabaseName("UX_GloLeadSource_SourceCode");
 
                     b.ToTable("GloLeadSource", "glo");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloLeadStatus", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DisplayOrder")
+                        .HasDatabaseName("IX_GloLeadStatus_DisplayOrder");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloLeadStatus_StatusCode");
+
+                    b.ToTable("GloLeadStatus", "glo");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloLocationType", b =>
@@ -4964,6 +5974,411 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                             t.HasCheckConstraint("CK_GloRole_Name_NotEmpty", "length(trim(\"Name\")) > 0");
 
                             t.HasCheckConstraint("CK_GloRole_RoleCode_NotEmpty", "length(trim(\"RoleCode\")) > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloSalesActivityOutcome", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasComment("Unique identifier for the sales activity outcome.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("Id"));
+
+                    b.Property<bool>("AllowManualSelection")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether users may manually select this outcome.");
+
+                    b.Property<bool>("AppliesToLead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the outcome can be used by Leads.");
+
+                    b.Property<bool>("AppliesToOpportunity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the outcome can be used by Opportunities.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the sales activity outcome.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the order in which outcomes are displayed.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsTerminal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether selecting this outcome typically results in a terminal sales pipeline status.");
+
+                    b.Property<string>("NextSalesPipelineStatusCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Suggested sales pipeline status code that should be applied when this outcome is selected.");
+
+                    b.Property<string>("OutcomeCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Immutable business code for the sales activity outcome.");
+
+                    b.Property<string>("OutcomeName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly name displayed throughout the application.");
+
+                    b.Property<bool>("RequireComment")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether users must provide additional comments when selecting this outcome.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DisplayOrder")
+                        .HasDatabaseName("IX_GloSalesActivityOutcome_DisplayOrder");
+
+                    b.HasIndex("OutcomeCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloSalesActivityOutcome_OutcomeCode");
+
+                    b.HasIndex("OutcomeName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloSalesActivityOutcome_OutcomeName");
+
+                    b.ToTable("GloSalesActivityOutcome", "glo", t =>
+                        {
+                            t.HasComment("Master list of sales activity outcomes used by Leads and Opportunities. Outcomes represent the result of a sales interaction and may optionally suggest the next sales pipeline status. Seeded into setup.FgsSalesActivityOutcome.");
+
+                            t.HasCheckConstraint("CK_GloSalesActivityOutcome_AppliesToEntity", "\"AppliesToLead\" = true OR \"AppliesToOpportunity\" = true");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloSalesActivityType", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasComment("Unique identifier for the sales activity type.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("Id"));
+
+                    b.Property<string>("ActivityTypeCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Immutable business code for the sales activity type.");
+
+                    b.Property<string>("ActivityTypeName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly name displayed throughout the application.");
+
+                    b.Property<bool>("AllowManualSelection")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether users may manually select this activity type.");
+
+                    b.Property<bool>("AppliesToLead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the activity type can be used by Leads.");
+
+                    b.Property<bool>("AppliesToOpportunity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the activity type can be used by Opportunities.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the sales activity type.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the order in which activity types are displayed.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityTypeCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloSalesActivityType_ActivityTypeCode");
+
+                    b.HasIndex("ActivityTypeName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloSalesActivityType_ActivityTypeName");
+
+                    b.HasIndex("DisplayOrder")
+                        .HasDatabaseName("IX_GloSalesActivityType_DisplayOrder");
+
+                    b.ToTable("GloSalesActivityType", "glo", t =>
+                        {
+                            t.HasComment("Master list of sales activity types used by Leads and Opportunities. Seeded into setup.FgsSalesActivityType.");
+
+                            t.HasCheckConstraint("CK_GloSalesActivityType_AppliesToEntity", "\"AppliesToLead\" = true OR \"AppliesToOpportunity\" = true");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloSalesDispositionReason", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasComment("Unique identifier for the sales disposition reason.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("Id"));
+
+                    b.Property<bool>("AppliesToLead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the reason can be used when a Lead is Disqualified.");
+
+                    b.Property<bool>("AppliesToOpportunity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the reason can be used when an Opportunity is Lost.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the disposition reason.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the order in which reasons are displayed.");
+
+                    b.Property<string>("DispositionReasonCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Immutable business code for the disposition reason.");
+
+                    b.Property<string>("DispositionReasonName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly name displayed throughout the application.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsTerminal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether selecting this disposition reason should result in a terminal pipeline status such as Lost or Disqualified.");
+
+                    b.Property<bool>("RequireComment")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether users must provide additional comments when selecting this disposition reason.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DisplayOrder")
+                        .HasDatabaseName("IX_GloSalesDispositionReason_DisplayOrder");
+
+                    b.HasIndex("DispositionReasonCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloSalesDispositionReason_DispositionReasonCode");
+
+                    b.HasIndex("DispositionReasonName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloSalesDispositionReason_DispositionReasonName");
+
+                    b.ToTable("GloSalesDispositionReason", "glo", t =>
+                        {
+                            t.HasComment("Master list of sales disposition reasons used when a Lead is Disqualified or an Opportunity is Lost. Seeded into setup.FgsSalesDispositionReason.");
+
+                            t.HasCheckConstraint("CK_GloSalesDispositionReason_AppliesToEntity", "\"AppliesToLead\" = true OR \"AppliesToOpportunity\" = true");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloSalesPipelineStatus", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasComment("Unique identifier for the sales pipeline status.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("Id"));
+
+                    b.Property<bool>("AllowManualSelection")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether users may manually select this status. When false, the status should be reached through workflow actions or automation.");
+
+                    b.Property<bool>("AppliesToLead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the status can be used by Leads.");
+
+                    b.Property<bool>("AppliesToOpportunity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the status can be used by Opportunities.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the purpose of the status.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the order in which statuses are displayed.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsTerminal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the status represents a terminal end state such as Won, Lost, or Disqualified.");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Immutable business code for the sales pipeline status.");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly name displayed throughout the application.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DisplayOrder")
+                        .HasDatabaseName("IX_GloSalesPipelineStatus_DisplayOrder");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloSalesPipelineStatus_StatusCode");
+
+                    b.HasIndex("StatusName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloSalesPipelineStatus_StatusName");
+
+                    b.ToTable("GloSalesPipelineStatus", "glo", t =>
+                        {
+                            t.HasComment("Master list of sales pipeline statuses used by Leads and Opportunities. Seeded into setup.FgsSalesPipelineStatus.");
+
+                            t.HasCheckConstraint("CK_GloSalesPipelineStatus_AppliesToEntity", "\"AppliesToLead\" = true OR \"AppliesToOpportunity\" = true");
                         });
                 });
 
@@ -5999,13 +7414,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsEntityTag", b =>
                 {
-                    b.HasOne("Fgs.Setup.Domain.Entities.GloMasterEntityType", null)
-                        .WithMany()
-                        .HasForeignKey("MasterEntityTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsEntityTag_GloMasterEntityType_MasterEntityTypeId");
-
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTag", null)
                         .WithMany()
                         .HasForeignKey("TagId")
@@ -6199,6 +7607,16 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasConstraintName("FK_FgsJobTypeSubCategory_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsLeadDisqualificationReason", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsLeadDisqualificationReason_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsLeadSource", b =>
                 {
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
@@ -6207,6 +7625,16 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsLeadSource_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsLeadStatus", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsLeadStatus_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsResolutionCode", b =>
@@ -6226,6 +7654,52 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasConstraintName("FK_FgsResolutionCode_FgsTenantCompanyCache_TenantId_CompanyId");
 
                     b.Navigation("ResolutionType");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSalesActivityOutcome", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsSalesPipelineStatus", null)
+                        .WithMany()
+                        .HasForeignKey("NextSalesPipelineStatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsSalesActivityOutcome_FgsSalesPipelineStatus_NextSalesPipelineStatusId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSalesActivityOutcome_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSalesActivityType", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSalesActivityType_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSalesDispositionReason", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSalesDispositionReason_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSalesPipelineStatus", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSalesPipelineStatus_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupDescription", b =>
@@ -6337,24 +7811,18 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrixLabor", b =>
                 {
-                    b.HasOne("Fgs.Setup.Domain.Entities.GloSetupLaborRateType", null)
-                        .WithMany()
-                        .HasForeignKey("FgsSetupLaborRateTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPricingMatrixLabor_LaborRateType");
-
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrix", null)
                         .WithMany()
-                        .HasForeignKey("FgsSetupPricingMatrixId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("PricingMatrixId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_FgsSetupPricingMatrixLabor_PricingMatrix");
 
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsSetupTechSkillLevel", null)
                         .WithMany()
-                        .HasForeignKey("FgsSetupTechSkillLevelId")
+                        .HasForeignKey("TechSkillLevelId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
                         .HasConstraintName("FK_FgsSetupPricingMatrixLabor_TechSkillLevel");
 
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
@@ -6369,10 +7837,10 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                 {
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrixLabor", null)
                         .WithMany()
-                        .HasForeignKey("FgsSetupPricingMatrixLaborId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("PricingMatrixLaborId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_FgsSetupPricingMatrixLaborTier_Labor");
+                        .HasConstraintName("FK_FgsSetupPricingMatrixLaborTier_PricingMatrixLabor");
 
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
                         .WithMany()
@@ -6386,8 +7854,8 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                 {
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrix", null)
                         .WithMany()
-                        .HasForeignKey("FgsSetupPricingMatrixId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("PricingMatrixId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_FgsSetupPricingMatrixMaterialTier_PricingMatrix");
 
@@ -6403,8 +7871,8 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                 {
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrix", null)
                         .WithMany()
-                        .HasForeignKey("FgsSetupPricingMatrixId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("PricingMatrixId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_FgsSetupPricingMatrixOther_PricingMatrix");
 
@@ -6416,52 +7884,58 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasConstraintName("FK_FgsSetupPricingMatrixOther_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
-            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAssetManufacturer", b =>
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAgreementPricingComponent", b =>
                 {
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_FgsSetupServiceAssetManufacturer_FgsTenantCompanyCache_TenantId_CompanyId");
+                        .HasConstraintName("FK_FgsSetupServiceAgreementPricingComponent_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
-            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAssetModelReference", b =>
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAgreementTemplate", b =>
                 {
-                    b.HasOne("Fgs.Setup.Domain.Entities.FgsSetupServiceAssetManufacturer", "ServiceAssetManufacturer")
-                        .WithMany()
-                        .HasForeignKey("FgsSetupServiceAssetManufacturerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSvcAssetModelRef_Mfr");
-
-                    b.HasOne("Fgs.Setup.Domain.Entities.FgsSetupServiceAssetType", "ServiceAssetType")
-                        .WithMany()
-                        .HasForeignKey("FgsSetupServiceAssetTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsSvcAssetModelRef_AssetType");
-
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_FgsSetupServiceAssetModelReference_FgsTenantCompanyCache_TenantId_CompanyId");
-
-                    b.Navigation("ServiceAssetManufacturer");
-
-                    b.Navigation("ServiceAssetType");
+                        .HasConstraintName("FK_FgsSetupServiceAgreementTemplate_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
-            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAssetType", b =>
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAgreementTemplateCoverage", b =>
                 {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsSetupServiceAgreementTemplate", null)
+                        .WithMany()
+                        .HasForeignKey("ServiceAgreementTemplateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupServiceAgreementTemplateCoverage_ServiceAgreementTemplateId");
+
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_FgsSetupServiceAssetType_FgsTenantCompanyCache_TenantId_CompanyId");
+                        .HasConstraintName("FK_FgsSetupServiceAgreementTemplateCoverage_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupServiceAgreementTemplatePricingComponent", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsSetupServiceAgreementTemplate", null)
+                        .WithMany()
+                        .HasForeignKey("ServiceAgreementTemplateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupServiceAgreementTemplatePricingComponent_ServiceAgreementTemplateId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupServiceAgreementTemplatePricingComponent_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupTax", b =>
@@ -6576,13 +8050,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsTagEntityType", b =>
                 {
-                    b.HasOne("Fgs.Setup.Domain.Entities.GloMasterEntityType", null)
-                        .WithMany()
-                        .HasForeignKey("MasterEntityTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsTagEntityType_GloMasterEntityType_MasterEntityTypeId");
-
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTag", null)
                         .WithMany()
                         .HasForeignKey("TagId")
@@ -6623,13 +8090,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsVehicleMaintenance_FgsVehicle_VehicleId");
-
-                    b.HasOne("Fgs.Setup.Domain.Entities.GloVehicleMaintenanceType", null)
-                        .WithMany()
-                        .HasForeignKey("VehicleMaintenanceTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_FgsVehicleMaintenance_GloVehicleMaintenanceType_VehicleMaintenanceTypeId");
 
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
                         .WithMany()

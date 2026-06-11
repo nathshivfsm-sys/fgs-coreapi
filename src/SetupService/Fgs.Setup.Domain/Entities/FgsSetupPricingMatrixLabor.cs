@@ -1,12 +1,12 @@
 ﻿namespace Fgs.Setup.Domain.Entities;
 
-public class FgsSetupPricingMatrixLabor : FgsTenantCompanySetupEntityBase<Guid>
+public class FgsSetupPricingMatrixLabor : FgsTenantCompanySetupEntityBase<long>
 {
-    public Guid FgsSetupPricingMatrixId { get; set; }
+    public long PricingMatrixId { get; set; }
 
-    public int FgsSetupLaborRateTypeId { get; set; }
+    public int LaborRateTypeId { get; set; }
 
-    public long? FgsSetupTechSkillLevelId { get; set; }
+    public long? TechSkillLevelId { get; set; }
 
     public decimal BaseRate { get; set; }
 

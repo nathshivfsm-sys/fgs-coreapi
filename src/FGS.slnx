@@ -56,12 +56,12 @@
     <Project Path="CrmService/Fgs.Crm.API/Fgs.Crm.API.csproj" />
     <Project Path="CrmService/Fgs.Crm.Tests/Fgs.Crm.Tests.csproj" />
   </Folder>
-  <Folder Name="/DispatchService/">
-    <Project Path="DispatchService/Fgs.Dispatch.Domain/Fgs.Dispatch.Domain.csproj" />
-    <Project Path="DispatchService/Fgs.Dispatch.Application/Fgs.Dispatch.Application.csproj" />
-    <Project Path="DispatchService/Fgs.Dispatch.Infrastructure/Fgs.Dispatch.Infrastructure.csproj" />
-    <Project Path="DispatchService/Fgs.Dispatch.API/Fgs.Dispatch.API.csproj" />
-    <Project Path="DispatchService/Fgs.Dispatch.Tests/Fgs.Dispatch.Tests.csproj" />
+  <Folder Name="/SchedulingService/">
+    <Project Path="SchedulingService/Fgs.Scheduling.Domain/Fgs.Scheduling.Domain.csproj" />
+    <Project Path="SchedulingService/Fgs.Scheduling.Application/Fgs.Scheduling.Application.csproj" />
+    <Project Path="SchedulingService/Fgs.Scheduling.Infrastructure/Fgs.Scheduling.Infrastructure.csproj" />
+    <Project Path="SchedulingService/Fgs.Scheduling.API/Fgs.Scheduling.API.csproj" />
+    <Project Path="SchedulingService/Fgs.Scheduling.Tests/Fgs.Scheduling.Tests.csproj" />
   </Folder>
   <Folder Name="/IntegrationService/">
     <Project Path="IntegrationService/Fgs.Integration.Domain/Fgs.Integration.Domain.csproj" />
@@ -91,12 +91,12 @@
     <Project Path="ReportingService/Fgs.Reporting.API/Fgs.Reporting.API.csproj" />
     <Project Path="ReportingService/Fgs.Reporting.Tests/Fgs.Reporting.Tests.csproj" />
   </Folder>
-  <Folder Name="/ContractService/">
-    <Project Path="ContractService/Fgs.Contract.Domain/Fgs.Contract.Domain.csproj" />
-    <Project Path="ContractService/Fgs.Contract.Application/Fgs.Contract.Application.csproj" />
-    <Project Path="ContractService/Fgs.Contract.Infrastructure/Fgs.Contract.Infrastructure.csproj" />
-    <Project Path="ContractService/Fgs.Contract.API/Fgs.Contract.API.csproj" />
-    <Project Path="ContractService/Fgs.Contract.Tests/Fgs.Contract.Tests.csproj" />
+  <Folder Name="/ServiceAgreementService/">
+    <Project Path="ServiceAgreementService/Fgs.ServiceAgreement.Domain/Fgs.ServiceAgreement.Domain.csproj" />
+    <Project Path="ServiceAgreementService/Fgs.ServiceAgreement.Application/Fgs.ServiceAgreement.Application.csproj" />
+    <Project Path="ServiceAgreementService/Fgs.ServiceAgreement.Infrastructure/Fgs.ServiceAgreement.Infrastructure.csproj" />
+    <Project Path="ServiceAgreementService/Fgs.ServiceAgreement.API/Fgs.ServiceAgreement.API.csproj" />
+    <Project Path="ServiceAgreementService/Fgs.ServiceAgreement.Tests/Fgs.ServiceAgreement.Tests.csproj" />
   </Folder>
   <Folder Name="/CommunicationService/">
     <Project Path="CommunicationService/Fgs.Communication.Domain/Fgs.Communication.Domain.csproj" />
@@ -119,11 +119,11 @@
     <Project Path="ConsumerService/Fgs.Consumer.API/Fgs.Consumer.API.csproj" />
     <Project Path="ConsumerService/Fgs.Consumer.Tests/Fgs.Consumer.Tests.csproj" />
   </Folder>
-  <Folder Name="/JobService/">
-    <Project Path="JobService/Fgs.Job.Domain/Fgs.Job.Domain.csproj" />
-    <Project Path="JobService/Fgs.Job.Application/Fgs.Job.Application.csproj" />
-    <Project Path="JobService/Fgs.Job.Infrastructure/Fgs.Job.Infrastructure.csproj" />
-    <Project Path="JobService/Fgs.Job.API/Fgs.Job.API.csproj" />
-    <Project Path="JobService/Fgs.Job.Tests/Fgs.Job.Tests.csproj" />
+  <Folder Name="/AssetService/">
+    <Project Path="AssetService/Fgs.Asset.Domain/Fgs.Asset.Domain.csproj" />
+    <Project Path="AssetService/Fgs.Asset.Application/Fgs.Asset.Application.csproj" />
+    <Project Path="AssetService/Fgs.Asset.Infrastructure/Fgs.Asset.Infrastructure.csproj" />
+    <Project Path="AssetService/Fgs.Asset.API/Fgs.Asset.API.csproj" />
+    <Project Path="AssetService/Fgs.Asset.Tests/Fgs.Asset.Tests.csproj" />
   </Folder>
 </Solution>

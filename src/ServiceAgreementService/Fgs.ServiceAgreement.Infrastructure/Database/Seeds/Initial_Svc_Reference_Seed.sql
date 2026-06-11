@@ -1,0 +1,18 @@
+-- =====================================================
+-- Service Agreement Service (svc schema) reference seed
+-- =====================================================
+--
+-- Placeholder seed script for the Service Agreement domain.
+-- No static agreement data is seeded here.
+--
+-- Tenant company cache rows are provisioned by SetupService
+-- (Initial_Migration_Seed.sql: TENANT_FgsTenantCompany_svc_cache).
+--
+-- Future reference data (status labels, frequency lookups, etc.)
+-- may be added here when owned by the svc schema.
+--
+-- Run manually after migrations:
+--   psql -d fgs_service_agreement -f Initial_Svc_Reference_Seed.sql
+-- =====================================================
+
+-- No seed statements at this time.

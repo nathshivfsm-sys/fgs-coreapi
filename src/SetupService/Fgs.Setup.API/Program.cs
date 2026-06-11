@@ -1,6 +1,7 @@
 ﻿using Fgs.Credentials;
 using Fgs.Foundation.Hosting;
 using Fgs.Observability.Extensions;
+using Fgs.Setup.API.Swagger;
 using Fgs.Setup.Application;
 using Fgs.Setup.Infrastructure;
 using Fgs.Setup.Infrastructure.Credentials;
@@ -17,6 +18,7 @@ var hostOptions = builder.AddFgsApiHost(options =>
     options.UseMultiTenancy = true;
 });
 
+builder.Services.AddFgsSetupSwagger();
 builder.Services.AddFgsSetupApplication();
 builder.Services.AddFgsSetupInfrastructure(builder.Configuration);
 builder.Services.AddFgsObservability(builder.Configuration, hostOptions.ServiceName);

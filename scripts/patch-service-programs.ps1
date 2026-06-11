@@ -1,4 +1,4 @@
-$services = @('Billing','Crm','Dispatch','Inventory','Job','Integration','Audit','Reporting','Communication','Publisher','Consumer','Contract')
+$services = @('Billing','Crm','Scheduling','Inventory','Integration','Audit','Reporting','Communication','Publisher','Consumer','ServiceAgreement','Asset')
 foreach ($prefix in $services) {
     $program = Join-Path $PSScriptRoot "..\src\${prefix}Service\Fgs.$prefix.API\Program.cs"
     if (-not (Test-Path $program)) { continue }

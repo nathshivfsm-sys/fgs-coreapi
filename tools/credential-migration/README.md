@@ -30,7 +30,13 @@ docker run --rm -e PGPASSWORD -v "${PWD}/seed-provider-types.sql:/seed.sql:ro" p
 .\post-credentials.ps1 -BaseUrl http://localhost:5071 -UpdateAwsOnly
 ```
 
-All platform `DATABASE` keys use AWS RDS `fgs_dev_db`.
+All platform `DATABASE` keys use AWS RDS `fgs_dev_db`, including `FgsAsset`, `FgsDispatch` (Scheduling), and `FgsServiceAgreement`.
+
+If `platform-databases` was created before these keys were added, refresh the credential without re-posting everything:
+
+```powershell
+.\post-credentials.ps1 -BaseUrl http://localhost:5071 -UpdateDatabaseOnly
+```
 
 ## Example payloads
 
@@ -102,6 +108,9 @@ For a single named connection, either use `ConnectionString` + `ConnectionString
 | `FGS_USER_DB` | User Service DB fallback during migration |
 | `FGS_FILE_DB` | File Service DB fallback |
 | `FGS_NOTIFICATION_DB` | Notification Service DB fallback |
+| `FGS_ASSET_DB` | Asset Service DB fallback |
+| `FGS_DISPATCH_DB` | Scheduling Service DB fallback |
+| `FGS_SVC_DB` | Service Agreement Service DB fallback |
 | `KMS_KEY_ARN` | Setup Service KMS bootstrap only (consumers read `KmsKeyArn` from Setup AWS credential) |
 | `CREDENTIAL_DISTRIBUTION_KEY` | S2S key for `/credentials/resolved` |
 

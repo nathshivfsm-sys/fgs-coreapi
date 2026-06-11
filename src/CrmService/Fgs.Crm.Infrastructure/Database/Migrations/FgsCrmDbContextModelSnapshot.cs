@@ -23,6 +23,686 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmContact", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("CanReceiveAppointments")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("CanReceiveEstimates")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("CanReceiveInvoices")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<long?>("CustomerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("DepartmentName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDefaultContact")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<long?>("ServiceLocationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("ServiceLocationId");
+
+                    b.HasIndex("TenantId", "CompanyId", "CustomerId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_CrmContact_DefaultCustomer")
+                        .HasFilter("\"IsDefaultContact\" = true AND \"CustomerId\" IS NOT NULL");
+
+                    b.HasIndex("TenantId", "CompanyId", "DisplayName")
+                        .HasDatabaseName("IX_CrmContact_DisplayName");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_CrmContact_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "ServiceLocationId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_CrmContact_DefaultServiceLocation")
+                        .HasFilter("\"IsDefaultContact\" = true AND \"ServiceLocationId\" IS NOT NULL");
+
+                    b.ToTable("CrmContact", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_CrmContact_Owner", "(\"CustomerId\" IS NOT NULL AND \"ServiceLocationId\" IS NULL) OR (\"CustomerId\" IS NULL AND \"ServiceLocationId\" IS NOT NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmContactCommunication", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<short>("CommunicationTypeId")
+                        .HasColumnType("smallint");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<long>("ContactId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<string>("Extension")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsPrimary")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Label")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContactId")
+                        .HasDatabaseName("IX_CrmContactCommunication_ContactId1");
+
+                    b.HasIndex("TenantId", "CompanyId", "CommunicationTypeId")
+                        .HasDatabaseName("IX_CrmContactCommunication_CommunicationTypeId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ContactId")
+                        .HasDatabaseName("IX_CrmContactCommunication_ContactId");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_CrmContactCommunication_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "Value")
+                        .HasDatabaseName("IX_CrmContactCommunication_Value");
+
+                    b.HasIndex("TenantId", "CompanyId", "ContactId", "CommunicationTypeId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_CrmContactCommunication_Primary")
+                        .HasFilter("\"IsPrimary\" = true");
+
+                    b.ToTable("CrmContactCommunication", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_CrmContactCommunication_CommunicationTypeId", "\"CommunicationTypeId\" BETWEEN 1 AND 7");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmCustomer", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AddressLine1")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("AddressLine2")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("AddressLine3")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("AddressLine4")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("Country")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("County")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("CustomerAccountNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("CustomerNumber")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<long?>("DefaultLaborPricingMatrixId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DefaultMaterialPricingMatrixId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DefaultOtherPricingMatrixId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("DefaultPORequired")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<long?>("DefaultPaymentTermId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ExternalEntityId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ExternalVersion")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("FormattedAddress")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("LastServiceLocationSequence")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<decimal?>("Latitude")
+                        .HasColumnType("numeric(18,10)");
+
+                    b.Property<decimal?>("Longitude")
+                        .HasColumnType("numeric(18,10)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("PlaceId")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("PostalCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("State")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("TaxExempt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("TaxExemptNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId", "CustomerAccountNumber")
+                        .HasDatabaseName("IX_CrmCustomer_CustomerAccountNumber");
+
+                    b.HasIndex("TenantId", "CompanyId", "CustomerNumber")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_CrmCustomer_CustomerNumber");
+
+                    b.HasIndex("TenantId", "CompanyId", "DisplayName")
+                        .HasDatabaseName("IX_CrmCustomer_DisplayName");
+
+                    b.HasIndex("TenantId", "CompanyId", "ExternalEntityId")
+                        .HasDatabaseName("IX_CrmCustomer_ExternalEntityId");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_CrmCustomer_IsActive");
+
+                    b.ToTable("CrmCustomer", "crm");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmEntityTag", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<long>("EntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("EntityTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("TagId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId", "TagId")
+                        .HasDatabaseName("IX_CrmEntityTag_TagId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EntityTypeId", "EntityId")
+                        .HasDatabaseName("IX_CrmEntityTag_Entity");
+
+                    b.HasIndex("TenantId", "CompanyId", "TagId", "EntityTypeId", "EntityId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_CrmEntityTag");
+
+                    b.ToTable("CrmEntityTag", "crm");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmLead", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("AssignedToUserId")
+                        .HasColumnType("bigint")
+                        .HasComment("User assigned to work the lead.");
+
+                    b.Property<long?>("CampaignId")
+                        .HasColumnType("bigint")
+                        .HasComment("Marketing campaign associated with the lead.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CompanyName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Company or organization associated with the lead.");
+
+                    b.Property<DateTimeOffset?>("ConvertedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasComment("Date and time the lead was converted into a customer.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<long?>("CustomerId")
+                        .HasColumnType("bigint")
+                        .HasComment("Customer record created from this lead after conversion.");
+
+                    b.Property<long?>("CustomerTypeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Customer type associated with the lead.");
+
+                    b.Property<long?>("DisqualificationReasonId")
+                        .HasColumnType("bigint")
+                        .HasComment("Reason the lead was disqualified selected from setup.FgsLeadDisqualificationReason.");
+
+                    b.Property<DateTimeOffset?>("DisqualifiedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasComment("Date and time the lead was disqualified.");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Primary email address for the lead.");
+
+                    b.Property<string>("FirstName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Lead contact first name.");
+
+                    b.Property<string>("LastName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Lead contact last name.");
+
+                    b.Property<string>("LeadDescription")
+                        .HasColumnType("text")
+                        .HasComment("Detailed description of the lead inquiry and customer requirements.");
+
+                    b.Property<DateTimeOffset>("LeadReceivedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasComment("Date and time the lead was originally received.");
+
+                    b.Property<long>("LeadSourceId")
+                        .HasColumnType("bigint")
+                        .HasComment("Source that generated the lead selected from setup.FgsLeadSource.");
+
+                    b.Property<long>("LeadStatusId")
+                        .HasColumnType("bigint")
+                        .HasComment("Current lead status selected from setup.FgsLeadStatus.");
+
+                    b.Property<string>("LeadSummary")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Short summary describing the lead inquiry.");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Primary phone number for the lead.");
+
+                    b.Property<long?>("PrimaryContactMethodId")
+                        .HasColumnType("bigint")
+                        .HasComment("Preferred or originating contact method for the lead.");
+
+                    b.Property<DateTimeOffset?>("QualifiedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasComment("Date and time the lead was qualified.");
+
+                    b.Property<string>("ServiceZipCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("ZIP or postal code where service is requested.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_CrmLead_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "AssignedToUserId")
+                        .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_AssignedToUserId");
+
+                    b.HasIndex("TenantId", "CompanyId", "CampaignId")
+                        .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_CampaignId");
+
+                    b.HasIndex("TenantId", "CompanyId", "CustomerId")
+                        .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_CustomerId");
+
+                    b.HasIndex("TenantId", "CompanyId", "CustomerTypeId")
+                        .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_CustomerTypeId");
+
+                    b.HasIndex("TenantId", "CompanyId", "DisqualificationReasonId")
+                        .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_DisqualificationReasonId");
+
+                    b.HasIndex("TenantId", "CompanyId", "LeadReceivedOn")
+                        .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_LeadReceivedOn");
+
+                    b.HasIndex("TenantId", "CompanyId", "LeadSourceId")
+                        .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_LeadSourceId");
+
+                    b.HasIndex("TenantId", "CompanyId", "LeadStatusId")
+                        .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_LeadStatusId");
+
+                    b.HasIndex("TenantId", "CompanyId", "PrimaryContactMethodId")
+                        .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_PrimaryContactMethodId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ServiceZipCode")
+                        .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_ServiceZipCode");
+
+                    b.ToTable("CrmLead", "crm", t =>
+                        {
+                            t.HasComment("Stores inbound sales inquiries and prospects prior to qualification and conversion into customers and opportunities.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmNote", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<long>("EntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("EntityTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsPinned")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("NoteText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<short>("NoteTypeId")
+                        .HasColumnType("smallint");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_CrmNote_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsPinned")
+                        .HasDatabaseName("IX_CrmNote_IsPinned");
+
+                    b.HasIndex("TenantId", "CompanyId", "NoteTypeId")
+                        .HasDatabaseName("IX_CrmNote_NoteTypeId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EntityTypeId", "EntityId")
+                        .HasDatabaseName("IX_CrmNote_Entity");
+
+                    b.HasIndex("TenantId", "CompanyId", "EntityTypeId", "EntityId", "DisplayOrder")
+                        .HasDatabaseName("IX_CrmNote_Entity_DisplayOrder");
+
+                    b.ToTable("CrmNote", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_CrmNote_EntityTypeId", "\"EntityTypeId\" BETWEEN 1 AND 5");
+
+                            t.HasCheckConstraint("CK_CrmNote_NoteTypeId", "\"NoteTypeId\" BETWEEN 1 AND 5");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmOutboxMessage", b =>
                 {
                     b.Property<long>("Id")
@@ -130,6 +810,52 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                     b.ToTable("CrmOutboxMessage", "crm");
                 });
 
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmServiceLocation", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<long>("CustomerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("LocationNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("LocationSequence")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("IX_CrmServiceLocation_CustomerId1");
+
+                    b.HasIndex("TenantId", "CompanyId", "CustomerId")
+                        .HasDatabaseName("IX_CrmServiceLocation_CustomerId");
+
+                    b.HasIndex("TenantId", "CompanyId", "LocationNumber")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_CrmServiceLocation_LocationNumber");
+
+                    b.HasIndex("TenantId", "CompanyId", "CustomerId", "LocationSequence")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_CrmServiceLocation_Customer_LocationSequence");
+
+                    b.ToTable("CrmServiceLocation", "crm");
+                });
+
             modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", b =>
                 {
                     b.Property<long>("TenantId")
@@ -181,6 +907,102 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                         {
                             t.HasComment("Local cache of tenant company information used by the CRM schema to eliminate cross-schema dependencies on tenant.FgsTenantCompany.");
                         });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmContact", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.CrmCustomer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_CrmContact_Customer");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.CrmServiceLocation", null)
+                        .WithMany()
+                        .HasForeignKey("ServiceLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_CrmContact_ServiceLocation");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmContact_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmContactCommunication", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.CrmContact", null)
+                        .WithMany()
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmContactCommunication_Contact");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmContactCommunication_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmCustomer", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmCustomer_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmEntityTag", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmEntityTag_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmLead", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmLead_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmNote", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmNote_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmServiceLocation", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.CrmCustomer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmServiceLocation_Customer");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmServiceLocation_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 #pragma warning restore 612, 618
         }

@@ -360,14 +360,14 @@ FROM (
                 {"key":"FgsNotification","label":"Notification Service (FgsNotification)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsConsumer","label":"Consumer Service (FgsConsumer)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsAudit","label":"Audit Service (FgsAudit)","type":"password","required":false,"sensitive":true},
+                {"key":"FgsAsset","label":"Asset Service (FgsAsset)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsBilling","label":"Billing Service (FgsBilling)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsCommunication","label":"Communication Service (FgsCommunication)","type":"password","required":false,"sensitive":true},
-                {"key":"FgsContract","label":"Contract Service (FgsContract)","type":"password","required":false,"sensitive":true},
+                {"key":"FgsServiceAgreement","label":"Service Agreement Service (FgsServiceAgreement)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsCrm","label":"CRM Service (FgsCrm)","type":"password","required":false,"sensitive":true},
-                {"key":"FgsDispatch","label":"Dispatch Service (FgsDispatch)","type":"password","required":false,"sensitive":true},
+                {"key":"FgsDispatch","label":"Scheduling Service (FgsDispatch)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsIntegration","label":"Integration Service (FgsIntegration)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsInventory","label":"Inventory Service (FgsInventory)","type":"password","required":false,"sensitive":true},
-                {"key":"FgsJob","label":"Job Service (FgsJob)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsReporting","label":"Reporting Service (FgsReporting)","type":"password","required":false,"sensitive":true},
                 {"key":"ConnectionStringName","label":"Single connection name (legacy)","type":"text","required":false},
                 {"key":"ConnectionString","label":"Single connection string (legacy)","type":"password","required":false,"sensitive":true}
@@ -504,14 +504,14 @@ FROM (
                 {"key":"FgsNotification","label":"Notification Service (FgsNotification)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsConsumer","label":"Consumer Service (FgsConsumer)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsAudit","label":"Audit Service (FgsAudit)","type":"password","required":false,"sensitive":true},
+                {"key":"FgsAsset","label":"Asset Service (FgsAsset)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsBilling","label":"Billing Service (FgsBilling)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsCommunication","label":"Communication Service (FgsCommunication)","type":"password","required":false,"sensitive":true},
-                {"key":"FgsContract","label":"Contract Service (FgsContract)","type":"password","required":false,"sensitive":true},
+                {"key":"FgsServiceAgreement","label":"Service Agreement Service (FgsServiceAgreement)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsCrm","label":"CRM Service (FgsCrm)","type":"password","required":false,"sensitive":true},
-                {"key":"FgsDispatch","label":"Dispatch Service (FgsDispatch)","type":"password","required":false,"sensitive":true},
+                {"key":"FgsDispatch","label":"Scheduling Service (FgsDispatch)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsIntegration","label":"Integration Service (FgsIntegration)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsInventory","label":"Inventory Service (FgsInventory)","type":"password","required":false,"sensitive":true},
-                {"key":"FgsJob","label":"Job Service (FgsJob)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsReporting","label":"Reporting Service (FgsReporting)","type":"password","required":false,"sensitive":true},
                 {"key":"ConnectionStringName","label":"Single connection name (legacy)","type":"text","required":false},
                 {"key":"ConnectionString","label":"Single connection string (legacy)","type":"password","required":false,"sensitive":true}
@@ -1473,6 +1473,271 @@ SELECT setval(
     COALESCE((SELECT MAX("Id") FROM glo."GloLeadSource"), 1),
     true);
 
+-- GloLeadStatus (global lead pipeline statuses for tenant provisioning seed)
+INSERT INTO glo."GloLeadStatus"
+(
+    "StatusCode",
+    "StatusName",
+    "Description",
+    "DisplayOrder",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."StatusCode",
+    v."StatusName",
+    v."Description",
+    v."DisplayOrder",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('NEW',          'New',          'Lead has been created.', 1::smallint),
+        ('CONTACTED',    'Contacted',    'Initial contact has been made.', 2::smallint),
+        ('QUALIFIED',    'Qualified',    'Lead meets qualification criteria.', 3::smallint),
+        ('CONVERTED',    'Converted',    'Lead converted to customer and/or opportunity.', 4::smallint),
+        ('DISQUALIFIED', 'Disqualified', 'Lead is not a viable sales opportunity.', 5::smallint)
+) AS v("StatusCode", "StatusName", "Description", "DisplayOrder")
+WHERE NOT EXISTS (
+    SELECT 1 FROM glo."GloLeadStatus" ls WHERE ls."StatusCode" = v."StatusCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloLeadStatus"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloLeadStatus"), 1),
+    true);
+
+-- GloLeadDisqualificationReason (global disqualification reasons for tenant provisioning seed)
+INSERT INTO glo."GloLeadDisqualificationReason"
+(
+    "ReasonCode",
+    "ReasonName",
+    "Description",
+    "DisplayOrder",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."ReasonCode",
+    v."ReasonName",
+    v."Description",
+    v."DisplayOrder",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('OUTSIDE_SERVICE_AREA', 'Outside Service Area',           'Service location is outside the company service area.', 1::smallint),
+        ('DUPLICATE',            'Duplicate Lead',                 'Lead already exists in the system.', 2::smallint),
+        ('NO_RESPONSE',          'Unable To Contact',              'Multiple contact attempts were unsuccessful.', 3::smallint),
+        ('NO_BUDGET',            'No Budget',                      'Prospect does not have budget available for the requested service.', 4::smallint),
+        ('COMPETITOR',           'Competitor Selected',            'Prospect selected a competing provider.', 5::smallint),
+        ('NOT_INTERESTED',       'Not Interested',                 'Prospect is no longer interested in the service.', 6::smallint),
+        ('INVALID_CONTACT',      'Invalid Contact Information',    'Provided phone number, email, or contact information is invalid.', 7::smallint),
+        ('PROJECT_CANCELLED',    'Project Cancelled',              'Prospect cancelled or postponed the project indefinitely.', 8::smallint),
+        ('NO_DECISION_MAKER',    'No Decision Maker',              'Unable to reach or engage the decision maker.', 9::smallint),
+        ('OTHER',                'Other',                          'Other disqualification reason not covered by existing categories.', 10::smallint)
+) AS v("ReasonCode", "ReasonName", "Description", "DisplayOrder")
+WHERE NOT EXISTS (
+    SELECT 1 FROM glo."GloLeadDisqualificationReason" r WHERE r."ReasonCode" = v."ReasonCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloLeadDisqualificationReason"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloLeadDisqualificationReason"), 1),
+    true);
+
+-- GloSalesPipelineStatus (global sales pipeline statuses for tenant provisioning seed)
+INSERT INTO glo."GloSalesPipelineStatus"
+(
+    "StatusCode",
+    "StatusName",
+    "Description",
+    "AppliesToLead",
+    "AppliesToOpportunity",
+    "IsTerminal",
+    "AllowManualSelection",
+    "DisplayOrder",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."StatusCode",
+    v."StatusName",
+    v."Description",
+    v."AppliesToLead",
+    v."AppliesToOpportunity",
+    v."IsTerminal",
+    v."AllowManualSelection",
+    v."DisplayOrder",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('NEW',              'New',              'New lead awaiting initial contact.',                                              true,  false, false, true,  1::smallint),
+        ('CONTACTED',        'Contacted',        'Initial contact has been made.',                                                  true,  false, false, true,  2::smallint),
+        ('QUALIFIED',        'Qualified',        'Lead has been qualified and is ready to move forward in the sales process.',    true,  true,  false, false, 3::smallint),
+        ('PROPOSAL_PENDING', 'Proposal Pending', 'Proposal or estimate is being prepared.',                                         false, true,  false, true,  4::smallint),
+        ('PROPOSAL_SENT',    'Proposal Sent',    'Proposal or estimate has been delivered to the customer.',                         false, true,  false, true,  5::smallint),
+        ('NEGOTIATION',      'Negotiation',      'Pricing, scope, or contract terms are being discussed.',                          false, true,  false, true,  6::smallint),
+        ('WON',              'Won',              'Opportunity has been successfully closed and accepted by the customer.',          false, true,  true,  false, 7::smallint),
+        ('LOST',             'Lost',             'Opportunity was not won.',                                                        false, true,  true,  false, 8::smallint),
+        ('DISQUALIFIED',     'Disqualified',     'Lead does not meet qualification requirements.',                                  true,  false, true,  false, 9::smallint)
+) AS v("StatusCode", "StatusName", "Description", "AppliesToLead", "AppliesToOpportunity", "IsTerminal", "AllowManualSelection", "DisplayOrder")
+WHERE NOT EXISTS (
+    SELECT 1 FROM glo."GloSalesPipelineStatus" s WHERE s."StatusCode" = v."StatusCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloSalesPipelineStatus"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloSalesPipelineStatus"), 1),
+    true);
+
+-- GloSalesDispositionReason (global disposition reasons for tenant provisioning seed)
+INSERT INTO glo."GloSalesDispositionReason"
+(
+    "DispositionReasonCode",
+    "DispositionReasonName",
+    "Description",
+    "AppliesToLead",
+    "AppliesToOpportunity",
+    "RequireComment",
+    "IsTerminal",
+    "DisplayOrder",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."DispositionReasonCode",
+    v."DispositionReasonName",
+    v."Description",
+    v."AppliesToLead",
+    v."AppliesToOpportunity",
+    v."RequireComment",
+    v."IsTerminal",
+    v."DisplayOrder",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('OUTSIDE_SERVICE_AREA', 'Outside Service Area', 'Customer location is outside the service area.',           true,  false, false, true, 1::smallint),
+        ('NO_BUDGET',            'No Budget',            'Customer does not have sufficient budget.',                true,  true,  false, true, 2::smallint),
+        ('NOT_INTERESTED',       'Not Interested',       'Customer is not interested in proceeding.',                true,  true,  false, true, 3::smallint),
+        ('NO_RESPONSE',          'No Response',          'Unable to establish communication with the customer.',   true,  true,  false, true, 4::smallint),
+        ('COMPETITOR_SELECTED',  'Competitor Selected',  'Customer selected another provider.',                      false, true,  false, true, 5::smallint),
+        ('PROJECT_CANCELLED',    'Project Cancelled',    'Customer cancelled the project.',                          false, true,  false, true, 6::smallint),
+        ('DUPLICATE',            'Duplicate',            'Duplicate lead or opportunity.',                           true,  true,  false, true, 7::smallint),
+        ('SPAM',                 'Spam',                 'Lead was identified as spam.',                             true,  false, false, true, 8::smallint),
+        ('OTHER',                'Other',                'Other reason not covered by existing categories.',         true,  true,  true,  true, 9::smallint)
+) AS v("DispositionReasonCode", "DispositionReasonName", "Description", "AppliesToLead", "AppliesToOpportunity", "RequireComment", "IsTerminal", "DisplayOrder")
+WHERE NOT EXISTS (
+    SELECT 1 FROM glo."GloSalesDispositionReason" r WHERE r."DispositionReasonCode" = v."DispositionReasonCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloSalesDispositionReason"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloSalesDispositionReason"), 1),
+    true);
+
+-- GloSalesActivityType (global sales activity types for tenant provisioning seed)
+INSERT INTO glo."GloSalesActivityType"
+(
+    "ActivityTypeCode",
+    "ActivityTypeName",
+    "Description",
+    "AppliesToLead",
+    "AppliesToOpportunity",
+    "AllowManualSelection",
+    "DisplayOrder",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."ActivityTypeCode",
+    v."ActivityTypeName",
+    v."Description",
+    v."AppliesToLead",
+    v."AppliesToOpportunity",
+    v."AllowManualSelection",
+    v."DisplayOrder",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('CALL',                 'Phone Call',           'Inbound or outbound phone call with a prospect or customer.',                    true,  true,  true,  1::smallint),
+        ('EMAIL',                'Email',                'Email communication with a prospect or customer.',                               true,  true,  true,  2::smallint),
+        ('TEXT',                 'Text Message',         'SMS or text communication with a prospect or customer.',                          true,  true,  true,  3::smallint),
+        ('TASK',                 'Task',                 'Sales-related task or action item.',                                             true,  true,  true,  4::smallint),
+        ('MEETING',              'Meeting',              'Sales meeting with a prospect or customer.',                                     true,  true,  true,  5::smallint),
+        ('VISIT',                'Site Visit',           'On-site consultation, survey, or customer visit.',                               true,  true,  true,  6::smallint),
+        ('MEASURE',              'Site Measurement',     'Property measurement, equipment measurement, or field verification visit.',    true,  true,  true,  7::smallint),
+        ('PROPOSAL_PREPARATION', 'Proposal Preparation', 'Preparation of proposal, estimate, or quotation.',                               false, true,  true,  8::smallint),
+        ('PROPOSAL_SENT',        'Proposal Sent',        'Proposal or estimate delivered to the customer.',                                false, true,  true,  9::smallint),
+        ('PROPOSAL_PRESENTED',   'Proposal Presented',   'Proposal or estimate reviewed with the customer.',                               false, true,  true,  10::smallint),
+        ('NOTE',                 'Note',                 'General sales note or communication log entry.',                                 true,  true,  true,  11::smallint),
+        ('OTHER',                'Other',                'Other sales-related activity.',                                                  true,  true,  true,  12::smallint)
+) AS v("ActivityTypeCode", "ActivityTypeName", "Description", "AppliesToLead", "AppliesToOpportunity", "AllowManualSelection", "DisplayOrder")
+WHERE NOT EXISTS (
+    SELECT 1 FROM glo."GloSalesActivityType" t WHERE t."ActivityTypeCode" = v."ActivityTypeCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloSalesActivityType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloSalesActivityType"), 1),
+    true);
+
+-- GloSalesActivityOutcome (global sales activity outcomes for tenant provisioning seed)
+INSERT INTO glo."GloSalesActivityOutcome"
+(
+    "OutcomeCode",
+    "OutcomeName",
+    "Description",
+    "AppliesToLead",
+    "AppliesToOpportunity",
+    "NextSalesPipelineStatusCode",
+    "IsTerminal",
+    "RequireComment",
+    "AllowManualSelection",
+    "DisplayOrder",
+    "IsActive",
+    "CreatedOn"
+)
+SELECT
+    v."OutcomeCode",
+    v."OutcomeName",
+    v."Description",
+    v."AppliesToLead",
+    v."AppliesToOpportunity",
+    v."NextSalesPipelineStatusCode",
+    v."IsTerminal",
+    v."RequireComment",
+    v."AllowManualSelection",
+    v."DisplayOrder",
+    true,
+    timezone('utc', now())
+FROM (
+    VALUES
+        ('CONTACTED',             'Contacted',             'Successfully contacted the customer.',                           true,  false, 'CONTACTED',       false, false, true,  1::smallint),
+        ('LEFT_VOICEMAIL',        'Left Voicemail',        'Voicemail message was left for the customer.',                  true,  true,  NULL,              false, false, true,  2::smallint),
+        ('NO_RESPONSE',           'No Response',           'Customer did not respond.',                                      true,  true,  NULL,              false, false, true,  3::smallint),
+        ('FOLLOW_UP_REQUIRED',    'Follow Up Required',    'Additional follow-up activity is required.',                    true,  true,  NULL,              false, false, true,  4::smallint),
+        ('APPOINTMENT_SCHEDULED', 'Appointment Scheduled', 'Appointment has been scheduled.',                               true,  true,  'CONTACTED',       false, false, true,  5::smallint),
+        ('PROPOSAL_REQUESTED',    'Proposal Requested',    'Customer requested a proposal or estimate.',                    true,  false, 'QUALIFIED',       false, false, true,  6::smallint),
+        ('PROPOSAL_SENT',         'Proposal Sent',         'Proposal or estimate has been delivered.',                      false, true,  'PROPOSAL_SENT',   false, false, true,  7::smallint),
+        ('CUSTOMER_REPLIED',      'Customer Replied',      'Customer responded to previous communication.',                 true,  true,  NULL,              false, false, true,  8::smallint),
+        ('WAITING_FOR_DECISION',  'Waiting For Decision',  'Customer is reviewing options.',                                false, true,  'NEGOTIATION',     false, false, true,  9::smallint),
+        ('NEEDS_FINANCING',       'Needs Financing',       'Customer requires financing before proceeding.',                false, true,  'NEGOTIATION',     false, false, true, 10::smallint),
+        ('OPPORTUNITY_CREATED',   'Opportunity Created',   'Lead was converted into an opportunity.',                       true,  false, 'QUALIFIED',       false, false, true, 11::smallint),
+        ('OTHER',                 'Other',                 'Other outcome not covered by existing categories.',             true,  true,  NULL,              false, true,  true, 12::smallint)
+) AS v("OutcomeCode", "OutcomeName", "Description", "AppliesToLead", "AppliesToOpportunity", "NextSalesPipelineStatusCode", "IsTerminal", "RequireComment", "AllowManualSelection", "DisplayOrder")
+WHERE NOT EXISTS (
+    SELECT 1 FROM glo."GloSalesActivityOutcome" o WHERE o."OutcomeCode" = v."OutcomeCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloSalesActivityOutcome"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloSalesActivityOutcome"), 1),
+    true);
+
 -- GloUnitOfMeasure (global units of measure)
 INSERT INTO glo."GloUnitOfMeasure"
 (
@@ -1631,7 +1896,7 @@ SELECT
     v."Description",
     v."IsActive",
     timezone('utc', now()),
-    NULL::bigint
+    'System'
 FROM (
     VALUES
         ('TENANT_FgsTenantCompany_setup_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'setup', 'FgsTenantCompanyCache', 1, 'Tenant company cache (setup)', true),
@@ -1643,10 +1908,19 @@ FROM (
         ('TENANT_FgsTenantCompany_notification_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'notification', 'FgsTenantCompanyCache', 7, 'Tenant company cache (notification)', true),
         ('TENANT_FgsTenantCompany_reporting_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'reporting', 'FgsTenantCompanyCache', 8, 'Tenant company cache (reporting)', true),
         ('TENANT_FgsTenantCompany_integration_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'integration', 'FgsTenantCompanyCache', 9, 'Tenant company cache (integration)', true),
+        ('TENANT_FgsTenantCompany_asset_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'asset', 'FgsTenantCompanyCache', 10, 'Tenant company cache (asset)', true),
+        ('TENANT_FgsTenantCompany_svc_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'svc', 'FgsTenantCompanyCache', 11, 'Tenant company cache (svc)', true),
+        ('TENANT_CrmServiceLocation_asset_cache', 'fgs_dev_db', 'crm', 'CrmServiceLocation', 'fgs_dev_db', 'asset', 'FgsServiceLocationCache', 12, 'Service location cache (asset)', true),
         ('ALL_GloBillingCategory', 'fgs_dev_db', 'glo', 'GloBillingCategory', 'fgs_dev_db', 'setup', 'FgsBillingCategory', 100, 'Billing Category', true),
         ('ALL_GloJobTypeCategory', 'fgs_dev_db', 'glo', 'GloJobTypeCategory', 'fgs_dev_db', 'setup', 'FgsJobTypeCategory', 130, 'JobType Categories', true),
         ('ALL_GloJobTypeSubCategory', 'fgs_dev_db', 'glo', 'GloJobTypeSubCategory', 'fgs_dev_db', 'setup', 'FgsJobTypeSubCategory', 160, 'JobType Sub Categories', true),
         ('ALL_GloLeadSource', 'fgs_dev_db', 'glo', 'GloLeadSource', 'fgs_dev_db', 'setup', 'FgsLeadSource', 190, 'Lead Source', true),
+        ('ALL_GloLeadStatus', 'fgs_dev_db', 'glo', 'GloLeadStatus', 'fgs_dev_db', 'setup', 'FgsLeadStatus', 195, 'Lead Status', true),
+        ('ALL_GloLeadDisqualificationReason', 'fgs_dev_db', 'glo', 'GloLeadDisqualificationReason', 'fgs_dev_db', 'setup', 'FgsLeadDisqualificationReason', 198, 'Lead Disqualification Reason', true),
+        ('ALL_GloSalesPipelineStatus', 'fgs_dev_db', 'glo', 'GloSalesPipelineStatus', 'fgs_dev_db', 'setup', 'FgsSalesPipelineStatus', 199, 'Sales Pipeline Status', true),
+        ('ALL_GloSalesDispositionReason', 'fgs_dev_db', 'glo', 'GloSalesDispositionReason', 'fgs_dev_db', 'setup', 'FgsSalesDispositionReason', 200, 'Sales Disposition Reason', true),
+        ('ALL_GloSalesActivityType', 'fgs_dev_db', 'glo', 'GloSalesActivityType', 'fgs_dev_db', 'setup', 'FgsSalesActivityType', 201, 'Sales Activity Type', true),
+        ('ALL_GloSalesActivityOutcome', 'fgs_dev_db', 'glo', 'GloSalesActivityOutcome', 'fgs_dev_db', 'setup', 'FgsSalesActivityOutcome', 202, 'Sales Activity Outcome', true),
         ('ALL_GloPaymentMethodType', 'fgs_dev_db', 'glo', 'GloPaymentMethodType', 'fgs_dev_db', 'setup', 'FgsSetupPaymentMethod', 220, 'Payment Method', true),
         ('ALL_GloResolutionType', 'fgs_dev_db', 'glo', 'GloResolutionType', 'fgs_dev_db', 'setup', 'FgsResolutionCode', 250, 'Resolution Code', true),
         ('ALL_GloSetupLaborRateType', 'fgs_dev_db', 'glo', 'GloSetupLaborRateType', 'fgs_dev_db', 'setup', 'FgsSetupLaborRateType', 280, 'Labor Rate Type', true),
@@ -1694,7 +1968,7 @@ SELECT
     c."IsRequired",
     c."IsActive",
     timezone('utc', now()),
-    NULL::bigint
+    'System'
 FROM glo."GloSeedTableMapping" m
 INNER JOIN (
     VALUES
@@ -1779,6 +2053,33 @@ INNER JOIN (
         ('TENANT_FgsTenantCompany_integration_cache', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
         ('TENANT_FgsTenantCompany_integration_cache', NULL, 'UpdatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
 
+        -- TENANT_FgsTenantCompany_asset_cache -> FgsTenantCompanyCache
+        ('TENANT_FgsTenantCompany_asset_cache', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('TENANT_FgsTenantCompany_asset_cache', 'CompanyNumber', 'CompanyId', NULL, NULL, 2, true, true),
+        ('TENANT_FgsTenantCompany_asset_cache', 'CompanyGuid', 'CompanyGuid', NULL, NULL, 3, true, true),
+        ('TENANT_FgsTenantCompany_asset_cache', 'Code', 'CompanyCode', NULL, NULL, 4, true, true),
+        ('TENANT_FgsTenantCompany_asset_cache', 'Name', 'CompanyName', NULL, NULL, 5, true, true),
+        ('TENANT_FgsTenantCompany_asset_cache', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('TENANT_FgsTenantCompany_asset_cache', NULL, 'UpdatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+
+        -- TENANT_FgsTenantCompany_svc_cache -> FgsTenantCompanyCache
+        ('TENANT_FgsTenantCompany_svc_cache', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('TENANT_FgsTenantCompany_svc_cache', 'CompanyNumber', 'CompanyId', NULL, NULL, 2, true, true),
+        ('TENANT_FgsTenantCompany_svc_cache', 'CompanyGuid', 'CompanyGuid', NULL, NULL, 3, true, true),
+        ('TENANT_FgsTenantCompany_svc_cache', 'Code', 'CompanyCode', NULL, NULL, 4, true, true),
+        ('TENANT_FgsTenantCompany_svc_cache', 'Name', 'CompanyName', NULL, NULL, 5, true, true),
+        ('TENANT_FgsTenantCompany_svc_cache', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('TENANT_FgsTenantCompany_svc_cache', NULL, 'UpdatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+
+        -- TENANT_CrmServiceLocation_asset_cache -> FgsServiceLocationCache
+        ('TENANT_CrmServiceLocation_asset_cache', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('TENANT_CrmServiceLocation_asset_cache', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('TENANT_CrmServiceLocation_asset_cache', 'Id', 'ServiceLocationId', NULL, NULL, 3, true, true),
+        ('TENANT_CrmServiceLocation_asset_cache', 'CustomerId', 'CustomerId', NULL, NULL, 4, true, true),
+        ('TENANT_CrmServiceLocation_asset_cache', 'LocationSequence', 'LocationSequence', NULL, NULL, 5, true, true),
+        ('TENANT_CrmServiceLocation_asset_cache', 'LocationNumber', 'LocationNumber', NULL, NULL, 6, true, true),
+        ('TENANT_CrmServiceLocation_asset_cache', NULL, 'UpdatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+
         -- ALL_GloBillingCategory -> FgsBillingCategory
         ('ALL_GloBillingCategory', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
         ('ALL_GloBillingCategory', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
@@ -1824,6 +2125,95 @@ INNER JOIN (
         ('ALL_GloLeadSource', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
         ('ALL_GloLeadSource', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
         ('ALL_GloLeadSource', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 8, false, true),
+
+        -- ALL_GloLeadStatus -> FgsLeadStatus
+        ('ALL_GloLeadStatus', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloLeadStatus', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloLeadStatus', 'StatusCode', 'StatusCode', NULL, NULL, 3, true, true),
+        ('ALL_GloLeadStatus', 'StatusName', 'StatusName', NULL, NULL, 4, true, true),
+        ('ALL_GloLeadStatus', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('ALL_GloLeadStatus', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 6, true, true),
+        ('ALL_GloLeadStatus', NULL, 'IsSystem', 'STATIC', 'true', 7, true, true),
+        ('ALL_GloLeadStatus', 'IsActive', 'IsActive', NULL, NULL, 8, true, true),
+        ('ALL_GloLeadStatus', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 9, true, true),
+        ('ALL_GloLeadStatus', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 10, false, true),
+
+        -- ALL_GloLeadDisqualificationReason -> FgsLeadDisqualificationReason
+        ('ALL_GloLeadDisqualificationReason', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloLeadDisqualificationReason', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloLeadDisqualificationReason', 'ReasonCode', 'ReasonCode', NULL, NULL, 3, true, true),
+        ('ALL_GloLeadDisqualificationReason', 'ReasonName', 'ReasonName', NULL, NULL, 4, true, true),
+        ('ALL_GloLeadDisqualificationReason', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('ALL_GloLeadDisqualificationReason', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 6, true, true),
+        ('ALL_GloLeadDisqualificationReason', NULL, 'IsSystem', 'STATIC', 'true', 7, true, true),
+        ('ALL_GloLeadDisqualificationReason', 'IsActive', 'IsActive', NULL, NULL, 8, true, true),
+        ('ALL_GloLeadDisqualificationReason', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 9, true, true),
+        ('ALL_GloLeadDisqualificationReason', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 10, false, true),
+
+        -- ALL_GloSalesPipelineStatus -> FgsSalesPipelineStatus
+        ('ALL_GloSalesPipelineStatus', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloSalesPipelineStatus', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloSalesPipelineStatus', 'StatusCode', 'StatusCode', NULL, NULL, 3, true, true),
+        ('ALL_GloSalesPipelineStatus', 'StatusName', 'StatusName', NULL, NULL, 4, true, true),
+        ('ALL_GloSalesPipelineStatus', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('ALL_GloSalesPipelineStatus', 'AppliesToLead', 'AppliesToLead', NULL, NULL, 6, true, true),
+        ('ALL_GloSalesPipelineStatus', 'AppliesToOpportunity', 'AppliesToOpportunity', NULL, NULL, 7, true, true),
+        ('ALL_GloSalesPipelineStatus', 'IsTerminal', 'IsTerminal', NULL, NULL, 8, true, true),
+        ('ALL_GloSalesPipelineStatus', 'AllowManualSelection', 'AllowManualSelection', NULL, NULL, 9, true, true),
+        ('ALL_GloSalesPipelineStatus', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 10, true, true),
+        ('ALL_GloSalesPipelineStatus', NULL, 'IsSystem', 'STATIC', 'true', 11, true, true),
+        ('ALL_GloSalesPipelineStatus', NULL, 'IsActive', 'STATIC', 'true', 12, true, true),
+        ('ALL_GloSalesPipelineStatus', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 13, true, true),
+        ('ALL_GloSalesPipelineStatus', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 14, false, true),
+
+        -- ALL_GloSalesDispositionReason -> FgsSalesDispositionReason
+        ('ALL_GloSalesDispositionReason', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloSalesDispositionReason', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloSalesDispositionReason', 'DispositionReasonCode', 'DispositionReasonCode', NULL, NULL, 3, true, true),
+        ('ALL_GloSalesDispositionReason', 'DispositionReasonName', 'DispositionReasonName', NULL, NULL, 4, true, true),
+        ('ALL_GloSalesDispositionReason', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('ALL_GloSalesDispositionReason', 'AppliesToLead', 'AppliesToLead', NULL, NULL, 6, true, true),
+        ('ALL_GloSalesDispositionReason', 'AppliesToOpportunity', 'AppliesToOpportunity', NULL, NULL, 7, true, true),
+        ('ALL_GloSalesDispositionReason', 'RequireComment', 'RequireComment', NULL, NULL, 8, true, true),
+        ('ALL_GloSalesDispositionReason', 'IsTerminal', 'IsTerminal', NULL, NULL, 9, true, true),
+        ('ALL_GloSalesDispositionReason', NULL, 'AllowManualSelection', 'STATIC', 'true', 10, true, true),
+        ('ALL_GloSalesDispositionReason', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 11, true, true),
+        ('ALL_GloSalesDispositionReason', NULL, 'IsSystem', 'STATIC', 'true', 12, true, true),
+        ('ALL_GloSalesDispositionReason', NULL, 'IsActive', 'STATIC', 'true', 13, true, true),
+        ('ALL_GloSalesDispositionReason', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 14, true, true),
+        ('ALL_GloSalesDispositionReason', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 15, false, true),
+
+        -- ALL_GloSalesActivityType -> FgsSalesActivityType
+        ('ALL_GloSalesActivityType', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloSalesActivityType', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloSalesActivityType', 'ActivityTypeCode', 'ActivityTypeCode', NULL, NULL, 3, true, true),
+        ('ALL_GloSalesActivityType', 'ActivityTypeName', 'ActivityTypeName', NULL, NULL, 4, true, true),
+        ('ALL_GloSalesActivityType', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('ALL_GloSalesActivityType', 'AppliesToLead', 'AppliesToLead', NULL, NULL, 6, true, true),
+        ('ALL_GloSalesActivityType', 'AppliesToOpportunity', 'AppliesToOpportunity', NULL, NULL, 7, true, true),
+        ('ALL_GloSalesActivityType', 'AllowManualSelection', 'AllowManualSelection', NULL, NULL, 8, true, true),
+        ('ALL_GloSalesActivityType', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 9, true, true),
+        ('ALL_GloSalesActivityType', NULL, 'IsSystem', 'STATIC', 'true', 10, true, true),
+        ('ALL_GloSalesActivityType', NULL, 'IsActive', 'STATIC', 'true', 11, true, true),
+        ('ALL_GloSalesActivityType', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 12, true, true),
+        ('ALL_GloSalesActivityType', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 13, false, true),
+
+        -- ALL_GloSalesActivityOutcome -> FgsSalesActivityOutcome
+        ('ALL_GloSalesActivityOutcome', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloSalesActivityOutcome', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloSalesActivityOutcome', 'OutcomeCode', 'OutcomeCode', NULL, NULL, 3, true, true),
+        ('ALL_GloSalesActivityOutcome', 'OutcomeName', 'OutcomeName', NULL, NULL, 4, true, true),
+        ('ALL_GloSalesActivityOutcome', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('ALL_GloSalesActivityOutcome', 'AppliesToLead', 'AppliesToLead', NULL, NULL, 6, true, true),
+        ('ALL_GloSalesActivityOutcome', 'AppliesToOpportunity', 'AppliesToOpportunity', NULL, NULL, 7, true, true),
+        ('ALL_GloSalesActivityOutcome', 'IsTerminal', 'IsTerminal', NULL, NULL, 8, true, true),
+        ('ALL_GloSalesActivityOutcome', 'RequireComment', 'RequireComment', NULL, NULL, 9, true, true),
+        ('ALL_GloSalesActivityOutcome', 'AllowManualSelection', 'AllowManualSelection', NULL, NULL, 10, true, true),
+        ('ALL_GloSalesActivityOutcome', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 11, true, true),
+        ('ALL_GloSalesActivityOutcome', NULL, 'IsSystem', 'STATIC', 'true', 12, true, true),
+        ('ALL_GloSalesActivityOutcome', NULL, 'IsActive', 'STATIC', 'true', 13, true, true),
+        ('ALL_GloSalesActivityOutcome', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 14, true, true),
+        ('ALL_GloSalesActivityOutcome', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 15, false, true),
 
         -- ALL_GloPaymentMethodType -> FgsSetupPaymentMethod
         ('ALL_GloPaymentMethodType', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),

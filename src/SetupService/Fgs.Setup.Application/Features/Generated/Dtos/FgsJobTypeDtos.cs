@@ -1,0 +1,196 @@
+namespace Fgs.Setup.Application.Features.Generated.Dtos;
+
+/// <summary>FgsJobType</summary>
+public sealed record FgsJobTypeSummaryDto(
+    /// <summary>Id</summary>
+    long Id,
+    /// <summary>TenantId</summary>
+    long TenantId,
+    /// <summary>CompanyId</summary>
+    long CompanyId,
+    /// <summary>JobTypeCategoryId</summary>
+    long JobTypeCategoryId,
+    /// <summary>JobTypeSubCategoryId</summary>
+    long? JobTypeSubCategoryId,
+    /// <summary>JobTypeCode</summary>
+    string? JobTypeCode,
+    /// <summary>TaskName</summary>
+    string? TaskName,
+    /// <summary>Description</summary>
+    string? Description,
+    /// <summary>UsedFor</summary>
+    string? UsedFor,
+    /// <summary>Trade</summary>
+    string? Trade,
+    /// <summary>EstimatedDurationMinutes</summary>
+    int? EstimatedDurationMinutes,
+    /// <summary>BusinessUnit</summary>
+    string? BusinessUnit,
+    /// <summary>Priority</summary>
+    short Priority,
+    /// <summary>BackgroundColor</summary>
+    string? BackgroundColor,
+    /// <summary>TextColor</summary>
+    string? TextColor,
+    /// <summary>ShowToFieldTech</summary>
+    bool ShowToFieldTech,
+    /// <summary>ShowOnCustomerPortal</summary>
+    bool ShowOnCustomerPortal,
+    /// <summary>DisplayOrder</summary>
+    short DisplayOrder,
+    /// <summary>CreatedOn</summary>
+    DateTimeOffset CreatedOn,
+    /// <summary>UpdatedOn</summary>
+    DateTimeOffset? UpdatedOn,
+    /// <summary>IsActive</summary>
+    bool IsActive)
+;
+
+public sealed record FgsJobTypeDetailDto(
+    /// <summary>Id</summary>
+    long Id,
+    /// <summary>TenantId</summary>
+    long TenantId,
+    /// <summary>CompanyId</summary>
+    long CompanyId,
+    /// <summary>JobTypeCategoryId</summary>
+    long JobTypeCategoryId,
+    /// <summary>JobTypeSubCategoryId</summary>
+    long? JobTypeSubCategoryId,
+    /// <summary>JobTypeCode</summary>
+    string? JobTypeCode,
+    /// <summary>TaskName</summary>
+    string? TaskName,
+    /// <summary>Description</summary>
+    string? Description,
+    /// <summary>UsedFor</summary>
+    string? UsedFor,
+    /// <summary>Trade</summary>
+    string? Trade,
+    /// <summary>EstimatedDurationMinutes</summary>
+    int? EstimatedDurationMinutes,
+    /// <summary>BusinessUnit</summary>
+    string? BusinessUnit,
+    /// <summary>Priority</summary>
+    short Priority,
+    /// <summary>BackgroundColor</summary>
+    string? BackgroundColor,
+    /// <summary>TextColor</summary>
+    string? TextColor,
+    /// <summary>ShowToFieldTech</summary>
+    bool ShowToFieldTech,
+    /// <summary>ShowOnCustomerPortal</summary>
+    bool ShowOnCustomerPortal,
+    /// <summary>DisplayOrder</summary>
+    short DisplayOrder,
+    /// <summary>CreatedOn</summary>
+    DateTimeOffset CreatedOn,
+    /// <summary>CreatedBy</summary>
+    string? CreatedBy,
+    /// <summary>UpdatedOn</summary>
+    DateTimeOffset? UpdatedOn,
+    /// <summary>UpdatedBy</summary>
+    string? UpdatedBy,
+    /// <summary>IsActive</summary>
+    bool IsActive)
+;
+
+public sealed record FgsJobTypeCreateDto(
+    /// <summary>JobTypeCategoryId</summary>
+    long JobTypeCategoryId,
+    /// <summary>JobTypeSubCategoryId</summary>
+    long? JobTypeSubCategoryId,
+    /// <summary>JobTypeCode</summary>
+    string? JobTypeCode,
+    /// <summary>TaskName</summary>
+    string? TaskName,
+    /// <summary>Description</summary>
+    string? Description,
+    /// <summary>UsedFor</summary>
+    string? UsedFor,
+    /// <summary>Trade</summary>
+    string? Trade,
+    /// <summary>EstimatedDurationMinutes</summary>
+    int? EstimatedDurationMinutes,
+    /// <summary>BusinessUnit</summary>
+    string? BusinessUnit,
+    /// <summary>Priority</summary>
+    short Priority,
+    /// <summary>BackgroundColor</summary>
+    string? BackgroundColor,
+    /// <summary>TextColor</summary>
+    string? TextColor,
+    /// <summary>ShowToFieldTech</summary>
+    bool ShowToFieldTech,
+    /// <summary>ShowOnCustomerPortal</summary>
+    bool ShowOnCustomerPortal,
+    /// <summary>DisplayOrder</summary>
+    short DisplayOrder)
+;
+
+public sealed record FgsJobTypeUpdateDto(
+    /// <summary>JobTypeCategoryId</summary>
+    long JobTypeCategoryId,
+    /// <summary>JobTypeSubCategoryId</summary>
+    long? JobTypeSubCategoryId,
+    /// <summary>JobTypeCode</summary>
+    string? JobTypeCode,
+    /// <summary>TaskName</summary>
+    string? TaskName,
+    /// <summary>Description</summary>
+    string? Description,
+    /// <summary>UsedFor</summary>
+    string? UsedFor,
+    /// <summary>Trade</summary>
+    string? Trade,
+    /// <summary>EstimatedDurationMinutes</summary>
+    int? EstimatedDurationMinutes,
+    /// <summary>BusinessUnit</summary>
+    string? BusinessUnit,
+    /// <summary>Priority</summary>
+    short Priority,
+    /// <summary>BackgroundColor</summary>
+    string? BackgroundColor,
+    /// <summary>TextColor</summary>
+    string? TextColor,
+    /// <summary>ShowToFieldTech</summary>
+    bool ShowToFieldTech,
+    /// <summary>ShowOnCustomerPortal</summary>
+    bool ShowOnCustomerPortal,
+    /// <summary>DisplayOrder</summary>
+    short DisplayOrder)
+;
+
+public sealed record FgsJobTypePatchDto(
+    /// <summary>JobTypeCategoryId</summary>
+    long? JobTypeCategoryId,
+    /// <summary>JobTypeSubCategoryId</summary>
+    long? JobTypeSubCategoryId,
+    /// <summary>JobTypeCode</summary>
+    string? JobTypeCode,
+    /// <summary>TaskName</summary>
+    string? TaskName,
+    /// <summary>Description</summary>
+    string? Description,
+    /// <summary>UsedFor</summary>
+    string? UsedFor,
+    /// <summary>Trade</summary>
+    string? Trade,
+    /// <summary>EstimatedDurationMinutes</summary>
+    int? EstimatedDurationMinutes,
+    /// <summary>BusinessUnit</summary>
+    string? BusinessUnit,
+    /// <summary>Priority</summary>
+    short? Priority,
+    /// <summary>BackgroundColor</summary>
+    string? BackgroundColor,
+    /// <summary>TextColor</summary>
+    string? TextColor,
+    /// <summary>ShowToFieldTech</summary>
+    bool? ShowToFieldTech,
+    /// <summary>ShowOnCustomerPortal</summary>
+    bool? ShowOnCustomerPortal,
+    /// <summary>DisplayOrder</summary>
+    short? DisplayOrder)
+;
+

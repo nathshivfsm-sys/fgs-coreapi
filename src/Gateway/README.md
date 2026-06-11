@@ -21,7 +21,6 @@ src/Gateway/
   docker/
     user-service.Dockerfile
     notification-service.Dockerfile
-    job-service.Dockerfile
     setup-service.Dockerfile
     file-service.Dockerfile
     publisher-service.Dockerfile
@@ -48,8 +47,6 @@ NGINX listens on `https://localhost:8443` locally.
 | `/api/v1/users/{path}` | `user-service:5001` | `/api/v1/{path}` |
 | `/api/v1/notifications` | `notification-service:5002` | `/api/v1/` |
 | `/api/v1/notifications/{path}` | `notification-service:5002` | `/api/v1/{path}` |
-| `/api/v1/jobs` | `job-service:5003` | `/api/v1/` |
-| `/api/v1/jobs/{path}` | `job-service:5003` | `/api/v1/{path}` |
 | `/api/v1/credentials/{path}` | `setup-service:5004` | KMS-backed credential admin |
 | `/api/v1/communication-templates/{path}` | `setup-service:5004` | Template reads for Notification |
 | `/api/v1/tenants/{path}` | `file-service:5005` | S3 bucket and folder provisioning |
@@ -107,7 +104,6 @@ Test the gateway:
 curl.exe -k https://localhost:8443/nginx-health
 curl.exe -k https://localhost:8443/api/v1/users/health
 curl.exe -k https://localhost:8443/api/v1/notifications/health
-curl.exe -k https://localhost:8443/api/v1/jobs/health
 ```
 
 Container health checks use each service's `/health` endpoint (see Dockerfiles). Setup and File API routes are reachable under `/api/v1/credentials/` and `/api/v1/tenants/` without a path prefix rewrite.
@@ -116,11 +112,11 @@ The local Compose file starts services in credential-safe order:
 
 1. `rabbitmq` — host ports `5672` / `15672`
 2. `setup-service` (`5004`) — credential authority; bootstraps `ConnectionStrings:FgsSetup` from mounted appsettings (no dependency on other FGS APIs)
-3. Credential consumers (wait for Setup `/health`): `audit-service` (`5008`), `user-service` (`5001`), `file-service` (`5005`), `notification-service` (`5002`), `job-service` (`5003`)
+3. Credential consumers (wait for Setup `/health`): `audit-service` (`5008`), `user-service` (`5001`), `file-service` (`5005`), `notification-service` (`5002`)
 4. Messaging workers: `publisher-service` (`5006`), `consumer-service` (`5007`)
 5. `nginx` — host ports `8080` / `8443` (waits for gateway upstream health checks)
 
-Scaffold APIs (Billing, Crm, Contract, etc.) are not containerized here; run them with `dotnet run` against Setup when needed.
+Scaffold APIs (Billing, Crm, ServiceAgreement, Asset, etc.) are not containerized here; run them with `dotnet run` against Setup when needed.
 
 ### Credential bootstrap environment variables
 
@@ -146,7 +142,6 @@ Each API container mounts the **same** files you edit for local `dotnet run`:
 | --- | --- |
 | User | `src/UserService/Fgs.User.API/appsettings.json` + `appsettings.Development.json` |
 | Platform | `src/NotificationService/Fgs.Notification.API/appsettings.json` + `appsettings.Development.json` |
-| Workorder | `src/JobService/Fgs.Job.API/appsettings.json` + `appsettings.Development.json` |
 | Setup | `src/SetupService/Fgs.Setup.API/appsettings.json` + `appsettings.Development.json` |
 | Audit | `src/AuditService/Fgs.Audit.API/appsettings.json` + `appsettings.Development.json` |
 | File | `src/FileService/Fgs.File.API/appsettings.json` + `appsettings.Development.json` |
@@ -164,7 +159,7 @@ Change connection strings in those JSON files and restart the service container;
 Do not add `container_name`; Docker Compose needs generated names for scaling.
 
 ```powershell
-docker compose up --build --scale user-service=2 --scale notification-service=2 --scale job-service=2 --scale setup-service=2 --scale file-service=2
+docker compose up --build --scale user-service=2 --scale notification-service=2 --scale setup-service=2 --scale file-service=2
 ```
 
 NGINX resolves the Compose service names and load balances with `least_conn`. If you scale after NGINX has already started, recreate or reload NGINX so it refreshes upstream DNS:
@@ -230,10 +225,10 @@ sudo systemctl reload nginx
 
 For Kubernetes, keep this routing model but move responsibilities as follows:
 
-- Use Kubernetes `Service` objects for `user-service`, `notification-service`, `job-service`, `setup-service`, `file-service`, `publisher-service`, and `consumer-service`.
+- Use Kubernetes `Service` objects for `user-service`, `notification-service`, `setup-service`, `file-service`, `publisher-service`, and `consumer-service`.
 - Put TLS certificates in `kubernetes.io/tls` secrets, or use cert-manager.
 - Use NGINX Ingress Controller for path routing and prefix rewrite annotations.
-- Keep `/api/v1/users`, `/api/v1/notifications`, `/api/v1/jobs`, `/api/v1/credentials`, `/api/v1/communication-templates`, and `/api/v1/tenants` as the stable external contract.
+- Keep `/api/v1/users`, `/api/v1/notifications`, `/api/v1/credentials`, `/api/v1/communication-templates`, and `/api/v1/tenants` as the stable external contract.
 - Move rate limiting, body size, gzip, timeouts, and security headers into Ingress annotations or a controller ConfigMap.
 
 The production NGINX files remain useful as the reference edge policy when converting to Ingress resources.

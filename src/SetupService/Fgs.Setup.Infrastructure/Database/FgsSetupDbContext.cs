@@ -53,14 +53,6 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsSetupDescription> FgsSetupDescriptions => Set<FgsSetupDescription>();
 
-    public DbSet<FgsSetupServiceAssetType> FgsSetupServiceAssetTypes => Set<FgsSetupServiceAssetType>();
-
-    public DbSet<FgsSetupServiceAssetManufacturer> FgsSetupServiceAssetManufacturers =>
-        Set<FgsSetupServiceAssetManufacturer>();
-
-    public DbSet<FgsSetupServiceAssetModelReference> FgsSetupServiceAssetModelReferences =>
-        Set<FgsSetupServiceAssetModelReference>();
-
     public DbSet<FgsResolutionCode> FgsResolutionCodes => Set<FgsResolutionCode>();
 
     public DbSet<FgsSetupPricingMatrix> FgsSetupPricingMatrices => Set<FgsSetupPricingMatrix>();
@@ -154,6 +146,30 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsLeadSource> FgsLeadSources => Set<FgsLeadSource>();
 
+    public DbSet<GloLeadStatus> GloLeadStatuses => Set<GloLeadStatus>();
+
+    public DbSet<FgsLeadStatus> FgsLeadStatuses => Set<FgsLeadStatus>();
+
+    public DbSet<GloLeadDisqualificationReason> GloLeadDisqualificationReasons => Set<GloLeadDisqualificationReason>();
+
+    public DbSet<FgsLeadDisqualificationReason> FgsLeadDisqualificationReasons => Set<FgsLeadDisqualificationReason>();
+
+    public DbSet<GloSalesPipelineStatus> GloSalesPipelineStatuses => Set<GloSalesPipelineStatus>();
+
+    public DbSet<FgsSalesPipelineStatus> FgsSalesPipelineStatuses => Set<FgsSalesPipelineStatus>();
+
+    public DbSet<GloSalesDispositionReason> GloSalesDispositionReasons => Set<GloSalesDispositionReason>();
+
+    public DbSet<FgsSalesDispositionReason> FgsSalesDispositionReasons => Set<FgsSalesDispositionReason>();
+
+    public DbSet<GloSalesActivityType> GloSalesActivityTypes => Set<GloSalesActivityType>();
+
+    public DbSet<FgsSalesActivityType> FgsSalesActivityTypes => Set<FgsSalesActivityType>();
+
+    public DbSet<GloSalesActivityOutcome> GloSalesActivityOutcomes => Set<GloSalesActivityOutcome>();
+
+    public DbSet<FgsSalesActivityOutcome> FgsSalesActivityOutcomes => Set<FgsSalesActivityOutcome>();
+
     public DbSet<GloZone> GloZones => Set<GloZone>();
 
     public DbSet<GloJobTypeCategory> GloJobTypeCategories => Set<GloJobTypeCategory>();
@@ -201,6 +217,18 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
     public DbSet<GloSeedTableMapping> GloSeedTableMappings => Set<GloSeedTableMapping>();
 
     public DbSet<GloSeedTableColumnMapping> GloSeedTableColumnMappings => Set<GloSeedTableColumnMapping>();
+
+    public DbSet<FgsSetupServiceAgreementTemplate> FgsSetupServiceAgreementTemplates =>
+        Set<FgsSetupServiceAgreementTemplate>();
+
+    public DbSet<FgsSetupServiceAgreementPricingComponent> FgsSetupServiceAgreementPricingComponents =>
+        Set<FgsSetupServiceAgreementPricingComponent>();
+
+    public DbSet<FgsSetupServiceAgreementTemplatePricingComponent> FgsSetupServiceAgreementTemplatePricingComponents =>
+        Set<FgsSetupServiceAgreementTemplatePricingComponent>();
+
+    public DbSet<FgsSetupServiceAgreementTemplateCoverage> FgsSetupServiceAgreementTemplateCoverages =>
+        Set<FgsSetupServiceAgreementTemplateCoverage>();
 
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
 

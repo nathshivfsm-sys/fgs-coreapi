@@ -6,7 +6,7 @@ $packages = @"
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
   </ItemGroup>
 "@
-$services = @('Billing','Crm','Dispatch','Inventory','Job','Integration','Audit','Reporting','Communication','Publisher','Consumer','Contract')
+$services = @('Billing','Crm','Scheduling','Inventory','Integration','Audit','Reporting','Communication','Publisher','Consumer','ServiceAgreement','Asset')
 foreach ($prefix in $services) {
     $csproj = Join-Path $PSScriptRoot "..\src\${prefix}Service\Fgs.$prefix.Application\Fgs.$prefix.Application.csproj"
     if (-not (Test-Path $csproj)) { continue }

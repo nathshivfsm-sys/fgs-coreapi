@@ -1,4 +1,4 @@
-$services = @('Billing','Crm','Dispatch','Inventory','Job','Integration','Audit','Reporting','Communication','Publisher','Consumer','Contract')
+$services = @('Billing','Crm','Scheduling','Inventory','Integration','Audit','Reporting','Communication','Publisher','Consumer','ServiceAgreement','Asset')
 $packages = @"
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.0.0" />
