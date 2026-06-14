@@ -1,4 +1,5 @@
 using Fgs.Scheduling.Domain.Entities;
+using Fgs.Scheduling.Infrastructure.Database.Configurations;
 using Fgs.Scheduling.Infrastructure.Database.Schemas;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,10 +10,24 @@ public sealed class FgsSchedulingDbContext(DbContextOptions<FgsSchedulingDbConte
     public const string MigrationHistorySchema = FgsDatabaseSchemas.MigrationHistory;
 
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
+    public DbSet<FgsWorkOrder> FgsWorkOrders => Set<FgsWorkOrder>();
+    public DbSet<FgsWorkOrderAsset> FgsWorkOrderAssets => Set<FgsWorkOrderAsset>();
+    public DbSet<FgsWorkOrderItem> FgsWorkOrderItems => Set<FgsWorkOrderItem>();
+    public DbSet<FgsWorkOrderIntegration> FgsWorkOrderIntegrations => Set<FgsWorkOrderIntegration>();
+    public DbSet<FgsCrew> FgsCrews => Set<FgsCrew>();
+    public DbSet<FgsCrewMember> FgsCrewMembers => Set<FgsCrewMember>();
+    public DbSet<FgsAppointment> FgsAppointments => Set<FgsAppointment>();
+    public DbSet<FgsAppointmentAssignment> FgsAppointmentAssignments => Set<FgsAppointmentAssignment>();
+    public DbSet<FgsAppointmentAssignmentEvent> FgsAppointmentAssignmentEvents => Set<FgsAppointmentAssignmentEvent>();
+    public DbSet<FgsPayrollPayPeriod> FgsPayrollPayPeriods => Set<FgsPayrollPayPeriod>();
+    public DbSet<FgsPayroll> FgsPayrolls => Set<FgsPayroll>();
+    public DbSet<FgsPayrollLine> FgsPayrollLines => Set<FgsPayrollLine>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(FgsDatabaseSchemas.Dispatch);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsSchedulingDbContext).Assembly);
+        FgsSchedulingDbContextConfigurationExtensions.ApplyTenantCompanyCacheForeignKeys(modelBuilder);
+        FgsSchedulingDbContextConfigurationExtensions.ConfigureAuditActorColumns(modelBuilder);
     }
 }

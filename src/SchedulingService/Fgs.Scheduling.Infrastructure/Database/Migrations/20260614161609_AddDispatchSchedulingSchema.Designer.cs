@@ -3,6 +3,7 @@ using System;
 using Fgs.Scheduling.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fgs.Scheduling.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(FgsSchedulingDbContext))]
-    partial class FgsSchedulingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260614161609_AddDispatchSchedulingSchema")]
+    partial class AddDispatchSchedulingSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

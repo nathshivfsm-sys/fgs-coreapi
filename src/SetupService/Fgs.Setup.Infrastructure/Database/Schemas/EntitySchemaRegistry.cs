@@ -40,6 +40,7 @@ internal static class EntitySchemaRegistry
     private static Dictionary<Type, string> BuildEntitySchemas() => new()
     {
         [typeof(GloAccountingIntegrationType)] = FgsDatabaseSchemas.Glo,
+        [typeof(GloAppointmentAssignmentEventType)] = FgsDatabaseSchemas.Glo,
         [typeof(GloBillingCategory)] = FgsDatabaseSchemas.Glo,
         [typeof(GloBusinessType)] = FgsDatabaseSchemas.Glo,
         [typeof(GloCommunicationToken)] = FgsDatabaseSchemas.Glo,

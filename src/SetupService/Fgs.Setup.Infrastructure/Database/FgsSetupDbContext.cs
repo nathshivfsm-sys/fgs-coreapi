@@ -148,6 +148,9 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<GloLeadStatus> GloLeadStatuses => Set<GloLeadStatus>();
 
+    public DbSet<GloAppointmentAssignmentEventType> GloAppointmentAssignmentEventTypes =>
+        Set<GloAppointmentAssignmentEventType>();
+
     public DbSet<FgsLeadStatus> FgsLeadStatuses => Set<FgsLeadStatus>();
 
     public DbSet<GloLeadDisqualificationReason> GloLeadDisqualificationReasons => Set<GloLeadDisqualificationReason>();
