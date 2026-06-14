@@ -410,6 +410,7 @@ internal static class CodeGenerator
             _ when clrType == typeof(Guid) => "Guid",
             _ when clrType == typeof(DateTimeOffset) => "DateTimeOffset",
             _ when clrType == typeof(DateTime) => "DateTime",
+            _ when clrType == typeof(DateOnly) => "DateOnly",
             _ when Nullable.GetUnderlyingType(clrType) is Type underlying => MakeNullable(ToDtoTypeName(underlying, false)),
             _ => clrType.Name
         };
@@ -439,6 +440,7 @@ internal static class CodeGenerator
             _ when type == typeof(decimal) => "decimal",
             _ when type == typeof(DateTimeOffset) => "DateTimeOffset",
             _ when type == typeof(DateTime) => "DateTime",
+            _ when type == typeof(DateOnly) => "DateOnly",
             _ when type == typeof(Guid) => "Guid",
             _ => type.FullName!.Replace('+', '.')
         };

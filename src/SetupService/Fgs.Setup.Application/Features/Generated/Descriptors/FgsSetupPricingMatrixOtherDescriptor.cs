@@ -17,8 +17,8 @@ public static class FgsSetupPricingMatrixOtherDescriptor
         PatchDtoType: typeof(FgsSetupPricingMatrixOtherPatchDto),
         TableName: "FgsSetupPricingMatrixOther",
         Schema: "setup",
-        KeyType: CatalogEntityKeyType.Guid,
-        Variant: CatalogEntityVariant.StandardGuid,
+        KeyType: CatalogEntityKeyType.Long,
+        Variant: CatalogEntityVariant.StandardLong,
         RoutePlural: "pricingmatrixothers",
         SwaggerTag: "Setup - Pricing",
         TableComment: "FgsSetupPricingMatrixOther",
@@ -26,21 +26,21 @@ public static class FgsSetupPricingMatrixOtherDescriptor
         Columns:
         [
             new CatalogEntityColumnDescriptor(
-                "Id", "Id", typeof(Guid), false, null, true, false, true, "Id"),
+                "Id", "Id", typeof(long), false, null, true, false, true, "Reference to the pricing matrix."),
             new CatalogEntityColumnDescriptor(
                 "TenantId", "TenantId", typeof(long), false, null, true, false, false, "TenantId"),
             new CatalogEntityColumnDescriptor(
                 "CompanyId", "CompanyId", typeof(long), false, null, true, false, false, "CompanyId"),
             new CatalogEntityColumnDescriptor(
-                "FgsSetupPricingMatrixId", "FgsSetupPricingMatrixId", typeof(Guid), true, null, false, false, true, "FgsSetupPricingMatrixId"),
+                "PricingMatrixId", "PricingMatrixId", typeof(long), true, null, false, false, true, "PricingMatrixId"),
             new CatalogEntityColumnDescriptor(
-                "CategoryCode", "CategoryCode", typeof(string), false, 0, false, true, true, "CategoryCode"),
+                "CategoryCode", "CategoryCode", typeof(string), false, 0, false, true, true, "Unique category code within the pricing matrix."),
             new CatalogEntityColumnDescriptor(
-                "Name", "Name", typeof(string), false, 0, false, true, true, "Name"),
+                "Name", "Name", typeof(string), false, 200, false, true, true, "User-friendly category name."),
             new CatalogEntityColumnDescriptor(
-                "MarkupPercent", "MarkupPercent", typeof(decimal?), false, null, false, false, true, "MarkupPercent"),
+                "MarkupPercent", "MarkupPercent", typeof(decimal?), false, null, false, false, true, "Markup percentage applied to the base cost."),
             new CatalogEntityColumnDescriptor(
-                "DiscountPercent", "DiscountPercent", typeof(decimal?), false, null, false, false, true, "DiscountPercent"),
+                "DiscountPercent", "DiscountPercent", typeof(decimal?), false, null, false, false, true, "Optional discount percentage applied after markup."),
             new CatalogEntityColumnDescriptor(
                 "CreatedOn", "CreatedOn", typeof(DateTimeOffset), false, null, true, false, false, "CreatedOn"),
             new CatalogEntityColumnDescriptor(
@@ -54,8 +54,8 @@ public static class FgsSetupPricingMatrixOtherDescriptor
         ],
         UniqueKeys:
         [
-            new CatalogEntityUniqueKeyDescriptor("UQ_FgsSetupPricingMatrixOther", ["TenantId", "CompanyId", "FgsSetupPricingMatrixId", "CategoryCode"]),
+            new CatalogEntityUniqueKeyDescriptor("UQ_FgsSetupPricingMatrixOther", ["TenantId", "CompanyId", "PricingMatrixId", "CategoryCode"]),
         ],
         SearchableColumns: ["CategoryCode", "Name"],
-        SortableColumns: ["Id", "FgsSetupPricingMatrixId", "CategoryCode", "Name", "MarkupPercent", "DiscountPercent", "IsActive"]);
+        SortableColumns: ["Id", "PricingMatrixId", "CategoryCode", "Name", "MarkupPercent", "DiscountPercent", "IsActive"]);
 }

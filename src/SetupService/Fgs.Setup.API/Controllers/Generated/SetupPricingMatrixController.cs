@@ -22,10 +22,10 @@ public sealed class SetupPricingMatrixController : CatalogCrudControllerBase
 
     /// <summary>Gets a record by identifier.</summary>
     /// <param name="id">The FgsSetupPricingMatrix identifier.</param>
-    [HttpGet("{id:guid}")]
+    [HttpGet("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsSetupPricingMatrixDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken) =>
+    public async Task<IActionResult> Get(long id, CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new GetCatalogEntityQuery<FgsSetupPricingMatrixDetailDto>(EntityKeys.SetupPricingMatrix, id.ToString()), cancellationToken));
 
     /// <summary>Lists records with pagination, sorting, and search.</summary>
@@ -67,24 +67,24 @@ public sealed class SetupPricingMatrixController : CatalogCrudControllerBase
     }
 
     /// <summary>Replaces an existing record.</summary>
-    [HttpPut("{id:guid}")]
+    [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsSetupPricingMatrixDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(Guid id, [FromBody] FgsSetupPricingMatrixUpdateDto request, CancellationToken cancellationToken) =>
+    public async Task<IActionResult> Update(long id, [FromBody] FgsSetupPricingMatrixUpdateDto request, CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new UpdateCatalogEntityCommand<FgsSetupPricingMatrixUpdateDto, FgsSetupPricingMatrixDetailDto>(EntityKeys.SetupPricingMatrix, id.ToString(), request), cancellationToken));
 
     /// <summary>Partially updates an existing record.</summary>
-    [HttpPatch("{id:guid}")]
+    [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsSetupPricingMatrixDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Patch(Guid id, [FromBody] FgsSetupPricingMatrixPatchDto request, CancellationToken cancellationToken) =>
+    public async Task<IActionResult> Patch(long id, [FromBody] FgsSetupPricingMatrixPatchDto request, CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new PatchCatalogEntityCommand<FgsSetupPricingMatrixPatchDto, FgsSetupPricingMatrixDetailDto>(EntityKeys.SetupPricingMatrix, id.ToString(), request), cancellationToken));
 
     /// <summary>Deletes a record (soft delete when supported).</summary>
-    [HttpDelete("{id:guid}")]
+    [HttpDelete("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken) =>
+    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new DeleteCatalogEntityCommand(EntityKeys.SetupPricingMatrix, id.ToString()), cancellationToken));
 }
 

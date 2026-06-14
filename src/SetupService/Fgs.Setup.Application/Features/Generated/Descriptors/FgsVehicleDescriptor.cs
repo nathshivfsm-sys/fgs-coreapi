@@ -52,6 +52,8 @@ public static class FgsVehicleDescriptor
             new CatalogEntityColumnDescriptor(
                 "LicensePlateState", "LicensePlateState", typeof(string), false, 50, false, true, true, "State or province issuing the vehicle registration."),
             new CatalogEntityColumnDescriptor(
+                "PurchaseDate", "PurchaseDate", typeof(DateOnly?), false, null, false, false, true, "Date the vehicle was purchased or acquired."),
+            new CatalogEntityColumnDescriptor(
                 "PurchasePrice", "PurchasePrice", typeof(decimal?), false, null, false, false, true, "Amount paid to acquire the vehicle."),
             new CatalogEntityColumnDescriptor(
                 "PurchasedFrom", "PurchasedFrom", typeof(string), false, 0, false, true, true, "Indicates whether the vehicle was purchased new or used."),
@@ -74,5 +76,5 @@ public static class FgsVehicleDescriptor
         [
         ],
         SearchableColumns: ["OwnershipType", "OwnershipCompany", "Make", "Model", "Color", "VIN", "LicensePlate", "LicensePlateState", "PurchasedFrom", "Notes"],
-        SortableColumns: ["Id", "WarehouseId", "OwnershipType", "OwnershipCompany", "Year", "Make", "Model", "Color", "VIN", "LicensePlate", "LicensePlateState", "PurchasePrice", "PurchasedFrom", "IsPurchasedNew", "Notes", "IsActive"]);
+        SortableColumns: ["Id", "WarehouseId", "OwnershipType", "OwnershipCompany", "Year", "Make", "Model", "Color", "VIN", "LicensePlate", "LicensePlateState", "PurchaseDate", "PurchasePrice", "PurchasedFrom", "IsPurchasedNew", "Notes", "IsActive"]);
 }

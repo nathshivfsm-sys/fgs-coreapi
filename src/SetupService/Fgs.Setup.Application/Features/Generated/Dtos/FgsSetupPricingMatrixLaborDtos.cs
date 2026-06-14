@@ -3,17 +3,17 @@ namespace Fgs.Setup.Application.Features.Generated.Dtos;
 /// <summary>FgsSetupPricingMatrixLabor</summary>
 public sealed record FgsSetupPricingMatrixLaborSummaryDto(
     /// <summary>Id</summary>
-    Guid Id,
+    long Id,
     /// <summary>TenantId</summary>
     long TenantId,
     /// <summary>CompanyId</summary>
     long CompanyId,
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid FgsSetupPricingMatrixId,
-    /// <summary>FgsSetupLaborRateTypeId</summary>
-    int FgsSetupLaborRateTypeId,
-    /// <summary>FgsSetupTechSkillLevelId</summary>
-    long? FgsSetupTechSkillLevelId,
+    /// <summary>PricingMatrixId</summary>
+    long PricingMatrixId,
+    /// <summary>LaborRateTypeId</summary>
+    int LaborRateTypeId,
+    /// <summary>TechSkillLevelId</summary>
+    long? TechSkillLevelId,
     /// <summary>BaseRate</summary>
     decimal BaseRate,
     /// <summary>OvertimeMultiplier</summary>
@@ -32,17 +32,17 @@ public sealed record FgsSetupPricingMatrixLaborSummaryDto(
 
 public sealed record FgsSetupPricingMatrixLaborDetailDto(
     /// <summary>Id</summary>
-    Guid Id,
+    long Id,
     /// <summary>TenantId</summary>
     long TenantId,
     /// <summary>CompanyId</summary>
     long CompanyId,
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid FgsSetupPricingMatrixId,
-    /// <summary>FgsSetupLaborRateTypeId</summary>
-    int FgsSetupLaborRateTypeId,
-    /// <summary>FgsSetupTechSkillLevelId</summary>
-    long? FgsSetupTechSkillLevelId,
+    /// <summary>PricingMatrixId</summary>
+    long PricingMatrixId,
+    /// <summary>LaborRateTypeId</summary>
+    int LaborRateTypeId,
+    /// <summary>TechSkillLevelId</summary>
+    long? TechSkillLevelId,
     /// <summary>BaseRate</summary>
     decimal BaseRate,
     /// <summary>OvertimeMultiplier</summary>
@@ -64,12 +64,12 @@ public sealed record FgsSetupPricingMatrixLaborDetailDto(
 ;
 
 public sealed record FgsSetupPricingMatrixLaborCreateDto(
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid FgsSetupPricingMatrixId,
-    /// <summary>FgsSetupLaborRateTypeId</summary>
-    int FgsSetupLaborRateTypeId,
-    /// <summary>FgsSetupTechSkillLevelId</summary>
-    long? FgsSetupTechSkillLevelId,
+    /// <summary>PricingMatrixId</summary>
+    long PricingMatrixId,
+    /// <summary>LaborRateTypeId</summary>
+    int LaborRateTypeId,
+    /// <summary>TechSkillLevelId</summary>
+    long? TechSkillLevelId,
     /// <summary>BaseRate</summary>
     decimal BaseRate,
     /// <summary>OvertimeMultiplier</summary>
@@ -81,12 +81,12 @@ public sealed record FgsSetupPricingMatrixLaborCreateDto(
 ;
 
 public sealed record FgsSetupPricingMatrixLaborUpdateDto(
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid FgsSetupPricingMatrixId,
-    /// <summary>FgsSetupLaborRateTypeId</summary>
-    int FgsSetupLaborRateTypeId,
-    /// <summary>FgsSetupTechSkillLevelId</summary>
-    long? FgsSetupTechSkillLevelId,
+    /// <summary>PricingMatrixId</summary>
+    long PricingMatrixId,
+    /// <summary>LaborRateTypeId</summary>
+    int LaborRateTypeId,
+    /// <summary>TechSkillLevelId</summary>
+    long? TechSkillLevelId,
     /// <summary>BaseRate</summary>
     decimal BaseRate,
     /// <summary>OvertimeMultiplier</summary>
@@ -98,12 +98,12 @@ public sealed record FgsSetupPricingMatrixLaborUpdateDto(
 ;
 
 public sealed record FgsSetupPricingMatrixLaborPatchDto(
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid? FgsSetupPricingMatrixId,
-    /// <summary>FgsSetupLaborRateTypeId</summary>
-    int? FgsSetupLaborRateTypeId,
-    /// <summary>FgsSetupTechSkillLevelId</summary>
-    long? FgsSetupTechSkillLevelId,
+    /// <summary>PricingMatrixId</summary>
+    long? PricingMatrixId,
+    /// <summary>LaborRateTypeId</summary>
+    int? LaborRateTypeId,
+    /// <summary>TechSkillLevelId</summary>
+    long? TechSkillLevelId,
     /// <summary>BaseRate</summary>
     decimal? BaseRate,
     /// <summary>OvertimeMultiplier</summary>

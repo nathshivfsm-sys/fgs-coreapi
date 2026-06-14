@@ -19,8 +19,14 @@ public static class EntityRegistryRegistration
         registry.Register(FgsJobTypeDescriptor.Create());
         registry.Register(FgsJobTypeCategoryDescriptor.Create());
         registry.Register(FgsJobTypeSubCategoryDescriptor.Create());
+        registry.Register(FgsLeadDisqualificationReasonDescriptor.Create());
         registry.Register(FgsLeadSourceDescriptor.Create());
+        registry.Register(FgsLeadStatusDescriptor.Create());
         registry.Register(FgsResolutionCodeDescriptor.Create());
+        registry.Register(FgsSalesActivityOutcomeDescriptor.Create());
+        registry.Register(FgsSalesActivityTypeDescriptor.Create());
+        registry.Register(FgsSalesDispositionReasonDescriptor.Create());
+        registry.Register(FgsSalesPipelineStatusDescriptor.Create());
         registry.Register(FgsSetupCommunicationTemplateDescriptor.Create());
         registry.Register(FgsSetupDescriptionDescriptor.Create());
         registry.Register(FgsSetupGLBreakDescriptor.Create());
@@ -33,6 +39,10 @@ public static class EntityRegistryRegistration
         registry.Register(FgsSetupPricingMatrixLaborTierDescriptor.Create());
         registry.Register(FgsSetupPricingMatrixMaterialTierDescriptor.Create());
         registry.Register(FgsSetupPricingMatrixOtherDescriptor.Create());
+        registry.Register(FgsSetupServiceAgreementPricingComponentDescriptor.Create());
+        registry.Register(FgsSetupServiceAgreementTemplateDescriptor.Create());
+        registry.Register(FgsSetupServiceAgreementTemplateCoverageDescriptor.Create());
+        registry.Register(FgsSetupServiceAgreementTemplatePricingComponentDescriptor.Create());
         registry.Register(FgsSetupTaxDescriptor.Create());
         registry.Register(FgsSetupTaxAuthorityDescriptor.Create());
         registry.Register(FgsSetupTaxDetailDescriptor.Create());

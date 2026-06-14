@@ -3,7 +3,7 @@ namespace Fgs.Setup.Application.Features.Generated.Dtos;
 /// <summary>FgsSetupPricingMatrix</summary>
 public sealed record FgsSetupPricingMatrixSummaryDto(
     /// <summary>Id</summary>
-    Guid Id,
+    long Id,
     /// <summary>TenantId</summary>
     long TenantId,
     /// <summary>CompanyId</summary>
@@ -16,6 +16,10 @@ public sealed record FgsSetupPricingMatrixSummaryDto(
     bool IsLaborTierStructure,
     /// <summary>IsLaborRateBySkillLevel</summary>
     bool IsLaborRateBySkillLevel,
+    /// <summary>EffectiveFrom</summary>
+    DateOnly EffectiveFrom,
+    /// <summary>EffectiveTo</summary>
+    DateOnly? EffectiveTo,
     /// <summary>IsMobileVisible</summary>
     bool IsMobileVisible,
     /// <summary>CreatedOn</summary>
@@ -28,7 +32,7 @@ public sealed record FgsSetupPricingMatrixSummaryDto(
 
 public sealed record FgsSetupPricingMatrixDetailDto(
     /// <summary>Id</summary>
-    Guid Id,
+    long Id,
     /// <summary>TenantId</summary>
     long TenantId,
     /// <summary>CompanyId</summary>
@@ -41,6 +45,10 @@ public sealed record FgsSetupPricingMatrixDetailDto(
     bool IsLaborTierStructure,
     /// <summary>IsLaborRateBySkillLevel</summary>
     bool IsLaborRateBySkillLevel,
+    /// <summary>EffectiveFrom</summary>
+    DateOnly EffectiveFrom,
+    /// <summary>EffectiveTo</summary>
+    DateOnly? EffectiveTo,
     /// <summary>IsMobileVisible</summary>
     bool IsMobileVisible,
     /// <summary>CreatedOn</summary>
@@ -64,6 +72,10 @@ public sealed record FgsSetupPricingMatrixCreateDto(
     bool IsLaborTierStructure,
     /// <summary>IsLaborRateBySkillLevel</summary>
     bool IsLaborRateBySkillLevel,
+    /// <summary>EffectiveFrom</summary>
+    DateOnly EffectiveFrom,
+    /// <summary>EffectiveTo</summary>
+    DateOnly? EffectiveTo,
     /// <summary>IsMobileVisible</summary>
     bool IsMobileVisible)
 ;
@@ -77,6 +89,10 @@ public sealed record FgsSetupPricingMatrixUpdateDto(
     bool IsLaborTierStructure,
     /// <summary>IsLaborRateBySkillLevel</summary>
     bool IsLaborRateBySkillLevel,
+    /// <summary>EffectiveFrom</summary>
+    DateOnly EffectiveFrom,
+    /// <summary>EffectiveTo</summary>
+    DateOnly? EffectiveTo,
     /// <summary>IsMobileVisible</summary>
     bool IsMobileVisible)
 ;
@@ -90,6 +106,10 @@ public sealed record FgsSetupPricingMatrixPatchDto(
     bool? IsLaborTierStructure,
     /// <summary>IsLaborRateBySkillLevel</summary>
     bool? IsLaborRateBySkillLevel,
+    /// <summary>EffectiveFrom</summary>
+    DateOnly? EffectiveFrom,
+    /// <summary>EffectiveTo</summary>
+    DateOnly? EffectiveTo,
     /// <summary>IsMobileVisible</summary>
     bool? IsMobileVisible)
 ;

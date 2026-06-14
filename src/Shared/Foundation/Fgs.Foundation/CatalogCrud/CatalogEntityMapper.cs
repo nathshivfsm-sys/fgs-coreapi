@@ -171,6 +171,11 @@ public static class CatalogEntityMapper
             return Guid.Parse(guidString);
         }
 
+        if (underlyingType == typeof(DateOnly) && value is string dateString)
+        {
+            return DateOnly.Parse(dateString);
+        }
+
         if (underlyingType.IsEnum)
         {
             return Enum.Parse(underlyingType, value.ToString()!, ignoreCase: true);

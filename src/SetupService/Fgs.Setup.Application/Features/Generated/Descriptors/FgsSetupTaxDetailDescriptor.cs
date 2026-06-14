@@ -36,6 +36,10 @@ public static class FgsSetupTaxDetailDescriptor
             new CatalogEntityColumnDescriptor(
                 "FgsSetupTaxAuthorityId", "FgsSetupTaxAuthorityId", typeof(long), true, null, false, false, true, "FgsSetupTaxAuthorityId"),
             new CatalogEntityColumnDescriptor(
+                "EffectiveFromDate", "EffectiveFromDate", typeof(DateOnly), true, null, false, false, true, "EffectiveFromDate"),
+            new CatalogEntityColumnDescriptor(
+                "EffectiveToDate", "EffectiveToDate", typeof(DateOnly?), false, null, false, false, true, "EffectiveToDate"),
+            new CatalogEntityColumnDescriptor(
                 "TaxPercent", "TaxPercent", typeof(decimal), true, null, false, false, true, "TaxPercent"),
             new CatalogEntityColumnDescriptor(
                 "IsExternalSystemRecord", "IsExternalSystemRecord", typeof(bool), true, null, false, false, true, "IsExternalSystemRecord"),
@@ -54,5 +58,5 @@ public static class FgsSetupTaxDetailDescriptor
         [
         ],
         SearchableColumns: [],
-        SortableColumns: ["Id", "FgsSetupTaxId", "FgsSetupTaxAuthorityId", "TaxPercent", "IsExternalSystemRecord", "IsActive"]);
+        SortableColumns: ["Id", "FgsSetupTaxId", "FgsSetupTaxAuthorityId", "EffectiveFromDate", "EffectiveToDate", "TaxPercent", "IsExternalSystemRecord", "IsActive"]);
 }

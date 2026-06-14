@@ -32,13 +32,13 @@ public static class FgsSetupPricingMatrixMaterialTierDescriptor
             new CatalogEntityColumnDescriptor(
                 "CompanyId", "CompanyId", typeof(long), false, null, true, false, false, "CompanyId"),
             new CatalogEntityColumnDescriptor(
-                "FgsSetupPricingMatrixId", "FgsSetupPricingMatrixId", typeof(Guid), true, null, false, false, true, "FgsSetupPricingMatrixId"),
+                "PricingMatrixId", "PricingMatrixId", typeof(long), true, null, false, false, true, "PricingMatrixId"),
             new CatalogEntityColumnDescriptor(
                 "FromCost", "FromCost", typeof(decimal), true, null, false, false, true, "Inclusive minimum material cost for this pricing tier."),
             new CatalogEntityColumnDescriptor(
                 "ToCost", "ToCost", typeof(decimal?), false, null, false, false, true, "Inclusive maximum material cost for this pricing tier. NULL indicates no upper limit."),
             new CatalogEntityColumnDescriptor(
-                "AdjustmentValue", "AdjustmentValue", typeof(decimal), true, null, false, false, true, "Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = $150 markup, 1.75 = multiplier."),
+                "AdjustmentValue", "AdjustmentValue", typeof(decimal), true, null, false, false, true, "Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = fixed dollar markup, 1.75 = multiplier."),
             new CatalogEntityColumnDescriptor(
                 "CreatedOn", "CreatedOn", typeof(DateTimeOffset), false, null, true, false, false, "CreatedOn"),
             new CatalogEntityColumnDescriptor(
@@ -54,5 +54,5 @@ public static class FgsSetupPricingMatrixMaterialTierDescriptor
         [
         ],
         SearchableColumns: [],
-        SortableColumns: ["Id", "FgsSetupPricingMatrixId", "FromCost", "ToCost", "AdjustmentValue", "IsActive"]);
+        SortableColumns: ["Id", "PricingMatrixId", "FromCost", "ToCost", "AdjustmentValue", "IsActive"]);
 }

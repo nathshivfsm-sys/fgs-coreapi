@@ -36,6 +36,8 @@ public static class FgsVehicleMaintenanceDescriptor
             new CatalogEntityColumnDescriptor(
                 "VehicleMaintenanceTypeId", "VehicleMaintenanceTypeId", typeof(int), true, null, false, false, true, "Type of maintenance activity being performed or scheduled."),
             new CatalogEntityColumnDescriptor(
+                "ServiceDate", "ServiceDate", typeof(DateOnly), true, null, false, false, true, "Date the maintenance was performed or is scheduled to be performed."),
+            new CatalogEntityColumnDescriptor(
                 "MileageAtService", "MileageAtService", typeof(int?), false, null, false, false, true, "Vehicle odometer reading at the time the maintenance was performed."),
             new CatalogEntityColumnDescriptor(
                 "ServiceProvider", "ServiceProvider", typeof(string), false, 0, false, true, true, "Name of the repair shop, dealership, service provider, or maintenance vendor."),
@@ -43,6 +45,8 @@ public static class FgsVehicleMaintenanceDescriptor
                 "InvoiceNumber", "InvoiceNumber", typeof(string), false, 100, false, true, true, "Total cost incurred for the maintenance activity."),
             new CatalogEntityColumnDescriptor(
                 "Cost", "Cost", typeof(decimal?), false, null, false, false, true, "Cost"),
+            new CatalogEntityColumnDescriptor(
+                "NextServiceDate", "NextServiceDate", typeof(DateOnly?), false, null, false, false, true, "Recommended next service date based on maintenance provider recommendations."),
             new CatalogEntityColumnDescriptor(
                 "NextServiceMileage", "NextServiceMileage", typeof(int?), false, null, false, false, true, "Recommended next service mileage based on maintenance provider recommendations."),
             new CatalogEntityColumnDescriptor(
@@ -64,5 +68,5 @@ public static class FgsVehicleMaintenanceDescriptor
         [
         ],
         SearchableColumns: ["ServiceProvider", "InvoiceNumber", "Description", "Notes"],
-        SortableColumns: ["Id", "VehicleId", "VehicleMaintenanceTypeId", "MileageAtService", "ServiceProvider", "InvoiceNumber", "Cost", "NextServiceMileage", "IsCompleted", "Description", "Notes"]);
+        SortableColumns: ["Id", "VehicleId", "VehicleMaintenanceTypeId", "ServiceDate", "MileageAtService", "ServiceProvider", "InvoiceNumber", "Cost", "NextServiceDate", "NextServiceMileage", "IsCompleted", "Description", "Notes"]);
 }

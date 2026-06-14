@@ -13,8 +13,14 @@ public static class EntityKeys
     public const string JobType = "JobType";
     public const string JobTypeCategory = "JobTypeCategory";
     public const string JobTypeSubCategory = "JobTypeSubCategory";
+    public const string LeadDisqualificationReason = "LeadDisqualificationReason";
     public const string LeadSource = "LeadSource";
+    public const string LeadStatus = "LeadStatus";
     public const string ResolutionCode = "ResolutionCode";
+    public const string SalesActivityOutcome = "SalesActivityOutcome";
+    public const string SalesActivityType = "SalesActivityType";
+    public const string SalesDispositionReason = "SalesDispositionReason";
+    public const string SalesPipelineStatus = "SalesPipelineStatus";
     public const string SetupCommunicationTemplate = "SetupCommunicationTemplate";
     public const string SetupDescription = "SetupDescription";
     public const string SetupGLBreak = "SetupGLBreak";
@@ -27,6 +33,10 @@ public static class EntityKeys
     public const string SetupPricingMatrixLaborTier = "SetupPricingMatrixLaborTier";
     public const string SetupPricingMatrixMaterialTier = "SetupPricingMatrixMaterialTier";
     public const string SetupPricingMatrixOther = "SetupPricingMatrixOther";
+    public const string SetupServiceAgreementPricingComponent = "SetupServiceAgreementPricingComponent";
+    public const string SetupServiceAgreementTemplate = "SetupServiceAgreementTemplate";
+    public const string SetupServiceAgreementTemplateCoverage = "SetupServiceAgreementTemplateCoverage";
+    public const string SetupServiceAgreementTemplatePricingComponent = "SetupServiceAgreementTemplatePricingComponent";
     public const string SetupTax = "SetupTax";
     public const string SetupTaxAuthority = "SetupTaxAuthority";
     public const string SetupTaxDetail = "SetupTaxDetail";

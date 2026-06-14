@@ -8,13 +8,13 @@ public sealed record FgsSetupPricingMatrixMaterialTierSummaryDto(
     long TenantId,
     /// <summary>CompanyId</summary>
     long CompanyId,
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid FgsSetupPricingMatrixId,
+    /// <summary>PricingMatrixId</summary>
+    long PricingMatrixId,
     /// <summary>Inclusive minimum material cost for this pricing tier.</summary>
     decimal FromCost,
     /// <summary>Inclusive maximum material cost for this pricing tier. NULL indicates no upper limit.</summary>
     decimal? ToCost,
-    /// <summary>Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = $150 markup, 1.75 = multiplier.</summary>
+    /// <summary>Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = fixed dollar markup, 1.75 = multiplier.</summary>
     decimal AdjustmentValue,
     /// <summary>CreatedOn</summary>
     DateTimeOffset CreatedOn,
@@ -31,13 +31,13 @@ public sealed record FgsSetupPricingMatrixMaterialTierDetailDto(
     long TenantId,
     /// <summary>CompanyId</summary>
     long CompanyId,
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid FgsSetupPricingMatrixId,
+    /// <summary>PricingMatrixId</summary>
+    long PricingMatrixId,
     /// <summary>Inclusive minimum material cost for this pricing tier.</summary>
     decimal FromCost,
     /// <summary>Inclusive maximum material cost for this pricing tier. NULL indicates no upper limit.</summary>
     decimal? ToCost,
-    /// <summary>Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = $150 markup, 1.75 = multiplier.</summary>
+    /// <summary>Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = fixed dollar markup, 1.75 = multiplier.</summary>
     decimal AdjustmentValue,
     /// <summary>CreatedOn</summary>
     DateTimeOffset CreatedOn,
@@ -52,35 +52,35 @@ public sealed record FgsSetupPricingMatrixMaterialTierDetailDto(
 ;
 
 public sealed record FgsSetupPricingMatrixMaterialTierCreateDto(
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid FgsSetupPricingMatrixId,
+    /// <summary>PricingMatrixId</summary>
+    long PricingMatrixId,
     /// <summary>Inclusive minimum material cost for this pricing tier.</summary>
     decimal FromCost,
     /// <summary>Inclusive maximum material cost for this pricing tier. NULL indicates no upper limit.</summary>
     decimal? ToCost,
-    /// <summary>Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = $150 markup, 1.75 = multiplier.</summary>
+    /// <summary>Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = fixed dollar markup, 1.75 = multiplier.</summary>
     decimal AdjustmentValue)
 ;
 
 public sealed record FgsSetupPricingMatrixMaterialTierUpdateDto(
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid FgsSetupPricingMatrixId,
+    /// <summary>PricingMatrixId</summary>
+    long PricingMatrixId,
     /// <summary>Inclusive minimum material cost for this pricing tier.</summary>
     decimal FromCost,
     /// <summary>Inclusive maximum material cost for this pricing tier. NULL indicates no upper limit.</summary>
     decimal? ToCost,
-    /// <summary>Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = $150 markup, 1.75 = multiplier.</summary>
+    /// <summary>Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = fixed dollar markup, 1.75 = multiplier.</summary>
     decimal AdjustmentValue)
 ;
 
 public sealed record FgsSetupPricingMatrixMaterialTierPatchDto(
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid? FgsSetupPricingMatrixId,
+    /// <summary>PricingMatrixId</summary>
+    long? PricingMatrixId,
     /// <summary>Inclusive minimum material cost for this pricing tier.</summary>
     decimal? FromCost,
     /// <summary>Inclusive maximum material cost for this pricing tier. NULL indicates no upper limit.</summary>
     decimal? ToCost,
-    /// <summary>Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = $150 markup, 1.75 = multiplier.</summary>
+    /// <summary>Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = fixed dollar markup, 1.75 = multiplier.</summary>
     decimal? AdjustmentValue)
 ;
 

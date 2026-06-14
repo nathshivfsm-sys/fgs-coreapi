@@ -167,6 +167,7 @@ internal static class EntityMetadataScanner
             || type == typeof(decimal)
             || type == typeof(DateTime)
             || type == typeof(DateTimeOffset)
+            || type == typeof(DateOnly)
             || type == typeof(Guid);
     }
 

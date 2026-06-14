@@ -12,6 +12,8 @@ public sealed record FgsVehicleMaintenanceSummaryDto(
     long VehicleId,
     /// <summary>Type of maintenance activity being performed or scheduled.</summary>
     int VehicleMaintenanceTypeId,
+    /// <summary>Date the maintenance was performed or is scheduled to be performed.</summary>
+    DateOnly ServiceDate,
     /// <summary>Vehicle odometer reading at the time the maintenance was performed.</summary>
     int? MileageAtService,
     /// <summary>Name of the repair shop, dealership, service provider, or maintenance vendor.</summary>
@@ -20,6 +22,8 @@ public sealed record FgsVehicleMaintenanceSummaryDto(
     string? InvoiceNumber,
     /// <summary>Cost</summary>
     decimal? Cost,
+    /// <summary>Recommended next service date based on maintenance provider recommendations.</summary>
+    DateOnly? NextServiceDate,
     /// <summary>Recommended next service mileage based on maintenance provider recommendations.</summary>
     int? NextServiceMileage,
     /// <summary>Short summary of the maintenance activity performed or scheduled.</summary>
@@ -45,6 +49,8 @@ public sealed record FgsVehicleMaintenanceDetailDto(
     long VehicleId,
     /// <summary>Type of maintenance activity being performed or scheduled.</summary>
     int VehicleMaintenanceTypeId,
+    /// <summary>Date the maintenance was performed or is scheduled to be performed.</summary>
+    DateOnly ServiceDate,
     /// <summary>Vehicle odometer reading at the time the maintenance was performed.</summary>
     int? MileageAtService,
     /// <summary>Name of the repair shop, dealership, service provider, or maintenance vendor.</summary>
@@ -53,6 +59,8 @@ public sealed record FgsVehicleMaintenanceDetailDto(
     string? InvoiceNumber,
     /// <summary>Cost</summary>
     decimal? Cost,
+    /// <summary>Recommended next service date based on maintenance provider recommendations.</summary>
+    DateOnly? NextServiceDate,
     /// <summary>Recommended next service mileage based on maintenance provider recommendations.</summary>
     int? NextServiceMileage,
     /// <summary>Short summary of the maintenance activity performed or scheduled.</summary>
@@ -76,6 +84,8 @@ public sealed record FgsVehicleMaintenanceCreateDto(
     long VehicleId,
     /// <summary>Type of maintenance activity being performed or scheduled.</summary>
     int VehicleMaintenanceTypeId,
+    /// <summary>Date the maintenance was performed or is scheduled to be performed.</summary>
+    DateOnly ServiceDate,
     /// <summary>Vehicle odometer reading at the time the maintenance was performed.</summary>
     int? MileageAtService,
     /// <summary>Name of the repair shop, dealership, service provider, or maintenance vendor.</summary>
@@ -84,6 +94,8 @@ public sealed record FgsVehicleMaintenanceCreateDto(
     string? InvoiceNumber,
     /// <summary>Cost</summary>
     decimal? Cost,
+    /// <summary>Recommended next service date based on maintenance provider recommendations.</summary>
+    DateOnly? NextServiceDate,
     /// <summary>Recommended next service mileage based on maintenance provider recommendations.</summary>
     int? NextServiceMileage,
     /// <summary>Short summary of the maintenance activity performed or scheduled.</summary>
@@ -99,6 +111,8 @@ public sealed record FgsVehicleMaintenanceUpdateDto(
     long VehicleId,
     /// <summary>Type of maintenance activity being performed or scheduled.</summary>
     int VehicleMaintenanceTypeId,
+    /// <summary>Date the maintenance was performed or is scheduled to be performed.</summary>
+    DateOnly ServiceDate,
     /// <summary>Vehicle odometer reading at the time the maintenance was performed.</summary>
     int? MileageAtService,
     /// <summary>Name of the repair shop, dealership, service provider, or maintenance vendor.</summary>
@@ -107,6 +121,8 @@ public sealed record FgsVehicleMaintenanceUpdateDto(
     string? InvoiceNumber,
     /// <summary>Cost</summary>
     decimal? Cost,
+    /// <summary>Recommended next service date based on maintenance provider recommendations.</summary>
+    DateOnly? NextServiceDate,
     /// <summary>Recommended next service mileage based on maintenance provider recommendations.</summary>
     int? NextServiceMileage,
     /// <summary>Short summary of the maintenance activity performed or scheduled.</summary>
@@ -122,6 +138,8 @@ public sealed record FgsVehicleMaintenancePatchDto(
     long? VehicleId,
     /// <summary>Type of maintenance activity being performed or scheduled.</summary>
     int? VehicleMaintenanceTypeId,
+    /// <summary>Date the maintenance was performed or is scheduled to be performed.</summary>
+    DateOnly? ServiceDate,
     /// <summary>Vehicle odometer reading at the time the maintenance was performed.</summary>
     int? MileageAtService,
     /// <summary>Name of the repair shop, dealership, service provider, or maintenance vendor.</summary>
@@ -130,6 +148,8 @@ public sealed record FgsVehicleMaintenancePatchDto(
     string? InvoiceNumber,
     /// <summary>Cost</summary>
     decimal? Cost,
+    /// <summary>Recommended next service date based on maintenance provider recommendations.</summary>
+    DateOnly? NextServiceDate,
     /// <summary>Recommended next service mileage based on maintenance provider recommendations.</summary>
     int? NextServiceMileage,
     /// <summary>Short summary of the maintenance activity performed or scheduled.</summary>

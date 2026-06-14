@@ -8,10 +8,10 @@ public sealed record FgsSetupPricingMatrixLaborTierSummaryDto(
     long TenantId,
     /// <summary>CompanyId</summary>
     long CompanyId,
-    /// <summary>FgsSetupPricingMatrixLaborId</summary>
-    Guid FgsSetupPricingMatrixLaborId,
+    /// <summary>PricingMatrixLaborId</summary>
+    long PricingMatrixLaborId,
     /// <summary>SequenceOrder</summary>
-    int SequenceOrder,
+    short SequenceOrder,
     /// <summary>DurationMinutes</summary>
     int DurationMinutes,
     /// <summary>Rate</summary>
@@ -31,10 +31,10 @@ public sealed record FgsSetupPricingMatrixLaborTierDetailDto(
     long TenantId,
     /// <summary>CompanyId</summary>
     long CompanyId,
-    /// <summary>FgsSetupPricingMatrixLaborId</summary>
-    Guid FgsSetupPricingMatrixLaborId,
+    /// <summary>PricingMatrixLaborId</summary>
+    long PricingMatrixLaborId,
     /// <summary>SequenceOrder</summary>
-    int SequenceOrder,
+    short SequenceOrder,
     /// <summary>DurationMinutes</summary>
     int DurationMinutes,
     /// <summary>Rate</summary>
@@ -52,10 +52,10 @@ public sealed record FgsSetupPricingMatrixLaborTierDetailDto(
 ;
 
 public sealed record FgsSetupPricingMatrixLaborTierCreateDto(
-    /// <summary>FgsSetupPricingMatrixLaborId</summary>
-    Guid FgsSetupPricingMatrixLaborId,
+    /// <summary>PricingMatrixLaborId</summary>
+    long PricingMatrixLaborId,
     /// <summary>SequenceOrder</summary>
-    int SequenceOrder,
+    short SequenceOrder,
     /// <summary>DurationMinutes</summary>
     int DurationMinutes,
     /// <summary>Rate</summary>
@@ -63,10 +63,10 @@ public sealed record FgsSetupPricingMatrixLaborTierCreateDto(
 ;
 
 public sealed record FgsSetupPricingMatrixLaborTierUpdateDto(
-    /// <summary>FgsSetupPricingMatrixLaborId</summary>
-    Guid FgsSetupPricingMatrixLaborId,
+    /// <summary>PricingMatrixLaborId</summary>
+    long PricingMatrixLaborId,
     /// <summary>SequenceOrder</summary>
-    int SequenceOrder,
+    short SequenceOrder,
     /// <summary>DurationMinutes</summary>
     int DurationMinutes,
     /// <summary>Rate</summary>
@@ -74,10 +74,10 @@ public sealed record FgsSetupPricingMatrixLaborTierUpdateDto(
 ;
 
 public sealed record FgsSetupPricingMatrixLaborTierPatchDto(
-    /// <summary>FgsSetupPricingMatrixLaborId</summary>
-    Guid? FgsSetupPricingMatrixLaborId,
+    /// <summary>PricingMatrixLaborId</summary>
+    long? PricingMatrixLaborId,
     /// <summary>SequenceOrder</summary>
-    int? SequenceOrder,
+    short? SequenceOrder,
     /// <summary>DurationMinutes</summary>
     int? DurationMinutes,
     /// <summary>Rate</summary>

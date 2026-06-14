@@ -2,21 +2,21 @@ namespace Fgs.Setup.Application.Features.Generated.Dtos;
 
 /// <summary>FgsSetupPricingMatrixOther</summary>
 public sealed record FgsSetupPricingMatrixOtherSummaryDto(
-    /// <summary>Id</summary>
-    Guid Id,
+    /// <summary>Reference to the pricing matrix.</summary>
+    long Id,
     /// <summary>TenantId</summary>
     long TenantId,
     /// <summary>CompanyId</summary>
     long CompanyId,
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid FgsSetupPricingMatrixId,
-    /// <summary>CategoryCode</summary>
+    /// <summary>PricingMatrixId</summary>
+    long PricingMatrixId,
+    /// <summary>Unique category code within the pricing matrix.</summary>
     string? CategoryCode,
-    /// <summary>Name</summary>
+    /// <summary>User-friendly category name.</summary>
     string? Name,
-    /// <summary>MarkupPercent</summary>
+    /// <summary>Markup percentage applied to the base cost.</summary>
     decimal? MarkupPercent,
-    /// <summary>DiscountPercent</summary>
+    /// <summary>Optional discount percentage applied after markup.</summary>
     decimal? DiscountPercent,
     /// <summary>CreatedOn</summary>
     DateTimeOffset CreatedOn,
@@ -27,21 +27,21 @@ public sealed record FgsSetupPricingMatrixOtherSummaryDto(
 ;
 
 public sealed record FgsSetupPricingMatrixOtherDetailDto(
-    /// <summary>Id</summary>
-    Guid Id,
+    /// <summary>Reference to the pricing matrix.</summary>
+    long Id,
     /// <summary>TenantId</summary>
     long TenantId,
     /// <summary>CompanyId</summary>
     long CompanyId,
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid FgsSetupPricingMatrixId,
-    /// <summary>CategoryCode</summary>
+    /// <summary>PricingMatrixId</summary>
+    long PricingMatrixId,
+    /// <summary>Unique category code within the pricing matrix.</summary>
     string? CategoryCode,
-    /// <summary>Name</summary>
+    /// <summary>User-friendly category name.</summary>
     string? Name,
-    /// <summary>MarkupPercent</summary>
+    /// <summary>Markup percentage applied to the base cost.</summary>
     decimal? MarkupPercent,
-    /// <summary>DiscountPercent</summary>
+    /// <summary>Optional discount percentage applied after markup.</summary>
     decimal? DiscountPercent,
     /// <summary>CreatedOn</summary>
     DateTimeOffset CreatedOn,
@@ -56,41 +56,41 @@ public sealed record FgsSetupPricingMatrixOtherDetailDto(
 ;
 
 public sealed record FgsSetupPricingMatrixOtherCreateDto(
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid FgsSetupPricingMatrixId,
-    /// <summary>CategoryCode</summary>
+    /// <summary>PricingMatrixId</summary>
+    long PricingMatrixId,
+    /// <summary>Unique category code within the pricing matrix.</summary>
     string? CategoryCode,
-    /// <summary>Name</summary>
+    /// <summary>User-friendly category name.</summary>
     string? Name,
-    /// <summary>MarkupPercent</summary>
+    /// <summary>Markup percentage applied to the base cost.</summary>
     decimal? MarkupPercent,
-    /// <summary>DiscountPercent</summary>
+    /// <summary>Optional discount percentage applied after markup.</summary>
     decimal? DiscountPercent)
 ;
 
 public sealed record FgsSetupPricingMatrixOtherUpdateDto(
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid FgsSetupPricingMatrixId,
-    /// <summary>CategoryCode</summary>
+    /// <summary>PricingMatrixId</summary>
+    long PricingMatrixId,
+    /// <summary>Unique category code within the pricing matrix.</summary>
     string? CategoryCode,
-    /// <summary>Name</summary>
+    /// <summary>User-friendly category name.</summary>
     string? Name,
-    /// <summary>MarkupPercent</summary>
+    /// <summary>Markup percentage applied to the base cost.</summary>
     decimal? MarkupPercent,
-    /// <summary>DiscountPercent</summary>
+    /// <summary>Optional discount percentage applied after markup.</summary>
     decimal? DiscountPercent)
 ;
 
 public sealed record FgsSetupPricingMatrixOtherPatchDto(
-    /// <summary>FgsSetupPricingMatrixId</summary>
-    Guid? FgsSetupPricingMatrixId,
-    /// <summary>CategoryCode</summary>
+    /// <summary>PricingMatrixId</summary>
+    long? PricingMatrixId,
+    /// <summary>Unique category code within the pricing matrix.</summary>
     string? CategoryCode,
-    /// <summary>Name</summary>
+    /// <summary>User-friendly category name.</summary>
     string? Name,
-    /// <summary>MarkupPercent</summary>
+    /// <summary>Markup percentage applied to the base cost.</summary>
     decimal? MarkupPercent,
-    /// <summary>DiscountPercent</summary>
+    /// <summary>Optional discount percentage applied after markup.</summary>
     decimal? DiscountPercent)
 ;
 

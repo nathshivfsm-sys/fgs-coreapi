@@ -28,6 +28,8 @@ public sealed record FgsVehicleSummaryDto(
     string? LicensePlate,
     /// <summary>State or province issuing the vehicle registration.</summary>
     string? LicensePlateState,
+    /// <summary>Date the vehicle was purchased or acquired.</summary>
+    DateOnly? PurchaseDate,
     /// <summary>Amount paid to acquire the vehicle.</summary>
     decimal? PurchasePrice,
     /// <summary>Indicates whether the vehicle was purchased new or used.</summary>
@@ -71,6 +73,8 @@ public sealed record FgsVehicleDetailDto(
     string? LicensePlate,
     /// <summary>State or province issuing the vehicle registration.</summary>
     string? LicensePlateState,
+    /// <summary>Date the vehicle was purchased or acquired.</summary>
+    DateOnly? PurchaseDate,
     /// <summary>Amount paid to acquire the vehicle.</summary>
     decimal? PurchasePrice,
     /// <summary>Indicates whether the vehicle was purchased new or used.</summary>
@@ -112,6 +116,8 @@ public sealed record FgsVehicleCreateDto(
     string? LicensePlate,
     /// <summary>State or province issuing the vehicle registration.</summary>
     string? LicensePlateState,
+    /// <summary>Date the vehicle was purchased or acquired.</summary>
+    DateOnly? PurchaseDate,
     /// <summary>Amount paid to acquire the vehicle.</summary>
     decimal? PurchasePrice,
     /// <summary>Indicates whether the vehicle was purchased new or used.</summary>
@@ -143,6 +149,8 @@ public sealed record FgsVehicleUpdateDto(
     string? LicensePlate,
     /// <summary>State or province issuing the vehicle registration.</summary>
     string? LicensePlateState,
+    /// <summary>Date the vehicle was purchased or acquired.</summary>
+    DateOnly? PurchaseDate,
     /// <summary>Amount paid to acquire the vehicle.</summary>
     decimal? PurchasePrice,
     /// <summary>Indicates whether the vehicle was purchased new or used.</summary>
@@ -174,6 +182,8 @@ public sealed record FgsVehiclePatchDto(
     string? LicensePlate,
     /// <summary>State or province issuing the vehicle registration.</summary>
     string? LicensePlateState,
+    /// <summary>Date the vehicle was purchased or acquired.</summary>
+    DateOnly? PurchaseDate,
     /// <summary>Amount paid to acquire the vehicle.</summary>
     decimal? PurchasePrice,
     /// <summary>Indicates whether the vehicle was purchased new or used.</summary>

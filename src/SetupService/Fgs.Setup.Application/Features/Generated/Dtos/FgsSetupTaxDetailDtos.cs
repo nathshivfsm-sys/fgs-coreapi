@@ -12,6 +12,10 @@ public sealed record FgsSetupTaxDetailSummaryDto(
     long FgsSetupTaxId,
     /// <summary>FgsSetupTaxAuthorityId</summary>
     long FgsSetupTaxAuthorityId,
+    /// <summary>EffectiveFromDate</summary>
+    DateOnly EffectiveFromDate,
+    /// <summary>EffectiveToDate</summary>
+    DateOnly? EffectiveToDate,
     /// <summary>TaxPercent</summary>
     decimal TaxPercent,
     /// <summary>IsExternalSystemRecord</summary>
@@ -35,6 +39,10 @@ public sealed record FgsSetupTaxDetailDetailDto(
     long FgsSetupTaxId,
     /// <summary>FgsSetupTaxAuthorityId</summary>
     long FgsSetupTaxAuthorityId,
+    /// <summary>EffectiveFromDate</summary>
+    DateOnly EffectiveFromDate,
+    /// <summary>EffectiveToDate</summary>
+    DateOnly? EffectiveToDate,
     /// <summary>TaxPercent</summary>
     decimal TaxPercent,
     /// <summary>IsExternalSystemRecord</summary>
@@ -56,6 +64,10 @@ public sealed record FgsSetupTaxDetailCreateDto(
     long FgsSetupTaxId,
     /// <summary>FgsSetupTaxAuthorityId</summary>
     long FgsSetupTaxAuthorityId,
+    /// <summary>EffectiveFromDate</summary>
+    DateOnly EffectiveFromDate,
+    /// <summary>EffectiveToDate</summary>
+    DateOnly? EffectiveToDate,
     /// <summary>TaxPercent</summary>
     decimal TaxPercent,
     /// <summary>IsExternalSystemRecord</summary>
@@ -67,6 +79,10 @@ public sealed record FgsSetupTaxDetailUpdateDto(
     long FgsSetupTaxId,
     /// <summary>FgsSetupTaxAuthorityId</summary>
     long FgsSetupTaxAuthorityId,
+    /// <summary>EffectiveFromDate</summary>
+    DateOnly EffectiveFromDate,
+    /// <summary>EffectiveToDate</summary>
+    DateOnly? EffectiveToDate,
     /// <summary>TaxPercent</summary>
     decimal TaxPercent,
     /// <summary>IsExternalSystemRecord</summary>
@@ -78,6 +94,10 @@ public sealed record FgsSetupTaxDetailPatchDto(
     long? FgsSetupTaxId,
     /// <summary>FgsSetupTaxAuthorityId</summary>
     long? FgsSetupTaxAuthorityId,
+    /// <summary>EffectiveFromDate</summary>
+    DateOnly? EffectiveFromDate,
+    /// <summary>EffectiveToDate</summary>
+    DateOnly? EffectiveToDate,
     /// <summary>TaxPercent</summary>
     decimal? TaxPercent,
     /// <summary>IsExternalSystemRecord</summary>

@@ -32,9 +32,9 @@ public static class FgsSetupPricingMatrixLaborTierDescriptor
             new CatalogEntityColumnDescriptor(
                 "CompanyId", "CompanyId", typeof(long), false, null, true, false, false, "CompanyId"),
             new CatalogEntityColumnDescriptor(
-                "FgsSetupPricingMatrixLaborId", "FgsSetupPricingMatrixLaborId", typeof(Guid), true, null, false, false, true, "FgsSetupPricingMatrixLaborId"),
+                "PricingMatrixLaborId", "PricingMatrixLaborId", typeof(long), true, null, false, false, true, "PricingMatrixLaborId"),
             new CatalogEntityColumnDescriptor(
-                "SequenceOrder", "SequenceOrder", typeof(int), true, null, false, false, true, "SequenceOrder"),
+                "SequenceOrder", "SequenceOrder", typeof(short), true, null, false, false, true, "SequenceOrder"),
             new CatalogEntityColumnDescriptor(
                 "DurationMinutes", "DurationMinutes", typeof(int), true, null, false, false, true, "DurationMinutes"),
             new CatalogEntityColumnDescriptor(
@@ -54,5 +54,5 @@ public static class FgsSetupPricingMatrixLaborTierDescriptor
         [
         ],
         SearchableColumns: [],
-        SortableColumns: ["Id", "FgsSetupPricingMatrixLaborId", "SequenceOrder", "DurationMinutes", "Rate", "IsActive"]);
+        SortableColumns: ["Id", "PricingMatrixLaborId", "SequenceOrder", "DurationMinutes", "Rate", "IsActive"]);
 }

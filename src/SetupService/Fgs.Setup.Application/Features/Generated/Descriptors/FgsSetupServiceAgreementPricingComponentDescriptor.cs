@@ -4,24 +4,24 @@ using Fgs.Setup.Application.Features.Generated.Dtos;
 
 namespace Fgs.Setup.Application.Features.Generated.Descriptors;
 
-public static class FgsSetupPricingMatrixDescriptor
+public static class FgsSetupServiceAgreementPricingComponentDescriptor
 {
     public static CatalogEntityDescriptor Create() => new(
-        Key: EntityKeys.SetupPricingMatrix,
-        EntityName: "FgsSetupPricingMatrix",
-        ClrType: typeof(Fgs.Setup.Domain.Entities.FgsSetupPricingMatrix),
-        SummaryDtoType: typeof(FgsSetupPricingMatrixSummaryDto),
-        DetailDtoType: typeof(FgsSetupPricingMatrixDetailDto),
-        CreateDtoType: typeof(FgsSetupPricingMatrixCreateDto),
-        UpdateDtoType: typeof(FgsSetupPricingMatrixUpdateDto),
-        PatchDtoType: typeof(FgsSetupPricingMatrixPatchDto),
-        TableName: "FgsSetupPricingMatrix",
+        Key: EntityKeys.SetupServiceAgreementPricingComponent,
+        EntityName: "FgsSetupServiceAgreementPricingComponent",
+        ClrType: typeof(Fgs.Setup.Domain.Entities.FgsSetupServiceAgreementPricingComponent),
+        SummaryDtoType: typeof(FgsSetupServiceAgreementPricingComponentSummaryDto),
+        DetailDtoType: typeof(FgsSetupServiceAgreementPricingComponentDetailDto),
+        CreateDtoType: typeof(FgsSetupServiceAgreementPricingComponentCreateDto),
+        UpdateDtoType: typeof(FgsSetupServiceAgreementPricingComponentUpdateDto),
+        PatchDtoType: typeof(FgsSetupServiceAgreementPricingComponentPatchDto),
+        TableName: "FgsSetupServiceAgreementPricingComponent",
         Schema: "setup",
         KeyType: CatalogEntityKeyType.Long,
         Variant: CatalogEntityVariant.StandardLong,
-        RoutePlural: "pricingmatrixs",
-        SwaggerTag: "Setup - Pricing",
-        TableComment: "FgsSetupPricingMatrix",
+        RoutePlural: "serviceagreementpricingcomponents",
+        SwaggerTag: "Setup - ServiceAgreements",
+        TableComment: "FgsSetupServiceAgreementPricingComponent",
         SupportsSoftDelete: true,
         Columns:
         [
@@ -32,19 +32,17 @@ public static class FgsSetupPricingMatrixDescriptor
             new CatalogEntityColumnDescriptor(
                 "CompanyId", "CompanyId", typeof(long), false, null, true, false, false, "CompanyId"),
             new CatalogEntityColumnDescriptor(
-                "Code", "Code", typeof(string), false, 0, false, true, true, "Code"),
+                "PricingComponentCode", "PricingComponentCode", typeof(string), false, 0, false, true, true, "PricingComponentCode"),
             new CatalogEntityColumnDescriptor(
                 "Name", "Name", typeof(string), false, 200, false, true, true, "Name"),
             new CatalogEntityColumnDescriptor(
-                "IsLaborTierStructure", "IsLaborTierStructure", typeof(bool), true, null, false, false, true, "IsLaborTierStructure"),
+                "PricingComponentTypeCode", "PricingComponentTypeCode", typeof(string), false, 50, false, true, true, "PricingComponentTypeCode"),
             new CatalogEntityColumnDescriptor(
-                "IsLaborRateBySkillLevel", "IsLaborRateBySkillLevel", typeof(bool), true, null, false, false, true, "IsLaborRateBySkillLevel"),
+                "Amount", "Amount", typeof(decimal), true, null, false, false, true, "Amount"),
             new CatalogEntityColumnDescriptor(
-                "EffectiveFrom", "EffectiveFrom", typeof(DateOnly), true, null, false, false, true, "EffectiveFrom"),
+                "Description", "Description", typeof(string), false, 0, false, true, true, "Description"),
             new CatalogEntityColumnDescriptor(
-                "EffectiveTo", "EffectiveTo", typeof(DateOnly?), false, null, false, false, true, "EffectiveTo"),
-            new CatalogEntityColumnDescriptor(
-                "IsMobileVisible", "IsMobileVisible", typeof(bool), true, null, false, false, true, "IsMobileVisible"),
+                "DisplayOrder", "DisplayOrder", typeof(short), true, null, false, false, true, "DisplayOrder"),
             new CatalogEntityColumnDescriptor(
                 "CreatedOn", "CreatedOn", typeof(DateTimeOffset), false, null, true, false, false, "CreatedOn"),
             new CatalogEntityColumnDescriptor(
@@ -58,8 +56,8 @@ public static class FgsSetupPricingMatrixDescriptor
         ],
         UniqueKeys:
         [
-            new CatalogEntityUniqueKeyDescriptor("UQ_FgsSetupPricingMatrix", ["TenantId", "CompanyId", "Code"]),
+            new CatalogEntityUniqueKeyDescriptor("UQ_FgsSetupServiceAgreementPricingComponent", ["TenantId", "CompanyId", "PricingComponentCode"]),
         ],
-        SearchableColumns: ["Code", "Name"],
-        SortableColumns: ["Id", "Code", "Name", "IsLaborTierStructure", "IsLaborRateBySkillLevel", "EffectiveFrom", "EffectiveTo", "IsMobileVisible", "IsActive"]);
+        SearchableColumns: ["PricingComponentCode", "Name", "PricingComponentTypeCode", "Description"],
+        SortableColumns: ["Id", "PricingComponentCode", "Name", "PricingComponentTypeCode", "Amount", "Description", "DisplayOrder", "IsActive"]);
 }

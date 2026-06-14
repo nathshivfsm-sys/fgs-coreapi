@@ -17,8 +17,8 @@ public static class FgsSetupPricingMatrixLaborDescriptor
         PatchDtoType: typeof(FgsSetupPricingMatrixLaborPatchDto),
         TableName: "FgsSetupPricingMatrixLabor",
         Schema: "setup",
-        KeyType: CatalogEntityKeyType.Guid,
-        Variant: CatalogEntityVariant.StandardGuid,
+        KeyType: CatalogEntityKeyType.Long,
+        Variant: CatalogEntityVariant.StandardLong,
         RoutePlural: "pricingmatrixlabors",
         SwaggerTag: "Setup - Pricing",
         TableComment: "FgsSetupPricingMatrixLabor",
@@ -26,17 +26,17 @@ public static class FgsSetupPricingMatrixLaborDescriptor
         Columns:
         [
             new CatalogEntityColumnDescriptor(
-                "Id", "Id", typeof(Guid), false, null, true, false, true, "Id"),
+                "Id", "Id", typeof(long), false, null, true, false, true, "Id"),
             new CatalogEntityColumnDescriptor(
                 "TenantId", "TenantId", typeof(long), false, null, true, false, false, "TenantId"),
             new CatalogEntityColumnDescriptor(
                 "CompanyId", "CompanyId", typeof(long), false, null, true, false, false, "CompanyId"),
             new CatalogEntityColumnDescriptor(
-                "FgsSetupPricingMatrixId", "FgsSetupPricingMatrixId", typeof(Guid), true, null, false, false, true, "FgsSetupPricingMatrixId"),
+                "PricingMatrixId", "PricingMatrixId", typeof(long), true, null, false, false, true, "PricingMatrixId"),
             new CatalogEntityColumnDescriptor(
-                "FgsSetupLaborRateTypeId", "FgsSetupLaborRateTypeId", typeof(int), true, null, false, false, true, "FgsSetupLaborRateTypeId"),
+                "LaborRateTypeId", "LaborRateTypeId", typeof(int), true, null, false, false, true, "LaborRateTypeId"),
             new CatalogEntityColumnDescriptor(
-                "FgsSetupTechSkillLevelId", "FgsSetupTechSkillLevelId", typeof(long?), false, null, false, false, true, "FgsSetupTechSkillLevelId"),
+                "TechSkillLevelId", "TechSkillLevelId", typeof(long?), false, null, false, false, true, "TechSkillLevelId"),
             new CatalogEntityColumnDescriptor(
                 "BaseRate", "BaseRate", typeof(decimal), true, null, false, false, true, "BaseRate"),
             new CatalogEntityColumnDescriptor(
@@ -60,5 +60,5 @@ public static class FgsSetupPricingMatrixLaborDescriptor
         [
         ],
         SearchableColumns: [],
-        SortableColumns: ["Id", "FgsSetupPricingMatrixId", "FgsSetupLaborRateTypeId", "FgsSetupTechSkillLevelId", "BaseRate", "OvertimeMultiplier", "DoubleTimeMultiplier", "DiscountPercent", "IsActive"]);
+        SortableColumns: ["Id", "PricingMatrixId", "LaborRateTypeId", "TechSkillLevelId", "BaseRate", "OvertimeMultiplier", "DoubleTimeMultiplier", "DiscountPercent", "IsActive"]);
 }

@@ -22,10 +22,10 @@ public sealed class SetupPricingMatrixOtherController : CatalogCrudControllerBas
 
     /// <summary>Gets a record by identifier.</summary>
     /// <param name="id">The FgsSetupPricingMatrixOther identifier.</param>
-    [HttpGet("{id:guid}")]
+    [HttpGet("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsSetupPricingMatrixOtherDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken) =>
+    public async Task<IActionResult> Get(long id, CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new GetCatalogEntityQuery<FgsSetupPricingMatrixOtherDetailDto>(EntityKeys.SetupPricingMatrixOther, id.ToString()), cancellationToken));
 
     /// <summary>Lists records with pagination, sorting, and search.</summary>
@@ -35,8 +35,8 @@ public sealed class SetupPricingMatrixOtherController : CatalogCrudControllerBas
     /// <param name="sortDirection">Sort direction.</param>
     /// <param name="search">Free-text search across searchable fields.</param>
     /// <param name="isActive">Filter by active status when supported.</param>
-    /// <param name="categoryCode">Filter by CategoryCode.</param>
-    /// <param name="name">Filter by Name.</param>
+    /// <param name="categoryCode">Filter by Unique category code within the pricing matrix..</param>
+    /// <param name="name">Filter by User-friendly category name..</param>
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSetupPricingMatrixOtherSummaryDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> List(
@@ -67,24 +67,24 @@ public sealed class SetupPricingMatrixOtherController : CatalogCrudControllerBas
     }
 
     /// <summary>Replaces an existing record.</summary>
-    [HttpPut("{id:guid}")]
+    [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsSetupPricingMatrixOtherDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(Guid id, [FromBody] FgsSetupPricingMatrixOtherUpdateDto request, CancellationToken cancellationToken) =>
+    public async Task<IActionResult> Update(long id, [FromBody] FgsSetupPricingMatrixOtherUpdateDto request, CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new UpdateCatalogEntityCommand<FgsSetupPricingMatrixOtherUpdateDto, FgsSetupPricingMatrixOtherDetailDto>(EntityKeys.SetupPricingMatrixOther, id.ToString(), request), cancellationToken));
 
     /// <summary>Partially updates an existing record.</summary>
-    [HttpPatch("{id:guid}")]
+    [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsSetupPricingMatrixOtherDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Patch(Guid id, [FromBody] FgsSetupPricingMatrixOtherPatchDto request, CancellationToken cancellationToken) =>
+    public async Task<IActionResult> Patch(long id, [FromBody] FgsSetupPricingMatrixOtherPatchDto request, CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new PatchCatalogEntityCommand<FgsSetupPricingMatrixOtherPatchDto, FgsSetupPricingMatrixOtherDetailDto>(EntityKeys.SetupPricingMatrixOther, id.ToString(), request), cancellationToken));
 
     /// <summary>Deletes a record (soft delete when supported).</summary>
-    [HttpDelete("{id:guid}")]
+    [HttpDelete("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken) =>
+    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new DeleteCatalogEntityCommand(EntityKeys.SetupPricingMatrixOther, id.ToString()), cancellationToken));
 }
 
