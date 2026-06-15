@@ -1,0 +1,74 @@
+﻿{
+    "item":  [
+                 {
+                     "description":  "HealthController - health",
+                     "name":  "HealthController",
+                     "item":  [
+                                  {
+                                      "name":  "Get",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{consumerServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{consumerServiceUrl}}/api/v1/health",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "health"
+                                                                           ]
+                                                              },
+                                                      "description":  "Get",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 }
+             ],
+    "variable":  [
+                     {
+                         "key":  "apiVersion",
+                         "value":  "v1"
+                     }
+                 ],
+    "info":  {
+                 "description":  "Message consumer worker API.",
+                 "name":  "FGS ConsumerService",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+                 "_postman_id":  "b0e6d84c-563d-418c-b37d-deec2342f0cd"
+             },
+    "event":  [
+                  {
+                      "script":  {
+                                     "exec":  [
+                                                  "if (pm.environment.get(\u0027tenantId\u0027)) {",
+                                                  "  pm.request.headers.upsert({ key: \u0027X-Tenant-Id\u0027, value: pm.environment.get(\u0027tenantId\u0027) });",
+                                                  "  pm.request.headers.upsert({ key: \u0027X-Company-Id\u0027, value: pm.environment.get(\u0027companyId\u0027) });",
+                                                  "}"
+                                              ],
+                                     "type":  "text/javascript"
+                                 },
+                      "listen":  "prerequest"
+                  }
+              ],
+    "auth":  {
+                 "bearer":  [
+                                {
+                                    "key":  "token",
+                                    "type":  "string",
+                                    "value":  "{{accessToken}}"
+                                }
+                            ],
+                 "type":  "bearer"
+             }
+}

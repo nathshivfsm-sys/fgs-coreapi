@@ -2,6 +2,7 @@ using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
 using Fgs.Foundation.Api;
+using Fgs.Security.Authorization;
 using Fgs.User.Application.Features.Tenants.Commands.UpdateTenantStatus;
 using Fgs.User.Application.Features.Tenants.Commands.UpdateTenantStorageBucket;
 using Fgs.User.Application.Features.Tenants.Queries.GetTenant;
@@ -12,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
 
-[AllowAnonymous]
+[Authorize(Policy = FgsAuthorizationPolicies.RequireTenantAdmin)]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("tenants")]
 public sealed class TenantsController(IMediator mediator) : FgsApiControllerBase(mediator)

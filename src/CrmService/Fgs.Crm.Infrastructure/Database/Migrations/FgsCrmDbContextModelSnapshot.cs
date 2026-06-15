@@ -810,6 +810,198 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                     b.ToTable("CrmOutboxMessage", "crm");
                 });
 
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmReminder", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User identifier of the user who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<DateTimeOffset>("DueOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the reminder is due.");
+
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("integer")
+                        .HasComment("Related entity identifier.");
+
+                    b.Property<long?>("EntityValue")
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key value of the related business record.");
+
+                    b.Property<short>("PriorityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)2)
+                        .HasComment("Priority. 1=Low, 2=Normal, 3=High, 4=Critical.");
+
+                    b.Property<string>("ReminderText")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasComment("Reminder details, notes, instructions, or comments.");
+
+                    b.Property<short>("StatusId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Status. 1=Open, 2=Completed, 3=Cancelled.");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasComment("Reminder subject.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User identifier of the user who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id")
+                        .HasName("PK_CrmReminder");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_CrmReminder_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "CreatedBy")
+                        .HasDatabaseName("IX_CrmReminder_CreatedBy");
+
+                    b.HasIndex("TenantId", "CompanyId", "EntityId", "EntityValue")
+                        .HasDatabaseName("IX_CrmReminder_EntityId_EntityValue");
+
+                    b.HasIndex("TenantId", "CompanyId", "StatusId", "DueOn")
+                        .HasDatabaseName("IX_CrmReminder_StatusId_DueOn");
+
+                    b.ToTable("CrmReminder", "crm", t =>
+                        {
+                            t.HasComment("Stores reminders assigned to users or roles for follow-up, review, approval, notification, and workflow activities.");
+
+                            t.HasCheckConstraint("CK_CrmReminder_Entity", "(\"EntityId\" IS NULL AND \"EntityValue\" IS NULL) OR (\"EntityId\" IS NOT NULL AND \"EntityValue\" IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_CrmReminder_PriorityId", "\"PriorityId\" IN (1, 2, 3, 4)");
+
+                            t.HasCheckConstraint("CK_CrmReminder_StatusId", "\"StatusId\" IN (1, 2, 3)");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmReminderAssignment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<long?>("CompletedByUserId")
+                        .HasColumnType("bigint")
+                        .HasComment("User identifier of the user who completed the reminder.");
+
+                    b.Property<DateTimeOffset?>("CompletedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the assignment was completed.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User identifier of the user who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<long>("ReminderId")
+                        .HasColumnType("bigint")
+                        .HasComment("Related reminder identifier.");
+
+                    b.Property<string>("ResponseText")
+                        .HasColumnType("text")
+                        .HasComment("Response or completion notes entered by the assignee.");
+
+                    b.Property<long?>("RoleId")
+                        .HasColumnType("bigint")
+                        .HasComment("Assigned role identifier.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User identifier of the user who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint")
+                        .HasComment("Assigned user identifier.");
+
+                    b.HasKey("Id")
+                        .HasName("PK_CrmReminderAssignment");
+
+                    b.HasIndex("ReminderId")
+                        .HasDatabaseName("IX_CrmReminderAssignment_ReminderId1");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_CrmReminderAssignment_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ReminderId")
+                        .HasDatabaseName("IX_CrmReminderAssignment_ReminderId");
+
+                    b.HasIndex("TenantId", "CompanyId", "RoleId")
+                        .HasDatabaseName("IX_CrmReminderAssignment_RoleId")
+                        .HasFilter("\"RoleId\" IS NOT NULL");
+
+                    b.HasIndex("TenantId", "CompanyId", "UserId")
+                        .HasDatabaseName("IX_CrmReminderAssignment_UserId")
+                        .HasFilter("\"UserId\" IS NOT NULL");
+
+                    b.ToTable("CrmReminderAssignment", "crm", t =>
+                        {
+                            t.HasComment("Stores user and role assignments for reminders.");
+
+                            t.HasCheckConstraint("CK_CrmReminderAssignment_Assignee", "(\"UserId\" IS NOT NULL AND \"RoleId\" IS NULL) OR (\"UserId\" IS NULL AND \"RoleId\" IS NOT NULL)");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmServiceLocation", b =>
                 {
                     b.Property<long>("Id")
@@ -986,6 +1178,33 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_CrmNote_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmReminder", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmReminder_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmReminderAssignment", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.CrmReminder", null)
+                        .WithMany()
+                        .HasForeignKey("ReminderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmReminderAssignment_CrmReminder_ReminderId");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmReminderAssignment_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmServiceLocation", b =>

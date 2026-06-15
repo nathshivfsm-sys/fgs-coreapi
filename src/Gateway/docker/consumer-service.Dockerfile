@@ -1,6 +1,11 @@
+# syntax=docker/dockerfile:1
 FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl ca-certificates && update-ca-certificates
 WORKDIR /src
+
+COPY NuGet.config .
+COPY src/Gateway/docker/restore-with-retry.sh /usr/local/bin/restore-with-retry.sh
+RUN chmod +x /usr/local/bin/restore-with-retry.sh
 
 COPY Directory.Build.props .
 COPY src/Directory.Build.props src/
@@ -19,13 +24,15 @@ COPY src/ConsumerService/Fgs.Consumer.Application/Fgs.Consumer.Application.cspro
 COPY src/ConsumerService/Fgs.Consumer.Domain/Fgs.Consumer.Domain.csproj src/ConsumerService/Fgs.Consumer.Domain/
 COPY src/ConsumerService/Fgs.Consumer.Infrastructure/Fgs.Consumer.Infrastructure.csproj src/ConsumerService/Fgs.Consumer.Infrastructure/
 
-RUN dotnet restore src/ConsumerService/Fgs.Consumer.API/Fgs.Consumer.API.csproj
+RUN --mount=type=cache,target=/root/.nuget/packages \
+    /usr/local/bin/restore-with-retry.sh src/ConsumerService/Fgs.Consumer.API/Fgs.Consumer.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/ConsumerService/ src/ConsumerService/
 
 WORKDIR /src/src/ConsumerService/Fgs.Consumer.API
-RUN dotnet build Fgs.Consumer.API.csproj -c Release --no-restore
+RUN --mount=type=cache,target=/root/.nuget/packages \
+    dotnet build Fgs.Consumer.API.csproj -c Release --no-restore
 
 ENV ASPNETCORE_URLS=http://+:5007 \
     ASPNETCORE_ENVIRONMENT=Development \

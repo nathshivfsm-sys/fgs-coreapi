@@ -18,7 +18,7 @@ namespace Fgs.User.API.Controllers;
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("auth")]
-public sealed class AuthController(IMediator mediator) : FgsApiControllerBase(mediator)
+public sealed partial class AuthController(IMediator mediator) : FgsApiControllerBase(mediator)
 {
 
     /// <summary>

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Fgs.Security.Abstractions;
+using Fgs.Security.Constants;
 using Fgs.Security.Models;
 using Fgs.Security.Services;
 using Fgs.User.Application.Abstractions.Identity;
@@ -30,14 +31,35 @@ public sealed class DbFgsClaimsEnricher(IFgsUserProfileResolver profileResolver)
             return;
         }
 
+        if (!TryValidateTokenScopeClaims(principal, profile.TenantId, profile.CompanyId))
+        {
+            return;
+        }
+
         FgsClaimsEnrichment.Apply(
             principal,
             new FgsAuthenticatedUserProfile(
                 profile.UserId,
                 profile.Email,
-                profile.EntraObjectId,
+                profile.EntraObjectId ?? entraObjectId,
                 profile.TenantId,
                 profile.CompanyId,
                 profile.Roles));
+    }
+
+    private static bool TryValidateTokenScopeClaims(ClaimsPrincipal principal, long dbTenantId, long dbCompanyId)
+    {
+        var tokenTenant = principal.FindFirst(JwtClaimTypes.TenantId)?.Value;
+        var tokenCompany = principal.FindFirst(JwtClaimTypes.CompanyId)?.Value;
+
+        if (string.IsNullOrWhiteSpace(tokenTenant) || string.IsNullOrWhiteSpace(tokenCompany))
+        {
+            return true;
+        }
+
+        return long.TryParse(tokenTenant, out var claimTenantId)
+               && long.TryParse(tokenCompany, out var claimCompanyId)
+               && claimTenantId == dbTenantId
+               && claimCompanyId == dbCompanyId;
     }
 }

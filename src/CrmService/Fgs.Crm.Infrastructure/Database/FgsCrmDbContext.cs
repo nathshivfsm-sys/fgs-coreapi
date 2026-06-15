@@ -27,6 +27,10 @@ public sealed class FgsCrmDbContext(DbContextOptions<FgsCrmDbContext> options) :
 
     public DbSet<CrmNote> CrmNotes => Set<CrmNote>();
 
+    public DbSet<CrmReminder> CrmReminders => Set<CrmReminder>();
+
+    public DbSet<CrmReminderAssignment> CrmReminderAssignments => Set<CrmReminderAssignment>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(FgsDatabaseSchemas.Crm);

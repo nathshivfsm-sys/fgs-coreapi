@@ -11,7 +11,6 @@ namespace Fgs.User.API.Controllers;
 /// <summary>
 /// Email invitation deep links (pre–Entra redirect).
 /// </summary>
-[AllowAnonymous]
 [ApiController]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("invite")]
@@ -30,6 +29,7 @@ public sealed class InviteController : ControllerBase
     /// Returns 302 to Entra on success (including when the invitation was already accepted — user is sent to Entra sign-in);
     /// 400 with error body on invalid or expired token.
     /// </remarks>
+    [AllowAnonymous]
     [HttpGet("start")]
     [ProducesResponseType(StatusCodes.Status302Found)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

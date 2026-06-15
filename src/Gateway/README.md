@@ -23,8 +23,18 @@ src/Gateway/
     notification-service.Dockerfile
     setup-service.Dockerfile
     file-service.Dockerfile
+    audit-service.Dockerfile
     publisher-service.Dockerfile
     consumer-service.Dockerfile
+    crm-service.Dockerfile
+    scheduling-service.Dockerfile
+    billing-service.Dockerfile
+    inventory-service.Dockerfile
+    reporting-service.Dockerfile
+    integration-service.Dockerfile
+    asset-service.Dockerfile
+    service-agreement-service.Dockerfile
+    communication-service.Dockerfile
   logs/
   scripts/
     generate-local-cert.ps1
@@ -50,6 +60,15 @@ NGINX listens on `https://localhost:8443` locally.
 | `/api/v1/credentials/{path}` | `setup-service:5004` | KMS-backed credential admin |
 | `/api/v1/communication-templates/{path}` | `setup-service:5004` | Template reads for Notification |
 | `/api/v1/tenants/{path}` | `file-service:5005` | S3 bucket and folder provisioning |
+| `/api/v1/crm/{path}` | `crm-service:5009` | `/api/v1/{path}` |
+| `/api/v1/scheduling/{path}` | `scheduling-service:5010` | `/api/v1/{path}` |
+| `/api/v1/billing/{path}` | `billing-service:5011` | `/api/v1/{path}` |
+| `/api/v1/inventory/{path}` | `inventory-service:5012` | `/api/v1/{path}` |
+| `/api/v1/reporting/{path}` | `reporting-service:5013` | `/api/v1/{path}` |
+| `/api/v1/integration/{path}` | `integration-service:5014` | `/api/v1/{path}` |
+| `/api/v1/asset/{path}` | `asset-service:5015` | `/api/v1/{path}` |
+| `/api/v1/service-agreements/{path}` | `service-agreement-service:5016` | `/api/v1/{path}` |
+| `/api/v1/communication/{path}` | `communication-service:5017` | `/api/v1/{path}` |
 
 ### Database-backed services (local dev)
 
@@ -79,6 +98,7 @@ Inter-service Refit clients use **direct container DNS and ports** on the `fgs-p
 | Setup | `IAuditClient` | `http://audit-service:5008` |
 | Consumer | `INotificationDispatchClient` | `http://notification-service:5002` |
 | Publisher | `IFgsClaimsClient` | `http://user-service:5001` |
+| Domain scaffolds | Direct container DNS | `http://crm-service:5009`, `http://scheduling-service:5010`, `http://billing-service:5011`, `http://inventory-service:5012`, `http://reporting-service:5013`, `http://integration-service:5014`, `http://asset-service:5015`, `http://service-agreement-service:5016`, `http://communication-service:5017` |
 
 Public-facing URLs (OAuth, invites, dashboard) use the NGINX gateway at `https://localhost:8443`.
 
@@ -88,8 +108,11 @@ From `C:\SourceCode\FGS\src\Gateway`:
 
 ```powershell
 .\scripts\generate-local-cert.ps1
+$env:DOCKER_BUILDKIT = "1"
 docker compose up --build
 ```
+
+If `dotnet restore` fails inside Docker with NuGet SSL errors (`unexpected EOF from transport stream`), retry the build — Dockerfiles use a shared restore script with retries and a persistent NuGet cache mount. You can also pre-restore on the host (`dotnet restore` from `src/`) before building so packages are already in the BuildKit cache.
 
 Linux/macOS/WSL:
 
@@ -104,6 +127,15 @@ Test the gateway:
 curl.exe -k https://localhost:8443/nginx-health
 curl.exe -k https://localhost:8443/api/v1/users/health
 curl.exe -k https://localhost:8443/api/v1/notifications/health
+curl.exe -k https://localhost:8443/api/v1/crm/health
+curl.exe -k https://localhost:8443/api/v1/scheduling/health
+curl.exe -k https://localhost:8443/api/v1/billing/health
+curl.exe -k https://localhost:8443/api/v1/inventory/health
+curl.exe -k https://localhost:8443/api/v1/reporting/health
+curl.exe -k https://localhost:8443/api/v1/integration/health
+curl.exe -k https://localhost:8443/api/v1/asset/health
+curl.exe -k https://localhost:8443/api/v1/service-agreements/health
+curl.exe -k https://localhost:8443/api/v1/communication/health
 ```
 
 Container health checks use each service's `/health` endpoint (see Dockerfiles). Setup and File API routes are reachable under `/api/v1/credentials/` and `/api/v1/tenants/` without a path prefix rewrite.
@@ -112,11 +144,9 @@ The local Compose file starts services in credential-safe order:
 
 1. `rabbitmq` — host ports `5672` / `15672`
 2. `setup-service` (`5004`) — credential authority; bootstraps `ConnectionStrings:FgsSetup` from mounted appsettings (no dependency on other FGS APIs)
-3. Credential consumers (wait for Setup `/health`): `audit-service` (`5008`), `user-service` (`5001`), `file-service` (`5005`), `notification-service` (`5002`)
+3. `audit-service` (`5008`) starts after Setup; other credential consumers wait for Setup **and** Audit healthy
 4. Messaging workers: `publisher-service` (`5006`), `consumer-service` (`5007`)
 5. `nginx` — host ports `8080` / `8443` (waits for gateway upstream health checks)
-
-Scaffold APIs (Billing, Crm, ServiceAgreement, Asset, etc.) are not containerized here; run them with `dotnet run` against Setup when needed.
 
 ### Credential bootstrap environment variables
 
@@ -128,6 +158,7 @@ Consuming services load secrets from Setup Service at startup (`GET /api/v1/cred
 | `CredentialDistribution__InternalServiceKey` | S2S key for `/credentials/resolved` |
 | `CredentialConsumer__ServiceName` | Service identity for access audit |
 | `CredentialConsumer__RequiredProviders__0` | Provider filter (e.g. `DATABASE`, `SENDGRID`) |
+| `AuditService__Enabled` | On `setup-service`, set to `false` in Compose so Setup does not call Audit before Audit is listening (local bootstrap race). Set `true` in `appsettings.Development.json` when testing audit integration outside Compose. |
 | `FGS_SETUP_DB` | Setup Service DB bootstrap (Setup only) |
 | `FGS_USER_DB`, `FGS_FILE_DB`, etc. | Optional DB fallback during credential migration |
 | `KMS_KEY_ARN` | KMS key ARN for Setup Service bootstrap only (File/User load `AwsCredentials:KmsKeyArn` from Setup) |
@@ -147,6 +178,15 @@ Each API container mounts the **same** files you edit for local `dotnet run`:
 | File | `src/FileService/Fgs.File.API/appsettings.json` + `appsettings.Development.json` |
 | Publisher | `src/PublisherService/Fgs.Publisher.API/appsettings.json` + `appsettings.Development.json` |
 | Consumer | `src/ConsumerService/Fgs.Consumer.API/appsettings.json` + `appsettings.Development.json` |
+| Crm | `src/CrmService/Fgs.Crm.API/appsettings.json` + `appsettings.Development.json` |
+| Scheduling | `src/SchedulingService/Fgs.Scheduling.API/appsettings.json` + `appsettings.Development.json` |
+| Billing | `src/BillingService/Fgs.Billing.API/appsettings.json` + `appsettings.Development.json` |
+| Inventory | `src/InventoryService/Fgs.Inventory.API/appsettings.json` + `appsettings.Development.json` |
+| Reporting | `src/ReportingService/Fgs.Reporting.API/appsettings.json` + `appsettings.Development.json` |
+| Integration | `src/IntegrationService/Fgs.Integration.API/appsettings.json` + `appsettings.Development.json` |
+| Asset | `src/AssetService/Fgs.Asset.API/appsettings.json` + `appsettings.Development.json` |
+| Service Agreement | `src/ServiceAgreementService/Fgs.ServiceAgreement.API/appsettings.json` + `appsettings.Development.json` |
+| Communication | `src/CommunicationService/Fgs.Communication.API/appsettings.json` + `appsettings.Development.json` |
 
 Containers use `ASPNETCORE_ENVIRONMENT=Development`, so ASP.NET Core **merges** `appsettings.json` then `appsettings.Development.json` (same as Visual Studio / `dotnet run`). There are no duplicate Postgres settings in `docker-compose.yml`.
 
@@ -225,10 +265,10 @@ sudo systemctl reload nginx
 
 For Kubernetes, keep this routing model but move responsibilities as follows:
 
-- Use Kubernetes `Service` objects for `user-service`, `notification-service`, `setup-service`, `file-service`, `publisher-service`, and `consumer-service`.
+- Use Kubernetes `Service` objects for `user-service`, `notification-service`, `setup-service`, `file-service`, `publisher-service`, `consumer-service`, `crm-service`, `scheduling-service`, `billing-service`, `inventory-service`, `reporting-service`, `integration-service`, `asset-service`, `service-agreement-service`, and `communication-service`.
 - Put TLS certificates in `kubernetes.io/tls` secrets, or use cert-manager.
 - Use NGINX Ingress Controller for path routing and prefix rewrite annotations.
-- Keep `/api/v1/users`, `/api/v1/notifications`, `/api/v1/credentials`, `/api/v1/communication-templates`, and `/api/v1/tenants` as the stable external contract.
+- Keep `/api/v1/users`, `/api/v1/notifications`, `/api/v1/credentials`, `/api/v1/communication-templates`, `/api/v1/tenants`, `/api/v1/crm`, `/api/v1/scheduling`, `/api/v1/billing`, `/api/v1/inventory`, `/api/v1/reporting`, `/api/v1/integration`, `/api/v1/asset`, `/api/v1/service-agreements`, and `/api/v1/communication` as the stable external contract.
 - Move rate limiting, body size, gzip, timeouts, and security headers into Ingress annotations or a controller ConfigMap.
 
 The production NGINX files remain useful as the reference edge policy when converting to Ingress resources.
