@@ -31,6 +31,28 @@ public sealed class FgsCrmDbContext(DbContextOptions<FgsCrmDbContext> options) :
 
     public DbSet<CrmReminderAssignment> CrmReminderAssignments => Set<CrmReminderAssignment>();
 
+    public DbSet<FgsEstimateFlavor> FgsEstimateFlavors => Set<FgsEstimateFlavor>();
+
+    public DbSet<FgsEstimateStatus> FgsEstimateStatuses => Set<FgsEstimateStatus>();
+
+    public DbSet<FgsEstimateTemplateCategory> FgsEstimateTemplateCategories => Set<FgsEstimateTemplateCategory>();
+
+    public DbSet<FgsEstimate> FgsEstimates => Set<FgsEstimate>();
+
+    public DbSet<FgsEstimateOption> FgsEstimateOptions => Set<FgsEstimateOption>();
+
+    public DbSet<FgsEstimateOptionLine> FgsEstimateOptionLines => Set<FgsEstimateOptionLine>();
+
+    public DbSet<FgsEstimateClause> FgsEstimateClauses => Set<FgsEstimateClause>();
+
+    public DbSet<FgsEstimateClauseItem> FgsEstimateClauseItems => Set<FgsEstimateClauseItem>();
+
+    public DbSet<FgsEstimateTemplate> FgsEstimateTemplates => Set<FgsEstimateTemplate>();
+
+    public DbSet<FgsEstimateTemplateOption> FgsEstimateTemplateOptions => Set<FgsEstimateTemplateOption>();
+
+    public DbSet<FgsEstimateTemplateOptionLine> FgsEstimateTemplateOptionLines => Set<FgsEstimateTemplateOptionLine>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(FgsDatabaseSchemas.Crm);

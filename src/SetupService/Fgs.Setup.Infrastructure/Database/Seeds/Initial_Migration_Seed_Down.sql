@@ -309,6 +309,8 @@ WHERE "SeedTableMappingId" IN (
         'ALL_GloJobTypeCategory',
         'ALL_GloJobTypeSubCategory',
         'ALL_GloLeadSource',
+        'ALL_GloEstimateFlavor',
+        'ALL_GloEstimateStatus',
         'ALL_GloPaymentMethodType',
         'ALL_GloResolutionType',
         'ALL_GloSetupLaborRateType',
@@ -341,6 +343,8 @@ WHERE "SeedCode" IN (
     'ALL_GloJobTypeCategory',
     'ALL_GloJobTypeSubCategory',
     'ALL_GloLeadSource',
+    'ALL_GloEstimateFlavor',
+    'ALL_GloEstimateStatus',
     'ALL_GloPaymentMethodType',
     'ALL_GloResolutionType',
     'ALL_GloSetupLaborRateType',
@@ -389,6 +393,19 @@ WHERE "SourceCode" IN (
     'PHONE',
     'DIRECT',
     'OTHER'
+);
+
+DELETE FROM glo."GloEstimateStatus"
+WHERE "StatusCode" IN (
+    'DRAFT',
+    'SENT',
+    'VIEWED',
+    'FOLLOWUP',
+    'SOLD',
+    'DECLINED',
+    'EXPIRED',
+    'BOOKED',
+    'CANCELLED'
 );
 
 DELETE FROM glo."GloTitleOfCourtesy"

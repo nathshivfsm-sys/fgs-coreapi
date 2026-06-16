@@ -1738,6 +1738,40 @@ SELECT setval(
     COALESCE((SELECT MAX("Id") FROM glo."GloSalesActivityOutcome"), 1),
     true);
 
+-- GloEstimateStatus (global estimate statuses for tenant provisioning seed)
+INSERT INTO glo."GloEstimateStatus"
+(
+    "StatusCode",
+    "Name",
+    "DisplayOrder",
+    "CreatedOn"
+)
+SELECT
+    v."StatusCode",
+    v."Name",
+    v."DisplayOrder",
+    now()
+FROM (
+    VALUES
+        ('DRAFT',     'Draft',     1::smallint),
+        ('SENT',      'Sent',      2::smallint),
+        ('VIEWED',    'Viewed',    3::smallint),
+        ('FOLLOWUP',  'Follow Up', 4::smallint),
+        ('SOLD',      'Sold',      5::smallint),
+        ('DECLINED',  'Declined',  6::smallint),
+        ('EXPIRED',   'Expired',   7::smallint),
+        ('BOOKED',    'Booked',    8::smallint),
+        ('CANCELLED', 'Cancelled', 9::smallint)
+) AS v("StatusCode", "Name", "DisplayOrder")
+WHERE NOT EXISTS (
+    SELECT 1 FROM glo."GloEstimateStatus" s WHERE s."StatusCode" = v."StatusCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloEstimateStatus"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloEstimateStatus"), 1),
+    true);
+
 -- GloUnitOfMeasure (global units of measure)
 INSERT INTO glo."GloUnitOfMeasure"
 (
@@ -1921,6 +1955,8 @@ FROM (
         ('ALL_GloSalesDispositionReason', 'fgs_dev_db', 'glo', 'GloSalesDispositionReason', 'fgs_dev_db', 'setup', 'FgsSalesDispositionReason', 200, 'Sales Disposition Reason', true),
         ('ALL_GloSalesActivityType', 'fgs_dev_db', 'glo', 'GloSalesActivityType', 'fgs_dev_db', 'setup', 'FgsSalesActivityType', 201, 'Sales Activity Type', true),
         ('ALL_GloSalesActivityOutcome', 'fgs_dev_db', 'glo', 'GloSalesActivityOutcome', 'fgs_dev_db', 'setup', 'FgsSalesActivityOutcome', 202, 'Sales Activity Outcome', true),
+        ('ALL_GloEstimateFlavor', 'fgs_dev_db', 'glo', 'GloEstimateFlavor', 'fgs_dev_db', 'crm', 'FgsEstimateFlavor', 203, 'Estimate Flavor', true),
+        ('ALL_GloEstimateStatus', 'fgs_dev_db', 'glo', 'GloEstimateStatus', 'fgs_dev_db', 'crm', 'FgsEstimateStatus', 204, 'Estimate Status', true),
         ('ALL_GloPaymentMethodType', 'fgs_dev_db', 'glo', 'GloPaymentMethodType', 'fgs_dev_db', 'setup', 'FgsSetupPaymentMethod', 220, 'Payment Method', true),
         ('ALL_GloResolutionType', 'fgs_dev_db', 'glo', 'GloResolutionType', 'fgs_dev_db', 'setup', 'FgsResolutionCode', 250, 'Resolution Code', true),
         ('ALL_GloSetupLaborRateType', 'fgs_dev_db', 'glo', 'GloSetupLaborRateType', 'fgs_dev_db', 'setup', 'FgsSetupLaborRateType', 280, 'Labor Rate Type', true),
@@ -2214,6 +2250,28 @@ INNER JOIN (
         ('ALL_GloSalesActivityOutcome', NULL, 'IsActive', 'STATIC', 'true', 13, true, true),
         ('ALL_GloSalesActivityOutcome', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 14, true, true),
         ('ALL_GloSalesActivityOutcome', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 15, false, true),
+
+        -- ALL_GloEstimateFlavor -> crm.FgsEstimateFlavor
+        ('ALL_GloEstimateFlavor', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloEstimateFlavor', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloEstimateFlavor', 'FlavorCode', 'FlavorCode', NULL, NULL, 3, true, true),
+        ('ALL_GloEstimateFlavor', 'Name', 'Name', NULL, NULL, 4, true, true),
+        ('ALL_GloEstimateFlavor', 'BackgroundColor', 'BackgroundColor', NULL, NULL, 5, true, true),
+        ('ALL_GloEstimateFlavor', 'TextColor', 'TextColor', NULL, NULL, 6, true, true),
+        ('ALL_GloEstimateFlavor', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 7, true, true),
+        ('ALL_GloEstimateFlavor', NULL, 'IsActive', 'STATIC', 'true', 8, true, true),
+        ('ALL_GloEstimateFlavor', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 9, true, true),
+        ('ALL_GloEstimateFlavor', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 10, false, true),
+
+        -- ALL_GloEstimateStatus -> crm.FgsEstimateStatus
+        ('ALL_GloEstimateStatus', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloEstimateStatus', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloEstimateStatus', 'StatusCode', 'StatusCode', NULL, NULL, 3, true, true),
+        ('ALL_GloEstimateStatus', 'Name', 'Name', NULL, NULL, 4, true, true),
+        ('ALL_GloEstimateStatus', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 5, true, true),
+        ('ALL_GloEstimateStatus', NULL, 'IsActive', 'STATIC', 'true', 6, true, true),
+        ('ALL_GloEstimateStatus', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+        ('ALL_GloEstimateStatus', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 8, false, true),
 
         -- ALL_GloPaymentMethodType -> FgsSetupPaymentMethod
         ('ALL_GloPaymentMethodType', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),

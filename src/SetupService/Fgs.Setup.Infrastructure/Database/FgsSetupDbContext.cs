@@ -157,6 +157,10 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsLeadDisqualificationReason> FgsLeadDisqualificationReasons => Set<FgsLeadDisqualificationReason>();
 
+    public DbSet<GloEstimateFlavor> GloEstimateFlavors => Set<GloEstimateFlavor>();
+
+    public DbSet<GloEstimateStatus> GloEstimateStatuses => Set<GloEstimateStatus>();
+
     public DbSet<GloSalesPipelineStatus> GloSalesPipelineStatuses => Set<GloSalesPipelineStatus>();
 
     public DbSet<FgsSalesPipelineStatus> FgsSalesPipelineStatuses => Set<FgsSalesPipelineStatus>();

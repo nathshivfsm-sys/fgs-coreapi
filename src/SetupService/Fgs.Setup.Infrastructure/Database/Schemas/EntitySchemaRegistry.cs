@@ -58,6 +58,8 @@ internal static class EntitySchemaRegistry
         [typeof(GloLeadSource)] = FgsDatabaseSchemas.Glo,
         [typeof(GloLeadStatus)] = FgsDatabaseSchemas.Glo,
         [typeof(GloLeadDisqualificationReason)] = FgsDatabaseSchemas.Glo,
+        [typeof(GloEstimateFlavor)] = FgsDatabaseSchemas.Glo,
+        [typeof(GloEstimateStatus)] = FgsDatabaseSchemas.Glo,
         [typeof(GloSalesPipelineStatus)] = FgsDatabaseSchemas.Glo,
         [typeof(GloSalesDispositionReason)] = FgsDatabaseSchemas.Glo,
         [typeof(GloSalesActivityType)] = FgsDatabaseSchemas.Glo,
