@@ -138,6 +138,7 @@ internal static class EntitySchemaRegistry
         [typeof(FgsSetupServiceAgreementPricingComponent)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsSetupServiceAgreementTemplatePricingComponent)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsSetupServiceAgreementTemplateCoverage)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsLocation)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsTenantCompanyCache)] = FgsDatabaseSchemas.Setup,
         [typeof(GloCredentialProviderTypeCache)] = FgsDatabaseSchemas.Setup,
         [typeof(GloResolutionTypeCache)] = FgsDatabaseSchemas.Setup,

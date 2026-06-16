@@ -233,6 +233,8 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
     public DbSet<FgsSetupServiceAgreementTemplateCoverage> FgsSetupServiceAgreementTemplateCoverages =>
         Set<FgsSetupServiceAgreementTemplateCoverage>();
 
+    public DbSet<FgsLocation> FgsLocations => Set<FgsLocation>();
+
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
 
     public DbSet<GloCredentialProviderTypeCache> GloCredentialProviderTypeCaches => Set<GloCredentialProviderTypeCache>();

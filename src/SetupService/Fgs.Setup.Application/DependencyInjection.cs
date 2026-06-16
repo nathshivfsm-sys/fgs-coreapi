@@ -1,5 +1,4 @@
 using System.Reflection;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.Foundation.Extensions;
 using FluentValidation;
 using MediatR;
@@ -13,7 +12,6 @@ public static class DependencyInjection
     {
         var assembly = Assembly.GetExecutingAssembly();
         services.AddFgsFoundation();
-        services.AddCatalogCrudApplication();
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
         services.AddValidatorsFromAssembly(assembly);
         services.AddScoped<Features.Credentials.Services.CredentialMutationService>();

@@ -446,7 +446,7 @@ $gatewayMaps = @{
 
 $serviceConfigs = @(
     @{ Key = 'UserService'; Path = 'src\UserService\Fgs.User.API\Controllers'; Desc = 'Company onboarding, Entra auth, tenant admin APIs. Gateway-first; tenant routes use /api/v1/users/tenants.'; AuthFlow = $true }
-    @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup: credentials (gateway), catalog CRUD (direct setupServiceUrl), tenant provisioning.'; AuthFlow = $false }
+    @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup: credentials (gateway), communication templates, tenant provisioning, business types.'; AuthFlow = $false }
     @{ Key = 'NotificationService'; Path = 'src\NotificationService\Fgs.Notification.API\Controllers'; Desc = 'Notification dispatch via gateway.'; AuthFlow = $false }
     @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 bucket provisioning via gateway /api/v1/tenants.'; AuthFlow = $false }
     @{ Key = 'AuditService'; Path = 'src\AuditService\Fgs.Audit.API\Controllers'; Desc = 'Credential audit trail (direct service URL).'; AuthFlow = $false }
@@ -481,20 +481,6 @@ foreach ($svc in $serviceConfigs) {
     }
 
     if ($folders.Count -eq 0) { continue }
-
-    # Group Setup generated controllers under sub-folder
-    if ($svc.Key -eq 'SetupService') {
-        $manual = $folders | Where-Object { $_.name -notmatch '^Setup|^Inventory|^Job|^Lead|^Sales|^Vendor|^Vehicle|^Warehouse|^Business|^Billing|^Resolution|^Tag' -or $_.name -in @('CredentialsController','CommunicationTemplatesController','TenantProvisioningController','BusinessTypesController','HealthController') }
-        $catalog = $folders | Where-Object { $_.name -notin ($manual.name) }
-        $grouped = @()
-        if ($manual.Count -gt 0) {
-            $grouped += @{ name = 'Platform & Admin'; item = $manual }
-        }
-        if ($catalog.Count -gt 0) {
-            $grouped += @{ name = 'Catalog CRUD (Generated)'; description = 'Standard list/get/create/update/patch/delete. Requires Bearer token.'; item = $catalog }
-        }
-        $folders = $grouped
-    }
 
     $includeAuth = ($svc.Key -eq 'UserService')
     $collection = New-Collection -ServiceName $svc.Key -Description $svc.Desc -Folders $folders -IncludeAuthFlow:$includeAuth

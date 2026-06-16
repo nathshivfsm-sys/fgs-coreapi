@@ -34,7 +34,7 @@ This creates `FGS-Postman-Import.zip` (all collections + environment) and opens 
 | Collection | Gateway routes | Direct service URL var |
 |------------|----------------|-------------------------|
 | [UserService](UserService.postman_collection.json) | auth, invite, signup, dashboard, users/tenants | `userServiceUrl` |
-| [SetupService](SetupService.postman_collection.json) | credentials, communication-templates | `setupServiceUrl` (catalog CRUD) |
+| [SetupService](SetupService.postman_collection.json) | credentials, communication-templates | `setupServiceUrl` (provisioning, business types) |
 | [NotificationService](NotificationService.postman_collection.json) | notifications | `notificationServiceUrl` |
 | [FileService](FileService.postman_collection.json) | tenants (bucket) | `fileServiceUrl` |
 | [AuditService](AuditService.postman_collection.json) | — | `auditServiceUrl` |
@@ -49,7 +49,7 @@ Scaffold collections: Asset, Billing, Communication, Crm, Integration, Inventory
 - **Gateway (recommended for public flows):** `https://localhost:8443` → `{{gatewayUrl}}`
 - **User tenant admin APIs:** `{{gatewayUrl}}/api/v1/users/tenants/{tenantId}` (nginx rewrite)
 - **File tenant storage:** `{{gatewayUrl}}/api/v1/tenants/{tenantId}/bucket`
-- **Setup catalog CRUD:** `{{setupServiceUrl}}/api/v1/{resource}` (not exposed via gateway)
+- **Setup direct APIs:** `{{setupServiceUrl}}/api/v1/...` (tenant provisioning, business types; not exposed via gateway)
 
 ## Collection-level configuration
 

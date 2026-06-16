@@ -45,7 +45,7 @@
                  "description":  "Communication service scaffold (health).",
                  "name":  "FGS CommunicationService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "8f475f19-a781-4070-ac78-65bc73220d6b"
+                 "_postman_id":  "dadd31fb-5bc0-4e3c-b584-6dd42344d3b3"
              },
     "event":  [
                   {

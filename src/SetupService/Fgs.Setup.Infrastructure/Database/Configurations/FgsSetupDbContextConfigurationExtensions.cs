@@ -72,6 +72,7 @@ internal static class FgsSetupDbContextConfigurationExtensions
     {
         var excludedTypes = new HashSet<Type>
         {
+            typeof(FgsLocation),
             typeof(FgsTenantCompanyCache),
             typeof(GloCredentialProviderTypeCache),
             typeof(GloResolutionTypeCache),

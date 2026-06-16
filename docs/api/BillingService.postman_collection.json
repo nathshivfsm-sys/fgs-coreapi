@@ -45,7 +45,7 @@
                  "description":  "Billing service scaffold (health).",
                  "name":  "FGS BillingService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "8d64ca23-25f1-418c-a742-e244f496c414"
+                 "_postman_id":  "477be96f-2a6f-4319-b871-f0638d0ee945"
              },
     "event":  [
                   {

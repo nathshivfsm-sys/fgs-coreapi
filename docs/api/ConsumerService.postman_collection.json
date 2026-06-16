@@ -45,7 +45,7 @@
                  "description":  "Message consumer worker API.",
                  "name":  "FGS ConsumerService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "b0e6d84c-563d-418c-b37d-deec2342f0cd"
+                 "_postman_id":  "4e70f099-77ed-42c6-8e38-78ab58e9100d"
              },
     "event":  [
                   {
