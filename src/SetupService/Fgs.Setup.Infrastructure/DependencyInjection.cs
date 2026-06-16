@@ -1,5 +1,7 @@
 ﻿using Fgs.Contracts.Clients;
 using Fgs.Setup.Application.Abstractions.Credentials;
+using Fgs.Setup.Application.Abstractions.Persistence;
+using Fgs.Setup.Application.Abstractions.TechTrades;
 using Fgs.Setup.Infrastructure.Audit;
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Options;
@@ -8,10 +10,13 @@ using Fgs.Setup.Application.Abstractions.Time;
 using Fgs.Setup.Infrastructure.Common.Options;
 using Fgs.Setup.Infrastructure.Common.Time;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.Setup.Infrastructure.Database.Read;
 using Fgs.Setup.Infrastructure.Messaging;
 using Fgs.Setup.Application.Abstractions.Tenants;
 using Fgs.Setup.Infrastructure.Provisioning;
 using Fgs.Setup.Infrastructure.Tenants;
+using Fgs.Setup.Infrastructure.TechTrades;
+using Fgs.Setup.Infrastructure.Common;
 using Fgs.Foundation.Extensions;
 using Fgs.Persistence.Extensions;
 using Fgs.Security.Extensions;
@@ -71,6 +76,10 @@ public static class DependencyInjection
             "http://file-service:5005");
 
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        services.AddSingleton<ISetupReadConnectionFactory, FgsSetupReadConnectionFactory>();
+        services.AddScoped<ITechTradeReadRepository, TechTradeReadRepository>();
+        services.AddScoped<SetupEntityAuditHelper>();
+        services.AddScoped<ITechTradeWriteService, TechTradeWriteService>();
         services.AddSingleton<ITenantSeedDatabaseConnectionFactory>(sp =>
             new TenantSeedDatabaseConnectionFactory(
                 connectionString,

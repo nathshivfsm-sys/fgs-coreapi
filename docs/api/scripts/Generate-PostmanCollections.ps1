@@ -247,7 +247,7 @@ function Parse-ControllerFile {
             $fullPath = '{{gatewayUrl}}/api/v1/dashboard?token={{accessToken}}'
             $useAuth = $false
         }
-        if ($methodName -eq 'List' -and $fileName -match 'Catalog|JobType|Inventory|Vendor|Warehouse|Vehicle|Lead|Sales|Setup|Billing|Business|Resolution|Tag') {
+        if ($methodName -eq 'List' -and $fileName -match 'Catalog|JobType|Inventory|Vendor|Warehouse|Vehicle|Lead|Sales|Setup|Billing|Business|Resolution|Tag|TechTrades') {
             $query = @{ page = '1'; pageSize = '25'; isActive = 'true' }
         }
         if ($httpAttr -in @('Post','Put','Patch') -and $methodName -notin @('EntraCallback','EntraConnector','CompanySignup','Start','ProvisionTenant','Record','Dispatch')) {
@@ -270,6 +270,23 @@ function Parse-ControllerFile {
         if ($methodName -eq 'EntraConnector') {
             $body = '{ "email": "{{signupEmail}}", "objectId": null }'
         }
+        if ($fileName -eq 'TechTradesController') {
+            if ($methodName -eq 'ListActive') {
+                $query = @{ page = '1'; pageSize = '25'; sortBy = 'SortOrder'; search = '' }
+            }
+            if ($methodName -eq 'Lookup') {
+                $query = @{ activeOnly = 'true' }
+            }
+            if ($methodName -eq 'Create') {
+                $body = '{ "tradeCode": "HVAC", "name": "HVAC Services", "description": "Heating and cooling", "sortOrder": 1 }'
+            }
+            if ($methodName -eq 'Update') {
+                $body = '{ "tradeCode": "HVAC", "name": "HVAC Services Updated", "description": "Heating and cooling", "sortOrder": 1 }'
+            }
+            if ($methodName -eq 'Patch') {
+                $body = '{ "name": "HVAC Services Updated", "sortOrder": 2 }'
+            }
+        }
         if ($useAuth) {
             $headers['X-Tenant-Id'] = '{{tenantId}}'
             $headers['X-Company-Id'] = '{{companyId}}'
@@ -287,7 +304,22 @@ function Parse-ControllerFile {
             $displayName = $docSummary
         }
         $description = if ($docSummary) { $docSummary } else { $methodName }
-        $items += New-PostmanRequest -Name $displayName -Method $verb -Url $fullPath -UseAuth $useAuth -Description $description -Query $query -Body $body -Headers $headers
+        $req = New-PostmanRequest -Name $displayName -Method $verb -Url $fullPath -UseAuth $useAuth -Description $description -Query $query -Body $body -Headers $headers
+        if ($fileName -eq 'TechTradesController' -and $methodName -eq 'Create') {
+            $req['event'] = @(@{
+                listen = 'test'
+                script = @{
+                    type = 'text/javascript'
+                    exec = @(
+                        'const body = pm.response.json();',
+                        'if (body.success && body.data && body.data.id) {',
+                        '  pm.environment.set("recordId", String(body.data.id));',
+                        '}'
+                    )
+                }
+            })
+        }
+        $items += $req
     }
 
     if ($items.Count -eq 0) { return $null }
@@ -446,7 +478,7 @@ $gatewayMaps = @{
 
 $serviceConfigs = @(
     @{ Key = 'UserService'; Path = 'src\UserService\Fgs.User.API\Controllers'; Desc = 'Company onboarding, Entra auth, tenant admin APIs. Gateway-first; tenant routes use /api/v1/users/tenants.'; AuthFlow = $true }
-    @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup: credentials (gateway), communication templates, tenant provisioning, business types.'; AuthFlow = $false }
+    @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup: credentials (gateway), communication templates, tech trades, tenant provisioning, business types.'; AuthFlow = $false }
     @{ Key = 'NotificationService'; Path = 'src\NotificationService\Fgs.Notification.API\Controllers'; Desc = 'Notification dispatch via gateway.'; AuthFlow = $false }
     @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 bucket provisioning via gateway /api/v1/tenants.'; AuthFlow = $false }
     @{ Key = 'AuditService'; Path = 'src\AuditService\Fgs.Audit.API\Controllers'; Desc = 'Credential audit trail (direct service URL).'; AuthFlow = $false }

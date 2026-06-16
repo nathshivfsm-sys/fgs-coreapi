@@ -34,7 +34,25 @@ This creates `FGS-Postman-Import.zip` (all collections + environment) and opens 
 | Collection | Gateway routes | Direct service URL var |
 |------------|----------------|-------------------------|
 | [UserService](UserService.postman_collection.json) | auth, invite, signup, dashboard, users/tenants | `userServiceUrl` |
-| [SetupService](SetupService.postman_collection.json) | credentials, communication-templates | `setupServiceUrl` (provisioning, business types) |
+| [SetupService](SetupService.postman_collection.json) | credentials, communication-templates | `setupServiceUrl` — tech trades, provisioning, business types (direct) |
+| [FGS Entra Token (Existing User)](FGS-Entra-Token.postman_collection.json) | — | Entra sign-in + refresh token flow (use with FGS Globals env) |
+
+## Entra token for existing users
+
+Import [`FGS-Entra-Token.postman_collection.json`](FGS-Entra-Token.postman_collection.json) with **FGS Globals (Local)**.
+
+**Postman cannot render the Entra login page inside a request response.** Use one of:
+
+### Option A — Postman OAuth (opens browser login)
+1. Set `entraUserEmail` and `entraClientSecret` in the environment.
+2. In Entra app registration, add redirect URI: `https://oauth.pstmn.io/v1/callback`
+3. Click the **collection** → **Authorization** tab → **Get New Access Token** → sign in in browser → **Use Token**
+4. Run **5. Sync token to environment** → `accessToken` is ready for other collections
+
+### Option B — External browser
+1. Run **Manual browser flow → 1. Copy sign-in URL to console**
+2. Open **View → Show Postman Console**, copy URL into Chrome/Edge
+3. Sign in → copy `code` into `authCode` → run **2. Exchange Authorization Code**
 | [NotificationService](NotificationService.postman_collection.json) | notifications | `notificationServiceUrl` |
 | [FileService](FileService.postman_collection.json) | tenants (bucket) | `fileServiceUrl` |
 | [AuditService](AuditService.postman_collection.json) | — | `auditServiceUrl` |

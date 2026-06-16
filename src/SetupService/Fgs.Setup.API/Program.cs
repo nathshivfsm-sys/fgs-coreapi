@@ -32,6 +32,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseFgsApiHost(hostOptions);
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
+}
+
 app.MapFgsHealthChecks();
 app.Run();
 

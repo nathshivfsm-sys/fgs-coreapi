@@ -34,7 +34,7 @@ Start-Process -FilePath $postmanExe -ArgumentList "`"$zipPath`""
 Write-Host @"
 
 In Postman:
-  1. Confirm the Import preview (17 items: 16 collections + 1 environment)
+  1. Confirm the Import preview (18 items: 17 collections + 1 environment)
   2. Click Import
   3. Select environment 'FGS Globals (Local)' in the top-right dropdown
 

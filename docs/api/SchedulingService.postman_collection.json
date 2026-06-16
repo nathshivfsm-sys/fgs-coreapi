@@ -45,7 +45,7 @@
                  "description":  "Scheduling service scaffold (health).",
                  "name":  "FGS SchedulingService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "3905f312-9b01-48aa-95e3-b1ffb31ea4c8"
+                 "_postman_id":  "b3379e93-c1f9-4b5c-9dfb-cd445c526e76"
              },
     "event":  [
                   {
