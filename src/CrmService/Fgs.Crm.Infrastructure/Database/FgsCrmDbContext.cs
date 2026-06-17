@@ -43,6 +43,8 @@ public sealed class FgsCrmDbContext(DbContextOptions<FgsCrmDbContext> options) :
 
     public DbSet<FgsEstimateOptionLine> FgsEstimateOptionLines => Set<FgsEstimateOptionLine>();
 
+    public DbSet<FgsEstimateOptionTemplate> FgsEstimateOptionTemplates => Set<FgsEstimateOptionTemplate>();
+
     public DbSet<FgsEstimateClause> FgsEstimateClauses => Set<FgsEstimateClause>();
 
     public DbSet<FgsEstimateClauseItem> FgsEstimateClauseItems => Set<FgsEstimateClauseItem>();

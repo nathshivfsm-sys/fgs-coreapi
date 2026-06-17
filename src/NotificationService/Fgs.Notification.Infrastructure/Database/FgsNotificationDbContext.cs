@@ -19,6 +19,8 @@ public sealed class FgsNotificationDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsNotificationHistory> NotificationHistory => Set<FgsNotificationHistory>();
 
+    public DbSet<FgsEmailHistory> FgsEmailHistories => Set<FgsEmailHistory>();
+
     public DbSet<FgsProcessedIntegrationEvent> ProcessedIntegrationEvents => Set<FgsProcessedIntegrationEvent>();
 
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
