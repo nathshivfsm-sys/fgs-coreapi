@@ -26,4 +26,8 @@ public interface ITechTradeReadRepository
         string name,
         long? excludeId = null,
         CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsActiveTradeCodeAsync(
+        string tradeCode,
+        CancellationToken cancellationToken = default);
 }

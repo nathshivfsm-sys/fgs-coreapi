@@ -395,6 +395,284 @@
                               ]
                  },
                  {
+                     "description":  "GLBreaksController - glbreaks",
+                     "name":  "GLBreaksController",
+                     "item":  [
+                                  {
+                                      "name":  "Lookup",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{setupServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{setupServiceUrl}}/api/v1/glbreaks/lookup",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "glbreaks",
+                                                                               "lookup"
+                                                                           ]
+                                                              },
+                                                      "description":  "Lookup",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "ListActive",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{setupServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{setupServiceUrl}}/api/v1/glbreaks/active",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "glbreaks",
+                                                                               "active"
+                                                                           ]
+                                                              },
+                                                      "description":  "ListActive",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "GetById",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{setupServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{setupServiceUrl}}/api/v1/glbreaks/{{recordId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "glbreaks",
+                                                                               "{{recordId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetById",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "List",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{setupServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{setupServiceUrl}}/api/v1/glbreaks",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "glbreaks"
+                                                                           ]
+                                                              },
+                                                      "description":  "List",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Create",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{setupServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{setupServiceUrl}}/api/v1/glbreaks",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "glbreaks"
+                                                                           ]
+                                                              },
+                                                      "description":  "Create",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Update",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{setupServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{setupServiceUrl}}/api/v1/glbreaks/{{recordId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "glbreaks",
+                                                                               "{{recordId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Update",
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Patch",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{setupServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{setupServiceUrl}}/api/v1/glbreaks/{{recordId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "glbreaks",
+                                                                               "{{recordId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Patch",
+                                                      "method":  "PATCH",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Delete",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{setupServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{setupServiceUrl}}/api/v1/glbreaks/{{recordId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "glbreaks",
+                                                                               "{{recordId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Delete",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
                      "description":  "HealthController - health",
                      "name":  "HealthController",
                      "item":  [
@@ -454,27 +732,10 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   }
                                   },
@@ -516,27 +777,10 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   }
                                   },
@@ -569,27 +813,10 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   }
                                   },
@@ -637,27 +864,10 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   }
                                   },
@@ -683,16 +893,6 @@
                                                                          "value":  "application/json"
                                                                      },
                                                                      {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     },
-                                                                     {
                                                                          "key":  "Content-Type",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
@@ -708,14 +908,7 @@
                                                                    "mode":  "raw"
                                                                },
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   },
                                       "name":  "Create",
@@ -758,16 +951,6 @@
                                                                          "value":  "application/json"
                                                                      },
                                                                      {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     },
-                                                                     {
                                                                          "key":  "Content-Type",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
@@ -783,14 +966,7 @@
                                                                    "mode":  "raw"
                                                                },
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   }
                                   },
@@ -818,16 +994,6 @@
                                                                          "value":  "application/json"
                                                                      },
                                                                      {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     },
-                                                                     {
                                                                          "key":  "Content-Type",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
@@ -843,14 +1009,7 @@
                                                                    "mode":  "raw"
                                                                },
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   }
                                   },
@@ -876,27 +1035,10 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   }
                                   }
@@ -961,7 +1103,7 @@
                  "description":  "Platform setup: credentials (gateway), communication templates, tech trades, tenant provisioning, business types.",
                  "name":  "FGS SetupService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "50bf0f31-bd97-424b-9d6d-f973c0c99a60"
+                 "_postman_id":  "8744789d-f50d-4b03-b421-ebdaa39ad1d6"
              },
     "event":  [
                   {

@@ -2,6 +2,7 @@ using Fgs.Kernel.Entities;
 using Fgs.MultiTenancy;
 using Fgs.Security.Abstractions;
 using Fgs.Setup.Application.Abstractions.Time;
+using Fgs.Setup.Domain.Entities;
 
 namespace Fgs.Setup.Infrastructure.Common;
 
@@ -40,6 +41,40 @@ public sealed class SetupEntityAuditHelper
     {
         entity.UpdatedOn = _dateTimeProvider.UtcNow;
         entity.UpdatedBy = ResolveActor();
+    }
+
+    public void StampForCreate(FgsLocation location)
+    {
+        var now = _dateTimeProvider.UtcNow;
+        var actor = ResolveActor();
+        var (tenantId, companyId) = ResolveTenantCompany();
+
+        location.CreatedOn = now;
+        location.CreatedBy = actor;
+        location.UpdatedOn = now;
+        location.UpdatedBy = actor;
+        location.IsActive = true;
+        location.TenantId = tenantId;
+        location.CompanyId = companyId;
+    }
+
+    public void StampForUpdate(FgsLocation location)
+    {
+        location.UpdatedOn = _dateTimeProvider.UtcNow;
+        location.UpdatedBy = ResolveActor();
+    }
+
+    public void StampForCreate(FgsSetupGLBreakTrade trade, long glBreakId)
+    {
+        var now = _dateTimeProvider.UtcNow;
+        var actor = ResolveActor();
+        var (tenantId, companyId) = ResolveTenantCompany();
+
+        trade.GLBreakId = glBreakId;
+        trade.TenantId = tenantId;
+        trade.CompanyId = companyId;
+        trade.CreatedOn = now;
+        trade.CreatedBy = actor;
     }
 
     private string ResolveActor() =>

@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Fgs.Security.Abstractions;
 using Fgs.Security.Constants;
+using Fgs.Security.Services;
 using Microsoft.AspNetCore.Http;
 
 namespace Fgs.Security.Services;
@@ -25,15 +26,9 @@ public sealed class HttpFgsUserContext(IHttpContextAccessor httpContextAccessor)
         ?? User.FindFirst("oid")?.Value
         ?? User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value;
 
-    public long? TenantId =>
-        long.TryParse(User.FindFirst(JwtClaimTypes.TenantId)?.Value, out var tenantId)
-            ? tenantId
-            : null;
+    public long? TenantId => FgsRequestAuthContext.ExtractTenantScope(httpContextAccessor.HttpContext).TenantId;
 
-    public long? CompanyId =>
-        long.TryParse(User.FindFirst(JwtClaimTypes.CompanyId)?.Value, out var companyId)
-            ? companyId
-            : null;
+    public long? CompanyId => FgsRequestAuthContext.ExtractTenantScope(httpContextAccessor.HttpContext).CompanyId;
 
     public IReadOnlyList<string> Roles =>
         User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();

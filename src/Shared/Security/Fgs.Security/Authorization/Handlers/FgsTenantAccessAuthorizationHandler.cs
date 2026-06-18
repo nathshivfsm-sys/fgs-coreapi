@@ -1,6 +1,6 @@
 using Fgs.Security.Abstractions;
 using Fgs.Security.Authorization.Requirements;
-using Fgs.Security.Constants;
+using Fgs.Security.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,47 +14,24 @@ public sealed class FgsTenantAccessAuthorizationHandler(IServiceScopeFactory ser
         AuthorizationHandlerContext context,
         FgsTenantAccessRequirement requirement)
     {
-        if (context.User.Identity?.IsAuthenticated != true)
+        if (context.User.Identity?.IsAuthenticated != true
+            || context.Resource is not HttpContext httpContext)
         {
             return;
         }
 
-        var tenantClaim = context.User.FindFirst(JwtClaimTypes.TenantId)?.Value;
-        var companyClaim = context.User.FindFirst(JwtClaimTypes.CompanyId)?.Value;
-
-        if (!long.TryParse(tenantClaim, out var claimTenantId)
-            || !long.TryParse(companyClaim, out var claimCompanyId))
+        var (tenantId, companyId) = FgsRequestAuthContext.ExtractTenantScope(httpContext);
+        if (tenantId is not long resolvedTenantId || companyId is not long resolvedCompanyId)
         {
             return;
-        }
-
-        if (context.Resource is HttpContext httpContext)
-        {
-            var headerTenant = httpContext.Request.Headers["X-Tenant-Id"].FirstOrDefault();
-            var headerCompany = httpContext.Request.Headers["X-Company-Id"].FirstOrDefault();
-
-            if (!string.IsNullOrWhiteSpace(headerTenant)
-                && long.TryParse(headerTenant, out var headerTenantId)
-                && headerTenantId != claimTenantId)
-            {
-                return;
-            }
-
-            if (!string.IsNullOrWhiteSpace(headerCompany)
-                && long.TryParse(headerCompany, out var headerCompanyId)
-                && headerCompanyId != claimCompanyId)
-            {
-                return;
-            }
         }
 
         await using var scope = serviceScopeFactory.CreateAsyncScope();
         var scopeValidator = scope.ServiceProvider.GetRequiredService<IFgsTenantScopeValidator>();
-        var cancellationToken = context.Resource is HttpContext ctx
-            ? ctx.RequestAborted
-            : CancellationToken.None;
-
-        if (!await scopeValidator.IsValidScopeAsync(claimTenantId, claimCompanyId, cancellationToken))
+        if (!await scopeValidator.IsValidScopeAsync(
+                resolvedTenantId,
+                resolvedCompanyId,
+                httpContext.RequestAborted))
         {
             return;
         }

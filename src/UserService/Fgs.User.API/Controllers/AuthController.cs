@@ -1,12 +1,12 @@
 using System.Text.Json;
 using Asp.Versioning;
 using Fgs.Foundation.Api;
-using Fgs.Security.Abstractions;
-using Fgs.Security.Models;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
+using Fgs.Security.Authorization;
 using Fgs.User.Application.Features.Auth.Commands.EntraCallback;
 using Fgs.User.Application.Features.Auth.Queries.GetAuthMe;
+using Fgs.User.Application.Features.Auth.Queries.ValidateAuthUser;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -68,10 +68,19 @@ public sealed partial class AuthController(IMediator mediator) : FgsApiControlle
          """;
 
     /// <summary>Returns the authenticated FGS user profile resolved from Entra identity and database roles.</summary>
+    [Authorize(Policy = FgsAuthorizationPolicies.RequireAuthenticatedJwt)]
     [HttpGet("me")]
     [ProducesResponseType(typeof(ApiResponse<FgsAuthMeDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Me(CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new GetAuthMeQuery(), cancellationToken));
+
+    /// <summary>Validates the authenticated user is active and authorized for the request tenant scope.</summary>
+    [Authorize(Policy = FgsAuthorizationPolicies.RequireAuthenticatedJwt)]
+    [HttpGet("validate")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Validate(CancellationToken cancellationToken) =>
+        FromApiResponse(await Mediator.Send(new ValidateAuthUserQuery(), cancellationToken));
 }
 

@@ -12,8 +12,7 @@ public static class UserSecurityServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddFgsEntraAuthentication(configuration);
-        services.AddScoped<IFgsClaimsEnricher, DbFgsClaimsEnricher>();
+        services.AddFgsApiSecurity(configuration);
         services.AddScoped<IFgsTenantScopeValidator, DbFgsTenantScopeValidator>();
         return services;
     }

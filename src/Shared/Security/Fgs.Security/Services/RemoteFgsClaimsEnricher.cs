@@ -18,16 +18,23 @@ public sealed class RemoteFgsClaimsEnricher(
             return;
         }
 
-        var accessToken = ExtractBearerToken(httpContextAccessor.HttpContext);
+        var httpContext = httpContextAccessor.HttpContext;
+        var accessToken = FgsRequestAuthContext.ExtractBearerToken(httpContext);
         if (string.IsNullOrWhiteSpace(accessToken))
         {
             return;
         }
 
+        var (tenantId, companyId) = FgsRequestAuthContext.ExtractTenantScope(httpContext);
+
         ApiResponse<FgsAuthMeDto> response;
         try
         {
-            response = await claimsClient.GetMeAsync($"Bearer {accessToken}", cancellationToken);
+            response = await claimsClient.GetMeAsync(
+                $"Bearer {accessToken}",
+                tenantId,
+                companyId,
+                cancellationToken);
         }
         catch
         {
@@ -46,20 +53,6 @@ public sealed class RemoteFgsClaimsEnricher(
                 dto.UserId,
                 dto.Email,
                 dto.EntraObjectId,
-                dto.TenantId,
-                dto.CompanyId,
                 dto.Roles));
-    }
-
-    private static string? ExtractBearerToken(HttpContext? httpContext)
-    {
-        var authorization = httpContext?.Request.Headers.Authorization.ToString();
-        if (string.IsNullOrWhiteSpace(authorization)
-            || !authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-        {
-            return null;
-        }
-
-        return authorization["Bearer ".Length..].Trim();
     }
 }

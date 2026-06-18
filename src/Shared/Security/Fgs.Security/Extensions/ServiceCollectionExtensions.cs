@@ -66,6 +66,11 @@ public static class ServiceCollectionExtensions
                             return;
                         }
 
+                        if (FgsBootstrapAuthPaths.IsBootstrapPath(context.HttpContext.Request.Path.Value))
+                        {
+                            return;
+                        }
+
                         var enricher = context.HttpContext.RequestServices.GetService<IFgsClaimsEnricher>();
                         if (enricher is not null)
                         {
@@ -102,6 +107,7 @@ public static class ServiceCollectionExtensions
             ?? "http://user-service:5001";
 
         services.AddScoped<IFgsClaimsEnricher, RemoteFgsClaimsEnricher>();
+        services.AddScoped<IFgsUserStatusValidator, RemoteFgsUserStatusValidator>();
         services
             .AddRefitClient<IFgsClaimsClient>()
             .ConfigureHttpClient(client =>

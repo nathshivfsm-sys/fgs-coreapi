@@ -10,7 +10,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddFgsMultiTenancy(this IServiceCollection services)
     {
         services.AddScoped<ITenantContextAccessor, TenantContextAccessor>();
-        services.AddSingleton<ITenantResolver, HeaderAndClaimTenantResolver>();
+        services.AddSingleton<ITenantResolver, HeaderTenantResolver>();
         return services;
     }
 }

@@ -19,8 +19,6 @@ public static class FgsClaimsEnrichment
         SetClaim(identity, ClaimTypes.NameIdentifier, profile.UserId.ToString());
         SetClaim(identity, JwtRegisteredClaimNames.Sub, profile.UserId.ToString());
         SetClaim(identity, JwtRegisteredClaimNames.Email, profile.Email);
-        SetClaim(identity, JwtClaimTypes.TenantId, profile.TenantId.ToString());
-        SetClaim(identity, JwtClaimTypes.CompanyId, profile.CompanyId.ToString());
         SetClaim(identity, JwtClaimTypes.EntraObjectId, profile.EntraObjectId);
 
         foreach (var existing in identity.FindAll(ClaimTypes.Role).ToList())

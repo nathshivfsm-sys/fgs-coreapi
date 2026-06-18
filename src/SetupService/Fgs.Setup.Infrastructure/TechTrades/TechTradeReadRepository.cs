@@ -203,6 +203,35 @@ internal sealed class TechTradeReadRepository : ITechTradeReadRepository
                 cancellationToken: cancellationToken));
     }
 
+    public async Task<bool> ExistsActiveTradeCodeAsync(
+        string tradeCode,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = ResolveTenantScope();
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {TechTradeSql.Table}
+                WHERE "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "TradeCode" = @TradeCode
+                  AND "IsActive" = TRUE
+            )
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    TradeCode = tradeCode.Trim().ToUpperInvariant()
+                },
+                cancellationToken: cancellationToken));
+    }
+
     private (long TenantId, long CompanyId) ResolveTenantScope()
     {
         if (_tenantContextAccessor.Current is { IsResolved: true } context)

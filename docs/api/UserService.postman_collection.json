@@ -710,7 +710,7 @@
                  "description":  "Company onboarding, Entra auth, tenant admin APIs. Gateway-first; tenant routes use /api/v1/users/tenants.",
                  "name":  "FGS UserService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "3b3e1441-72cb-4399-9a52-dc368a6b7fdc"
+                 "_postman_id":  "03abde5f-0bec-4fff-b3d0-7acaac3af6ee"
              },
     "event":  [
                   {

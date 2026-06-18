@@ -1,6 +1,8 @@
 using Fgs.Security.Authorization.Requirements;
 using Fgs.Security.Constants;
+using Fgs.Security.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace Fgs.Security.Authorization.Handlers;
 
@@ -10,17 +12,16 @@ public sealed class FgsPlatformScopeAuthorizationHandler : AuthorizationHandler<
         AuthorizationHandlerContext context,
         FgsPlatformScopeRequirement requirement)
     {
-        if (context.User.Identity?.IsAuthenticated != true)
+        if (context.User.Identity?.IsAuthenticated != true
+            || context.Resource is not HttpContext httpContext)
         {
             return Task.CompletedTask;
         }
 
-        var tenantClaim = context.User.FindFirst(JwtClaimTypes.TenantId)?.Value;
-        var companyClaim = context.User.FindFirst(JwtClaimTypes.CompanyId)?.Value;
-
-        if (long.TryParse(tenantClaim, out var tenantId)
-            && long.TryParse(companyClaim, out var companyId)
-            && FgsScopeConstants.IsPlatformScope(tenantId, companyId))
+        var (tenantId, companyId) = FgsRequestAuthContext.ExtractTenantScope(httpContext);
+        if (tenantId is long resolvedTenantId
+            && companyId is long resolvedCompanyId
+            && FgsScopeConstants.IsPlatformScope(resolvedTenantId, resolvedCompanyId))
         {
             context.Succeed(requirement);
         }

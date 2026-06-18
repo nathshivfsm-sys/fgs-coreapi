@@ -14,6 +14,7 @@ public static class AuthorizationServiceCollectionExtensions
     public static IServiceCollection AddFgsAuthorization(this IServiceCollection services)
     {
         services.TryAddSingleton<IFgsTenantScopeValidator, NoOpFgsTenantScopeValidator>();
+        services.TryAddSingleton<IFgsUserStatusValidator, NoOpFgsUserStatusValidator>();
 
         services.AddSingleton<IAuthorizationHandler, FgsRoleAuthorizationHandler>();
         services.AddSingleton<IAuthorizationHandler, FgsTenantAccessAuthorizationHandler>();
@@ -22,6 +23,9 @@ public static class AuthorizationServiceCollectionExtensions
 
         services.AddAuthorization(options =>
         {
+            options.AddPolicy(FgsAuthorizationPolicies.RequireAuthenticatedJwt, policy =>
+                policy.RequireAuthenticatedUser());
+
             options.AddPolicy(FgsAuthorizationPolicies.RequireTenantAdmin, policy =>
             {
                 policy.AddRequirements(
