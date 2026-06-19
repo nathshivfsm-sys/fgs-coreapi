@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Fgs.Integration.Application\Fgs.Integration.Application.csproj" />
     <ProjectReference Include="..\Fgs.Integration.Domain\Fgs.Integration.Domain.csproj" />
     <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
     <ProjectReference Include="..\..\Shared\Credentials\Fgs.Credentials\Fgs.Credentials.csproj" />

@@ -87,6 +87,24 @@ public sealed class TenantS3BucketProvisioner(
             VersioningConfig = new S3BucketVersioningConfig { Status = VersionStatus.Enabled }
         }, cancellationToken);
 
+        await s3Client.PutCORSConfigurationAsync(new PutCORSConfigurationRequest
+        {
+            BucketName = bucketName,
+            Configuration = new CORSConfiguration
+            {
+                Rules =
+                [
+                    new CORSRule
+                    {
+                        AllowedMethods = ["GET", "PUT", "HEAD"],
+                        AllowedOrigins = ["*"],
+                        AllowedHeaders = ["*"],
+                        MaxAgeSeconds = 3600
+                    }
+                ]
+            }
+        }, cancellationToken);
+
         logger.LogInformation("Created S3 bucket {Bucket} for tenant {TenantId}", bucketName, tenantId);
         return bucketName;
     }

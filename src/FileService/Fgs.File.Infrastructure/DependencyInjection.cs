@@ -1,10 +1,14 @@
-﻿using Fgs.Credentials;
+﻿using Fgs.Contracts.Clients;
+using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using Fgs.File.Application.Abstractions.Provisioning;
+using Fgs.File.Application.Abstractions.Storage;
+using Fgs.File.Application.Common.Options;
 using Fgs.File.Infrastructure.Common.Options;
 using Fgs.File.Infrastructure.Database;
 using Fgs.File.Infrastructure.Storage;
+using Fgs.Foundation.Extensions;
 using Fgs.Persistence.Extensions;
 using Fgs.MultiTenancy;
 using Fgs.Security.Extensions;
@@ -32,6 +36,12 @@ public static class DependencyInjection
 
         services.AddFgsApiSecurity(configuration);
         services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));
+        services.Configure<FileServiceOptions>(configuration.GetSection(FileServiceOptions.SectionName));
+
+        services.AddFgsRefitClient<IUserTenantClient>(
+            configuration,
+            "UserService:BaseUrl",
+            "http://user-service:5001");
 
         services.AddDbContext<FgsFileDbContext>((sp, options) =>
         {
@@ -47,9 +57,15 @@ public static class DependencyInjection
         });
 
         services.AddFgsPersistence<FgsFileDbContext>();
+        services.AddMemoryCache();
 
         services.AddAwsS3Services();
+        services.AddSingleton<IS3ObjectKeyBuilder, S3ObjectKeyBuilder>();
         services.AddScoped<ITenantS3BucketProvisioner, TenantS3BucketProvisioner>();
+        services.AddScoped<IS3ObjectStorageService, S3ObjectStorageService>();
+        services.AddSingleton<IFileUploadSessionStore, FileUploadSessionStore>();
+        services.AddScoped<IImageVariantGenerator, ImageVariantGenerator>();
+        services.AddSingleton<IFileContentUrlBuilder, FileContentUrlBuilder>();
 
         return services;
     }

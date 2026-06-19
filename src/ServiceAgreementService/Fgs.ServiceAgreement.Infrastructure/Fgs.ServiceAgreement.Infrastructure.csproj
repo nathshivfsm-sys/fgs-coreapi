@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Fgs.ServiceAgreement.Application\Fgs.ServiceAgreement.Application.csproj" />
     <ProjectReference Include="..\Fgs.ServiceAgreement.Domain\Fgs.ServiceAgreement.Domain.csproj" />
     <ProjectReference Include="..\..\Shared\Persistence\Fgs.Persistence\Fgs.Persistence.csproj" />
     <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
