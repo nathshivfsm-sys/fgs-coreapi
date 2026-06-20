@@ -25,10 +25,27 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "type":  "noauth"
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
                                                                }
                                                   }
                                   }
@@ -62,13 +79,23 @@
                                                                          "value":  "application/json"
                                                                      },
                                                                      {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
                                                                          "key":  "Content-Type",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "",
+                                                                   "raw":  "{\r\n  \"tenantId\": 4,\r\n  \"companyId\": 1,\r\n  \"channel\": \"Email\",\r\n  \"templateCode\": \"INVITE\",\r\n  \"recipient\": \"{{entraUserEmail}}\",\r\n  \"correlationId\": \"postman-test-001\",\r\n  \"tokens\": {\r\n    \"CompanyName\": \"Plumbing Ltd\",\r\n    \"InviteUrl\": \"https://localhost:8443/api/v1/invite/start?token=sample\"\r\n  }\r\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -77,7 +104,14 @@
                                                                    "mode":  "raw"
                                                                },
                                                       "auth":  {
-                                                                   "type":  "noauth"
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
                                                                }
                                                   }
                                   }
@@ -94,7 +128,7 @@
                  "description":  "Notification dispatch via gateway.",
                  "name":  "FGS NotificationService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "a1dc6831-ffbd-4b32-b56b-926b6bbd5a95"
+                 "_postman_id":  "5732c037-2775-4fba-b912-0cd0a5ce064c"
              },
     "event":  [
                   {

@@ -23,11 +23,14 @@ public sealed class CreateUploadUrlCommandValidator : AbstractValidator<CreateUp
             .Must(contentType => AllowedContentTypes.Contains(contentType))
             .WithMessage("Unsupported content type.");
         RuleFor(x => x.Request.FileSizeBytes).GreaterThan(0);
-        RuleFor(x => x.Request.EntityType).NotEmpty().MaximumLength(50);
-        RuleFor(x => x.Request.EntityId).GreaterThan(0);
-        RuleFor(x => x.Request.RequestedVariants)
+        RuleFor(x => x.Request.EntityType)
             .NotEmpty()
-            .Must(variants => variants.All(FileLogoVariants.IsSupported))
-            .WithMessage("One or more requested variants are not supported.");
+            .Must(FileEntityTypes.IsSupported)
+            .WithMessage("Unsupported entity type.");
+        RuleFor(x => x.Request.EntityId).GreaterThan(0);
+        RuleFor(x => x.Request.RequestedVariant)
+            .NotEmpty()
+            .Must(FileLogoVariants.IsSupported)
+            .WithMessage("Requested variant is not supported.");
     }
 }

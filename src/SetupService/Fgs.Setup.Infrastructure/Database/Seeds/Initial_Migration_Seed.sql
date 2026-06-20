@@ -78,8 +78,7 @@ FROM (
         ('INVOICE',         true, true, 11),
         ('Warehouse',       true, true, 12),
         ('Vehicle',         true, true, 13),
-        ('VehicleMaintenance', true, true, 14),
-        ('GLBREAK',         true, true, 15)
+        ('VehicleMaintenance', true, true, 14)
 ) AS v("Code", "IsDocumentAllowed", "IsActive", "SortOrder")
 WHERE NOT EXISTS (
     SELECT 1

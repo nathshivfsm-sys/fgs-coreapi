@@ -2,10 +2,10 @@ namespace Fgs.File.Application.Abstractions.Storage;
 
 public interface IImageVariantGenerator
 {
-    Task<IReadOnlyDictionary<string, GeneratedImageVariant>> GenerateVariantsAsync(
+    Task<GeneratedImageVariant?> GenerateVariantAsync(
         Stream sourceContent,
         string contentType,
-        IReadOnlyList<string> requestedVariants,
+        string requestedVariant,
         CancellationToken cancellationToken = default);
 }
 

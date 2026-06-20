@@ -25,10 +25,27 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "type":  "noauth"
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
                                                                }
                                                   }
                                   }
@@ -45,7 +62,7 @@
                  "description":  "CRM service scaffold (health).",
                  "name":  "FGS CrmService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "5dbb89a3-ed08-45d7-b7fc-aa368161e13c"
+                 "_postman_id":  "da946a93-ba3a-44e9-aa65-fd7ea71913d6"
              },
     "event":  [
                   {

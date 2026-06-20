@@ -13,7 +13,6 @@ using Fgs.Setup.Application.Features.GLBreaks.Queries.ListActiveGLBreaks;
 using Fgs.Setup.Application.Features.GLBreaks.Queries.ListGLBreaks;
 using Fgs.Setup.Application.Features.GLBreaks.Queries.LookupGLBreaks;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
@@ -21,7 +20,6 @@ namespace Fgs.Setup.API.Controllers;
 /// <summary>
 /// Tenant-scoped GL break catalog management.
 /// </summary>
-[AllowAnonymous]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("glbreaks")]
 [Produces("application/json")]

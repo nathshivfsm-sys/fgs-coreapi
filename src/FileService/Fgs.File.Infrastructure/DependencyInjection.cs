@@ -57,13 +57,11 @@ public static class DependencyInjection
         });
 
         services.AddFgsPersistence<FgsFileDbContext>();
-        services.AddMemoryCache();
 
         services.AddAwsS3Services();
         services.AddSingleton<IS3ObjectKeyBuilder, S3ObjectKeyBuilder>();
         services.AddScoped<ITenantS3BucketProvisioner, TenantS3BucketProvisioner>();
         services.AddScoped<IS3ObjectStorageService, S3ObjectStorageService>();
-        services.AddSingleton<IFileUploadSessionStore, FileUploadSessionStore>();
         services.AddScoped<IImageVariantGenerator, ImageVariantGenerator>();
         services.AddSingleton<IFileContentUrlBuilder, FileContentUrlBuilder>();
 

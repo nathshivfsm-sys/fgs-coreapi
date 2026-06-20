@@ -4,8 +4,7 @@ using Fgs.Security.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 
 namespace Fgs.Security.Extensions;
 
@@ -30,6 +29,8 @@ public static class ServiceCollectionExtensions
         }
 
         var authority = entraOptions.ResolveAuthority();
+        var clientId = entraOptions.ClientId;
+        var signingKeyResolver = new FgsEntraSigningKeyResolver(entraOptions);
 
         services.AddHttpContextAccessor();
         services.AddScoped<IFgsUserContext, HttpFgsUserContext>();
@@ -40,17 +41,33 @@ public static class ServiceCollectionExtensions
             {
                 options.Authority = authority;
                 options.MetadataAddress = entraOptions.ResolveMetadataAddress();
-                options.Audience = entraOptions.ClientId;
                 options.MapInboundClaims = false;
-                options.TokenValidationParameters = new TokenValidationParameters
+                options.RefreshOnIssuerKeyNotFound = true;
+                options.TokenValidationParameters = FgsEntraTokenValidation.CreateValidationParameters(entraOptions);
+                options.TokenValidationParameters.IssuerSigningKeyResolver =
+                    signingKeyResolver.Resolve;
+                options.Events = new JwtBearerEvents
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    NameClaimType = "name",
-                    RoleClaimType = ClaimTypes.Role,
-                    ClockSkew = TimeSpan.FromMinutes(1)
+                    OnAuthenticationFailed = context =>
+                    {
+                        var logger = context.HttpContext.RequestServices
+                            .GetService<ILoggerFactory>()
+                            ?.CreateLogger("JwtBearer");
+                        logger?.LogWarning(
+                            context.Exception,
+                            "JWT authentication failed: {Message}",
+                            context.Exception.Message);
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = context =>
+                    {
+                        if (!FgsEntraTokenValidation.ValidateGraphAudienceAppId(context.Principal, clientId))
+                        {
+                            context.Fail("Access token appid does not match configured Entra client id.");
+                        }
+
+                        return Task.CompletedTask;
+                    }
                 };
             });
 

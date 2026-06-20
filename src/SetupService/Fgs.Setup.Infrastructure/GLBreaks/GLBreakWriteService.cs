@@ -12,7 +12,7 @@ namespace Fgs.Setup.Infrastructure.GLBreaks;
 
 public sealed class GLBreakWriteService : IGLBreakWriteService
 {
-    private const string MasterEntityTypeCode = "GLBREAK";
+    private const string MasterEntityTypeCode = "COMPANY";
 
     private readonly FgsSetupDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
@@ -50,7 +50,7 @@ public sealed class GLBreakWriteService : IGLBreakWriteService
 
         entity.AddressId = await _locationWriteService.UpsertAsync(
             MasterEntityTypeCode,
-            entity.Id,
+            entity.CompanyId,
             null,
             dto.Address,
             cancellationToken);
@@ -77,7 +77,7 @@ public sealed class GLBreakWriteService : IGLBreakWriteService
 
         entity.AddressId = await _locationWriteService.UpsertAsync(
             MasterEntityTypeCode,
-            entity.Id,
+            entity.CompanyId,
             entity.AddressId,
             dto.Address,
             cancellationToken);
@@ -131,7 +131,7 @@ public sealed class GLBreakWriteService : IGLBreakWriteService
         {
             entity.AddressId = await _locationWriteService.UpsertAsync(
                 MasterEntityTypeCode,
-                entity.Id,
+                entity.CompanyId,
                 entity.AddressId,
                 dto.Address,
                 cancellationToken);

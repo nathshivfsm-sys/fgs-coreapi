@@ -4,12 +4,9 @@ using Fgs.Contracts.Health;
 using Fgs.Inventory.Application.Features.Health.Queries.GetServiceHealth;
 using Fgs.Foundation.Api;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Inventory.API.Controllers;
-
-[AllowAnonymous]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("[controller]")]
 public sealed class HealthController(IMediator mediator) : FgsApiControllerBase(mediator)

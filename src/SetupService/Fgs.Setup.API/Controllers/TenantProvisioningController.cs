@@ -4,14 +4,12 @@ using Fgs.Contracts.Requests;
 using Fgs.Foundation.Api;
 using Fgs.Setup.Application.Features.TenantProvisioning.Commands.ProvisionTenant;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
 
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("tenant-provisioning")]
-[AllowAnonymous]
 public sealed class TenantProvisioningController(IMediator mediator) : ControllerBase
 {
     [HttpPost]

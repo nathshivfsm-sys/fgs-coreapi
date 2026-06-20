@@ -2,7 +2,7 @@ namespace Fgs.File.Application.Abstractions.Storage;
 
 public interface IS3ObjectStorageService
 {
-    Task<string> CreateUploadUrlAsync(
+    Task<PresignedUploadRequest> CreateUploadUrlAsync(
         string bucketName,
         string objectKey,
         string contentType,
@@ -37,6 +37,10 @@ public interface IS3ObjectStorageService
         string objectKey,
         CancellationToken cancellationToken = default);
 }
+
+public sealed record PresignedUploadRequest(
+    string Url,
+    IReadOnlyDictionary<string, string> RequiredHeaders);
 
 public sealed class S3ObjectPayload : IAsyncDisposable
 {

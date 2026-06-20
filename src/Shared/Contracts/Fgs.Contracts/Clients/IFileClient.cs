@@ -12,9 +12,9 @@ public interface IFileClient
         [Body] CreateFileUploadUrlRequest request,
         CancellationToken cancellationToken = default);
 
-    [Post("/api/v1/files/{uploadId}/complete")]
+    [Post("/api/v1/files/{fileId}/complete")]
     Task<Fgs.Contracts.Api.ApiResponse<FileVariantSetDto>> CompleteUploadAsync(
-        Guid uploadId,
+        long fileId,
         CancellationToken cancellationToken = default);
 
     [Get("/api/v1/files/by-entity")]
@@ -40,12 +40,12 @@ public sealed record CreateFileUploadUrlRequest(
     long FileSizeBytes,
     string EntityType,
     long EntityId,
-    IReadOnlyList<string> RequestedVariants,
+    string RequestedVariant,
     string? Description,
     IReadOnlyList<string>? Tags);
 
 public sealed record CreateFileUploadUrlResponse(
-    Guid UploadId,
+    long FileId,
     string UploadUrl,
     string UploadMethod,
     IReadOnlyDictionary<string, string> RequiredHeaders,

@@ -4,5 +4,5 @@ using MediatR;
 
 namespace Fgs.File.Application.Features.Files.Commands.CompleteUpload;
 
-public sealed record CompleteUploadCommand(Guid UploadId)
+public sealed record CompleteUploadCommand(long FileId)
     : IRequest<ApiResponse<FileVariantSetDto>>;

@@ -4,7 +4,6 @@ using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
 using Fgs.User.Application.Features.Auth.Commands.EntraCallback;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -23,7 +22,6 @@ public sealed partial class AuthController(IMediator mediator) : FgsApiControlle
     /// On success, returns a small HTML page that navigates to the configured dashboard URL with the Entra access token
     /// in the query string (avoids oversized Location headers through the gateway). On failure, returns the standard JSON error envelope.
     /// </remarks>
-    [AllowAnonymous]
     [HttpGet("entra/callback")]
     [Produces("text/html", "application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -53,10 +51,10 @@ public sealed partial class AuthController(IMediator mediator) : FgsApiControlle
          <head>
            <meta charset="utf-8" />
            <meta name="viewport" content="width=device-width, initial-scale=1" />
-           <title>Signing in…</title>
+           <title>Signing inâ€¦</title>
          </head>
          <body>
-           <p>Signing you in…</p>
+           <p>Signing you inâ€¦</p>
            <script>window.location.replace({JsonSerializer.Serialize(destinationUrl)});</script>
          </body>
          </html>

@@ -17,11 +17,20 @@ public sealed class GetFilesByEntityQueryHandler(
         GetFilesByEntityQuery request,
         CancellationToken cancellationToken)
     {
+        if (!FileEntityTypes.TryParse(request.EntityType, out var entityType))
+        {
+            return ApiResponse<CompanyLogoDto>.Fail(
+                ["Unsupported entity type."],
+                ApiStatusCodes.BadRequest);
+        }
+
+        var entityTypeValue = FileEntityTypes.ToStorageValue(entityType);
         var files = await unitOfWork.Repository<FgsFile>().ListAsync(
-            file => file.EntityType == request.EntityType && file.EntityId == request.EntityId,
+            file => file.EntityType == entityTypeValue && file.EntityId == request.EntityId,
             cancellationToken);
 
         var logoFiles = files
+            .Where(FileUploadState.IsCompleted)
             .Where(file => file.Tags != null && file.Tags.Contains(FileLogoVariants.LogoTag))
             .ToList();
 
@@ -44,7 +53,7 @@ public sealed class GetFilesByEntityQueryHandler(
         }
 
         return ApiResponse<CompanyLogoDto>.Ok(new CompanyLogoDto(
-            request.EntityType,
+            entityTypeValue,
             request.EntityId,
             variants));
     }

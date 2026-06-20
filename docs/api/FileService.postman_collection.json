@@ -1,6 +1,285 @@
 ﻿{
     "item":  [
                  {
+                     "description":  "FilesController - files",
+                     "name":  "FilesController",
+                     "item":  [
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{fileServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{fileServiceUrl}}/api/v1/files/upload-url",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "files",
+                                                                               "upload-url"
+                                                                           ]
+                                                              },
+                                                      "description":  "CreateUploadUrl",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"fileName\": \"company-logo.png\",\r\n  \"contentType\": \"image/png\",\r\n  \"fileSizeBytes\": 102400,\r\n  \"entityType\": \"COMPANY\",\r\n  \"entityId\": 1,\r\n  \"requestedVariant\": \"Logo\",\r\n  \"description\": \"Company logo upload\",\r\n  \"tags\": [\"logo\"]\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "CreateUploadUrl",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.fileId) {",
+                                                                                    "  pm.environment.set(\"fileId\", String(body.data.fileId));",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.fileId));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "CompleteUpload",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{fileServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{fileServiceUrl}}/api/v1/files/{{fileId}}/complete",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "files",
+                                                                               "{{fileId}}",
+                                                                               "complete"
+                                                                           ]
+                                                              },
+                                                      "description":  "CompleteUpload",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "GetByEntity",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "entityId",
+                                                                                    "description":  "",
+                                                                                    "value":  "{{companyId}}"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "entityType",
+                                                                                    "description":  "",
+                                                                                    "value":  "COMPANY"
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{fileServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{fileServiceUrl}}/api/v1/files/by-entity",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "files",
+                                                                               "by-entity"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetByEntity",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "GetFile",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{fileServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{fileServiceUrl}}/api/v1/files/{{fileId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "files",
+                                                                               "{{fileId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetFile",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "GetFileContent",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{fileServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{fileServiceUrl}}/api/v1/files/{{fileId}}/content",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "files",
+                                                                               "{{fileId}}",
+                                                                               "content"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetFileContent",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
                      "description":  "HealthController - health",
                      "name":  "HealthController",
                      "item":  [
@@ -25,10 +304,73 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "type":  "noauth"
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "AuthCheck",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{fileServiceUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{fileServiceUrl}}/api/v1/health/auth-check",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "health",
+                                                                               "auth-check"
+                                                                           ]
+                                                              },
+                                                      "description":  "Development helper: validates the Bearer token and returns the validation error, if any.",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
                                                                }
                                                   }
                                   }
@@ -63,13 +405,23 @@
                                                                          "value":  "application/json"
                                                                      },
                                                                      {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
                                                                          "key":  "Content-Type",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{}",
+                                                                   "raw":  "{\r\n  \"tenantId\": 4,\r\n  \"existingBucketName\": null,\r\n  \"companyNumbers\": [1]\r\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -78,273 +430,15 @@
                                                                    "mode":  "raw"
                                                                },
                                                       "auth":  {
-                                                                   "type":  "noauth"
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
                                                                }
-                                                  }
-                                  }
-                              ]
-                 },
-                 {
-                     "description":  "FilesController - presigned upload, logo variants, and content URLs via gateway /api/v1/files.",
-                     "name":  "FilesController",
-                     "item":  [
-                                  {
-                                      "name":  "GetCompanyLogos",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "query":  [
-                                                                                {
-                                                                                    "key":  "entityType",
-                                                                                    "value":  "Company"
-                                                                                },
-                                                                                {
-                                                                                    "key":  "entityId",
-                                                                                    "value":  "{{companyId}}"
-                                                                                }
-                                                                            ],
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/files/by-entity?entityType=Company&entityId={{companyId}}",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "files",
-                                                                               "by-entity"
-                                                                           ]
-                                                              },
-                                                      "description":  "Load current logo variants for company settings page.",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ]
-                                                  }
-                                  },
-                                  {
-                                      "name":  "CreateUploadUrl",
-                                      "event":  [
-                                                    {
-                                                        "listen":  "test",
-                                                        "script":  {
-                                                                       "exec":  [
-                                                                                    "const body = pm.response.json();",
-                                                                                    "if (body.data && body.data.uploadId) {",
-                                                                                    "  pm.environment.set(\"uploadId\", body.data.uploadId);",
-                                                                                    "  pm.environment.set(\"uploadUrl\", body.data.uploadUrl);",
-                                                                                    "}"
-                                                                                ],
-                                                                       "type":  "text/javascript"
-                                                                   }
-                                                    }
-                                                ],
-                                      "request":  {
-                                                      "method":  "POST",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/files/upload-url",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "files",
-                                                                               "upload-url"
-                                                                           ]
-                                                              },
-                                                      "description":  "Step 1: request presigned PUT URL. Saves uploadId and uploadUrl to environment.",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "Content-Type",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "body":  {
-                                                                   "raw":  "{\r\n  \"fileName\": \"company-logo.png\",\r\n  \"contentType\": \"image/png\",\r\n  \"fileSizeBytes\": 120000,\r\n  \"entityType\": \"Company\",\r\n  \"entityId\": {{companyId}},\r\n  \"requestedVariants\": [\"full\", \"compact\", \"icon\", \"favicon\"],\r\n  \"description\": \"Company logo\",\r\n  \"tags\": [\"logo\"]\r\n}",
-                                                                   "options":  {
-                                                                                   "raw":  {
-                                                                                               "language":  "json"
-                                                                                           }
-                                                                               },
-                                                                   "mode":  "raw"
-                                                               }
-                                                  }
-                                  },
-                                  {
-                                      "name":  "UploadToS3 (manual PUT)",
-                                      "request":  {
-                                                      "method":  "PUT",
-                                                      "url":  {
-                                                                  "raw":  "{{uploadUrl}}"
-                                                              },
-                                                      "description":  "Step 2: PUT file bytes directly to S3 using uploadUrl from CreateUploadUrl. Select a PNG/JPEG file as binary body; set Content-Type header to match request.",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Content-Type",
-                                                                         "type":  "text",
-                                                                         "value":  "image/png"
-                                                                     }
-                                                                 ],
-                                                      "body":  {
-                                                                   "mode":  "file",
-                                                                   "file":  {}
-                                                               },
-                                                      "auth":  {
-                                                                   "type":  "noauth"
-                                                               }
-                                                  }
-                                  },
-                                  {
-                                      "name":  "CompleteUpload",
-                                      "event":  [
-                                                    {
-                                                        "listen":  "test",
-                                                        "script":  {
-                                                                       "exec":  [
-                                                                                    "const body = pm.response.json();",
-                                                                                    "if (body.data && body.data.variants && body.data.variants.full) {",
-                                                                                    "  pm.environment.set(\"logoFileId\", String(body.data.variants.full.fileId));",
-                                                                                    "}"
-                                                                                ],
-                                                                       "type":  "text/javascript"
-                                                                   }
-                                                    }
-                                                ],
-                                      "request":  {
-                                                      "method":  "POST",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/files/{{uploadId}}/complete",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "files",
-                                                                               "{{uploadId}}",
-                                                                               "complete"
-                                                                           ]
-                                                              },
-                                                      "description":  "Step 3: verify S3 upload, generate variants, persist logo files. Run after S3 PUT succeeds.",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ]
-                                                  }
-                                  },
-                                  {
-                                      "name":  "GetFileMetadata",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/files/{{logoFileId}}",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "files",
-                                                                               "{{logoFileId}}"
-                                                                           ]
-                                                              },
-                                                      "description":  "Get file metadata by id.",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ]
-                                                  }
-                                  },
-                                  {
-                                      "name":  "GetFileContentUrl",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/files/{{logoFileId}}/content",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "files",
-                                                                               "{{logoFileId}}",
-                                                                               "content"
-                                                                           ]
-                                                              },
-                                                      "description":  "Get presigned GET URL for displaying logo in UI (img src).",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ]
                                                   }
                                   }
                               ]
@@ -357,10 +451,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Tenant S3 bucket provisioning and file upload/download via gateway /api/v1/tenants and /api/v1/files.",
+                 "description":  "Tenant S3 bucket provisioning via gateway /api/v1/tenants.",
                  "name":  "FGS FileService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "8721d9b7-f47c-4a67-b72d-cffcfe6040fc"
+                 "_postman_id":  "c94cd7ef-929f-4d8b-9b6d-e99cd748c1e7"
              },
     "event":  [
                   {

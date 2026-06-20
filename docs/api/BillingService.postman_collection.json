@@ -25,10 +25,27 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "type":  "noauth"
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
                                                                }
                                                   }
                                   }
@@ -45,7 +62,7 @@
                  "description":  "Billing service scaffold (health).",
                  "name":  "FGS BillingService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "e0757851-ff45-4a07-a5e6-748eac3b4eaa"
+                 "_postman_id":  "19a8df58-b0ac-41fe-88d3-ac813d4fa669"
              },
     "event":  [
                   {

@@ -4,12 +4,9 @@ using Fgs.Contracts.Clients;
 using Fgs.File.Application.Features.TenantStorage.Commands.ProvisionTenantBucket;
 using Fgs.Foundation.Api;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.File.API.Controllers;
-
-[AllowAnonymous]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("tenants")]
 public sealed class TenantStorageController(IMediator mediator) : FgsApiControllerBase(mediator)

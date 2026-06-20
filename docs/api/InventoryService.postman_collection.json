@@ -25,10 +25,27 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "type":  "noauth"
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
                                                                }
                                                   }
                                   }
@@ -45,7 +62,7 @@
                  "description":  "Inventory service scaffold (health).",
                  "name":  "FGS InventoryService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "5b6fa176-b50d-4039-8012-d1eccb117767"
+                 "_postman_id":  "284ed096-6ebc-47a8-9982-eecd8c2357d1"
              },
     "event":  [
                   {

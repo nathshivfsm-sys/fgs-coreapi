@@ -11,7 +11,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.File.API.Controllers;
-
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("files")]
 public sealed class FilesController(IMediator mediator) : FgsApiControllerBase(mediator)
@@ -24,13 +23,13 @@ public sealed class FilesController(IMediator mediator) : FgsApiControllerBase(m
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new CreateUploadUrlCommand(request), cancellationToken));
 
-    [HttpPost("{uploadId:guid}/complete")]
+    [HttpPost("{fileId:long}/complete")]
     [ProducesResponseType(typeof(ApiResponse<FileVariantSetDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CompleteUpload(
-        Guid uploadId,
+        long fileId,
         CancellationToken cancellationToken) =>
-        FromApiResponse(await Mediator.Send(new CompleteUploadCommand(uploadId), cancellationToken));
+        FromApiResponse(await Mediator.Send(new CompleteUploadCommand(fileId), cancellationToken));
 
     [HttpGet("by-entity")]
     [ProducesResponseType(typeof(ApiResponse<CompanyLogoDto>), StatusCodes.Status200OK)]

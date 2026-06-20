@@ -4,12 +4,9 @@ using Fgs.Contracts.Clients;
 using Fgs.Foundation.Api;
 using Fgs.Setup.Application.Features.BusinessTypes.Commands.AddCompanyBusinessTypes;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
-
-[AllowAnonymous]
 [ApiController]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("tenants")]

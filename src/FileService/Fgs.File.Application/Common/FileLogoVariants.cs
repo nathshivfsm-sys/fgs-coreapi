@@ -23,4 +23,30 @@ public static class FileLogoVariants
     public static bool IsSupported(string variant) => SupportedVariants.Contains(variant);
 
     public static string[] BuildVariantTags(string variant) => [LogoTag, variant.ToLowerInvariant()];
+
+    public static string BuildVariantFileName(string storedFileName, string variant, string extension)
+    {
+        var nameWithoutExtension = Path.GetFileNameWithoutExtension(storedFileName);
+        return $"{nameWithoutExtension}-{variant}{extension}";
+    }
+
+    public static bool TryGetVariantTag(string[]? tags, out string variant)
+    {
+        variant = string.Empty;
+        if (tags is null)
+        {
+            return false;
+        }
+
+        foreach (var tag in tags)
+        {
+            if (IsSupported(tag))
+            {
+                variant = tag.ToLowerInvariant();
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

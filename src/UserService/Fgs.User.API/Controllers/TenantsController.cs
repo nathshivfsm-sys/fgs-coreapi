@@ -13,7 +13,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
-
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("tenants")]
 public sealed class TenantsController(IMediator mediator) : FgsApiControllerBase(mediator)

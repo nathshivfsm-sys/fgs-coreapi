@@ -1,8 +1,11 @@
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
 using Fgs.File.Application.Abstractions.Storage;
+using Fgs.File.Application.Common;
 using Fgs.File.Application.Common.Options;
+using Fgs.File.Domain.Entities;
 using Fgs.MultiTenancy;
+using Fgs.Persistence.Abstractions;
 using MediatR;
 using Microsoft.Extensions.Options;
 
@@ -13,7 +16,7 @@ public sealed class CreateUploadUrlCommandHandler(
     ITenantContextAccessor tenantContextAccessor,
     IS3ObjectKeyBuilder objectKeyBuilder,
     IS3ObjectStorageService objectStorageService,
-    IFileUploadSessionStore uploadSessionStore,
+    IUnitOfWork unitOfWork,
     IOptions<FileServiceOptions> fileOptions)
     : IRequestHandler<CreateUploadUrlCommand, ApiResponse<CreateFileUploadUrlResponse>>
 {
@@ -30,7 +33,16 @@ public sealed class CreateUploadUrlCommandHandler(
                 ApiStatusCodes.BadRequest);
         }
 
-        if (request.EntityType.Equals("Company", StringComparison.OrdinalIgnoreCase)
+        if (!FileEntityTypes.TryParse(request.EntityType, out var entityType))
+        {
+            return ApiResponse<CreateFileUploadUrlResponse>.Fail(
+                ["Unsupported entity type."],
+                ApiStatusCodes.BadRequest);
+        }
+
+        var entityTypeValue = FileEntityTypes.ToStorageValue(entityType);
+
+        if (FileEntityTypes.RequiresMatchingCompanyContext(entityType)
             && request.EntityId != tenantContext.CompanyId)
         {
             return ApiResponse<CreateFileUploadUrlResponse>.Fail(
@@ -54,57 +66,106 @@ public sealed class CreateUploadUrlCommandHandler(
                 ApiStatusCodes.BadRequest);
         }
 
+        var variant = request.RequestedVariant.ToLowerInvariant();
         var storedFileName = BuildStoredFileName(request.FileName);
-        var objectKey = objectKeyBuilder.BuildCompanyAssetKey(
+        var sourceObjectKey = objectKeyBuilder.BuildCompanyAssetKey(
             tenantContext.CompanyId,
-            request.EntityType,
+            entityTypeValue,
             request.EntityId,
             storedFileName);
-
-        var expiry = TimeSpan.FromMinutes(options.UploadUrlExpiryMinutes);
-        var expiresAt = DateTimeOffset.UtcNow.Add(expiry);
-        var uploadId = Guid.NewGuid();
-        var uploadUrl = await objectStorageService.CreateUploadUrlAsync(
-            bucketName,
-            objectKey,
-            request.ContentType,
-            expiry,
-            cancellationToken);
 
         var baseTags = request.Tags?.Where(tag => !string.IsNullOrWhiteSpace(tag))
             .Select(tag => tag.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray() ?? [];
 
-        uploadSessionStore.Save(new FileUploadSession
+        var now = DateTimeOffset.UtcNow;
+        var fileExtension = Path.GetExtension(request.FileName).ToLowerInvariant();
+        long pendingFileId = 0;
+
+        await unitOfWork.ExecuteInTransactionAsync(async ct =>
         {
-            UploadId = uploadId,
-            TenantId = tenantContext.TenantId,
-            CompanyId = tenantContext.CompanyId,
-            EntityType = request.EntityType.Trim(),
-            EntityId = request.EntityId,
-            BucketName = bucketName,
-            ObjectKey = objectKey,
-            OriginalFileName = request.FileName.Trim(),
-            StoredFileName = storedFileName,
-            ContentType = request.ContentType.Trim(),
-            FileSizeBytes = request.FileSizeBytes,
-            BaseTags = baseTags,
-            RequestedVariants = request.RequestedVariants
-                .Select(variant => variant.ToLowerInvariant())
+            await RemoveStalePendingFileAsync(
+                tenantContext.TenantId,
+                tenantContext.CompanyId,
+                entityTypeValue,
+                request.EntityId,
+                variant,
+                ct);
+
+            var tags = baseTags
+                .Concat(FileLogoVariants.BuildVariantTags(variant))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToArray(),
-            Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim(),
-            ExpiresAt = expiresAt
-        });
+                .ToArray();
+
+            var file = new FgsFile
+            {
+                TenantId = tenantContext.TenantId,
+                CompanyId = tenantContext.CompanyId,
+                EntityType = entityTypeValue,
+                EntityId = request.EntityId,
+                BucketName = bucketName,
+                ObjectKey = sourceObjectKey,
+                OriginalFileName = request.FileName.Trim(),
+                StoredFileName = storedFileName,
+                ContentType = request.ContentType.Trim(),
+                FileExtension = fileExtension,
+                FileSizeBytes = 0,
+                Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim(),
+                Tags = tags,
+                UploadedByName = "TenantAdmin",
+                UploadedByType = "User",
+                CreatedOn = now,
+                CreatedBy = "TenantAdmin"
+            };
+
+            await unitOfWork.Repository<FgsFile>().AddAsync(file, ct);
+            await unitOfWork.SaveChangesAsync(ct);
+            pendingFileId = file.Id;
+        }, cancellationToken);
+
+        var expiry = TimeSpan.FromMinutes(options.UploadUrlExpiryMinutes);
+        var expiresAt = DateTimeOffset.UtcNow.Add(expiry);
+        var presignedUpload = await objectStorageService.CreateUploadUrlAsync(
+            bucketName,
+            sourceObjectKey,
+            request.ContentType,
+            expiry,
+            cancellationToken);
 
         return ApiResponse<CreateFileUploadUrlResponse>.Ok(new CreateFileUploadUrlResponse(
-            uploadId,
-            uploadUrl,
+            pendingFileId,
+            presignedUpload.Url,
             "PUT",
-            new Dictionary<string, string> { ["Content-Type"] = request.ContentType.Trim() },
-            objectKey,
+            presignedUpload.RequiredHeaders,
+            sourceObjectKey,
             expiresAt));
+    }
+
+    private async Task RemoveStalePendingFileAsync(
+        long tenantId,
+        long companyId,
+        string entityType,
+        long entityId,
+        string variant,
+        CancellationToken cancellationToken)
+    {
+        var repo = unitOfWork.Repository<FgsFile>();
+        var staleFiles = await repo.ListAsync(
+            file => file.TenantId == tenantId
+                    && file.CompanyId == companyId
+                    && file.EntityType == entityType
+                    && file.EntityId == entityId
+                    && file.FileSizeBytes == 0
+                    && file.Tags != null
+                    && file.Tags.Contains(FileLogoVariants.LogoTag)
+                    && file.Tags.Contains(variant),
+            cancellationToken);
+
+        foreach (var stale in staleFiles)
+        {
+            repo.Remove(stale);
+        }
     }
 
     private static string BuildStoredFileName(string originalFileName)

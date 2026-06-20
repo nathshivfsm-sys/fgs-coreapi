@@ -161,11 +161,11 @@ public sealed class GLBreakCommandHandlerTests
     {
         await context.GloMasterEntityTypes.AddAsync(new GloMasterEntityType
         {
-            Id = 15,
-            Code = "GLBREAK",
+            Id = 2,
+            Code = "COMPANY",
             IsDocumentAllowed = true,
             IsActive = true,
-            SortOrder = 15,
+            SortOrder = 2,
             CreatedOn = DateTimeOffset.UtcNow,
             CreatedBy = "test"
         });

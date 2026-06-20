@@ -16,10 +16,15 @@ public static class AwsCredentialsServiceCollectionExtensions
 
     private static AmazonS3Client CreateS3Client(IServiceProvider sp)
     {
+        // us-east-1 still defaults to SigV2 for presigned URLs unless this is set explicitly.
+        AWSConfigsS3.UseSignatureVersion4 = true;
+
         var options = sp.GetRequiredService<IOptions<AwsCredentialsOptions>>().Value;
         var config = new AmazonS3Config
         {
-            RegionEndpoint = ResolveRegionEndpoint(options.Region)
+            RegionEndpoint = ResolveRegionEndpoint(options.Region),
+            SignatureVersion = "4",
+            UseHttp = false
         };
 
         return HasExplicitCredentials(options)

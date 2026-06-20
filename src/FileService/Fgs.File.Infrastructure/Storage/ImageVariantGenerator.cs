@@ -11,51 +11,47 @@ namespace Fgs.File.Infrastructure.Storage;
 
 public sealed class ImageVariantGenerator : IImageVariantGenerator
 {
-    public async Task<IReadOnlyDictionary<string, GeneratedImageVariant>> GenerateVariantsAsync(
+    public async Task<GeneratedImageVariant?> GenerateVariantAsync(
         Stream sourceContent,
         string contentType,
-        IReadOnlyList<string> requestedVariants,
+        string requestedVariant,
         CancellationToken cancellationToken = default)
     {
+        var variant = requestedVariant.ToLowerInvariant();
+        if (!FileLogoVariants.IsSupported(variant))
+        {
+            return null;
+        }
+
         await using var memoryStream = new MemoryStream();
         await sourceContent.CopyToAsync(memoryStream, cancellationToken);
         var bytes = memoryStream.ToArray();
 
         if (contentType.Contains("svg", StringComparison.OrdinalIgnoreCase))
         {
-            return requestedVariants.ToDictionary(
-                variant => variant.ToLowerInvariant(),
-                variant => new GeneratedImageVariant(bytes, contentType, ".svg"),
-                StringComparer.OrdinalIgnoreCase);
+            return new GeneratedImageVariant(bytes, contentType, ".svg");
+        }
+
+        if (!FileLogoVariants.MaxDimensions.TryGetValue(variant, out var maxSize))
+        {
+            return null;
         }
 
         using var image = await Image.LoadAsync(new MemoryStream(bytes), cancellationToken);
-        var results = new Dictionary<string, GeneratedImageVariant>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var variant in requestedVariants)
+        using var clone = image.Clone(ctx => ctx.Resize(new ResizeOptions
         {
-            if (!FileLogoVariants.MaxDimensions.TryGetValue(variant, out var maxSize))
-            {
-                continue;
-            }
+            Mode = ResizeMode.Max,
+            Size = new Size(maxSize, maxSize)
+        }));
 
-            using var clone = image.Clone(ctx => ctx.Resize(new ResizeOptions
-            {
-                Mode = ResizeMode.Max,
-                Size = new Size(maxSize, maxSize)
-            }));
+        await using var output = new MemoryStream();
+        var encoder = ResolveEncoder(contentType);
+        await clone.SaveAsync(output, encoder, cancellationToken);
 
-            await using var output = new MemoryStream();
-            var encoder = ResolveEncoder(contentType);
-            await clone.SaveAsync(output, encoder, cancellationToken);
-
-            results[variant.ToLowerInvariant()] = new GeneratedImageVariant(
-                output.ToArray(),
-                contentType,
-                ResolveExtension(contentType));
-        }
-
-        return results;
+        return new GeneratedImageVariant(
+            output.ToArray(),
+            contentType,
+            ResolveExtension(contentType));
     }
 
     private static IImageEncoder ResolveEncoder(string contentType)

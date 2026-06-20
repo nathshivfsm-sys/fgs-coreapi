@@ -3,7 +3,6 @@ using Fgs.Foundation.Api;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -11,7 +10,6 @@ namespace Fgs.User.API.Controllers;
 /// <summary>
 /// Temporary local dashboard page after Entra sign-in (dev gateway flow).
 /// </summary>
-[AllowAnonymous]
 [ApiController]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("dashboard")]
@@ -136,7 +134,7 @@ public sealed class DashboardController : ControllerBase
             <head>
               <meta charset="utf-8" />
               <meta name="viewport" content="width=device-width, initial-scale=1" />
-              <title>FGS — Dashboard</title>
+              <title>FGS â€” Dashboard</title>
               <style>{PageStyles}</style>
             </head>
             <body>
@@ -146,7 +144,7 @@ public sealed class DashboardController : ControllerBase
                 <p>Signed in via Microsoft Entra. User details below are read from the JWT query parameter.</p>
                 {userSection}
                 {rawTokenBlock}
-                <p class="muted">FGS User Service · <code>GET /api/v1/dashboard?token=…</code></p>
+                <p class="muted">FGS User Service Â· <code>GET /api/v1/dashboard?token=â€¦</code></p>
               </main>
             </body>
             </html>

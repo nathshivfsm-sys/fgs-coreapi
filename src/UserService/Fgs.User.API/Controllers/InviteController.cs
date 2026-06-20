@@ -3,13 +3,12 @@ using Fgs.Foundation.Api;
 using Fgs.User.API.Constants;
 using Fgs.User.Application.Features.Invitations.Commands.StartInvitation;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
 
 /// <summary>
-/// Email invitation deep links (pre–Entra redirect).
+/// Email invitation deep links (preâ€“Entra redirect).
 /// </summary>
 [ApiController]
 [ApiVersion(FgsApiVersions.V1)]
@@ -26,10 +25,9 @@ public sealed class InviteController : ControllerBase
     /// <param name="token">Opaque token from the signup invitation email.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
     /// <remarks>
-    /// Returns 302 to Entra on success (including when the invitation was already accepted — user is sent to Entra sign-in);
+    /// Returns 302 to Entra on success (including when the invitation was already accepted â€” user is sent to Entra sign-in);
     /// 400 with error body on invalid or expired token.
     /// </remarks>
-    [AllowAnonymous]
     [HttpGet("start")]
     [ProducesResponseType(StatusCodes.Status302Found)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

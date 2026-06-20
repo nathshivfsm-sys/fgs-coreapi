@@ -22,7 +22,6 @@ namespace Fgs.Setup.API.Controllers;
 /// Tenant-scoped tech trade catalog management.
 /// </summary>
 //[Authorize]
-[AllowAnonymous]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("techtrades")]
 [Produces("application/json")]

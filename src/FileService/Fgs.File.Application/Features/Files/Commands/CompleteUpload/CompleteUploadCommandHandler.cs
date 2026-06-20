@@ -13,7 +13,6 @@ namespace Fgs.File.Application.Features.Files.Commands.CompleteUpload;
 
 public sealed class CompleteUploadCommandHandler(
     ITenantContextAccessor tenantContextAccessor,
-    IFileUploadSessionStore uploadSessionStore,
     IS3ObjectStorageService objectStorageService,
     IS3ObjectKeyBuilder objectKeyBuilder,
     IImageVariantGenerator imageVariantGenerator,
@@ -32,135 +31,128 @@ public sealed class CompleteUploadCommandHandler(
             return ApiResponse<FileVariantSetDto>.Fail(["Tenant context is required."], ApiStatusCodes.BadRequest);
         }
 
-        var session = uploadSessionStore.Get(command.UploadId);
-        if (session is null || session.ExpiresAt <= DateTimeOffset.UtcNow)
+        var file = await unitOfWork.Repository<FgsFile>().GetByIdAsync(command.FileId, cancellationToken);
+        if (file is null)
         {
-            return ApiResponse<FileVariantSetDto>.Fail(["Upload session not found or expired."], ApiStatusCodes.NotFound);
+            return ApiResponse<FileVariantSetDto>.Fail(["File not found."], ApiStatusCodes.NotFound);
         }
 
-        if (session.TenantId != tenantContext.TenantId || session.CompanyId != tenantContext.CompanyId)
+        if (file.TenantId != tenantContext.TenantId || file.CompanyId != tenantContext.CompanyId)
         {
-            return ApiResponse<FileVariantSetDto>.Fail(["Upload session does not match tenant context."], ApiStatusCodes.Forbidden);
+            return ApiResponse<FileVariantSetDto>.Fail(["File does not match tenant context."], ApiStatusCodes.Forbidden);
         }
 
-        if (!await objectStorageService.ObjectExistsAsync(session.BucketName, session.ObjectKey, cancellationToken))
+        if (!FileUploadState.IsPending(file))
+        {
+            return ApiResponse<FileVariantSetDto>.Fail(["File upload is not pending."], ApiStatusCodes.BadRequest);
+        }
+
+        var expiry = TimeSpan.FromMinutes(fileOptions.Value.UploadUrlExpiryMinutes);
+        if (file.CreatedOn.Add(expiry) <= DateTimeOffset.UtcNow)
+        {
+            return ApiResponse<FileVariantSetDto>.Fail(["Upload session has expired."], ApiStatusCodes.BadRequest);
+        }
+
+        if (!FileLogoVariants.TryGetVariantTag(file.Tags, out var variant))
+        {
+            return ApiResponse<FileVariantSetDto>.Fail(["File variant tag was not found."], ApiStatusCodes.BadRequest);
+        }
+
+        var stagingObjectKey = file.ObjectKey;
+        if (!await objectStorageService.ObjectExistsAsync(file.BucketName, stagingObjectKey, cancellationToken))
         {
             return ApiResponse<FileVariantSetDto>.Fail(["Uploaded object was not found in storage."], ApiStatusCodes.NotFound);
         }
 
         await using var sourcePayload = await objectStorageService.GetObjectAsync(
-            session.BucketName,
-            session.ObjectKey,
+            file.BucketName,
+            stagingObjectKey,
             cancellationToken);
 
-        var generatedVariants = await imageVariantGenerator.GenerateVariantsAsync(
+        var generated = await imageVariantGenerator.GenerateVariantAsync(
             sourcePayload.Content,
-            session.ContentType,
-            session.RequestedVariants,
+            file.ContentType ?? "application/octet-stream",
+            variant,
             cancellationToken);
 
-        if (generatedVariants.Count == 0)
+        if (generated is null)
         {
-            return ApiResponse<FileVariantSetDto>.Fail(["No logo variants were generated."], ApiStatusCodes.BadRequest);
+            return ApiResponse<FileVariantSetDto>.Fail(["Logo variant was not generated."], ApiStatusCodes.BadRequest);
         }
+
+        var fileExtension = file.FileExtension ?? Path.GetExtension(file.StoredFileName);
+        var variantFileName = FileLogoVariants.BuildVariantFileName(file.StoredFileName, variant, fileExtension);
+        var variantObjectKey = objectKeyBuilder.BuildCompanyAssetKey(
+            file.CompanyId,
+            file.EntityType,
+            file.EntityId,
+            variantFileName);
 
         var downloadExpiry = TimeSpan.FromMinutes(fileOptions.Value.DownloadUrlExpiryMinutes);
         var now = DateTimeOffset.UtcNow;
-        var variantResults = new Dictionary<string, FileVariantInfoDto>(StringComparer.OrdinalIgnoreCase);
-        long sourceFileId = 0;
+        FileVariantInfoDto? variantResult = null;
 
         await unitOfWork.ExecuteInTransactionAsync(async ct =>
         {
-            foreach (var (variant, generated) in generatedVariants)
-            {
-                await SupersedeExistingVariantAsync(session, variant, ct);
+            await SupersedeExistingCompletedVariantAsync(file, variant, ct);
 
-                var variantFileName = BuildVariantFileName(session.StoredFileName, variant, generated.FileExtension);
-                var variantObjectKey = objectKeyBuilder.BuildCompanyAssetKey(
-                    session.CompanyId,
-                    session.EntityType,
-                    session.EntityId,
-                    variantFileName);
+            await using var uploadStream = new MemoryStream(generated.Content);
+            await objectStorageService.PutObjectAsync(
+                file.BucketName,
+                variantObjectKey,
+                uploadStream,
+                generated.ContentType,
+                ct);
 
-                await using var uploadStream = new MemoryStream(generated.Content);
-                await objectStorageService.PutObjectAsync(
-                    session.BucketName,
-                    variantObjectKey,
-                    uploadStream,
-                    generated.ContentType,
-                    ct);
+            file.ObjectKey = variantObjectKey;
+            file.StoredFileName = variantFileName;
+            file.ThumbnailObjectKey = objectKeyBuilder.BuildThumbnailKey(variantObjectKey);
+            file.ContentType = generated.ContentType;
+            file.FileExtension = generated.FileExtension;
+            file.FileSizeBytes = generated.Content.Length;
+            file.UpdatedOn = now;
+            file.UpdatedBy = "TenantAdmin";
+            unitOfWork.Repository<FgsFile>().Update(file);
+            await unitOfWork.SaveChangesAsync(ct);
 
-                var tags = session.BaseTags
-                    .Concat(FileLogoVariants.BuildVariantTags(variant))
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToArray();
+            var downloadUrl = await objectStorageService.CreateDownloadUrlAsync(
+                file.BucketName,
+                variantObjectKey,
+                downloadExpiry,
+                ct);
 
-                var file = new FgsFile
-                {
-                    TenantId = session.TenantId,
-                    CompanyId = session.CompanyId,
-                    EntityType = session.EntityType,
-                    EntityId = session.EntityId,
-                    BucketName = session.BucketName,
-                    ObjectKey = variantObjectKey,
-                    ThumbnailObjectKey = objectKeyBuilder.BuildThumbnailKey(variantObjectKey),
-                    OriginalFileName = session.OriginalFileName,
-                    StoredFileName = variantFileName,
-                    ContentType = generated.ContentType,
-                    FileExtension = generated.FileExtension,
-                    FileSizeBytes = generated.Content.Length,
-                    Description = session.Description,
-                    Tags = tags,
-                    UploadedByName = "TenantAdmin",
-                    UploadedByType = "User",
-                    CreatedOn = now,
-                    CreatedBy = "TenantAdmin"
-                };
+            variantResult = new FileVariantInfoDto(
+                file.Id,
+                contentUrlBuilder.BuildContentUrl(file.Id),
+                downloadUrl,
+                generated.ContentType,
+                generated.Content.Length);
 
-                await unitOfWork.Repository<FgsFile>().AddAsync(file, ct);
-                await unitOfWork.SaveChangesAsync(ct);
-
-                if (sourceFileId == 0)
-                {
-                    sourceFileId = file.Id;
-                }
-
-                var downloadUrl = await objectStorageService.CreateDownloadUrlAsync(
-                    session.BucketName,
-                    variantObjectKey,
-                    downloadExpiry,
-                    ct);
-
-                variantResults[variant] = new FileVariantInfoDto(
-                    file.Id,
-                    contentUrlBuilder.BuildContentUrl(file.Id),
-                    downloadUrl,
-                    generated.ContentType,
-                    generated.Content.Length);
-            }
-
-            await objectStorageService.DeleteObjectAsync(session.BucketName, session.ObjectKey, ct);
+            await objectStorageService.DeleteObjectAsync(file.BucketName, stagingObjectKey, ct);
         }, cancellationToken);
 
-        uploadSessionStore.Remove(command.UploadId);
-
         return ApiResponse<FileVariantSetDto>.Ok(new FileVariantSetDto(
-            sourceFileId,
-            variantResults));
+            variantResult!.FileId,
+            new Dictionary<string, FileVariantInfoDto>(StringComparer.OrdinalIgnoreCase)
+            {
+                [variant] = variantResult
+            }));
     }
 
-    private async Task SupersedeExistingVariantAsync(
-        FileUploadSession session,
+    private async Task SupersedeExistingCompletedVariantAsync(
+        FgsFile file,
         string variant,
         CancellationToken cancellationToken)
     {
         var repo = unitOfWork.Repository<FgsFile>();
         var existingFiles = await repo.ListAsync(
-            file => file.EntityType == session.EntityType
-                    && file.EntityId == session.EntityId
-                    && file.Tags != null
-                    && file.Tags.Contains(FileLogoVariants.LogoTag)
-                    && file.Tags.Contains(variant),
+            f => f.Id != file.Id
+                 && f.EntityType == file.EntityType
+                 && f.EntityId == file.EntityId
+                 && f.FileSizeBytes > 0
+                 && f.Tags != null
+                 && f.Tags.Contains(FileLogoVariants.LogoTag)
+                 && f.Tags.Contains(variant),
             cancellationToken);
 
         foreach (var existing in existingFiles)
@@ -173,11 +165,5 @@ public sealed class CompleteUploadCommandHandler(
 
             repo.Remove(existing);
         }
-    }
-
-    private static string BuildVariantFileName(string storedFileName, string variant, string extension)
-    {
-        var nameWithoutExtension = Path.GetFileNameWithoutExtension(storedFileName);
-        return $"{nameWithoutExtension}-{variant}{extension}";
     }
 }

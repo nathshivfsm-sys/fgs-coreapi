@@ -141,7 +141,7 @@ function New-PostmanRequest {
         $request.auth = @{ type = "noauth" }
     }
 
-    if ($Body -ne $null -and $Method -in @('POST','PUT','PATCH')) {
+    if (-not [string]::IsNullOrWhiteSpace($Body) -and $Method -in @('POST','PUT','PATCH')) {
         $request.header += @{ key = "Content-Type"; value = "application/json"; type = "text" }
         $request.body = @{ mode = "raw"; raw = $Body; options = @{ raw = @{ language = "json" } } }
     }
@@ -177,11 +177,6 @@ function Get-ServiceBaseUrl {
         'SchedulingService' { 'schedulingServiceUrl' }
         'ServiceAgreementService' { 'serviceAgreementServiceUrl' }
         default { 'gatewayUrl' }
-    }
-
-    # UserService tenants via gateway rewrite
-    if ($ServiceKey -eq 'UserService' -and $RouteTemplate -eq 'tenants') {
-        return "{{gatewayUrl}}/api/v1/users/tenants"
     }
 
     return "{{$varName}}/api/v1/$RouteTemplate"
@@ -250,7 +245,7 @@ function Parse-ControllerFile {
         if ($methodName -eq 'List' -and $fileName -match 'Catalog|JobType|Inventory|Vendor|Warehouse|Vehicle|Lead|Sales|Setup|Billing|Business|Resolution|Tag|TechTrades') {
             $query = @{ page = '1'; pageSize = '25'; isActive = 'true' }
         }
-        if ($httpAttr -in @('Post','Put','Patch') -and $methodName -notin @('EntraCallback','EntraConnector','CompanySignup','Start','ProvisionTenant','Record','Dispatch')) {
+        if ($httpAttr -in @('Post','Put','Patch') -and $methodName -notin @('EntraCallback','EntraConnector','CompanySignup','Start','CompleteUpload')) {
             $body = "{}"
         }
         if ($methodName -eq 'CompanySignup') {
@@ -270,6 +265,178 @@ function Parse-ControllerFile {
         if ($methodName -eq 'EntraConnector') {
             $body = '{ "email": "{{signupEmail}}", "objectId": null }'
         }
+        if ($fileName -eq 'TenantsController' -and $methodName -eq 'UpdateDetails') {
+            $body = @'
+{
+  "tenant": {
+    "name": "Plumbing Ltd",
+    "legalName": "Plumbing Ltd LLC",
+    "email": "admin@plumbing.example.com",
+    "phoneNumber": "+15551234567",
+    "website": "https://plumbing.example.com",
+    "timeZone": "America/Chicago",
+    "defaultCurrency": "USD",
+    "defaultLanguageId": null
+  },
+  "company": {
+    "name": "Plumbing Ltd",
+    "legalName": "Plumbing Ltd LLC",
+    "email": "office@plumbing.example.com",
+    "phoneNumber": "+15559876543",
+    "website": "https://plumbing.example.com",
+    "taxId": "12-3456789",
+    "companySize": "11-50",
+    "businessTypeId": 1,
+    "physicalAddress": {
+      "addressLine1": "100 Main St",
+      "city": "Dallas",
+      "state": "TX",
+      "postalCode": "75201",
+      "country": "US"
+    },
+    "billingAddress": {
+      "addressLine1": "100 Main St",
+      "city": "Dallas",
+      "state": "TX",
+      "postalCode": "75201",
+      "country": "US"
+    }
+  }
+}
+'@
+        }
+        if ($fileName -eq 'TenantsController' -and $methodName -eq 'UpdateStatus') {
+            $body = '{ "fgsTenantStatusId": 3 }'
+        }
+        if ($fileName -eq 'TenantsController' -and $methodName -eq 'UpdateStorageBucket') {
+            $body = '{ "storageBucketName": "fgs-dev-tenant-{{tenantId}}-demo" }'
+        }
+        if ($fileName -eq 'BusinessTypesController' -and $methodName -eq 'AddCompanyBusinessTypes') {
+            $body = @'
+{
+  "businessTypeIds": [1],
+  "companyGuid": "11111111-1111-1111-1111-111111111111",
+  "code": "PLUMB-CO",
+  "name": "Plumbing Ltd",
+  "isActive": true
+}
+'@
+            $headers['X-Tenant-Id'] = '{{tenantId}}'
+            $headers['X-Company-Id'] = '{{companyId}}'
+        }
+        if ($fileName -eq 'CredentialsController') {
+            if ($methodName -eq 'List') {
+                $query = @{ scope = 'Global'; activeOnly = 'true' }
+            }
+            if ($methodName -in @('Get', 'Update', 'Delete', 'Rotate', 'ResolveSecret')) {
+                $query = @{ scope = 'Global' }
+            }
+            if ($methodName -eq 'GetResolvedConfiguration') {
+                $headers['X-FGS-Internal-Service-Key'] = '{{internalServiceKey}}'
+                $headers['X-FGS-Service-Name'] = 'fgs-user-service'
+                $useAuth = $false
+            }
+            if ($methodName -eq 'Create') {
+                $body = @'
+{
+  "scope": 1,
+  "providerCode": "DATABASE",
+  "credentialName": "PlatformDatabaseConnections",
+  "payload": "{\"FgsUser\":\"Host=localhost;Port=5432;Database=fgs_dev_db;Username=postgres;Password=secret\"}",
+  "description": "Platform database connection strings",
+  "tenantId": null,
+  "companyId": null
+}
+'@
+            }
+            if ($methodName -eq 'Update') {
+                $body = @'
+{
+  "credentialName": "PlatformDatabaseConnections",
+  "description": "Updated platform database connections",
+  "payload": "{\"FgsUser\":\"Host=localhost;Port=5432;Database=fgs_dev_db;Username=postgres;Password=secret\"}",
+  "isActive": true
+}
+'@
+            }
+            if ($methodName -eq 'Rotate') {
+                $body = '{ "rotationMode": 1 }'
+            }
+        }
+        if ($fileName -eq 'TenantProvisioningController' -and $methodName -eq 'ProvisionTenant') {
+            $body = @'
+{
+  "tenantId": 4,
+  "companyId": 1,
+  "tenantCode": "plumbing-ltd",
+  "correlationId": "11111111-1111-1111-1111-111111111111",
+  "userId": null
+}
+'@
+        }
+        if ($fileName -eq 'FilesController') {
+            if ($methodName -eq 'CreateUploadUrl') {
+                $body = @'
+{
+  "fileName": "company-logo.png",
+  "contentType": "image/png",
+  "fileSizeBytes": 102400,
+  "entityType": "COMPANY",
+  "entityId": 1,
+  "requestedVariant": "Logo",
+  "description": "Company logo upload",
+  "tags": ["logo"]
+}
+'@
+            }
+            if ($methodName -eq 'CompleteUpload') {
+                $body = $null
+            }
+            if ($methodName -eq 'GetByEntity') {
+                $query = @{ entityType = 'COMPANY'; entityId = '{{companyId}}' }
+            }
+            $headers['X-Tenant-Id'] = '{{tenantId}}'
+            $headers['X-Company-Id'] = '{{companyId}}'
+        }
+        if ($fileName -eq 'TenantStorageController' -and $methodName -eq 'ProvisionBucket') {
+            $body = @'
+{
+  "tenantId": 4,
+  "existingBucketName": null,
+  "companyNumbers": [1]
+}
+'@
+        }
+        if ($fileName -eq 'NotificationsController' -and $methodName -eq 'Dispatch') {
+            $body = @'
+{
+  "tenantId": 4,
+  "companyId": 1,
+  "channel": "Email",
+  "templateCode": "INVITE",
+  "recipient": "{{entraUserEmail}}",
+  "correlationId": "postman-test-001",
+  "tokens": {
+    "CompanyName": "Plumbing Ltd",
+    "InviteUrl": "https://localhost:8443/api/v1/invite/start?token=sample"
+  }
+}
+'@
+        }
+        if ($fileName -eq 'CredentialAuditsController' -and $methodName -eq 'Record') {
+            $body = @'
+{
+  "tenantId": 4,
+  "companyId": 1,
+  "credentialId": "11111111-1111-1111-1111-111111111111",
+  "actionType": "READ",
+  "remarks": "Postman audit test",
+  "oldVersionNo": null,
+  "newVersionNo": 1,
+  "createdBy": "postman"
+}
+'@
+        }
         if ($fileName -eq 'TechTradesController') {
             if ($methodName -eq 'ListActive') {
                 $query = @{ page = '1'; pageSize = '25'; sortBy = 'SortOrder'; search = '' }
@@ -286,6 +453,59 @@ function Parse-ControllerFile {
             if ($methodName -eq 'Patch') {
                 $body = '{ "name": "HVAC Services Updated", "sortOrder": 2 }'
             }
+            $headers['X-Tenant-Id'] = '{{tenantId}}'
+            $headers['X-Company-Id'] = '{{companyId}}'
+        }
+        if ($fileName -eq 'GLBreaksController') {
+            if ($methodName -in @('List', 'ListActive')) {
+                $query = @{ page = '1'; pageSize = '25'; isActive = 'true' }
+            }
+            if ($methodName -eq 'Lookup') {
+                $query = @{ activeOnly = 'true' }
+            }
+            if ($methodName -eq 'Create') {
+                $body = @'
+{
+  "code": "PLUMB",
+  "name": "Plumbing Division",
+  "breakLabel": "Plumbing Services",
+  "breakLevel": 1,
+  "logoFileId": null,
+  "address": {
+    "addressLine1": "456 Oak Ave",
+    "city": "Austin",
+    "state": "TX",
+    "country": "US",
+    "postalCode": "78701"
+  },
+  "tradeCodes": ["PLUMB"]
+}
+'@
+            }
+            if ($methodName -eq 'Update') {
+                $body = @'
+{
+  "code": "PLUMB",
+  "name": "Plumbing Division Updated",
+  "breakLabel": "Plumbing Services",
+  "breakLevel": 1,
+  "logoFileId": null,
+  "address": {
+    "addressLine1": "456 Oak Ave",
+    "city": "Austin",
+    "state": "TX",
+    "country": "US",
+    "postalCode": "78701"
+  },
+  "tradeCodes": ["PLUMB"]
+}
+'@
+            }
+            if ($methodName -eq 'Patch') {
+                $body = '{ "name": "Plumbing Division Updated", "breakLabel": "Residential Plumbing" }'
+            }
+            $headers['X-Tenant-Id'] = '{{tenantId}}'
+            $headers['X-Company-Id'] = '{{companyId}}'
         }
         if ($useAuth) {
             $headers['X-Tenant-Id'] = '{{tenantId}}'
@@ -314,6 +534,49 @@ function Parse-ControllerFile {
                         'const body = pm.response.json();',
                         'if (body.success && body.data && body.data.id) {',
                         '  pm.environment.set("recordId", String(body.data.id));',
+                        '}'
+                    )
+                }
+            })
+        }
+        if ($fileName -eq 'GLBreaksController' -and $methodName -eq 'Create') {
+            $req['event'] = @(@{
+                listen = 'test'
+                script = @{
+                    type = 'text/javascript'
+                    exec = @(
+                        'const body = pm.response.json();',
+                        'if (body.success && body.data && body.data.id) {',
+                        '  pm.environment.set("recordId", String(body.data.id));',
+                        '}'
+                    )
+                }
+            })
+        }
+        if ($fileName -eq 'CredentialsController' -and $methodName -eq 'Create') {
+            $req['event'] = @(@{
+                listen = 'test'
+                script = @{
+                    type = 'text/javascript'
+                    exec = @(
+                        'const body = pm.response.json();',
+                        'if (body.success && body.data && body.data.id) {',
+                        '  pm.environment.set("recordId", String(body.data.id));',
+                        '}'
+                    )
+                }
+            })
+        }
+        if ($fileName -eq 'FilesController' -and $methodName -eq 'CreateUploadUrl') {
+            $req['event'] = @(@{
+                listen = 'test'
+                script = @{
+                    type = 'text/javascript'
+                    exec = @(
+                        'const body = pm.response.json();',
+                        'if (body.success && body.data && body.data.fileId) {',
+                        '  pm.environment.set("fileId", String(body.data.fileId));',
+                        '  pm.environment.set("recordId", String(body.data.fileId));',
                         '}'
                     )
                 }
@@ -477,7 +740,7 @@ $gatewayMaps = @{
 }
 
 $serviceConfigs = @(
-    @{ Key = 'UserService'; Path = 'src\UserService\Fgs.User.API\Controllers'; Desc = 'Company onboarding, Entra auth, tenant admin APIs. Gateway-first; tenant routes use /api/v1/users/tenants.'; AuthFlow = $true }
+    @{ Key = 'UserService'; Path = 'src\UserService\Fgs.User.API\Controllers'; Desc = 'Company onboarding, Entra auth (via gateway), and tenant admin APIs (direct userServiceUrl /api/v1/tenants — matches controller routes).'; AuthFlow = $true }
     @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup: credentials (gateway), communication templates, tech trades, tenant provisioning, business types.'; AuthFlow = $false }
     @{ Key = 'NotificationService'; Path = 'src\NotificationService\Fgs.Notification.API\Controllers'; Desc = 'Notification dispatch via gateway.'; AuthFlow = $false }
     @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 bucket provisioning via gateway /api/v1/tenants.'; AuthFlow = $false }

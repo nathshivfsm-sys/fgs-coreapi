@@ -33,7 +33,7 @@ This creates `FGS-Postman-Import.zip` (all collections + environment) and opens 
 
 | Collection | Gateway routes | Direct service URL var |
 |------------|----------------|-------------------------|
-| [UserService](UserService.postman_collection.json) | auth, invite, signup, dashboard, users/tenants | `userServiceUrl` |
+| [UserService](UserService.postman_collection.json) | auth, invite, signup, dashboard (gateway); tenants (direct) | `userServiceUrl` / `gatewayUrl` |
 | [SetupService](SetupService.postman_collection.json) | credentials, communication-templates | `setupServiceUrl` — tech trades, provisioning, business types (direct) |
 | [FGS Entra Token (Existing User)](FGS-Entra-Token.postman_collection.json) | — | Entra sign-in + refresh token flow (use with FGS Globals env) |
 
@@ -43,16 +43,15 @@ Import [`FGS-Entra-Token.postman_collection.json`](FGS-Entra-Token.postman_colle
 
 **Postman cannot render the Entra login page inside a request response.** Use one of:
 
-### Option A — Postman OAuth (opens browser login)
+### Option A — Manual browser (recommended)
 1. Set `entraUserEmail` and `entraClientSecret` in the environment.
-2. In Entra app registration, add redirect URI: `https://oauth.pstmn.io/v1/callback`
-3. Click the **collection** → **Authorization** tab → **Get New Access Token** → sign in in browser → **Use Token**
-4. Run **5. Sync token to environment** → `accessToken` is ready for other collections
+2. Entra app registration redirect URI: `https://localhost:8443/api/v1/auth/entra/callback` (already in `redirectUri`).
+3. Run **Manual browser flow → 1. Copy sign-in URL to console** → copy URL from Postman Console into Chrome/Edge.
+4. After sign-in, copy `code=` from the callback URL (`https://localhost:8443/api/v1/auth/entra/callback?code=...`) into `authCode`.
+5. Run **2. Exchange Authorization Code** → `accessToken` is set automatically.
 
-### Option B — External browser
-1. Run **Manual browser flow → 1. Copy sign-in URL to console**
-2. Open **View → Show Postman Console**, copy URL into Chrome/Edge
-3. Sign in → copy `code` into `authCode` → run **2. Exchange Authorization Code**
+### Option B — Refresh an existing session
+Run **3. Refresh Access Token** if you already have a `refreshToken`.
 | [NotificationService](NotificationService.postman_collection.json) | notifications | `notificationServiceUrl` |
 | [FileService](FileService.postman_collection.json) | tenants (bucket) | `fileServiceUrl` |
 | [AuditService](AuditService.postman_collection.json) | — | `auditServiceUrl` |
@@ -65,7 +64,7 @@ Scaffold collections: Asset, Billing, Communication, Crm, Integration, Inventory
 ## URL conventions
 
 - **Gateway (recommended for public flows):** `https://localhost:8443` → `{{gatewayUrl}}`
-- **User tenant admin APIs:** `{{gatewayUrl}}/api/v1/users/tenants/{tenantId}` (nginx rewrite)
+- **User tenant admin APIs:** `{{userServiceUrl}}/api/v1/tenants/{tenantId}` (matches UserService controllers). Through the gateway, the same routes are exposed as `{{gatewayUrl}}/api/v1/users/tenants/{tenantId}` (nginx strips the `/users` prefix).
 - **File tenant storage:** `{{gatewayUrl}}/api/v1/tenants/{tenantId}/bucket`
 - **Setup direct APIs:** `{{setupServiceUrl}}/api/v1/...` (tenant provisioning, business types; not exposed via gateway)
 

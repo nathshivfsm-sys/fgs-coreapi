@@ -27,13 +27,23 @@
                                                                          "value":  "application/json"
                                                                      },
                                                                      {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
                                                                          "key":  "Content-Type",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "",
+                                                                   "raw":  "{\r\n  \"tenantId\": 4,\r\n  \"companyId\": 1,\r\n  \"credentialId\": \"11111111-1111-1111-1111-111111111111\",\r\n  \"actionType\": \"READ\",\r\n  \"remarks\": \"Postman audit test\",\r\n  \"oldVersionNo\": null,\r\n  \"newVersionNo\": 1,\r\n  \"createdBy\": \"postman\"\r\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -42,7 +52,14 @@
                                                                    "mode":  "raw"
                                                                },
                                                       "auth":  {
-                                                                   "type":  "noauth"
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
                                                                }
                                                   }
                                   }
@@ -73,10 +90,27 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "type":  "noauth"
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
                                                                }
                                                   }
                                   }
@@ -93,7 +127,7 @@
                  "description":  "Credential audit trail (direct service URL).",
                  "name":  "FGS AuditService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "95dcc69a-f496-4b7a-9492-04f7fa1485f1"
+                 "_postman_id":  "ef7ec7f1-06e2-403c-98e4-4e3eeef03ad8"
              },
     "event":  [
                   {

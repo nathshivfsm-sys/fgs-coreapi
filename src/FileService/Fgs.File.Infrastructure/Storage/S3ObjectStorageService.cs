@@ -1,28 +1,43 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Fgs.File.Application.Abstractions.Storage;
+using Fgs.File.Infrastructure.Common.Options;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.File.Infrastructure.Storage;
 
-public sealed class S3ObjectStorageService(AmazonS3Client s3Client) : IS3ObjectStorageService
+public sealed class S3ObjectStorageService(
+    AmazonS3Client s3Client,
+    IOptions<AwsCredentialsOptions> awsOptions) : IS3ObjectStorageService
 {
-    public Task<string> CreateUploadUrlAsync(
+    private readonly AwsCredentialsOptions _awsOptions = awsOptions.Value;
+
+    public Task<PresignedUploadRequest> CreateUploadUrlAsync(
         string bucketName,
         string objectKey,
         string contentType,
         TimeSpan expiry,
         CancellationToken cancellationToken = default)
     {
+        // Bucket default encryption (SSE-KMS) applies automatically — do not add SSE headers
+        // to presigned URLs; they require SigV4 header signing and break Postman/browser clients.
         var request = new GetPreSignedUrlRequest
         {
             BucketName = bucketName,
             Key = objectKey,
             Verb = HttpVerb.PUT,
             Expires = DateTime.UtcNow.Add(expiry),
-            ContentType = contentType
+            ContentType = contentType,
+            Protocol = Protocol.HTTPS
         };
 
-        return Task.FromResult(s3Client.GetPreSignedURL(request));
+        var url = s3Client.GetPreSignedURL(request);
+        var requiredHeaders = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Content-Type"] = contentType
+        };
+
+        return Task.FromResult(new PresignedUploadRequest(url, requiredHeaders));
     }
 
     public Task<string> CreateDownloadUrlAsync(
@@ -36,7 +51,8 @@ public sealed class S3ObjectStorageService(AmazonS3Client s3Client) : IS3ObjectS
             BucketName = bucketName,
             Key = objectKey,
             Verb = HttpVerb.GET,
-            Expires = DateTime.UtcNow.Add(expiry)
+            Expires = DateTime.UtcNow.Add(expiry),
+            Protocol = Protocol.HTTPS
         };
 
         return Task.FromResult(s3Client.GetPreSignedURL(request));
@@ -77,14 +93,24 @@ public sealed class S3ObjectStorageService(AmazonS3Client s3Client) : IS3ObjectS
         string objectKey,
         Stream content,
         string contentType,
-        CancellationToken cancellationToken = default) =>
-        s3Client.PutObjectAsync(new PutObjectRequest
+        CancellationToken cancellationToken = default)
+    {
+        var request = new PutObjectRequest
         {
             BucketName = bucketName,
             Key = objectKey,
             InputStream = content,
             ContentType = contentType
-        }, cancellationToken);
+        };
+
+        if (!string.IsNullOrWhiteSpace(_awsOptions.KmsKeyArn))
+        {
+            request.ServerSideEncryptionMethod = ServerSideEncryptionMethod.AWSKMS;
+            request.ServerSideEncryptionKeyManagementServiceKeyId = _awsOptions.KmsKeyArn;
+        }
+
+        return s3Client.PutObjectAsync(request, cancellationToken);
+    }
 
     public Task DeleteObjectAsync(
         string bucketName,
