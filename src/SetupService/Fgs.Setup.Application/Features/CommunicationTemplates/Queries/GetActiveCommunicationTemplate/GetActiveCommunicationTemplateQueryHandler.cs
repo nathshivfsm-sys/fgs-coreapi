@@ -1,17 +1,14 @@
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
 using Fgs.Persistence.Abstractions;
-using Fgs.Credentials.Options;
 using Fgs.Setup.Application.Features.CommunicationTemplates;
 using Fgs.Setup.Domain.Entities;
 using MediatR;
-using Microsoft.Extensions.Options;
 
 namespace Fgs.Setup.Application.Features.CommunicationTemplates.Queries.GetActiveCommunicationTemplate;
 
 public sealed class GetActiveCommunicationTemplateQueryHandler(
-    IUnitOfWork unitOfWork,
-    IOptions<CredentialDistributionOptions> distributionOptions)
+    IUnitOfWork unitOfWork)
     : IRequestHandler<GetActiveCommunicationTemplateQuery, ApiResponse<CommunicationTemplateDto>>
 {
     public async Task<ApiResponse<CommunicationTemplateDto>> Handle(
@@ -129,15 +126,4 @@ public sealed class GetActiveCommunicationTemplateQueryHandler(
             template.IsMobileVisible,
             template.IsActive);
 
-    private static bool IsInternalServiceAuthorized(
-        string? providedKey,
-        CredentialDistributionOptions options)
-    {
-        if (string.IsNullOrWhiteSpace(options.InternalServiceKey))
-        {
-            return false;
-        }
-
-        return string.Equals(providedKey, options.InternalServiceKey, StringComparison.Ordinal);
-    }
 }

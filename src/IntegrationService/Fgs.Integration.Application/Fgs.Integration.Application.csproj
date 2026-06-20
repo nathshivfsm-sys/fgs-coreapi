@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Fgs.Integration.Domain\Fgs.Integration.Domain.csproj" />
-    <ProjectReference Include="..\Fgs.Integration.Infrastructure\Fgs.Integration.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Shared\Kernel\Fgs.Kernel\Fgs.Kernel.csproj" />
     <ProjectReference Include="..\..\Shared\Foundation\Fgs.Foundation\Fgs.Foundation.csproj" />
     <ProjectReference Include="..\..\Shared\Contracts\Fgs.Contracts\Fgs.Contracts.csproj" />

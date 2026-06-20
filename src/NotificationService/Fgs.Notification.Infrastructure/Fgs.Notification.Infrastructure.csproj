@@ -1,9 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Fgs.Notification.Application\Fgs.Notification.Application.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
+    <ProjectReference Include="..\Fgs.Notification.Application\Fgs.Notification.Application.csproj" />
     <ProjectReference Include="..\Fgs.Notification.Domain\Fgs.Notification.Domain.csproj" />
     <ProjectReference Include="..\..\Shared\Contracts\Fgs.Contracts\Fgs.Contracts.csproj" />
     <ProjectReference Include="..\..\Shared\Messaging\Fgs.Messaging\Fgs.Messaging.csproj" />
