@@ -62,7 +62,7 @@
                  "description":  "Integration service scaffold (health).",
                  "name":  "FGS IntegrationService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "008c4143-2bd0-46d7-852d-9eac5c06a05d"
+                 "_postman_id":  "754d9d53-be22-438e-bf3b-a955858b0bbe"
              },
     "event":  [
                   {

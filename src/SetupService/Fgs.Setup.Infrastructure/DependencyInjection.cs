@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Abstractions.GLBreaks;
 using Fgs.Setup.Application.Abstractions.Locations;
 using Fgs.Setup.Application.Abstractions.Persistence;
 using Fgs.Setup.Application.Abstractions.TechTrades;
+using Fgs.Setup.Application.Abstractions.TitlesOfCourtesy;
 using Fgs.Setup.Infrastructure.Audit;
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Options;
@@ -19,6 +20,7 @@ using Fgs.Setup.Infrastructure.Provisioning;
 using Fgs.Setup.Infrastructure.Tenants;
 using Fgs.Setup.Infrastructure.GLBreaks;
 using Fgs.Setup.Infrastructure.TechTrades;
+using Fgs.Setup.Infrastructure.TitlesOfCourtesy;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Foundation.Extensions;
 using Fgs.Persistence.Extensions;
@@ -81,9 +83,11 @@ public static class DependencyInjection
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<ISetupReadConnectionFactory, FgsSetupReadConnectionFactory>();
         services.AddScoped<ITechTradeReadRepository, TechTradeReadRepository>();
+        services.AddScoped<ITitleOfCourtesyReadRepository, TitleOfCourtesyReadRepository>();
         services.AddScoped<SetupEntityAuditHelper>();
         services.AddScoped<ISetupLocationWriteService, SetupLocationWriteService>();
         services.AddScoped<ITechTradeWriteService, TechTradeWriteService>();
+        services.AddScoped<ITitleOfCourtesyWriteService, TitleOfCourtesyWriteService>();
         services.AddScoped<IGLBreakReadRepository, GLBreakReadRepository>();
         services.AddScoped<IGLBreakWriteService, GLBreakWriteService>();
         services.AddSingleton<ITenantSeedDatabaseConnectionFactory>(sp =>

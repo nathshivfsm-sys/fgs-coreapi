@@ -128,6 +128,7 @@ public sealed class CredentialsController(IMediator mediator) : ControllerBase
     /// Internal: full resolved configuration snapshot for peer services (Platform, etc.).
     /// Authenticated via <see cref="CredentialDistributionHeaders.InternalServiceKey"/>, not JWT.
     /// </summary>
+    [AllowAnonymous]
     [HttpGet("resolved")]
     [ProducesResponseType(typeof(ApiResponse<ResolvedCredentialConfigurationDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

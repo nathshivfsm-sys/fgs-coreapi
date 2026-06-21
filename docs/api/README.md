@@ -41,6 +41,8 @@ This creates `FGS-Postman-Import.zip` (all collections + environment) and opens 
 
 Import [`FGS-Entra-Token.postman_collection.json`](FGS-Entra-Token.postman_collection.json) with **FGS Globals (Local)**.
 
+**Graph-audience tokens:** With only `openid profile email` scopes, Entra returns Microsoft Graph access tokens (`aud` = `00000003-0000-0000-c000-000000000000`). These include a proprietary `nonce` in the JWT header that breaks standard signature validation. FGS normalizes this before validation. For new integrations, prefer exposing a custom API scope in Entra (**Expose an API** → `access_as_user`) and requesting `api://{clientId}/access_as_user` so tokens are issued directly for FGS (`aud` = your client id).
+
 **Postman cannot render the Entra login page inside a request response.** Use one of:
 
 ### Option A — Manual browser (recommended)

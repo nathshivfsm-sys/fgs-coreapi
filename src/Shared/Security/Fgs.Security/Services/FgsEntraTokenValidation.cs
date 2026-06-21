@@ -26,7 +26,11 @@ public static class FgsEntraTokenValidation
     }
 
     public static IReadOnlyList<string> BuildValidAudiences(string clientId) =>
-        [clientId, MicrosoftGraphAudience];
+    [
+        clientId,
+        $"api://{clientId}",
+        MicrosoftGraphAudience
+    ];
 
     public static TokenValidationParameters CreateValidationParameters(EntraExternalIdAuthOptions options)
     {

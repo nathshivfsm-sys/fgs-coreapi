@@ -48,6 +48,23 @@ public static class ServiceCollectionExtensions
                     signingKeyResolver.Resolve;
                 options.Events = new JwtBearerEvents
                 {
+                    OnMessageReceived = context =>
+                    {
+                        var token = context.Token;
+                        if (string.IsNullOrWhiteSpace(token))
+                        {
+                            token = FgsRequestAuthContext.ExtractBearerToken(context.HttpContext);
+                        }
+
+                        var normalized = FgsEntraGraphAccessTokenNormalizer.NormalizeIfRequired(
+                            token ?? string.Empty);
+                        if (!string.IsNullOrEmpty(normalized))
+                        {
+                            context.Token = normalized;
+                        }
+
+                        return Task.CompletedTask;
+                    },
                     OnAuthenticationFailed = context =>
                     {
                         var logger = context.HttpContext.RequestServices

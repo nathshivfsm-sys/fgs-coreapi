@@ -28,6 +28,7 @@ public sealed class HealthController(IConfiguration configuration) : ControllerB
         }
 
         var token = header["Bearer ".Length..].Trim();
+        token = FgsEntraGraphAccessTokenNormalizer.NormalizeIfRequired(token) ?? token;
         var entraOptions = configuration
                                .GetSection(EntraExternalIdAuthOptions.SectionName)
                                .Get<EntraExternalIdAuthOptions>()

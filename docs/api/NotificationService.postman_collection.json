@@ -128,7 +128,7 @@
                  "description":  "Notification dispatch via gateway.",
                  "name":  "FGS NotificationService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "5732c037-2775-4fba-b912-0cd0a5ce064c"
+                 "_postman_id":  "14e206b8-06c7-41c4-95a7-282268fc3188"
              },
     "event":  [
                   {

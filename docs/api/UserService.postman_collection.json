@@ -823,7 +823,7 @@
                  "description":  "Company onboarding, Entra auth (via gateway), and tenant admin APIs (direct userServiceUrl /api/v1/tenants â€” matches controller routes).",
                  "name":  "FGS UserService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "94e2a8af-b4c8-4342-9ead-fcc6e1d80b80"
+                 "_postman_id":  "2c76b8d8-99a8-4456-a5da-169e248118e6"
              },
     "event":  [
                   {
