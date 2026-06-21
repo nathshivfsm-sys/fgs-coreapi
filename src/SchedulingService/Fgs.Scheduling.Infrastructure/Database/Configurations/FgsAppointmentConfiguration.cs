@@ -27,7 +27,7 @@ internal sealed class FgsAppointmentConfiguration : IEntityTypeConfiguration<Fgs
         entity.Property(e => e.CompanyId).HasComment("Company identifier.");
         entity.Property(e => e.SourceTypeId).HasComment("Source type. Typically Lead, Opportunity or Work Order.");
         entity.Property(e => e.SourceId).HasComment("Identifier of the source record.");
-        entity.Property(e => e.CrewId).HasComment("Scheduled crew assigned to the appointment.");
+        entity.Property(e => e.CrewId).HasComment("Scheduled crew assigned to the appointment. References setup service; no FK by design.");
         entity.Property(e => e.CustomerContactName).HasMaxLength(200)
             .HasComment("Contact name used for appointment reminders and confirmations.");
         entity.Property(e => e.ServiceDate).HasColumnType("date").IsRequired()
@@ -44,13 +44,6 @@ internal sealed class FgsAppointmentConfiguration : IEntityTypeConfiguration<Fgs
         entity.Property(e => e.CreatedBy).IsRequired().HasComment("User who created the record.");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz").HasComment("Date and time the record was last updated.");
         entity.Property(e => e.UpdatedBy).HasComment("User who last updated the record.");
-
-        entity.HasOne<FgsCrew>()
-            .WithMany()
-            .HasForeignKey(e => new { e.TenantId, e.CompanyId, e.CrewId })
-            .HasPrincipalKey(c => new { c.TenantId, c.CompanyId, c.Id })
-            .HasConstraintName("FK_FgsAppointment_Crew")
-            .OnDelete(DeleteBehavior.Restrict);
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.SourceTypeId, e.SourceId }).HasDatabaseName("IX_FgsAppointment_Source");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.ServiceDate }).HasDatabaseName("IX_FgsAppointment_ServiceDate");

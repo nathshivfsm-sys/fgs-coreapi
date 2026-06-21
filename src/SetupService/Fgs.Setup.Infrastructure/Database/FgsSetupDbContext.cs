@@ -29,6 +29,15 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsCredential> FgsCredentials => Set<FgsCredential>();
 
+    public DbSet<FgsCrew> FgsCrews => Set<FgsCrew>();
+
+    public DbSet<FgsCrewMember> FgsCrewMembers => Set<FgsCrewMember>();
+
+    public DbSet<FgsEmployee> FgsEmployees => Set<FgsEmployee>();
+
+    public DbSet<FgsEmployeeTechnicianProfile> FgsEmployeeTechnicianProfiles =>
+        Set<FgsEmployeeTechnicianProfile>();
+
     public DbSet<GloCredential> GloCredentials => Set<GloCredential>();
 
     public DbSet<GloCredentialProviderType> GloCredentialProviderTypes => Set<GloCredentialProviderType>();
@@ -90,6 +99,12 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
     public DbSet<GloInventoryCategory> GloInventoryCategories => Set<GloInventoryCategory>();
 
     public DbSet<GloInventorySubCategory> GloInventorySubCategories => Set<GloInventorySubCategory>();
+
+    public DbSet<GloInventoryTransactionSourceType> GloInventoryTransactionSourceTypes =>
+        Set<GloInventoryTransactionSourceType>();
+
+    public DbSet<GloInventoryTransactionType> GloInventoryTransactionTypes =>
+        Set<GloInventoryTransactionType>();
 
     public DbSet<FgsInventoryItemType> FgsInventoryItemTypes => Set<FgsInventoryItemType>();
 

@@ -3,6 +3,7 @@ using System;
 using Fgs.Billing.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fgs.Billing.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(FgsBillingDbContext))]
-    partial class FgsBillingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260620081159_AddFgsInvoiceWorkDescription")]
+    partial class AddFgsInvoiceWorkDescription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -627,9 +630,6 @@ namespace Fgs.Billing.Infrastructure.Database.Migrations
 
                     b.HasKey("Id")
                         .HasName("PK_FgsInvoiceWorkDescription");
-
-                    b.HasIndex("InvoiceId")
-                        .HasDatabaseName("IX_FgsInvoiceWorkDescription_InvoiceId1");
 
                     b.HasIndex("TenantId", "CompanyId")
                         .HasDatabaseName("IX_FgsInvoiceWorkDescription_TenantCompany");

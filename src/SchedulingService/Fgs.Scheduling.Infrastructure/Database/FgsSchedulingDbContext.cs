@@ -14,8 +14,7 @@ public sealed class FgsSchedulingDbContext(DbContextOptions<FgsSchedulingDbConte
     public DbSet<FgsWorkOrderAsset> FgsWorkOrderAssets => Set<FgsWorkOrderAsset>();
     public DbSet<FgsWorkOrderItem> FgsWorkOrderItems => Set<FgsWorkOrderItem>();
     public DbSet<FgsWorkOrderIntegration> FgsWorkOrderIntegrations => Set<FgsWorkOrderIntegration>();
-    public DbSet<FgsCrew> FgsCrews => Set<FgsCrew>();
-    public DbSet<FgsCrewMember> FgsCrewMembers => Set<FgsCrewMember>();
+    public DbSet<FgsDispatchBoardTechnician> FgsDispatchBoardTechnicians => Set<FgsDispatchBoardTechnician>();
     public DbSet<FgsAppointment> FgsAppointments => Set<FgsAppointment>();
     public DbSet<FgsAppointmentAssignment> FgsAppointmentAssignments => Set<FgsAppointmentAssignment>();
     public DbSet<FgsAppointmentAssignmentEvent> FgsAppointmentAssignmentEvents => Set<FgsAppointmentAssignmentEvent>();

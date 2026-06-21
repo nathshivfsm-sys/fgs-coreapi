@@ -374,6 +374,10 @@ DELETE FROM glo."GloInventorySubCategory";
 
 DELETE FROM glo."GloInventoryCategory";
 
+DELETE FROM glo."GloInventoryTransactionType";
+
+DELETE FROM glo."GloInventoryTransactionSourceType";
+
 DELETE FROM glo."GloInventoryItemType"
 WHERE "ItemTypeCode" IN (
     'INVENTORY',

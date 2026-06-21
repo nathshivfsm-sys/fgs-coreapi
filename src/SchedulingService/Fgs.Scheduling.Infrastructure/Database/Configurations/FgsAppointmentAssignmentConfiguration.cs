@@ -26,7 +26,7 @@ internal sealed class FgsAppointmentAssignmentConfiguration : IEntityTypeConfigu
         entity.Property(e => e.CompanyId).HasComment("Company identifier.");
         entity.Property(e => e.AppointmentId).HasComment("Appointment associated with the assignment.");
         entity.Property(e => e.EmployeeId).HasComment("Employee assigned to the appointment. References user service; no FK by design.");
-        entity.Property(e => e.CrewId).HasComment("Crew assignment snapshot at the time of scheduling.");
+        entity.Property(e => e.CrewId).HasComment("Crew assignment snapshot at the time of scheduling. References setup service; no FK by design.");
         entity.Property(e => e.ServiceDate).HasColumnType("date").IsRequired()
             .HasComment("Scheduled service date for the technician assignment.");
         entity.Property(e => e.ScheduledTime).HasColumnType("time").IsRequired()
@@ -50,13 +50,6 @@ internal sealed class FgsAppointmentAssignmentConfiguration : IEntityTypeConfigu
             .WithMany()
             .HasForeignKey(e => e.AppointmentId)
             .HasConstraintName("FK_FgsAppointmentAssignment_Appointment")
-            .OnDelete(DeleteBehavior.Restrict);
-
-        entity.HasOne<FgsCrew>()
-            .WithMany()
-            .HasForeignKey(e => new { e.TenantId, e.CompanyId, e.CrewId })
-            .HasPrincipalKey(c => new { c.TenantId, c.CompanyId, c.Id })
-            .HasConstraintName("FK_FgsAppointmentAssignment_Crew")
             .OnDelete(DeleteBehavior.Restrict);
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.AppointmentId, e.EmployeeId })

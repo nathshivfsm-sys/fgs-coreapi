@@ -1,0 +1,2 @@
+﻿-- Rollback for 20260620081054_MoveCrewToSetupAndAddDispatchBoardTechnician
+-- TODO: author idempotent DROP statements mirroring schema objects created in 20260620081054_MoveCrewToSetupAndAddDispatchBoardTechnician_up.sql

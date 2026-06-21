@@ -55,8 +55,6 @@ internal static class FgsSchedulingDbContextConfigurationExtensions
                 "FgsAppointment" => "FK_FgsAppointment_TenantCompany",
                 "FgsAppointmentAssignment" => "FK_FgsAppointmentAssignment_TenantCompany",
                 "FgsAppointmentAssignmentEvent" => "FK_FgsAppointmentAssignmentEvent_FgsTenantCompanyCache",
-                "FgsCrew" => "FK_FgsCrew_FgsTenantCompanyCache",
-                "FgsCrewMember" => "FK_FgsCrewMember_FgsTenantCompanyCache",
                 "FgsPayrollPayPeriod" => "FK_FgsPayrollPayPeriod_FgsTenantCompanyCache",
                 "FgsPayroll" => "FK_FgsPayroll_FgsTenantCompanyCache",
                 "FgsPayrollLine" => "FK_FgsPayrollLine_FgsTenantCompanyCache",

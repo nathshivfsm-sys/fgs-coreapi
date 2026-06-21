@@ -2402,4 +2402,90 @@ SELECT setval(
     COALESCE((SELECT MAX("Id") FROM glo."GloSeedTableColumnMapping"), 1),
     true);
 
+-- GloInventoryTransactionSourceType
+INSERT INTO glo."GloInventoryTransactionSourceType"
+(
+    "Code",
+    "Name",
+    "Description",
+    "SortOrder",
+    "IsSystem",
+    "IsActive"
+)
+SELECT
+    v."Code",
+    v."Name",
+    v."Description",
+    v."SortOrder",
+    true,
+    true
+FROM (
+    VALUES
+        ('INITIAL_BALANCE',      'Initial Balance',              'Opening inventory balances loaded during implementation or inventory setup.',                    10),
+        ('PURCHASE_RECEIPT',       'Purchase Receipt',             'Inventory received from a vendor purchase order.',                                              20),
+        ('INVENTORY_TRANSFER',     'Inventory Transfer',           'Inventory transferred between warehouses, trucks, or storage locations.',                       30),
+        ('INVENTORY_ADJUSTMENT',   'Inventory Adjustment',         'Inventory quantity corrected due to count variance, damage, loss, or correction.',              40),
+        ('WORK_ORDER_MATERIAL',    'Work Order Material Usage',    'Inventory consumed or returned during work order execution.',                                   50),
+        ('PHYSICAL_COUNT',         'Physical Count',               'Inventory quantity adjusted during physical inventory counting.',                                 60),
+        ('VENDOR_RETURN',          'Vendor Return',                'Inventory returned to a vendor.',                                                               70),
+        ('INVENTORY_CONVERSION',   'Inventory Conversion',         'Inventory converted through kit assembly, kit disassembly, or item conversion.',                  80),
+        ('INTEGRATION_SYNC',       'Integration Synchronization',  'Inventory movement created by an external accounting or ERP integration.',                      90)
+) AS v("Code", "Name", "Description", "SortOrder")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM glo."GloInventoryTransactionSourceType" t
+    WHERE t."Code" = v."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloInventoryTransactionSourceType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloInventoryTransactionSourceType"), 1),
+    true);
+
+-- GloInventoryTransactionType
+INSERT INTO glo."GloInventoryTransactionType"
+(
+    "InventoryTransactionSourceTypeId",
+    "Code",
+    "Name",
+    "Description",
+    "SortOrder",
+    "IsActive"
+)
+SELECT
+    s."Id",
+    x."Code",
+    x."Name",
+    x."Description",
+    x."SortOrder",
+    true
+FROM (
+    VALUES
+        ('INITIAL_BALANCE',      'INITIAL_BALANCE',      'Initial Balance',        'Opening inventory balance loaded during implementation or inventory setup.',                    10),
+        ('PURCHASE_RECEIPT',     'PURCHASE_RECEIPT',     'Purchase Receipt',       'Inventory received from a vendor purchase order.',                                              20),
+        ('INVENTORY_TRANSFER',   'TRANSFER_OUT',         'Transfer Out',           'Inventory transferred out of a warehouse, truck, or storage location.',                         30),
+        ('INVENTORY_TRANSFER',   'TRANSFER_IN',          'Transfer In',            'Inventory transferred into a warehouse, truck, or storage location.',                             40),
+        ('INVENTORY_ADJUSTMENT', 'ADJUSTMENT_IN',        'Adjustment Increase',    'Inventory quantity increased due to correction, count variance, or found inventory.',             50),
+        ('INVENTORY_ADJUSTMENT', 'ADJUSTMENT_OUT',       'Adjustment Decrease',    'Inventory quantity decreased due to correction, damage, loss, theft, or count variance.',        60),
+        ('WORK_ORDER_MATERIAL',  'WORK_ORDER_USAGE',     'Work Order Usage',       'Inventory consumed on a work order.',                                                           70),
+        ('WORK_ORDER_MATERIAL',  'RETURN_TO_STOCK',      'Return To Stock',        'Unused inventory returned from a work order back into stock.',                                  80),
+        ('PHYSICAL_COUNT',       'PHYSICAL_COUNT',       'Physical Count',         'Inventory adjusted as part of a physical inventory count.',                                     90),
+        ('VENDOR_RETURN',        'VENDOR_RETURN',        'Vendor Return',          'Inventory returned to a vendor.',                                                               100),
+        ('INVENTORY_CONVERSION', 'CONVERSION_OUT',       'Conversion Out',         'Inventory consumed during kit assembly, disassembly, manufacturing, or conversion.',            110),
+        ('INVENTORY_CONVERSION', 'CONVERSION_IN',        'Conversion In',          'Inventory produced during kit assembly, disassembly, manufacturing, or conversion.',            120),
+        ('INTEGRATION_SYNC',     'INTEGRATION_SYNC',     'Integration Sync',       'Inventory movement synchronized from an external system such as QuickBooks Online or Sage Intacct.', 130)
+) AS x("SourceCode", "Code", "Name", "Description", "SortOrder")
+INNER JOIN glo."GloInventoryTransactionSourceType" s
+    ON s."Code" = x."SourceCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM glo."GloInventoryTransactionType" t
+    WHERE t."Code" = x."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloInventoryTransactionType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloInventoryTransactionType"), 1),
+    true);
+
 COMMIT;

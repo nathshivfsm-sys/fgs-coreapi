@@ -9,23 +9,33 @@ internal class GloInventoryCategoryConfiguration : IEntityTypeConfiguration<GloI
 {
     public void Configure(EntityTypeBuilder<GloInventoryCategory> entity)
     {
-        entity.ToTable("GloInventoryCategory");
+        entity.ToTable("GloInventoryCategory", t =>
+            t.HasComment("Global inventory category catalog scoped to a business type."));
         entity.HasKey(e => e.Id);
-        entity.Property(e => e.Id).UseIdentityByDefaultColumn();
+        entity.Property(e => e.Id).UseIdentityByDefaultColumn()
+            .HasComment("Primary key.");
         entity.HasIndex(e => new { e.BusinessTypeId, e.CategoryCode })
             .IsUnique()
             .HasDatabaseName("UQ_GloInventoryCategory_BusinessTypeId_CategoryCode");
         entity.HasIndex(e => e.BusinessTypeId)
             .HasDatabaseName("IX_GloInventoryCategory_BusinessTypeId");
-        entity.Property(e => e.CategoryCode).HasMaxLength(50);
-        entity.Property(e => e.Name).HasMaxLength(150);
-        entity.Property(e => e.Description).HasColumnType("text");
-        entity.Property(e => e.DisplayOrder).HasDefaultValue((short)1);
-        entity.Property(e => e.IsActive).HasDefaultValue(true);
+        entity.Property(e => e.BusinessTypeId)
+            .HasComment("Business type that owns this category.");
+        entity.Property(e => e.CategoryCode).HasMaxLength(50)
+            .HasComment("Unique category code within the business type.");
+        entity.Property(e => e.Name).HasMaxLength(150)
+            .HasComment("Display name of the category.");
+        entity.Property(e => e.Description).HasColumnType("text")
+            .HasComment("Description of the category.");
+        entity.Property(e => e.DisplayOrder).HasDefaultValue((short)1)
+            .HasComment("Display order.");
+        entity.Property(e => e.IsActive).HasDefaultValue(true)
+            .HasComment("Indicates whether the category is active.");
         entity.Property(e => e.CreatedOn)
             .IsRequired()
             .HasColumnType("timestamptz")
-            .HasDefaultValueSql("now()");
+            .HasDefaultValueSql("now()")
+            .HasComment("Date and time the record was created.");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
         entity.HasOne<GloBusinessType>()
             .WithMany()

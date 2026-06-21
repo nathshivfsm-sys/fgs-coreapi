@@ -15,6 +15,8 @@ public sealed class FgsBillingDbContext(DbContextOptions<FgsBillingDbContext> op
 
     public DbSet<FgsInvoiceDetail> FgsInvoiceDetails => Set<FgsInvoiceDetail>();
 
+    public DbSet<FgsInvoiceWorkDescription> FgsInvoiceWorkDescriptions => Set<FgsInvoiceWorkDescription>();
+
     public DbSet<FgsInvoiceBatch> FgsInvoiceBatches => Set<FgsInvoiceBatch>();
 
     public DbSet<FgsPayment> FgsPayments => Set<FgsPayment>();

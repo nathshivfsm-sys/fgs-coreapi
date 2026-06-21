@@ -9,23 +9,33 @@ internal class GloInventorySubCategoryConfiguration : IEntityTypeConfiguration<G
 {
     public void Configure(EntityTypeBuilder<GloInventorySubCategory> entity)
     {
-        entity.ToTable("GloInventorySubCategory");
+        entity.ToTable("GloInventorySubCategory", t =>
+            t.HasComment("Global inventory sub-category catalog scoped to an inventory category."));
         entity.HasKey(e => e.Id);
-        entity.Property(e => e.Id).UseIdentityByDefaultColumn();
+        entity.Property(e => e.Id).UseIdentityByDefaultColumn()
+            .HasComment("Primary key.");
         entity.HasIndex(e => new { e.InventoryCategoryId, e.SubCategoryCode })
             .IsUnique()
             .HasDatabaseName("UQ_GloInventorySubCategory_InventoryCategoryId_SubCategoryCode");
         entity.HasIndex(e => e.InventoryCategoryId)
             .HasDatabaseName("IX_GloInventorySubCategory_InventoryCategoryId");
-        entity.Property(e => e.SubCategoryCode).HasMaxLength(50);
-        entity.Property(e => e.Name).HasMaxLength(150);
-        entity.Property(e => e.Description).HasColumnType("text");
-        entity.Property(e => e.DisplayOrder).HasDefaultValue((short)1);
-        entity.Property(e => e.IsActive).HasDefaultValue(true);
+        entity.Property(e => e.InventoryCategoryId)
+            .HasComment("Parent inventory category.");
+        entity.Property(e => e.SubCategoryCode).HasMaxLength(50)
+            .HasComment("Unique sub-category code within the category.");
+        entity.Property(e => e.Name).HasMaxLength(150)
+            .HasComment("Display name of the sub-category.");
+        entity.Property(e => e.Description).HasColumnType("text")
+            .HasComment("Description of the sub-category.");
+        entity.Property(e => e.DisplayOrder).HasDefaultValue((short)1)
+            .HasComment("Display order.");
+        entity.Property(e => e.IsActive).HasDefaultValue(true)
+            .HasComment("Indicates whether the sub-category is active.");
         entity.Property(e => e.CreatedOn)
             .IsRequired()
             .HasColumnType("timestamptz")
-            .HasDefaultValueSql("now()");
+            .HasDefaultValueSql("now()")
+            .HasComment("Date and time the record was created.");
         entity.HasOne<GloInventoryCategory>()
             .WithMany()
             .HasForeignKey(e => e.InventoryCategoryId)
