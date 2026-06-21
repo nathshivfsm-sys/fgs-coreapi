@@ -4751,6 +4751,12 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)")
                         .HasComment("Vendor invoice, receipt, repair order, or work order number associated with the maintenance activity.");
 
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the maintenance record is active and available for use.");
+
                     b.Property<bool>("IsCompleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -4806,6 +4812,9 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("VehicleId");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsVehicleMaintenance_TenantId_CompanyId_IsActive");
 
                     b.HasIndex("TenantId", "CompanyId", "IsCompleted")
                         .HasDatabaseName("IX_FgsVehicleMaintenance_TenantId_CompanyId_IsCompleted");

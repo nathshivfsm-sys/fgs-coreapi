@@ -1,0 +1,31 @@
+using Fgs.Contracts.Api;
+using Fgs.Foundation.CatalogCrud;
+using Fgs.Setup.Application.Abstractions.SetupTimeSlots;
+using Fgs.Setup.Application.Features.SetupTimeSlots.Dtos;
+using MediatR;
+using Microsoft.Extensions.Logging;
+
+namespace Fgs.Setup.Application.Features.SetupTimeSlots.Commands.UpdateFgsSetupTimeSlot;
+
+public sealed class UpdateFgsSetupTimeSlotCommandHandler(
+    IFgsSetupTimeSlotWriteService writeService,
+    ILogger<UpdateFgsSetupTimeSlotCommandHandler> logger)
+    : IRequestHandler<UpdateFgsSetupTimeSlotCommand, ApiResponse<FgsSetupTimeSlotDetailDto>>
+{
+    public async Task<ApiResponse<FgsSetupTimeSlotDetailDto>> Handle(
+        UpdateFgsSetupTimeSlotCommand request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
+            logger.LogInformation("Updated time slot {Id}", result.Id);
+            return ApiResponse<FgsSetupTimeSlotDetailDto>.Ok(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to update time slot {Id}", request.Id);
+            return CatalogCrudExceptionMapper.MapException<FgsSetupTimeSlotDetailDto>(ex);
+        }
+    }
+}

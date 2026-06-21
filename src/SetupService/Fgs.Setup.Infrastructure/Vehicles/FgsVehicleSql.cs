@@ -1,0 +1,39 @@
+using Fgs.Foundation.CatalogCrud;
+
+namespace Fgs.Setup.Infrastructure.Vehicles;
+
+internal static class FgsVehicleSql
+{
+    public const string Table = "setup.\"FgsVehicle\"";
+
+    public const string SelectDetailColumns = """
+        "Id", "TenantId", "CompanyId", "WarehouseId", "OwnershipType", "OwnershipCompany", "Year", "Make", "Model", "Color", "VIN", "LicensePlate", "LicensePlateState", "PurchaseDate", "PurchasePrice", "PurchasedFrom", "IsPurchasedNew", "Notes", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        """;
+
+    public const string SelectSummaryColumns = """
+        "Id", "TenantId", "CompanyId", "WarehouseId", "OwnershipType", "OwnershipCompany", "Year", "Make", "Model", "Color", "VIN", "LicensePlate", "LicensePlateState", "PurchaseDate", "PurchasePrice", "PurchasedFrom", "IsPurchasedNew", "Notes", "IsActive", "CreatedOn", "UpdatedOn"
+        """;
+
+    public const string SelectLookupColumns = """
+        "Id", "Make", "Model", "VIN"
+        """;
+
+    private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Id", "CreatedOn", "IsActive", "WarehouseId", "OwnershipType", "OwnershipCompany", "Year", "Make", "Model", "Color", "VIN", "LicensePlate", "LicensePlateState", "PurchaseDate", "PurchasePrice", "PurchasedFrom", "IsPurchasedNew", "Notes"
+    };
+
+    public static string ResolveOrderBy(string? sortBy, SortDirection direction)
+    {
+        var dir = direction == SortDirection.Desc ? "DESC" : "ASC";
+        if (string.IsNullOrWhiteSpace(sortBy) || !AllowedSortColumns.Contains(sortBy))
+        {
+            return $"ORDER BY \"VIN\" {dir}";
+        }
+
+        var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));
+        return column.Equals("DisplayOrder", StringComparison.OrdinalIgnoreCase)
+            ? $"ORDER BY \"VIN\" {dir}"
+            : $"ORDER BY \"{column}\" {dir}";
+    }
+}

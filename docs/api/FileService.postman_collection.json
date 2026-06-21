@@ -454,7 +454,7 @@
                  "description":  "Tenant S3 bucket provisioning via gateway /api/v1/tenants.",
                  "name":  "FGS FileService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "18300803-f86a-400b-ab42-255b460164b2"
+                 "_postman_id":  "37085ca2-22a2-4c28-a1dd-539a03b4b71c"
              },
     "event":  [
                   {

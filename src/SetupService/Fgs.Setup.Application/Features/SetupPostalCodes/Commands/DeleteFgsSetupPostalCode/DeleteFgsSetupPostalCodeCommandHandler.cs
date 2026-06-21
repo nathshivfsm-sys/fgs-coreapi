@@ -1,0 +1,31 @@
+using Fgs.Contracts.Api;
+using Fgs.Foundation.CatalogCrud;
+using Fgs.Setup.Application.Abstractions.SetupPostalCodes;
+using Fgs.Setup.Application.Features.SetupPostalCodes.Dtos;
+using MediatR;
+using Microsoft.Extensions.Logging;
+
+namespace Fgs.Setup.Application.Features.SetupPostalCodes.Commands.DeleteFgsSetupPostalCode;
+
+public sealed class DeleteFgsSetupPostalCodeCommandHandler(
+    IFgsSetupPostalCodeWriteService writeService,
+    ILogger<DeleteFgsSetupPostalCodeCommandHandler> logger)
+    : IRequestHandler<DeleteFgsSetupPostalCodeCommand, ApiResponse<FgsSetupPostalCodeDetailDto>>
+{
+    public async Task<ApiResponse<FgsSetupPostalCodeDetailDto>> Handle(
+        DeleteFgsSetupPostalCodeCommand request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await writeService.DeleteAsync(request.Id, cancellationToken);
+            logger.LogInformation("Soft-deleted postal code {Id}", result.Id);
+            return ApiResponse<FgsSetupPostalCodeDetailDto>.Ok(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to delete postal code {Id}", request.Id);
+            return CatalogCrudExceptionMapper.MapException<FgsSetupPostalCodeDetailDto>(ex);
+        }
+    }
+}

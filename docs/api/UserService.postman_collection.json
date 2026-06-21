@@ -327,6 +327,52 @@
                                                                    "type":  "bearer"
                                                                }
                                                   }
+                                  },
+                                  {
+                                      "name":  "GetMe",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/auth/me",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "auth",
+                                                                               "me"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetMe",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
                                   }
                               ]
                  },
@@ -823,7 +869,7 @@
                  "description":  "Company onboarding, Entra auth (via gateway), and tenant admin APIs (direct userServiceUrl /api/v1/tenants â€” matches controller routes).",
                  "name":  "FGS UserService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "2c76b8d8-99a8-4456-a5da-169e248118e6"
+                 "_postman_id":  "cf057b62-310e-4d16-8e82-784e351a2b28"
              },
     "event":  [
                   {

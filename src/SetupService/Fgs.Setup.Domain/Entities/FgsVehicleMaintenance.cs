@@ -31,6 +31,8 @@ public class FgsVehicleMaintenance : FgsEntityBase, ITenantCompanyScoped
 
     public bool IsCompleted { get; set; } = true;
 
+    public bool IsActive { get; set; } = true;
+
     public string? Description { get; set; }
 
     public string? Notes { get; set; }

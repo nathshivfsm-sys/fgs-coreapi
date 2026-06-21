@@ -62,7 +62,7 @@
                  "description":  "Outbox publisher worker API.",
                  "name":  "FGS PublisherService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "c90e6bc1-b977-4279-9c5f-3f2be9794f06"
+                 "_postman_id":  "66b26c76-55db-4d24-b6af-4970fec366af"
              },
     "event":  [
                   {

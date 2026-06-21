@@ -1,0 +1,31 @@
+using Fgs.Contracts.Api;
+using Fgs.Foundation.CatalogCrud;
+using Fgs.Setup.Application.Abstractions.VehicleMaintenances;
+using Fgs.Setup.Application.Features.VehicleMaintenances.Dtos;
+using MediatR;
+using Microsoft.Extensions.Logging;
+
+namespace Fgs.Setup.Application.Features.VehicleMaintenances.Commands.CreateFgsVehicleMaintenance;
+
+public sealed class CreateFgsVehicleMaintenanceCommandHandler(
+    IFgsVehicleMaintenanceWriteService writeService,
+    ILogger<CreateFgsVehicleMaintenanceCommandHandler> logger)
+    : IRequestHandler<CreateFgsVehicleMaintenanceCommand, ApiResponse<FgsVehicleMaintenanceDetailDto>>
+{
+    public async Task<ApiResponse<FgsVehicleMaintenanceDetailDto>> Handle(
+        CreateFgsVehicleMaintenanceCommand request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await writeService.CreateAsync(request.Dto, cancellationToken);
+            logger.LogInformation("Created vehicle maintenance {Id} with code {VehicleId}", result.Id, result.VehicleId);
+            return ApiResponse<FgsVehicleMaintenanceDetailDto>.Ok(result, ApiStatusCodes.Created);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to create vehicle maintenance");
+            return CatalogCrudExceptionMapper.MapException<FgsVehicleMaintenanceDetailDto>(ex);
+        }
+    }
+}

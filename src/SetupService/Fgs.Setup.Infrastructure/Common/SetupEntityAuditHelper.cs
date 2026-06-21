@@ -77,6 +77,208 @@ public sealed class SetupEntityAuditHelper
         trade.CreatedBy = actor;
     }
 
+
+    public void StampForCreate(FgsLeadDisqualificationReason entity)
+    {
+        var now = _dateTimeProvider.UtcNow;
+        var actor = ResolveActor();
+        var (tenantId, companyId) = ResolveTenantCompany();
+
+        entity.CreatedOn = now;
+        entity.CreatedBy = actor;
+        entity.UpdatedOn = now;
+        entity.UpdatedBy = actor;
+        entity.IsActive = true;
+        entity.TenantId = tenantId;
+        entity.CompanyId = companyId;
+    }
+
+    public void StampForUpdate(FgsLeadDisqualificationReason entity)
+    {
+        entity.UpdatedOn = _dateTimeProvider.UtcNow;
+        entity.UpdatedBy = ResolveActor();
+    }
+
+    public void StampForCreate(FgsLeadSource entity)
+    {
+        var now = _dateTimeProvider.UtcNow;
+        var actor = ResolveActor();
+        var (tenantId, companyId) = ResolveTenantCompany();
+
+        entity.CreatedOn = now;
+        entity.CreatedBy = actor;
+        entity.UpdatedOn = now;
+        entity.UpdatedBy = actor;
+        entity.IsActive = true;
+        entity.TenantId = tenantId;
+        entity.CompanyId = companyId;
+    }
+
+    public void StampForUpdate(FgsLeadSource entity)
+    {
+        entity.UpdatedOn = _dateTimeProvider.UtcNow;
+        entity.UpdatedBy = ResolveActor();
+    }
+
+    public void StampForCreate(FgsLeadStatus entity)
+    {
+        var now = _dateTimeProvider.UtcNow;
+        var actor = ResolveActor();
+        var (tenantId, companyId) = ResolveTenantCompany();
+
+        entity.CreatedOn = now;
+        entity.CreatedBy = actor;
+        entity.UpdatedOn = now;
+        entity.UpdatedBy = actor;
+        entity.IsActive = true;
+        entity.TenantId = tenantId;
+        entity.CompanyId = companyId;
+    }
+
+    public void StampForUpdate(FgsLeadStatus entity)
+    {
+        entity.UpdatedOn = _dateTimeProvider.UtcNow;
+        entity.UpdatedBy = ResolveActor();
+    }
+
+
+    public void StampForCreate(FgsSalesPipelineStatus entity)
+    {
+        StampTenantCompanyEntity(entity);
+    }
+
+    public void StampForUpdate(FgsSalesPipelineStatus entity)
+    {
+        StampTenantCompanyUpdate(entity);
+    }
+
+    public void StampForCreate(FgsSalesActivityType entity)
+    {
+        StampTenantCompanyEntity(entity);
+    }
+
+    public void StampForUpdate(FgsSalesActivityType entity)
+    {
+        StampTenantCompanyUpdate(entity);
+    }
+
+    public void StampForCreate(FgsSalesDispositionReason entity)
+    {
+        StampTenantCompanyEntity(entity);
+    }
+
+    public void StampForUpdate(FgsSalesDispositionReason entity)
+    {
+        StampTenantCompanyUpdate(entity);
+    }
+
+    public void StampForCreate(FgsSalesActivityOutcome entity)
+    {
+        StampTenantCompanyEntity(entity);
+    }
+
+    public void StampForUpdate(FgsSalesActivityOutcome entity)
+    {
+        StampTenantCompanyUpdate(entity);
+    }
+
+    public void StampForCreate(FgsVehicleMaintenance entity)
+    {
+        StampTenantCompanyEntity(entity);
+    }
+
+    public void StampForUpdate(FgsVehicleMaintenance entity)
+    {
+        StampTenantCompanyUpdate(entity);
+    }
+
+    private void StampTenantCompanyEntity(FgsEntityBase entity)
+    {
+        var now = _dateTimeProvider.UtcNow;
+        var actor = ResolveActor();
+        var (tenantId, companyId) = ResolveTenantCompany();
+
+        entity.CreatedOn = now;
+        entity.CreatedBy = actor;
+        entity.UpdatedOn = now;
+        entity.UpdatedBy = actor;
+
+        switch (entity)
+        {
+            case FgsSalesPipelineStatus salesPipelineStatus:
+                salesPipelineStatus.TenantId = tenantId;
+                salesPipelineStatus.CompanyId = companyId;
+                salesPipelineStatus.IsActive = true;
+                break;
+            case FgsSalesActivityType salesActivityType:
+                salesActivityType.TenantId = tenantId;
+                salesActivityType.CompanyId = companyId;
+                salesActivityType.IsActive = true;
+                break;
+            case FgsSalesDispositionReason salesDispositionReason:
+                salesDispositionReason.TenantId = tenantId;
+                salesDispositionReason.CompanyId = companyId;
+                salesDispositionReason.IsActive = true;
+                break;
+            case FgsSalesActivityOutcome salesActivityOutcome:
+                salesActivityOutcome.TenantId = tenantId;
+                salesActivityOutcome.CompanyId = companyId;
+                salesActivityOutcome.IsActive = true;
+                break;
+            case FgsVehicleMaintenance vehicleMaintenance:
+                vehicleMaintenance.TenantId = tenantId;
+                vehicleMaintenance.CompanyId = companyId;
+                vehicleMaintenance.IsActive = true;
+                break;
+        }
+    }
+
+    private void StampTenantCompanyUpdate(FgsEntityBase entity)
+    {
+        entity.UpdatedOn = _dateTimeProvider.UtcNow;
+        entity.UpdatedBy = ResolveActor();
+    }
+
+    public void StampForCreate(FgsTag entity)
+    {
+        var now = _dateTimeProvider.UtcNow;
+        var actor = ResolveActor();
+        var (tenantId, companyId) = ResolveTenantCompany();
+
+        entity.CreatedOn = now;
+        entity.CreatedBy = actor;
+        entity.UpdatedOn = now;
+        entity.UpdatedBy = actor;
+        entity.IsActive = true;
+        entity.TenantId = tenantId;
+        entity.CompanyId = companyId;
+    }
+
+    public void StampForUpdate(FgsTag entity)
+    {
+        entity.UpdatedOn = _dateTimeProvider.UtcNow;
+        entity.UpdatedBy = ResolveActor();
+    }
+
+    public void StampForCreate(FgsSetupCommunicationTemplate entity, long? tenantId, long? companyId)
+    {
+        var now = _dateTimeProvider.UtcNow;
+        var actor = ResolveActor();
+
+        entity.TenantId = tenantId;
+        entity.CompanyId = companyId;
+        entity.CreatedOn = now;
+        entity.CreatedBy = actor;
+        entity.UpdatedOn = now;
+        entity.UpdatedBy = actor;
+        entity.IsActive = true;
+    }
+
+    public void StampForUpdate(FgsSetupCommunicationTemplate entity)
+    {
+        entity.UpdatedOn = _dateTimeProvider.UtcNow;
+        entity.UpdatedBy = ResolveActor();
+    }
     private string ResolveActor() =>
         _userContext.UserId?.ToString()
         ?? _userContext.Email

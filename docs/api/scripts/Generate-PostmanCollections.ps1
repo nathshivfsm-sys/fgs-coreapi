@@ -182,11 +182,286 @@ function Get-ServiceBaseUrl {
     return "{{$varName}}/api/v1/$RouteTemplate"
 }
 
+function ConvertTo-CamelCase {
+    param([string]$Name)
+    if ([string]::IsNullOrWhiteSpace($Name)) { return $Name }
+    if ($Name.Length -eq 1) { return $Name.ToLowerInvariant() }
+    return ($Name.Substring(0, 1).ToLowerInvariant() + $Name.Substring(1))
+}
+
+function Get-SampleJsonValue {
+    param(
+        [string]$PropertyName,
+        [string]$CsType,
+        [bool]$IsPatch = $false
+    )
+
+    $nullable = $CsType.EndsWith('?')
+    $baseType = $CsType.TrimEnd('?')
+    $camel = ConvertTo-CamelCase $PropertyName
+
+    if ($IsPatch) {
+        if ($PropertyName -eq 'IsActive') { return 'true' }
+        if ($baseType -eq 'bool') { return 'null' }
+        if ($baseType -in @('string', 'String')) {
+            if ($PropertyName -match 'Name|DisplayName|TaskName|Subject|Body|Description|Notes|ShortNote') {
+                return '"Updated sample"'
+            }
+            if ($PropertyName -match 'Code|Type|Category|Channel|VIN|PostalCode|VendorCode|WarehouseCode|TaxCode|RegionCode|TagCode|StatusCode|OutcomeCode|ActivityTypeCode|DispositionReasonCode|SourceCode|ReasonCode|JobTypeCode|CategoryCode|SubCategoryCode|BillingCategoryType|DescriptionTypeCode|ResolutionCode|DueDateMethod|UsedFor|OwnershipType|VendorType|WarehouseType|CommunicationChannel|TemplateType') {
+                return 'null'
+            }
+            return 'null'
+        }
+        if ($baseType -in @('short', 'int', 'long', 'decimal', 'double', 'float')) { return 'null' }
+        if ($baseType -eq 'DateOnly') { return 'null' }
+        if ($baseType -eq 'TimeSpan') { return 'null' }
+        if ($baseType -eq 'Guid') { return 'null' }
+        return 'null'
+    }
+
+    if ($nullable -and $PropertyName -match 'Id$|SyncToken|ExternalSystemId|IconFileId|AddressId|LogoFileId|JobTypeSubCategoryId|NextSalesPipelineStatusId|PaymentTermId|FgsSetupZoneId|FgsSetupTaxId|FgsSetupTechTradeId|TenantId|CompanyId') {
+        if ($PropertyName -eq 'TenantId') { return 'null' }
+        if ($PropertyName -eq 'CompanyId') { return 'null' }
+        if ($PropertyName -match 'WarehouseId|VehicleId|FgsSetupTaxId|FgsSetupTaxAuthorityId|JobTypeCategoryId') { return '{{recordId}}' }
+        return 'null'
+    }
+
+    switch ($baseType) {
+        'bool' {
+            switch -Regex ($PropertyName) {
+                '^IsActive$' { return 'true' }
+                '^IsSystem$|^IsSystemDefined$|^IsSystemGenerated$|^Is1099Eligible$|^IsExternalSystemRecord$' { return 'false' }
+                '^IsCompleted$' { return 'true' }
+                '^IsDefault$' { return 'false' }
+                '^Show|^Allow|^IsMobileVisible$|^IsCustomerPortalVisible$|^ShowToFieldTech$|^ShowOnCustomerPortal$|^AllowToPick$|^AllowManualSelection$|^AppliesToLead$|^AppliesToOpportunity$' { return 'true' }
+                '^IsTerminal$|^RequireComment$' { return 'false' }
+                default { return 'true' }
+            }
+        }
+        'short' {
+            if ($PropertyName -match 'Year') { return '2024' }
+            if ($PropertyName -match 'Priority') { return '5' }
+            if ($PropertyName -match 'DisplayOrder|SortOrder') { return '1' }
+            return '1'
+        }
+        'int' {
+            if ($PropertyName -match 'Minutes|Mileage|NumberOfDays|VehicleMaintenanceTypeId|GloResolutionTypeId') { return '1' }
+            return '1'
+        }
+        'long' {
+            if ($PropertyName -match 'Id$') { return '{{recordId}}' }
+            return '1'
+        }
+        'decimal' {
+            if ($PropertyName -match 'Percent|TaxPercent') { return '8.25' }
+            if ($PropertyName -match 'Price|Cost') { return '100.00' }
+            return '0.00'
+        }
+        'double' { return '0.0' }
+        'float' { return '0.0' }
+        'DateOnly' { return '"2026-06-21"' }
+        'TimeSpan' {
+            if ($PropertyName -match 'Begin|Start|Arrived') { return '"08:00:00"' }
+            if ($PropertyName -match 'End|Delayed|Completion') { return '"17:00:00"' }
+            return '"09:00:00"'
+        }
+        'Guid' { return '"11111111-1111-1111-1111-111111111111"' }
+        default {
+            if ($PropertyName -match 'Email') { return '"office@example.com"' }
+            if ($PropertyName -match 'Phone|Mobile') { return '"+15551234567"' }
+            if ($PropertyName -match 'Website|Url') { return '"https://example.com"' }
+            if ($PropertyName -match 'VIN') { return '"1HGBH41JXMN109186"' }
+            if ($PropertyName -match 'PostalCode') { return '"78701"' }
+            if ($PropertyName -match 'BackgroundColor|TextColor') { return '"#FFFFFF"' }
+            if ($PropertyName -match 'Body|Subject|Description|Notes|ShortNote|TaskName|LegalName|ServiceProvider|InvoiceNumber|PurchasedFrom|OwnershipCompany|BusinessUnit|Trade|UsedFor|DueDateMethod|VendorType|WarehouseType|OwnershipType|CommunicationChannel|TemplateType|BillingCategoryName|BillingCategoryType') {
+                return (Get-StringSampleValue $PropertyName)
+            }
+            if ($PropertyName -match 'Code|Type$|Category') {
+                return (Get-CodeSampleValue $PropertyName)
+            }
+            if ($PropertyName -match 'Name|DisplayName') {
+                return (Get-NameSampleValue $PropertyName)
+            }
+            if ($nullable) { return 'null' }
+            return '"sample"'
+        }
+    }
+}
+
+function Get-CodeSampleValue {
+    param([string]$PropertyName)
+    $map = @{
+        Code = 'SAMPLE'
+        CategoryCode = 'GEN'
+        SubCategoryCode = 'SUB'
+        JobTypeCode = 'SVC'
+        TaxCode = 'TX'
+        VendorCode = 'VND01'
+        WarehouseCode = 'WH01'
+        PostalCode = '78701'
+        StatusCode = 'NEW'
+        OutcomeCode = 'WON'
+        ActivityTypeCode = 'CALL'
+        DispositionReasonCode = 'NOBUDGET'
+        SourceCode = 'WEB'
+        ReasonCode = 'OTHER'
+        ResolutionCode = 'FIXED'
+        DescriptionTypeCode = 'NOTES'
+        BillingCategoryType = 'IN'
+        CommunicationChannel = 'Email'
+        TemplateType = 'Email'
+        DueDateMethod = 'NetDays'
+        UsedFor = 'Service'
+        OwnershipType = 'Owned'
+        VendorType = 'VENDOR'
+        WarehouseType = 'Warehouse'
+        RegionCode = 'TX'
+        TagCode = 'TAG01'
+    }
+    foreach ($key in $map.Keys) {
+        if ($PropertyName -eq $key) { return ('"' + $map[$key] + '"') }
+    }
+    if ($PropertyName -match 'Code$') {
+        $stem = ($PropertyName -replace 'Code$','').ToUpperInvariant()
+        if ($stem.Length -gt 6) { $stem = $stem.Substring(0, 6) }
+        return ('"' + $stem + '"')
+    }
+    return '"CODE"'
+}
+
+function Get-NameSampleValue {
+    param([string]$PropertyName)
+    $map = @{
+        Name = 'Sample Name'
+        DisplayName = 'Sample Display Name'
+        TaskName = 'Sample Service Call'
+        StatusName = 'New Lead'
+        OutcomeName = 'Qualified'
+        ActivityTypeName = 'Phone Call'
+        DispositionReasonName = 'No Budget'
+        SourceName = 'Website'
+        ReasonName = 'Other'
+        ResolutionName = 'Issue Resolved'
+        BillingCategoryName = 'Service Invoice'
+        VendorName = 'Sample Vendor'
+        LegalName = 'Sample Vendor LLC'
+    }
+    foreach ($key in $map.Keys) {
+        if ($PropertyName -eq $key) { return ('"' + $map[$key] + '"') }
+    }
+    if ($PropertyName -match 'Name$') { return '"Sample Name"' }
+    return '"Sample"'
+}
+
+function Get-StringSampleValue {
+    param([string]$PropertyName)
+    if ($PropertyName -eq 'Body') { return '"Hello {{CompanyName}}, this is a sample template body."' }
+    if ($PropertyName -eq 'Subject') { return '"Sample subject line"' }
+    if ($PropertyName -eq 'Description') { return '"Sample description"' }
+    if ($PropertyName -eq 'Notes') { return '"Sample notes"' }
+    if ($PropertyName -eq 'ShortNote') { return '"Note"' }
+    if ($PropertyName -eq 'BillingCategoryType') { return '"IN"' }
+    if ($PropertyName -eq 'CommunicationChannel') { return '"Email"' }
+    if ($PropertyName -eq 'TemplateType') { return '"Email"' }
+    if ($PropertyName -eq 'DueDateMethod') { return '"NetDays"' }
+    if ($PropertyName -eq 'UsedFor') { return '"Service"' }
+    if ($PropertyName -eq 'OwnershipType') { return '"Owned"' }
+    if ($PropertyName -eq 'VendorType') { return '"VENDOR"' }
+    if ($PropertyName -eq 'WarehouseType') { return '"Warehouse"' }
+    return '"sample"'
+}
+
+function Build-DtoRegistry {
+    param([string]$Root)
+
+    $registry = @{}
+    $dtoFiles = Get-ChildItem -Path (Join-Path $Root 'src') -Filter '*Dtos.cs' -Recurse -ErrorAction SilentlyContinue |
+        Where-Object { $_.FullName -match 'Application\\Features' }
+
+    foreach ($file in $dtoFiles) {
+        $content = Get-Content -Raw -Path $file.FullName
+        $matches = [regex]::Matches($content, 'public\s+sealed\s+record\s+(\w+)\s*\((.*?)\)\s*;', [System.Text.RegularExpressions.RegexOptions]::Singleline)
+        foreach ($m in $matches) {
+            $typeName = $m.Groups[1].Value
+            if ($typeName -match 'SummaryDto|DetailDto|LookupDto|ListFilters$') { continue }
+
+            $props = @()
+            foreach ($line in ($m.Groups[2].Value -split ',')) {
+                $line = $line.Trim()
+                if ([string]::IsNullOrWhiteSpace($line)) { continue }
+                if ($line -match '^(?<type>[\w\?\.]+)\s+(?<name>\w+)(?:\s*=\s*[^,]+)?$') {
+                    $props += [pscustomobject]@{
+                        Name = $Matches.name
+                        CsType = $Matches.type
+                    }
+                }
+            }
+            if ($props.Count -gt 0) {
+                $registry[$typeName] = $props
+            }
+        }
+    }
+
+    return $registry
+}
+
+function Get-DtoSampleBody {
+    param(
+        [string]$DtoType,
+        [hashtable]$Registry,
+        [string]$MethodName
+    )
+
+    if (-not $Registry.ContainsKey($DtoType)) { return $null }
+
+    $props = $Registry[$DtoType]
+    $isPatch = ($MethodName -eq 'Patch') -or $DtoType -match 'PatchDto$'
+
+    if ($isPatch) {
+        $selected = @()
+        foreach ($p in $props) {
+            if ($p.Name -eq 'IsActive') { $selected += $p; continue }
+            if ($p.Name -match 'Name|DisplayName|TaskName|Description|Body|Subject|SortOrder|DisplayOrder') {
+                $selected += $p
+            }
+        }
+        if ($selected.Count -eq 0) {
+            $selected = @($props | Select-Object -First 2)
+        }
+        $props = $selected | Select-Object -Unique -Property Name, CsType
+    }
+
+    $lines = @()
+    foreach ($p in $props) {
+        $value = Get-SampleJsonValue -PropertyName $p.Name -CsType $p.CsType -IsPatch:$isPatch
+        $lines += ('  "{0}": {1}' -f (ConvertTo-CamelCase $p.Name), $value)
+    }
+
+    return "{`n" + ($lines -join ",`n") + "`n}"
+}
+
+function Get-FromBodyDtoType {
+    param(
+        [string]$Content,
+        [int]$StartIndex,
+        [string]$MethodName
+    )
+
+    $length = [Math]::Min(1200, $Content.Length - $StartIndex)
+    if ($length -le 0) { return $null }
+    $snippet = $Content.Substring($StartIndex, $length)
+    if ($snippet -match '(?s)public\s+(?:async\s+)?(?:Task<[^>]+>|IActionResult|ActionResult(?:<[^>]+>)?)\s+' + [regex]::Escape($MethodName) + '\s*\(.*?\[FromBody\]\s+(\w+)') {
+        return $Matches[1]
+    }
+    return $null
+}
+
 function Parse-ControllerFile {
     param(
         [string]$FilePath,
         [string]$ServiceKey,
-        [hashtable]$GatewayMap
+        [hashtable]$GatewayMap,
+        [hashtable]$DtoRegistry
     )
 
     $content = Get-Content -Raw -Path $FilePath
@@ -227,7 +502,15 @@ function Parse-ControllerFile {
 
         $useAuth = Test-RequiresAuth $classHeader $block
         $pathSuffix = Convert-RouteToPostmanPath $routeSuffix
-        $fullPath = Join-UrlPath $baseUrl $pathSuffix
+        if ($routeSuffix -match '^~?/') {
+            $absolutePath = ($routeSuffix -replace '^~/','/') -replace 'v\{version:apiVersion\}','v1'
+            $absolutePath = Convert-RouteToPostmanPath $absolutePath.TrimStart('/')
+            $serviceHost = if ($baseUrl -match '^(\{\{[^}]+\}\})') { $Matches[1] } else { '{{gatewayUrl}}' }
+            $fullPath = Join-UrlPath $serviceHost $absolutePath
+        }
+        else {
+            $fullPath = Join-UrlPath $baseUrl $pathSuffix
+        }
 
         $query = @{}
         $headers = @{}
@@ -519,6 +802,14 @@ function Parse-ControllerFile {
             $fullPath = '{{gatewayUrl}}/api/v1/auth/entra/callback?code={{authCode}}&state={{invitationId}}'
         }
 
+        if ($httpAttr -in @('Post','Put','Patch') -and ($body -eq '{}' -or [string]::IsNullOrWhiteSpace($body)) -and $null -ne $DtoRegistry) {
+            $dtoType = Get-FromBodyDtoType -Content $content -StartIndex $m.Index -MethodName $methodName
+            if ($dtoType) {
+                $generatedBody = Get-DtoSampleBody -DtoType $dtoType -Registry $DtoRegistry -MethodName $methodName
+                if ($generatedBody) { $body = $generatedBody }
+            }
+        }
+
         $displayName = $methodName
         if ($docSummary -and $docSummary.Length -le 48 -and $docSummary -notmatch '[.!?]') {
             $displayName = $docSummary
@@ -540,6 +831,20 @@ function Parse-ControllerFile {
             })
         }
         if ($fileName -eq 'GLBreaksController' -and $methodName -eq 'Create') {
+            $req['event'] = @(@{
+                listen = 'test'
+                script = @{
+                    type = 'text/javascript'
+                    exec = @(
+                        'const body = pm.response.json();',
+                        'if (body.success && body.data && body.data.id) {',
+                        '  pm.environment.set("recordId", String(body.data.id));',
+                        '}'
+                    )
+                }
+            })
+        }
+        if ($methodName -eq 'Create' -and $httpAttr -eq 'Post' -and -not $req.ContainsKey('event')) {
             $req['event'] = @(@{
                 listen = 'test'
                 script = @{
@@ -760,6 +1065,10 @@ $serviceConfigs = @(
 
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 
+Write-Host "Building DTO registry from Application layer..."
+$script:DtoRegistry = Build-DtoRegistry -Root $RepoRoot
+Write-Host "  Loaded $($script:DtoRegistry.Count) DTO types"
+
 foreach ($svc in $serviceConfigs) {
     $controllerRoot = Join-Path $RepoRoot $svc.Path
     if (-not (Test-Path $controllerRoot)) { Write-Warning "Skip $($svc.Key): $controllerRoot"; continue }
@@ -771,7 +1080,7 @@ foreach ($svc in $serviceConfigs) {
     $folders = @()
 
     foreach ($file in $files) {
-        $folder = Parse-ControllerFile -FilePath $file.FullName -ServiceKey $svc.Key -GatewayMap $map
+        $folder = Parse-ControllerFile -FilePath $file.FullName -ServiceKey $svc.Key -GatewayMap $map -DtoRegistry $script:DtoRegistry
         if ($null -ne $folder) { $folders += $folder }
     }
 
