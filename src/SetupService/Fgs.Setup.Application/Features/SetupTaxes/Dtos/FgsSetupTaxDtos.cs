@@ -1,5 +1,22 @@
 namespace Fgs.Setup.Application.Features.SetupTaxes.Dtos;
 
+public sealed record FgsSetupTaxAuthorityAssignmentWriteDto(
+    long FgsSetupTaxAuthorityId,
+    DateOnly EffectiveFromDate,
+    DateOnly? EffectiveToDate,
+    bool IsExternalSystemRecord);
+
+public sealed record FgsSetupTaxAuthorityAssignmentDto(
+    long Id,
+    long FgsSetupTaxAuthorityId,
+    string TaxAuthorityCode,
+    string TaxAuthorityName,
+    decimal TaxPercent,
+    DateOnly EffectiveFromDate,
+    DateOnly? EffectiveToDate,
+    bool IsExternalSystemRecord,
+    bool IsActive);
+
 public sealed record FgsSetupTaxSummaryDto(
     long Id,
     long TenantId,
@@ -26,6 +43,7 @@ public sealed record FgsSetupTaxDetailDto(
     string? SyncToken,
     bool ShowTaxDetail,
     string? Description,
+    IReadOnlyList<FgsSetupTaxAuthorityAssignmentDto> TaxDetails,
     bool IsActive,
     DateTimeOffset CreatedOn,
     string? CreatedBy,
@@ -44,7 +62,8 @@ public sealed record FgsSetupTaxCreateDto(
     string? ExternalSystemId,
     string? SyncToken,
     bool ShowTaxDetail,
-    string? Description);
+    string? Description,
+    IReadOnlyList<FgsSetupTaxAuthorityAssignmentWriteDto>? TaxDetails = null);
 
 public sealed record FgsSetupTaxUpdateDto(
     string TaxCode,
@@ -53,7 +72,8 @@ public sealed record FgsSetupTaxUpdateDto(
     string? ExternalSystemId,
     string? SyncToken,
     bool ShowTaxDetail,
-    string? Description);
+    string? Description,
+    IReadOnlyList<FgsSetupTaxAuthorityAssignmentWriteDto>? TaxDetails = null);
 
 public sealed record FgsSetupTaxPatchDto(
     string? TaxCode,
@@ -63,6 +83,7 @@ public sealed record FgsSetupTaxPatchDto(
     string? SyncToken,
     bool? ShowTaxDetail,
     string? Description,
+    IReadOnlyList<FgsSetupTaxAuthorityAssignmentWriteDto>? TaxDetails,
     bool? IsActive);
 
 public sealed record FgsSetupTaxListFilters(

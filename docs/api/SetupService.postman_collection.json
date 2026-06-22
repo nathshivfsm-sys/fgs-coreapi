@@ -10103,7 +10103,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"regionCode\": \"TX\",\n  \"isExternalSystemRecord\": false,\n  \"description\": \"Sample description\"\n}",
+                                                                   "raw":  "{\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"regionCode\": \"TX\",\n  \"isExternalSystemRecord\": false,\n  \"taxPercent\": 8.25,\n  \"description\": \"Sample description\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -10178,7 +10178,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"regionCode\": \"TX\",\n  \"isExternalSystemRecord\": false,\n  \"description\": \"Sample description\"\n}",
+                                                                   "raw":  "{\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"regionCode\": \"TX\",\n  \"isExternalSystemRecord\": false,\n  \"taxPercent\": 8.25,\n  \"description\": \"Sample description\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -10271,434 +10271,6 @@
                                                                                "api",
                                                                                "v1",
                                                                                "taxauthorities",
-                                                                               "{{recordId}}"
-                                                                           ]
-                                                              },
-                                                      "description":  "Delete",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  }
-                              ]
-                 },
-                 {
-                     "description":  "TaxDetailsController - taxdetails",
-                     "name":  "TaxDetailsController",
-                     "item":  [
-                                  {
-                                      "name":  "GetById",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{setupServiceUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{setupServiceUrl}}/api/v1/taxdetails/{{recordId}}",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "taxdetails",
-                                                                               "{{recordId}}"
-                                                                           ]
-                                                              },
-                                                      "description":  "GetById",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  },
-                                  {
-                                      "name":  "List",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{setupServiceUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{setupServiceUrl}}/api/v1/taxdetails",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "taxdetails"
-                                                                           ]
-                                                              },
-                                                      "description":  "List",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  },
-                                  {
-                                      "name":  "Lookup",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{setupServiceUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{setupServiceUrl}}/api/v1/taxdetails/lookup",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "taxdetails",
-                                                                               "lookup"
-                                                                           ]
-                                                              },
-                                                      "description":  "Lookup",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  },
-                                  {
-                                      "name":  "ListActive",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{setupServiceUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{setupServiceUrl}}/api/v1/taxdetails/active",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "taxdetails",
-                                                                               "active"
-                                                                           ]
-                                                              },
-                                                      "description":  "ListActive",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  },
-                                  {
-                                      "request":  {
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{setupServiceUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{setupServiceUrl}}/api/v1/taxdetails",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "taxdetails"
-                                                                           ]
-                                                              },
-                                                      "description":  "Create",
-                                                      "method":  "POST",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "Content-Type",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     }
-                                                                 ],
-                                                      "body":  {
-                                                                   "raw":  "{\n  \"fgsSetupTaxId\": {{recordId}},\n  \"fgsSetupTaxAuthorityId\": {{recordId}},\n  \"effectiveFromDate\": \"2026-06-21\",\n  \"effectiveToDate\": \"2026-06-21\",\n  \"taxPercent\": 8.25,\n  \"isExternalSystemRecord\": false\n}",
-                                                                   "options":  {
-                                                                                   "raw":  {
-                                                                                               "language":  "json"
-                                                                                           }
-                                                                               },
-                                                                   "mode":  "raw"
-                                                               },
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  },
-                                      "name":  "Create",
-                                      "event":  [
-                                                    {
-                                                        "script":  {
-                                                                       "exec":  [
-                                                                                    "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
-                                                                                    "}"
-                                                                                ],
-                                                                       "type":  "text/javascript"
-                                                                   },
-                                                        "listen":  "test"
-                                                    }
-                                                ]
-                                  },
-                                  {
-                                      "name":  "Update",
-                                      "request":  {
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{setupServiceUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{setupServiceUrl}}/api/v1/taxdetails/{{recordId}}",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "taxdetails",
-                                                                               "{{recordId}}"
-                                                                           ]
-                                                              },
-                                                      "description":  "Update",
-                                                      "method":  "PUT",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "Content-Type",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     }
-                                                                 ],
-                                                      "body":  {
-                                                                   "raw":  "{\n  \"fgsSetupTaxId\": {{recordId}},\n  \"fgsSetupTaxAuthorityId\": {{recordId}},\n  \"effectiveFromDate\": \"2026-06-21\",\n  \"effectiveToDate\": \"2026-06-21\",\n  \"taxPercent\": 8.25,\n  \"isExternalSystemRecord\": false\n}",
-                                                                   "options":  {
-                                                                                   "raw":  {
-                                                                                               "language":  "json"
-                                                                                           }
-                                                                               },
-                                                                   "mode":  "raw"
-                                                               },
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  },
-                                  {
-                                      "name":  "Patch",
-                                      "request":  {
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{setupServiceUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{setupServiceUrl}}/api/v1/taxdetails/{{recordId}}",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "taxdetails",
-                                                                               "{{recordId}}"
-                                                                           ]
-                                                              },
-                                                      "description":  "Patch",
-                                                      "method":  "PATCH",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "Content-Type",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     }
-                                                                 ],
-                                                      "body":  {
-                                                                   "raw":  "{\n  \"isActive\": true\n}",
-                                                                   "options":  {
-                                                                                   "raw":  {
-                                                                                               "language":  "json"
-                                                                                           }
-                                                                               },
-                                                                   "mode":  "raw"
-                                                               },
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  },
-                                  {
-                                      "name":  "Delete",
-                                      "request":  {
-                                                      "method":  "DELETE",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{setupServiceUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{setupServiceUrl}}/api/v1/taxdetails/{{recordId}}",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "taxdetails",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -10959,7 +10531,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"taxCode\": \"TX\",\n  \"name\": \"Sample Name\",\n  \"isExternalSystemRecord\": false,\n  \"externalSystemId\": null,\n  \"syncToken\": null,\n  \"showTaxDetail\": true,\n  \"description\": \"Sample description\"\n}",
+                                                                   "raw":  "{\r\n  \"taxCode\": \"COMBINED\",\r\n  \"name\": \"Combined Tax\",\r\n  \"isExternalSystemRecord\": false,\r\n  \"externalSystemId\": null,\r\n  \"syncToken\": null,\r\n  \"showTaxDetail\": true,\r\n  \"description\": \"State + county\",\r\n  \"taxDetails\": [\r\n    {\r\n      \"fgsSetupTaxAuthorityId\": {{recordId}},\r\n      \"effectiveFromDate\": \"2026-01-01\",\r\n      \"effectiveToDate\": null,\r\n      \"isExternalSystemRecord\": false\r\n    }\r\n  ]\r\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -11034,7 +10606,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"taxCode\": \"TX\",\n  \"name\": \"Sample Name\",\n  \"isExternalSystemRecord\": false,\n  \"externalSystemId\": null,\n  \"syncToken\": null,\n  \"showTaxDetail\": true,\n  \"description\": \"Sample description\"\n}",
+                                                                   "raw":  "{\r\n  \"taxCode\": \"COMBINED\",\r\n  \"name\": \"Combined Tax Updated\",\r\n  \"isExternalSystemRecord\": false,\r\n  \"externalSystemId\": null,\r\n  \"syncToken\": null,\r\n  \"showTaxDetail\": true,\r\n  \"description\": \"State + county\",\r\n  \"taxDetails\": [\r\n    {\r\n      \"fgsSetupTaxAuthorityId\": {{recordId}},\r\n      \"effectiveFromDate\": \"2026-01-01\",\r\n      \"effectiveToDate\": null,\r\n      \"isExternalSystemRecord\": false\r\n    }\r\n  ]\r\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -11094,7 +10666,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated sample\",\n  \"description\": \"Updated sample\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\r\n  \"name\": \"Combined Tax Updated\",\r\n  \"taxDetails\": [\r\n    {\r\n      \"fgsSetupTaxAuthorityId\": {{recordId}},\r\n      \"effectiveFromDate\": \"2026-01-01\",\r\n      \"effectiveToDate\": null,\r\n      \"isExternalSystemRecord\": false\r\n    }\r\n  ]\r\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -15204,7 +14776,7 @@
                  "description":  "Platform setup: credentials (gateway), communication templates, tech trades, tenant provisioning, business types.",
                  "name":  "FGS SetupService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "8e75abef-1df6-4f9b-aa9e-67cda856b15c"
+                 "_postman_id":  "91f6ae73-a8e8-4fec-9aa2-4baa57717a01"
              },
     "event":  [
                   {

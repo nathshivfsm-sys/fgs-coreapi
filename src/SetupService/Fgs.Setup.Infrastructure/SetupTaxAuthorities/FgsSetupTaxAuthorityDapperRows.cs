@@ -11,6 +11,7 @@ internal sealed class FgsSetupTaxAuthoritySummaryRow
     public string Name { get; set; }
     public string? RegionCode { get; set; }
     public bool IsExternalSystemRecord { get; set; }
+    public decimal TaxPercent { get; set; }
     public string? Description { get; set; }
     public bool IsActive { get; set; }
     public DateTimeOffset CreatedOn { get; set; }
@@ -25,6 +26,7 @@ internal sealed class FgsSetupTaxAuthoritySummaryRow
             Name,
             RegionCode,
             IsExternalSystemRecord,
+            TaxPercent,
             Description,
             IsActive,
             CreatedOn,
@@ -40,6 +42,7 @@ internal sealed class FgsSetupTaxAuthorityDetailRow
     public string Name { get; set; }
     public string? RegionCode { get; set; }
     public bool IsExternalSystemRecord { get; set; }
+    public decimal TaxPercent { get; set; }
     public string? Description { get; set; }
     public bool IsActive { get; set; }
     public DateTimeOffset CreatedOn { get; set; }
@@ -56,6 +59,7 @@ internal sealed class FgsSetupTaxAuthorityDetailRow
             Name,
             RegionCode,
             IsExternalSystemRecord,
+            TaxPercent,
             Description,
             IsActive,
             CreatedOn,
@@ -69,8 +73,11 @@ internal sealed class FgsSetupTaxAuthorityLookupRow
     public long Id { get; set; }
     public string Code { get; set; }
     public string Name { get; set; }
+    public decimal TaxPercent { get; set; }
 
-    public FgsSetupTaxAuthorityLookupDto ToDto() => new(Id,
-            Code,
-            Name);
+    public FgsSetupTaxAuthorityLookupDto ToDto() => new(
+        Id,
+        Code,
+        Name,
+        TaxPercent);
 }

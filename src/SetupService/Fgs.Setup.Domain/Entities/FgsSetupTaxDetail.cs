@@ -10,7 +10,5 @@ public class FgsSetupTaxDetail : FgsTenantCompanySetupEntityBase<long>
 
     public DateOnly? EffectiveToDate { get; set; }
 
-    public decimal TaxPercent { get; set; }
-
     public bool IsExternalSystemRecord { get; set; }
 }

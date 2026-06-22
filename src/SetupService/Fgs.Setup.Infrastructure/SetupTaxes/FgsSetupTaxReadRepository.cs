@@ -36,7 +36,13 @@ internal sealed class FgsSetupTaxReadRepository : IFgsSetupTaxReadRepository
         var row = await connection.QueryFirstOrDefaultAsync<FgsSetupTaxDetailRow>(
             new CommandDefinition(sql, new { Id = id, TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
 
-        return row?.ToDto();
+        if (row is null)
+        {
+            return null;
+        }
+
+        var taxDetails = await LoadTaxDetailsAsync(connection, id, tenantId, companyId, cancellationToken);
+        return row.ToDto(taxDetails);
     }
 
     public async Task<PagedResult<FgsSetupTaxSummaryDto>> ListAsync(
@@ -168,6 +174,33 @@ internal sealed class FgsSetupTaxReadRepository : IFgsSetupTaxReadRepository
                     ExcludeId = excludeId
                 },
                 cancellationToken: cancellationToken));
+    }
+
+    private static async Task<IReadOnlyList<FgsSetupTaxAuthorityAssignmentDto>> LoadTaxDetailsAsync(
+        System.Data.Common.DbConnection connection,
+        long taxId,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var sql = $"""
+            SELECT {FgsSetupTaxSql.SelectTaxAssignmentColumns}
+            FROM {FgsSetupTaxSql.TaxDetailTable} td
+            INNER JOIN {FgsSetupTaxSql.TaxAuthorityTable} ta ON ta."Id" = td."FgsSetupTaxAuthorityId"
+            WHERE td."FgsSetupTaxId" = @TaxId
+              AND td."TenantId" = @TenantId
+              AND td."CompanyId" = @CompanyId
+              AND td."IsActive" = TRUE
+            ORDER BY td."EffectiveFromDate" ASC, td."FgsSetupTaxAuthorityId" ASC
+            """;
+
+        var rows = await connection.QueryAsync<FgsSetupTaxAuthorityAssignmentRow>(
+            new CommandDefinition(
+                sql,
+                new { TaxId = taxId, TenantId = tenantId, CompanyId = companyId },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(r => r.ToDto()).ToList();
     }
 
     private (long TenantId, long CompanyId) ResolveTenantScope()

@@ -546,36 +546,10 @@ NEW_ENTITIES: list[EntityConfig] = [
             Field("Name", "string", in_lookup=True, in_list_filter=True),
             Field("RegionCode", "string?", uppercase=True, required=False),
             Field("IsExternalSystemRecord", "bool", default="false"),
+            Field("TaxPercent", "decimal", in_lookup=True, in_summary=True),
             Field("Description", "string?", required=False),
         ]),
         search_columns=["Code", "Name", "RegionCode", "Description"],
-    ),
-    EntityConfig(
-        type_prefix="FgsSetupTaxDetail",
-        plural_folder="SetupTaxDetails",
-        route="taxdetails",
-        controller="TaxDetailsController",
-        domain_entity="FgsSetupTaxDetail",
-        table='setup."FgsSetupTaxDetail"',
-        dbset="FgsSetupTaxDetails",
-        display_name="tax detail",
-        base="setup_tenant",
-        code_field="FgsSetupTaxId",
-        name_field="EffectiveFromDate",
-        unique_code=False,
-        fields=f([
-            Field("FgsSetupTaxId", "long", in_lookup=True, in_summary=True),
-            Field("FgsSetupTaxAuthorityId", "long", in_lookup=True, in_summary=True),
-            Field("EffectiveFromDate", "DateOnly", in_lookup=True, in_summary=True),
-            Field("EffectiveToDate", "DateOnly?", required=False, in_summary=True),
-            Field("TaxPercent", "decimal", in_lookup=True, in_summary=True),
-            Field("IsExternalSystemRecord", "bool", default="false"),
-        ]),
-        fk_checks=[
-            ("FgsSetupTaxId", "ExistsTaxIdAsync", "tax"),
-            ("FgsSetupTaxAuthorityId", "ExistsTaxAuthorityIdAsync", "tax authority"),
-        ],
-        search_columns=[],
     ),
     EntityConfig(
         type_prefix="FgsSetupPostalCode",
@@ -1987,10 +1961,8 @@ def extra_validator_rules(cfg: EntityConfig, mode: str) -> str:
         else:
             rules.append("""        RuleFor(x => x.Dto).Must(dto => dto.AppliesToLead || dto.AppliesToOpportunity)
             .WithMessage("At least one of AppliesToLead or AppliesToOpportunity must be true.");""")
-    if cfg.type_prefix == "FgsSetupTaxDetail":
+    if cfg.type_prefix == "FgsSetupTaxAuthority":
         rules.append("""        RuleFor(x => x.Dto.TaxPercent).InclusiveBetween(0m, 100m);""")
-        rules.append("""        RuleFor(x => x.Dto).Must(dto => !dto.EffectiveToDate.HasValue || dto.EffectiveToDate.Value >= dto.EffectiveFromDate)
-            .WithMessage("EffectiveToDate must be greater than or equal to EffectiveFromDate.");""")
     if cfg.type_prefix == "FgsSetupTimeSlot":
         rules.append("""        RuleFor(x => x.Dto).Must(dto => dto.EndTime > dto.BeginTime)
             .WithMessage("EndTime must be greater than BeginTime.");""")

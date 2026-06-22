@@ -3,6 +3,7 @@ using System;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fgs.Setup.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(FgsSetupDbContext))]
-    partial class FgsSetupDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260622190000_MoveTaxPercentToTaxAuthority")]
+    partial class MoveTaxPercentToTaxAuthority
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

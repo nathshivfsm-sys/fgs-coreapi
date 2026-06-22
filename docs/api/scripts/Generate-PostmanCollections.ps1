@@ -790,6 +790,65 @@ function Parse-ControllerFile {
             $headers['X-Tenant-Id'] = '{{tenantId}}'
             $headers['X-Company-Id'] = '{{companyId}}'
         }
+        if ($fileName -eq 'TaxesController') {
+            if ($methodName -eq 'Create') {
+                $body = @'
+{
+  "taxCode": "COMBINED",
+  "name": "Combined Tax",
+  "isExternalSystemRecord": false,
+  "externalSystemId": null,
+  "syncToken": null,
+  "showTaxDetail": true,
+  "description": "State + county",
+  "taxDetails": [
+    {
+      "fgsSetupTaxAuthorityId": {{recordId}},
+      "effectiveFromDate": "2026-01-01",
+      "effectiveToDate": null,
+      "isExternalSystemRecord": false
+    }
+  ]
+}
+'@
+            }
+            if ($methodName -eq 'Update') {
+                $body = @'
+{
+  "taxCode": "COMBINED",
+  "name": "Combined Tax Updated",
+  "isExternalSystemRecord": false,
+  "externalSystemId": null,
+  "syncToken": null,
+  "showTaxDetail": true,
+  "description": "State + county",
+  "taxDetails": [
+    {
+      "fgsSetupTaxAuthorityId": {{recordId}},
+      "effectiveFromDate": "2026-01-01",
+      "effectiveToDate": null,
+      "isExternalSystemRecord": false
+    }
+  ]
+}
+'@
+            }
+            if ($methodName -eq 'Patch') {
+                $body = @'
+{
+  "name": "Combined Tax Updated",
+  "taxDetails": [
+    {
+      "fgsSetupTaxAuthorityId": {{recordId}},
+      "effectiveFromDate": "2026-01-01",
+      "effectiveToDate": null,
+      "isExternalSystemRecord": false
+    }
+  ]
+}
+'@
+            }
+        }
         if ($useAuth) {
             $headers['X-Tenant-Id'] = '{{tenantId}}'
             $headers['X-Company-Id'] = '{{companyId}}'

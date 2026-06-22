@@ -7,20 +7,20 @@ internal static class FgsSetupTaxAuthoritySql
     public const string Table = "setup.\"FgsSetupTaxAuthority\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "Code", "Name", "RegionCode", "IsExternalSystemRecord", "Description", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "TenantId", "CompanyId", "Code", "Name", "RegionCode", "IsExternalSystemRecord", "TaxPercent", "Description", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "Code", "Name", "RegionCode", "IsExternalSystemRecord", "Description", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "TenantId", "CompanyId", "Code", "Name", "RegionCode", "IsExternalSystemRecord", "TaxPercent", "Description", "IsActive", "CreatedOn", "UpdatedOn"
         """;
 
     public const string SelectLookupColumns = """
-        "Id", "Code", "Name"
+        "Id", "Code", "Name", "TaxPercent"
         """;
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "Code", "Name", "RegionCode", "IsExternalSystemRecord", "Description"
+        "Id", "CreatedOn", "IsActive", "Code", "Name", "RegionCode", "IsExternalSystemRecord", "TaxPercent", "Description"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

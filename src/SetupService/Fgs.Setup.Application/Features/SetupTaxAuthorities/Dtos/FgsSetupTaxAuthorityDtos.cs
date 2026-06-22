@@ -8,6 +8,7 @@ public sealed record FgsSetupTaxAuthoritySummaryDto(
     string Name,
     string? RegionCode,
     bool IsExternalSystemRecord,
+    decimal TaxPercent,
     string? Description,
     bool IsActive,
     DateTimeOffset CreatedOn,
@@ -21,6 +22,7 @@ public sealed record FgsSetupTaxAuthorityDetailDto(
     string Name,
     string? RegionCode,
     bool IsExternalSystemRecord,
+    decimal TaxPercent,
     string? Description,
     bool IsActive,
     DateTimeOffset CreatedOn,
@@ -31,13 +33,15 @@ public sealed record FgsSetupTaxAuthorityDetailDto(
 public sealed record FgsSetupTaxAuthorityLookupDto(
     long Id,
     string Code,
-    string Name);
+    string Name,
+    decimal TaxPercent);
 
 public sealed record FgsSetupTaxAuthorityCreateDto(
     string Code,
     string Name,
     string? RegionCode,
     bool IsExternalSystemRecord,
+    decimal TaxPercent,
     string? Description);
 
 public sealed record FgsSetupTaxAuthorityUpdateDto(
@@ -45,6 +49,7 @@ public sealed record FgsSetupTaxAuthorityUpdateDto(
     string Name,
     string? RegionCode,
     bool IsExternalSystemRecord,
+    decimal TaxPercent,
     string? Description);
 
 public sealed record FgsSetupTaxAuthorityPatchDto(
@@ -52,6 +57,7 @@ public sealed record FgsSetupTaxAuthorityPatchDto(
     string? Name,
     string? RegionCode,
     bool? IsExternalSystemRecord,
+    decimal? TaxPercent,
     string? Description,
     bool? IsActive);
 

@@ -15,4 +15,6 @@ public class FgsSetupTax : FgsTenantCompanySetupEntityBase<long>
     public bool ShowTaxDetail { get; set; }
 
     public string? Description { get; set; }
+
+    public ICollection<FgsSetupTaxDetail> TaxDetails { get; set; } = [];
 }

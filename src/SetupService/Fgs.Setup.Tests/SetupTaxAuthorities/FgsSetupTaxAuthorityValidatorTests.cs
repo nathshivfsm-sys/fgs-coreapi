@@ -16,7 +16,7 @@ public sealed class FgsSetupTaxAuthorityValidatorTests
     public async Task CreateValidator_WhenCodeMissing_HasValidationError()
     {
         var validator = new CreateFgsSetupTaxAuthorityCommandValidator(_readRepository.Object);
-        var command = new CreateFgsSetupTaxAuthorityCommand(new FgsSetupTaxAuthorityCreateDto("", "Name value", "TEST", false, "Description value"));
+        var command = new CreateFgsSetupTaxAuthorityCommand(new FgsSetupTaxAuthorityCreateDto("", "Name value", "TEST", false, 8.25m, "Description value"));
 
         var result = await validator.ValidateAsync(command);
 
@@ -28,7 +28,7 @@ public sealed class FgsSetupTaxAuthorityValidatorTests
     public async Task CreateValidator_WhenCodeNotUppercase_HasValidationError()
     {
         var validator = new CreateFgsSetupTaxAuthorityCommandValidator(_readRepository.Object);
-        var args = new FgsSetupTaxAuthorityCreateDto("TEST", "Name value", "TEST", false, "Description value");
+        var args = new FgsSetupTaxAuthorityCreateDto("TEST", "Name value", "TEST", false, 8.25m, "Description value");
         var command = new CreateFgsSetupTaxAuthorityCommand(args with { Code = "test" });
 
         var result = await validator.ValidateAsync(command);
@@ -38,14 +38,25 @@ public sealed class FgsSetupTaxAuthorityValidatorTests
     }
 
     [Fact]
+    public async Task CreateValidator_WhenTaxPercentOutOfRange_HasValidationError()
+    {
+        var validator = new CreateFgsSetupTaxAuthorityCommandValidator(_readRepository.Object);
+        var command = new CreateFgsSetupTaxAuthorityCommand(new FgsSetupTaxAuthorityCreateDto("TEST", "Name value", "TEST", false, 150m, "Description value"));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Dto.TaxPercent");
+    }
+
+    [Fact]
     public async Task UpdateValidator_WhenDuplicateCodeExcludesCurrentId_Passes()
     {
-
         _readRepository
             .Setup(r => r.ExistsByCodeAsync("TEST", 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         var validator = new UpdateFgsSetupTaxAuthorityCommandValidator(_readRepository.Object);
-        var command = new UpdateFgsSetupTaxAuthorityCommand(5, new FgsSetupTaxAuthorityUpdateDto("TEST", "Name value", "TEST", false, "Description value"));
+        var command = new UpdateFgsSetupTaxAuthorityCommand(5, new FgsSetupTaxAuthorityUpdateDto("TEST", "Name value", "TEST", false, 8.25m, "Description value"));
 
         var result = await validator.ValidateAsync(command);
 

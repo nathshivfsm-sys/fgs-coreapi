@@ -32,12 +32,13 @@ public sealed class FgsSetupTaxAuthorityCommandHandlerTests
             NullLogger<CreateFgsSetupTaxAuthorityCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateFgsSetupTaxAuthorityCommand(new FgsSetupTaxAuthorityCreateDto("TEST", "Name value", "TEST", false, "Description value")),
+            new CreateFgsSetupTaxAuthorityCommand(new FgsSetupTaxAuthorityCreateDto("TEST", "Name value", "TEST", false, 8.25m, "Description value")),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
         response.Data!.IsActive.Should().BeTrue();
+        response.Data.TaxPercent.Should().Be(8.25m);
         response.Data.TenantId.Should().Be(TenantId);
         response.Data.CompanyId.Should().Be(CompanyId);
     }
@@ -55,7 +56,7 @@ public sealed class FgsSetupTaxAuthorityCommandHandlerTests
             NullLogger<DeleteFgsSetupTaxAuthorityCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateFgsSetupTaxAuthorityCommand(new FgsSetupTaxAuthorityCreateDto("TEST", "Name value", "TEST", false, "Description value")),
+            new CreateFgsSetupTaxAuthorityCommand(new FgsSetupTaxAuthorityCreateDto("TEST", "Name value", "TEST", false, 8.25m, "Description value")),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 
