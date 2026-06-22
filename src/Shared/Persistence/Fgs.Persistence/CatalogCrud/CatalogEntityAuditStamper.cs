@@ -1,6 +1,7 @@
 using Fgs.Foundation.CatalogCrud;
 using Fgs.Foundation.CatalogCrud.Abstractions;
 using Fgs.Security.Abstractions;
+using Fgs.Security.Extensions;
 
 namespace Fgs.Persistence.CatalogCrud;
 
@@ -44,10 +45,7 @@ public sealed class CatalogEntityAuditStamper : IEntityAuditStamper
         SetProperty(entity, "UpdatedBy", ResolveActor());
     }
 
-    private string ResolveActor() =>
-        _userContext.UserId?.ToString()
-        ?? _userContext.Email
-        ?? "System";
+    private string ResolveActor() => _userContext.ResolveAuditActor();
 
     private static void SetProperty(object entity, string propertyName, object? value)
     {

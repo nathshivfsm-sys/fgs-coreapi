@@ -21,6 +21,15 @@ public sealed class HttpFgsUserContext(IHttpContextAccessor httpContextAccessor)
     public string? Email => User.FindFirst(JwtRegisteredClaimNames.Email)?.Value
         ?? User.FindFirst("preferred_username")?.Value;
 
+    public string? DisplayName =>
+        User.FindFirst("name")?.Value
+        ?? User.FindFirst(ClaimTypes.Name)?.Value
+        ?? CombineNames(
+            User.FindFirst("given_name")?.Value,
+            User.FindFirst(JwtRegisteredClaimNames.GivenName)?.Value,
+            User.FindFirst("family_name")?.Value,
+            User.FindFirst(JwtRegisteredClaimNames.FamilyName)?.Value);
+
     public string? EntraObjectId =>
         User.FindFirst(JwtClaimTypes.EntraObjectId)?.Value
         ?? User.FindFirst("oid")?.Value
@@ -35,4 +44,15 @@ public sealed class HttpFgsUserContext(IHttpContextAccessor httpContextAccessor)
 
     public bool IsInRole(string roleCode) =>
         Roles.Contains(roleCode, StringComparer.OrdinalIgnoreCase);
+
+    private static string? CombineNames(params string?[] parts)
+    {
+        var values = parts
+            .Where(part => !string.IsNullOrWhiteSpace(part))
+            .Select(part => part!.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        return values.Length == 0 ? null : string.Join(' ', values);
+    }
 }

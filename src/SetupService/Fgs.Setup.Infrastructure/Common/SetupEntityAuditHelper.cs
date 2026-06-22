@@ -1,6 +1,7 @@
 using Fgs.Kernel.Entities;
 using Fgs.MultiTenancy;
 using Fgs.Security.Abstractions;
+using Fgs.Security.Extensions;
 using Fgs.Setup.Application.Abstractions.Time;
 using Fgs.Setup.Domain.Entities;
 
@@ -279,10 +280,7 @@ public sealed class SetupEntityAuditHelper
         entity.UpdatedOn = _dateTimeProvider.UtcNow;
         entity.UpdatedBy = ResolveActor();
     }
-    private string ResolveActor() =>
-        _userContext.UserId?.ToString()
-        ?? _userContext.Email
-        ?? "System";
+    private string ResolveActor() => _userContext.ResolveAuditActor();
 
     private (long TenantId, long CompanyId) ResolveTenantCompany()
     {

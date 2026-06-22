@@ -8,6 +8,11 @@ public interface IFgsUserContext
 
     string? Email { get; }
 
+    /// <summary>
+    /// Human-readable user name for audit fields (CreatedBy/UpdatedBy).
+    /// </summary>
+    string? DisplayName { get; }
+
     string? EntraObjectId { get; }
 
     long? TenantId { get; }
