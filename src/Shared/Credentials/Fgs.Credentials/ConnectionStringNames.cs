@@ -3,6 +3,7 @@ namespace Fgs.Credentials;
 public static class ConnectionStringNames
 {
     public const string FgsUser = "FgsUser";
+    public const string FgsUserReadOnly = "FgsUserReadOnly";
     public const string FgsSetup = "FgsSetup";
     public const string FgsSetupReadOnly = "FgsSetupReadOnly";
     public const string FgsFile = "FgsFile";

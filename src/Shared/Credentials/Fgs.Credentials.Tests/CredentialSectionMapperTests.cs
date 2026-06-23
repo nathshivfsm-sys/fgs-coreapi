@@ -31,7 +31,43 @@ public sealed class CredentialSectionMapperTests
     }
 
     [Fact]
-    public void TryMap_RabbitMqUsername_MapsToUserName()
+    public void TryMap_DatabaseReadOnlyKeys_MapsToConnectionString()
+    {
+        CredentialSectionMapper.TryMap("Global:DATABASE:FgsUserReadOnly", out var userKey, out _).Should().BeTrue();
+        userKey.Should().Be("ConnectionStrings:FgsUserReadOnly");
+
+        CredentialSectionMapper.TryMap("Global:DATABASE:FgsSetupReadOnly", out var setupKey, out _).Should().BeTrue();
+        setupKey.Should().Be("ConnectionStrings:FgsSetupReadOnly");
+    }
+
+    [Fact]
+    public void TryResolveValue_DatabaseReadOnlyKeys_ReturnConnectionString()
+    {
+        var values = new Dictionary<string, string>
+        {
+            ["Global:DATABASE:FgsUserReadOnly"] = "Host=localhost;Database=fgs_user_ro",
+            ["Global:DATABASE:FgsSetupReadOnly"] = "Host=localhost;Database=fgs_setup_ro"
+        };
+
+        CredentialSectionMapper.TryResolveValue(
+                "Global:DATABASE:FgsUserReadOnly",
+                "ConnectionStrings:FgsUserReadOnly",
+                values,
+                out var userResolved)
+            .Should().BeTrue();
+        userResolved.Should().Be("Host=localhost;Database=fgs_user_ro");
+
+        CredentialSectionMapper.TryResolveValue(
+                "Global:DATABASE:FgsSetupReadOnly",
+                "ConnectionStrings:FgsSetupReadOnly",
+                values,
+                out var setupResolved)
+            .Should().BeTrue();
+        setupResolved.Should().Be("Host=localhost;Database=fgs_setup_ro");
+    }
+
+    [Fact]
+    public void TryMap_RabbitMqKey_MapsToRabbitMqUserName()
     {
         CredentialSectionMapper.TryMap("Global:RABBITMQ:Username", out var key, out _).Should().BeTrue();
         key.Should().Be("RabbitMq:UserName");

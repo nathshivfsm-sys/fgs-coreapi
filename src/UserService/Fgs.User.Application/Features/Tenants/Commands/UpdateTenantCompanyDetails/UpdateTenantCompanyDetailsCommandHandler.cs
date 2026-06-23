@@ -1,5 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Persistence.Abstractions;
+using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Common.Locations;
 using Fgs.User.Application.Features.Signup;
 using Fgs.User.Application.Features.Tenants.Dtos;
@@ -10,6 +11,9 @@ using MediatR;
 namespace Fgs.User.Application.Features.Tenants.Commands.UpdateTenantCompanyDetails;
 
 public sealed class UpdateTenantCompanyDetailsCommandHandler(
+    IUserWriteRepository<FgsTenant> tenantWriteRepository,
+    IUserWriteRepository<FgsTenantCompany> companyWriteRepository,
+    IUserWriteRepository<FgsLocation> locationWriteRepository,
     IUnitOfWork unitOfWork,
     IMediator mediator)
     : IRequestHandler<UpdateTenantCompanyDetailsCommand, ApiResponse<TenantCompanyDetailDto>>
@@ -27,8 +31,7 @@ public sealed class UpdateTenantCompanyDetailsCommandHandler(
         await unitOfWork.ExecuteInTransactionAsync(
             async ct =>
             {
-                var tenant = await unitOfWork.Repository<FgsTenant>()
-                    .FirstOrDefaultAsync(t => t.Id == request.TenantId, ct);
+                var tenant = await tenantWriteRepository.GetByIdAsync(request.TenantId, ct);
 
                 if (tenant is null)
                 {
@@ -36,10 +39,9 @@ public sealed class UpdateTenantCompanyDetailsCommandHandler(
                     return;
                 }
 
-                var company = await unitOfWork.Repository<FgsTenantCompany>()
-                    .FirstOrDefaultAsync(
-                        c => c.TenantId == request.TenantId && c.CompanyNumber == request.CompanyId,
-                        ct);
+                var company = await companyWriteRepository.FirstOrDefaultAsync(
+                    c => c.TenantId == request.TenantId && c.CompanyNumber == request.CompanyId,
+                    ct);
 
                 if (company is null)
                 {
@@ -52,8 +54,8 @@ public sealed class UpdateTenantCompanyDetailsCommandHandler(
 
                 await UpdateLocationsAsync(company, companyRequest, now, ct);
 
-                unitOfWork.Repository<FgsTenant>().Update(tenant);
-                unitOfWork.Repository<FgsTenantCompany>().Update(company);
+                tenantWriteRepository.Update(tenant);
+                companyWriteRepository.Update(company);
                 await unitOfWork.SaveChangesAsync(ct);
             },
             cancellationToken);
@@ -109,17 +111,16 @@ public sealed class UpdateTenantCompanyDetailsCommandHandler(
             return;
         }
 
-        var locationRepo = unitOfWork.Repository<FgsLocation>();
         FgsLocation physicalLocation;
 
         if (company.PhysicalLocationId.HasValue)
         {
-            physicalLocation = await locationRepo.FirstOrDefaultAsync(
-                                   l => l.Id == company.PhysicalLocationId.Value,
+            physicalLocation = await locationWriteRepository.GetByIdAsync(
+                                   company.PhysicalLocationId.Value,
                                    cancellationToken)
                                ?? throw new InvalidOperationException("Physical location not found.");
             LocationMapper.ApplyWriteDto(physicalLocation, request.PhysicalAddress, now);
-            locationRepo.Update(physicalLocation);
+            locationWriteRepository.Update(physicalLocation);
         }
         else
         {
@@ -133,7 +134,7 @@ public sealed class UpdateTenantCompanyDetailsCommandHandler(
                 CreatedOn = now
             };
             LocationMapper.ApplyWriteDto(physicalLocation, request.PhysicalAddress, now);
-            await locationRepo.AddAsync(physicalLocation, cancellationToken);
+            await locationWriteRepository.AddAsync(physicalLocation, cancellationToken);
             company.PhysicalLocationId = physicalLocation.Id;
         }
 
@@ -145,12 +146,12 @@ public sealed class UpdateTenantCompanyDetailsCommandHandler(
 
         if (company.BillingLocationId.HasValue && company.BillingLocationId != company.PhysicalLocationId)
         {
-            var billingLocation = await locationRepo.FirstOrDefaultAsync(
-                                      l => l.Id == company.BillingLocationId.Value,
+            var billingLocation = await locationWriteRepository.GetByIdAsync(
+                                      company.BillingLocationId.Value,
                                       cancellationToken)
                                   ?? throw new InvalidOperationException("Billing location not found.");
             LocationMapper.ApplyWriteDto(billingLocation, request.BillingAddress, now);
-            locationRepo.Update(billingLocation);
+            locationWriteRepository.Update(billingLocation);
             return;
         }
 
@@ -166,7 +167,7 @@ public sealed class UpdateTenantCompanyDetailsCommandHandler(
                 CreatedOn = now
             };
             LocationMapper.ApplyWriteDto(billingLocation, request.BillingAddress, now);
-            await locationRepo.AddAsync(billingLocation, cancellationToken);
+            await locationWriteRepository.AddAsync(billingLocation, cancellationToken);
             company.BillingLocationId = billingLocation.Id;
         }
     }

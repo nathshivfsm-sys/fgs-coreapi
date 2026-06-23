@@ -25,9 +25,11 @@ function Get-RdsConnectionString {
 
 # All platform services share the RDS dev database.
 $databaseConnections = [ordered]@{
-    FgsUser           = "fgs_dev_db"
-    FgsSetup          = "fgs_dev_db"
-    FgsFile           = "fgs_dev_db"
+    FgsUser             = "fgs_dev_db"
+    FgsUserReadOnly     = "fgs_dev_db"
+    FgsSetup            = "fgs_dev_db"
+    FgsSetupReadOnly    = "fgs_dev_db"
+    FgsFile             = "fgs_dev_db"
     FgsNotification   = "fgs_dev_db"
     FgsConsumer       = "fgs_dev_db"
     FgsAudit          = "fgs_dev_db"

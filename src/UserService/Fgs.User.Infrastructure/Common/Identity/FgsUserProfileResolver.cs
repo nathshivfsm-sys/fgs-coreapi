@@ -1,22 +1,22 @@
-using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Identity;
+using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Domain.Entities;
-using Fgs.User.Domain.Enums;
 
 namespace Fgs.User.Infrastructure.Common.Identity;
 
 public sealed class FgsUserProfileResolver(
-    IUnitOfWork unitOfWork,
-    IFgsUserRoleResolver roleResolver) : IFgsUserProfileResolver
+    IUserReadRepository<FgsUser> userReadRepository,
+    IInvitationReadQuery invitationReadQuery,
+    IUserRoleCodesReadQuery roleCodesReadQuery) : IFgsUserProfileResolver
 {
     public async Task<FgsUserProfile?> ResolveByEntraObjectIdAsync(
         string entraObjectId,
         CancellationToken cancellationToken = default)
     {
-        var user = await unitOfWork.Repository<FgsUser>()
-            .FirstOrDefaultAsync(
-                u => u.EntraObjectId == entraObjectId && u.IsActive && !u.IsDeleted,
-                cancellationToken);
+        var user = await userReadRepository.FirstOrDefaultAsync(
+            "\"EntraObjectId\" = @entraObjectId AND \"IsActive\" = true AND \"IsDeleted\" = false",
+            new { entraObjectId },
+            cancellationToken);
 
         if (user is null || string.IsNullOrWhiteSpace(user.EntraObjectId))
         {
@@ -30,21 +30,19 @@ public sealed class FgsUserProfileResolver(
         string normalizedEmail,
         CancellationToken cancellationToken = default)
     {
-        var user = await unitOfWork.Repository<FgsUser>()
-            .FirstOrDefaultAsync(
-                u => u.Email == normalizedEmail && u.IsActive && !u.IsDeleted,
-                cancellationToken);
+        var user = await userReadRepository.FirstOrDefaultAsync(
+            "\"Email\" = @email AND \"IsActive\" = true AND \"IsDeleted\" = false",
+            new { email = normalizedEmail },
+            cancellationToken);
 
         if (user is null)
         {
             return null;
         }
 
-        var hasValidInvitation = await unitOfWork.Repository<FgsInvitation>()
-            .AnyAsync(
-                i => i.UserId == user.Id
-                     && (i.Status == InvitationStatus.Pending || i.Status == InvitationStatus.Accepted),
-                cancellationToken);
+        var hasValidInvitation = await invitationReadQuery.HasValidInvitationForUserAsync(
+            user.Id,
+            cancellationToken);
 
         if (!hasValidInvitation)
         {
@@ -88,7 +86,7 @@ public sealed class FgsUserProfileResolver(
 
     private async Task<FgsUserProfile> ToProfileAsync(FgsUser user, CancellationToken cancellationToken)
     {
-        var roles = await roleResolver.ResolveRoleCodesAsync(user.Id, cancellationToken);
+        var roles = await roleCodesReadQuery.GetRoleCodesForUserAsync(user.Id, cancellationToken);
 
         return new FgsUserProfile(
             user.Id,

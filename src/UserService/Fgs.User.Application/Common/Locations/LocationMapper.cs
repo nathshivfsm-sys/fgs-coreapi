@@ -2,7 +2,7 @@ using Fgs.User.Domain.Entities;
 
 namespace Fgs.User.Application.Common.Locations;
 
-internal static class LocationMapper
+public static class LocationMapper
 {
     public static LocationDetailDto? ToDetailDto(FgsLocation? location) =>
         location is null

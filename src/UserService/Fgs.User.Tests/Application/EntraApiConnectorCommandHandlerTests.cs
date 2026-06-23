@@ -1,5 +1,6 @@
 using Fgs.User.Application.Features.Auth.Commands.EntraApiConnector;
 using Fgs.User.Application.Abstractions.Identity;
+using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Infrastructure.Common.Identity;
 using Fgs.User.Infrastructure.Common.Security;
 using Fgs.User.Domain.Entities;
@@ -61,14 +62,10 @@ public sealed class EntraApiConnectorCommandHandlerTests
 
     private static EntraApiConnectorCommandHandler CreateHandler(FgsUserDbContext context)
     {
-        var roleResolver = new Mock<IFgsUserRoleResolver>();
-        roleResolver
-            .Setup(r => r.ResolveRoleCodesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(["TENANT_ADMIN"]);
-
         var profileResolver = new FgsUserProfileResolver(
-            new EfUnitOfWork<FgsUserDbContext>(context),
-            roleResolver.Object);
+            TestUserRepositories.ReadUsers(context),
+            TestUserRepositories.InvitationRead(context),
+            TestUserRepositories.RoleCodesRead(context, ["TENANT_ADMIN"]));
 
         return new EntraApiConnectorCommandHandler(profileResolver, new EmailNormalizer());
     }

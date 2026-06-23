@@ -42,6 +42,11 @@ internal static class EntitySchemaRegistry
     {
         ["FgsTenant"] = FgsDatabaseSchemas.Tenant,
         ["FgsTenantCompany"] = FgsDatabaseSchemas.Tenant,
+        ["FgsLocation"] = FgsDatabaseSchemas.Tenant,
+        ["FgsUser"] = FgsDatabaseSchemas.Identity,
+        ["FgsInvitation"] = FgsDatabaseSchemas.Identity,
+        ["FgsUserRole"] = FgsDatabaseSchemas.Identity,
+        ["FgsRole"] = FgsDatabaseSchemas.Identity,
     };
 
     private static Dictionary<Type, string> BuildEntitySchemas() => new()

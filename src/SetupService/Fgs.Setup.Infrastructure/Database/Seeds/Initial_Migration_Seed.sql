@@ -355,7 +355,9 @@ FROM (
             'Database Connections',
             '[
                 {"key":"FgsUser","label":"User Service (FgsUser)","type":"password","required":false,"sensitive":true},
+                {"key":"FgsUserReadOnly","label":"User Service Read-Only (FgsUserReadOnly)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsSetup","label":"Setup Service (FgsSetup)","type":"password","required":false,"sensitive":true},
+                {"key":"FgsSetupReadOnly","label":"Setup Service Read-Only (FgsSetupReadOnly)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsFile","label":"File Service (FgsFile)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsNotification","label":"Notification Service (FgsNotification)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsConsumer","label":"Consumer Service (FgsConsumer)","type":"password","required":false,"sensitive":true},
@@ -499,7 +501,9 @@ FROM (
             'Database Connections',
             '[
                 {"key":"FgsUser","label":"User Service (FgsUser)","type":"password","required":false,"sensitive":true},
+                {"key":"FgsUserReadOnly","label":"User Service Read-Only (FgsUserReadOnly)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsSetup","label":"Setup Service (FgsSetup)","type":"password","required":false,"sensitive":true},
+                {"key":"FgsSetupReadOnly","label":"Setup Service Read-Only (FgsSetupReadOnly)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsFile","label":"File Service (FgsFile)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsNotification","label":"Notification Service (FgsNotification)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsConsumer","label":"Consumer Service (FgsConsumer)","type":"password","required":false,"sensitive":true},

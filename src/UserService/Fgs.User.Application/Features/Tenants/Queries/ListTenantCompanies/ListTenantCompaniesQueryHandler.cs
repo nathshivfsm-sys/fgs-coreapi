@@ -1,20 +1,22 @@
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
-using Fgs.Persistence.Abstractions;
+using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Domain.Entities;
 using MediatR;
 
 namespace Fgs.User.Application.Features.Tenants.Queries.ListTenantCompanies;
 
-public sealed class ListTenantCompaniesQueryHandler(IUnitOfWork unitOfWork)
+public sealed class ListTenantCompaniesQueryHandler(IUserReadRepository<FgsTenantCompany> companyReadRepository)
     : IRequestHandler<ListTenantCompaniesQuery, ApiResponse<IReadOnlyList<TenantCompanyDto>>>
 {
     public async Task<ApiResponse<IReadOnlyList<TenantCompanyDto>>> Handle(
         ListTenantCompaniesQuery request,
         CancellationToken cancellationToken)
     {
-        var companies = await unitOfWork.Repository<FgsTenantCompany>()
-            .ListAsync(c => c.TenantId == request.TenantId, cancellationToken);
+        var companies = await companyReadRepository.ListAsync(
+            "\"TenantId\" = @tenantId",
+            new { tenantId = request.TenantId },
+            cancellationToken);
 
         var dtos = companies
             .Select(c => new TenantCompanyDto(

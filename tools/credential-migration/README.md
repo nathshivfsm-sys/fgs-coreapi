@@ -40,7 +40,9 @@ If `platform-databases` was created before these keys were added, refresh the cr
 
 ## Example payloads
 
-### Database (User Service)
+### Database (platform-databases bundled credential)
+
+All service connection strings live in one global `DATABASE` credential (`platform-databases`). Include readonly keys alongside write keys:
 
 ```http
 POST /api/v1/credentials
@@ -49,12 +51,12 @@ Content-Type: application/json
 {
   "scope": "Global",
   "providerCode": "DATABASE",
-  "credentialName": "fgs-user-db",
-  "payload": "{\"ConnectionStringName\":\"FgsUser\",\"FgsUser\":\"Host=localhost;Port=5432;Database=fgs_dev_db;Username=postgres;Password=postgres\"}"
+  "credentialName": "platform-databases",
+  "payload": "{\"FgsUser\":\"Host=localhost;Port=5432;Database=fgs_dev_db;Username=postgres;Password=postgres\",\"FgsUserReadOnly\":\"Host=localhost;Port=5432;Database=fgs_dev_db;Username=postgres;Password=postgres\",\"FgsSetup\":\"Host=localhost;Port=5432;Database=fgs_dev_db;Username=postgres;Password=postgres\",\"FgsSetupReadOnly\":\"Host=localhost;Port=5432;Database=fgs_dev_db;Username=postgres;Password=postgres\"}"
 }
 ```
 
-For a single named connection, either use `ConnectionString` + `ConnectionStringName`, or map each key directly (e.g. `FgsUser`).
+For a single named connection, either use `ConnectionString` + `ConnectionStringName`, or map each key directly (e.g. `FgsUser`, `FgsUserReadOnly`).
 
 ### SendGrid
 
