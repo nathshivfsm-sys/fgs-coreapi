@@ -1,3 +1,5 @@
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
@@ -27,8 +29,12 @@ public sealed class FgsSetupLaborRateTypeCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var handler = new CreateFgsSetupLaborRateTypeCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateFgsSetupLaborRateTypeCommandHandler>.Instance);
 
         var response = await handler.Handle(
@@ -40,6 +46,11 @@ public sealed class FgsSetupLaborRateTypeCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         response.Data.TenantId.Should().Be(TenantId);
         response.Data.CompanyId.Should().Be(CompanyId);
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "laborratetypes"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -47,11 +58,17 @@ public sealed class FgsSetupLaborRateTypeCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var createHandler = new CreateFgsSetupLaborRateTypeCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateFgsSetupLaborRateTypeCommandHandler>.Instance);
         var deleteHandler = new DeleteFgsSetupLaborRateTypeCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<DeleteFgsSetupLaborRateTypeCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
@@ -66,6 +83,12 @@ public sealed class FgsSetupLaborRateTypeCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
     }
+
+    private static ITenantContextAccessor CreateTenantContextAccessor() =>
+        new TestTenantContextAccessor
+        {
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+        };
 
     private static FgsSetupLaborRateTypeWriteService CreateWriteService(FgsSetupDbContext context)
     {

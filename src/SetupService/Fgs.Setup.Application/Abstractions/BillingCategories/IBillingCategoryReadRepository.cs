@@ -18,8 +18,7 @@ public interface IBillingCategoryReadRepository
         CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByBillingCategoryTypeAndBillingCategoryNameAsync(
-        string billingCategoryType,
-        string billingCategoryName,
+        string billingCategoryType, string billingCategoryName,
         long? excludeId = null,
         CancellationToken cancellationToken = default);
 }

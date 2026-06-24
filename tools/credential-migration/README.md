@@ -13,7 +13,7 @@ Migrate secrets from legacy `appsettings.json` values into Setup Service `GloCre
 | Script | Purpose |
 |--------|---------|
 | [`seed-provider-types.sql`](seed-provider-types.sql) | Idempotent `GloCredentialProviderType` INSERT/UPDATE + cache sync |
-| [`post-credentials.ps1`](post-credentials.ps1) | POST all 5 global credentials; `-UpdateDatabaseOnly` PUTs RDS strings; `-UpdateAwsOnly` PUTs AWS keys + `KmsKeyArn` for consumers |
+| [`post-credentials.ps1`](post-credentials.ps1) | POST all global credentials; `-UpdateDatabaseOnly` PUTs RDS strings; `-UpdateAwsOnly` PUTs AWS keys + `KmsKeyArn` for consumers; `-UpdateRedisOnly` PUTs shared Redis cache settings |
 
 ```powershell
 # Seed provider types (requires psql or Docker)
@@ -28,6 +28,12 @@ docker run --rm -e PGPASSWORD -v "${PWD}/seed-provider-types.sql:/seed.sql:ro" p
 
 # Update AWS credential (keys + KmsKeyArn for File/User consumers)
 .\post-credentials.ps1 -BaseUrl http://localhost:5071 -UpdateAwsOnly
+
+# Update shared Redis cache settings (all services)
+.\post-credentials.ps1 -BaseUrl http://localhost:5071 -UpdateRedisOnly
+
+# Create only the REDIS credential (after seed-provider-types.sql)
+.\post-credentials.ps1 -BaseUrl http://localhost:5071 -RedisOnly
 ```
 
 All platform `DATABASE` keys use AWS RDS `fgs_dev_db`, including `FgsAsset`, `FgsDispatch` (Scheduling), and `FgsServiceAgreement`.
@@ -79,6 +85,19 @@ For a single named connection, either use `ConnectionString` + `ConnectionString
   "payload": "{\"Username\":\"fgs\",\"Password\":\"<from-appsettings>\"}"
 }
 ```
+
+### Redis (shared cache for all services)
+
+```json
+{
+  "scope": "Global",
+  "providerCode": "REDIS",
+  "credentialName": "platform-redis",
+  "payload": "{\"Enabled\":true,\"ConnectionString\":\"redis:6379\",\"InstanceName\":\"fgs:\",\"DefaultAbsoluteExpirationMinutes\":30}"
+}
+```
+
+Maps to the `Redis` configuration section (`Redis:ConnectionString`, `Redis:Enabled`, etc.) consumed by services that call `AddFgsRedisCache`.
 
 ### Entra client secret
 

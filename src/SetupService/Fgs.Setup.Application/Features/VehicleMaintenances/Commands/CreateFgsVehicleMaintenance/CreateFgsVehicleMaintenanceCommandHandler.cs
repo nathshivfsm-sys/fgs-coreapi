@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.VehicleMaintenances;
 using Fgs.Setup.Application.Features.VehicleMaintenances.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.VehicleMaintenances.Commands.CreateFgsV
 
 public sealed class CreateFgsVehicleMaintenanceCommandHandler(
     IFgsVehicleMaintenanceWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<CreateFgsVehicleMaintenanceCommandHandler> logger)
     : IRequestHandler<CreateFgsVehicleMaintenanceCommand, ApiResponse<FgsVehicleMaintenanceDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class CreateFgsVehicleMaintenanceCommandHandler(
         {
             var result = await writeService.CreateAsync(request.Dto, cancellationToken);
             logger.LogInformation("Created vehicle maintenance {Id} with code {VehicleId}", result.Id, result.VehicleId);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "vehiclemaintenances"),
+                    cancellationToken);
+            }
             return ApiResponse<FgsVehicleMaintenanceDetailDto>.Ok(result, ApiStatusCodes.Created);
         }
         catch (Exception ex)

@@ -76,7 +76,7 @@ public sealed class LeadSourceWriteService : ILeadSourceWriteService
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
         }
 
         if (dto.IsActive.HasValue)

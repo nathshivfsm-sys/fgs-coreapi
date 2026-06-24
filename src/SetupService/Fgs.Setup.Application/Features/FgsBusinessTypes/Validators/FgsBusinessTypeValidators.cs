@@ -19,6 +19,15 @@ public sealed class CreateFgsBusinessTypeCommandValidator : AbstractValidator<Cr
         RuleFor(x => x.Dto.Name).NotEmpty();
         RuleFor(x => x.Dto.Name).MaximumLength(200);
 
+        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);        RuleFor(x => x.Dto.Code).NotEmpty();
+        RuleFor(x => x.Dto.Code).MaximumLength(100);
+        RuleFor(x => x.Dto.Code).Must(code => string.Equals(code, code.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("Code must be uppercase.");
+        RuleFor(x => x.Dto.Code).MustAsync(async (command, code, cancellationToken) =>
+                !await readRepository.ExistsByCodeAsync(code, null, cancellationToken))
+            .WithMessage("A business type with this code already exists.");
+        RuleFor(x => x.Dto.Name).NotEmpty();
+        RuleFor(x => x.Dto.Name).MaximumLength(200);
+
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
     }
 }

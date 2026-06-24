@@ -140,8 +140,7 @@ internal sealed class BillingCategoryReadRepository : IBillingCategoryReadReposi
     }
 
     public async Task<bool> ExistsByBillingCategoryTypeAndBillingCategoryNameAsync(
-        string billingCategoryType,
-        string billingCategoryName,
+        string billingCategoryType, string billingCategoryName,
         long? excludeId = null,
         CancellationToken cancellationToken = default)
     {
@@ -152,8 +151,7 @@ internal sealed class BillingCategoryReadRepository : IBillingCategoryReadReposi
                 FROM {BillingCategorySql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
-                  AND "BillingCategoryType" = @BillingCategoryType
-                  AND "BillingCategoryName" = @BillingCategoryName
+                  AND "BillingCategoryType" = @BillingCategoryType AND "BillingCategoryName" = @BillingCategoryName
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )
             """;

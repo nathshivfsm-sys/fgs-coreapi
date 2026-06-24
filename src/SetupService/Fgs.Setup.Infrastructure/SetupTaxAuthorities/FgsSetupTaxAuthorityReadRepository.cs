@@ -170,27 +170,6 @@ internal sealed class FgsSetupTaxAuthorityReadRepository : IFgsSetupTaxAuthority
                 cancellationToken: cancellationToken));
     }
 
-    public async Task<bool> ExistsByIdAsync(long id, CancellationToken cancellationToken = default)
-    {
-        var (tenantId, companyId) = ResolveTenantScope();
-        var sql = $"""
-            SELECT EXISTS(
-                SELECT 1
-                FROM {FgsSetupTaxAuthoritySql.Table}
-                WHERE "TenantId" = @TenantId
-                  AND "CompanyId" = @CompanyId
-                  AND "Id" = @Id
-            )
-            """;
-
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        return await connection.ExecuteScalarAsync<bool>(
-            new CommandDefinition(
-                sql,
-                new { TenantId = tenantId, CompanyId = companyId, Id = id },
-                cancellationToken: cancellationToken));
-    }
-
     private (long TenantId, long CompanyId) ResolveTenantScope()
     {
         if (_tenantContextAccessor.Current is { IsResolved: true } context)

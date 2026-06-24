@@ -16,7 +16,7 @@ public sealed class LeadStatusValidatorTests
     public async Task CreateValidator_WhenStatusCodeMissing_HasValidationError()
     {
         var validator = new CreateLeadStatusCommandValidator(_readRepository.Object);
-        var command = new CreateLeadStatusCommand(new LeadStatusCreateDto("", "StatusName value", "Description value", 1, false));
+        var command = new CreateLeadStatusCommand(new LeadStatusCreateDto("", "StatusName", "Description", 1, false));
 
         var result = await validator.ValidateAsync(command);
 
@@ -28,7 +28,7 @@ public sealed class LeadStatusValidatorTests
     public async Task CreateValidator_WhenStatusCodeNotUppercase_HasValidationError()
     {
         var validator = new CreateLeadStatusCommandValidator(_readRepository.Object);
-        var args = new LeadStatusCreateDto("TEST", "StatusName value", "Description value", 1, false);
+        var args = new LeadStatusCreateDto("TEST", "StatusName", "Description", 1, false);
         var command = new CreateLeadStatusCommand(args with { StatusCode = "test" });
 
         var result = await validator.ValidateAsync(command);
@@ -48,7 +48,7 @@ public sealed class LeadStatusValidatorTests
             .Setup(r => r.ExistsByStatusNameAsync(It.IsAny<string>(), 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         var validator = new UpdateLeadStatusCommandValidator(_readRepository.Object);
-        var command = new UpdateLeadStatusCommand(5, new LeadStatusUpdateDto("TEST", "StatusName value", "Description value", 1, false));
+        var command = new UpdateLeadStatusCommand(5, new LeadStatusUpdateDto("TEST", "StatusName", "Description", 1, false));
 
         var result = await validator.ValidateAsync(command);
 

@@ -1,3 +1,5 @@
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
@@ -27,12 +29,16 @@ public sealed class JobTypeCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var handler = new CreateJobTypeCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateJobTypeCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateJobTypeCommand(new JobTypeCreateDto(1, null, "TEST", "TaskName value", "Description value", "UsedFor value", "Trade value", 60, "BusinessUnit value", 5, "BackgroundColor value", "TextColor value", true, true, 1)),
+            new CreateJobTypeCommand(new JobTypeCreateDto(1, null, "TEST", "TaskName", "Description value", "UsedFor", "Trade", 60, "BusinessUnit", 5, "BackgroundColor", "TextColor", true, true, 1)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -40,6 +46,11 @@ public sealed class JobTypeCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         response.Data.TenantId.Should().Be(TenantId);
         response.Data.CompanyId.Should().Be(CompanyId);
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "jobtypes"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -47,15 +58,21 @@ public sealed class JobTypeCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var createHandler = new CreateJobTypeCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateJobTypeCommandHandler>.Instance);
         var deleteHandler = new DeleteJobTypeCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<DeleteJobTypeCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateJobTypeCommand(new JobTypeCreateDto(1, null, "TEST", "TaskName value", "Description value", "UsedFor value", "Trade value", 60, "BusinessUnit value", 5, "BackgroundColor value", "TextColor value", true, true, 1)),
+            new CreateJobTypeCommand(new JobTypeCreateDto(1, null, "TEST", "TaskName", "Description value", "UsedFor", "Trade", 60, "BusinessUnit", 5, "BackgroundColor", "TextColor", true, true, 1)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 
@@ -66,6 +83,12 @@ public sealed class JobTypeCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
     }
+
+    private static ITenantContextAccessor CreateTenantContextAccessor() =>
+        new TestTenantContextAccessor
+        {
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+        };
 
     private static JobTypeWriteService CreateWriteService(FgsSetupDbContext context)
     {

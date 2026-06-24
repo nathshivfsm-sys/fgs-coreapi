@@ -1,4 +1,5 @@
 ﻿using Fgs.Contracts.Clients;
+using Fgs.Foundation.Caching.Options;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Application.Abstractions.GLBreaks;
 using Fgs.Setup.Application.Abstractions.Locations;
@@ -219,6 +220,7 @@ public static class DependencyInjection
             configuration,
             configuration,
             registerCredentialStoreDbContext: false);
+        CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<RedisCacheOptions>(services);
 
         return services;
     }

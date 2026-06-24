@@ -1,3 +1,5 @@
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
@@ -27,8 +29,12 @@ public sealed class FgsSetupTimeSlotCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var handler = new CreateFgsSetupTimeSlotCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateFgsSetupTimeSlotCommandHandler>.Instance);
 
         var response = await handler.Handle(
@@ -40,6 +46,11 @@ public sealed class FgsSetupTimeSlotCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         response.Data.TenantId.Should().Be(TenantId);
         response.Data.CompanyId.Should().Be(CompanyId);
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "timeslots"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -47,11 +58,17 @@ public sealed class FgsSetupTimeSlotCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var createHandler = new CreateFgsSetupTimeSlotCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateFgsSetupTimeSlotCommandHandler>.Instance);
         var deleteHandler = new DeleteFgsSetupTimeSlotCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<DeleteFgsSetupTimeSlotCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
@@ -66,6 +83,12 @@ public sealed class FgsSetupTimeSlotCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
     }
+
+    private static ITenantContextAccessor CreateTenantContextAccessor() =>
+        new TestTenantContextAccessor
+        {
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+        };
 
     private static FgsSetupTimeSlotWriteService CreateWriteService(FgsSetupDbContext context)
     {

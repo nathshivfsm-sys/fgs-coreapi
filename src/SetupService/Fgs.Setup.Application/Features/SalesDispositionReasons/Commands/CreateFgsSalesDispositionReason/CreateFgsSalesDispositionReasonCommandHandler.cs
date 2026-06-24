@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SalesDispositionReasons;
 using Fgs.Setup.Application.Features.SalesDispositionReasons.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.SalesDispositionReasons.Commands.Create
 
 public sealed class CreateFgsSalesDispositionReasonCommandHandler(
     IFgsSalesDispositionReasonWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<CreateFgsSalesDispositionReasonCommandHandler> logger)
     : IRequestHandler<CreateFgsSalesDispositionReasonCommand, ApiResponse<FgsSalesDispositionReasonDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class CreateFgsSalesDispositionReasonCommandHandler(
         {
             var result = await writeService.CreateAsync(request.Dto, cancellationToken);
             logger.LogInformation("Created sales disposition reason {Id} with code {DispositionReasonCode}", result.Id, result.DispositionReasonCode);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesdispositionreasons"),
+                    cancellationToken);
+            }
             return ApiResponse<FgsSalesDispositionReasonDetailDto>.Ok(result, ApiStatusCodes.Created);
         }
         catch (Exception ex)

@@ -1,26 +1,24 @@
 using Asp.Versioning;
 using Fgs.Contracts.Api;
-using Fgs.Contracts.Clients;
 using Fgs.Foundation.Api;
 using Fgs.Foundation.CatalogCrud;
 using Fgs.Setup.Application.Common.SetupCrud;
-using Fgs.Setup.Application.Features.BusinessTypes.Commands.AddCompanyBusinessTypes;
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Commands.CreateFgsBusinessType;
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Commands.DeleteFgsBusinessType;
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Commands.PatchFgsBusinessType;
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Commands.UpdateFgsBusinessType;
-using Fgs.Setup.Application.Features.FgsBusinessTypes.Dtos;
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Queries.GetFgsBusinessTypeById;
-using Fgs.Setup.Application.Features.FgsBusinessTypes.Queries.ListActiveFgsBusinessTypes;
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Queries.ListFgsBusinessTypes;
+using Fgs.Setup.Application.Features.FgsBusinessTypes.Queries.ListActiveFgsBusinessTypes;
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Queries.LookupFgsBusinessTypes;
+using Fgs.Setup.Application.Features.FgsBusinessTypes.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
 
 /// <summary>
-/// Tenant-scoped business type catalog management and company onboarding seeding.
+/// Tenant-scoped business type catalog management.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("businesstypes")]
@@ -137,22 +135,6 @@ public sealed class BusinessTypesController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new DeleteFgsBusinessTypeCommand(id), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpPost("/api/v{version:apiVersion}/tenants/{tenantId:long}/companies/{companyId:long}/business-types")]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> AddCompanyBusinessTypes(
-        long tenantId,
-        long companyId,
-        [FromBody] AddCompanyBusinessTypesRequest request,
-        CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(
-            new AddCompanyBusinessTypesCommand(tenantId, companyId, request),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 }

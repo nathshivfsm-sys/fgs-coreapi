@@ -1,3 +1,5 @@
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
@@ -27,12 +29,16 @@ public sealed class LeadStatusCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var handler = new CreateLeadStatusCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateLeadStatusCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateLeadStatusCommand(new LeadStatusCreateDto("TEST", "StatusName value", "Description value", 1, false)),
+            new CreateLeadStatusCommand(new LeadStatusCreateDto("TEST", "StatusName", "Description", 1, false)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -40,6 +46,11 @@ public sealed class LeadStatusCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         response.Data.TenantId.Should().Be(TenantId);
         response.Data.CompanyId.Should().Be(CompanyId);
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "leadstatuses"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -47,15 +58,21 @@ public sealed class LeadStatusCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var createHandler = new CreateLeadStatusCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateLeadStatusCommandHandler>.Instance);
         var deleteHandler = new DeleteLeadStatusCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<DeleteLeadStatusCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateLeadStatusCommand(new LeadStatusCreateDto("TEST", "StatusName value", "Description value", 1, false)),
+            new CreateLeadStatusCommand(new LeadStatusCreateDto("TEST", "StatusName", "Description", 1, false)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 
@@ -66,6 +83,12 @@ public sealed class LeadStatusCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
     }
+
+    private static ITenantContextAccessor CreateTenantContextAccessor() =>
+        new TestTenantContextAccessor
+        {
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+        };
 
     private static LeadStatusWriteService CreateWriteService(FgsSetupDbContext context)
     {

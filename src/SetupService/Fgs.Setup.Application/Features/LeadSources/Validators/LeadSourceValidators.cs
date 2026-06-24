@@ -18,6 +18,14 @@ public sealed class CreateLeadSourceCommandValidator : AbstractValidator<CreateL
             .WithMessage("A lead source with this code already exists.");
         RuleFor(x => x.Dto.SourceName).NotEmpty();
         RuleFor(x => x.Dto.SourceName).MaximumLength(100);
+        RuleFor(x => x.Dto.Description).MaximumLength(255);        RuleFor(x => x.Dto.SourceCode).NotEmpty();
+        RuleFor(x => x.Dto.SourceCode).MaximumLength(50);
+        RuleFor(x => x.Dto.SourceCode).Must(code => string.Equals(code, code.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("SourceCode must be uppercase.");
+        RuleFor(x => x.Dto.SourceCode).MustAsync(async (command, code, cancellationToken) =>
+                !await readRepository.ExistsBySourceCodeAsync(code, null, cancellationToken))
+            .WithMessage("A lead source with this code already exists.");
+        RuleFor(x => x.Dto.SourceName).NotEmpty();
+        RuleFor(x => x.Dto.SourceName).MaximumLength(100);
         RuleFor(x => x.Dto.Description).MaximumLength(255);
     }
 }

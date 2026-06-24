@@ -1,5 +1,7 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupTechSkillLevels;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.SetupTechSkillLevels.Dtos;
@@ -19,11 +21,16 @@ public sealed class FgsSetupTechSkillLevelQueryHandlerTests
         var readRepository = new Mock<IFgsSetupTechSkillLevelReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
-        var handler = new GetFgsSetupTechSkillLevelByIdQueryHandler(readRepository.Object);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = new Mock<ITenantContextAccessor>();
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+
+        var handler = new GetFgsSetupTechSkillLevelByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSetupTechSkillLevelByIdQuery(1), CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(ApiStatusCodes.Ok);
+        readRepository.Verify(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -32,7 +39,11 @@ public sealed class FgsSetupTechSkillLevelQueryHandlerTests
         var readRepository = new Mock<IFgsSetupTechSkillLevelReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(99, It.IsAny<CancellationToken>())).ReturnsAsync((FgsSetupTechSkillLevelDetailDto?)null);
 
-        var handler = new GetFgsSetupTechSkillLevelByIdQueryHandler(readRepository.Object);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = new Mock<ITenantContextAccessor>();
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+
+        var handler = new GetFgsSetupTechSkillLevelByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSetupTechSkillLevelByIdQuery(99), CancellationToken.None);
 
         response.Success.Should().BeFalse();

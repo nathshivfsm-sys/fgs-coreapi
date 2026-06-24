@@ -75,9 +75,8 @@ internal sealed class FgsSetupTaxAuthorityLookupRow
     public string Name { get; set; }
     public decimal TaxPercent { get; set; }
 
-    public FgsSetupTaxAuthorityLookupDto ToDto() => new(
-        Id,
-        Code,
-        Name,
-        TaxPercent);
+    public FgsSetupTaxAuthorityLookupDto ToDto() => new(Id,
+            Code,
+            Name,
+            TaxPercent);
 }

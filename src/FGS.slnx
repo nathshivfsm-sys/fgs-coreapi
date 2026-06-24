@@ -4,6 +4,7 @@
   <Folder Name="/Shared/">
     <Project Path="Shared/Kernel/Fgs.Kernel/Fgs.Kernel.csproj" />
     <Project Path="Shared/Foundation/Fgs.Foundation/Fgs.Foundation.csproj" />
+    <Project Path="Shared/Foundation/Fgs.Foundation.Tests/Fgs.Foundation.Tests.csproj" />
     <Project Path="Shared/Contracts/Fgs.Contracts/Fgs.Contracts.csproj" />
     <Project Path="Shared/Messaging/Fgs.Messaging/Fgs.Messaging.csproj" />
     <Project Path="Shared/Messaging/Fgs.Messaging.Tests/Fgs.Messaging.Tests.csproj" />

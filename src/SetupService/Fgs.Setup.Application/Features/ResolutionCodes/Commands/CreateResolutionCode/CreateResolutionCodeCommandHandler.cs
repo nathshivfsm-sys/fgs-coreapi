@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.ResolutionCodes;
 using Fgs.Setup.Application.Features.ResolutionCodes.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.ResolutionCodes.Commands.CreateResoluti
 
 public sealed class CreateResolutionCodeCommandHandler(
     IResolutionCodeWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<CreateResolutionCodeCommandHandler> logger)
     : IRequestHandler<CreateResolutionCodeCommand, ApiResponse<ResolutionCodeDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class CreateResolutionCodeCommandHandler(
         {
             var result = await writeService.CreateAsync(request.Dto, cancellationToken);
             logger.LogInformation("Created resolution code {Id} with code {ResolutionCode}", result.Id, result.ResolutionCode);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "resolutioncodes"),
+                    cancellationToken);
+            }
             return ApiResponse<ResolutionCodeDetailDto>.Ok(result, ApiStatusCodes.Created);
         }
         catch (Exception ex)

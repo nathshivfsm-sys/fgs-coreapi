@@ -1,3 +1,5 @@
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
@@ -27,12 +29,16 @@ public sealed class LeadSourceCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var handler = new CreateLeadSourceCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateLeadSourceCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateLeadSourceCommand(new LeadSourceCreateDto("TEST", "SourceName value", "Description value")),
+            new CreateLeadSourceCommand(new LeadSourceCreateDto("TEST", "SourceName", "Description")),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -40,6 +46,11 @@ public sealed class LeadSourceCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         response.Data.TenantId.Should().Be(TenantId);
         response.Data.CompanyId.Should().Be(CompanyId);
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "leadsources"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -47,15 +58,21 @@ public sealed class LeadSourceCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var createHandler = new CreateLeadSourceCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateLeadSourceCommandHandler>.Instance);
         var deleteHandler = new DeleteLeadSourceCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<DeleteLeadSourceCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateLeadSourceCommand(new LeadSourceCreateDto("TEST", "SourceName value", "Description value")),
+            new CreateLeadSourceCommand(new LeadSourceCreateDto("TEST", "SourceName", "Description")),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 
@@ -66,6 +83,12 @@ public sealed class LeadSourceCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
     }
+
+    private static ITenantContextAccessor CreateTenantContextAccessor() =>
+        new TestTenantContextAccessor
+        {
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+        };
 
     private static LeadSourceWriteService CreateWriteService(FgsSetupDbContext context)
     {

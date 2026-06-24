@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupZones;
 using Fgs.Setup.Application.Features.SetupZones.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.SetupZones.Commands.UpdateFgsSetupZone;
 
 public sealed class UpdateFgsSetupZoneCommandHandler(
     IFgsSetupZoneWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<UpdateFgsSetupZoneCommandHandler> logger)
     : IRequestHandler<UpdateFgsSetupZoneCommand, ApiResponse<FgsSetupZoneDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class UpdateFgsSetupZoneCommandHandler(
         {
             var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
             logger.LogInformation("Updated zone {Id}", result.Id);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "zones"),
+                    cancellationToken);
+            }
             return ApiResponse<FgsSetupZoneDetailDto>.Ok(result);
         }
         catch (Exception ex)

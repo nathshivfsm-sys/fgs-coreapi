@@ -16,7 +16,7 @@ public sealed class ResolutionCodeValidatorTests
     public async Task CreateValidator_WhenResolutionCodeMissing_HasValidationError()
     {
         var validator = new CreateResolutionCodeCommandValidator(_readRepository.Object);
-        var command = new CreateResolutionCodeCommand(new ResolutionCodeCreateDto(1, "", "ResolutionName value", true));
+        var command = new CreateResolutionCodeCommand(new ResolutionCodeCreateDto(1, "", "ResolutionName", true));
 
         var result = await validator.ValidateAsync(command);
 
@@ -28,7 +28,7 @@ public sealed class ResolutionCodeValidatorTests
     public async Task CreateValidator_WhenResolutionCodeNotUppercase_HasValidationError()
     {
         var validator = new CreateResolutionCodeCommandValidator(_readRepository.Object);
-        var args = new ResolutionCodeCreateDto(1, "TEST", "ResolutionName value", true);
+        var args = new ResolutionCodeCreateDto(1, "TEST", "ResolutionName", true);
         var command = new CreateResolutionCodeCommand(args with { ResolutionCode = "test" });
 
         var result = await validator.ValidateAsync(command);
@@ -40,14 +40,15 @@ public sealed class ResolutionCodeValidatorTests
     [Fact]
     public async Task UpdateValidator_WhenDuplicateCodeExcludesCurrentId_Passes()
     {
-        _readRepository
-            .Setup(r => r.ExistsGloResolutionTypeIdAsync(1, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+
         _readRepository
             .Setup(r => r.ExistsByResolutionCodeAsync("TEST", 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
+        _readRepository
+            .Setup(r => r.ExistsGloResolutionTypeIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         var validator = new UpdateResolutionCodeCommandValidator(_readRepository.Object);
-        var command = new UpdateResolutionCodeCommand(5, new ResolutionCodeUpdateDto(1, "TEST", "ResolutionName value", true));
+        var command = new UpdateResolutionCodeCommand(5, new ResolutionCodeUpdateDto(1, "TEST", "ResolutionName", true));
 
         var result = await validator.ValidateAsync(command);
 

@@ -16,7 +16,7 @@ public sealed class BillingCategoryValidatorTests
     public async Task CreateValidator_WhenBillingCategoryTypeMissing_HasValidationError()
     {
         var validator = new CreateBillingCategoryCommandValidator(_readRepository.Object);
-        var command = new CreateBillingCategoryCommand(new BillingCategoryCreateDto("", "BillingCategoryName value", "Description value", 1, false, false, true));
+        var command = new CreateBillingCategoryCommand(new BillingCategoryCreateDto("", "BillingCategoryName", "Description value", 1, false, false, true));
 
         var result = await validator.ValidateAsync(command);
 
@@ -28,8 +28,8 @@ public sealed class BillingCategoryValidatorTests
     public async Task CreateValidator_WhenBillingCategoryTypeNotUppercase_HasValidationError()
     {
         var validator = new CreateBillingCategoryCommandValidator(_readRepository.Object);
-        var args = new BillingCategoryCreateDto("IN", "BillingCategoryName value", "Description value", 1, false, false, true);
-        var command = new CreateBillingCategoryCommand(args with { BillingCategoryType = "in" });
+        var args = new BillingCategoryCreateDto("TEST", "BillingCategoryName", "Description value", 1, false, false, true);
+        var command = new CreateBillingCategoryCommand(args with { BillingCategoryType = "test" });
 
         var result = await validator.ValidateAsync(command);
 
@@ -45,7 +45,7 @@ public sealed class BillingCategoryValidatorTests
             .Setup(r => r.ExistsByBillingCategoryTypeAndBillingCategoryNameAsync(It.IsAny<string>(), It.IsAny<string>(), 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         var validator = new UpdateBillingCategoryCommandValidator(_readRepository.Object);
-        var command = new UpdateBillingCategoryCommand(5, new BillingCategoryUpdateDto("IN", "BillingCategoryName value", "Description value", 1, false, false, true));
+        var command = new UpdateBillingCategoryCommand(5, new BillingCategoryUpdateDto("TEST", "BillingCategoryName", "Description value", 1, false, false, true));
 
         var result = await validator.ValidateAsync(command);
 

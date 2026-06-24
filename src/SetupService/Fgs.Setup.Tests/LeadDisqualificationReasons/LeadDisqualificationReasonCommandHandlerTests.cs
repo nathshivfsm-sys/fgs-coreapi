@@ -1,3 +1,5 @@
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
@@ -27,12 +29,16 @@ public sealed class LeadDisqualificationReasonCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var handler = new CreateLeadDisqualificationReasonCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateLeadDisqualificationReasonCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateLeadDisqualificationReasonCommand(new LeadDisqualificationReasonCreateDto("TEST", "ReasonName value", "Description value", 1, false)),
+            new CreateLeadDisqualificationReasonCommand(new LeadDisqualificationReasonCreateDto("TEST", "ReasonName", "Description", 1, false)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -40,6 +46,11 @@ public sealed class LeadDisqualificationReasonCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         response.Data.TenantId.Should().Be(TenantId);
         response.Data.CompanyId.Should().Be(CompanyId);
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "leaddisqualificationreasons"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -47,15 +58,21 @@ public sealed class LeadDisqualificationReasonCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var createHandler = new CreateLeadDisqualificationReasonCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateLeadDisqualificationReasonCommandHandler>.Instance);
         var deleteHandler = new DeleteLeadDisqualificationReasonCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<DeleteLeadDisqualificationReasonCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateLeadDisqualificationReasonCommand(new LeadDisqualificationReasonCreateDto("TEST", "ReasonName value", "Description value", 1, false)),
+            new CreateLeadDisqualificationReasonCommand(new LeadDisqualificationReasonCreateDto("TEST", "ReasonName", "Description", 1, false)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 
@@ -66,6 +83,12 @@ public sealed class LeadDisqualificationReasonCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
     }
+
+    private static ITenantContextAccessor CreateTenantContextAccessor() =>
+        new TestTenantContextAccessor
+        {
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+        };
 
     private static LeadDisqualificationReasonWriteService CreateWriteService(FgsSetupDbContext context)
     {

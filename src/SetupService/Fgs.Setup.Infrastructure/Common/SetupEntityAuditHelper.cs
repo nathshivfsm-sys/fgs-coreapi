@@ -280,6 +280,7 @@ public sealed class SetupEntityAuditHelper
         entity.UpdatedOn = _dateTimeProvider.UtcNow;
         entity.UpdatedBy = ResolveActor();
     }
+
     private string ResolveActor() => _userContext.ResolveAuditActor();
 
     private (long TenantId, long CompanyId) ResolveTenantCompany()

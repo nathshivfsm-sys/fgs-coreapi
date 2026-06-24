@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.LeadDisqualificationReasons;
 using Fgs.Setup.Application.Features.LeadDisqualificationReasons.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.LeadDisqualificationReasons.Commands.De
 
 public sealed class DeleteLeadDisqualificationReasonCommandHandler(
     ILeadDisqualificationReasonWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<DeleteLeadDisqualificationReasonCommandHandler> logger)
     : IRequestHandler<DeleteLeadDisqualificationReasonCommand, ApiResponse<LeadDisqualificationReasonDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class DeleteLeadDisqualificationReasonCommandHandler(
         {
             var result = await writeService.DeleteAsync(request.Id, cancellationToken);
             logger.LogInformation("Soft-deleted lead disqualification reason {Id}", result.Id);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "leaddisqualificationreasons"),
+                    cancellationToken);
+            }
             return ApiResponse<LeadDisqualificationReasonDetailDto>.Ok(result);
         }
         catch (Exception ex)

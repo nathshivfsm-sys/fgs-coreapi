@@ -24,6 +24,7 @@ using Refit;
 using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
+using Fgs.Foundation.Caching.Options;
 using Fgs.User.Infrastructure.Messaging;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -43,10 +44,11 @@ public static class DependencyInjection
             options =>
             {
                 options.ServiceName = "fgs-user-service";
-                options.RequiredProviders = ["DATABASE", "ENTRA_EXTERNAL_ID", "AWS"];
+                options.RequiredProviders = ["DATABASE", "ENTRA_EXTERNAL_ID", "AWS", "REDIS"];
             },
             typeof(EntraExternalIdOptions),
-            typeof(AwsCredentialsOptions));
+            typeof(AwsCredentialsOptions),
+            typeof(RedisCacheOptions));
 
         services.AddFgsUserFacingSecurity(configuration);
         services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));

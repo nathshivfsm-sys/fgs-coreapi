@@ -30,7 +30,7 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
     {
         var entity = new FgsJobType
         {
-            JobTypeCategoryId = dto.JobTypeCategoryId, JobTypeSubCategoryId = dto.JobTypeSubCategoryId, JobTypeCode = NormalizeCode(dto.JobTypeCode), TaskName = dto.TaskName.Trim(), Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(), UsedFor = dto.UsedFor.Trim(), Trade = string.IsNullOrWhiteSpace(dto.Trade) ? null : dto.Trade.Trim(), EstimatedDurationMinutes = dto.EstimatedDurationMinutes, BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim(), Priority = dto.Priority, BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim(), TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim(), ShowToFieldTech = dto.ShowToFieldTech, ShowOnCustomerPortal = dto.ShowOnCustomerPortal, DisplayOrder = dto.DisplayOrder ?? 1
+            JobTypeCategoryId = dto.JobTypeCategoryId, JobTypeSubCategoryId = dto.JobTypeSubCategoryId, JobTypeCode = NormalizeCode(dto.JobTypeCode), TaskName = dto.TaskName.Trim(), Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(), UsedFor = dto.UsedFor.Trim(), Trade = string.IsNullOrWhiteSpace(dto.Trade) ? null : dto.Trade.Trim(), EstimatedDurationMinutes = dto.EstimatedDurationMinutes ?? 1, BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim(), Priority = dto.Priority, BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim(), TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim(), ShowToFieldTech = dto.ShowToFieldTech, ShowOnCustomerPortal = dto.ShowOnCustomerPortal, DisplayOrder = dto.DisplayOrder ?? 1
         };
 
         _auditHelper.StampForCreate(entity);
@@ -55,7 +55,7 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
         entity.UsedFor = dto.UsedFor.Trim();
         entity.Trade = string.IsNullOrWhiteSpace(dto.Trade) ? null : dto.Trade.Trim();
-        entity.EstimatedDurationMinutes = dto.EstimatedDurationMinutes;
+        entity.EstimatedDurationMinutes = dto.EstimatedDurationMinutes ?? entity.EstimatedDurationMinutes;
         entity.BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim();
         entity.Priority = dto.Priority;
         entity.BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim();
@@ -96,7 +96,7 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
         }
         if (dto.UsedFor is not null)
         {
@@ -104,7 +104,7 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         }
         if (dto.Trade is not null)
         {
-            entity.Trade = string.IsNullOrWhiteSpace(dto.Trade) ? null : dto.Trade.Trim();
+            entity.Trade = string.IsNullOrWhiteSpace(dto.Trade) ? null : dto.Trade.Trim();;
         }
         if (dto.EstimatedDurationMinutes.HasValue)
         {
@@ -112,7 +112,7 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         }
         if (dto.BusinessUnit is not null)
         {
-            entity.BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim();
+            entity.BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim();;
         }
         if (dto.Priority.HasValue)
         {
@@ -120,11 +120,11 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         }
         if (dto.BackgroundColor is not null)
         {
-            entity.BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim();
+            entity.BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim();;
         }
         if (dto.TextColor is not null)
         {
-            entity.TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim();
+            entity.TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim();;
         }
         if (dto.ShowToFieldTech.HasValue)
         {

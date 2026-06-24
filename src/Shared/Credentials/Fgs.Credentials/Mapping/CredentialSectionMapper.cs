@@ -8,6 +8,7 @@ internal static class CredentialSectionMapper
         ("Global:ENTRA_EXTERNAL_ID:", "EntraExternalId:"),
         ("Global:AWS:", "AwsCredentials:"),
         ("Global:RABBITMQ:", "RabbitMq:"),
+        ("Global:REDIS:", "Redis:"),
         ("Global:TWILIO:", "Twilio:"),
         ("Global:STRIPE:", "Stripe:"),
         ("Global:SMTP:", "Smtp:"),

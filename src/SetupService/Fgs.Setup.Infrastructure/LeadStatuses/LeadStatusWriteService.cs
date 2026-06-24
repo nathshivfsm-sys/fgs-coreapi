@@ -78,7 +78,7 @@ public sealed class LeadStatusWriteService : ILeadStatusWriteService
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
         }
         if (dto.DisplayOrder.HasValue)
         {

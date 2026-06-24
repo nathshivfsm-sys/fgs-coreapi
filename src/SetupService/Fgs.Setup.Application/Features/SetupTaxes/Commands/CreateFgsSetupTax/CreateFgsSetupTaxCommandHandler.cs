@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupTaxes;
 using Fgs.Setup.Application.Features.SetupTaxes.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.SetupTaxes.Commands.CreateFgsSetupTax;
 
 public sealed class CreateFgsSetupTaxCommandHandler(
     IFgsSetupTaxWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<CreateFgsSetupTaxCommandHandler> logger)
     : IRequestHandler<CreateFgsSetupTaxCommand, ApiResponse<FgsSetupTaxDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class CreateFgsSetupTaxCommandHandler(
         {
             var result = await writeService.CreateAsync(request.Dto, cancellationToken);
             logger.LogInformation("Created tax {Id} with code {TaxCode}", result.Id, result.TaxCode);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "taxes"),
+                    cancellationToken);
+            }
             return ApiResponse<FgsSetupTaxDetailDto>.Ok(result, ApiStatusCodes.Created);
         }
         catch (Exception ex)

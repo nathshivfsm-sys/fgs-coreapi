@@ -1,3 +1,5 @@
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
@@ -27,12 +29,16 @@ public sealed class BillingCategoryCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var handler = new CreateBillingCategoryCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateBillingCategoryCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateBillingCategoryCommand(new BillingCategoryCreateDto("TEST", "BillingCategoryName value", "Description value", 1, false, false, true)),
+            new CreateBillingCategoryCommand(new BillingCategoryCreateDto("TEST", "BillingCategoryName", "Description value", 1, false, false, true)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -40,6 +46,11 @@ public sealed class BillingCategoryCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         response.Data.TenantId.Should().Be(TenantId);
         response.Data.CompanyId.Should().Be(CompanyId);
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "billingcategories"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -47,15 +58,21 @@ public sealed class BillingCategoryCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var createHandler = new CreateBillingCategoryCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateBillingCategoryCommandHandler>.Instance);
         var deleteHandler = new DeleteBillingCategoryCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<DeleteBillingCategoryCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateBillingCategoryCommand(new BillingCategoryCreateDto("TEST", "BillingCategoryName value", "Description value", 1, false, false, true)),
+            new CreateBillingCategoryCommand(new BillingCategoryCreateDto("TEST", "BillingCategoryName", "Description value", 1, false, false, true)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 
@@ -66,6 +83,12 @@ public sealed class BillingCategoryCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
     }
+
+    private static ITenantContextAccessor CreateTenantContextAccessor() =>
+        new TestTenantContextAccessor
+        {
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+        };
 
     private static BillingCategoryWriteService CreateWriteService(FgsSetupDbContext context)
     {

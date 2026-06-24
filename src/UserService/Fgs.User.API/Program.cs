@@ -1,5 +1,6 @@
 using Fgs.Credentials;
 using Fgs.Credentials.Extensions;
+using Fgs.Foundation.Caching.Extensions;
 using Fgs.Foundation.Hosting;
 using Fgs.Observability.Extensions;
 using Fgs.User.Application;
@@ -23,10 +24,11 @@ var hostOptions = builder.AddFgsApiHost(options =>
 
 builder.Services.AddFgsUserApplication();
 builder.Services.AddFgsUserInfrastructure(builder.Configuration);
+await builder.LoadFgsRemoteCredentialsAsync();
+builder.Services.AddFgsRedisCache(builder.Configuration);
 builder.Services.AddFgsObservability(builder.Configuration, hostOptions.ServiceName);
 
 var app = builder.Build();
-await app.LoadFgsRemoteCredentialsAsync();
 app.UseFgsApiHost(hostOptions);
 app.MapFgsHealthChecks();
 app.Run();

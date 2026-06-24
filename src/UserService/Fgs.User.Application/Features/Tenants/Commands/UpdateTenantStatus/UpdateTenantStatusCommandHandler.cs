@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
+using Fgs.MultiTenancy.Constants;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Domain.Entities;
@@ -9,7 +12,8 @@ namespace Fgs.User.Application.Features.Tenants.Commands.UpdateTenantStatus;
 
 public sealed class UpdateTenantStatusCommandHandler(
     IUserWriteRepository<FgsTenant> tenantWriteRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    ICacheService cache)
     : IRequestHandler<UpdateTenantStatusCommand, ApiResponse<object>>
 {
     public async Task<ApiResponse<object>> Handle(
@@ -32,6 +36,21 @@ public sealed class UpdateTenantStatusCommandHandler(
 
         tenantWriteRepository.Update(tenant);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await cache.RemoveAsync(
+            CacheKeys.Build(
+                request.TenantId,
+                TenantScopeConstants.PlatformCompanyId,
+                "tenant",
+                request.TenantId.ToString()),
+            cancellationToken);
+        await cache.RemoveAsync(
+            CacheKeys.Build(
+                request.TenantId,
+                TenantScopeConstants.PlatformCompanyId,
+                "tenant-companies",
+                "list"),
+            cancellationToken);
 
         return ApiResponse<object>.Ok(new object());
     }

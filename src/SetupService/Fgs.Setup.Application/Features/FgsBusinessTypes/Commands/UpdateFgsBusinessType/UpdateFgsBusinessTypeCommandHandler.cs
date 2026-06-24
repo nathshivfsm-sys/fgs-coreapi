@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.FgsBusinessTypes;
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.FgsBusinessTypes.Commands.UpdateFgsBusi
 
 public sealed class UpdateFgsBusinessTypeCommandHandler(
     IFgsBusinessTypeWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<UpdateFgsBusinessTypeCommandHandler> logger)
     : IRequestHandler<UpdateFgsBusinessTypeCommand, ApiResponse<FgsBusinessTypeDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class UpdateFgsBusinessTypeCommandHandler(
         {
             var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
             logger.LogInformation("Updated business type {Id}", result.Id);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "businesstypes"),
+                    cancellationToken);
+            }
             return ApiResponse<FgsBusinessTypeDetailDto>.Ok(result);
         }
         catch (Exception ex)

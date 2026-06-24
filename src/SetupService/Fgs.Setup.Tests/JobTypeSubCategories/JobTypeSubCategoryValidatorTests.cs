@@ -16,7 +16,7 @@ public sealed class JobTypeSubCategoryValidatorTests
     public async Task CreateValidator_WhenSubCategoryCodeMissing_HasValidationError()
     {
         var validator = new CreateJobTypeSubCategoryCommandValidator(_readRepository.Object);
-        var command = new CreateJobTypeSubCategoryCommand(new JobTypeSubCategoryCreateDto("", "Name value", "Description value", 1));
+        var command = new CreateJobTypeSubCategoryCommand(new JobTypeSubCategoryCreateDto("", "Name", "Description value", 1));
 
         var result = await validator.ValidateAsync(command);
 
@@ -28,7 +28,7 @@ public sealed class JobTypeSubCategoryValidatorTests
     public async Task CreateValidator_WhenSubCategoryCodeNotUppercase_HasValidationError()
     {
         var validator = new CreateJobTypeSubCategoryCommandValidator(_readRepository.Object);
-        var args = new JobTypeSubCategoryCreateDto("TEST", "Name value", "Description value", 1);
+        var args = new JobTypeSubCategoryCreateDto("TEST", "Name", "Description value", 1);
         var command = new CreateJobTypeSubCategoryCommand(args with { SubCategoryCode = "test" });
 
         var result = await validator.ValidateAsync(command);
@@ -45,7 +45,7 @@ public sealed class JobTypeSubCategoryValidatorTests
             .Setup(r => r.ExistsBySubCategoryCodeAsync("TEST", 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         var validator = new UpdateJobTypeSubCategoryCommandValidator(_readRepository.Object);
-        var command = new UpdateJobTypeSubCategoryCommand(5, new JobTypeSubCategoryUpdateDto("TEST", "Name value", "Description value", 1));
+        var command = new UpdateJobTypeSubCategoryCommand(5, new JobTypeSubCategoryUpdateDto("TEST", "Name", "Description value", 1));
 
         var result = await validator.ValidateAsync(command);
 

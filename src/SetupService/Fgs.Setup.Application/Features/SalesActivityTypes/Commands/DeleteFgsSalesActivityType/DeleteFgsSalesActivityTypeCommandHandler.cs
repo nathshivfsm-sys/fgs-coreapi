@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SalesActivityTypes;
 using Fgs.Setup.Application.Features.SalesActivityTypes.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.SalesActivityTypes.Commands.DeleteFgsSa
 
 public sealed class DeleteFgsSalesActivityTypeCommandHandler(
     IFgsSalesActivityTypeWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<DeleteFgsSalesActivityTypeCommandHandler> logger)
     : IRequestHandler<DeleteFgsSalesActivityTypeCommand, ApiResponse<FgsSalesActivityTypeDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class DeleteFgsSalesActivityTypeCommandHandler(
         {
             var result = await writeService.DeleteAsync(request.Id, cancellationToken);
             logger.LogInformation("Soft-deleted sales activity type {Id}", result.Id);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesactivitytypes"),
+                    cancellationToken);
+            }
             return ApiResponse<FgsSalesActivityTypeDetailDto>.Ok(result);
         }
         catch (Exception ex)

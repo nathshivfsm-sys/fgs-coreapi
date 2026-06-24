@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupPostalCodes;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.SetupPostalCodes.Commands.CreateFgsSetu
 
 public sealed class CreateFgsSetupPostalCodeCommandHandler(
     IFgsSetupPostalCodeWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<CreateFgsSetupPostalCodeCommandHandler> logger)
     : IRequestHandler<CreateFgsSetupPostalCodeCommand, ApiResponse<FgsSetupPostalCodeDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class CreateFgsSetupPostalCodeCommandHandler(
         {
             var result = await writeService.CreateAsync(request.Dto, cancellationToken);
             logger.LogInformation("Created postal code {Id} with code {PostalCode}", result.Id, result.PostalCode);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "postalcodes"),
+                    cancellationToken);
+            }
             return ApiResponse<FgsSetupPostalCodeDetailDto>.Ok(result, ApiStatusCodes.Created);
         }
         catch (Exception ex)

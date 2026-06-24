@@ -16,7 +16,7 @@ public sealed class LeadDisqualificationReasonValidatorTests
     public async Task CreateValidator_WhenReasonCodeMissing_HasValidationError()
     {
         var validator = new CreateLeadDisqualificationReasonCommandValidator(_readRepository.Object);
-        var command = new CreateLeadDisqualificationReasonCommand(new LeadDisqualificationReasonCreateDto("", "ReasonName value", "Description value", 1, false));
+        var command = new CreateLeadDisqualificationReasonCommand(new LeadDisqualificationReasonCreateDto("", "ReasonName", "Description", 1, false));
 
         var result = await validator.ValidateAsync(command);
 
@@ -28,7 +28,7 @@ public sealed class LeadDisqualificationReasonValidatorTests
     public async Task CreateValidator_WhenReasonCodeNotUppercase_HasValidationError()
     {
         var validator = new CreateLeadDisqualificationReasonCommandValidator(_readRepository.Object);
-        var args = new LeadDisqualificationReasonCreateDto("TEST", "ReasonName value", "Description value", 1, false);
+        var args = new LeadDisqualificationReasonCreateDto("TEST", "ReasonName", "Description", 1, false);
         var command = new CreateLeadDisqualificationReasonCommand(args with { ReasonCode = "test" });
 
         var result = await validator.ValidateAsync(command);
@@ -48,7 +48,7 @@ public sealed class LeadDisqualificationReasonValidatorTests
             .Setup(r => r.ExistsByReasonNameAsync(It.IsAny<string>(), 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         var validator = new UpdateLeadDisqualificationReasonCommandValidator(_readRepository.Object);
-        var command = new UpdateLeadDisqualificationReasonCommand(5, new LeadDisqualificationReasonUpdateDto("TEST", "ReasonName value", "Description value", 1, false));
+        var command = new UpdateLeadDisqualificationReasonCommand(5, new LeadDisqualificationReasonUpdateDto("TEST", "ReasonName", "Description", 1, false));
 
         var result = await validator.ValidateAsync(command);
 

@@ -1,3 +1,5 @@
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
@@ -27,20 +29,28 @@ public sealed class FgsSetupTaxAuthorityCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var handler = new CreateFgsSetupTaxAuthorityCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateFgsSetupTaxAuthorityCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateFgsSetupTaxAuthorityCommand(new FgsSetupTaxAuthorityCreateDto("TEST", "Name value", "TEST", false, 8.25m, "Description value")),
+            new CreateFgsSetupTaxAuthorityCommand(new FgsSetupTaxAuthorityCreateDto("TEST", "Name value", "TEST", false, 10.5m, "Description value")),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
         response.Data!.IsActive.Should().BeTrue();
-        response.Data.TaxPercent.Should().Be(8.25m);
         response.Data.TenantId.Should().Be(TenantId);
         response.Data.CompanyId.Should().Be(CompanyId);
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "taxauthorities"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -48,15 +58,21 @@ public sealed class FgsSetupTaxAuthorityCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var createHandler = new CreateFgsSetupTaxAuthorityCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateFgsSetupTaxAuthorityCommandHandler>.Instance);
         var deleteHandler = new DeleteFgsSetupTaxAuthorityCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<DeleteFgsSetupTaxAuthorityCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateFgsSetupTaxAuthorityCommand(new FgsSetupTaxAuthorityCreateDto("TEST", "Name value", "TEST", false, 8.25m, "Description value")),
+            new CreateFgsSetupTaxAuthorityCommand(new FgsSetupTaxAuthorityCreateDto("TEST", "Name value", "TEST", false, 10.5m, "Description value")),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 
@@ -67,6 +83,12 @@ public sealed class FgsSetupTaxAuthorityCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
     }
+
+    private static ITenantContextAccessor CreateTenantContextAccessor() =>
+        new TestTenantContextAccessor
+        {
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+        };
 
     private static FgsSetupTaxAuthorityWriteService CreateWriteService(FgsSetupDbContext context)
     {

@@ -1,4 +1,7 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
+using Fgs.MultiTenancy.Constants;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Common.Locations;
@@ -15,7 +18,8 @@ public sealed class UpdateTenantCompanyDetailsCommandHandler(
     IUserWriteRepository<FgsTenantCompany> companyWriteRepository,
     IUserWriteRepository<FgsLocation> locationWriteRepository,
     IUnitOfWork unitOfWork,
-    IMediator mediator)
+    IMediator mediator,
+    ICacheService cache)
     : IRequestHandler<UpdateTenantCompanyDetailsCommand, ApiResponse<TenantCompanyDetailDto>>
 {
     public async Task<ApiResponse<TenantCompanyDetailDto>> Handle(
@@ -64,6 +68,24 @@ public sealed class UpdateTenantCompanyDetailsCommandHandler(
         {
             return failure;
         }
+
+        await cache.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(request.TenantId, request.CompanyId, "tenant-company"),
+            cancellationToken);
+        await cache.RemoveAsync(
+            CacheKeys.Build(
+                request.TenantId,
+                TenantScopeConstants.PlatformCompanyId,
+                "tenant-companies",
+                "list"),
+            cancellationToken);
+        await cache.RemoveAsync(
+            CacheKeys.Build(
+                request.TenantId,
+                TenantScopeConstants.PlatformCompanyId,
+                "tenant",
+                request.TenantId.ToString()),
+            cancellationToken);
 
         return await mediator.Send(
             new GetTenantCompanyDetailsQuery(request.TenantId, request.CompanyId),

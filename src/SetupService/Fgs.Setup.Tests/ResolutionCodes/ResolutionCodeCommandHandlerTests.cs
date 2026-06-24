@@ -1,3 +1,5 @@
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
@@ -27,12 +29,16 @@ public sealed class ResolutionCodeCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var handler = new CreateResolutionCodeCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateResolutionCodeCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateResolutionCodeCommand(new ResolutionCodeCreateDto(1, "TEST", "ResolutionName value", true)),
+            new CreateResolutionCodeCommand(new ResolutionCodeCreateDto(1, "TEST", "ResolutionName", true)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -40,6 +46,11 @@ public sealed class ResolutionCodeCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         response.Data.TenantId.Should().Be(TenantId);
         response.Data.CompanyId.Should().Be(CompanyId);
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "resolutioncodes"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -47,15 +58,21 @@ public sealed class ResolutionCodeCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var createHandler = new CreateResolutionCodeCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateResolutionCodeCommandHandler>.Instance);
         var deleteHandler = new DeleteResolutionCodeCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<DeleteResolutionCodeCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateResolutionCodeCommand(new ResolutionCodeCreateDto(1, "TEST", "ResolutionName value", true)),
+            new CreateResolutionCodeCommand(new ResolutionCodeCreateDto(1, "TEST", "ResolutionName", true)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 
@@ -66,6 +83,12 @@ public sealed class ResolutionCodeCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
     }
+
+    private static ITenantContextAccessor CreateTenantContextAccessor() =>
+        new TestTenantContextAccessor
+        {
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+        };
 
     private static ResolutionCodeWriteService CreateWriteService(FgsSetupDbContext context)
     {

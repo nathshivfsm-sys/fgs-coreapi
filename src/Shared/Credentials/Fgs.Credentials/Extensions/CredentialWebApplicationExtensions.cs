@@ -5,6 +5,17 @@ namespace Fgs.Credentials.Extensions;
 
 public static class CredentialWebApplicationExtensions
 {
+    public static async Task<WebApplicationBuilder> LoadFgsRemoteCredentialsAsync(
+        this WebApplicationBuilder builder,
+        CancellationToken cancellationToken = default)
+    {
+        using var serviceProvider = builder.Services.BuildServiceProvider();
+        await serviceProvider
+            .GetRequiredService<RemoteCredentialConfigurationLoader>()
+            .LoadAsync(cancellationToken);
+        return builder;
+    }
+
     public static async Task<WebApplication> LoadFgsRemoteCredentialsAsync(
         this WebApplication app,
         CancellationToken cancellationToken = default)

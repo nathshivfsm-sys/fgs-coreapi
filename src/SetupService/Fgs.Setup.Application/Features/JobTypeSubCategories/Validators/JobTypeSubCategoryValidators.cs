@@ -19,6 +19,15 @@ public sealed class CreateJobTypeSubCategoryCommandValidator : AbstractValidator
         RuleFor(x => x.Dto.Name).NotEmpty();
         RuleFor(x => x.Dto.Name).MaximumLength(150);
 
+        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);        RuleFor(x => x.Dto.SubCategoryCode).NotEmpty();
+        RuleFor(x => x.Dto.SubCategoryCode).MaximumLength(50);
+        RuleFor(x => x.Dto.SubCategoryCode).Must(code => string.Equals(code, code.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("SubCategoryCode must be uppercase.");
+        RuleFor(x => x.Dto.SubCategoryCode).MustAsync(async (command, code, cancellationToken) =>
+                !await readRepository.ExistsBySubCategoryCodeAsync(code, null, cancellationToken))
+            .WithMessage("A job type subcategory with this code already exists.");
+        RuleFor(x => x.Dto.Name).NotEmpty();
+        RuleFor(x => x.Dto.Name).MaximumLength(150);
+
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
     }
 }

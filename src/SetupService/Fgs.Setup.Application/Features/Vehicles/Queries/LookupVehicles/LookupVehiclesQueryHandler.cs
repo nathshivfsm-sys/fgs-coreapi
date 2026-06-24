@@ -1,12 +1,18 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.Vehicles;
 using Fgs.Setup.Application.Features.Vehicles.Dtos;
 using MediatR;
 
 namespace Fgs.Setup.Application.Features.Vehicles.Queries.LookupVehicles;
 
-public sealed class LookupVehiclesQueryHandler(IFgsVehicleReadRepository readRepository)
+public sealed class LookupVehiclesQueryHandler(
+    IFgsVehicleReadRepository readRepository,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor)
     : IRequestHandler<LookupVehiclesQuery, ApiResponse<IReadOnlyList<FgsVehicleLookupDto>>>
 {
     public async Task<ApiResponse<IReadOnlyList<FgsVehicleLookupDto>>> Handle(
@@ -15,8 +21,25 @@ public sealed class LookupVehiclesQueryHandler(IFgsVehicleReadRepository readRep
     {
         try
         {
-            var result = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
-            return ApiResponse<IReadOnlyList<FgsVehicleLookupDto>>.Ok(result);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                var cacheKey = CacheKeys.Build(
+                    tenantScope.TenantId,
+                    tenantScope.CompanyId,
+                    "vehicles",
+                    CacheKeys.LookupSegment(request.ActiveOnly));
+
+                var result = await cache.GetOrSetAsync(
+                    cacheKey,
+                    () => readRepository.LookupAsync(request.ActiveOnly, cancellationToken),
+                    cancellationToken: cancellationToken);
+
+                return ApiResponse<IReadOnlyList<FgsVehicleLookupDto>>.Ok(result ?? Array.Empty<FgsVehicleLookupDto>());
+            }
+
+            var uncached = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
+            return ApiResponse<IReadOnlyList<FgsVehicleLookupDto>>.Ok(uncached);
         }
         catch (Exception ex)
         {

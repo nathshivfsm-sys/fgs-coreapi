@@ -23,6 +23,19 @@ public sealed class CreateLeadStatusCommandValidator : AbstractValidator<CreateL
             .WithMessage("An active lead status with this name already exists.");
         RuleFor(x => x.Dto.Description).MaximumLength(255);
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
+        RuleFor(x => x.Dto.StatusCode).NotEmpty();
+        RuleFor(x => x.Dto.StatusCode).MaximumLength(50);
+        RuleFor(x => x.Dto.StatusCode).Must(code => string.Equals(code, code.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("StatusCode must be uppercase.");
+        RuleFor(x => x.Dto.StatusCode).MustAsync(async (command, code, cancellationToken) =>
+                !await readRepository.ExistsByStatusCodeAsync(code, null, cancellationToken))
+            .WithMessage("A lead status with this code already exists.");
+        RuleFor(x => x.Dto.StatusName).NotEmpty();
+        RuleFor(x => x.Dto.StatusName).MaximumLength(100);
+        RuleFor(x => x.Dto.StatusName).MustAsync(async (command, name, cancellationToken) =>
+                !await readRepository.ExistsByStatusNameAsync(name, null, cancellationToken))
+            .WithMessage("An active lead status with this name already exists.");
+        RuleFor(x => x.Dto.Description).MaximumLength(255);
+        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
 
     }
 }

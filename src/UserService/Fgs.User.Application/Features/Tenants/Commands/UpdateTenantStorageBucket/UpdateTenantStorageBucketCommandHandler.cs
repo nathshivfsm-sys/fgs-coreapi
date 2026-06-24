@@ -1,4 +1,7 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
+using Fgs.MultiTenancy.Constants;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Domain.Entities;
@@ -8,7 +11,8 @@ namespace Fgs.User.Application.Features.Tenants.Commands.UpdateTenantStorageBuck
 
 public sealed class UpdateTenantStorageBucketCommandHandler(
     IUserWriteRepository<FgsTenant> tenantWriteRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    ICacheService cache)
     : IRequestHandler<UpdateTenantStorageBucketCommand, ApiResponse<object>>
 {
     public async Task<ApiResponse<object>> Handle(
@@ -26,6 +30,14 @@ public sealed class UpdateTenantStorageBucketCommandHandler(
         tenant.UpdatedOn = DateTimeOffset.UtcNow;
         tenantWriteRepository.Update(tenant);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await cache.RemoveAsync(
+            CacheKeys.Build(
+                request.TenantId,
+                TenantScopeConstants.PlatformCompanyId,
+                "tenant",
+                request.TenantId.ToString()),
+            cancellationToken);
 
         return ApiResponse<object>.Ok(new object());
     }

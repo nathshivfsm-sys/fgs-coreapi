@@ -22,6 +22,7 @@ namespace Fgs.Setup.API.Controllers;
 /// <summary>
 /// Global and tenant credential management with AWS KMS envelope encryption.
 /// </summary>
+[AllowAnonymous]
 //[Authorize]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("credentials")]

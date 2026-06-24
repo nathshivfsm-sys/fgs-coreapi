@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupDescriptions;
 using Fgs.Setup.Application.Features.SetupDescriptions.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.SetupDescriptions.Commands.DeleteFgsSet
 
 public sealed class DeleteFgsSetupDescriptionCommandHandler(
     IFgsSetupDescriptionWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<DeleteFgsSetupDescriptionCommandHandler> logger)
     : IRequestHandler<DeleteFgsSetupDescriptionCommand, ApiResponse<FgsSetupDescriptionDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class DeleteFgsSetupDescriptionCommandHandler(
         {
             var result = await writeService.DeleteAsync(request.Id, cancellationToken);
             logger.LogInformation("Soft-deleted setup description {Id}", result.Id);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "setupdescriptions"),
+                    cancellationToken);
+            }
             return ApiResponse<FgsSetupDescriptionDetailDto>.Ok(result);
         }
         catch (Exception ex)

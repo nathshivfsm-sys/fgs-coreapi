@@ -74,6 +74,33 @@ public sealed class CredentialSectionMapperTests
     }
 
     [Fact]
+    public void TryMap_RedisKey_MapsToRedisConnectionString()
+    {
+        CredentialSectionMapper.TryMap("Global:REDIS:ConnectionString", out var key, out _).Should().BeTrue();
+        key.Should().Be("Redis:ConnectionString");
+    }
+
+    [Fact]
+    public void TryResolveValue_RedisKey_ReturnsConnectionString()
+    {
+        var values = new Dictionary<string, string>
+        {
+            ["Global:REDIS:ConnectionString"] = "redis:6379",
+            ["Global:REDIS:Enabled"] = "True",
+            ["Global:REDIS:InstanceName"] = "fgs:"
+        };
+
+        CredentialSectionMapper.TryResolveValue(
+                "Global:REDIS:ConnectionString",
+                "Redis:ConnectionString",
+                values,
+                out var resolved)
+            .Should().BeTrue();
+
+        resolved.Should().Be("redis:6379");
+    }
+
+    [Fact]
     public void Filter_KeepsOnlyRequiredProviders()
     {
         var values = new Dictionary<string, string>

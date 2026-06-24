@@ -2023,21 +2023,44 @@ public sealed class Patch{pf}CommandValidator : AbstractValidator<Patch{pf}Comma
     write(APP / "Features" / cfg.plural_folder / "Validators" / f"{pf}Validators.cs", content)
 
 
+def cache_invalidation_block(cfg: EntityConfig, indent: str = "            ") -> str:
+    route = cfg.route
+    return f"""{indent}var tenantScope = tenantContextAccessor.Current;
+{indent}if (tenantScope?.IsResolved == true)
+{indent}{{
+{indent}    await cache.RemoveByPrefixAsync(
+{indent}        CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "{route}"),
+{indent}        cancellationToken);
+{indent}}}"""
+
+
 def cmd_handler(action: str, cfg: EntityConfig) -> str:
     pf = cfg.type_prefix
     svc = write_iface_name(cfg)
-    log_create = f'"Created {cfg.display_name} {{{pf}Id}} with code {{{cfg.code_field}}}"'
+    folder = f"{action}{pf}"
+    if action == "Create":
+        ok_log = f'logger.LogInformation("Created {cfg.display_name} {{Id}} with code {{{cfg.code_field}}}", result.Id, result.{cfg.code_field});'
+        err_log = f'logger.LogError(ex, "Failed to create {cfg.display_name}");'
+    else:
+        ok_log = f'logger.LogInformation("{action}d {cfg.display_name} {{Id}}", result.Id);'
+        err_log = f'logger.LogError(ex, "Failed to {action.lower()} {cfg.display_name} {{Id}}", request.Id);'
+    invalidation = cache_invalidation_block(cfg)
     return f"""using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Fgs.Setup.Application.Features.{cfg.plural_folder}.Commands.{action}{pf};
+namespace Fgs.Setup.Application.Features.{cfg.plural_folder}.Commands.{folder};
 
 public sealed class {action}{pf}CommandHandler(
     {svc} writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<{action}{pf}CommandHandler> logger)
     : IRequestHandler<{action}{pf}Command, ApiResponse<{pf}DetailDto>>
 {{
@@ -2048,13 +2071,13 @@ public sealed class {action}{pf}CommandHandler(
         try
         {{
             var result = await writeService.{action}Async({", ".join(["request.Dto"] if action == "Create" else ["request.Id", "request.Dto"] if action in ("Update", "Patch") else ["request.Id"])}, cancellationToken);
-            logger.LogInformation({log_create if action == "Create" else f'"{{action.lower()}}ed {cfg.display_name} {{{pf}Id}}"', "result.Id" if action != "Create" else f'"Created {cfg.display_name} {{Id}}", result.Id, result.{cfg.code_field}'});
-
+            {ok_log}
+{invalidation}
             return ApiResponse<{pf}DetailDto>.Ok(result{", ApiStatusCodes.Created" if action == "Create" else ""});
         }}
         catch (Exception ex)
         {{
-            logger.LogError(ex, "Failed to {action.lower()} {cfg.display_name}");
+            {err_log}
             return CatalogCrudExceptionMapper.MapException<{pf}DetailDto>(ex);
         }}
     }}
@@ -2077,7 +2100,10 @@ public sealed record Delete{pf}Command(long Id)
     : IRequest<ApiResponse<{pf}DetailDto>>;
 """
             handler = f"""using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
 using MediatR;
@@ -2087,6 +2113,8 @@ namespace Fgs.Setup.Application.Features.{cfg.plural_folder}.Commands.{folder};
 
 public sealed class Delete{pf}CommandHandler(
     {write_iface_name(cfg)} writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<Delete{pf}CommandHandler> logger)
     : IRequestHandler<Delete{pf}Command, ApiResponse<{pf}DetailDto>>
 {{
@@ -2098,6 +2126,7 @@ public sealed class Delete{pf}CommandHandler(
         {{
             var result = await writeService.DeleteAsync(request.Id, cancellationToken);
             logger.LogInformation("Soft-deleted {cfg.display_name} {{Id}}", result.Id);
+{cache_invalidation_block(cfg)}
             return ApiResponse<{pf}DetailDto>.Ok(result);
         }}
         catch (Exception ex)
@@ -2126,44 +2155,9 @@ public sealed record {action}{pf}Command{params}
 """
             if action == "Create":
                 call = "request.Dto, cancellationToken"
-                err_log = f'logger.LogError(ex, "Failed to create {cfg.display_name}");'
-                ok_log = f'logger.LogInformation("Created {cfg.display_name} {{Id}} with code {{{cfg.code_field}}}", result.Id, result.{cfg.code_field});'
             else:
                 call = "request.Id, request.Dto, cancellationToken"
-                err_log = f'logger.LogError(ex, "Failed to {action.lower()} {cfg.display_name} {{Id}}", request.Id);'
-                ok_log = f'logger.LogInformation("{action}d {cfg.display_name} {{Id}}", result.Id);'
-            handler = f"""using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
-using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
-using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
-using MediatR;
-using Microsoft.Extensions.Logging;
-
-namespace Fgs.Setup.Application.Features.{cfg.plural_folder}.Commands.{folder};
-
-public sealed class {action}{pf}CommandHandler(
-    {write_iface_name(cfg)} writeService,
-    ILogger<{action}{pf}CommandHandler> logger)
-    : IRequestHandler<{action}{pf}Command, ApiResponse<{pf}DetailDto>>
-{{
-    public async Task<ApiResponse<{pf}DetailDto>> Handle(
-        {action}{pf}Command request,
-        CancellationToken cancellationToken)
-    {{
-        try
-        {{
-            var result = await writeService.{action}Async({call});
-            {ok_log}
-            return ApiResponse<{pf}DetailDto>.Ok(result{", ApiStatusCodes.Created" if action == "Create" else ""});
-        }}
-        catch (Exception ex)
-        {{
-            {err_log}
-            return CatalogCrudExceptionMapper.MapException<{pf}DetailDto>(ex);
-        }}
-    }}
-}}
-"""
+            handler = cmd_handler(action, cfg)
         write(APP / "Features" / cfg.plural_folder / "Commands" / folder / f"{action}{pf}Command.cs", cmd)
         write(APP / "Features" / cfg.plural_folder / "Commands" / folder / f"{action}{pf}CommandHandler.cs", handler)
 
@@ -2193,7 +2187,10 @@ public sealed record {name}Query(
     : IRequest<ApiResponse<{ret_inner}>>;
 """
             hcontent = f"""using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
@@ -2201,7 +2198,10 @@ using MediatR;
 
 namespace Fgs.Setup.Application.Features.{cfg.plural_folder}.Queries.{name};
 
-public sealed class {name}QueryHandler({iface_name(cfg)} readRepository)
+public sealed class {name}QueryHandler(
+    {iface_name(cfg)} readRepository,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor)
     : IRequestHandler<{name}Query, ApiResponse<{ret_inner}>>
 {{
     public async Task<ApiResponse<{ret_inner}>> Handle(
@@ -2210,7 +2210,46 @@ public sealed class {name}QueryHandler({iface_name(cfg)} readRepository)
     {{
         try
         {{
-            var query = new SetupListQuery(
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {{
+                var segment = CacheKeys.ListActiveSegment(
+                    request.Page,
+                    request.PageSize,
+                    request.SortBy,
+                    request.SortDirection.ToString(),
+                    request.Search,
+                    CacheKeys.Fingerprint(request.Filters));
+
+                var cacheKey = CacheKeys.Build(
+                    tenantScope.TenantId,
+                    tenantScope.CompanyId,
+                    "{cfg.route}",
+                    segment);
+
+                var cached = await cache.GetOrSetAsync(
+                    cacheKey,
+                    async () =>
+                    {{
+                        var query = new SetupListQuery(
+                            request.Page,
+                            request.PageSize,
+                            request.SortBy,
+                            request.SortDirection,
+                            request.Search,
+                            IsActive: true);
+
+                        return await readRepository.ListAsync(
+                            query,
+                            request.Filters ?? new {pf}ListFilters(),
+                            cancellationToken);
+                    }},
+                    cancellationToken: cancellationToken);
+
+                return ApiResponse<{ret_inner}>.Ok(cached!);
+            }}
+
+            var listQuery = new SetupListQuery(
                 request.Page,
                 request.PageSize,
                 request.SortBy,
@@ -2219,7 +2258,7 @@ public sealed class {name}QueryHandler({iface_name(cfg)} readRepository)
                 IsActive: true);
 
             var result = await readRepository.ListAsync(
-                query,
+                listQuery,
                 request.Filters ?? new {pf}ListFilters(),
                 cancellationToken);
 
@@ -2243,14 +2282,20 @@ public sealed record {name}Query({params})
     : IRequest<ApiResponse<{pf}DetailDto>>;
 """
             hcontent = f"""using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
 using MediatR;
 
 namespace Fgs.Setup.Application.Features.{cfg.plural_folder}.Queries.{name};
 
-public sealed class {name}QueryHandler({iface_name(cfg)} readRepository)
+public sealed class {name}QueryHandler(
+    {iface_name(cfg)} readRepository,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor)
     : IRequestHandler<{name}Query, ApiResponse<{pf}DetailDto>>
 {{
     public async Task<ApiResponse<{pf}DetailDto>> Handle(
@@ -2259,15 +2304,42 @@ public sealed class {name}QueryHandler({iface_name(cfg)} readRepository)
     {{
         try
         {{
-            var result = await readRepository.GetByIdAsync(request.Id, cancellationToken);
-            if (result is null)
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {{
+                var cacheKey = CacheKeys.Build(
+                    tenantScope.TenantId,
+                    tenantScope.CompanyId,
+                    "{cfg.route}",
+                    request.Id.ToString());
+
+                var cached = await cache.GetAsync<{pf}DetailDto>(cacheKey, cancellationToken);
+                if (cached is not null)
+                {{
+                    return ApiResponse<{pf}DetailDto>.Ok(cached);
+                }}
+
+                var result = await readRepository.GetByIdAsync(request.Id, cancellationToken);
+                if (result is null)
+                {{
+                    return ApiResponse<{pf}DetailDto>.Fail(
+                        [$"{nf}"],
+                        ApiStatusCodes.NotFound);
+                }}
+
+                await cache.SetAsync(cacheKey, result, cancellationToken: cancellationToken);
+                return ApiResponse<{pf}DetailDto>.Ok(result);
+            }}
+
+            var uncached = await readRepository.GetByIdAsync(request.Id, cancellationToken);
+            if (uncached is null)
             {{
                 return ApiResponse<{pf}DetailDto>.Fail(
                     [$"{nf}"],
                     ApiStatusCodes.NotFound);
             }}
 
-            return ApiResponse<{pf}DetailDto>.Ok(result);
+            return ApiResponse<{pf}DetailDto>.Ok(uncached);
         }}
         catch (Exception ex)
         {{
@@ -2287,14 +2359,20 @@ public sealed record {name}Query({params})
     : IRequest<ApiResponse<{ret_inner}>>;
 """
             hcontent = f"""using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
 using MediatR;
 
 namespace Fgs.Setup.Application.Features.{cfg.plural_folder}.Queries.{name};
 
-public sealed class {name}QueryHandler({iface_name(cfg)} readRepository)
+public sealed class {name}QueryHandler(
+    {iface_name(cfg)} readRepository,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor)
     : IRequestHandler<{name}Query, ApiResponse<{ret_inner}>>
 {{
     public async Task<ApiResponse<{ret_inner}>> Handle(
@@ -2303,8 +2381,25 @@ public sealed class {name}QueryHandler({iface_name(cfg)} readRepository)
     {{
         try
         {{
-            var result = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
-            return ApiResponse<{ret_inner}>.Ok(result);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {{
+                var cacheKey = CacheKeys.Build(
+                    tenantScope.TenantId,
+                    tenantScope.CompanyId,
+                    "{cfg.route}",
+                    CacheKeys.LookupSegment(request.ActiveOnly));
+
+                var result = await cache.GetOrSetAsync(
+                    cacheKey,
+                    () => readRepository.LookupAsync(request.ActiveOnly, cancellationToken),
+                    cancellationToken: cancellationToken);
+
+                return ApiResponse<{ret_inner}>.Ok(result ?? Array.Empty<{pf}LookupDto>());
+            }}
+
+            var uncached = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
+            return ApiResponse<{ret_inner}>.Ok(uncached);
         }}
         catch (Exception ex)
         {{
@@ -2699,7 +2794,9 @@ public sealed class {pf}ValidatorTests
 """
     write(TESTS / cfg.plural_folder / f"{pf}ValidatorTests.cs", vcontent)
 
-    ccontent = f"""using Fgs.MultiTenancy;
+    ccontent = f"""using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
+using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
@@ -2728,8 +2825,12 @@ public sealed class {pf}CommandHandlerTests
     {{
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var handler = new Create{pf}CommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<Create{pf}CommandHandler>.Instance);
 
         var response = await handler.Handle(
@@ -2741,6 +2842,11 @@ public sealed class {pf}CommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         response.Data.TenantId.Should().Be(TenantId);
         response.Data.CompanyId.Should().Be(CompanyId);
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "{cfg.route}"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }}
 
     [Fact]
@@ -2748,11 +2854,17 @@ public sealed class {pf}CommandHandlerTests
     {{
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var createHandler = new Create{pf}CommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<Create{pf}CommandHandler>.Instance);
         var deleteHandler = new Delete{pf}CommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<Delete{pf}CommandHandler>.Instance);
 
         var created = await createHandler.Handle(
@@ -2767,6 +2879,12 @@ public sealed class {pf}CommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
     }}
+
+    private static ITenantContextAccessor CreateTenantContextAccessor() =>
+        new TestTenantContextAccessor
+        {{
+            Current = new TenantContext {{ TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }}
+        }};
 
     private static {write_class(cfg)} CreateWriteService(FgsSetupDbContext context)
     {{
@@ -2814,7 +2932,9 @@ public sealed class {pf}CommandHandlerTests
     write(TESTS / cfg.plural_folder / f"{pf}CommandHandlerTests.cs", ccontent)
 
     qcontent = f"""using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
@@ -2834,11 +2954,16 @@ public sealed class {pf}QueryHandlerTests
         var readRepository = new Mock<{iface_name(cfg)}>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
-        var handler = new Get{pf}ByIdQueryHandler(readRepository.Object);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = new Mock<ITenantContextAccessor>();
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext {{ TenantId = 10, CompanyId = 20, IsResolved = true }});
+
+        var handler = new Get{pf}ByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new Get{pf}ByIdQuery(1), CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(ApiStatusCodes.Ok);
+        readRepository.Verify(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()), Times.Once);
     }}
 
     [Fact]
@@ -2847,7 +2972,11 @@ public sealed class {pf}QueryHandlerTests
         var readRepository = new Mock<{iface_name(cfg)}>();
         readRepository.Setup(r => r.GetByIdAsync(99, It.IsAny<CancellationToken>())).ReturnsAsync(({pf}DetailDto?)null);
 
-        var handler = new Get{pf}ByIdQueryHandler(readRepository.Object);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = new Mock<ITenantContextAccessor>();
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext {{ TenantId = 10, CompanyId = 20, IsResolved = true }});
+
+        var handler = new Get{pf}ByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new Get{pf}ByIdQuery(99), CancellationToken.None);
 
         response.Success.Should().BeFalse();
@@ -2890,9 +3019,11 @@ def generate_entity(cfg: EntityConfig) -> None:
     generate_tests(cfg)
 
 
-def resolve_entities(batch: int | None) -> list[EntityConfig]:
+def resolve_entities(batch: int | None, regenerate_all: bool = False) -> list[EntityConfig]:
     if batch == 2:
         return NEW_ENTITIES
+    if regenerate_all:
+        return ENTITIES + NEW_ENTITIES
     entities = ENTITIES + NEW_ENTITIES
     result = []
     for cfg in entities:
@@ -3025,12 +3156,14 @@ def patch_audit_helper(entities: list[EntityConfig]) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate Setup Service CRUD layers.")
     parser.add_argument("--batch", type=int, choices=[1, 2], default=None, help="Generate batch 1 (9 entities) or batch 2 (21 entities).")
+    parser.add_argument("--all", action="store_true", help="Regenerate all catalog entities including existing controllers.")
     args = parser.parse_args()
-    entities = resolve_entities(args.batch)
+    entities = resolve_entities(args.batch, regenerate_all=args.all)
     for cfg in entities:
         generate_entity(cfg)
-    patch_audit_helper(entities)
-    patch_dependency_injection(entities)
+    if args.batch is not None:
+        patch_audit_helper(entities)
+        patch_dependency_injection(entities)
     print(f"\nDone. Generated {len(entities)} entities.")
 
 

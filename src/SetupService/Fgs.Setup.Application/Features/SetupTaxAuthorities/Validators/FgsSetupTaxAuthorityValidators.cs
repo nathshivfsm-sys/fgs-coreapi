@@ -16,7 +16,10 @@ public sealed class CreateFgsSetupTaxAuthorityCommandValidator : AbstractValidat
                 !await readRepository.ExistsByCodeAsync(code, null, cancellationToken))
             .WithMessage("A tax authority with this code already exists.");
         RuleFor(x => x.Dto.Name).NotEmpty();
-        RuleFor(x => x.Dto.RegionCode).Must(code => string.Equals(code, code.Trim().ToUpperInvariant(), StringComparison.Ordinal)).When(x => !string.IsNullOrWhiteSpace(x.Dto.RegionCode)).WithMessage("RegionCode must be uppercase.");
+        RuleFor(x => x.Dto.RegionCode).Must(code => string.Equals(code, code.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("RegionCode must be uppercase.");
+
+
+
         RuleFor(x => x.Dto.TaxPercent).InclusiveBetween(0m, 100m);
     }
 }
@@ -32,7 +35,10 @@ public sealed class UpdateFgsSetupTaxAuthorityCommandValidator : AbstractValidat
                 !await readRepository.ExistsByCodeAsync(code, command.Id, cancellationToken))
             .WithMessage("A tax authority with this code already exists.");
         RuleFor(x => x.Dto.Name).NotEmpty();
-        RuleFor(x => x.Dto.RegionCode).Must(code => string.Equals(code, code.Trim().ToUpperInvariant(), StringComparison.Ordinal)).When(x => !string.IsNullOrWhiteSpace(x.Dto.RegionCode)).WithMessage("RegionCode must be uppercase.");
+        RuleFor(x => x.Dto.RegionCode).Must(code => string.Equals(code, code.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("RegionCode must be uppercase.");
+
+
+
         RuleFor(x => x.Dto.TaxPercent).InclusiveBetween(0m, 100m);
     }
 }
@@ -42,13 +48,16 @@ public sealed class PatchFgsSetupTaxAuthorityCommandValidator : AbstractValidato
     public PatchFgsSetupTaxAuthorityCommandValidator(IFgsSetupTaxAuthorityReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.Code).NotEmpty().When(x => x.Dto.Code is not null);
-        RuleFor(x => x.Dto.Code).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("Code must be uppercase.").When(x => x.Dto.Code is not null);
+        RuleFor(x => x.Dto.Code).NotEmpty();
+        RuleFor(x => x.Dto.Code).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("Code must be uppercase.");
         RuleFor(x => x.Dto.Code).MustAsync(async (command, code, cancellationToken) =>
                 !await readRepository.ExistsByCodeAsync(code!, command.Id, cancellationToken))
-            .WithMessage("A tax authority with this code already exists.").When(x => x.Dto.Code is not null);
-        RuleFor(x => x.Dto.Name).NotEmpty().When(x => x.Dto.Name is not null);
+            .WithMessage("A tax authority with this code already exists.");
+        RuleFor(x => x.Dto.Name).NotEmpty();
         RuleFor(x => x.Dto.RegionCode).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("RegionCode must be uppercase.").When(x => x.Dto.RegionCode is not null);
-        RuleFor(x => x.Dto.TaxPercent).InclusiveBetween(0m, 100m).When(x => x.Dto.TaxPercent.HasValue);
+
+
+
+        RuleFor(x => x.Dto.TaxPercent).InclusiveBetween(0m, 100m);
     }
 }

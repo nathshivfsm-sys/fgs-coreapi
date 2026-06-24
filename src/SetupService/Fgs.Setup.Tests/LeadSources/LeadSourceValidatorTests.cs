@@ -16,7 +16,7 @@ public sealed class LeadSourceValidatorTests
     public async Task CreateValidator_WhenSourceCodeMissing_HasValidationError()
     {
         var validator = new CreateLeadSourceCommandValidator(_readRepository.Object);
-        var command = new CreateLeadSourceCommand(new LeadSourceCreateDto("", "SourceName value", "Description value"));
+        var command = new CreateLeadSourceCommand(new LeadSourceCreateDto("", "SourceName", "Description"));
 
         var result = await validator.ValidateAsync(command);
 
@@ -28,7 +28,7 @@ public sealed class LeadSourceValidatorTests
     public async Task CreateValidator_WhenSourceCodeNotUppercase_HasValidationError()
     {
         var validator = new CreateLeadSourceCommandValidator(_readRepository.Object);
-        var args = new LeadSourceCreateDto("TEST", "SourceName value", "Description value");
+        var args = new LeadSourceCreateDto("TEST", "SourceName", "Description");
         var command = new CreateLeadSourceCommand(args with { SourceCode = "test" });
 
         var result = await validator.ValidateAsync(command);
@@ -45,7 +45,7 @@ public sealed class LeadSourceValidatorTests
             .Setup(r => r.ExistsBySourceCodeAsync("TEST", 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         var validator = new UpdateLeadSourceCommandValidator(_readRepository.Object);
-        var command = new UpdateLeadSourceCommand(5, new LeadSourceUpdateDto("TEST", "SourceName value", "Description value"));
+        var command = new UpdateLeadSourceCommand(5, new LeadSourceUpdateDto("TEST", "SourceName", "Description"));
 
         var result = await validator.ValidateAsync(command);
 

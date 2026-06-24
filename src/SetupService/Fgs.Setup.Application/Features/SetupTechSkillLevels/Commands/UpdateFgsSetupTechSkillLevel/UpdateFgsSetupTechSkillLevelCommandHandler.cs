@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupTechSkillLevels;
 using Fgs.Setup.Application.Features.SetupTechSkillLevels.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.SetupTechSkillLevels.Commands.UpdateFgs
 
 public sealed class UpdateFgsSetupTechSkillLevelCommandHandler(
     IFgsSetupTechSkillLevelWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<UpdateFgsSetupTechSkillLevelCommandHandler> logger)
     : IRequestHandler<UpdateFgsSetupTechSkillLevelCommand, ApiResponse<FgsSetupTechSkillLevelDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class UpdateFgsSetupTechSkillLevelCommandHandler(
         {
             var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
             logger.LogInformation("Updated tech skill level {Id}", result.Id);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "techskilllevels"),
+                    cancellationToken);
+            }
             return ApiResponse<FgsSetupTechSkillLevelDetailDto>.Ok(result);
         }
         catch (Exception ex)

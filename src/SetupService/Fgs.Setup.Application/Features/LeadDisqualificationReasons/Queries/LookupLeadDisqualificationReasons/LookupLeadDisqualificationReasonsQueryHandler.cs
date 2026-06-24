@@ -1,12 +1,18 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.LeadDisqualificationReasons;
 using Fgs.Setup.Application.Features.LeadDisqualificationReasons.Dtos;
 using MediatR;
 
 namespace Fgs.Setup.Application.Features.LeadDisqualificationReasons.Queries.LookupLeadDisqualificationReasons;
 
-public sealed class LookupLeadDisqualificationReasonsQueryHandler(ILeadDisqualificationReasonReadRepository readRepository)
+public sealed class LookupLeadDisqualificationReasonsQueryHandler(
+    ILeadDisqualificationReasonReadRepository readRepository,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor)
     : IRequestHandler<LookupLeadDisqualificationReasonsQuery, ApiResponse<IReadOnlyList<LeadDisqualificationReasonLookupDto>>>
 {
     public async Task<ApiResponse<IReadOnlyList<LeadDisqualificationReasonLookupDto>>> Handle(
@@ -15,8 +21,25 @@ public sealed class LookupLeadDisqualificationReasonsQueryHandler(ILeadDisqualif
     {
         try
         {
-            var result = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
-            return ApiResponse<IReadOnlyList<LeadDisqualificationReasonLookupDto>>.Ok(result);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                var cacheKey = CacheKeys.Build(
+                    tenantScope.TenantId,
+                    tenantScope.CompanyId,
+                    "leaddisqualificationreasons",
+                    CacheKeys.LookupSegment(request.ActiveOnly));
+
+                var result = await cache.GetOrSetAsync(
+                    cacheKey,
+                    () => readRepository.LookupAsync(request.ActiveOnly, cancellationToken),
+                    cancellationToken: cancellationToken);
+
+                return ApiResponse<IReadOnlyList<LeadDisqualificationReasonLookupDto>>.Ok(result ?? Array.Empty<LeadDisqualificationReasonLookupDto>());
+            }
+
+            var uncached = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
+            return ApiResponse<IReadOnlyList<LeadDisqualificationReasonLookupDto>>.Ok(uncached);
         }
         catch (Exception ex)
         {

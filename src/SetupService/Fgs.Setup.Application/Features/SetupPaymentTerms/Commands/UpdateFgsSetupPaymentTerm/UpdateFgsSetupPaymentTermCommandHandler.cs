@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupPaymentTerms;
 using Fgs.Setup.Application.Features.SetupPaymentTerms.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.SetupPaymentTerms.Commands.UpdateFgsSet
 
 public sealed class UpdateFgsSetupPaymentTermCommandHandler(
     IFgsSetupPaymentTermWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<UpdateFgsSetupPaymentTermCommandHandler> logger)
     : IRequestHandler<UpdateFgsSetupPaymentTermCommand, ApiResponse<FgsSetupPaymentTermDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class UpdateFgsSetupPaymentTermCommandHandler(
         {
             var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
             logger.LogInformation("Updated payment term {Id}", result.Id);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "paymentterms"),
+                    cancellationToken);
+            }
             return ApiResponse<FgsSetupPaymentTermDetailDto>.Ok(result);
         }
         catch (Exception ex)

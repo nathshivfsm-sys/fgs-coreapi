@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupDescriptions;
 using Fgs.Setup.Application.Features.SetupDescriptions.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.SetupDescriptions.Commands.CreateFgsSet
 
 public sealed class CreateFgsSetupDescriptionCommandHandler(
     IFgsSetupDescriptionWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<CreateFgsSetupDescriptionCommandHandler> logger)
     : IRequestHandler<CreateFgsSetupDescriptionCommand, ApiResponse<FgsSetupDescriptionDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class CreateFgsSetupDescriptionCommandHandler(
         {
             var result = await writeService.CreateAsync(request.Dto, cancellationToken);
             logger.LogInformation("Created setup description {Id} with code {DescriptionTypeCode}", result.Id, result.DescriptionTypeCode);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "setupdescriptions"),
+                    cancellationToken);
+            }
             return ApiResponse<FgsSetupDescriptionDetailDto>.Ok(result, ApiStatusCodes.Created);
         }
         catch (Exception ex)

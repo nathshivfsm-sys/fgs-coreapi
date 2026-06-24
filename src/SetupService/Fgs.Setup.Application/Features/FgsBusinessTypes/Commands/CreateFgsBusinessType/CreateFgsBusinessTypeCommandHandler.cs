@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.FgsBusinessTypes;
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.FgsBusinessTypes.Commands.CreateFgsBusi
 
 public sealed class CreateFgsBusinessTypeCommandHandler(
     IFgsBusinessTypeWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<CreateFgsBusinessTypeCommandHandler> logger)
     : IRequestHandler<CreateFgsBusinessTypeCommand, ApiResponse<FgsBusinessTypeDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class CreateFgsBusinessTypeCommandHandler(
         {
             var result = await writeService.CreateAsync(request.Dto, cancellationToken);
             logger.LogInformation("Created business type {Id} with code {Code}", result.Id, result.Code);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "businesstypes"),
+                    cancellationToken);
+            }
             return ApiResponse<FgsBusinessTypeDetailDto>.Ok(result, ApiStatusCodes.Created);
         }
         catch (Exception ex)

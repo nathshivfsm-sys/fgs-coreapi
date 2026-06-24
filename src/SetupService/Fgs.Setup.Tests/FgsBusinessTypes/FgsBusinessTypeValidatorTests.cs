@@ -16,7 +16,7 @@ public sealed class FgsBusinessTypeValidatorTests
     public async Task CreateValidator_WhenCodeMissing_HasValidationError()
     {
         var validator = new CreateFgsBusinessTypeCommandValidator(_readRepository.Object);
-        var command = new CreateFgsBusinessTypeCommand(new FgsBusinessTypeCreateDto("", "Name value", "Description value", 1));
+        var command = new CreateFgsBusinessTypeCommand(new FgsBusinessTypeCreateDto("", "Name", "Description value", 1));
 
         var result = await validator.ValidateAsync(command);
 
@@ -28,7 +28,7 @@ public sealed class FgsBusinessTypeValidatorTests
     public async Task CreateValidator_WhenCodeNotUppercase_HasValidationError()
     {
         var validator = new CreateFgsBusinessTypeCommandValidator(_readRepository.Object);
-        var args = new FgsBusinessTypeCreateDto("TEST", "Name value", "Description value", 1);
+        var args = new FgsBusinessTypeCreateDto("TEST", "Name", "Description value", 1);
         var command = new CreateFgsBusinessTypeCommand(args with { Code = "test" });
 
         var result = await validator.ValidateAsync(command);
@@ -45,7 +45,7 @@ public sealed class FgsBusinessTypeValidatorTests
             .Setup(r => r.ExistsByCodeAsync("TEST", 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         var validator = new UpdateFgsBusinessTypeCommandValidator(_readRepository.Object);
-        var command = new UpdateFgsBusinessTypeCommand(5, new FgsBusinessTypeUpdateDto("TEST", "Name value", "Description value", 1));
+        var command = new UpdateFgsBusinessTypeCommand(5, new FgsBusinessTypeUpdateDto("TEST", "Name", "Description value", 1));
 
         var result = await validator.ValidateAsync(command);
 

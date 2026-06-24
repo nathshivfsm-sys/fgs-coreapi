@@ -55,6 +55,17 @@ FROM (
             TRUE
         ),
         (
+            'REDIS',
+            'Redis Cache',
+            '[
+                {"key":"Enabled","label":"Enabled","type":"boolean","required":true},
+                {"key":"ConnectionString","label":"Connection String","type":"text","required":true},
+                {"key":"InstanceName","label":"Instance Name Prefix","type":"text","required":false},
+                {"key":"DefaultAbsoluteExpirationMinutes","label":"Default Cache TTL (minutes)","type":"number","required":false}
+            ]',
+            TRUE
+        ),
+        (
             'AWS',
             'Amazon Web Services',
             '[
@@ -197,6 +208,17 @@ FROM (
                 {"key":"Username","label":"Username","type":"text","required":true},
                 {"key":"Password","label":"Password","type":"password","required":true,"sensitive":true},
                 {"key":"ConnectionUri","label":"Connection URI","type":"text","required":false,"sensitive":true}
+            ]',
+            TRUE
+        ),
+        (
+            'REDIS',
+            'Redis Cache',
+            '[
+                {"key":"Enabled","label":"Enabled","type":"boolean","required":true},
+                {"key":"ConnectionString","label":"Connection String","type":"text","required":true},
+                {"key":"InstanceName","label":"Instance Name Prefix","type":"text","required":false},
+                {"key":"DefaultAbsoluteExpirationMinutes","label":"Default Cache TTL (minutes)","type":"number","required":false}
             ]',
             TRUE
         ),

@@ -77,7 +77,7 @@ public sealed class JobTypeSubCategoryWriteService : IJobTypeSubCategoryWriteSer
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
         }
         if (dto.DisplayOrder.HasValue)
         {

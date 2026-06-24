@@ -1,3 +1,5 @@
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
@@ -27,12 +29,16 @@ public sealed class FgsBusinessTypeCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var handler = new CreateFgsBusinessTypeCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateFgsBusinessTypeCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateFgsBusinessTypeCommand(new FgsBusinessTypeCreateDto("TEST", "Name value", "Description value", 1)),
+            new CreateFgsBusinessTypeCommand(new FgsBusinessTypeCreateDto("TEST", "Name", "Description value", 1)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -40,6 +46,11 @@ public sealed class FgsBusinessTypeCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         response.Data.TenantId.Should().Be(TenantId);
         response.Data.CompanyId.Should().Be(CompanyId);
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "businesstypes"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -47,15 +58,21 @@ public sealed class FgsBusinessTypeCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
         var createHandler = new CreateFgsBusinessTypeCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<CreateFgsBusinessTypeCommandHandler>.Instance);
         var deleteHandler = new DeleteFgsBusinessTypeCommandHandler(
             writeService,
+            cache.Object,
+            tenantAccessor,
             NullLogger<DeleteFgsBusinessTypeCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateFgsBusinessTypeCommand(new FgsBusinessTypeCreateDto("TEST", "Name value", "Description value", 1)),
+            new CreateFgsBusinessTypeCommand(new FgsBusinessTypeCreateDto("TEST", "Name", "Description value", 1)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 
@@ -66,6 +83,12 @@ public sealed class FgsBusinessTypeCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
     }
+
+    private static ITenantContextAccessor CreateTenantContextAccessor() =>
+        new TestTenantContextAccessor
+        {
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+        };
 
     private static FgsBusinessTypeWriteService CreateWriteService(FgsSetupDbContext context)
     {

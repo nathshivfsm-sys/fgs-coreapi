@@ -21,6 +21,4 @@ public interface IFgsSetupTaxAuthorityReadRepository
         string code,
         long? excludeId = null,
         CancellationToken cancellationToken = default);
-
-    Task<bool> ExistsByIdAsync(long id, CancellationToken cancellationToken = default);
 }

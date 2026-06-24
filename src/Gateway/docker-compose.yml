@@ -1,7 +1,7 @@
 ﻿name: fgs-local
 
 # Startup order:
-#   1. rabbitmq
+#   1. rabbitmq, redis
 #   2. setup-service  — credential authority (audit disabled locally; see AuditService__Enabled)
 #   3. audit-service starts first among consumers, then other credential consumers
 #   4. publisher / consumer — messaging workers
@@ -53,6 +53,23 @@ services:
       - fgs-private
     restart: unless-stopped
 
+  redis:
+    image: redis:7-alpine
+    hostname: redis
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+    networks:
+      - fgs-private
+    restart: unless-stopped
+
   # Tier 1 — credential authority (bootstrap ConnectionStrings:FgsSetup from mounted appsettings)
   setup-service:
     <<: *service-network
@@ -66,6 +83,9 @@ services:
       AuditService__BaseUrl: http://audit-service:5008
       # Setup starts before audit is listening; disable credential audit in local Compose to avoid connection-refused noise.
       AuditService__Enabled: "false"
+    depends_on:
+      redis:
+        condition: service_healthy
     volumes:
       - ../SetupService/Fgs.Setup.API/appsettings.json:/src/src/SetupService/Fgs.Setup.API/appsettings.json:ro
       - ../SetupService/Fgs.Setup.API/appsettings.Development.json:/src/src/SetupService/Fgs.Setup.API/appsettings.Development.json:ro
@@ -113,7 +133,10 @@ services:
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: ENTRA_EXTERNAL_ID
       CredentialConsumer__RequiredProviders__2: AWS
+      CredentialConsumer__RequiredProviders__3: REDIS
     depends_on:
+      redis:
+        condition: service_healthy
       <<: *depends-on-setup-and-audit
     volumes:
       - ../UserService/Fgs.User.API/appsettings.json:/src/src/UserService/Fgs.User.API/appsettings.json:ro
@@ -287,3 +310,4 @@ networks:
 
 volumes:
   rabbitmq-data:
+  redis-data:

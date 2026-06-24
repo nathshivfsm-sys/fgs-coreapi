@@ -21,6 +21,17 @@ public sealed class CreateResolutionCodeCommandValidator : AbstractValidator<Cre
             .WithMessage("A resolution code with this code already exists.");
         RuleFor(x => x.Dto.ResolutionName).NotEmpty();
         RuleFor(x => x.Dto.ResolutionName).MaximumLength(200);
+        RuleFor(x => x.Dto.GloResolutionTypeId).MustAsync(async (command, value, cancellationToken) =>
+                await readRepository.ExistsGloResolutionTypeIdAsync(value, cancellationToken))
+            .WithMessage("The specified resolution type was not found.");
+        RuleFor(x => x.Dto.ResolutionCode).NotEmpty();
+        RuleFor(x => x.Dto.ResolutionCode).MaximumLength(50);
+        RuleFor(x => x.Dto.ResolutionCode).Must(code => string.Equals(code, code.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("ResolutionCode must be uppercase.");
+        RuleFor(x => x.Dto.ResolutionCode).MustAsync(async (command, code, cancellationToken) =>
+                !await readRepository.ExistsByResolutionCodeAsync(code, null, cancellationToken))
+            .WithMessage("A resolution code with this code already exists.");
+        RuleFor(x => x.Dto.ResolutionName).NotEmpty();
+        RuleFor(x => x.Dto.ResolutionName).MaximumLength(200);
 
     }
 }

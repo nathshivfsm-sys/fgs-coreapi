@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupTaxAuthorities;
 using Fgs.Setup.Application.Features.SetupTaxAuthorities.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.SetupTaxAuthorities.Commands.DeleteFgsS
 
 public sealed class DeleteFgsSetupTaxAuthorityCommandHandler(
     IFgsSetupTaxAuthorityWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<DeleteFgsSetupTaxAuthorityCommandHandler> logger)
     : IRequestHandler<DeleteFgsSetupTaxAuthorityCommand, ApiResponse<FgsSetupTaxAuthorityDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class DeleteFgsSetupTaxAuthorityCommandHandler(
         {
             var result = await writeService.DeleteAsync(request.Id, cancellationToken);
             logger.LogInformation("Soft-deleted tax authority {Id}", result.Id);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "taxauthorities"),
+                    cancellationToken);
+            }
             return ApiResponse<FgsSetupTaxAuthorityDetailDto>.Ok(result);
         }
         catch (Exception ex)

@@ -1,5 +1,8 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.ResolutionCodes;
 using Fgs.Setup.Application.Features.ResolutionCodes.Dtos;
 using MediatR;
@@ -9,6 +12,8 @@ namespace Fgs.Setup.Application.Features.ResolutionCodes.Commands.PatchResolutio
 
 public sealed class PatchResolutionCodeCommandHandler(
     IResolutionCodeWriteService writeService,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
     ILogger<PatchResolutionCodeCommandHandler> logger)
     : IRequestHandler<PatchResolutionCodeCommand, ApiResponse<ResolutionCodeDetailDto>>
 {
@@ -20,6 +25,13 @@ public sealed class PatchResolutionCodeCommandHandler(
         {
             var result = await writeService.PatchAsync(request.Id, request.Dto, cancellationToken);
             logger.LogInformation("Patchd resolution code {Id}", result.Id);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                await cache.RemoveByPrefixAsync(
+                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "resolutioncodes"),
+                    cancellationToken);
+            }
             return ApiResponse<ResolutionCodeDetailDto>.Ok(result);
         }
         catch (Exception ex)

@@ -18,22 +18,6 @@ internal static class FgsSetupTaxSql
         "Id", "TaxCode", "Name"
         """;
 
-    public const string TaxDetailTable = "setup.\"FgsSetupTaxDetail\"";
-
-    public const string TaxAuthorityTable = "setup.\"FgsSetupTaxAuthority\"";
-
-    public const string SelectTaxAssignmentColumns = """
-        td."Id",
-        td."FgsSetupTaxAuthorityId",
-        ta."Code" AS "TaxAuthorityCode",
-        ta."Name" AS "TaxAuthorityName",
-        ta."TaxPercent",
-        td."EffectiveFromDate",
-        td."EffectiveToDate",
-        td."IsExternalSystemRecord",
-        td."IsActive"
-        """;
-
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
         "Id", "CreatedOn", "IsActive", "TaxCode", "Name", "IsExternalSystemRecord", "ExternalSystemId", "SyncToken", "ShowTaxDetail", "Description"

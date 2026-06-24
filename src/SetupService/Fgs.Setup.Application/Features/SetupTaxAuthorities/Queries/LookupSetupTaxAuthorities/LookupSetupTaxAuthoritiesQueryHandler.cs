@@ -1,12 +1,18 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.CatalogCrud;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupTaxAuthorities;
 using Fgs.Setup.Application.Features.SetupTaxAuthorities.Dtos;
 using MediatR;
 
 namespace Fgs.Setup.Application.Features.SetupTaxAuthorities.Queries.LookupSetupTaxAuthorities;
 
-public sealed class LookupSetupTaxAuthoritiesQueryHandler(IFgsSetupTaxAuthorityReadRepository readRepository)
+public sealed class LookupSetupTaxAuthoritiesQueryHandler(
+    IFgsSetupTaxAuthorityReadRepository readRepository,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor)
     : IRequestHandler<LookupSetupTaxAuthoritiesQuery, ApiResponse<IReadOnlyList<FgsSetupTaxAuthorityLookupDto>>>
 {
     public async Task<ApiResponse<IReadOnlyList<FgsSetupTaxAuthorityLookupDto>>> Handle(
@@ -15,8 +21,25 @@ public sealed class LookupSetupTaxAuthoritiesQueryHandler(IFgsSetupTaxAuthorityR
     {
         try
         {
-            var result = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
-            return ApiResponse<IReadOnlyList<FgsSetupTaxAuthorityLookupDto>>.Ok(result);
+            var tenantScope = tenantContextAccessor.Current;
+            if (tenantScope?.IsResolved == true)
+            {
+                var cacheKey = CacheKeys.Build(
+                    tenantScope.TenantId,
+                    tenantScope.CompanyId,
+                    "taxauthorities",
+                    CacheKeys.LookupSegment(request.ActiveOnly));
+
+                var result = await cache.GetOrSetAsync(
+                    cacheKey,
+                    () => readRepository.LookupAsync(request.ActiveOnly, cancellationToken),
+                    cancellationToken: cancellationToken);
+
+                return ApiResponse<IReadOnlyList<FgsSetupTaxAuthorityLookupDto>>.Ok(result ?? Array.Empty<FgsSetupTaxAuthorityLookupDto>());
+            }
+
+            var uncached = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
+            return ApiResponse<IReadOnlyList<FgsSetupTaxAuthorityLookupDto>>.Ok(uncached);
         }
         catch (Exception ex)
         {
