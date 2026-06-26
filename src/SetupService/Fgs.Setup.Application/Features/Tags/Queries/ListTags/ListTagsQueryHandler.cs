@@ -13,14 +13,7 @@ public sealed class ListTagsQueryHandler(IFgsTagReadRepository readRepository)
         ListTagsQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<FgsTagSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsTagSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<FgsTagSummaryDto>>.Ok(result);
     }
 }

@@ -20,16 +20,7 @@ public sealed class ProvisionTenantCommandHandler(ITenantProvisioningOrchestrato
             request.CorrelationId,
             request.UserId);
 
-        try
-        {
-            await orchestrator.ProvisionAsync(provisionEvent, cancellationToken);
-            return ApiResponse<object>.Ok(new object(), ApiStatusCodes.NoContent);
-        }
-        catch (Exception ex)
-        {
-            return ApiResponse<object>.Fail(
-                [ex.Message],
-                ApiStatusCodes.InternalServerError);
-        }
+        await orchestrator.ProvisionAsync(provisionEvent, cancellationToken);
+        return ApiResponse<object>.Ok(new object(), ApiStatusCodes.NoContent);
     }
 }

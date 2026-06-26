@@ -31,11 +31,21 @@ This creates `FGS-Postman-Import.zip` (all collections + environment) and opens 
 
 ## Collections
 
-| Collection | Gateway routes | Direct service URL var |
-|------------|----------------|-------------------------|
-| [UserService](UserService.postman_collection.json) | auth, invite, signup, dashboard (gateway); tenants (direct) | `userServiceUrl` / `gatewayUrl` |
-| [SetupService](SetupService.postman_collection.json) | credentials, communication-templates | `setupServiceUrl` — tech trades, provisioning, business types (direct) |
-| [FGS Entra Token (Existing User)](FGS-Entra-Token.postman_collection.json) | — | Entra sign-in + refresh token flow (use with FGS Globals env) |
+All request URLs use `{{gatewayUrl}}` (`https://localhost:8443`). Per-service URL variables in the environment are kept for direct debugging only.
+
+| Collection | Gateway path prefix |
+|------------|---------------------|
+| [UserService](UserService.postman_collection.json) | `/api/v1/auth`, `/api/v1/invite`, `/api/v1/signup`, `/api/v1/dashboard`, `/api/v1/tenants` |
+| [SetupService](SetupService.postman_collection.json) | `/api/v1/{catalog}` (billingcategories, credentials, techtrades, tenant-provisioning, etc.) |
+| [NotificationService](NotificationService.postman_collection.json) | `/api/v1/notifications/...` |
+| [FileService](FileService.postman_collection.json) | `/api/v1/tenants/{tenantId}/bucket`, `/api/v1/files/...` |
+| [AuditService](AuditService.postman_collection.json) | `/api/v1/credential-audits`, `/api/v1/audit/health` |
+| [FGS Entra Token (Existing User)](FGS-Entra-Token.postman_collection.json) | Entra sign-in + refresh token flow (use with FGS Globals env) |
+| [PublisherService](PublisherService.postman_collection.json) | `/api/v1/publisher/...` |
+| [ConsumerService](ConsumerService.postman_collection.json) | `/api/v1/consumer/...` |
+| Scaffold services (health) | `/api/v1/{service}/health` (crm, billing, scheduling, etc.) |
+
+Scaffold collections: Asset, Billing, Communication, Crm, Integration, Inventory, Reporting, Scheduling, ServiceAgreement.
 
 ## Entra token for existing users
 
@@ -54,21 +64,14 @@ Import [`FGS-Entra-Token.postman_collection.json`](FGS-Entra-Token.postman_colle
 
 ### Option B — Refresh an existing session
 Run **3. Refresh Access Token** if you already have a `refreshToken`.
-| [NotificationService](NotificationService.postman_collection.json) | notifications | `notificationServiceUrl` |
-| [FileService](FileService.postman_collection.json) | tenants (bucket) | `fileServiceUrl` |
-| [AuditService](AuditService.postman_collection.json) | — | `auditServiceUrl` |
-| [PublisherService](PublisherService.postman_collection.json) | — | `publisherServiceUrl` |
-| [ConsumerService](ConsumerService.postman_collection.json) | — | `consumerServiceUrl` |
-| Scaffold services (health) | — | `*ServiceUrl` per service |
-
-Scaffold collections: Asset, Billing, Communication, Crm, Integration, Inventory, Reporting, Scheduling, ServiceAgreement.
 
 ## URL conventions
 
-- **Gateway (recommended for public flows):** `https://localhost:8443` → `{{gatewayUrl}}`
-- **User tenant admin APIs:** `{{userServiceUrl}}/api/v1/tenants/{tenantId}` (matches UserService controllers). Through the gateway, the same routes are exposed as `{{gatewayUrl}}/api/v1/users/tenants/{tenantId}` (nginx strips the `/users` prefix).
+- **Gateway (all collections):** `https://localhost:8443` → `{{gatewayUrl}}`
+- **User tenant admin APIs:** `{{gatewayUrl}}/api/v1/tenants/{tenantId}`
 - **File tenant storage:** `{{gatewayUrl}}/api/v1/tenants/{tenantId}/bucket`
-- **Setup direct APIs:** `{{setupServiceUrl}}/api/v1/...` (tenant provisioning, business types; not exposed via gateway)
+- **Setup catalog APIs:** `{{gatewayUrl}}/api/v1/{catalog}` (e.g. `/api/v1/billingcategories`, `/api/v1/credentials`)
+- **Per-service URLs** (`setupServiceUrl`, `userServiceUrl`, etc.) remain in the environment for direct container debugging only.
 
 ## Collection-level configuration
 

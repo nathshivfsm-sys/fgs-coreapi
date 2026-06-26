@@ -14,26 +14,19 @@ public sealed class ListActiveTechTradesQueryHandler(ITechTradeReadRepository re
         ListActiveTechTradesQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var query = new SetupListQuery(
-                request.Page,
-                request.PageSize,
-                request.SortBy,
-                request.SortDirection,
-                request.Search,
-                IsActive: true);
+        var query = new SetupListQuery(
+            request.Page,
+            request.PageSize,
+            request.SortBy,
+            request.SortDirection,
+            request.Search,
+            IsActive: true);
 
-            var result = await readRepository.ListAsync(
-                query,
-                request.Filters ?? new TechTradeListFilters(),
-                cancellationToken);
+        var result = await readRepository.ListAsync(
+            query,
+            request.Filters ?? new TechTradeListFilters(),
+            cancellationToken);
 
-            return ApiResponse<PagedResult<TechTradeSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<TechTradeSummaryDto>>(ex);
-        }
+        return ApiResponse<PagedResult<TechTradeSummaryDto>>.Ok(result);
     }
 }

@@ -23,20 +23,13 @@ public sealed class CreateCatalogEntityCommandHandler<TCreate, TDetail>
         CreateCatalogEntityCommand<TCreate, TDetail> request,
         CancellationToken cancellationToken)
     {
-        try
+        var descriptor = _entityRegistry.GetRequired(request.EntityKey);
+        if (descriptor.CreateDtoType != typeof(TCreate) || descriptor.DetailDtoType != typeof(TDetail))
         {
-            var descriptor = _entityRegistry.GetRequired(request.EntityKey);
-            if (descriptor.CreateDtoType != typeof(TCreate) || descriptor.DetailDtoType != typeof(TDetail))
-            {
-                return ApiResponse<TDetail>.Fail(["DTO type mismatch."], ApiStatusCodes.BadRequest);
-            }
+            return ApiResponse<TDetail>.Fail(["DTO type mismatch."], ApiStatusCodes.BadRequest);
+        }
 
-            var result = await _writeService.CreateAsync(descriptor, request.Payload!, cancellationToken);
-            return ApiResponse<TDetail>.Ok((TDetail)result, ApiStatusCodes.Created);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<TDetail>(ex);
-        }
+        var result = await _writeService.CreateAsync(descriptor, request.Payload!, cancellationToken);
+        return ApiResponse<TDetail>.Ok((TDetail)result, ApiStatusCodes.Created);
     }
 }

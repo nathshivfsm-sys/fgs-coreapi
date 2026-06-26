@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.BillingCategories.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.BillingCategories;
@@ -150,8 +151,6 @@ public sealed class BillingCategoryWriteService : IBillingCategoryWriteService
     private static BillingCategoryDetailDto MapToDetail(FgsBillingCategory entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.BillingCategoryType,
             entity.BillingCategoryName,
             entity.Description,
@@ -159,9 +158,5 @@ public sealed class BillingCategoryWriteService : IBillingCategoryWriteService
             entity.IsSystemDefined,
             entity.ShowToFieldTech,
             entity.AllowToPick,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

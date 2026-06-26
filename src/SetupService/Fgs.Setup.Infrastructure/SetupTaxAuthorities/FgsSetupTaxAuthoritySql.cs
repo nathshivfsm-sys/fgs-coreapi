@@ -7,11 +7,11 @@ internal static class FgsSetupTaxAuthoritySql
     public const string Table = "setup.\"FgsSetupTaxAuthority\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "Code", "Name", "RegionCode", "IsExternalSystemRecord", "TaxPercent", "Description", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "Code", "Name", "RegionCode", "IsExternalSystemRecord", "TaxPercent", "Description", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "Code", "Name", "RegionCode", "IsExternalSystemRecord", "TaxPercent", "Description", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "Code", "Name", "RegionCode", "IsExternalSystemRecord", "TaxPercent", "Description", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class FgsSetupTaxAuthoritySql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "Code", "Name", "RegionCode", "IsExternalSystemRecord", "TaxPercent", "Description"
+        "Id", "IsActive", "Code", "Name", "RegionCode", "IsExternalSystemRecord", "TaxPercent", "Description"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

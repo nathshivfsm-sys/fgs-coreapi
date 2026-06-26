@@ -1,7 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupPaymentTerms;
 using Fgs.Setup.Application.Features.SetupPaymentTerms.Dtos;
@@ -19,48 +18,28 @@ public sealed class GetFgsSetupPaymentTermByIdQueryHandler(
         GetFgsSetupPaymentTermByIdQuery request,
         CancellationToken cancellationToken)
     {
-        try
+        var tenantScope = tenantContextAccessor.Current!;
+        var cacheKey = CacheKeys.Build(
+            tenantScope.TenantId,
+            tenantScope.CompanyId,
+            "paymentterms",
+            request.Id.ToString());
+
+        var cached = await cache.GetAsync<FgsSetupPaymentTermDetailDto>(cacheKey, cancellationToken);
+        if (cached is not null)
         {
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                var cacheKey = CacheKeys.Build(
-                    tenantScope.TenantId,
-                    tenantScope.CompanyId,
-                    "paymentterms",
-                    request.Id.ToString());
-
-                var cached = await cache.GetAsync<FgsSetupPaymentTermDetailDto>(cacheKey, cancellationToken);
-                if (cached is not null)
-                {
-                    return ApiResponse<FgsSetupPaymentTermDetailDto>.Ok(cached);
-                }
-
-                var result = await readRepository.GetByIdAsync(request.Id, cancellationToken);
-                if (result is null)
-                {
-                    return ApiResponse<FgsSetupPaymentTermDetailDto>.Fail(
-                        [$"Payment Term '{request.Id}' was not found."],
-                        ApiStatusCodes.NotFound);
-                }
-
-                await cache.SetAsync(cacheKey, result, cancellationToken: cancellationToken);
-                return ApiResponse<FgsSetupPaymentTermDetailDto>.Ok(result);
-            }
-
-            var uncached = await readRepository.GetByIdAsync(request.Id, cancellationToken);
-            if (uncached is null)
-            {
-                return ApiResponse<FgsSetupPaymentTermDetailDto>.Fail(
-                    [$"Payment Term '{request.Id}' was not found."],
-                    ApiStatusCodes.NotFound);
-            }
-
-            return ApiResponse<FgsSetupPaymentTermDetailDto>.Ok(uncached);
+            return ApiResponse<FgsSetupPaymentTermDetailDto>.Ok(cached);
         }
-        catch (Exception ex)
+
+        var result = await readRepository.GetByIdAsync(request.Id, cancellationToken);
+        if (result is null)
         {
-            return CatalogCrudExceptionMapper.MapException<FgsSetupPaymentTermDetailDto>(ex);
+            return ApiResponse<FgsSetupPaymentTermDetailDto>.Fail(
+                [$"Payment Term '{request.Id}' was not found."],
+                ApiStatusCodes.NotFound);
         }
+
+        await cache.SetAsync(cacheKey, result, cancellationToken: cancellationToken);
+        return ApiResponse<FgsSetupPaymentTermDetailDto>.Ok(result);
     }
 }

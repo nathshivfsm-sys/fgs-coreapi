@@ -5,8 +5,6 @@ namespace Fgs.Setup.Infrastructure.BillingCategories;
 internal sealed class BillingCategorySummaryRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string BillingCategoryType { get; set; }
     public string BillingCategoryName { get; set; }
     public string? Description { get; set; }
@@ -15,14 +13,10 @@ internal sealed class BillingCategorySummaryRow
     public bool ShowToFieldTech { get; set; }
     public bool AllowToPick { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
 
     public BillingCategorySummaryDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             BillingCategoryType,
             BillingCategoryName,
             Description,
@@ -30,16 +24,12 @@ internal sealed class BillingCategorySummaryRow
             IsSystemDefined,
             ShowToFieldTech,
             AllowToPick,
-            IsActive,
-            CreatedOn,
-            UpdatedOn);
+            IsActive);
 }
 
 internal sealed class BillingCategoryDetailRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string BillingCategoryType { get; set; }
     public string BillingCategoryName { get; set; }
     public string? Description { get; set; }
@@ -48,16 +38,10 @@ internal sealed class BillingCategoryDetailRow
     public bool ShowToFieldTech { get; set; }
     public bool AllowToPick { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public string? CreatedBy { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
-    public string? UpdatedBy { get; set; }
 
     public BillingCategoryDetailDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             BillingCategoryType,
             BillingCategoryName,
             Description,
@@ -65,11 +49,7 @@ internal sealed class BillingCategoryDetailRow
             IsSystemDefined,
             ShowToFieldTech,
             AllowToPick,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+            IsActive);
 }
 
 internal sealed class BillingCategoryLookupRow

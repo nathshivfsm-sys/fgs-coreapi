@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.LeadStatuses.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.LeadStatuses;
@@ -140,16 +141,10 @@ public sealed class LeadStatusWriteService : ILeadStatusWriteService
     private static LeadStatusDetailDto MapToDetail(FgsLeadStatus entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.StatusCode,
             entity.StatusName,
             entity.Description,
             entity.DisplayOrder,
             entity.IsSystem,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

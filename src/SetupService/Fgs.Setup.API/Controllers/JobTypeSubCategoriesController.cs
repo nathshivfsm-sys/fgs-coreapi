@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.JobTypeSubCategories.Commands.PatchJobTypeS
 using Fgs.Setup.Application.Features.JobTypeSubCategories.Commands.UpdateJobTypeSubCategory;
 using Fgs.Setup.Application.Features.JobTypeSubCategories.Queries.GetJobTypeSubCategoryById;
 using Fgs.Setup.Application.Features.JobTypeSubCategories.Queries.ListJobTypeSubCategories;
-using Fgs.Setup.Application.Features.JobTypeSubCategories.Queries.ListActiveJobTypeSubCategories;
 using Fgs.Setup.Application.Features.JobTypeSubCategories.Queries.LookupJobTypeSubCategories;
 using Fgs.Setup.Application.Features.JobTypeSubCategories.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class JobTypeSubCategoriesController(IMediator mediator) : Control
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupJobTypeSubCategoriesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<JobTypeSubCategorySummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? subCategoryCode = null,
-        [FromQuery] string? name = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveJobTypeSubCategoriesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new JobTypeSubCategoryListFilters(subCategoryCode, name)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

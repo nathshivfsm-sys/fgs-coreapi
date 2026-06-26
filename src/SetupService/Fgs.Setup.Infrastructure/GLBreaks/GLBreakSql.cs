@@ -11,20 +11,17 @@ internal static class GLBreakSql
     public const string TradeTable = "setup.\"FgsSetupGLBreakTrade\"";
 
     public const string SelectDetailColumns = """
-        glb."Id", glb."TenantId", glb."CompanyId", glb."Code", glb."Name", glb."BreakLabel",
+        glb."Id", glb."Code", glb."Name", glb."BreakLabel",
         glb."BreakLevel", glb."LogoFileId", glb."AddressId", glb."IsActive",
-        glb."CreatedOn", glb."CreatedBy", glb."UpdatedOn", glb."UpdatedBy",
         loc."Id" AS "LocationId", loc."AddressLine1", loc."AddressLine2", loc."AddressLine3",
         loc."AddressLine4", loc."City", loc."State", loc."County", loc."Country",
         loc."PostalCode", loc."FormattedAddress", loc."Latitude", loc."Longitude",
-        loc."PlaceId", loc."IsActive" AS "LocationIsActive",
-        loc."CreatedOn" AS "LocationCreatedOn", loc."CreatedBy" AS "LocationCreatedBy",
-        loc."UpdatedOn" AS "LocationUpdatedOn", loc."UpdatedBy" AS "LocationUpdatedBy"
+        loc."PlaceId", loc."IsActive" AS "LocationIsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "Code", "Name", "BreakLabel", "BreakLevel",
-        "LogoFileId", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "Code", "Name", "BreakLabel", "BreakLevel",
+        "LogoFileId", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -32,7 +29,7 @@ internal static class GLBreakSql
         """;
 
     public const string SelectTradeColumns = """
-        "Id", "GLBreakId", "TradeCode", "CreatedOn", "CreatedBy"
+        "Id", "GLBreakId", "TradeCode"
         """;
 
   public const string LocationJoin = """
@@ -42,7 +39,7 @@ internal static class GLBreakSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "Code", "Name", "BreakLevel", "CreatedOn", "IsActive"
+        "Id", "Code", "Name", "BreakLevel", "IsActive"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

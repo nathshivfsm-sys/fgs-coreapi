@@ -290,7 +290,7 @@ public sealed class SetupEntityAuditHelper
             return (userTenantId, userCompanyId);
         }
 
-        if (_tenantContextAccessor.Current is { IsResolved: true } context)
+        if (_tenantContextAccessor.Current is ITenantContext context)
         {
             return (context.TenantId, context.CompanyId);
         }

@@ -5,8 +5,6 @@ namespace Fgs.Setup.Infrastructure.SetupTaxAuthorities;
 internal sealed class FgsSetupTaxAuthoritySummaryRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string Code { get; set; }
     public string Name { get; set; }
     public string? RegionCode { get; set; }
@@ -14,30 +12,22 @@ internal sealed class FgsSetupTaxAuthoritySummaryRow
     public decimal TaxPercent { get; set; }
     public string? Description { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
 
     public FgsSetupTaxAuthoritySummaryDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             Code,
             Name,
             RegionCode,
             IsExternalSystemRecord,
             TaxPercent,
             Description,
-            IsActive,
-            CreatedOn,
-            UpdatedOn);
+            IsActive);
 }
 
 internal sealed class FgsSetupTaxAuthorityDetailRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string Code { get; set; }
     public string Name { get; set; }
     public string? RegionCode { get; set; }
@@ -45,27 +35,17 @@ internal sealed class FgsSetupTaxAuthorityDetailRow
     public decimal TaxPercent { get; set; }
     public string? Description { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public string? CreatedBy { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
-    public string? UpdatedBy { get; set; }
 
     public FgsSetupTaxAuthorityDetailDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             Code,
             Name,
             RegionCode,
             IsExternalSystemRecord,
             TaxPercent,
             Description,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+            IsActive);
 }
 
 internal sealed class FgsSetupTaxAuthorityLookupRow

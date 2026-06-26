@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.SalesPipelineStatuses.Commands.PatchFgsSale
 using Fgs.Setup.Application.Features.SalesPipelineStatuses.Commands.UpdateFgsSalesPipelineStatus;
 using Fgs.Setup.Application.Features.SalesPipelineStatuses.Queries.GetFgsSalesPipelineStatusById;
 using Fgs.Setup.Application.Features.SalesPipelineStatuses.Queries.ListSalesPipelineStatuses;
-using Fgs.Setup.Application.Features.SalesPipelineStatuses.Queries.ListActiveSalesPipelineStatuses;
 using Fgs.Setup.Application.Features.SalesPipelineStatuses.Queries.LookupSalesPipelineStatuses;
 using Fgs.Setup.Application.Features.SalesPipelineStatuses.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class SalesPipelineStatusesController(IMediator mediator) : Contro
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupSalesPipelineStatusesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSalesPipelineStatusSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? statusCode = null,
-        [FromQuery] string? statusName = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveSalesPipelineStatusesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsSalesPipelineStatusListFilters(statusCode, statusName)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

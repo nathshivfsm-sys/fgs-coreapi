@@ -13,14 +13,7 @@ public sealed class ListTitlesOfCourtesyQueryHandler(ITitleOfCourtesyReadReposit
         ListTitlesOfCourtesyQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<TitleOfCourtesySummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<TitleOfCourtesySummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<TitleOfCourtesySummaryDto>>.Ok(result);
     }
 }

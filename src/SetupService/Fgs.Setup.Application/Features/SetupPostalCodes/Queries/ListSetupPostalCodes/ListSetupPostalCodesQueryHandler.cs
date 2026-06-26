@@ -13,14 +13,7 @@ public sealed class ListSetupPostalCodesQueryHandler(IFgsSetupPostalCodeReadRepo
         ListSetupPostalCodesQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<FgsSetupPostalCodeSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsSetupPostalCodeSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<FgsSetupPostalCodeSummaryDto>>.Ok(result);
     }
 }

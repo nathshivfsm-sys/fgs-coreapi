@@ -26,7 +26,7 @@ public sealed class CompleteUploadCommandHandler(
         CancellationToken cancellationToken)
     {
         var tenantContext = tenantContextAccessor.Current;
-        if (tenantContext is not { IsResolved: true })
+        if (tenantContext is null)
         {
             return ApiResponse<FileVariantSetDto>.Fail(["Tenant context is required."], ApiStatusCodes.BadRequest);
         }

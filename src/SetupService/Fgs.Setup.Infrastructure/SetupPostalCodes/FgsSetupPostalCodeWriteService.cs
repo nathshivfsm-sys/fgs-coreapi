@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.SetupPostalCodes.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.SetupPostalCodes;
@@ -130,14 +131,8 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
     private static FgsSetupPostalCodeDetailDto MapToDetail(FgsSetupPostalCode entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.PostalCode,
             entity.FgsSetupZoneId,
             entity.FgsSetupTaxId,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

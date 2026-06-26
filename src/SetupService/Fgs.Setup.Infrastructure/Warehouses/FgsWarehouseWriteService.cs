@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.Warehouses.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.Warehouses;
@@ -145,17 +146,11 @@ public sealed class FgsWarehouseWriteService : IFgsWarehouseWriteService
     private static FgsWarehouseDetailDto MapToDetail(FgsWarehouse entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.WarehouseCode,
             entity.Name,
             entity.WarehouseType,
             entity.AddressId,
             entity.Description,
             entity.IsDefault,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.SetupTechSkillLevels.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.SetupTechSkillLevels;
@@ -135,15 +136,9 @@ public sealed class FgsSetupTechSkillLevelWriteService : IFgsSetupTechSkillLevel
     private static FgsSetupTechSkillLevelDetailDto MapToDetail(FgsSetupTechSkillLevel entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.Code,
             entity.Name,
             entity.Description,
             entity.SortOrder,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

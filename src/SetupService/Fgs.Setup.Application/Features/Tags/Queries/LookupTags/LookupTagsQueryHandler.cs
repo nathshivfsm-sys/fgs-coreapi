@@ -1,7 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.Tags;
 using Fgs.Setup.Application.Features.Tags.Dtos;
@@ -19,31 +18,18 @@ public sealed class LookupTagsQueryHandler(
         LookupTagsQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                var cacheKey = CacheKeys.Build(
-                    tenantScope.TenantId,
-                    tenantScope.CompanyId,
-                    "tags",
-                    CacheKeys.LookupSegment(request.ActiveOnly));
+        var tenantScope = tenantContextAccessor.Current!;
+        var cacheKey = CacheKeys.Build(
+            tenantScope.TenantId,
+            tenantScope.CompanyId,
+            "tags",
+            CacheKeys.LookupSegment(request.ActiveOnly));
 
-                var result = await cache.GetOrSetAsync(
-                    cacheKey,
-                    () => readRepository.LookupAsync(request.ActiveOnly, cancellationToken),
-                    cancellationToken: cancellationToken);
+        var result = await cache.GetOrSetAsync(
+            cacheKey,
+            () => readRepository.LookupAsync(request.ActiveOnly, cancellationToken),
+            cancellationToken: cancellationToken);
 
-                return ApiResponse<IReadOnlyList<FgsTagLookupDto>>.Ok(result ?? Array.Empty<FgsTagLookupDto>());
-            }
-
-            var uncached = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
-            return ApiResponse<IReadOnlyList<FgsTagLookupDto>>.Ok(uncached);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<IReadOnlyList<FgsTagLookupDto>>(ex);
-        }
+        return ApiResponse<IReadOnlyList<FgsTagLookupDto>>.Ok(result ?? Array.Empty<FgsTagLookupDto>());
     }
 }

@@ -5,8 +5,6 @@ namespace Fgs.Setup.Infrastructure.SalesActivityTypes;
 internal sealed class FgsSalesActivityTypeSummaryRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string ActivityTypeCode { get; set; }
     public string ActivityTypeName { get; set; }
     public string? Description { get; set; }
@@ -16,14 +14,10 @@ internal sealed class FgsSalesActivityTypeSummaryRow
     public bool AppliesToOpportunity { get; set; }
     public bool AllowManualSelection { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
 
     public FgsSalesActivityTypeSummaryDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             ActivityTypeCode,
             ActivityTypeName,
             Description,
@@ -32,16 +26,12 @@ internal sealed class FgsSalesActivityTypeSummaryRow
             AppliesToLead,
             AppliesToOpportunity,
             AllowManualSelection,
-            IsActive,
-            CreatedOn,
-            UpdatedOn);
+            IsActive);
 }
 
 internal sealed class FgsSalesActivityTypeDetailRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string ActivityTypeCode { get; set; }
     public string ActivityTypeName { get; set; }
     public string? Description { get; set; }
@@ -51,16 +41,10 @@ internal sealed class FgsSalesActivityTypeDetailRow
     public bool AppliesToOpportunity { get; set; }
     public bool AllowManualSelection { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public string? CreatedBy { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
-    public string? UpdatedBy { get; set; }
 
     public FgsSalesActivityTypeDetailDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             ActivityTypeCode,
             ActivityTypeName,
             Description,
@@ -69,11 +53,7 @@ internal sealed class FgsSalesActivityTypeDetailRow
             AppliesToLead,
             AppliesToOpportunity,
             AllowManualSelection,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+            IsActive);
 }
 
 internal sealed class FgsSalesActivityTypeLookupRow

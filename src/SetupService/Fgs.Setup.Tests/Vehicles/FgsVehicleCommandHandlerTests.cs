@@ -25,7 +25,7 @@ public sealed class FgsVehicleCommandHandlerTests
     private const long CompanyId = 20;
 
     [Fact]
-    public async Task CreateHandler_CreatesWithAuditFields()
+    public async Task CreateHandler_CreatesActiveRecord()
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
@@ -44,8 +44,6 @@ public sealed class FgsVehicleCommandHandlerTests
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
         response.Data!.IsActive.Should().BeTrue();
-        response.Data.TenantId.Should().Be(TenantId);
-        response.Data.CompanyId.Should().Be(CompanyId);
         cache.Verify(
             c => c.RemoveByPrefixAsync(
                 CacheKeys.EntityPrefix(TenantId, CompanyId, "vehicles"),
@@ -87,7 +85,7 @@ public sealed class FgsVehicleCommandHandlerTests
     private static ITenantContextAccessor CreateTenantContextAccessor() =>
         new TestTenantContextAccessor
         {
-            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId }
         };
 
     private static FgsVehicleWriteService CreateWriteService(FgsSetupDbContext context)
@@ -99,7 +97,7 @@ public sealed class FgsVehicleCommandHandlerTests
 
         var tenantAccessor = new TestTenantContextAccessor
         {
-            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId }
         };
 
         var auditHelper = new SetupEntityAuditHelper(
@@ -114,7 +112,7 @@ public sealed class FgsVehicleCommandHandlerTests
     {
         var accessor = new TestTenantContextAccessor
         {
-            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId }
         };
 
         var options = new DbContextOptionsBuilder<FgsSetupDbContext>()

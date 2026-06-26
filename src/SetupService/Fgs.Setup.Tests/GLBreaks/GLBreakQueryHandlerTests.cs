@@ -30,20 +30,15 @@ public sealed class GLBreakQueryHandlerTests
             null,
             null,
             null,
-            true,
-            DateTimeOffset.UtcNow,
-            "seed",
-            null,
-            null);
+            true);
 
         var trades = new List<GLBreakTradeDto>
         {
-            new(1, 5, "HVAC", DateTimeOffset.UtcNow, "seed")
+            new(1, 5, "HVAC")
         };
 
         var detail = new GLBreakDetailDto(
-            5, 10, 20, "HVAC", "HVAC Division", null, 1, null, address, trades,
-            true, DateTimeOffset.UtcNow, "seed", null, null);
+            5, "HVAC", "HVAC Division", null, 1, null, address, trades, true);
 
         var readRepository = new Mock<IGLBreakReadRepository>();
         readRepository
@@ -79,7 +74,7 @@ public sealed class GLBreakQueryHandlerTests
     {
         var items = new List<GLBreakSummaryDto>
         {
-            new(1, 10, 20, "HVAC", "HVAC Division", null, 1, null, true, DateTimeOffset.UtcNow, null)
+            new(1, "HVAC", "HVAC Division", null, 1, null, true)
         };
 
         var readRepository = new Mock<IGLBreakReadRepository>();

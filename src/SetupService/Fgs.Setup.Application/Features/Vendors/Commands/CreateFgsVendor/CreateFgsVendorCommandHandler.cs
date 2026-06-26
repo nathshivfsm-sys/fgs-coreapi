@@ -1,7 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.Vendors;
 using Fgs.Setup.Application.Features.Vendors.Dtos;
@@ -21,23 +20,12 @@ public sealed class CreateFgsVendorCommandHandler(
         CreateFgsVendorCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.CreateAsync(request.Dto, cancellationToken);
-            logger.LogInformation("Created vendor {Id} with code {VendorCode}", result.Id, result.VendorCode);
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                await cache.RemoveByPrefixAsync(
-                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "vendors"),
-                    cancellationToken);
-            }
-            return ApiResponse<FgsVendorDetailDto>.Ok(result, ApiStatusCodes.Created);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to create vendor");
-            return CatalogCrudExceptionMapper.MapException<FgsVendorDetailDto>(ex);
-        }
+        var result = await writeService.CreateAsync(request.Dto, cancellationToken);
+        logger.LogInformation("Created vendor {Id} with code {VendorCode}", result.Id, result.VendorCode);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "vendors"),
+                cancellationToken);
+        return ApiResponse<FgsVendorDetailDto>.Ok(result, ApiStatusCodes.Created);
     }
 }

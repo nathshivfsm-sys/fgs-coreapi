@@ -23,15 +23,8 @@ public sealed class DeleteCatalogEntityCommandHandler
         DeleteCatalogEntityCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var descriptor = _entityRegistry.GetRequired(request.EntityKey);
-            await _writeService.DeleteAsync(descriptor, request.Id, cancellationToken);
-            return ApiResponse<object>.Ok(new object());
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<object>(ex);
-        }
+        var descriptor = _entityRegistry.GetRequired(request.EntityKey);
+        await _writeService.DeleteAsync(descriptor, request.Id, cancellationToken);
+        return ApiResponse<object>.Ok(new object());
     }
 }

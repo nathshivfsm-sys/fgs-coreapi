@@ -2,8 +2,6 @@ namespace Fgs.Setup.Application.Features.SalesPipelineStatuses.Dtos;
 
 public sealed record FgsSalesPipelineStatusSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string StatusCode,
     string StatusName,
     string? Description,
@@ -13,14 +11,10 @@ public sealed record FgsSalesPipelineStatusSummaryDto(
     bool AppliesToOpportunity,
     bool IsTerminal,
     bool AllowManualSelection,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsSalesPipelineStatusDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string StatusCode,
     string StatusName,
     string? Description,
@@ -30,11 +24,7 @@ public sealed record FgsSalesPipelineStatusDetailDto(
     bool AppliesToOpportunity,
     bool IsTerminal,
     bool AllowManualSelection,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsSalesPipelineStatusLookupDto(
     long Id,

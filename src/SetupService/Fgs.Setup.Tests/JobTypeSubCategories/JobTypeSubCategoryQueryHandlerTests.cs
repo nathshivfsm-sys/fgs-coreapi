@@ -16,14 +16,14 @@ public sealed class JobTypeSubCategoryQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new JobTypeSubCategoryDetailDto(1, 10, 20, "TEST", "Name", "Description value", 1, true, DateTimeOffset.UtcNow, "seed", null, "seed");
+        var detail = new JobTypeSubCategoryDetailDto(1, "TEST", "Name", "Description value", 1, true);
 
         var readRepository = new Mock<IJobTypeSubCategoryReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetJobTypeSubCategoryByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetJobTypeSubCategoryByIdQuery(1), CancellationToken.None);
@@ -41,7 +41,7 @@ public sealed class JobTypeSubCategoryQueryHandlerTests
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetJobTypeSubCategoryByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetJobTypeSubCategoryByIdQuery(99), CancellationToken.None);

@@ -9,10 +9,6 @@ internal sealed class TitleOfCourtesySummaryRow
 {
     public long Id { get; set; }
 
-    public long TenantId { get; set; }
-
-    public long CompanyId { get; set; }
-
     public string Code { get; set; } = null!;
 
     public string DisplayName { get; set; } = null!;
@@ -21,22 +17,14 @@ internal sealed class TitleOfCourtesySummaryRow
 
     public bool IsActive { get; set; }
 
-    public DateTimeOffset CreatedOn { get; set; }
-
-    public DateTimeOffset? UpdatedOn { get; set; }
-
     public TitleOfCourtesySummaryDto ToDto() =>
-        new(Id, TenantId, CompanyId, Code, DisplayName, SortOrder, IsActive, CreatedOn, UpdatedOn);
+        new(Id, Code, DisplayName, SortOrder, IsActive);
 }
 
 internal sealed class TitleOfCourtesyDetailRow
 {
     public long Id { get; set; }
 
-    public long TenantId { get; set; }
-
-    public long CompanyId { get; set; }
-
     public string Code { get; set; } = null!;
 
     public string DisplayName { get; set; } = null!;
@@ -45,27 +33,8 @@ internal sealed class TitleOfCourtesyDetailRow
 
     public bool IsActive { get; set; }
 
-    public DateTimeOffset CreatedOn { get; set; }
-
-    public string? CreatedBy { get; set; }
-
-    public DateTimeOffset? UpdatedOn { get; set; }
-
-    public string? UpdatedBy { get; set; }
-
     public TitleOfCourtesyDetailDto ToDto() =>
-        new(
-            Id,
-            TenantId,
-            CompanyId,
-            Code,
-            DisplayName,
-            SortOrder,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+        new(Id, Code, DisplayName, SortOrder, IsActive);
 }
 
 internal sealed class TitleOfCourtesyLookupRow

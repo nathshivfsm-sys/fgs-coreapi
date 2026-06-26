@@ -24,7 +24,7 @@ public sealed class TechTradeCommandHandlerTests
     private const long CompanyId = 20;
 
     [Fact]
-    public async Task CreateHandler_CreatesTechTradeWithAuditFields()
+    public async Task CreateHandler_CreatesTechTrade()
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
@@ -41,9 +41,6 @@ public sealed class TechTradeCommandHandlerTests
         response.Data!.TradeCode.Should().Be("HVAC");
         response.Data.Name.Should().Be("HVAC Services");
         response.Data.IsActive.Should().BeTrue();
-        response.Data.CreatedBy.Should().Be("11111111-1111-1111-1111-111111111111");
-        response.Data.TenantId.Should().Be(TenantId);
-        response.Data.CompanyId.Should().Be(CompanyId);
     }
 
     [Fact]
@@ -72,7 +69,6 @@ public sealed class TechTradeCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.TradeCode.Should().Be("PLUMB");
         response.Data.Name.Should().Be("Plumbing");
-        response.Data.UpdatedBy.Should().Be("11111111-1111-1111-1111-111111111111");
     }
 
     [Fact]
@@ -115,8 +111,7 @@ public sealed class TechTradeCommandHandlerTests
             Current = new TenantContext
             {
                 TenantId = TenantId,
-                CompanyId = CompanyId,
-                IsResolved = true
+                CompanyId = CompanyId
             }
         };
 
@@ -135,8 +130,7 @@ public sealed class TechTradeCommandHandlerTests
             Current = new TenantContext
             {
                 TenantId = TenantId,
-                CompanyId = CompanyId,
-                IsResolved = true
+                CompanyId = CompanyId
             }
         };
 

@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.LeadSources.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.LeadSources;
@@ -130,14 +131,8 @@ public sealed class LeadSourceWriteService : ILeadSourceWriteService
     private static LeadSourceDetailDto MapToDetail(FgsLeadSource entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.SourceCode,
             entity.SourceName,
             entity.Description,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

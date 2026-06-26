@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.Tags.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.Tags;
@@ -147,8 +148,6 @@ public sealed class FgsTagWriteService : IFgsTagWriteService
     private static FgsTagDetailDto MapToDetail(FgsTag entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.TagCode,
             entity.Name,
             entity.Description,
@@ -156,9 +155,5 @@ public sealed class FgsTagWriteService : IFgsTagWriteService
             entity.TextColor,
             entity.IconFileId,
             entity.UsageCount,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

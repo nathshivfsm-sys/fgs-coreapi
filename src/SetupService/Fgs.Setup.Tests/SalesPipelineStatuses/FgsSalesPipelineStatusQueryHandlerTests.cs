@@ -16,14 +16,14 @@ public sealed class FgsSalesPipelineStatusQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsSalesPipelineStatusDetailDto(1, 10, 20, "TEST", "StatusName", "Description", 5, false, true, false, false, true, true, DateTimeOffset.UtcNow, "seed", null, "seed");
+        var detail = new FgsSalesPipelineStatusDetailDto(1, "TEST", "StatusName", "Description", 5, false, true, false, false, true, true);
 
         var readRepository = new Mock<IFgsSalesPipelineStatusReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsSalesPipelineStatusByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSalesPipelineStatusByIdQuery(1), CancellationToken.None);
@@ -41,7 +41,7 @@ public sealed class FgsSalesPipelineStatusQueryHandlerTests
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsSalesPipelineStatusByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSalesPipelineStatusByIdQuery(99), CancellationToken.None);

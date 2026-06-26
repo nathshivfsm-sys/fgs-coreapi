@@ -13,14 +13,7 @@ public sealed class ListSetupPaymentTermsQueryHandler(IFgsSetupPaymentTermReadRe
         ListSetupPaymentTermsQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<FgsSetupPaymentTermSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsSetupPaymentTermSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<FgsSetupPaymentTermSummaryDto>>.Ok(result);
     }
 }

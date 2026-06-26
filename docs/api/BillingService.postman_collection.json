@@ -10,12 +10,13 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{billingServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{billingServiceUrl}}/api/v1/health",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/billing/health",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
+                                                                               "billing",
                                                                                "health"
                                                                            ]
                                                               },
@@ -59,10 +60,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Billing service scaffold (health).",
+                 "description":  "Billing service scaffold (health) via {{gatewayUrl}}/api/v1/billing/...",
                  "name":  "FGS BillingService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "49530cd3-7bc3-409e-b9b2-45cee31fef7d"
+                 "_postman_id":  "9af384f8-6a45-4c9f-9015-95cdfa614e4a"
              },
     "event":  [
                   {

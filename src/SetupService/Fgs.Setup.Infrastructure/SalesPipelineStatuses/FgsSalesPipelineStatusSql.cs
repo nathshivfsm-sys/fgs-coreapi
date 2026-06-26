@@ -7,11 +7,11 @@ internal static class FgsSalesPipelineStatusSql
     public const string Table = "setup.\"FgsSalesPipelineStatus\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "StatusCode", "StatusName", "Description", "DisplayOrder", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "IsTerminal", "AllowManualSelection", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "StatusCode", "StatusName", "Description", "DisplayOrder", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "IsTerminal", "AllowManualSelection", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "StatusCode", "StatusName", "Description", "DisplayOrder", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "IsTerminal", "AllowManualSelection", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "StatusCode", "StatusName", "Description", "DisplayOrder", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "IsTerminal", "AllowManualSelection", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class FgsSalesPipelineStatusSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "DisplayOrder", "StatusCode", "StatusName", "Description", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "IsTerminal", "AllowManualSelection"
+        "Id", "IsActive", "DisplayOrder", "StatusCode", "StatusName", "Description", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "IsTerminal", "AllowManualSelection"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

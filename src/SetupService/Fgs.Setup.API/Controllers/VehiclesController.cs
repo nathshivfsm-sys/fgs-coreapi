@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.Vehicles.Commands.PatchFgsVehicle;
 using Fgs.Setup.Application.Features.Vehicles.Commands.UpdateFgsVehicle;
 using Fgs.Setup.Application.Features.Vehicles.Queries.GetFgsVehicleById;
 using Fgs.Setup.Application.Features.Vehicles.Queries.ListVehicles;
-using Fgs.Setup.Application.Features.Vehicles.Queries.ListActiveVehicles;
 using Fgs.Setup.Application.Features.Vehicles.Queries.LookupVehicles;
 using Fgs.Setup.Application.Features.Vehicles.Dtos;
 using MediatR;
@@ -62,30 +61,6 @@ public sealed class VehiclesController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupVehiclesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsVehicleSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? vIN = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveVehiclesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsVehicleListFilters(vIN)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

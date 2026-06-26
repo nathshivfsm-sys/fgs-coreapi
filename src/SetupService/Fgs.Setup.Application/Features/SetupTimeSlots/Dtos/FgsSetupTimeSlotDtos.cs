@@ -2,8 +2,6 @@ namespace Fgs.Setup.Application.Features.SetupTimeSlots.Dtos;
 
 public sealed record FgsSetupTimeSlotSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     long? FgsSetupZoneId,
     string Code,
     string Name,
@@ -13,14 +11,10 @@ public sealed record FgsSetupTimeSlotSummaryDto(
     TimeSpan? MarkWorkOrderDelayedCompletionAfter,
     bool IsMobileVisible,
     bool IsCustomerPortalVisible,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsSetupTimeSlotDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     long? FgsSetupZoneId,
     string Code,
     string Name,
@@ -30,11 +24,7 @@ public sealed record FgsSetupTimeSlotDetailDto(
     TimeSpan? MarkWorkOrderDelayedCompletionAfter,
     bool IsMobileVisible,
     bool IsCustomerPortalVisible,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsSetupTimeSlotLookupDto(
     long Id,

@@ -2,27 +2,17 @@ namespace Fgs.Setup.Application.Features.LeadSources.Dtos;
 
 public sealed record LeadSourceSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string SourceCode,
     string SourceName,
     string? Description,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record LeadSourceDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string SourceCode,
     string SourceName,
     string? Description,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record LeadSourceLookupDto(
     long Id,

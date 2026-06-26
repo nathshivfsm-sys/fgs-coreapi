@@ -32,8 +32,7 @@ public sealed class NotificationTenantQueryFilterTests
             Current = new TenantContext
             {
                 TenantId = 1,
-                CompanyId = 1,
-                IsResolved = true
+                CompanyId = 1
             }
         };
 

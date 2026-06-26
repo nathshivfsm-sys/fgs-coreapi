@@ -14,9 +14,7 @@ public sealed class TechTradeQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new TechTradeDetailDto(
-            1, 10, 20, "HVAC", "HVAC", null, 1, true,
-            DateTimeOffset.UtcNow, "seed", null, null);
+        var detail = new TechTradeDetailDto(1, "HVAC", "HVAC", null, 1, true);
 
         var readRepository = new Mock<ITechTradeReadRepository>();
         readRepository
@@ -51,7 +49,7 @@ public sealed class TechTradeQueryHandlerTests
     {
         var items = new List<TechTradeSummaryDto>
         {
-            new(1, 10, 20, "HVAC", "HVAC", 1, true, DateTimeOffset.UtcNow, null)
+            new(1, "HVAC", "HVAC", 1, true)
         };
 
         var readRepository = new Mock<ITechTradeReadRepository>();

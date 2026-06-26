@@ -1,7 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.LeadSources;
 using Fgs.Setup.Application.Features.LeadSources.Dtos;
@@ -21,23 +20,12 @@ public sealed class UpdateLeadSourceCommandHandler(
         UpdateLeadSourceCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
-            logger.LogInformation("Updated lead source {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                await cache.RemoveByPrefixAsync(
-                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "leadsources"),
-                    cancellationToken);
-            }
-            return ApiResponse<LeadSourceDetailDto>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to update lead source {Id}", request.Id);
-            return CatalogCrudExceptionMapper.MapException<LeadSourceDetailDto>(ex);
-        }
+        var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
+        logger.LogInformation("Updated lead source {Id}", result.Id);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "leadsources"),
+                cancellationToken);
+        return ApiResponse<LeadSourceDetailDto>.Ok(result);
     }
 }

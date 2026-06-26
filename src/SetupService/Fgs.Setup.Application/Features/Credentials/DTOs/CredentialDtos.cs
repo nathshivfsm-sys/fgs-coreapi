@@ -10,11 +10,7 @@ public sealed record CredentialSummaryDto(
     string CredentialName,
     string? Description,
     bool IsActive,
-    string? KeyIdentifier,
-    long? TenantId,
-    long? CompanyId,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    string? KeyIdentifier);
 
 public sealed record CredentialDetailDto(
     CredentialScope Scope,
@@ -24,13 +20,7 @@ public sealed record CredentialDetailDto(
     string CredentialName,
     string? Description,
     bool IsActive,
-    string? KeyIdentifier,
-    long? TenantId,
-    long? CompanyId,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    string? KeyIdentifier);
 
 public sealed record CredentialSecretDto(
     CredentialScope Scope,

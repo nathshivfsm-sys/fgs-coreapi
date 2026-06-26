@@ -13,14 +13,7 @@ public sealed class ListSetupTaxAuthoritiesQueryHandler(IFgsSetupTaxAuthorityRea
         ListSetupTaxAuthoritiesQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<FgsSetupTaxAuthoritySummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsSetupTaxAuthoritySummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<FgsSetupTaxAuthoritySummaryDto>>.Ok(result);
     }
 }

@@ -88,6 +88,30 @@ OAuth and invitation URLs are exposed through the gateway (register the same val
 
 Both upstreams use `least_conn`, keepalive connections, passive health checks with `max_fails` and `fail_timeout`, and Docker health checks against each service's `/health` endpoint.
 
+## Response compression
+
+Compression is enabled at **two layers** (each compresses only when the response is still uncompressed):
+
+| Layer | Where | Formats |
+| --- | --- | --- |
+| **Services** | `Fgs.Foundation` via `AddFgsApiHost` / `UseFgsApiHost` | Brotli (`br`) and Gzip |
+| **Gateway** | `nginx.conf` (local) and `nginx.prod.conf` (production) | Gzip |
+
+- Direct service access (local ports, inter-service debugging) benefits from ASP.NET response compression.
+- Public clients through `https://localhost:8443` also get gateway gzip for JSON and related MIME types.
+- When an upstream already sends `Content-Encoding: gzip` or `br`, nginx passes it through without re-compressing.
+
+Optional per-service override in `appsettings.json`:
+
+```json
+"ResponseCompression": {
+  "Enabled": true,
+  "EnableForHttps": true
+}
+```
+
+Set `UseResponseCompression = false` on `FgsApiHostOptions` to opt out for a specific service.
+
 ### Inter-service Refit URLs (Docker)
 
 Inter-service Refit clients use **direct container DNS and ports** on the `fgs-private` network — not the NGINX gateway. NGINX path rewrites break several internal routes (for example `/api/v1/notifications/dispatch` and `/api/v1/tenants/*`).

@@ -18,25 +18,18 @@ public sealed class UpdateCredentialCommandHandler
         UpdateCredentialCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            byte[]? payload = request.Payload is null ? null : CredentialRequestHelpers.ParsePayload(request.Payload);
+        byte[]? payload = request.Payload is null ? null : CredentialRequestHelpers.ParsePayload(request.Payload);
 
-            return request.Scope switch
-            {
-                CredentialScope.Global when CredentialRequestHelpers.TryParseGlobalId(request.Id, out var globalId) =>
-                    await UpdateGlobalAsync(globalId, request, payload, cancellationToken),
-                CredentialScope.Tenant when CredentialRequestHelpers.TryParseTenantId(request.Id, out var tenantCredentialId) =>
-                    await UpdateTenantAsync(tenantCredentialId, request, payload, cancellationToken),
-                _ => ApiResponse<CredentialMutationResultDto>.Fail(
-                    [CredentialErrorMessages.InvalidScope],
-                    ApiStatusCodes.BadRequest)
-            };
-        }
-        catch (Exception ex)
+        return request.Scope switch
         {
-            return CredentialRequestHelpers.MapException<CredentialMutationResultDto>(ex);
-        }
+            CredentialScope.Global when CredentialRequestHelpers.TryParseGlobalId(request.Id, out var globalId) =>
+                await UpdateGlobalAsync(globalId, request, payload, cancellationToken),
+            CredentialScope.Tenant when CredentialRequestHelpers.TryParseTenantId(request.Id, out var tenantCredentialId) =>
+                await UpdateTenantAsync(tenantCredentialId, request, payload, cancellationToken),
+            _ => ApiResponse<CredentialMutationResultDto>.Fail(
+                [CredentialErrorMessages.InvalidScope],
+                ApiStatusCodes.BadRequest)
+        };
     }
 
     private async Task<ApiResponse<CredentialMutationResultDto>> UpdateGlobalAsync(
@@ -83,4 +76,3 @@ public sealed class UpdateCredentialCommandHandler
                 credential.CredentialName));
     }
 }
-

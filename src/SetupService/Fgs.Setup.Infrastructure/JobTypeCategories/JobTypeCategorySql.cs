@@ -7,11 +7,11 @@ internal static class JobTypeCategorySql
     public const string Table = "setup.\"FgsJobTypeCategory\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "CategoryCode", "Name", "Description", "DisplayOrder", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "CategoryCode", "Name", "Description", "DisplayOrder", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "CategoryCode", "Name", "Description", "DisplayOrder", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "CategoryCode", "Name", "Description", "DisplayOrder", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class JobTypeCategorySql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "DisplayOrder", "CategoryCode", "Name", "Description"
+        "Id", "IsActive", "DisplayOrder", "CategoryCode", "Name", "Description"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

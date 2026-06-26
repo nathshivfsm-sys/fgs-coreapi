@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.SetupDescriptions.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.SetupDescriptions;
@@ -140,16 +141,10 @@ public sealed class FgsSetupDescriptionWriteService : IFgsSetupDescriptionWriteS
     private static FgsSetupDescriptionDetailDto MapToDetail(FgsSetupDescription entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.DescriptionTypeCode,
             entity.ShortNote,
             entity.Body,
             entity.FgsSetupTechTradeId,
             entity.SortOrder,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

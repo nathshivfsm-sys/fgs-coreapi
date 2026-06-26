@@ -13,14 +13,7 @@ public sealed class ListFgsBusinessTypesQueryHandler(IFgsBusinessTypeReadReposit
         ListFgsBusinessTypesQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<FgsBusinessTypeSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsBusinessTypeSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<FgsBusinessTypeSummaryDto>>.Ok(result);
     }
 }

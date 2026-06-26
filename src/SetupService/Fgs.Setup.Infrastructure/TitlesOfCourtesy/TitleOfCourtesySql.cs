@@ -7,13 +7,11 @@ internal static class TitleOfCourtesySql
     public const string Table = "setup.\"FgsSetupTitleOfCourtesy\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "Code", "DisplayName", "SortOrder",
-        "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "Code", "DisplayName", "SortOrder", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "Code", "DisplayName", "SortOrder",
-        "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "Code", "DisplayName", "SortOrder", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -22,7 +20,7 @@ internal static class TitleOfCourtesySql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "Code", "DisplayName", "SortOrder", "CreatedOn", "IsActive"
+        "Id", "Code", "DisplayName", "SortOrder", "IsActive"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

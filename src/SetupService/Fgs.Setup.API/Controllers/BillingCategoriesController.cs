@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.BillingCategories.Commands.PatchBillingCate
 using Fgs.Setup.Application.Features.BillingCategories.Commands.UpdateBillingCategory;
 using Fgs.Setup.Application.Features.BillingCategories.Queries.GetBillingCategoryById;
 using Fgs.Setup.Application.Features.BillingCategories.Queries.ListBillingCategories;
-using Fgs.Setup.Application.Features.BillingCategories.Queries.ListActiveBillingCategories;
 using Fgs.Setup.Application.Features.BillingCategories.Queries.LookupBillingCategories;
 using Fgs.Setup.Application.Features.BillingCategories.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class BillingCategoriesController(IMediator mediator) : Controller
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupBillingCategoriesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<BillingCategorySummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? billingCategoryType = null,
-        [FromQuery] string? billingCategoryName = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveBillingCategoriesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new BillingCategoryListFilters(billingCategoryType, billingCategoryName)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

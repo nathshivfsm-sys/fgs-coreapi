@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.Vendors.Commands.PatchFgsVendor;
 using Fgs.Setup.Application.Features.Vendors.Commands.UpdateFgsVendor;
 using Fgs.Setup.Application.Features.Vendors.Queries.GetFgsVendorById;
 using Fgs.Setup.Application.Features.Vendors.Queries.ListVendors;
-using Fgs.Setup.Application.Features.Vendors.Queries.ListActiveVendors;
 using Fgs.Setup.Application.Features.Vendors.Queries.LookupVendors;
 using Fgs.Setup.Application.Features.Vendors.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class VendorsController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupVendorsQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsVendorSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? vendorCode = null,
-        [FromQuery] string? name = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveVendorsQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsVendorListFilters(vendorCode, name)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

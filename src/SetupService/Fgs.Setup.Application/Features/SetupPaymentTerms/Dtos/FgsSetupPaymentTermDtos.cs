@@ -2,33 +2,23 @@ namespace Fgs.Setup.Application.Features.SetupPaymentTerms.Dtos;
 
 public sealed record FgsSetupPaymentTermSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string Name,
     string DueDateMethod,
     int? NumberOfDays,
     bool IsAccountsReceivable,
     bool IsAccountsPayable,
     bool IsMobileVisible,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsSetupPaymentTermDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string Name,
     string DueDateMethod,
     int? NumberOfDays,
     bool IsAccountsReceivable,
     bool IsAccountsPayable,
     bool IsMobileVisible,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsSetupPaymentTermLookupDto(
     long Id,

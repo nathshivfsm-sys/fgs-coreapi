@@ -1,7 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupZones;
 using Fgs.Setup.Application.Features.SetupZones.Dtos;
@@ -21,23 +20,12 @@ public sealed class DeleteFgsSetupZoneCommandHandler(
         DeleteFgsSetupZoneCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.DeleteAsync(request.Id, cancellationToken);
-            logger.LogInformation("Soft-deleted zone {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                await cache.RemoveByPrefixAsync(
-                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "zones"),
-                    cancellationToken);
-            }
-            return ApiResponse<FgsSetupZoneDetailDto>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to delete zone {Id}", request.Id);
-            return CatalogCrudExceptionMapper.MapException<FgsSetupZoneDetailDto>(ex);
-        }
+        var result = await writeService.DeleteAsync(request.Id, cancellationToken);
+        logger.LogInformation("Soft-deleted zone {Id}", result.Id);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "zones"),
+                cancellationToken);
+        return ApiResponse<FgsSetupZoneDetailDto>.Ok(result);
     }
 }

@@ -1,5 +1,4 @@
 using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.Setup.Application.Abstractions.TechTrades;
 using Fgs.Setup.Application.Features.TechTrades.Dtos;
 using MediatR;
@@ -13,21 +12,14 @@ public sealed class GetTechTradeByIdQueryHandler(ITechTradeReadRepository readRe
         GetTechTradeByIdQuery request,
         CancellationToken cancellationToken)
     {
-        try
+        var result = await readRepository.GetByIdAsync(request.Id, cancellationToken);
+        if (result is null)
         {
-            var result = await readRepository.GetByIdAsync(request.Id, cancellationToken);
-            if (result is null)
-            {
                 return ApiResponse<TechTradeDetailDto>.Fail(
                     [$"Tech trade '{request.Id}' was not found."],
                     ApiStatusCodes.NotFound);
-            }
+        }
 
-            return ApiResponse<TechTradeDetailDto>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<TechTradeDetailDto>(ex);
-        }
+        return ApiResponse<TechTradeDetailDto>.Ok(result);
     }
 }

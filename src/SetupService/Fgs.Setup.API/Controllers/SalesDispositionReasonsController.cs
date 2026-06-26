@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.SalesDispositionReasons.Commands.PatchFgsSa
 using Fgs.Setup.Application.Features.SalesDispositionReasons.Commands.UpdateFgsSalesDispositionReason;
 using Fgs.Setup.Application.Features.SalesDispositionReasons.Queries.GetFgsSalesDispositionReasonById;
 using Fgs.Setup.Application.Features.SalesDispositionReasons.Queries.ListSalesDispositionReasons;
-using Fgs.Setup.Application.Features.SalesDispositionReasons.Queries.ListActiveSalesDispositionReasons;
 using Fgs.Setup.Application.Features.SalesDispositionReasons.Queries.LookupSalesDispositionReasons;
 using Fgs.Setup.Application.Features.SalesDispositionReasons.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class SalesDispositionReasonsController(IMediator mediator) : Cont
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupSalesDispositionReasonsQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSalesDispositionReasonSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? dispositionReasonCode = null,
-        [FromQuery] string? dispositionReasonName = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveSalesDispositionReasonsQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsSalesDispositionReasonListFilters(dispositionReasonCode, dispositionReasonName)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

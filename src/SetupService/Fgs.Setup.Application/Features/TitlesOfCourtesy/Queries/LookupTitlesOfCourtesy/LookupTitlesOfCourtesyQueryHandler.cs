@@ -1,5 +1,4 @@
 using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.Setup.Application.Abstractions.TitlesOfCourtesy;
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Dtos;
 using MediatR;
@@ -13,14 +12,7 @@ public sealed class LookupTitlesOfCourtesyQueryHandler(ITitleOfCourtesyReadRepos
         LookupTitlesOfCourtesyQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
-            return ApiResponse<IReadOnlyList<TitleOfCourtesyLookupDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<IReadOnlyList<TitleOfCourtesyLookupDto>>(ex);
-        }
+        var result = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
+        return ApiResponse<IReadOnlyList<TitleOfCourtesyLookupDto>>.Ok(result);
     }
 }

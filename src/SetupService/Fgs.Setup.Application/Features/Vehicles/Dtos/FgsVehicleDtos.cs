@@ -2,8 +2,6 @@ namespace Fgs.Setup.Application.Features.Vehicles.Dtos;
 
 public sealed record FgsVehicleSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     long WarehouseId,
     string OwnershipType,
     string? OwnershipCompany,
@@ -19,14 +17,10 @@ public sealed record FgsVehicleSummaryDto(
     string? PurchasedFrom,
     bool? IsPurchasedNew,
     string? Notes,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsVehicleDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     long WarehouseId,
     string OwnershipType,
     string? OwnershipCompany,
@@ -42,11 +36,7 @@ public sealed record FgsVehicleDetailDto(
     string? PurchasedFrom,
     bool? IsPurchasedNew,
     string? Notes,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsVehicleLookupDto(
     long Id,

@@ -10,12 +10,13 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{schedulingServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{schedulingServiceUrl}}/api/v1/health",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/scheduling/health",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
+                                                                               "scheduling",
                                                                                "health"
                                                                            ]
                                                               },
@@ -59,10 +60,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Scheduling service scaffold (health).",
+                 "description":  "Scheduling service scaffold (health) via {{gatewayUrl}}/api/v1/scheduling/...",
                  "name":  "FGS SchedulingService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "0e8f980f-63be-4c14-9835-0b7dbb4502bf"
+                 "_postman_id":  "8dada376-524c-4df6-9df0-f69c39b00c76"
              },
     "event":  [
                   {

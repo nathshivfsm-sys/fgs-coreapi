@@ -5,8 +5,6 @@ namespace Fgs.Setup.Infrastructure.SalesActivityOutcomes;
 internal sealed class FgsSalesActivityOutcomeSummaryRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string OutcomeCode { get; set; }
     public string OutcomeName { get; set; }
     public string? Description { get; set; }
@@ -19,14 +17,10 @@ internal sealed class FgsSalesActivityOutcomeSummaryRow
     public bool RequireComment { get; set; }
     public bool AllowManualSelection { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
 
     public FgsSalesActivityOutcomeSummaryDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             OutcomeCode,
             OutcomeName,
             Description,
@@ -38,16 +32,12 @@ internal sealed class FgsSalesActivityOutcomeSummaryRow
             IsTerminal,
             RequireComment,
             AllowManualSelection,
-            IsActive,
-            CreatedOn,
-            UpdatedOn);
+            IsActive);
 }
 
 internal sealed class FgsSalesActivityOutcomeDetailRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string OutcomeCode { get; set; }
     public string OutcomeName { get; set; }
     public string? Description { get; set; }
@@ -60,16 +50,10 @@ internal sealed class FgsSalesActivityOutcomeDetailRow
     public bool RequireComment { get; set; }
     public bool AllowManualSelection { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public string? CreatedBy { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
-    public string? UpdatedBy { get; set; }
 
     public FgsSalesActivityOutcomeDetailDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             OutcomeCode,
             OutcomeName,
             Description,
@@ -81,11 +65,7 @@ internal sealed class FgsSalesActivityOutcomeDetailRow
             IsTerminal,
             RequireComment,
             AllowManualSelection,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+            IsActive);
 }
 
 internal sealed class FgsSalesActivityOutcomeLookupRow

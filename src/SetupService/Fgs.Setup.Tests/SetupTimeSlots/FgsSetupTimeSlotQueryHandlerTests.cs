@@ -16,14 +16,14 @@ public sealed class FgsSetupTimeSlotQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsSetupTimeSlotDetailDto(1, 10, 20, null, "TEST", "Name value", TimeSpan.FromHours(8), TimeSpan.FromHours(17), null, null, true, true, true, DateTimeOffset.UtcNow, "seed", null, "seed");
+        var detail = new FgsSetupTimeSlotDetailDto(1, null, "TEST", "Name value", TimeSpan.FromHours(8), TimeSpan.FromHours(17), null, null, true, true, true);
 
         var readRepository = new Mock<IFgsSetupTimeSlotReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsSetupTimeSlotByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSetupTimeSlotByIdQuery(1), CancellationToken.None);
@@ -41,7 +41,7 @@ public sealed class FgsSetupTimeSlotQueryHandlerTests
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsSetupTimeSlotByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSetupTimeSlotByIdQuery(99), CancellationToken.None);

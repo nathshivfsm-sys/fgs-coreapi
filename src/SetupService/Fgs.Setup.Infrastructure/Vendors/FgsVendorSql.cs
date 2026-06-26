@@ -7,11 +7,11 @@ internal static class FgsVendorSql
     public const string Table = "setup.\"FgsVendor\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "VendorCode", "Name", "LegalName", "VendorType", "PaymentTermId", "Email", "PhoneNumber", "MobileNumber", "Website", "TaxIdentificationNumber", "LicenseNumber", "InsurancePolicyNumber", "Notes", "Is1099Eligible", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "VendorCode", "Name", "LegalName", "VendorType", "PaymentTermId", "Email", "PhoneNumber", "MobileNumber", "Website", "TaxIdentificationNumber", "LicenseNumber", "InsurancePolicyNumber", "Notes", "Is1099Eligible", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "VendorCode", "Name", "LegalName", "VendorType", "PaymentTermId", "Email", "PhoneNumber", "MobileNumber", "Website", "TaxIdentificationNumber", "LicenseNumber", "InsurancePolicyNumber", "Notes", "Is1099Eligible", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "VendorCode", "Name", "LegalName", "VendorType", "PaymentTermId", "Email", "PhoneNumber", "MobileNumber", "Website", "TaxIdentificationNumber", "LicenseNumber", "InsurancePolicyNumber", "Notes", "Is1099Eligible", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class FgsVendorSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "VendorCode", "Name", "LegalName", "VendorType", "PaymentTermId", "Email", "PhoneNumber", "MobileNumber", "Website", "TaxIdentificationNumber", "LicenseNumber", "InsurancePolicyNumber", "Notes", "Is1099Eligible"
+        "Id", "IsActive", "VendorCode", "Name", "LegalName", "VendorType", "PaymentTermId", "Email", "PhoneNumber", "MobileNumber", "Website", "TaxIdentificationNumber", "LicenseNumber", "InsurancePolicyNumber", "Notes", "Is1099Eligible"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

@@ -10,12 +10,13 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{assetServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{assetServiceUrl}}/api/v1/health",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/health",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
+                                                                               "asset",
                                                                                "health"
                                                                            ]
                                                               },
@@ -59,10 +60,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Asset service scaffold (health).",
+                 "description":  "Asset service scaffold (health) via {{gatewayUrl}}/api/v1/asset/...",
                  "name":  "FGS AssetService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "6619c865-efd2-4316-9ceb-6a8fc439d060"
+                 "_postman_id":  "85bb57a5-feb8-474d-85b6-badcca39c29a"
              },
     "event":  [
                   {

@@ -10,12 +10,13 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{publisherServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{publisherServiceUrl}}/api/v1/health",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/publisher/health",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
+                                                                               "publisher",
                                                                                "health"
                                                                            ]
                                                               },
@@ -59,10 +60,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Outbox publisher worker API.",
+                 "description":  "Outbox publisher worker API via {{gatewayUrl}}/api/v1/publisher/...",
                  "name":  "FGS PublisherService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "0d1c594c-224a-420d-8cff-e6bf5d17b61c"
+                 "_postman_id":  "95d90a11-d92c-466c-8acf-fbbbdd2792c7"
              },
     "event":  [
                   {

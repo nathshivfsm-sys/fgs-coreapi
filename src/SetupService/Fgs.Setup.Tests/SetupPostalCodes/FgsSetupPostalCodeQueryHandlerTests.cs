@@ -16,14 +16,14 @@ public sealed class FgsSetupPostalCodeQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsSetupPostalCodeDetailDto(1, 10, 20, "PostalCode value", null, null, true, DateTimeOffset.UtcNow, "seed", null, "seed");
+        var detail = new FgsSetupPostalCodeDetailDto(1, "PostalCode value", null, null, true);
 
         var readRepository = new Mock<IFgsSetupPostalCodeReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsSetupPostalCodeByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSetupPostalCodeByIdQuery(1), CancellationToken.None);
@@ -41,7 +41,7 @@ public sealed class FgsSetupPostalCodeQueryHandlerTests
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsSetupPostalCodeByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSetupPostalCodeByIdQuery(99), CancellationToken.None);

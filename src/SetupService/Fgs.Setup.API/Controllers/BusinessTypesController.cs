@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.FgsBusinessTypes.Commands.PatchFgsBusinessT
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Commands.UpdateFgsBusinessType;
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Queries.GetFgsBusinessTypeById;
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Queries.ListFgsBusinessTypes;
-using Fgs.Setup.Application.Features.FgsBusinessTypes.Queries.ListActiveFgsBusinessTypes;
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Queries.LookupFgsBusinessTypes;
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class BusinessTypesController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupFgsBusinessTypesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsBusinessTypeSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? code = null,
-        [FromQuery] string? name = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveFgsBusinessTypesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsBusinessTypeListFilters(code, name)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

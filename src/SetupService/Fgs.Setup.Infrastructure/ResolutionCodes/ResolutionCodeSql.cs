@@ -7,11 +7,11 @@ internal static class ResolutionCodeSql
     public const string Table = "setup.\"FgsResolutionCode\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "GloResolutionTypeId", "ResolutionCode", "ResolutionName", "IsMobileVisible", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "GloResolutionTypeId", "ResolutionCode", "ResolutionName", "IsMobileVisible", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "GloResolutionTypeId", "ResolutionCode", "ResolutionName", "IsMobileVisible", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "GloResolutionTypeId", "ResolutionCode", "ResolutionName", "IsMobileVisible", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class ResolutionCodeSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "GloResolutionTypeId", "ResolutionCode", "ResolutionName", "IsMobileVisible"
+        "Id", "IsActive", "GloResolutionTypeId", "ResolutionCode", "ResolutionName", "IsMobileVisible"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

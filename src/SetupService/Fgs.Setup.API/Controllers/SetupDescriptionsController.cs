@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.SetupDescriptions.Commands.PatchFgsSetupDes
 using Fgs.Setup.Application.Features.SetupDescriptions.Commands.UpdateFgsSetupDescription;
 using Fgs.Setup.Application.Features.SetupDescriptions.Queries.GetFgsSetupDescriptionById;
 using Fgs.Setup.Application.Features.SetupDescriptions.Queries.ListSetupDescriptions;
-using Fgs.Setup.Application.Features.SetupDescriptions.Queries.ListActiveSetupDescriptions;
 using Fgs.Setup.Application.Features.SetupDescriptions.Queries.LookupSetupDescriptions;
 using Fgs.Setup.Application.Features.SetupDescriptions.Dtos;
 using MediatR;
@@ -62,30 +61,6 @@ public sealed class SetupDescriptionsController(IMediator mediator) : Controller
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupSetupDescriptionsQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSetupDescriptionSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? descriptionTypeCode = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveSetupDescriptionsQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsSetupDescriptionListFilters(descriptionTypeCode)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

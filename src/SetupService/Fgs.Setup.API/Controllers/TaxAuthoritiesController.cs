@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.SetupTaxAuthorities.Commands.PatchFgsSetupT
 using Fgs.Setup.Application.Features.SetupTaxAuthorities.Commands.UpdateFgsSetupTaxAuthority;
 using Fgs.Setup.Application.Features.SetupTaxAuthorities.Queries.GetFgsSetupTaxAuthorityById;
 using Fgs.Setup.Application.Features.SetupTaxAuthorities.Queries.ListSetupTaxAuthorities;
-using Fgs.Setup.Application.Features.SetupTaxAuthorities.Queries.ListActiveSetupTaxAuthorities;
 using Fgs.Setup.Application.Features.SetupTaxAuthorities.Queries.LookupSetupTaxAuthorities;
 using Fgs.Setup.Application.Features.SetupTaxAuthorities.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class TaxAuthoritiesController(IMediator mediator) : ControllerBas
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupSetupTaxAuthoritiesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSetupTaxAuthoritySummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? code = null,
-        [FromQuery] string? name = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveSetupTaxAuthoritiesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsSetupTaxAuthorityListFilters(code, name)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

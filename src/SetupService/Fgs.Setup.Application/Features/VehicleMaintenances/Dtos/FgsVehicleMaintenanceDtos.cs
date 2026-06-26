@@ -2,8 +2,6 @@ namespace Fgs.Setup.Application.Features.VehicleMaintenances.Dtos;
 
 public sealed record FgsVehicleMaintenanceSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     long VehicleId,
     int VehicleMaintenanceTypeId,
     DateOnly ServiceDate,
@@ -16,14 +14,10 @@ public sealed record FgsVehicleMaintenanceSummaryDto(
     bool IsCompleted,
     string? Description,
     string? Notes,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsVehicleMaintenanceDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     long VehicleId,
     int VehicleMaintenanceTypeId,
     DateOnly ServiceDate,
@@ -36,11 +30,7 @@ public sealed record FgsVehicleMaintenanceDetailDto(
     bool IsCompleted,
     string? Description,
     string? Notes,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsVehicleMaintenanceLookupDto(
     long Id,

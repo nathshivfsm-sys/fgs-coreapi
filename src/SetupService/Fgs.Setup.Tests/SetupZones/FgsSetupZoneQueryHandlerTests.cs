@@ -16,14 +16,14 @@ public sealed class FgsSetupZoneQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsSetupZoneDetailDto(1, 10, 20, "TEST", "Name value", "Description value", true, DateTimeOffset.UtcNow, "seed", null, "seed");
+        var detail = new FgsSetupZoneDetailDto(1, "TEST", "Name value", "Description value", true);
 
         var readRepository = new Mock<IFgsSetupZoneReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsSetupZoneByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSetupZoneByIdQuery(1), CancellationToken.None);
@@ -41,7 +41,7 @@ public sealed class FgsSetupZoneQueryHandlerTests
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsSetupZoneByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSetupZoneByIdQuery(99), CancellationToken.None);

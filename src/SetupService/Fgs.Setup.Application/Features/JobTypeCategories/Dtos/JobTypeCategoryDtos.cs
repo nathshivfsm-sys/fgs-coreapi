@@ -2,29 +2,19 @@ namespace Fgs.Setup.Application.Features.JobTypeCategories.Dtos;
 
 public sealed record JobTypeCategorySummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string CategoryCode,
     string Name,
     string? Description,
     short? DisplayOrder,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record JobTypeCategoryDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string CategoryCode,
     string Name,
     string? Description,
     short? DisplayOrder,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record JobTypeCategoryLookupDto(
     long Id,

@@ -31,8 +31,7 @@ public sealed class TenantQueryFilterTests
             Current = new TenantContext
             {
                 TenantId = 1,
-                CompanyId = 1,
-                IsResolved = true
+                CompanyId = 1
             }
         };
 
@@ -57,8 +56,7 @@ public sealed class TenantQueryFilterTests
             Current = new TenantContext
             {
                 TenantId = 1,
-                CompanyId = 2,
-                IsResolved = true
+                CompanyId = 2
             }
         };
 

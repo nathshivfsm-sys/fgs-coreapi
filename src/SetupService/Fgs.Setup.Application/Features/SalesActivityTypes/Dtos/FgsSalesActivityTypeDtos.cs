@@ -2,8 +2,6 @@ namespace Fgs.Setup.Application.Features.SalesActivityTypes.Dtos;
 
 public sealed record FgsSalesActivityTypeSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string ActivityTypeCode,
     string ActivityTypeName,
     string? Description,
@@ -12,14 +10,10 @@ public sealed record FgsSalesActivityTypeSummaryDto(
     bool AppliesToLead,
     bool AppliesToOpportunity,
     bool AllowManualSelection,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsSalesActivityTypeDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string ActivityTypeCode,
     string ActivityTypeName,
     string? Description,
@@ -28,11 +22,7 @@ public sealed record FgsSalesActivityTypeDetailDto(
     bool AppliesToLead,
     bool AppliesToOpportunity,
     bool AllowManualSelection,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsSalesActivityTypeLookupDto(
     long Id,

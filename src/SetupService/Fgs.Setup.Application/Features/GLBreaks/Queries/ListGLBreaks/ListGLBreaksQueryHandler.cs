@@ -13,14 +13,7 @@ public sealed class ListGLBreaksQueryHandler(IGLBreakReadRepository readReposito
         ListGLBreaksQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<GLBreakSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<GLBreakSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<GLBreakSummaryDto>>.Ok(result);
     }
 }

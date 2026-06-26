@@ -13,14 +13,7 @@ public sealed class ListTechTradesQueryHandler(ITechTradeReadRepository readRepo
         ListTechTradesQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<TechTradeSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<TechTradeSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<TechTradeSummaryDto>>.Ok(result);
     }
 }

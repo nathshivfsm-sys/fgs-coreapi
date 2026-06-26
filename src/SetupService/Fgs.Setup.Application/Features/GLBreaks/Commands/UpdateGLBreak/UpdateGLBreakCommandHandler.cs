@@ -1,5 +1,4 @@
 using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.Setup.Application.Abstractions.GLBreaks;
 using Fgs.Setup.Application.Features.GLBreaks.Dtos;
 using MediatR;
@@ -16,16 +15,8 @@ public sealed class UpdateGLBreakCommandHandler(
         UpdateGLBreakCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
-            logger.LogInformation("Updated GL break {GLBreakId}", result.Id);
-            return ApiResponse<GLBreakDetailDto>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to update GL break {GLBreakId}", request.Id);
-            return CatalogCrudExceptionMapper.MapException<GLBreakDetailDto>(ex);
-        }
+        var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
+        logger.LogInformation("Updated GL break {GLBreakId}", result.Id);
+        return ApiResponse<GLBreakDetailDto>.Ok(result);
     }
 }

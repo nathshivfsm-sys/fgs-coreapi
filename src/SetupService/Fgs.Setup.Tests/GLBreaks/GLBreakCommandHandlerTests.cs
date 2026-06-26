@@ -139,8 +139,7 @@ public sealed class GLBreakCommandHandlerTests
             Current = new TenantContext
             {
                 TenantId = TenantId,
-                CompanyId = CompanyId,
-                IsResolved = true
+                CompanyId = CompanyId
             }
         };
 
@@ -194,8 +193,7 @@ public sealed class GLBreakCommandHandlerTests
             Current = new TenantContext
             {
                 TenantId = TenantId,
-                CompanyId = CompanyId,
-                IsResolved = true
+                CompanyId = CompanyId
             }
         };
 

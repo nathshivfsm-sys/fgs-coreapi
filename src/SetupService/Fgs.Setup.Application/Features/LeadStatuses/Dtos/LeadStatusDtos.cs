@@ -2,31 +2,21 @@ namespace Fgs.Setup.Application.Features.LeadStatuses.Dtos;
 
 public sealed record LeadStatusSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string StatusCode,
     string StatusName,
     string? Description,
     short? DisplayOrder,
     bool IsSystem,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record LeadStatusDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string StatusCode,
     string StatusName,
     string? Description,
     short? DisplayOrder,
     bool IsSystem,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record LeadStatusLookupDto(
     long Id,

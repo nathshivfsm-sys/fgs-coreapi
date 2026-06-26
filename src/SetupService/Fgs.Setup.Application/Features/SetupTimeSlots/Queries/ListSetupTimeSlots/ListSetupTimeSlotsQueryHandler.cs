@@ -13,14 +13,7 @@ public sealed class ListSetupTimeSlotsQueryHandler(IFgsSetupTimeSlotReadReposito
         ListSetupTimeSlotsQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<FgsSetupTimeSlotSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsSetupTimeSlotSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<FgsSetupTimeSlotSummaryDto>>.Ok(result);
     }
 }

@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.LeadDisqualificationReasons.Commands.PatchL
 using Fgs.Setup.Application.Features.LeadDisqualificationReasons.Commands.UpdateLeadDisqualificationReason;
 using Fgs.Setup.Application.Features.LeadDisqualificationReasons.Queries.GetLeadDisqualificationReasonById;
 using Fgs.Setup.Application.Features.LeadDisqualificationReasons.Queries.ListLeadDisqualificationReasons;
-using Fgs.Setup.Application.Features.LeadDisqualificationReasons.Queries.ListActiveLeadDisqualificationReasons;
 using Fgs.Setup.Application.Features.LeadDisqualificationReasons.Queries.LookupLeadDisqualificationReasons;
 using Fgs.Setup.Application.Features.LeadDisqualificationReasons.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class LeadDisqualificationReasonsController(IMediator mediator) : 
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupLeadDisqualificationReasonsQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<LeadDisqualificationReasonSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? reasonCode = null,
-        [FromQuery] string? reasonName = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveLeadDisqualificationReasonsQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new LeadDisqualificationReasonListFilters(reasonCode, reasonName)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

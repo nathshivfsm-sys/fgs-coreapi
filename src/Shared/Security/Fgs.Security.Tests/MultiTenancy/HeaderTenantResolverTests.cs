@@ -19,7 +19,6 @@ public sealed class HeaderTenantResolverTests
         resolved.Should().BeTrue();
         tenantContext.TenantId.Should().Be(10);
         tenantContext.CompanyId.Should().Be(1);
-        tenantContext.IsResolved.Should().BeTrue();
     }
 
     [Fact]

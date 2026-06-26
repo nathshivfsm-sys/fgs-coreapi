@@ -2,31 +2,21 @@ namespace Fgs.Setup.Application.Features.LeadDisqualificationReasons.Dtos;
 
 public sealed record LeadDisqualificationReasonSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string ReasonCode,
     string ReasonName,
     string? Description,
     short? DisplayOrder,
     bool IsSystem,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record LeadDisqualificationReasonDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string ReasonCode,
     string ReasonName,
     string? Description,
     short? DisplayOrder,
     bool IsSystem,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record LeadDisqualificationReasonLookupDto(
     long Id,

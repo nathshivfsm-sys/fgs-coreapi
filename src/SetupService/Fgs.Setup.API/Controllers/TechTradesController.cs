@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.TechTrades.Commands.PatchTechTrade;
 using Fgs.Setup.Application.Features.TechTrades.Commands.UpdateTechTrade;
 using Fgs.Setup.Application.Features.TechTrades.Dtos;
 using Fgs.Setup.Application.Features.TechTrades.Queries.GetTechTradeById;
-using Fgs.Setup.Application.Features.TechTrades.Queries.ListActiveTechTrades;
 using Fgs.Setup.Application.Features.TechTrades.Queries.ListTechTrades;
 using Fgs.Setup.Application.Features.TechTrades.Queries.LookupTechTrades;
 using MediatR;
@@ -65,31 +64,6 @@ public sealed class TechTradesController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupTechTradesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<TechTradeSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? tradeCode = null,
-        [FromQuery] string? name = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveTechTradesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new TechTradeListFilters(tradeCode, name)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

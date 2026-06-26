@@ -2,27 +2,17 @@ namespace Fgs.Setup.Application.Features.SetupZones.Dtos;
 
 public sealed record FgsSetupZoneSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string Code,
     string Name,
     string? Description,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsSetupZoneDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string Code,
     string Name,
     string? Description,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsSetupZoneLookupDto(
     long Id,

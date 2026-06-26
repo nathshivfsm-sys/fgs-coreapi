@@ -1,5 +1,4 @@
 using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.Setup.Application.Abstractions.TitlesOfCourtesy;
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Dtos;
 using MediatR;
@@ -16,20 +15,12 @@ public sealed class UpdateTitleOfCourtesyCommandHandler(
         UpdateTitleOfCourtesyCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
-            logger.LogInformation(
+        var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
+        logger.LogInformation(
                 "Updated title of courtesy {TitleOfCourtesyId} with code {Code}",
                 result.Id,
                 result.Code);
 
-            return ApiResponse<TitleOfCourtesyDetailDto>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to update title of courtesy {TitleOfCourtesyId}", request.Id);
-            return CatalogCrudExceptionMapper.MapException<TitleOfCourtesyDetailDto>(ex);
-        }
+        return ApiResponse<TitleOfCourtesyDetailDto>.Ok(result);
     }
 }

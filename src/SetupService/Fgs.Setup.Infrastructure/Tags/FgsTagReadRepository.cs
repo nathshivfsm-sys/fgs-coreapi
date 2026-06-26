@@ -142,7 +142,7 @@ internal sealed class FgsTagReadRepository : IFgsTagReadRepository
 
     private (long TenantId, long CompanyId) ResolveTenantScope()
     {
-        if (_tenantContextAccessor.Current is { IsResolved: true } context)
+        if (_tenantContextAccessor.Current is ITenantContext context)
         {
             return (context.TenantId, context.CompanyId);
         }

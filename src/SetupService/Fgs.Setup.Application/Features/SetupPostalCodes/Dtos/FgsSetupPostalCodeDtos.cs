@@ -2,27 +2,17 @@ namespace Fgs.Setup.Application.Features.SetupPostalCodes.Dtos;
 
 public sealed record FgsSetupPostalCodeSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string PostalCode,
     long? FgsSetupZoneId,
     long? FgsSetupTaxId,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsSetupPostalCodeDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string PostalCode,
     long? FgsSetupZoneId,
     long? FgsSetupTaxId,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsSetupPostalCodeLookupDto(
     long Id,

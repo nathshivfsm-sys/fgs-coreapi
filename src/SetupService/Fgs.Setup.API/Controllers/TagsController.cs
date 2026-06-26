@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.Tags.Commands.PatchFgsTag;
 using Fgs.Setup.Application.Features.Tags.Commands.UpdateFgsTag;
 using Fgs.Setup.Application.Features.Tags.Queries.GetFgsTagById;
 using Fgs.Setup.Application.Features.Tags.Queries.ListTags;
-using Fgs.Setup.Application.Features.Tags.Queries.ListActiveTags;
 using Fgs.Setup.Application.Features.Tags.Queries.LookupTags;
 using Fgs.Setup.Application.Features.Tags.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class TagsController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupTagsQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsTagSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? tagCode = null,
-        [FromQuery] string? name = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveTagsQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsTagListFilters(tagCode, name)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

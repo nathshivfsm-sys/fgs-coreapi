@@ -1,5 +1,4 @@
 using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.Setup.Application.Abstractions.TechTrades;
 using Fgs.Setup.Application.Features.TechTrades.Dtos;
 using MediatR;
@@ -13,14 +12,7 @@ public sealed class LookupTechTradesQueryHandler(ITechTradeReadRepository readRe
         LookupTechTradesQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
-            return ApiResponse<IReadOnlyList<TechTradeLookupDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<IReadOnlyList<TechTradeLookupDto>>(ex);
-        }
+        var result = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
+        return ApiResponse<IReadOnlyList<TechTradeLookupDto>>.Ok(result);
     }
 }

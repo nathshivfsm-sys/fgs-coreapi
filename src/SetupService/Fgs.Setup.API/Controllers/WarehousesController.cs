@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.Warehouses.Commands.PatchFgsWarehouse;
 using Fgs.Setup.Application.Features.Warehouses.Commands.UpdateFgsWarehouse;
 using Fgs.Setup.Application.Features.Warehouses.Queries.GetFgsWarehouseById;
 using Fgs.Setup.Application.Features.Warehouses.Queries.ListWarehouses;
-using Fgs.Setup.Application.Features.Warehouses.Queries.ListActiveWarehouses;
 using Fgs.Setup.Application.Features.Warehouses.Queries.LookupWarehouses;
 using Fgs.Setup.Application.Features.Warehouses.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class WarehousesController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupWarehousesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsWarehouseSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? warehouseCode = null,
-        [FromQuery] string? name = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveWarehousesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsWarehouseListFilters(warehouseCode, name)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

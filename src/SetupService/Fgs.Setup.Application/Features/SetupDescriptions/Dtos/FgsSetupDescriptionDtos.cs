@@ -2,31 +2,21 @@ namespace Fgs.Setup.Application.Features.SetupDescriptions.Dtos;
 
 public sealed record FgsSetupDescriptionSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string DescriptionTypeCode,
     string? ShortNote,
     string Body,
     long? FgsSetupTechTradeId,
     int SortOrder,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsSetupDescriptionDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string DescriptionTypeCode,
     string? ShortNote,
     string Body,
     long? FgsSetupTechTradeId,
     int SortOrder,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsSetupDescriptionLookupDto(
     long Id,

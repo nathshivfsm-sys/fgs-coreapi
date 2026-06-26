@@ -1,7 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.ResolutionCodes;
 using Fgs.Setup.Application.Features.ResolutionCodes.Dtos;
@@ -21,23 +20,12 @@ public sealed class CreateResolutionCodeCommandHandler(
         CreateResolutionCodeCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.CreateAsync(request.Dto, cancellationToken);
-            logger.LogInformation("Created resolution code {Id} with code {ResolutionCode}", result.Id, result.ResolutionCode);
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                await cache.RemoveByPrefixAsync(
-                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "resolutioncodes"),
-                    cancellationToken);
-            }
-            return ApiResponse<ResolutionCodeDetailDto>.Ok(result, ApiStatusCodes.Created);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to create resolution code");
-            return CatalogCrudExceptionMapper.MapException<ResolutionCodeDetailDto>(ex);
-        }
+        var result = await writeService.CreateAsync(request.Dto, cancellationToken);
+        logger.LogInformation("Created resolution code {Id} with code {ResolutionCode}", result.Id, result.ResolutionCode);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "resolutioncodes"),
+                cancellationToken);
+        return ApiResponse<ResolutionCodeDetailDto>.Ok(result, ApiStatusCodes.Created);
     }
 }

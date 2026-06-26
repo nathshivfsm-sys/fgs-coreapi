@@ -13,14 +13,7 @@ public sealed class ListCommunicationTemplatesQueryHandler(IFgsSetupCommunicatio
         ListCommunicationTemplatesQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<FgsSetupCommunicationTemplateSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsSetupCommunicationTemplateSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<FgsSetupCommunicationTemplateSummaryDto>>.Ok(result);
     }
 }

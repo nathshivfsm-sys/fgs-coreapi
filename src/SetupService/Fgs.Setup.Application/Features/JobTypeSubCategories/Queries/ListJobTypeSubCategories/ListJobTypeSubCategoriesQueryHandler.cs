@@ -13,14 +13,7 @@ public sealed class ListJobTypeSubCategoriesQueryHandler(IJobTypeSubCategoryRead
         ListJobTypeSubCategoriesQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<JobTypeSubCategorySummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<JobTypeSubCategorySummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<JobTypeSubCategorySummaryDto>>.Ok(result);
     }
 }

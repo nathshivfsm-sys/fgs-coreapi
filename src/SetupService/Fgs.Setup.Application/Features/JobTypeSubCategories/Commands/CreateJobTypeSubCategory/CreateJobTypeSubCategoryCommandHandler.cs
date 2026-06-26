@@ -1,7 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.JobTypeSubCategories;
 using Fgs.Setup.Application.Features.JobTypeSubCategories.Dtos;
@@ -21,23 +20,12 @@ public sealed class CreateJobTypeSubCategoryCommandHandler(
         CreateJobTypeSubCategoryCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.CreateAsync(request.Dto, cancellationToken);
-            logger.LogInformation("Created job type subcategory {Id} with code {SubCategoryCode}", result.Id, result.SubCategoryCode);
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                await cache.RemoveByPrefixAsync(
-                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtypesubcategories"),
-                    cancellationToken);
-            }
-            return ApiResponse<JobTypeSubCategoryDetailDto>.Ok(result, ApiStatusCodes.Created);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to create job type subcategory");
-            return CatalogCrudExceptionMapper.MapException<JobTypeSubCategoryDetailDto>(ex);
-        }
+        var result = await writeService.CreateAsync(request.Dto, cancellationToken);
+        logger.LogInformation("Created job type subcategory {Id} with code {SubCategoryCode}", result.Id, result.SubCategoryCode);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtypesubcategories"),
+                cancellationToken);
+        return ApiResponse<JobTypeSubCategoryDetailDto>.Ok(result, ApiStatusCodes.Created);
     }
 }

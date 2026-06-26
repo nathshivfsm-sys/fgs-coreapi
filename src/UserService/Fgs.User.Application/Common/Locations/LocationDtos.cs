@@ -30,8 +30,4 @@ public sealed record LocationDetailDto(
     decimal? Latitude,
     decimal? Longitude,
     string? PlaceId,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);

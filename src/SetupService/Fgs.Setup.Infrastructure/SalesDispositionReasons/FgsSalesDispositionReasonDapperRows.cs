@@ -5,8 +5,6 @@ namespace Fgs.Setup.Infrastructure.SalesDispositionReasons;
 internal sealed class FgsSalesDispositionReasonSummaryRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string DispositionReasonCode { get; set; }
     public string DispositionReasonName { get; set; }
     public string? Description { get; set; }
@@ -18,14 +16,10 @@ internal sealed class FgsSalesDispositionReasonSummaryRow
     public bool IsTerminal { get; set; }
     public bool AllowManualSelection { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
 
     public FgsSalesDispositionReasonSummaryDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             DispositionReasonCode,
             DispositionReasonName,
             Description,
@@ -36,16 +30,12 @@ internal sealed class FgsSalesDispositionReasonSummaryRow
             RequireComment,
             IsTerminal,
             AllowManualSelection,
-            IsActive,
-            CreatedOn,
-            UpdatedOn);
+            IsActive);
 }
 
 internal sealed class FgsSalesDispositionReasonDetailRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string DispositionReasonCode { get; set; }
     public string DispositionReasonName { get; set; }
     public string? Description { get; set; }
@@ -57,16 +47,10 @@ internal sealed class FgsSalesDispositionReasonDetailRow
     public bool IsTerminal { get; set; }
     public bool AllowManualSelection { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public string? CreatedBy { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
-    public string? UpdatedBy { get; set; }
 
     public FgsSalesDispositionReasonDetailDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             DispositionReasonCode,
             DispositionReasonName,
             Description,
@@ -77,11 +61,7 @@ internal sealed class FgsSalesDispositionReasonDetailRow
             RequireComment,
             IsTerminal,
             AllowManualSelection,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+            IsActive);
 }
 
 internal sealed class FgsSalesDispositionReasonLookupRow

@@ -1,7 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupTaxAuthorities;
 using Fgs.Setup.Application.Features.SetupTaxAuthorities.Dtos;
@@ -19,48 +18,28 @@ public sealed class GetFgsSetupTaxAuthorityByIdQueryHandler(
         GetFgsSetupTaxAuthorityByIdQuery request,
         CancellationToken cancellationToken)
     {
-        try
+        var tenantScope = tenantContextAccessor.Current!;
+        var cacheKey = CacheKeys.Build(
+            tenantScope.TenantId,
+            tenantScope.CompanyId,
+            "taxauthorities",
+            request.Id.ToString());
+
+        var cached = await cache.GetAsync<FgsSetupTaxAuthorityDetailDto>(cacheKey, cancellationToken);
+        if (cached is not null)
         {
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                var cacheKey = CacheKeys.Build(
-                    tenantScope.TenantId,
-                    tenantScope.CompanyId,
-                    "taxauthorities",
-                    request.Id.ToString());
-
-                var cached = await cache.GetAsync<FgsSetupTaxAuthorityDetailDto>(cacheKey, cancellationToken);
-                if (cached is not null)
-                {
-                    return ApiResponse<FgsSetupTaxAuthorityDetailDto>.Ok(cached);
-                }
-
-                var result = await readRepository.GetByIdAsync(request.Id, cancellationToken);
-                if (result is null)
-                {
-                    return ApiResponse<FgsSetupTaxAuthorityDetailDto>.Fail(
-                        [$"Tax Authority '{request.Id}' was not found."],
-                        ApiStatusCodes.NotFound);
-                }
-
-                await cache.SetAsync(cacheKey, result, cancellationToken: cancellationToken);
-                return ApiResponse<FgsSetupTaxAuthorityDetailDto>.Ok(result);
-            }
-
-            var uncached = await readRepository.GetByIdAsync(request.Id, cancellationToken);
-            if (uncached is null)
-            {
-                return ApiResponse<FgsSetupTaxAuthorityDetailDto>.Fail(
-                    [$"Tax Authority '{request.Id}' was not found."],
-                    ApiStatusCodes.NotFound);
-            }
-
-            return ApiResponse<FgsSetupTaxAuthorityDetailDto>.Ok(uncached);
+            return ApiResponse<FgsSetupTaxAuthorityDetailDto>.Ok(cached);
         }
-        catch (Exception ex)
+
+        var result = await readRepository.GetByIdAsync(request.Id, cancellationToken);
+        if (result is null)
         {
-            return CatalogCrudExceptionMapper.MapException<FgsSetupTaxAuthorityDetailDto>(ex);
+            return ApiResponse<FgsSetupTaxAuthorityDetailDto>.Fail(
+                [$"Tax Authority '{request.Id}' was not found."],
+                ApiStatusCodes.NotFound);
         }
+
+        await cache.SetAsync(cacheKey, result, cancellationToken: cancellationToken);
+        return ApiResponse<FgsSetupTaxAuthorityDetailDto>.Ok(result);
     }
 }

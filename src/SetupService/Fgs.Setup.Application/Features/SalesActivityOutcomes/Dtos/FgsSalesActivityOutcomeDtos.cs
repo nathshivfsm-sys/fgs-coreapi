@@ -2,8 +2,6 @@ namespace Fgs.Setup.Application.Features.SalesActivityOutcomes.Dtos;
 
 public sealed record FgsSalesActivityOutcomeSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string OutcomeCode,
     string OutcomeName,
     string? Description,
@@ -15,14 +13,10 @@ public sealed record FgsSalesActivityOutcomeSummaryDto(
     bool IsTerminal,
     bool RequireComment,
     bool AllowManualSelection,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsSalesActivityOutcomeDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string OutcomeCode,
     string OutcomeName,
     string? Description,
@@ -34,11 +28,7 @@ public sealed record FgsSalesActivityOutcomeDetailDto(
     bool IsTerminal,
     bool RequireComment,
     bool AllowManualSelection,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsSalesActivityOutcomeLookupDto(
     long Id,

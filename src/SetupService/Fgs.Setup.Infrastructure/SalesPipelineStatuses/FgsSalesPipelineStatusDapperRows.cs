@@ -5,8 +5,6 @@ namespace Fgs.Setup.Infrastructure.SalesPipelineStatuses;
 internal sealed class FgsSalesPipelineStatusSummaryRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string StatusCode { get; set; }
     public string StatusName { get; set; }
     public string? Description { get; set; }
@@ -17,14 +15,10 @@ internal sealed class FgsSalesPipelineStatusSummaryRow
     public bool IsTerminal { get; set; }
     public bool AllowManualSelection { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
 
     public FgsSalesPipelineStatusSummaryDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             StatusCode,
             StatusName,
             Description,
@@ -34,16 +28,12 @@ internal sealed class FgsSalesPipelineStatusSummaryRow
             AppliesToOpportunity,
             IsTerminal,
             AllowManualSelection,
-            IsActive,
-            CreatedOn,
-            UpdatedOn);
+            IsActive);
 }
 
 internal sealed class FgsSalesPipelineStatusDetailRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string StatusCode { get; set; }
     public string StatusName { get; set; }
     public string? Description { get; set; }
@@ -54,16 +44,10 @@ internal sealed class FgsSalesPipelineStatusDetailRow
     public bool IsTerminal { get; set; }
     public bool AllowManualSelection { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public string? CreatedBy { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
-    public string? UpdatedBy { get; set; }
 
     public FgsSalesPipelineStatusDetailDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             StatusCode,
             StatusName,
             Description,
@@ -73,11 +57,7 @@ internal sealed class FgsSalesPipelineStatusDetailRow
             AppliesToOpportunity,
             IsTerminal,
             AllowManualSelection,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+            IsActive);
 }
 
 internal sealed class FgsSalesPipelineStatusLookupRow

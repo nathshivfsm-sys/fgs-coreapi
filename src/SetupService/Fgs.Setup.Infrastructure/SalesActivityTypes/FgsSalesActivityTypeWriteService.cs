@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.SalesActivityTypes.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.SalesActivityTypes;
@@ -155,8 +156,6 @@ public sealed class FgsSalesActivityTypeWriteService : IFgsSalesActivityTypeWrit
     private static FgsSalesActivityTypeDetailDto MapToDetail(FgsSalesActivityType entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.ActivityTypeCode,
             entity.ActivityTypeName,
             entity.Description,
@@ -165,9 +164,5 @@ public sealed class FgsSalesActivityTypeWriteService : IFgsSalesActivityTypeWrit
             entity.AppliesToLead,
             entity.AppliesToOpportunity,
             entity.AllowManualSelection,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

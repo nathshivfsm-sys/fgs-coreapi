@@ -863,23 +863,25 @@ def write(path: Path, content: str) -> None:
     print(f"  {path.relative_to(ROOT)}")
 
 
+CRUD_EXCLUDED_FIELDS = frozenset({"TenantId", "CompanyId", "CreatedBy", "CreatedOn", "UpdatedBy", "UpdatedOn"})
+
+
+def crud_excluded_field(name: str) -> bool:
+    return name in CRUD_EXCLUDED_FIELDS
+
+
 def base_fields(cfg: EntityConfig) -> str:
-    return "long Id,\n    long TenantId,\n    long CompanyId,"
+    return "long Id,"
 
 
 def dto_field_lines(cfg: EntityConfig, kind: str) -> list[str]:
     lines: list[str] = []
-    if kind in ("summary", "detail", "lookup"):
-        if kind != "lookup":
-            if cfg.base == "nullable_tenant_entity":
-                lines.extend(["long Id", "long? TenantId", "long? CompanyId"])
-            else:
-                lines.extend(["long Id", "long TenantId", "long CompanyId"])
-        else:
-            lines.append("long Id")
-    skip_fields = {"TenantId", "CompanyId"} if cfg.base == "nullable_tenant_entity" else set()
+    if kind in ("summary", "detail", "lookup") and kind != "lookup":
+        lines.append("long Id")
+    elif kind == "lookup":
+        lines.append("long Id")
     for fld in cfg.fields:
-        if fld.name in skip_fields and kind in ("summary", "detail"):
+        if crud_excluded_field(fld.name):
             continue
         if kind == "summary" and not fld.in_summary:
             continue
@@ -896,16 +898,10 @@ def dto_field_lines(cfg: EntityConfig, kind: str) -> list[str]:
         else:
             t = fld.cs_type
         lines.append(f"{t} {fld.name}")
-    if kind in ("summary", "detail", "lookup"):
-        pass
-    elif kind == "patch":
+    if kind == "patch":
         lines.append("bool? IsActive")
-    if kind in ("summary", "detail"):
-        lines.extend(["bool IsActive", "DateTimeOffset CreatedOn"])
-        if kind == "detail":
-            lines.extend(["string? CreatedBy", "DateTimeOffset? UpdatedOn", "string? UpdatedBy"])
-        else:
-            lines.append("DateTimeOffset? UpdatedOn")
+    elif kind in ("summary", "detail"):
+        lines.append("bool IsActive")
     return lines
 
 
@@ -1058,24 +1054,24 @@ public interface {write_iface_name(cfg)}
 
 
 def detail_columns(cfg: EntityConfig) -> str:
-    cols = ['"Id"', '"TenantId"', '"CompanyId"']
+    cols = ['"Id"']
     cols += [f'"{f.name}"' for f in cfg.fields if f.in_summary or f.name not in [c.strip('"') for c in cols]]
-    cols += ['"IsActive"', '"CreatedOn"', '"CreatedBy"', '"UpdatedOn"', '"UpdatedBy"']
+    cols += ['"IsActive"']
     seen = set()
     out = []
     for c in cols:
-        if c not in seen:
+        if c not in seen and c.strip('"') not in CRUD_EXCLUDED_FIELDS:
             seen.add(c)
             out.append(c)
     return ", ".join(out)
 
 
 def summary_columns(cfg: EntityConfig) -> str:
-    cols = ['"Id"', '"TenantId"', '"CompanyId"']
+    cols = ['"Id"']
     for f in cfg.fields:
-        if f.in_summary:
+        if f.in_summary and not crud_excluded_field(f.name):
             cols.append(f'"{f.name}"')
-    cols += ['"IsActive"', '"CreatedOn"', '"UpdatedOn"']
+    cols += ['"IsActive"']
     return ", ".join(cols)
 
 
@@ -1088,7 +1084,7 @@ def lookup_columns(cfg: EntityConfig) -> str:
 
 
 def allowed_sort(cfg: EntityConfig) -> list[str]:
-    cols = ["Id", "CreatedOn", "IsActive"]
+    cols = ["Id", "IsActive"]
     sort_col = resolve_sort_field(cfg)
     if sort_col:
         cols.append(sort_col)
@@ -1236,7 +1232,9 @@ def entity_init_field(f: Field) -> str:
 
 
 def write_service_create_body(cfg: EntityConfig) -> str:
-    init_fields = ", ".join(entity_init_field(f) for f in cfg.fields if f.in_create)
+    init_fields = ", ".join(
+        entity_init_field(f) for f in cfg.fields if f.in_create and not crud_excluded_field(f.name)
+    )
     if cfg.base == "tag_entity":
         return f"""        var entity = new {cfg.domain_entity}
         {{
@@ -1251,7 +1249,15 @@ def write_service_create_body(cfg: EntityConfig) -> str:
             {init_fields}
         }};
 
-        _auditHelper.StampForCreate(entity, dto.TenantId, dto.CompanyId);"""
+        long? tenantId = null;
+        long? companyId = null;
+        if (_tenantContextAccessor.Current is ITenantContext context)
+        {{
+            tenantId = context.TenantId;
+            companyId = context.CompanyId;
+        }}
+
+        _auditHelper.StampForCreate(entity, tenantId, companyId);"""
     return f"""        var entity = new {cfg.domain_entity}
         {{
             {init_fields}
@@ -1262,7 +1268,9 @@ def write_service_create_body(cfg: EntityConfig) -> str:
 
 def generate_write_service(cfg: EntityConfig) -> None:
     pf = cfg.type_prefix
-    update_assigns = "\n        ".join(assign_field(f) for f in cfg.fields if f.in_update)
+    update_assigns = "\n        ".join(
+        assign_field(f) for f in cfg.fields if f.in_update and not crud_excluded_field(f.name)
+    )
     if cfg.base == "tag_entity":
         update_block = f"""        {update_assigns}
         entity.NormalizedName = dto.Name.Trim().ToUpperInvariant();
@@ -1272,22 +1280,27 @@ def generate_write_service(cfg: EntityConfig) -> None:
         update_block = f"""        {update_assigns}
 
         _auditHelper.StampForUpdate(entity);"""
-    patch_assigns = "".join(patch_assign(field) for field in cfg.fields if field.in_patch)
-    entity_field_names = [
-        f.name for f in cfg.fields
-        if not (cfg.base == "nullable_tenant_entity" and f.name in ("TenantId", "CompanyId"))
-    ]
-    map_fields = ",\n            ".join(["entity.Id", "entity.TenantId", "entity.CompanyId"] + [f"entity.{name}" for name in entity_field_names] + [
-        "entity.IsActive", "entity.CreatedOn", "entity.CreatedBy", "entity.UpdatedOn", "entity.UpdatedBy"
-    ])
+    patch_assigns = "".join(
+        patch_assign(field) for field in cfg.fields if field.in_patch and not crud_excluded_field(field.name)
+    )
+    entity_field_names = [f.name for f in cfg.fields if not crud_excluded_field(f.name)]
+    map_fields = ",\n            ".join(["entity.Id"] + [f"entity.{name}" for name in entity_field_names] + ["entity.IsActive"])
     not_found = f"{cfg.display_name.title()} '{{id}}' was not found."
     create_body = write_service_create_body(cfg)
+    tenant_accessor_field = ""
+    tenant_accessor_param = ""
+    tenant_accessor_assign = ""
+    if cfg.base == "nullable_tenant_entity":
+        tenant_accessor_field = "\n    private readonly ITenantContextAccessor _tenantContextAccessor;"
+        tenant_accessor_param = ",\n        ITenantContextAccessor tenantContextAccessor"
+        tenant_accessor_assign = "\n        _tenantContextAccessor = tenantContextAccessor;"
     content = f"""using Fgs.Persistence.Abstractions;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.{cfg.infra_folder};
@@ -1296,16 +1309,16 @@ public sealed class {write_class(cfg)} : {write_iface_name(cfg)}
 {{
     private readonly FgsSetupDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly SetupEntityAuditHelper _auditHelper;
+    private readonly SetupEntityAuditHelper _auditHelper;{tenant_accessor_field}
 
     public {write_class(cfg)}(
         FgsSetupDbContext context,
         IUnitOfWork unitOfWork,
-        SetupEntityAuditHelper auditHelper)
+        SetupEntityAuditHelper auditHelper{tenant_accessor_param})
     {{
         _context = context;
         _unitOfWork = unitOfWork;
-        _auditHelper = auditHelper;
+        _auditHelper = auditHelper;{tenant_accessor_assign}
     }}
 
     public async Task<{pf}DetailDto> CreateAsync(
@@ -1739,7 +1752,7 @@ internal sealed class {repo_class(cfg)} : {iface_name(cfg)}
 
     private (long TenantId, long CompanyId) ResolveTenantScope()
     {{
-        if (_tenantContextAccessor.Current is {{ IsResolved: true }} context)
+        if (_tenantContextAccessor.Current is ITenantContext context)
         {{
             return (context.TenantId, context.CompanyId);
         }}
@@ -1754,15 +1767,11 @@ internal sealed class {repo_class(cfg)} : {iface_name(cfg)}
 def row_props(cfg: EntityConfig, kind: str) -> list[str]:
     props = []
     if kind != "lookup":
-        if cfg.base == "nullable_tenant_entity":
-            props.extend(["public long Id { get; set; }", "public long? TenantId { get; set; }", "public long? CompanyId { get; set; }"])
-        else:
-            props.extend(["public long Id { get; set; }", "public long TenantId { get; set; }", "public long CompanyId { get; set; }"])
+        props.append("public long Id { get; set; }")
     else:
         props.append("public long Id { get; set; }")
-    skip_fields = {"TenantId", "CompanyId"} if cfg.base == "nullable_tenant_entity" else set()
     for f in cfg.fields:
-        if f.name in skip_fields and kind in ("summary", "detail"):
+        if crud_excluded_field(f.name):
             continue
         if kind == "summary" and not f.in_summary:
             continue
@@ -1774,18 +1783,7 @@ def row_props(cfg: EntityConfig, kind: str) -> list[str]:
         else:
             props.append(f"public {cs} {f.name} {{ get; set; }}" + ("" if f.required else " = null!;"))
     if kind != "lookup":
-        props.extend([
-            "public bool IsActive { get; set; }",
-            "public DateTimeOffset CreatedOn { get; set; }",
-        ])
-        if kind == "detail":
-            props.extend([
-                "public string? CreatedBy { get; set; }",
-                "public DateTimeOffset? UpdatedOn { get; set; }",
-                "public string? UpdatedBy { get; set; }",
-            ])
-        else:
-            props.append("public DateTimeOffset? UpdatedOn { get; set; }")
+        props.append("public bool IsActive { get; set; }")
     return props
 
 
@@ -1795,27 +1793,19 @@ def dto_ctor_args(cfg: EntityConfig, prefix: str, kind: str) -> str:
 
     args = []
     if kind != "lookup":
-        if cfg.base == "nullable_tenant_entity":
-            args.extend([ref("Id"), ref("TenantId"), ref("CompanyId")])
-        else:
-            args.extend([ref("Id"), ref("TenantId"), ref("CompanyId")])
+        args.append(ref("Id"))
     else:
         args.append(ref("Id"))
-    skip_fields = {"TenantId", "CompanyId"} if cfg.base == "nullable_tenant_entity" else set()
     for f in cfg.fields:
-        if f.name in skip_fields and kind in ("summary", "detail"):
+        if crud_excluded_field(f.name):
             continue
         if kind == "summary" and not f.in_summary:
             continue
         if kind == "lookup" and not f.in_lookup:
             continue
         args.append(ref(f.name))
-    if kind != "lookup":
-        args.extend([ref("IsActive"), ref("CreatedOn")])
-        if kind == "detail":
-            args.extend([ref("CreatedBy"), ref("UpdatedOn"), ref("UpdatedBy")])
-        else:
-            args.append(ref("UpdatedOn"))
+    if kind in ("summary", "detail"):
+        args.append(ref("IsActive"))
     return ",\n            ".join(args)
 
 
@@ -2025,13 +2015,10 @@ public sealed class Patch{pf}CommandValidator : AbstractValidator<Patch{pf}Comma
 
 def cache_invalidation_block(cfg: EntityConfig, indent: str = "            ") -> str:
     route = cfg.route
-    return f"""{indent}var tenantScope = tenantContextAccessor.Current;
-{indent}if (tenantScope?.IsResolved == true)
-{indent}{{
-{indent}    await cache.RemoveByPrefixAsync(
-{indent}        CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "{route}"),
-{indent}        cancellationToken);
-{indent}}}"""
+    return f"""{indent}var tenantScope = tenantContextAccessor.Current!;
+{indent}await cache.RemoveByPrefixAsync(
+{indent}    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "{route}"),
+{indent}    cancellationToken);"""
 
 
 def cmd_handler(action: str, cfg: EntityConfig) -> str:
@@ -2040,15 +2027,12 @@ def cmd_handler(action: str, cfg: EntityConfig) -> str:
     folder = f"{action}{pf}"
     if action == "Create":
         ok_log = f'logger.LogInformation("Created {cfg.display_name} {{Id}} with code {{{cfg.code_field}}}", result.Id, result.{cfg.code_field});'
-        err_log = f'logger.LogError(ex, "Failed to create {cfg.display_name}");'
     else:
         ok_log = f'logger.LogInformation("{action}d {cfg.display_name} {{Id}}", result.Id);'
-        err_log = f'logger.LogError(ex, "Failed to {action.lower()} {cfg.display_name} {{Id}}", request.Id);'
     invalidation = cache_invalidation_block(cfg)
     return f"""using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
@@ -2068,18 +2052,10 @@ public sealed class {action}{pf}CommandHandler(
         {action}{pf}Command request,
         CancellationToken cancellationToken)
     {{
-        try
-        {{
-            var result = await writeService.{action}Async({", ".join(["request.Dto"] if action == "Create" else ["request.Id", "request.Dto"] if action in ("Update", "Patch") else ["request.Id"])}, cancellationToken);
-            {ok_log}
+        var result = await writeService.{action}Async({", ".join(["request.Dto"] if action == "Create" else ["request.Id", "request.Dto"] if action in ("Update", "Patch") else ["request.Id"])}, cancellationToken);
+        {ok_log}
 {invalidation}
-            return ApiResponse<{pf}DetailDto>.Ok(result{", ApiStatusCodes.Created" if action == "Create" else ""});
-        }}
-        catch (Exception ex)
-        {{
-            {err_log}
-            return CatalogCrudExceptionMapper.MapException<{pf}DetailDto>(ex);
-        }}
+        return ApiResponse<{pf}DetailDto>.Ok(result{", ApiStatusCodes.Created" if action == "Create" else ""});
     }}
 }}
 """
@@ -2102,7 +2078,6 @@ public sealed record Delete{pf}Command(long Id)
             handler = f"""using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
@@ -2122,18 +2097,10 @@ public sealed class Delete{pf}CommandHandler(
         Delete{pf}Command request,
         CancellationToken cancellationToken)
     {{
-        try
-        {{
-            var result = await writeService.DeleteAsync(request.Id, cancellationToken);
-            logger.LogInformation("Soft-deleted {cfg.display_name} {{Id}}", result.Id);
+        var result = await writeService.DeleteAsync(request.Id, cancellationToken);
+        logger.LogInformation("Soft-deleted {cfg.display_name} {{Id}}", result.Id);
 {cache_invalidation_block(cfg)}
-            return ApiResponse<{pf}DetailDto>.Ok(result);
-        }}
-        catch (Exception ex)
-        {{
-            logger.LogError(ex, "Failed to delete {cfg.display_name} {{Id}}", request.Id);
-            return CatalogCrudExceptionMapper.MapException<{pf}DetailDto>(ex);
-        }}
+        return ApiResponse<{pf}DetailDto>.Ok(result);
     }}
 }}
 """
@@ -2208,66 +2175,41 @@ public sealed class {name}QueryHandler(
         {name}Query request,
         CancellationToken cancellationToken)
     {{
-        try
-        {{
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
+        var tenantScope = tenantContextAccessor.Current!;
+        var segment = CacheKeys.ListActiveSegment(
+            request.Page,
+            request.PageSize,
+            request.SortBy,
+            request.SortDirection.ToString(),
+            request.Search,
+            CacheKeys.Fingerprint(request.Filters));
+
+        var cacheKey = CacheKeys.Build(
+            tenantScope.TenantId,
+            tenantScope.CompanyId,
+            "{cfg.route}",
+            segment);
+
+        var cached = await cache.GetOrSetAsync(
+            cacheKey,
+            async () =>
             {{
-                var segment = CacheKeys.ListActiveSegment(
+                var query = new SetupListQuery(
                     request.Page,
                     request.PageSize,
                     request.SortBy,
-                    request.SortDirection.ToString(),
+                    request.SortDirection,
                     request.Search,
-                    CacheKeys.Fingerprint(request.Filters));
+                    IsActive: true);
 
-                var cacheKey = CacheKeys.Build(
-                    tenantScope.TenantId,
-                    tenantScope.CompanyId,
-                    "{cfg.route}",
-                    segment);
+                return await readRepository.ListAsync(
+                    query,
+                    request.Filters ?? new {pf}ListFilters(),
+                    cancellationToken);
+            }},
+            cancellationToken: cancellationToken);
 
-                var cached = await cache.GetOrSetAsync(
-                    cacheKey,
-                    async () =>
-                    {{
-                        var query = new SetupListQuery(
-                            request.Page,
-                            request.PageSize,
-                            request.SortBy,
-                            request.SortDirection,
-                            request.Search,
-                            IsActive: true);
-
-                        return await readRepository.ListAsync(
-                            query,
-                            request.Filters ?? new {pf}ListFilters(),
-                            cancellationToken);
-                    }},
-                    cancellationToken: cancellationToken);
-
-                return ApiResponse<{ret_inner}>.Ok(cached!);
-            }}
-
-            var listQuery = new SetupListQuery(
-                request.Page,
-                request.PageSize,
-                request.SortBy,
-                request.SortDirection,
-                request.Search,
-                IsActive: true);
-
-            var result = await readRepository.ListAsync(
-                listQuery,
-                request.Filters ?? new {pf}ListFilters(),
-                cancellationToken);
-
-            return ApiResponse<{ret_inner}>.Ok(result);
-        }}
-        catch (Exception ex)
-        {{
-            return CatalogCrudExceptionMapper.MapException<{ret_inner}>(ex);
-        }}
+        return ApiResponse<{ret_inner}>.Ok(cached!);
     }}
 }}
 """
@@ -2284,7 +2226,6 @@ public sealed record {name}Query({params})
             hcontent = f"""using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
@@ -2302,49 +2243,29 @@ public sealed class {name}QueryHandler(
         {name}Query request,
         CancellationToken cancellationToken)
     {{
-        try
+        var tenantScope = tenantContextAccessor.Current!;
+        var cacheKey = CacheKeys.Build(
+            tenantScope.TenantId,
+            tenantScope.CompanyId,
+            "{cfg.route}",
+            request.Id.ToString());
+
+        var cached = await cache.GetAsync<{pf}DetailDto>(cacheKey, cancellationToken);
+        if (cached is not null)
         {{
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {{
-                var cacheKey = CacheKeys.Build(
-                    tenantScope.TenantId,
-                    tenantScope.CompanyId,
-                    "{cfg.route}",
-                    request.Id.ToString());
-
-                var cached = await cache.GetAsync<{pf}DetailDto>(cacheKey, cancellationToken);
-                if (cached is not null)
-                {{
-                    return ApiResponse<{pf}DetailDto>.Ok(cached);
-                }}
-
-                var result = await readRepository.GetByIdAsync(request.Id, cancellationToken);
-                if (result is null)
-                {{
-                    return ApiResponse<{pf}DetailDto>.Fail(
-                        [$"{nf}"],
-                        ApiStatusCodes.NotFound);
-                }}
-
-                await cache.SetAsync(cacheKey, result, cancellationToken: cancellationToken);
-                return ApiResponse<{pf}DetailDto>.Ok(result);
-            }}
-
-            var uncached = await readRepository.GetByIdAsync(request.Id, cancellationToken);
-            if (uncached is null)
-            {{
-                return ApiResponse<{pf}DetailDto>.Fail(
-                    [$"{nf}"],
-                    ApiStatusCodes.NotFound);
-            }}
-
-            return ApiResponse<{pf}DetailDto>.Ok(uncached);
+            return ApiResponse<{pf}DetailDto>.Ok(cached);
         }}
-        catch (Exception ex)
+
+        var result = await readRepository.GetByIdAsync(request.Id, cancellationToken);
+        if (result is null)
         {{
-            return CatalogCrudExceptionMapper.MapException<{pf}DetailDto>(ex);
+            return ApiResponse<{pf}DetailDto>.Fail(
+                [$"{nf}"],
+                ApiStatusCodes.NotFound);
         }}
+
+        await cache.SetAsync(cacheKey, result, cancellationToken: cancellationToken);
+        return ApiResponse<{pf}DetailDto>.Ok(result);
     }}
 }}
 """
@@ -2361,7 +2282,6 @@ public sealed record {name}Query({params})
             hcontent = f"""using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
@@ -2379,32 +2299,19 @@ public sealed class {name}QueryHandler(
         {name}Query request,
         CancellationToken cancellationToken)
     {{
-        try
-        {{
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {{
-                var cacheKey = CacheKeys.Build(
-                    tenantScope.TenantId,
-                    tenantScope.CompanyId,
-                    "{cfg.route}",
-                    CacheKeys.LookupSegment(request.ActiveOnly));
+        var tenantScope = tenantContextAccessor.Current!;
+        var cacheKey = CacheKeys.Build(
+            tenantScope.TenantId,
+            tenantScope.CompanyId,
+            "{cfg.route}",
+            CacheKeys.LookupSegment(request.ActiveOnly));
 
-                var result = await cache.GetOrSetAsync(
-                    cacheKey,
-                    () => readRepository.LookupAsync(request.ActiveOnly, cancellationToken),
-                    cancellationToken: cancellationToken);
+        var result = await cache.GetOrSetAsync(
+            cacheKey,
+            () => readRepository.LookupAsync(request.ActiveOnly, cancellationToken),
+            cancellationToken: cancellationToken);
 
-                return ApiResponse<{ret_inner}>.Ok(result ?? Array.Empty<{pf}LookupDto>());
-            }}
-
-            var uncached = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
-            return ApiResponse<{ret_inner}>.Ok(uncached);
-        }}
-        catch (Exception ex)
-        {{
-            return CatalogCrudExceptionMapper.MapException<{ret_inner}>(ex);
-        }}
+        return ApiResponse<{ret_inner}>.Ok(result ?? Array.Empty<{pf}LookupDto>());
     }}
 }}
 """
@@ -2436,15 +2343,8 @@ public sealed class {name}QueryHandler({iface_name(cfg)} readRepository)
         {name}Query request,
         CancellationToken cancellationToken)
     {{
-        try
-        {{
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<{ret_inner}>.Ok(result);
-        }}
-        catch (Exception ex)
-        {{
-            return CatalogCrudExceptionMapper.MapException<{ret_inner}>(ex);
-        }}
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<{ret_inner}>.Ok(result);
     }}
 }}
 """
@@ -2485,7 +2385,7 @@ def generate_controller(cfg: EntityConfig) -> None:
         for a in ["Create", "Delete", "Patch", "Update"]
     ) + "\n" + "\n".join(
         f"using Fgs.Setup.Application.Features.{cfg.plural_folder}.Queries.{q};"
-        for q in [f"Get{pf}ById", f"List{cfg.plural_folder}", f"ListActive{cfg.plural_folder}", f"Lookup{cfg.plural_folder}"]
+        for q in [f"Get{pf}ById", f"List{cfg.plural_folder}", f"Lookup{cfg.plural_folder}"]
     )
     content = f"""using Asp.Versioning;
 using Fgs.Contracts.Api;
@@ -2544,30 +2444,6 @@ public sealed class {cfg.controller}(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {{
         var response = await mediator.Send(new Lookup{cfg.plural_folder}Query(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }}
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<{pf}SummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-{controller_filter_params(cfg)}
-        CancellationToken cancellationToken = default)
-    {{
-        var response = await mediator.Send(
-            new ListActive{cfg.plural_folder}Query(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                {controller_filter_args(cfg)}),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }}
 
@@ -2670,16 +2546,11 @@ def sample_value(field: Field, cfg: EntityConfig | None = None) -> str:
 
 def test_detail_ctor_args(cfg: EntityConfig) -> str:
     args = ["1"]
-    if cfg.base == "nullable_tenant_entity":
-        args.extend(["10L", "20L"])
-    else:
-        args.extend(["10", "20"])
-    skip_fields = {"TenantId", "CompanyId"} if cfg.base == "nullable_tenant_entity" else set()
     for field in cfg.fields:
-        if field.name in skip_fields:
+        if crud_excluded_field(field.name):
             continue
         args.append(sample_value(field, cfg))
-    args.extend(["true", "DateTimeOffset.UtcNow", '"seed"', "null", '"seed"'])
+    args.append("true")
     return ", ".join(args)
 
 
@@ -2688,7 +2559,7 @@ def code_field_meta(cfg: EntityConfig) -> Field | None:
 
 
 def sample_create_args(cfg: EntityConfig) -> str:
-    return ", ".join(sample_value(f, cfg) for f in cfg.fields if f.in_create)
+    return ", ".join(sample_value(f, cfg) for f in cfg.fields if f.in_create and not crud_excluded_field(f.name))
 
 
 def generate_tests(cfg: EntityConfig) -> None:
@@ -2821,7 +2692,7 @@ public sealed class {pf}CommandHandlerTests
     private const long CompanyId = 20;
 
     [Fact]
-    public async Task CreateHandler_CreatesWithAuditFields()
+    public async Task CreateHandler_CreatesActiveRecord()
     {{
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
@@ -2840,8 +2711,6 @@ public sealed class {pf}CommandHandlerTests
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
         response.Data!.IsActive.Should().BeTrue();
-        response.Data.TenantId.Should().Be(TenantId);
-        response.Data.CompanyId.Should().Be(CompanyId);
         cache.Verify(
             c => c.RemoveByPrefixAsync(
                 CacheKeys.EntityPrefix(TenantId, CompanyId, "{cfg.route}"),
@@ -2883,7 +2752,7 @@ public sealed class {pf}CommandHandlerTests
     private static ITenantContextAccessor CreateTenantContextAccessor() =>
         new TestTenantContextAccessor
         {{
-            Current = new TenantContext {{ TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }}
+            Current = new TenantContext {{ TenantId = TenantId, CompanyId = CompanyId }}
         }};
 
     private static {write_class(cfg)} CreateWriteService(FgsSetupDbContext context)
@@ -2895,7 +2764,7 @@ public sealed class {pf}CommandHandlerTests
 
         var tenantAccessor = new TestTenantContextAccessor
         {{
-            Current = new TenantContext {{ TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }}
+            Current = new TenantContext {{ TenantId = TenantId, CompanyId = CompanyId }}
         }};
 
         var auditHelper = new SetupEntityAuditHelper(
@@ -2903,14 +2772,14 @@ public sealed class {pf}CommandHandlerTests
             tenantAccessor,
             new DateTimeProvider());
         var unitOfWork = new EfUnitOfWork<FgsSetupDbContext>(context);
-        return new {write_class(cfg)}(context, unitOfWork, auditHelper);
+        return new {write_class(cfg)}(context, unitOfWork, auditHelper{", tenantAccessor" if cfg.base == "nullable_tenant_entity" else ""});
     }}
 
     private static async Task<FgsSetupDbContext> CreateContextAsync()
     {{
         var accessor = new TestTenantContextAccessor
         {{
-            Current = new TenantContext {{ TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }}
+            Current = new TenantContext {{ TenantId = TenantId, CompanyId = CompanyId }}
         }};
 
         var options = new DbContextOptionsBuilder<FgsSetupDbContext>()
@@ -2956,7 +2825,7 @@ public sealed class {pf}QueryHandlerTests
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext {{ TenantId = 10, CompanyId = 20, IsResolved = true }});
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext {{ TenantId = 10, CompanyId = 20 }});
 
         var handler = new Get{pf}ByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new Get{pf}ByIdQuery(1), CancellationToken.None);
@@ -2974,7 +2843,7 @@ public sealed class {pf}QueryHandlerTests
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext {{ TenantId = 10, CompanyId = 20, IsResolved = true }});
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext {{ TenantId = 10, CompanyId = 20 }});
 
         var handler = new Get{pf}ByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new Get{pf}ByIdQuery(99), CancellationToken.None);

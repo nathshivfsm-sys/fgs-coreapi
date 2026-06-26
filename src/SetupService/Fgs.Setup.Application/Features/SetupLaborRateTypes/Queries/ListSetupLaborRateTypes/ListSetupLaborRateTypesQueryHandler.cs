@@ -13,14 +13,7 @@ public sealed class ListSetupLaborRateTypesQueryHandler(IFgsSetupLaborRateTypeRe
         ListSetupLaborRateTypesQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<FgsSetupLaborRateTypeSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsSetupLaborRateTypeSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<FgsSetupLaborRateTypeSummaryDto>>.Ok(result);
     }
 }

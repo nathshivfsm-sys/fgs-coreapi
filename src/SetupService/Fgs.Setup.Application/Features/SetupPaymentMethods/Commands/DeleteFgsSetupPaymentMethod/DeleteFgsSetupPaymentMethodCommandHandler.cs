@@ -1,7 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupPaymentMethods;
 using Fgs.Setup.Application.Features.SetupPaymentMethods.Dtos;
@@ -21,23 +20,12 @@ public sealed class DeleteFgsSetupPaymentMethodCommandHandler(
         DeleteFgsSetupPaymentMethodCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.DeleteAsync(request.Id, cancellationToken);
-            logger.LogInformation("Soft-deleted payment method {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                await cache.RemoveByPrefixAsync(
-                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "paymentmethods"),
-                    cancellationToken);
-            }
-            return ApiResponse<FgsSetupPaymentMethodDetailDto>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to delete payment method {Id}", request.Id);
-            return CatalogCrudExceptionMapper.MapException<FgsSetupPaymentMethodDetailDto>(ex);
-        }
+        var result = await writeService.DeleteAsync(request.Id, cancellationToken);
+        logger.LogInformation("Soft-deleted payment method {Id}", result.Id);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "paymentmethods"),
+                cancellationToken);
+        return ApiResponse<FgsSetupPaymentMethodDetailDto>.Ok(result);
     }
 }

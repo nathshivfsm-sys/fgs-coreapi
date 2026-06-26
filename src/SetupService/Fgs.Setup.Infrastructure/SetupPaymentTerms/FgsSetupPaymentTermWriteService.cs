@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.SetupPaymentTerms.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.SetupPaymentTerms;
@@ -145,17 +146,11 @@ public sealed class FgsSetupPaymentTermWriteService : IFgsSetupPaymentTermWriteS
     private static FgsSetupPaymentTermDetailDto MapToDetail(FgsSetupPaymentTerm entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.Name,
             entity.DueDateMethod,
             entity.NumberOfDays,
             entity.IsAccountsReceivable,
             entity.IsAccountsPayable,
             entity.IsMobileVisible,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

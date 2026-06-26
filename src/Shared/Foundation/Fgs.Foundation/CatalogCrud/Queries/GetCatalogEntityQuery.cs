@@ -23,27 +23,20 @@ public sealed class GetCatalogEntityQueryHandler<TDetail>
         GetCatalogEntityQuery<TDetail> request,
         CancellationToken cancellationToken)
     {
-        try
+        var descriptor = _entityRegistry.GetRequired(request.EntityKey);
+        if (descriptor.DetailDtoType != typeof(TDetail))
         {
-            var descriptor = _entityRegistry.GetRequired(request.EntityKey);
-            if (descriptor.DetailDtoType != typeof(TDetail))
-            {
-                return ApiResponse<TDetail>.Fail(["DTO type mismatch."], ApiStatusCodes.BadRequest);
-            }
-
-            var result = await _readRepository.GetByIdAsync(descriptor, request.Id, cancellationToken);
-            if (result is null)
-            {
-                return ApiResponse<TDetail>.Fail(
-                    [$"{descriptor.EntityName} '{request.Id}' was not found."],
-                    ApiStatusCodes.NotFound);
-            }
-
-            return ApiResponse<TDetail>.Ok((TDetail)result);
+            return ApiResponse<TDetail>.Fail(["DTO type mismatch."], ApiStatusCodes.BadRequest);
         }
-        catch (Exception ex)
+
+        var result = await _readRepository.GetByIdAsync(descriptor, request.Id, cancellationToken);
+        if (result is null)
         {
-            return CatalogCrudExceptionMapper.MapException<TDetail>(ex);
+            return ApiResponse<TDetail>.Fail(
+                [$"{descriptor.EntityName} '{request.Id}' was not found."],
+                ApiStatusCodes.NotFound);
         }
+
+        return ApiResponse<TDetail>.Ok((TDetail)result);
     }
 }

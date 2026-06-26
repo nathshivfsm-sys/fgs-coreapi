@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.Vendors.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.Vendors;
@@ -185,8 +186,6 @@ public sealed class FgsVendorWriteService : IFgsVendorWriteService
     private static FgsVendorDetailDto MapToDetail(FgsVendor entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.VendorCode,
             entity.Name,
             entity.LegalName,
@@ -201,9 +200,5 @@ public sealed class FgsVendorWriteService : IFgsVendorWriteService
             entity.InsurancePolicyNumber,
             entity.Notes,
             entity.Is1099Eligible,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

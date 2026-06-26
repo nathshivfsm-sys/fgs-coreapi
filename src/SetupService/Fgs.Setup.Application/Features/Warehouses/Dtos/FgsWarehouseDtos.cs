@@ -2,33 +2,23 @@ namespace Fgs.Setup.Application.Features.Warehouses.Dtos;
 
 public sealed record FgsWarehouseSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string WarehouseCode,
     string Name,
     string WarehouseType,
     Guid? AddressId,
     string? Description,
     bool IsDefault,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsWarehouseDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string WarehouseCode,
     string Name,
     string WarehouseType,
     Guid? AddressId,
     string? Description,
     bool IsDefault,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsWarehouseLookupDto(
     long Id,

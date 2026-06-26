@@ -16,14 +16,14 @@ public sealed class FgsSalesDispositionReasonQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsSalesDispositionReasonDetailDto(1, 10, 20, "TEST", "DispositionReasonName", "Description", 5, false, true, false, false, true, true, true, DateTimeOffset.UtcNow, "seed", null, "seed");
+        var detail = new FgsSalesDispositionReasonDetailDto(1, "TEST", "DispositionReasonName", "Description", 5, false, true, false, false, true, true, true);
 
         var readRepository = new Mock<IFgsSalesDispositionReasonReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsSalesDispositionReasonByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSalesDispositionReasonByIdQuery(1), CancellationToken.None);
@@ -41,7 +41,7 @@ public sealed class FgsSalesDispositionReasonQueryHandlerTests
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsSalesDispositionReasonByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSalesDispositionReasonByIdQuery(99), CancellationToken.None);

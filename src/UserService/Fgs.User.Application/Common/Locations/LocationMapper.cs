@@ -22,11 +22,7 @@ public static class LocationMapper
                 location.Latitude,
                 location.Longitude,
                 location.PlaceId,
-                location.IsActive,
-                location.CreatedOn,
-                location.CreatedBy,
-                location.UpdatedOn,
-                location.UpdatedBy);
+                location.IsActive);
 
     public static void ApplyWriteDto(FgsLocation location, LocationWriteDto dto, DateTimeOffset now)
     {

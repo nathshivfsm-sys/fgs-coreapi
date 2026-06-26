@@ -5,8 +5,6 @@ namespace Fgs.Setup.Infrastructure.Vendors;
 internal sealed class FgsVendorSummaryRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string VendorCode { get; set; }
     public string Name { get; set; }
     public string? LegalName { get; set; }
@@ -22,14 +20,10 @@ internal sealed class FgsVendorSummaryRow
     public string? Notes { get; set; }
     public bool Is1099Eligible { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
 
     public FgsVendorSummaryDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             VendorCode,
             Name,
             LegalName,
@@ -44,16 +38,12 @@ internal sealed class FgsVendorSummaryRow
             InsurancePolicyNumber,
             Notes,
             Is1099Eligible,
-            IsActive,
-            CreatedOn,
-            UpdatedOn);
+            IsActive);
 }
 
 internal sealed class FgsVendorDetailRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string VendorCode { get; set; }
     public string Name { get; set; }
     public string? LegalName { get; set; }
@@ -69,16 +59,10 @@ internal sealed class FgsVendorDetailRow
     public string? Notes { get; set; }
     public bool Is1099Eligible { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public string? CreatedBy { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
-    public string? UpdatedBy { get; set; }
 
     public FgsVendorDetailDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             VendorCode,
             Name,
             LegalName,
@@ -93,11 +77,7 @@ internal sealed class FgsVendorDetailRow
             InsurancePolicyNumber,
             Notes,
             Is1099Eligible,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+            IsActive);
 }
 
 internal sealed class FgsVendorLookupRow

@@ -16,14 +16,14 @@ public sealed class FgsSetupPaymentTermQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsSetupPaymentTermDetailDto(1, 10, 20, "Name value", "DueDateMethod value", 60, true, true, true, true, DateTimeOffset.UtcNow, "seed", null, "seed");
+        var detail = new FgsSetupPaymentTermDetailDto(1, "Name value", "DueDateMethod value", 60, true, true, true, true);
 
         var readRepository = new Mock<IFgsSetupPaymentTermReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsSetupPaymentTermByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSetupPaymentTermByIdQuery(1), CancellationToken.None);
@@ -41,7 +41,7 @@ public sealed class FgsSetupPaymentTermQueryHandlerTests
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsSetupPaymentTermByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSetupPaymentTermByIdQuery(99), CancellationToken.None);

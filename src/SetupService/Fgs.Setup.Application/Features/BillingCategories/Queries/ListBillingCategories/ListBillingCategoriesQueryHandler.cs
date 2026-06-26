@@ -13,14 +13,7 @@ public sealed class ListBillingCategoriesQueryHandler(IBillingCategoryReadReposi
         ListBillingCategoriesQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<BillingCategorySummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<BillingCategorySummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<BillingCategorySummaryDto>>.Ok(result);
     }
 }

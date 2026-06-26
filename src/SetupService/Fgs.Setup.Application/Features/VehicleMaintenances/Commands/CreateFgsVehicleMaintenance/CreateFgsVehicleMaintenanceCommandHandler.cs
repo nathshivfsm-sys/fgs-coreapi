@@ -1,7 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.VehicleMaintenances;
 using Fgs.Setup.Application.Features.VehicleMaintenances.Dtos;
@@ -21,23 +20,12 @@ public sealed class CreateFgsVehicleMaintenanceCommandHandler(
         CreateFgsVehicleMaintenanceCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.CreateAsync(request.Dto, cancellationToken);
-            logger.LogInformation("Created vehicle maintenance {Id} with code {VehicleId}", result.Id, result.VehicleId);
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                await cache.RemoveByPrefixAsync(
-                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "vehiclemaintenances"),
-                    cancellationToken);
-            }
-            return ApiResponse<FgsVehicleMaintenanceDetailDto>.Ok(result, ApiStatusCodes.Created);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to create vehicle maintenance");
-            return CatalogCrudExceptionMapper.MapException<FgsVehicleMaintenanceDetailDto>(ex);
-        }
+        var result = await writeService.CreateAsync(request.Dto, cancellationToken);
+        logger.LogInformation("Created vehicle maintenance {Id} with code {VehicleId}", result.Id, result.VehicleId);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "vehiclemaintenances"),
+                cancellationToken);
+        return ApiResponse<FgsVehicleMaintenanceDetailDto>.Ok(result, ApiStatusCodes.Created);
     }
 }

@@ -7,11 +7,11 @@ internal static class FgsVehicleMaintenanceSql
     public const string Table = "setup.\"FgsVehicleMaintenance\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "VehicleId", "VehicleMaintenanceTypeId", "ServiceDate", "MileageAtService", "ServiceProvider", "InvoiceNumber", "Cost", "NextServiceDate", "NextServiceMileage", "IsCompleted", "Description", "Notes", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "VehicleId", "VehicleMaintenanceTypeId", "ServiceDate", "MileageAtService", "ServiceProvider", "InvoiceNumber", "Cost", "NextServiceDate", "NextServiceMileage", "IsCompleted", "Description", "Notes", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "VehicleId", "VehicleMaintenanceTypeId", "ServiceDate", "MileageAtService", "ServiceProvider", "InvoiceNumber", "Cost", "NextServiceDate", "NextServiceMileage", "IsCompleted", "Description", "Notes", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "VehicleId", "VehicleMaintenanceTypeId", "ServiceDate", "MileageAtService", "ServiceProvider", "InvoiceNumber", "Cost", "NextServiceDate", "NextServiceMileage", "IsCompleted", "Description", "Notes", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class FgsVehicleMaintenanceSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "VehicleId", "VehicleMaintenanceTypeId", "ServiceDate", "MileageAtService", "ServiceProvider", "InvoiceNumber", "Cost", "NextServiceDate", "NextServiceMileage", "IsCompleted", "Description", "Notes"
+        "Id", "IsActive", "VehicleId", "VehicleMaintenanceTypeId", "ServiceDate", "MileageAtService", "ServiceProvider", "InvoiceNumber", "Cost", "NextServiceDate", "NextServiceMileage", "IsCompleted", "Description", "Notes"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

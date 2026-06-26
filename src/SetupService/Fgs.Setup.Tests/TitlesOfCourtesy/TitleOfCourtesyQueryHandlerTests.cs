@@ -14,9 +14,7 @@ public sealed class TitleOfCourtesyQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new TitleOfCourtesyDetailDto(
-            1, 10, 20, "MR", "Mr.", 1, true,
-            DateTimeOffset.UtcNow, "seed", null, null);
+        var detail = new TitleOfCourtesyDetailDto(1, "MR", "Mr.", 1, true);
 
         var readRepository = new Mock<ITitleOfCourtesyReadRepository>();
         readRepository
@@ -51,7 +49,7 @@ public sealed class TitleOfCourtesyQueryHandlerTests
     {
         var items = new List<TitleOfCourtesySummaryDto>
         {
-            new(1, 10, 20, "MR", "Mr.", 1, true, DateTimeOffset.UtcNow, null)
+            new(1, "MR", "Mr.", 1, true)
         };
 
         var readRepository = new Mock<ITitleOfCourtesyReadRepository>();

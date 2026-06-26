@@ -7,11 +7,11 @@ internal static class FgsSetupZoneSql
     public const string Table = "setup.\"FgsSetupZone\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "Code", "Name", "Description", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "Code", "Name", "Description", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "Code", "Name", "Description", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "Code", "Name", "Description", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class FgsSetupZoneSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "Code", "Name", "Description"
+        "Id", "IsActive", "Code", "Name", "Description"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

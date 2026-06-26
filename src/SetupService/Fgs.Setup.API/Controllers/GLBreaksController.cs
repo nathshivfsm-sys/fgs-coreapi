@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.GLBreaks.Commands.PatchGLBreak;
 using Fgs.Setup.Application.Features.GLBreaks.Commands.UpdateGLBreak;
 using Fgs.Setup.Application.Features.GLBreaks.Dtos;
 using Fgs.Setup.Application.Features.GLBreaks.Queries.GetGLBreakById;
-using Fgs.Setup.Application.Features.GLBreaks.Queries.ListActiveGLBreaks;
 using Fgs.Setup.Application.Features.GLBreaks.Queries.ListGLBreaks;
 using Fgs.Setup.Application.Features.GLBreaks.Queries.LookupGLBreaks;
 using MediatR;
@@ -32,33 +31,6 @@ public sealed class GLBreaksController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupGLBreaksQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<GLBreakSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? code = null,
-        [FromQuery] string? name = null,
-        [FromQuery] short? breakLevel = null,
-        [FromQuery] string? tradeCode = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveGLBreaksQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new GLBreakListFilters(code, name, breakLevel, tradeCode)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

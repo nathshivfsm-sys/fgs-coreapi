@@ -141,15 +141,9 @@ public sealed class TechTradeWriteService : ITechTradeWriteService
     private static TechTradeDetailDto MapToDetail(FgsSetupTechTrade entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.TradeCode,
             entity.Name,
             entity.Description,
             entity.SortOrder,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

@@ -13,14 +13,7 @@ public sealed class ListSetupTechSkillLevelsQueryHandler(IFgsSetupTechSkillLevel
         ListSetupTechSkillLevelsQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<FgsSetupTechSkillLevelSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsSetupTechSkillLevelSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<FgsSetupTechSkillLevelSummaryDto>>.Ok(result);
     }
 }

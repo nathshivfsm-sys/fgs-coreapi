@@ -14,26 +14,19 @@ public sealed class ListActiveTitlesOfCourtesyQueryHandler(ITitleOfCourtesyReadR
         ListActiveTitlesOfCourtesyQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var query = new SetupListQuery(
-                request.Page,
-                request.PageSize,
-                request.SortBy,
-                request.SortDirection,
-                request.Search,
-                IsActive: true);
+        var query = new SetupListQuery(
+            request.Page,
+            request.PageSize,
+            request.SortBy,
+            request.SortDirection,
+            request.Search,
+            IsActive: true);
 
-            var result = await readRepository.ListAsync(
-                query,
-                request.Filters ?? new TitleOfCourtesyListFilters(),
-                cancellationToken);
+        var result = await readRepository.ListAsync(
+            query,
+            request.Filters ?? new TitleOfCourtesyListFilters(),
+            cancellationToken);
 
-            return ApiResponse<PagedResult<TitleOfCourtesySummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<TitleOfCourtesySummaryDto>>(ex);
-        }
+        return ApiResponse<PagedResult<TitleOfCourtesySummaryDto>>.Ok(result);
     }
 }

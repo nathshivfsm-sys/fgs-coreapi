@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.SetupTaxes.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.SetupTaxes;
@@ -150,8 +151,6 @@ public sealed class FgsSetupTaxWriteService : IFgsSetupTaxWriteService
     private static FgsSetupTaxDetailDto MapToDetail(FgsSetupTax entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.TaxCode,
             entity.Name,
             entity.IsExternalSystemRecord,
@@ -159,9 +158,5 @@ public sealed class FgsSetupTaxWriteService : IFgsSetupTaxWriteService
             entity.SyncToken,
             entity.ShowTaxDetail,
             entity.Description,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

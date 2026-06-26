@@ -7,11 +7,11 @@ internal static class JobTypeSql
     public const string Table = "setup.\"FgsJobType\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "JobTypeCategoryId", "JobTypeSubCategoryId", "JobTypeCode", "TaskName", "Description", "UsedFor", "Trade", "EstimatedDurationMinutes", "BusinessUnit", "Priority", "BackgroundColor", "TextColor", "ShowToFieldTech", "ShowOnCustomerPortal", "DisplayOrder", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "JobTypeCategoryId", "JobTypeSubCategoryId", "JobTypeCode", "TaskName", "Description", "UsedFor", "Trade", "EstimatedDurationMinutes", "BusinessUnit", "Priority", "BackgroundColor", "TextColor", "ShowToFieldTech", "ShowOnCustomerPortal", "DisplayOrder", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "JobTypeCategoryId", "JobTypeSubCategoryId", "JobTypeCode", "TaskName", "Description", "UsedFor", "Trade", "EstimatedDurationMinutes", "BusinessUnit", "Priority", "BackgroundColor", "TextColor", "ShowToFieldTech", "ShowOnCustomerPortal", "DisplayOrder", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "JobTypeCategoryId", "JobTypeSubCategoryId", "JobTypeCode", "TaskName", "Description", "UsedFor", "Trade", "EstimatedDurationMinutes", "BusinessUnit", "Priority", "BackgroundColor", "TextColor", "ShowToFieldTech", "ShowOnCustomerPortal", "DisplayOrder", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class JobTypeSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "DisplayOrder", "JobTypeCategoryId", "JobTypeSubCategoryId", "JobTypeCode", "TaskName", "Description", "UsedFor", "Trade", "EstimatedDurationMinutes", "BusinessUnit", "Priority", "BackgroundColor", "TextColor", "ShowToFieldTech", "ShowOnCustomerPortal"
+        "Id", "IsActive", "DisplayOrder", "JobTypeCategoryId", "JobTypeSubCategoryId", "JobTypeCode", "TaskName", "Description", "UsedFor", "Trade", "EstimatedDurationMinutes", "BusinessUnit", "Priority", "BackgroundColor", "TextColor", "ShowToFieldTech", "ShowOnCustomerPortal"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

@@ -10,12 +10,13 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{consumerServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{consumerServiceUrl}}/api/v1/health",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/consumer/health",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
+                                                                               "consumer",
                                                                                "health"
                                                                            ]
                                                               },
@@ -59,10 +60,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Message consumer worker API.",
+                 "description":  "Message consumer worker API via {{gatewayUrl}}/api/v1/consumer/...",
                  "name":  "FGS ConsumerService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "8cf81fea-8cdf-49ad-b53e-a8799beda5a7"
+                 "_postman_id":  "6cef2967-37fc-404d-8184-5342ea2bd51d"
              },
     "event":  [
                   {

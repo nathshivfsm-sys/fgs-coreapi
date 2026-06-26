@@ -2,8 +2,6 @@ namespace Fgs.Setup.Application.Features.SalesDispositionReasons.Dtos;
 
 public sealed record FgsSalesDispositionReasonSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string DispositionReasonCode,
     string DispositionReasonName,
     string? Description,
@@ -14,14 +12,10 @@ public sealed record FgsSalesDispositionReasonSummaryDto(
     bool RequireComment,
     bool IsTerminal,
     bool AllowManualSelection,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsSalesDispositionReasonDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string DispositionReasonCode,
     string DispositionReasonName,
     string? Description,
@@ -32,11 +26,7 @@ public sealed record FgsSalesDispositionReasonDetailDto(
     bool RequireComment,
     bool IsTerminal,
     bool AllowManualSelection,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsSalesDispositionReasonLookupDto(
     long Id,

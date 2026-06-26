@@ -16,14 +16,14 @@ public sealed class LeadStatusQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new LeadStatusDetailDto(1, 10, 20, "TEST", "StatusName", "Description", 1, false, true, DateTimeOffset.UtcNow, "seed", null, "seed");
+        var detail = new LeadStatusDetailDto(1, "TEST", "StatusName", "Description", 1, false, true);
 
         var readRepository = new Mock<ILeadStatusReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetLeadStatusByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetLeadStatusByIdQuery(1), CancellationToken.None);
@@ -41,7 +41,7 @@ public sealed class LeadStatusQueryHandlerTests
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetLeadStatusByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetLeadStatusByIdQuery(99), CancellationToken.None);

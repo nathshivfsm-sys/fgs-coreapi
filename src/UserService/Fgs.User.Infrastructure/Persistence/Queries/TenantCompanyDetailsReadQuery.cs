@@ -73,7 +73,6 @@ internal sealed class TenantCompanyDetailsReadQuery(
                 tenant.IsActive),
             new CompanyDetailSectionDto(
                 company.Id,
-                company.TenantId,
                 company.CompanyNumber,
                 company.CompanyGuid,
                 company.Code,
@@ -87,10 +86,6 @@ internal sealed class TenantCompanyDetailsReadQuery(
                 company.BusinessTypeId,
                 company.IsActive,
                 LocationMapper.ToDetailDto(physicalLocation),
-                LocationMapper.ToDetailDto(billingLocation),
-                company.CreatedOn,
-                company.CreatedBy,
-                company.UpdatedOn,
-                company.UpdatedBy));
+                LocationMapper.ToDetailDto(billingLocation)));
     }
 }

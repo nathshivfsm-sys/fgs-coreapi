@@ -2,33 +2,23 @@ namespace Fgs.Setup.Application.Features.SetupTaxAuthorities.Dtos;
 
 public sealed record FgsSetupTaxAuthoritySummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string Code,
     string Name,
     string? RegionCode,
     bool IsExternalSystemRecord,
     decimal TaxPercent,
     string? Description,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsSetupTaxAuthorityDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string Code,
     string Name,
     string? RegionCode,
     bool IsExternalSystemRecord,
     decimal TaxPercent,
     string? Description,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsSetupTaxAuthorityLookupDto(
     long Id,

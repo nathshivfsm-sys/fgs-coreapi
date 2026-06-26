@@ -5,8 +5,6 @@ namespace Fgs.Setup.Infrastructure.SetupPaymentTerms;
 internal sealed class FgsSetupPaymentTermSummaryRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string Name { get; set; }
     public string DueDateMethod { get; set; }
     public int? NumberOfDays { get; set; }
@@ -14,30 +12,22 @@ internal sealed class FgsSetupPaymentTermSummaryRow
     public bool IsAccountsPayable { get; set; }
     public bool IsMobileVisible { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
 
     public FgsSetupPaymentTermSummaryDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             Name,
             DueDateMethod,
             NumberOfDays,
             IsAccountsReceivable,
             IsAccountsPayable,
             IsMobileVisible,
-            IsActive,
-            CreatedOn,
-            UpdatedOn);
+            IsActive);
 }
 
 internal sealed class FgsSetupPaymentTermDetailRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string Name { get; set; }
     public string DueDateMethod { get; set; }
     public int? NumberOfDays { get; set; }
@@ -45,27 +35,17 @@ internal sealed class FgsSetupPaymentTermDetailRow
     public bool IsAccountsPayable { get; set; }
     public bool IsMobileVisible { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public string? CreatedBy { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
-    public string? UpdatedBy { get; set; }
 
     public FgsSetupPaymentTermDetailDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             Name,
             DueDateMethod,
             NumberOfDays,
             IsAccountsReceivable,
             IsAccountsPayable,
             IsMobileVisible,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+            IsActive);
 }
 
 internal sealed class FgsSetupPaymentTermLookupRow

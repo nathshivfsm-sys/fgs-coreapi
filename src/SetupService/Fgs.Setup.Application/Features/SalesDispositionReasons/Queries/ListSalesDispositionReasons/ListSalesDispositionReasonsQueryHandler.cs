@@ -13,14 +13,7 @@ public sealed class ListSalesDispositionReasonsQueryHandler(IFgsSalesDisposition
         ListSalesDispositionReasonsQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<FgsSalesDispositionReasonSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsSalesDispositionReasonSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<FgsSalesDispositionReasonSummaryDto>>.Ok(result);
     }
 }

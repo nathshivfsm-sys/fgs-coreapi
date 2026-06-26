@@ -535,9 +535,9 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{userServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{userServiceUrl}}/api/v1/tenants/{{tenantId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
@@ -581,9 +581,9 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{userServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{userServiceUrl}}/api/v1/tenants/{{tenantId}}/companies",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/companies",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
@@ -628,9 +628,9 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{userServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{userServiceUrl}}/api/v1/tenants/{{tenantId}}/companies/{{companyId}}/details",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/companies/{{companyId}}/details",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
@@ -676,9 +676,9 @@
                                       "request":  {
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{userServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{userServiceUrl}}/api/v1/tenants/{{tenantId}}/companies/{{companyId}}/details",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/companies/{{companyId}}/details",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
@@ -739,9 +739,9 @@
                                       "request":  {
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{userServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{userServiceUrl}}/api/v1/tenants/{{tenantId}}/status",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/status",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
@@ -800,9 +800,9 @@
                                       "request":  {
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{userServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{userServiceUrl}}/api/v1/tenants/{{tenantId}}/storage-bucket",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/storage-bucket",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
@@ -866,10 +866,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Company onboarding, Entra auth (via gateway), and tenant admin APIs (direct userServiceUrl /api/v1/tenants â€” matches controller routes).",
+                 "description":  "Company onboarding, Entra auth, dashboard, and tenant admin APIs via {{gatewayUrl}}.",
                  "name":  "FGS UserService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "ed8f02e8-f4d9-40d2-b88a-445690d2e740"
+                 "_postman_id":  "d3f4a7bf-5b4e-4c5d-9960-cb52db83dbc4"
              },
     "event":  [
                   {

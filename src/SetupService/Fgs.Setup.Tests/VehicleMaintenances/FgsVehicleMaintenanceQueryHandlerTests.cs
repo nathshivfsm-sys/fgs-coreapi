@@ -16,14 +16,14 @@ public sealed class FgsVehicleMaintenanceQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsVehicleMaintenanceDetailDto(1, 10, 20, 1, 1, DateOnly.FromDateTime(DateTime.UtcNow), 60, "ServiceProvider", "InvoiceNumber", 10.5m, null, 60, true, "Description", "Notes value", true, DateTimeOffset.UtcNow, "seed", null, "seed");
+        var detail = new FgsVehicleMaintenanceDetailDto(1, 1, 1, DateOnly.FromDateTime(DateTime.UtcNow), 60, "ServiceProvider", "InvoiceNumber", 10.5m, null, 60, true, "Description", "Notes value", true);
 
         var readRepository = new Mock<IFgsVehicleMaintenanceReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsVehicleMaintenanceByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsVehicleMaintenanceByIdQuery(1), CancellationToken.None);
@@ -41,7 +41,7 @@ public sealed class FgsVehicleMaintenanceQueryHandlerTests
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsVehicleMaintenanceByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsVehicleMaintenanceByIdQuery(99), CancellationToken.None);

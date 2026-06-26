@@ -7,11 +7,11 @@ internal static class FgsSetupPostalCodeSql
     public const string Table = "setup.\"FgsSetupPostalCode\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "PostalCode", "FgsSetupZoneId", "FgsSetupTaxId", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "PostalCode", "FgsSetupZoneId", "FgsSetupTaxId", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "PostalCode", "FgsSetupZoneId", "FgsSetupTaxId", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "PostalCode", "FgsSetupZoneId", "FgsSetupTaxId", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class FgsSetupPostalCodeSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "PostalCode", "FgsSetupZoneId", "FgsSetupTaxId"
+        "Id", "IsActive", "PostalCode", "FgsSetupZoneId", "FgsSetupTaxId"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

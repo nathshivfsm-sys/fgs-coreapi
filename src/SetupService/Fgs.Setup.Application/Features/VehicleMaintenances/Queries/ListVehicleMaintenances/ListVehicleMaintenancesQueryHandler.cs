@@ -13,14 +13,7 @@ public sealed class ListVehicleMaintenancesQueryHandler(IFgsVehicleMaintenanceRe
         ListVehicleMaintenancesQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<FgsVehicleMaintenanceSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsVehicleMaintenanceSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<FgsVehicleMaintenanceSummaryDto>>.Ok(result);
     }
 }

@@ -2,8 +2,6 @@ namespace Fgs.Setup.Application.Features.SetupTaxes.Dtos;
 
 public sealed record FgsSetupTaxSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string TaxCode,
     string Name,
     bool IsExternalSystemRecord,
@@ -11,14 +9,10 @@ public sealed record FgsSetupTaxSummaryDto(
     string? SyncToken,
     bool ShowTaxDetail,
     string? Description,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsSetupTaxDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string TaxCode,
     string Name,
     bool IsExternalSystemRecord,
@@ -26,11 +20,7 @@ public sealed record FgsSetupTaxDetailDto(
     string? SyncToken,
     bool ShowTaxDetail,
     string? Description,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsSetupTaxLookupDto(
     long Id,

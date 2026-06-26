@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.ResolutionCodes.Commands.PatchResolutionCod
 using Fgs.Setup.Application.Features.ResolutionCodes.Commands.UpdateResolutionCode;
 using Fgs.Setup.Application.Features.ResolutionCodes.Queries.GetResolutionCodeById;
 using Fgs.Setup.Application.Features.ResolutionCodes.Queries.ListResolutionCodes;
-using Fgs.Setup.Application.Features.ResolutionCodes.Queries.ListActiveResolutionCodes;
 using Fgs.Setup.Application.Features.ResolutionCodes.Queries.LookupResolutionCodes;
 using Fgs.Setup.Application.Features.ResolutionCodes.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class ResolutionCodesController(IMediator mediator) : ControllerBa
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupResolutionCodesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<ResolutionCodeSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? resolutionCode = null,
-        [FromQuery] string? resolutionName = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveResolutionCodesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new ResolutionCodeListFilters(resolutionCode, resolutionName)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

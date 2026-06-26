@@ -1,5 +1,4 @@
 using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.Setup.Application.Abstractions.TechTrades;
 using Fgs.Setup.Application.Features.TechTrades.Dtos;
 using MediatR;
@@ -16,17 +15,9 @@ public sealed class PatchTechTradeCommandHandler(
         PatchTechTradeCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.PatchAsync(request.Id, request.Dto, cancellationToken);
-            logger.LogInformation("Patched tech trade {TechTradeId}", result.Id);
+        var result = await writeService.PatchAsync(request.Id, request.Dto, cancellationToken);
+        logger.LogInformation("Patched tech trade {TechTradeId}", result.Id);
 
-            return ApiResponse<TechTradeDetailDto>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to patch tech trade {TechTradeId}", request.Id);
-            return CatalogCrudExceptionMapper.MapException<TechTradeDetailDto>(ex);
-        }
+        return ApiResponse<TechTradeDetailDto>.Ok(result);
     }
 }

@@ -1,7 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SalesDispositionReasons;
 using Fgs.Setup.Application.Features.SalesDispositionReasons.Dtos;
@@ -21,23 +20,12 @@ public sealed class DeleteFgsSalesDispositionReasonCommandHandler(
         DeleteFgsSalesDispositionReasonCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.DeleteAsync(request.Id, cancellationToken);
-            logger.LogInformation("Soft-deleted sales disposition reason {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                await cache.RemoveByPrefixAsync(
-                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesdispositionreasons"),
-                    cancellationToken);
-            }
-            return ApiResponse<FgsSalesDispositionReasonDetailDto>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to delete sales disposition reason {Id}", request.Id);
-            return CatalogCrudExceptionMapper.MapException<FgsSalesDispositionReasonDetailDto>(ex);
-        }
+        var result = await writeService.DeleteAsync(request.Id, cancellationToken);
+        logger.LogInformation("Soft-deleted sales disposition reason {Id}", result.Id);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesdispositionreasons"),
+                cancellationToken);
+        return ApiResponse<FgsSalesDispositionReasonDetailDto>.Ok(result);
     }
 }

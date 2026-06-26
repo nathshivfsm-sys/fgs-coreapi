@@ -1,7 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupLaborRateTypes;
 using Fgs.Setup.Application.Features.SetupLaborRateTypes.Dtos;
@@ -21,23 +20,12 @@ public sealed class PatchFgsSetupLaborRateTypeCommandHandler(
         PatchFgsSetupLaborRateTypeCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.PatchAsync(request.Id, request.Dto, cancellationToken);
-            logger.LogInformation("Patchd labor rate type {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                await cache.RemoveByPrefixAsync(
-                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "laborratetypes"),
-                    cancellationToken);
-            }
-            return ApiResponse<FgsSetupLaborRateTypeDetailDto>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to patch labor rate type {Id}", request.Id);
-            return CatalogCrudExceptionMapper.MapException<FgsSetupLaborRateTypeDetailDto>(ex);
-        }
+        var result = await writeService.PatchAsync(request.Id, request.Dto, cancellationToken);
+        logger.LogInformation("Patchd labor rate type {Id}", result.Id);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "laborratetypes"),
+                cancellationToken);
+        return ApiResponse<FgsSetupLaborRateTypeDetailDto>.Ok(result);
     }
 }

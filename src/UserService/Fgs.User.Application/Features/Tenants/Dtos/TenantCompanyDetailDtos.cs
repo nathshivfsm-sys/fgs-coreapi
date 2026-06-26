@@ -19,7 +19,6 @@ public sealed record TenantDetailSectionDto(
 
 public sealed record CompanyDetailSectionDto(
     long Id,
-    long TenantId,
     long CompanyNumber,
     Guid CompanyGuid,
     string Code,
@@ -33,11 +32,7 @@ public sealed record CompanyDetailSectionDto(
     int BusinessTypeId,
     bool IsActive,
     LocationDetailDto? PhysicalAddress,
-    LocationDetailDto? BillingAddress,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    LocationDetailDto? BillingAddress);
 
 public sealed record TenantCompanyDetailDto(
     TenantDetailSectionDto Tenant,

@@ -7,13 +7,11 @@ internal static class TechTradeSql
     public const string Table = "setup.\"FgsSetupTechTrade\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "TradeCode", "Name", "Description", "SortOrder",
-        "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "TradeCode", "Name", "Description", "SortOrder", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "TradeCode", "Name", "SortOrder",
-        "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "TradeCode", "Name", "SortOrder", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -22,7 +20,7 @@ internal static class TechTradeSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "TradeCode", "Name", "SortOrder", "CreatedOn", "IsActive"
+        "Id", "TradeCode", "Name", "SortOrder", "IsActive"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

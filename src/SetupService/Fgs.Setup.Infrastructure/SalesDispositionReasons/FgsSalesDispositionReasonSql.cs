@@ -7,11 +7,11 @@ internal static class FgsSalesDispositionReasonSql
     public const string Table = "setup.\"FgsSalesDispositionReason\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "DispositionReasonCode", "DispositionReasonName", "Description", "DisplayOrder", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "RequireComment", "IsTerminal", "AllowManualSelection", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "DispositionReasonCode", "DispositionReasonName", "Description", "DisplayOrder", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "RequireComment", "IsTerminal", "AllowManualSelection", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "DispositionReasonCode", "DispositionReasonName", "Description", "DisplayOrder", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "RequireComment", "IsTerminal", "AllowManualSelection", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "DispositionReasonCode", "DispositionReasonName", "Description", "DisplayOrder", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "RequireComment", "IsTerminal", "AllowManualSelection", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class FgsSalesDispositionReasonSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "DisplayOrder", "DispositionReasonCode", "DispositionReasonName", "Description", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "RequireComment", "IsTerminal", "AllowManualSelection"
+        "Id", "IsActive", "DisplayOrder", "DispositionReasonCode", "DispositionReasonName", "Description", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "RequireComment", "IsTerminal", "AllowManualSelection"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

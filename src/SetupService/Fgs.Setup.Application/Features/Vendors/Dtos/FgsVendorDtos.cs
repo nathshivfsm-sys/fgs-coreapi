@@ -2,8 +2,6 @@ namespace Fgs.Setup.Application.Features.Vendors.Dtos;
 
 public sealed record FgsVendorSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string VendorCode,
     string Name,
     string? LegalName,
@@ -18,14 +16,10 @@ public sealed record FgsVendorSummaryDto(
     string? InsurancePolicyNumber,
     string? Notes,
     bool Is1099Eligible,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsVendorDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string VendorCode,
     string Name,
     string? LegalName,
@@ -40,11 +34,7 @@ public sealed record FgsVendorDetailDto(
     string? InsurancePolicyNumber,
     string? Notes,
     bool Is1099Eligible,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsVendorLookupDto(
     long Id,

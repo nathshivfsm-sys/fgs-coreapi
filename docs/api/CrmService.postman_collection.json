@@ -10,12 +10,13 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{crmServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{crmServiceUrl}}/api/v1/health",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/crm/health",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
+                                                                               "crm",
                                                                                "health"
                                                                            ]
                                                               },
@@ -59,10 +60,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "CRM service scaffold (health).",
+                 "description":  "CRM service scaffold (health) via {{gatewayUrl}}/api/v1/crm/...",
                  "name":  "FGS CrmService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "3bce1308-82a7-4ea5-9875-436637b88840"
+                 "_postman_id":  "9f743093-7551-4a94-b0df-d9f67868df57"
              },
     "event":  [
                   {

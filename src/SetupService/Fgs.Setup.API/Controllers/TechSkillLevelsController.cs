@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.SetupTechSkillLevels.Commands.PatchFgsSetup
 using Fgs.Setup.Application.Features.SetupTechSkillLevels.Commands.UpdateFgsSetupTechSkillLevel;
 using Fgs.Setup.Application.Features.SetupTechSkillLevels.Queries.GetFgsSetupTechSkillLevelById;
 using Fgs.Setup.Application.Features.SetupTechSkillLevels.Queries.ListSetupTechSkillLevels;
-using Fgs.Setup.Application.Features.SetupTechSkillLevels.Queries.ListActiveSetupTechSkillLevels;
 using Fgs.Setup.Application.Features.SetupTechSkillLevels.Queries.LookupSetupTechSkillLevels;
 using Fgs.Setup.Application.Features.SetupTechSkillLevels.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class TechSkillLevelsController(IMediator mediator) : ControllerBa
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupSetupTechSkillLevelsQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSetupTechSkillLevelSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? code = null,
-        [FromQuery] string? name = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveSetupTechSkillLevelsQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsSetupTechSkillLevelListFilters(code, name)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

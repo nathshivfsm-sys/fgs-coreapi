@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.SetupTimeSlots.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.SetupTimeSlots;
@@ -160,8 +161,6 @@ public sealed class FgsSetupTimeSlotWriteService : IFgsSetupTimeSlotWriteService
     private static FgsSetupTimeSlotDetailDto MapToDetail(FgsSetupTimeSlot entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.FgsSetupZoneId,
             entity.Code,
             entity.Name,
@@ -171,9 +170,5 @@ public sealed class FgsSetupTimeSlotWriteService : IFgsSetupTimeSlotWriteService
             entity.MarkWorkOrderDelayedCompletionAfter,
             entity.IsMobileVisible,
             entity.IsCustomerPortalVisible,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

@@ -7,10 +7,6 @@ internal sealed class GLBreakSummaryRow
 {
     public long Id { get; set; }
 
-    public long TenantId { get; set; }
-
-    public long CompanyId { get; set; }
-
     public string Code { get; set; } = null!;
 
     public string Name { get; set; } = null!;
@@ -23,21 +19,13 @@ internal sealed class GLBreakSummaryRow
 
     public bool IsActive { get; set; }
 
-    public DateTimeOffset CreatedOn { get; set; }
-
-    public DateTimeOffset? UpdatedOn { get; set; }
-
     public GLBreakSummaryDto ToDto() =>
-        new(Id, TenantId, CompanyId, Code, Name, BreakLabel, BreakLevel, LogoFileId, IsActive, CreatedOn, UpdatedOn);
+        new(Id, Code, Name, BreakLabel, BreakLevel, LogoFileId, IsActive);
 }
 
 internal sealed class GLBreakDetailRow
 {
     public long Id { get; set; }
-
-    public long TenantId { get; set; }
-
-    public long CompanyId { get; set; }
 
     public string Code { get; set; } = null!;
 
@@ -52,14 +40,6 @@ internal sealed class GLBreakDetailRow
     public Guid? AddressId { get; set; }
 
     public bool IsActive { get; set; }
-
-    public DateTimeOffset CreatedOn { get; set; }
-
-    public string? CreatedBy { get; set; }
-
-    public DateTimeOffset? UpdatedOn { get; set; }
-
-    public string? UpdatedBy { get; set; }
 
     public Guid? LocationId { get; set; }
 
@@ -91,19 +71,9 @@ internal sealed class GLBreakDetailRow
 
     public bool? LocationIsActive { get; set; }
 
-    public DateTimeOffset? LocationCreatedOn { get; set; }
-
-    public string? LocationCreatedBy { get; set; }
-
-    public DateTimeOffset? LocationUpdatedOn { get; set; }
-
-    public string? LocationUpdatedBy { get; set; }
-
     public GLBreakDetailDto ToDto(IReadOnlyList<GLBreakTradeDto> trades) =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             Code,
             Name,
             BreakLabel,
@@ -111,11 +81,7 @@ internal sealed class GLBreakDetailRow
             LogoFileId,
             ToLocationDto(),
             trades,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+            IsActive);
 
     private LocationDetailDto? ToLocationDto()
     {
@@ -139,11 +105,7 @@ internal sealed class GLBreakDetailRow
             Latitude,
             Longitude,
             PlaceId,
-            LocationIsActive ?? true,
-            LocationCreatedOn ?? default,
-            LocationCreatedBy,
-            LocationUpdatedOn,
-            LocationUpdatedBy);
+            LocationIsActive ?? true);
     }
 }
 
@@ -168,9 +130,5 @@ internal sealed class GLBreakTradeRow
 
     public string TradeCode { get; set; } = null!;
 
-    public DateTimeOffset CreatedOn { get; set; }
-
-    public string? CreatedBy { get; set; }
-
-    public GLBreakTradeDto ToDto() => new(Id, GLBreakId, TradeCode, CreatedOn, CreatedBy);
+    public GLBreakTradeDto ToDto() => new(Id, GLBreakId, TradeCode);
 }

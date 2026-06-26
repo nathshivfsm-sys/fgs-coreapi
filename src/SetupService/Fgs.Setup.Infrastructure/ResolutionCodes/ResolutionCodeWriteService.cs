@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.ResolutionCodes.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.ResolutionCodes;
@@ -135,15 +136,9 @@ public sealed class ResolutionCodeWriteService : IResolutionCodeWriteService
     private static ResolutionCodeDetailDto MapToDetail(FgsResolutionCode entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.GloResolutionTypeId,
             entity.ResolutionCode,
             entity.ResolutionName,
             entity.IsMobileVisible,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

@@ -2,27 +2,17 @@ namespace Fgs.Setup.Application.Features.TitlesOfCourtesy.Dtos;
 
 public sealed record TitleOfCourtesySummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string Code,
     string DisplayName,
     int? SortOrder,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record TitleOfCourtesyDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string Code,
     string DisplayName,
     int? SortOrder,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record TitleOfCourtesyLookupDto(
     long Id,

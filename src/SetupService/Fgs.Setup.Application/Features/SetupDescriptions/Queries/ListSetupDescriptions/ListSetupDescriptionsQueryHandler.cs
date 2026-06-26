@@ -13,14 +13,7 @@ public sealed class ListSetupDescriptionsQueryHandler(IFgsSetupDescriptionReadRe
         ListSetupDescriptionsQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<FgsSetupDescriptionSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsSetupDescriptionSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<FgsSetupDescriptionSummaryDto>>.Ok(result);
     }
 }

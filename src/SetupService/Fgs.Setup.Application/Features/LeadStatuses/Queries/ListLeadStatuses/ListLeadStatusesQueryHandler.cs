@@ -13,14 +13,7 @@ public sealed class ListLeadStatusesQueryHandler(ILeadStatusReadRepository readR
         ListLeadStatusesQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<LeadStatusSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<LeadStatusSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<LeadStatusSummaryDto>>.Ok(result);
     }
 }

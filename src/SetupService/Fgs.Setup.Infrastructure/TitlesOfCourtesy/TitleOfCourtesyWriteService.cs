@@ -134,14 +134,8 @@ public sealed class TitleOfCourtesyWriteService : ITitleOfCourtesyWriteService
     private static TitleOfCourtesyDetailDto MapToDetail(FgsSetupTitleOfCourtesy entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.Code,
             entity.DisplayName,
             entity.SortOrder,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

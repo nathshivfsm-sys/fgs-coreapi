@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.SalesActivityTypes.Commands.PatchFgsSalesAc
 using Fgs.Setup.Application.Features.SalesActivityTypes.Commands.UpdateFgsSalesActivityType;
 using Fgs.Setup.Application.Features.SalesActivityTypes.Queries.GetFgsSalesActivityTypeById;
 using Fgs.Setup.Application.Features.SalesActivityTypes.Queries.ListSalesActivityTypes;
-using Fgs.Setup.Application.Features.SalesActivityTypes.Queries.ListActiveSalesActivityTypes;
 using Fgs.Setup.Application.Features.SalesActivityTypes.Queries.LookupSalesActivityTypes;
 using Fgs.Setup.Application.Features.SalesActivityTypes.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class SalesActivityTypesController(IMediator mediator) : Controlle
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupSalesActivityTypesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSalesActivityTypeSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? activityTypeCode = null,
-        [FromQuery] string? activityTypeName = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveSalesActivityTypesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsSalesActivityTypeListFilters(activityTypeCode, activityTypeName)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

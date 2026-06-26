@@ -7,11 +7,11 @@ internal static class FgsSetupTimeSlotSql
     public const string Table = "setup.\"FgsSetupTimeSlot\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "FgsSetupZoneId", "Code", "Name", "BeginTime", "EndTime", "MarkTechArrivedLateAfter", "MarkWorkOrderDelayedCompletionAfter", "IsMobileVisible", "IsCustomerPortalVisible", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "FgsSetupZoneId", "Code", "Name", "BeginTime", "EndTime", "MarkTechArrivedLateAfter", "MarkWorkOrderDelayedCompletionAfter", "IsMobileVisible", "IsCustomerPortalVisible", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "FgsSetupZoneId", "Code", "Name", "BeginTime", "EndTime", "MarkTechArrivedLateAfter", "MarkWorkOrderDelayedCompletionAfter", "IsMobileVisible", "IsCustomerPortalVisible", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "FgsSetupZoneId", "Code", "Name", "BeginTime", "EndTime", "MarkTechArrivedLateAfter", "MarkWorkOrderDelayedCompletionAfter", "IsMobileVisible", "IsCustomerPortalVisible", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class FgsSetupTimeSlotSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "FgsSetupZoneId", "Code", "Name", "BeginTime", "EndTime", "MarkTechArrivedLateAfter", "MarkWorkOrderDelayedCompletionAfter", "IsMobileVisible", "IsCustomerPortalVisible"
+        "Id", "IsActive", "FgsSetupZoneId", "Code", "Name", "BeginTime", "EndTime", "MarkTechArrivedLateAfter", "MarkWorkOrderDelayedCompletionAfter", "IsMobileVisible", "IsCustomerPortalVisible"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

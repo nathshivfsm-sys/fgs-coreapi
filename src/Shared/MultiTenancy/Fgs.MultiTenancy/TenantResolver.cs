@@ -19,8 +19,7 @@ public sealed class HeaderTenantResolver : ITenantResolver
             tenantContext = new TenantContext
             {
                 TenantId = headerTenantId,
-                CompanyId = headerCompanyId,
-                IsResolved = true
+                CompanyId = headerCompanyId
             };
             return true;
         }

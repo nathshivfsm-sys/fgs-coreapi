@@ -18,23 +18,16 @@ public sealed class CreateCredentialCommandHandler
         CreateCredentialCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var payload = CredentialRequestHelpers.ParsePayload(request.Payload);
+        var payload = CredentialRequestHelpers.ParsePayload(request.Payload);
 
-            return request.Scope switch
-            {
-                CredentialScope.Global => await CreateGlobalAsync(request, payload, cancellationToken),
-                CredentialScope.Tenant => await CreateTenantAsync(request, payload, cancellationToken),
-                _ => ApiResponse<CredentialMutationResultDto>.Fail(
-                    [CredentialErrorMessages.InvalidScope],
-                    ApiStatusCodes.BadRequest)
-            };
-        }
-        catch (Exception ex)
+        return request.Scope switch
         {
-            return CredentialRequestHelpers.MapException<CredentialMutationResultDto>(ex);
-        }
+            CredentialScope.Global => await CreateGlobalAsync(request, payload, cancellationToken),
+            CredentialScope.Tenant => await CreateTenantAsync(request, payload, cancellationToken),
+            _ => ApiResponse<CredentialMutationResultDto>.Fail(
+                [CredentialErrorMessages.InvalidScope],
+                ApiStatusCodes.BadRequest)
+        };
     }
 
     private async Task<ApiResponse<CredentialMutationResultDto>> CreateGlobalAsync(
@@ -88,4 +81,3 @@ public sealed class CreateCredentialCommandHandler
             ApiStatusCodes.Created);
     }
 }
-

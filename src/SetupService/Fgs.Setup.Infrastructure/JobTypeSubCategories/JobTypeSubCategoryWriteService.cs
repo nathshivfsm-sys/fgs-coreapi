@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.JobTypeSubCategories.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.JobTypeSubCategories;
@@ -135,15 +136,9 @@ public sealed class JobTypeSubCategoryWriteService : IJobTypeSubCategoryWriteSer
     private static JobTypeSubCategoryDetailDto MapToDetail(FgsJobTypeSubCategory entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.SubCategoryCode,
             entity.Name,
             entity.Description,
             entity.DisplayOrder,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

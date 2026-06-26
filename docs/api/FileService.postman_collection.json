@@ -8,9 +8,9 @@
                                       "request":  {
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{fileServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{fileServiceUrl}}/api/v1/files/upload-url",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/files/upload-url",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
@@ -85,9 +85,9 @@
                                                       "method":  "POST",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{fileServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{fileServiceUrl}}/api/v1/files/{{fileId}}/complete",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/files/{{fileId}}/complete",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
@@ -144,9 +144,9 @@
                                                                                 }
                                                                             ],
                                                                   "host":  [
-                                                                               "{{fileServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{fileServiceUrl}}/api/v1/files/by-entity",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/files/by-entity",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
@@ -190,9 +190,9 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{fileServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{fileServiceUrl}}/api/v1/files/{{fileId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/files/{{fileId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
@@ -236,9 +236,9 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{fileServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{fileServiceUrl}}/api/v1/files/{{fileId}}/content",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/files/{{fileId}}/content",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
@@ -289,9 +289,9 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{fileServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{fileServiceUrl}}/api/v1/health",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/health",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
@@ -334,9 +334,9 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{fileServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{fileServiceUrl}}/api/v1/health/auth-check",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/health/auth-check",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
@@ -451,10 +451,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Tenant S3 bucket provisioning via gateway /api/v1/tenants.",
+                 "description":  "Tenant S3 bucket provisioning and file health via {{gatewayUrl}}.",
                  "name":  "FGS FileService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "e79ebaee-7588-4cf6-becc-3de0f2937589"
+                 "_postman_id":  "0e70515a-9e4c-47bc-bed3-3766303649e0"
              },
     "event":  [
                   {

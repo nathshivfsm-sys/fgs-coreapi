@@ -10,12 +10,13 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{reportingServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{reportingServiceUrl}}/api/v1/health",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/reporting/health",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
+                                                                               "reporting",
                                                                                "health"
                                                                            ]
                                                               },
@@ -59,10 +60,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Reporting service scaffold (health).",
+                 "description":  "Reporting service scaffold (health) via {{gatewayUrl}}/api/v1/reporting/...",
                  "name":  "FGS ReportingService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "c6f94db9-34d1-496f-8dc4-a34ac0a5159b"
+                 "_postman_id":  "c4ded5fb-450b-415d-9f89-6189ea734dab"
              },
     "event":  [
                   {

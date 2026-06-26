@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.SetupPaymentTerms.Commands.PatchFgsSetupPay
 using Fgs.Setup.Application.Features.SetupPaymentTerms.Commands.UpdateFgsSetupPaymentTerm;
 using Fgs.Setup.Application.Features.SetupPaymentTerms.Queries.GetFgsSetupPaymentTermById;
 using Fgs.Setup.Application.Features.SetupPaymentTerms.Queries.ListSetupPaymentTerms;
-using Fgs.Setup.Application.Features.SetupPaymentTerms.Queries.ListActiveSetupPaymentTerms;
 using Fgs.Setup.Application.Features.SetupPaymentTerms.Queries.LookupSetupPaymentTerms;
 using Fgs.Setup.Application.Features.SetupPaymentTerms.Dtos;
 using MediatR;
@@ -62,30 +61,6 @@ public sealed class PaymentTermsController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupSetupPaymentTermsQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSetupPaymentTermSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? name = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveSetupPaymentTermsQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsSetupPaymentTermListFilters(name)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

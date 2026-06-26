@@ -1,5 +1,6 @@
 using System.Reflection;
 using Fgs.Foundation.Api;
+using Fgs.Foundation.Compression.Extensions;
 using Fgs.Foundation.Extensions;
 using Fgs.MultiTenancy.Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -43,6 +44,11 @@ public static class FgsApiHostExtensions
             builder.Services.AddFgsMultiTenancy();
         }
 
+        if (options.UseResponseCompression)
+        {
+            builder.Services.AddFgsResponseCompression(builder.Configuration);
+        }
+
         return options;
     }
 
@@ -53,6 +59,11 @@ public static class FgsApiHostExtensions
         if (options.UseForwardedHeaders)
         {
             app.UseForwardedHeaders();
+        }
+
+        if (options.UseResponseCompression)
+        {
+            app.UseFgsResponseCompression();
         }
 
         app.UseFgsFoundationMiddleware();

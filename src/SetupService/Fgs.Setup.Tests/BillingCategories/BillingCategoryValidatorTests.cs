@@ -42,10 +42,10 @@ public sealed class BillingCategoryValidatorTests
     {
 
         _readRepository
-            .Setup(r => r.ExistsByBillingCategoryTypeAndBillingCategoryNameAsync(It.IsAny<string>(), It.IsAny<string>(), 5, It.IsAny<CancellationToken>()))
+            .Setup(r => r.ExistsByBillingCategoryTypeAndBillingCategoryNameAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         var validator = new UpdateBillingCategoryCommandValidator(_readRepository.Object);
-        var command = new UpdateBillingCategoryCommand(5, new BillingCategoryUpdateDto("TEST", "BillingCategoryName", "Description value", 1, false, false, true));
+        var command = new UpdateBillingCategoryCommand(5, new BillingCategoryUpdateDto("TE", "BillingCategoryName", "Description value", 1, false, false, true));
 
         var result = await validator.ValidateAsync(command);
 

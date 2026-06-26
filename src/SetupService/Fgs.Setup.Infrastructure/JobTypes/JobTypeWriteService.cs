@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.JobTypes.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.JobTypes;
@@ -190,8 +191,6 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
     private static JobTypeDetailDto MapToDetail(FgsJobType entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.JobTypeCategoryId,
             entity.JobTypeSubCategoryId,
             entity.JobTypeCode,
@@ -207,9 +206,5 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
             entity.ShowToFieldTech,
             entity.ShowOnCustomerPortal,
             entity.DisplayOrder,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

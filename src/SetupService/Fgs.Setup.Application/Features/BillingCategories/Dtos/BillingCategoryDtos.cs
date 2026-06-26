@@ -2,8 +2,6 @@ namespace Fgs.Setup.Application.Features.BillingCategories.Dtos;
 
 public sealed record BillingCategorySummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string BillingCategoryType,
     string BillingCategoryName,
     string? Description,
@@ -11,14 +9,10 @@ public sealed record BillingCategorySummaryDto(
     bool IsSystemDefined,
     bool ShowToFieldTech,
     bool AllowToPick,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record BillingCategoryDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string BillingCategoryType,
     string BillingCategoryName,
     string? Description,
@@ -26,11 +20,7 @@ public sealed record BillingCategoryDetailDto(
     bool IsSystemDefined,
     bool ShowToFieldTech,
     bool AllowToPick,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record BillingCategoryLookupDto(
     long Id,

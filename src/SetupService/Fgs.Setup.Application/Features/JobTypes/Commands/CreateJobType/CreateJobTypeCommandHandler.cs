@@ -1,7 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.JobTypes;
 using Fgs.Setup.Application.Features.JobTypes.Dtos;
@@ -21,23 +20,12 @@ public sealed class CreateJobTypeCommandHandler(
         CreateJobTypeCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.CreateAsync(request.Dto, cancellationToken);
-            logger.LogInformation("Created job type {Id} with code {JobTypeCode}", result.Id, result.JobTypeCode);
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                await cache.RemoveByPrefixAsync(
-                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtypes"),
-                    cancellationToken);
-            }
-            return ApiResponse<JobTypeDetailDto>.Ok(result, ApiStatusCodes.Created);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to create job type");
-            return CatalogCrudExceptionMapper.MapException<JobTypeDetailDto>(ex);
-        }
+        var result = await writeService.CreateAsync(request.Dto, cancellationToken);
+        logger.LogInformation("Created job type {Id} with code {JobTypeCode}", result.Id, result.JobTypeCode);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtypes"),
+                cancellationToken);
+        return ApiResponse<JobTypeDetailDto>.Ok(result, ApiStatusCodes.Created);
     }
 }

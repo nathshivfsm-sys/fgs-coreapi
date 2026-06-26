@@ -10,12 +10,13 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{notificationServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{notificationServiceUrl}}/api/v1/health",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/notifications/health",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
+                                                                               "notifications",
                                                                                "health"
                                                                            ]
                                                               },
@@ -62,10 +63,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/notifications/dispatch",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/notifications/notifications/dispatch",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
+                                                                               "notifications",
                                                                                "notifications",
                                                                                "dispatch"
                                                                            ]
@@ -125,10 +127,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Notification dispatch via gateway.",
+                 "description":  "Notification dispatch via {{gatewayUrl}}/api/v1/notifications/...",
                  "name":  "FGS NotificationService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "8229ce9f-ec66-4145-8fb3-a7464fab90bf"
+                 "_postman_id":  "dc313eb4-d33e-48d7-8463-d8ba454aa390"
              },
     "event":  [
                   {

@@ -13,14 +13,7 @@ public sealed class ListLeadDisqualificationReasonsQueryHandler(ILeadDisqualific
         ListLeadDisqualificationReasonsQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<LeadDisqualificationReasonSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<LeadDisqualificationReasonSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<LeadDisqualificationReasonSummaryDto>>.Ok(result);
     }
 }

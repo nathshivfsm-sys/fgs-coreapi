@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.SalesDispositionReasons.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.SalesDispositionReasons;
@@ -165,8 +166,6 @@ public sealed class FgsSalesDispositionReasonWriteService : IFgsSalesDisposition
     private static FgsSalesDispositionReasonDetailDto MapToDetail(FgsSalesDispositionReason entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.DispositionReasonCode,
             entity.DispositionReasonName,
             entity.Description,
@@ -177,9 +176,5 @@ public sealed class FgsSalesDispositionReasonWriteService : IFgsSalesDisposition
             entity.RequireComment,
             entity.IsTerminal,
             entity.AllowManualSelection,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.SetupTimeSlots.Commands.PatchFgsSetupTimeSl
 using Fgs.Setup.Application.Features.SetupTimeSlots.Commands.UpdateFgsSetupTimeSlot;
 using Fgs.Setup.Application.Features.SetupTimeSlots.Queries.GetFgsSetupTimeSlotById;
 using Fgs.Setup.Application.Features.SetupTimeSlots.Queries.ListSetupTimeSlots;
-using Fgs.Setup.Application.Features.SetupTimeSlots.Queries.ListActiveSetupTimeSlots;
 using Fgs.Setup.Application.Features.SetupTimeSlots.Queries.LookupSetupTimeSlots;
 using Fgs.Setup.Application.Features.SetupTimeSlots.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class TimeSlotsController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupSetupTimeSlotsQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSetupTimeSlotSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? code = null,
-        [FromQuery] string? name = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveSetupTimeSlotsQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsSetupTimeSlotListFilters(code, name)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

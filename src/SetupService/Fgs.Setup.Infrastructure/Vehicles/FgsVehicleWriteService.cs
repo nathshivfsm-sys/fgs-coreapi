@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.Vehicles.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.Vehicles;
@@ -190,8 +191,6 @@ public sealed class FgsVehicleWriteService : IFgsVehicleWriteService
     private static FgsVehicleDetailDto MapToDetail(FgsVehicle entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.WarehouseId,
             entity.OwnershipType,
             entity.OwnershipCompany,
@@ -207,9 +206,5 @@ public sealed class FgsVehicleWriteService : IFgsVehicleWriteService
             entity.PurchasedFrom,
             entity.IsPurchasedNew,
             entity.Notes,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

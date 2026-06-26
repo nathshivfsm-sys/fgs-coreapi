@@ -7,11 +7,11 @@ internal static class LeadSourceSql
     public const string Table = "setup.\"FgsLeadSource\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "SourceCode", "SourceName", "Description", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "SourceCode", "SourceName", "Description", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "SourceCode", "SourceName", "Description", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "SourceCode", "SourceName", "Description", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class LeadSourceSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "SourceCode", "SourceName", "Description"
+        "Id", "IsActive", "SourceCode", "SourceName", "Description"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

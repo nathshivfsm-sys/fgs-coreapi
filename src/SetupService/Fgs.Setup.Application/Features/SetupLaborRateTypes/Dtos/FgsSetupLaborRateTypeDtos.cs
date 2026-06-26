@@ -2,29 +2,19 @@ namespace Fgs.Setup.Application.Features.SetupLaborRateTypes.Dtos;
 
 public sealed record FgsSetupLaborRateTypeSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string Name,
     string? Description,
     int SortOrder,
     bool IsSystem,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsSetupLaborRateTypeDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string Name,
     string? Description,
     int SortOrder,
     bool IsSystem,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsSetupLaborRateTypeLookupDto(
     long Id,

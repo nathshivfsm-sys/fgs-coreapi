@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.VehicleMaintenances.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.VehicleMaintenances;
@@ -175,8 +176,6 @@ public sealed class FgsVehicleMaintenanceWriteService : IFgsVehicleMaintenanceWr
     private static FgsVehicleMaintenanceDetailDto MapToDetail(FgsVehicleMaintenance entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.VehicleId,
             entity.VehicleMaintenanceTypeId,
             entity.ServiceDate,
@@ -189,9 +188,5 @@ public sealed class FgsVehicleMaintenanceWriteService : IFgsVehicleMaintenanceWr
             entity.IsCompleted,
             entity.Description,
             entity.Notes,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

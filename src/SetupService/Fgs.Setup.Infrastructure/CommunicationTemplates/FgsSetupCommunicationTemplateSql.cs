@@ -7,11 +7,11 @@ internal static class FgsSetupCommunicationTemplateSql
     public const string Table = "setup.\"FgsSetupCommunicationTemplate\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "CommunicationChannel", "TemplateType", "Code", "Name", "Subject", "Body", "IsMobileVisible", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "CommunicationChannel", "TemplateType", "Code", "Name", "Subject", "Body", "IsMobileVisible", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "CommunicationChannel", "TemplateType", "Code", "Name", "Subject", "Body", "IsMobileVisible", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "CommunicationChannel", "TemplateType", "Code", "Name", "Subject", "Body", "IsMobileVisible", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class FgsSetupCommunicationTemplateSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "CommunicationChannel", "TemplateType", "Code", "Name", "Subject", "Body", "IsMobileVisible"
+        "Id", "IsActive", "CommunicationChannel", "TemplateType", "Code", "Name", "Subject", "Body", "IsMobileVisible"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

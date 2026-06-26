@@ -2,28 +2,18 @@ namespace Fgs.Setup.Application.Features.TechTrades.Dtos;
 
 public sealed record TechTradeSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string TradeCode,
     string Name,
     int? SortOrder,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record TechTradeDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string TradeCode,
     string Name,
     string? Description,
     int? SortOrder,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record TechTradeLookupDto(
     long Id,

@@ -25,7 +25,7 @@ public sealed class FgsSetupCommunicationTemplateCommandHandlerTests
     private const long CompanyId = 20;
 
     [Fact]
-    public async Task CreateHandler_CreatesWithAuditFields()
+    public async Task CreateHandler_CreatesActiveRecord()
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
@@ -38,14 +38,12 @@ public sealed class FgsSetupCommunicationTemplateCommandHandlerTests
             NullLogger<CreateFgsSetupCommunicationTemplateCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateFgsSetupCommunicationTemplateCommand(new FgsSetupCommunicationTemplateCreateDto(10L, 20L, "Email", "TemplateType value", "Code value", "Name value", "Subject value", "Body value", true)),
+            new CreateFgsSetupCommunicationTemplateCommand(new FgsSetupCommunicationTemplateCreateDto("Email", "TemplateType value", "Code value", "Name value", "Subject value", "Body value", true)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
         response.Data!.IsActive.Should().BeTrue();
-        response.Data.TenantId.Should().Be(TenantId);
-        response.Data.CompanyId.Should().Be(CompanyId);
         cache.Verify(
             c => c.RemoveByPrefixAsync(
                 CacheKeys.EntityPrefix(TenantId, CompanyId, "communication-templates"),
@@ -72,7 +70,7 @@ public sealed class FgsSetupCommunicationTemplateCommandHandlerTests
             NullLogger<DeleteFgsSetupCommunicationTemplateCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateFgsSetupCommunicationTemplateCommand(new FgsSetupCommunicationTemplateCreateDto(10L, 20L, "Email", "TemplateType value", "Code value", "Name value", "Subject value", "Body value", true)),
+            new CreateFgsSetupCommunicationTemplateCommand(new FgsSetupCommunicationTemplateCreateDto("Email", "TemplateType value", "Code value", "Name value", "Subject value", "Body value", true)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 
@@ -87,7 +85,7 @@ public sealed class FgsSetupCommunicationTemplateCommandHandlerTests
     private static ITenantContextAccessor CreateTenantContextAccessor() =>
         new TestTenantContextAccessor
         {
-            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId }
         };
 
     private static FgsSetupCommunicationTemplateWriteService CreateWriteService(FgsSetupDbContext context)
@@ -99,7 +97,7 @@ public sealed class FgsSetupCommunicationTemplateCommandHandlerTests
 
         var tenantAccessor = new TestTenantContextAccessor
         {
-            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId }
         };
 
         var auditHelper = new SetupEntityAuditHelper(
@@ -107,14 +105,14 @@ public sealed class FgsSetupCommunicationTemplateCommandHandlerTests
             tenantAccessor,
             new DateTimeProvider());
         var unitOfWork = new EfUnitOfWork<FgsSetupDbContext>(context);
-        return new FgsSetupCommunicationTemplateWriteService(context, unitOfWork, auditHelper);
+        return new FgsSetupCommunicationTemplateWriteService(context, unitOfWork, auditHelper, tenantAccessor);
     }
 
     private static async Task<FgsSetupDbContext> CreateContextAsync()
     {
         var accessor = new TestTenantContextAccessor
         {
-            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId, IsResolved = true }
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId }
         };
 
         var options = new DbContextOptionsBuilder<FgsSetupDbContext>()

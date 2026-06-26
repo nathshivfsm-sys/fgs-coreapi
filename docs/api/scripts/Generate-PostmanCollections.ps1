@@ -60,6 +60,78 @@ function Join-UrlPath {
     return ('{0}/{1}' -f $Base.TrimEnd('/'), $Suffix.TrimStart('/'))
 }
 
+function Get-MethodSignatureBlock {
+    param(
+        [string]$Content,
+        [int]$StartIndex,
+        [string]$MethodName
+    )
+
+    $anchor = $Content.IndexOf("$MethodName(", $StartIndex, [System.StringComparison]::Ordinal)
+    if ($anchor -lt 0) { return '' }
+
+    $openIdx = $anchor + $MethodName.Length
+    $depth = 0
+    for ($i = $openIdx; $i -lt $Content.Length; $i++) {
+        switch ($Content[$i]) {
+            '(' { $depth++ }
+            ')' {
+                $depth--
+                if ($depth -eq 0) {
+                    return $Content.Substring($anchor, $i - $anchor + 1)
+                }
+            }
+        }
+    }
+
+    return ''
+}
+
+function Get-StandardPaginationQueryItems {
+    return @(
+        @{ key = 'page'; value = '{{page}}'; description = 'Page number (1-based). Default: 1.' }
+        @{ key = 'pageSize'; value = '{{pageSize}}'; description = 'Items per page (1-100). Default: 25.' }
+        @{ key = 'sortBy'; value = '{{sortBy}}'; description = 'Property to sort by (entity-specific). Optional.'; disabled = $true }
+        @{ key = 'sortDirection'; value = '{{sortDirection}}'; description = 'Sort direction: Asc or Desc. Default: Asc.'; disabled = $true }
+        @{ key = 'search'; value = '{{search}}'; description = 'Free-text search across searchable fields. Optional.'; disabled = $true }
+        @{ key = 'isActive'; value = 'true'; description = 'Filter by active records. Default: true.' }
+    )
+}
+
+function Test-IsPaginatedListAction {
+    param([string]$MethodBlock)
+    return $MethodBlock -match '\[FromQuery\]\s+int\s+page\s*='
+}
+
+function Get-ListFilterQueryItemsFromBlock {
+    param([string]$MethodBlock)
+
+    $skip = @{
+        page = $true
+        pageSize = $true
+        sortBy = $true
+        sortDirection = $true
+        search = $true
+        isActive = $true
+        cancellationToken = $true
+    }
+
+    $items = @()
+    $matches = [regex]::Matches($MethodBlock, '\[FromQuery\]\s+[\w\?\.]+\s+(\w+)\s*(?:=\s*[^,\)]+)?')
+    foreach ($m in $matches) {
+        $name = $m.Groups[1].Value
+        if ($skip.ContainsKey($name)) { continue }
+        $items += @{
+            key = (ConvertTo-CamelCase $name)
+            value = ''
+            description = "Optional $name filter."
+            disabled = $true
+        }
+    }
+
+    return $items
+}
+
 function Convert-ToPostmanUrl {
     param(
         [string]$Url,
@@ -108,13 +180,15 @@ function New-PostmanRequest {
         [bool]$UseAuth,
         [string]$Description = "",
         [hashtable]$Query = @{},
+        [array]$QueryItems = @(),
         [string]$Body = $null,
         [hashtable]$Headers = @{}
     )
 
-    $queryItems = @()
-    foreach ($k in $Query.Keys) {
-        $queryItems += @{ key = $k; value = [string]$Query[$k]; description = "" }
+    if ($QueryItems.Count -eq 0) {
+        foreach ($k in $Query.Keys) {
+            $QueryItems += @{ key = $k; value = [string]$Query[$k]; description = "" }
+        }
     }
 
     $headerItems = @(
@@ -152,34 +226,59 @@ function New-PostmanRequest {
     }
 }
 
+function Get-GatewayExternalPath {
+    param([string]$ServiceKey, [string]$RouteTemplate)
+
+    # Setup catalog routes are exposed at /api/v1/{catalog} (no /setup prefix).
+    if ($ServiceKey -eq 'SetupService' -and $RouteTemplate -ne 'health') {
+        return "/api/v1/$RouteTemplate"
+    }
+
+    # Credential audits and tenant bucket routes use direct gateway paths.
+    if ($ServiceKey -eq 'AuditService' -and $RouteTemplate -eq 'credential-audits') {
+        return '/api/v1/credential-audits'
+    }
+    if ($ServiceKey -eq 'FileService' -and $RouteTemplate -eq 'tenants') {
+        return '/api/v1/tenants'
+    }
+    if ($ServiceKey -eq 'FileService' -and $RouteTemplate -eq 'files') {
+        return '/api/v1/files'
+    }
+
+    # Notification nginx rewrite: /api/v1/notifications/* -> /api/v1/*
+    if ($ServiceKey -eq 'NotificationService' -and $RouteTemplate -eq 'notifications') {
+        return '/api/v1/notifications/notifications'
+    }
+
+    $gatewayPrefix = @{
+        'NotificationService' = 'notifications'
+        'CrmService' = 'crm'
+        'SchedulingService' = 'scheduling'
+        'BillingService' = 'billing'
+        'InventoryService' = 'inventory'
+        'ReportingService' = 'reporting'
+        'IntegrationService' = 'integration'
+        'AssetService' = 'asset'
+        'ServiceAgreementService' = 'service-agreements'
+        'CommunicationService' = 'communication'
+        'PublisherService' = 'publisher'
+        'ConsumerService' = 'consumer'
+        'AuditService' = 'audit'
+        'SetupService' = 'setup'
+    }
+
+    if ($gatewayPrefix.ContainsKey($ServiceKey)) {
+        return "/api/v1/$($gatewayPrefix[$ServiceKey])/$RouteTemplate"
+    }
+
+    return "/api/v1/$RouteTemplate"
+}
+
 function Get-ServiceBaseUrl {
-    param([string]$ServiceKey, [string]$RouteTemplate, [hashtable]$GatewayMap)
+    param([string]$ServiceKey, [string]$RouteTemplate)
 
-    if ($GatewayMap.ContainsKey($RouteTemplate)) {
-        return "{{gatewayUrl}}$($GatewayMap[$RouteTemplate])"
-    }
-
-    $varName = switch ($ServiceKey) {
-        'UserService' { 'userServiceUrl' }
-        'SetupService' { 'setupServiceUrl' }
-        'NotificationService' { 'notificationServiceUrl' }
-        'FileService' { 'fileServiceUrl' }
-        'AuditService' { 'auditServiceUrl' }
-        'PublisherService' { 'publisherServiceUrl' }
-        'ConsumerService' { 'consumerServiceUrl' }
-        'AssetService' { 'assetServiceUrl' }
-        'BillingService' { 'billingServiceUrl' }
-        'CommunicationService' { 'communicationServiceUrl' }
-        'CrmService' { 'crmServiceUrl' }
-        'IntegrationService' { 'integrationServiceUrl' }
-        'InventoryService' { 'inventoryServiceUrl' }
-        'ReportingService' { 'reportingServiceUrl' }
-        'SchedulingService' { 'schedulingServiceUrl' }
-        'ServiceAgreementService' { 'serviceAgreementServiceUrl' }
-        default { 'gatewayUrl' }
-    }
-
-    return "{{$varName}}/api/v1/$RouteTemplate"
+    $path = Get-GatewayExternalPath -ServiceKey $ServiceKey -RouteTemplate $RouteTemplate
+    return "{{gatewayUrl}}$path"
 }
 
 function ConvertTo-CamelCase {
@@ -460,7 +559,6 @@ function Parse-ControllerFile {
     param(
         [string]$FilePath,
         [string]$ServiceKey,
-        [hashtable]$GatewayMap,
         [hashtable]$DtoRegistry
     )
 
@@ -481,7 +579,7 @@ function Parse-ControllerFile {
 
     $routeTemplate = Get-RouteTemplate $routeMatch.Groups[1].Value $fileName
     $classHeader = ($content -split 'public\s+(?:sealed\s+)?(?:partial\s+)?class')[0]
-    $baseUrl = Get-ServiceBaseUrl $ServiceKey $routeTemplate $GatewayMap
+    $baseUrl = Get-ServiceBaseUrl $ServiceKey $routeTemplate
 
     $controllerDescription = "$fileName - $routeTemplate"
 
@@ -513,9 +611,14 @@ function Parse-ControllerFile {
         }
 
         $query = @{}
+        $queryItems = @()
         $headers = @{}
         $body = $null
+        $signatureBlock = Get-MethodSignatureBlock -Content $content -StartIndex $m.Index -MethodName $methodName
 
+        if ($methodName -eq 'List' -and (Test-IsPaginatedListAction $signatureBlock)) {
+            $queryItems = @(Get-StandardPaginationQueryItems) + @(Get-ListFilterQueryItemsFromBlock $signatureBlock)
+        }
         if ($methodName -eq 'GetActive' -and $routeTemplate -eq 'communication-templates') {
             $query = @{ tenantId = '{{tenantId}}'; companyId = '{{companyId}}'; templateType = 'Email'; code = 'INVITE' }
             $headers['X-Internal-Service-Key'] = '{{internalServiceKey}}'
@@ -524,9 +627,6 @@ function Parse-ControllerFile {
         if ($methodName -eq 'Get' -and $fileName -eq 'DashboardController') {
             $fullPath = '{{gatewayUrl}}/api/v1/dashboard?token={{accessToken}}'
             $useAuth = $false
-        }
-        if ($methodName -eq 'List' -and $fileName -match 'Catalog|JobType|Inventory|Vendor|Warehouse|Vehicle|Lead|Sales|Setup|Billing|Business|Resolution|Tag|TechTrades') {
-            $query = @{ page = '1'; pageSize = '25'; isActive = 'true' }
         }
         if ($httpAttr -in @('Post','Put','Patch') -and $methodName -notin @('EntraCallback','EntraConnector','CompanySignup','Start','CompleteUpload')) {
             $body = "{}"
@@ -721,9 +821,6 @@ function Parse-ControllerFile {
 '@
         }
         if ($fileName -eq 'TechTradesController') {
-            if ($methodName -eq 'ListActive') {
-                $query = @{ page = '1'; pageSize = '25'; sortBy = 'SortOrder'; search = '' }
-            }
             if ($methodName -eq 'Lookup') {
                 $query = @{ activeOnly = 'true' }
             }
@@ -740,9 +837,6 @@ function Parse-ControllerFile {
             $headers['X-Company-Id'] = '{{companyId}}'
         }
         if ($fileName -eq 'GLBreaksController') {
-            if ($methodName -in @('List', 'ListActive')) {
-                $query = @{ page = '1'; pageSize = '25'; isActive = 'true' }
-            }
             if ($methodName -eq 'Lookup') {
                 $query = @{ activeOnly = 'true' }
             }
@@ -874,7 +968,7 @@ function Parse-ControllerFile {
             $displayName = $docSummary
         }
         $description = if ($docSummary) { $docSummary } else { $methodName }
-        $req = New-PostmanRequest -Name $displayName -Method $verb -Url $fullPath -UseAuth $useAuth -Description $description -Query $query -Body $body -Headers $headers
+        $req = New-PostmanRequest -Name $displayName -Method $verb -Url $fullPath -UseAuth $useAuth -Description $description -Query $query -QueryItems $queryItems -Body $body -Headers $headers
         if ($fileName -eq 'TechTradesController' -and $methodName -eq 'Create') {
             $req['event'] = @(@{
                 listen = 'test'
@@ -1088,38 +1182,23 @@ function New-Collection {
     return $collection
 }
 
-$gatewayMaps = @{
-    UserService = @{
-        'auth' = '/api/v1/auth'
-        'invite' = '/api/v1/invite'
-        'signup' = '/api/v1/signup'
-        'dashboard' = '/api/v1/dashboard'
-    }
-    NotificationService = @{ 'notifications' = '/api/v1/notifications' }
-    SetupService = @{
-        'credentials' = '/api/v1/credentials'
-        'communication-templates' = '/api/v1/communication-templates'
-    }
-    FileService = @{ 'tenants' = '/api/v1/tenants' }
-}
-
 $serviceConfigs = @(
-    @{ Key = 'UserService'; Path = 'src\UserService\Fgs.User.API\Controllers'; Desc = 'Company onboarding, Entra auth (via gateway), and tenant admin APIs (direct userServiceUrl /api/v1/tenants — matches controller routes).'; AuthFlow = $true }
-    @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup: credentials (gateway), communication templates, tech trades, tenant provisioning, business types.'; AuthFlow = $false }
-    @{ Key = 'NotificationService'; Path = 'src\NotificationService\Fgs.Notification.API\Controllers'; Desc = 'Notification dispatch via gateway.'; AuthFlow = $false }
-    @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 bucket provisioning via gateway /api/v1/tenants.'; AuthFlow = $false }
-    @{ Key = 'AuditService'; Path = 'src\AuditService\Fgs.Audit.API\Controllers'; Desc = 'Credential audit trail (direct service URL).'; AuthFlow = $false }
-    @{ Key = 'PublisherService'; Path = 'src\PublisherService\Fgs.Publisher.API\Controllers'; Desc = 'Outbox publisher worker API.'; AuthFlow = $false }
-    @{ Key = 'ConsumerService'; Path = 'src\ConsumerService\Fgs.Consumer.API\Controllers'; Desc = 'Message consumer worker API.'; AuthFlow = $false }
-    @{ Key = 'AssetService'; Path = 'src\AssetService\Fgs.Asset.API\Controllers'; Desc = 'Asset service scaffold (health).'; AuthFlow = $false }
-    @{ Key = 'BillingService'; Path = 'src\BillingService\Fgs.Billing.API\Controllers'; Desc = 'Billing service scaffold (health).'; AuthFlow = $false }
-    @{ Key = 'CommunicationService'; Path = 'src\CommunicationService\Fgs.Communication.API\Controllers'; Desc = 'Communication service scaffold (health).'; AuthFlow = $false }
-    @{ Key = 'CrmService'; Path = 'src\CrmService\Fgs.Crm.API\Controllers'; Desc = 'CRM service scaffold (health).'; AuthFlow = $false }
-    @{ Key = 'IntegrationService'; Path = 'src\IntegrationService\Fgs.Integration.API\Controllers'; Desc = 'Integration service scaffold (health).'; AuthFlow = $false }
-    @{ Key = 'InventoryService'; Path = 'src\InventoryService\Fgs.Inventory.API\Controllers'; Desc = 'Inventory service scaffold (health).'; AuthFlow = $false }
-    @{ Key = 'ReportingService'; Path = 'src\ReportingService\Fgs.Reporting.API\Controllers'; Desc = 'Reporting service scaffold (health).'; AuthFlow = $false }
-    @{ Key = 'SchedulingService'; Path = 'src\SchedulingService\Fgs.Scheduling.API\Controllers'; Desc = 'Scheduling service scaffold (health).'; AuthFlow = $false }
-    @{ Key = 'ServiceAgreementService'; Path = 'src\ServiceAgreementService\Fgs.ServiceAgreement.API\Controllers'; Desc = 'Service agreement scaffold (health).'; AuthFlow = $false }
+    @{ Key = 'UserService'; Path = 'src\UserService\Fgs.User.API\Controllers'; Desc = 'Company onboarding, Entra auth, dashboard, and tenant admin APIs via {{gatewayUrl}}.'; AuthFlow = $true }
+    @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup catalog APIs via {{gatewayUrl}}/api/v1/{catalog}.'; AuthFlow = $false }
+    @{ Key = 'NotificationService'; Path = 'src\NotificationService\Fgs.Notification.API\Controllers'; Desc = 'Notification dispatch via {{gatewayUrl}}/api/v1/notifications/...'; AuthFlow = $false }
+    @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 bucket provisioning and file health via {{gatewayUrl}}.'; AuthFlow = $false }
+    @{ Key = 'AuditService'; Path = 'src\AuditService\Fgs.Audit.API\Controllers'; Desc = 'Credential audit trail via {{gatewayUrl}}.'; AuthFlow = $false }
+    @{ Key = 'PublisherService'; Path = 'src\PublisherService\Fgs.Publisher.API\Controllers'; Desc = 'Outbox publisher worker API via {{gatewayUrl}}/api/v1/publisher/...'; AuthFlow = $false }
+    @{ Key = 'ConsumerService'; Path = 'src\ConsumerService\Fgs.Consumer.API\Controllers'; Desc = 'Message consumer worker API via {{gatewayUrl}}/api/v1/consumer/...'; AuthFlow = $false }
+    @{ Key = 'AssetService'; Path = 'src\AssetService\Fgs.Asset.API\Controllers'; Desc = 'Asset service scaffold (health) via {{gatewayUrl}}/api/v1/asset/...'; AuthFlow = $false }
+    @{ Key = 'BillingService'; Path = 'src\BillingService\Fgs.Billing.API\Controllers'; Desc = 'Billing service scaffold (health) via {{gatewayUrl}}/api/v1/billing/...'; AuthFlow = $false }
+    @{ Key = 'CommunicationService'; Path = 'src\CommunicationService\Fgs.Communication.API\Controllers'; Desc = 'Communication service scaffold (health) via {{gatewayUrl}}/api/v1/communication/...'; AuthFlow = $false }
+    @{ Key = 'CrmService'; Path = 'src\CrmService\Fgs.Crm.API\Controllers'; Desc = 'CRM service scaffold (health) via {{gatewayUrl}}/api/v1/crm/...'; AuthFlow = $false }
+    @{ Key = 'IntegrationService'; Path = 'src\IntegrationService\Fgs.Integration.API\Controllers'; Desc = 'Integration service scaffold (health) via {{gatewayUrl}}/api/v1/integration/...'; AuthFlow = $false }
+    @{ Key = 'InventoryService'; Path = 'src\InventoryService\Fgs.Inventory.API\Controllers'; Desc = 'Inventory service scaffold (health) via {{gatewayUrl}}/api/v1/inventory/...'; AuthFlow = $false }
+    @{ Key = 'ReportingService'; Path = 'src\ReportingService\Fgs.Reporting.API\Controllers'; Desc = 'Reporting service scaffold (health) via {{gatewayUrl}}/api/v1/reporting/...'; AuthFlow = $false }
+    @{ Key = 'SchedulingService'; Path = 'src\SchedulingService\Fgs.Scheduling.API\Controllers'; Desc = 'Scheduling service scaffold (health) via {{gatewayUrl}}/api/v1/scheduling/...'; AuthFlow = $false }
+    @{ Key = 'ServiceAgreementService'; Path = 'src\ServiceAgreementService\Fgs.ServiceAgreement.API\Controllers'; Desc = 'Service agreement scaffold (health) via {{gatewayUrl}}/api/v1/service-agreements/...'; AuthFlow = $false }
 )
 
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
@@ -1132,14 +1211,13 @@ foreach ($svc in $serviceConfigs) {
     $controllerRoot = Join-Path $RepoRoot $svc.Path
     if (-not (Test-Path $controllerRoot)) { Write-Warning "Skip $($svc.Key): $controllerRoot"; continue }
 
-    $map = if ($gatewayMaps.ContainsKey($svc.Key)) { $gatewayMaps[$svc.Key] } else { @{} }
     $files = Get-ChildItem -Path $controllerRoot -Filter '*Controller.cs' -Recurse |
         Where-Object { $_.Name -notmatch '^AuthController\..+\.cs$' } |
         Sort-Object FullName
     $folders = @()
 
     foreach ($file in $files) {
-        $folder = Parse-ControllerFile -FilePath $file.FullName -ServiceKey $svc.Key -GatewayMap $map -DtoRegistry $script:DtoRegistry
+        $folder = Parse-ControllerFile -FilePath $file.FullName -ServiceKey $svc.Key -DtoRegistry $script:DtoRegistry
         if ($null -ne $folder) { $folders += $folder }
     }
 

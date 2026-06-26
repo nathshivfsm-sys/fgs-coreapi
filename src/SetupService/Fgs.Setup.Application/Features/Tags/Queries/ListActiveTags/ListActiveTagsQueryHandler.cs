@@ -1,7 +1,7 @@
 using Fgs.Contracts.Api;
+using Fgs.Foundation.CatalogCrud;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.Tags;
 using Fgs.Setup.Application.Common.SetupCrud;
@@ -20,65 +20,40 @@ public sealed class ListActiveTagsQueryHandler(
         ListActiveTagsQuery request,
         CancellationToken cancellationToken)
     {
-        try
+        var tenantScope = tenantContextAccessor.Current!;
+        var segment = CacheKeys.ListActiveSegment(
+        request.Page,
+        request.PageSize,
+        request.SortBy,
+        request.SortDirection.ToString(),
+        request.Search,
+        CacheKeys.Fingerprint(request.Filters));
+
+        var cacheKey = CacheKeys.Build(
+        tenantScope.TenantId,
+        tenantScope.CompanyId,
+        "tags",
+        segment);
+
+        var cached = await cache.GetOrSetAsync(
+        cacheKey,
+        async () =>
         {
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                var segment = CacheKeys.ListActiveSegment(
+                var query = new SetupListQuery(
                     request.Page,
                     request.PageSize,
                     request.SortBy,
-                    request.SortDirection.ToString(),
+                    request.SortDirection,
                     request.Search,
-                    CacheKeys.Fingerprint(request.Filters));
+                    IsActive: true);
 
-                var cacheKey = CacheKeys.Build(
-                    tenantScope.TenantId,
-                    tenantScope.CompanyId,
-                    "tags",
-                    segment);
+                return await readRepository.ListAsync(
+                    query,
+                    request.Filters ?? new FgsTagListFilters(),
+                    cancellationToken);
+        },
+        cancellationToken: cancellationToken);
 
-                var cached = await cache.GetOrSetAsync(
-                    cacheKey,
-                    async () =>
-                    {
-                        var query = new SetupListQuery(
-                            request.Page,
-                            request.PageSize,
-                            request.SortBy,
-                            request.SortDirection,
-                            request.Search,
-                            IsActive: true);
-
-                        return await readRepository.ListAsync(
-                            query,
-                            request.Filters ?? new FgsTagListFilters(),
-                            cancellationToken);
-                    },
-                    cancellationToken: cancellationToken);
-
-                return ApiResponse<PagedResult<FgsTagSummaryDto>>.Ok(cached!);
-            }
-
-            var listQuery = new SetupListQuery(
-                request.Page,
-                request.PageSize,
-                request.SortBy,
-                request.SortDirection,
-                request.Search,
-                IsActive: true);
-
-            var result = await readRepository.ListAsync(
-                listQuery,
-                request.Filters ?? new FgsTagListFilters(),
-                cancellationToken);
-
-            return ApiResponse<PagedResult<FgsTagSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsTagSummaryDto>>(ex);
-        }
+        return ApiResponse<PagedResult<FgsTagSummaryDto>>.Ok(cached!);
     }
 }

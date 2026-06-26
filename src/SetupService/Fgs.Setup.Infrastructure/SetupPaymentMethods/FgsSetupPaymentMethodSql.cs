@@ -7,11 +7,11 @@ internal static class FgsSetupPaymentMethodSql
     public const string Table = "setup.\"FgsSetupPaymentMethod\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "DisplayName", "SortOrder", "IsMobileVisible", "IsCustomerPortalVisible", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "DisplayName", "SortOrder", "IsMobileVisible", "IsCustomerPortalVisible", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "DisplayName", "SortOrder", "IsMobileVisible", "IsCustomerPortalVisible", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "DisplayName", "SortOrder", "IsMobileVisible", "IsCustomerPortalVisible", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class FgsSetupPaymentMethodSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "SortOrder", "DisplayName", "IsMobileVisible", "IsCustomerPortalVisible"
+        "Id", "IsActive", "SortOrder", "DisplayName", "IsMobileVisible", "IsCustomerPortalVisible"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

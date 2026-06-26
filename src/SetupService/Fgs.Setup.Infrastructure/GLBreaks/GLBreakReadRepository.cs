@@ -108,8 +108,7 @@ internal sealed class GLBreakReadRepository : IGLBreakReadRepository
             .Replace("ORDER BY \"", "ORDER BY glb.\"");
 
         var sql = $"""
-            SELECT glb."Id", glb."TenantId", glb."CompanyId", glb."Code", glb."Name", glb."BreakLabel",
-            glb."BreakLevel", glb."LogoFileId", glb."IsActive", glb."CreatedOn", glb."UpdatedOn"
+            SELECT {GLBreakSql.SelectSummaryColumns}
             FROM {GLBreakSql.Table} glb
             WHERE {whereClause}
             {orderBy}
@@ -250,7 +249,7 @@ internal sealed class GLBreakReadRepository : IGLBreakReadRepository
 
     private (long TenantId, long CompanyId) ResolveTenantScope()
     {
-        if (_tenantContextAccessor.Current is { IsResolved: true } context)
+        if (_tenantContextAccessor.Current is ITenantContext context)
         {
             return (context.TenantId, context.CompanyId);
         }

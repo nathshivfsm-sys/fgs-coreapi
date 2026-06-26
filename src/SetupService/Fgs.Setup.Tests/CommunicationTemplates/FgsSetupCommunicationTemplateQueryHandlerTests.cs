@@ -16,14 +16,14 @@ public sealed class FgsSetupCommunicationTemplateQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsSetupCommunicationTemplateDetailDto(1, 10L, 20L, "Email", "TemplateType value", "Code value", "Name value", "Subject value", "Body value", true, true, DateTimeOffset.UtcNow, "seed", null, "seed");
+        var detail = new FgsSetupCommunicationTemplateDetailDto(1, "Email", "TemplateType value", "Code value", "Name value", "Subject value", "Body value", true, true);
 
         var readRepository = new Mock<IFgsSetupCommunicationTemplateReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsSetupCommunicationTemplateByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSetupCommunicationTemplateByIdQuery(1), CancellationToken.None);
@@ -41,7 +41,7 @@ public sealed class FgsSetupCommunicationTemplateQueryHandlerTests
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetFgsSetupCommunicationTemplateByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsSetupCommunicationTemplateByIdQuery(99), CancellationToken.None);

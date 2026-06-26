@@ -23,7 +23,7 @@ public sealed class TitleOfCourtesyCommandHandlerTests
     private const long CompanyId = 20;
 
     [Fact]
-    public async Task CreateHandler_CreatesTitleOfCourtesyWithAuditFields()
+    public async Task CreateHandler_CreatesTitleOfCourtesy()
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
@@ -40,9 +40,6 @@ public sealed class TitleOfCourtesyCommandHandlerTests
         response.Data!.Code.Should().Be("MR");
         response.Data.DisplayName.Should().Be("Mr.");
         response.Data.IsActive.Should().BeTrue();
-        response.Data.CreatedBy.Should().Be("11111111-1111-1111-1111-111111111111");
-        response.Data.TenantId.Should().Be(TenantId);
-        response.Data.CompanyId.Should().Be(CompanyId);
     }
 
     [Fact]
@@ -71,7 +68,6 @@ public sealed class TitleOfCourtesyCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.Code.Should().Be("MR");
         response.Data.DisplayName.Should().Be("Mister");
-        response.Data.UpdatedBy.Should().Be("11111111-1111-1111-1111-111111111111");
     }
 
     [Fact]
@@ -114,8 +110,7 @@ public sealed class TitleOfCourtesyCommandHandlerTests
             Current = new TenantContext
             {
                 TenantId = TenantId,
-                CompanyId = CompanyId,
-                IsResolved = true
+                CompanyId = CompanyId
             }
         };
 
@@ -134,8 +129,7 @@ public sealed class TitleOfCourtesyCommandHandlerTests
             Current = new TenantContext
             {
                 TenantId = TenantId,
-                CompanyId = CompanyId,
-                IsResolved = true
+                CompanyId = CompanyId
             }
         };
 

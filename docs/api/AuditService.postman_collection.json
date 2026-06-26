@@ -9,9 +9,9 @@
                                       "request":  {
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{auditServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{auditServiceUrl}}/api/v1/credential-audits",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/credential-audits",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
@@ -75,12 +75,13 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{auditServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{auditServiceUrl}}/api/v1/health",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/audit/health",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
+                                                                               "audit",
                                                                                "health"
                                                                            ]
                                                               },
@@ -124,10 +125,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Credential audit trail (direct service URL).",
+                 "description":  "Credential audit trail via {{gatewayUrl}}.",
                  "name":  "FGS AuditService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "60ce7310-c12e-4fbc-9707-1708bb9d2c8d"
+                 "_postman_id":  "d5a8837e-5149-40ad-b0f4-ea26f5536352"
              },
     "event":  [
                   {

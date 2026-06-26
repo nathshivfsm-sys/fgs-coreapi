@@ -216,13 +216,11 @@ public sealed class GLBreakWriteService : IGLBreakWriteService
 
         var trades = entity.Trades
             .OrderBy(t => t.TradeCode)
-            .Select(t => new GLBreakTradeDto(t.Id, t.GLBreakId, t.TradeCode, t.CreatedOn, t.CreatedBy))
+            .Select(t => new GLBreakTradeDto(t.Id, t.GLBreakId, t.TradeCode))
             .ToList();
 
         return new GLBreakDetailDto(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.Code,
             entity.Name,
             entity.BreakLabel,
@@ -230,11 +228,7 @@ public sealed class GLBreakWriteService : IGLBreakWriteService
             entity.LogoFileId,
             address,
             trades,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
     }
 
     private static LocationDetailDto MapLocation(FgsLocation location) =>
@@ -253,11 +247,7 @@ public sealed class GLBreakWriteService : IGLBreakWriteService
             location.Latitude,
             location.Longitude,
             location.PlaceId,
-            location.IsActive,
-            location.CreatedOn,
-            location.CreatedBy,
-            location.UpdatedOn,
-            location.UpdatedBy);
+            location.IsActive);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

@@ -25,31 +25,24 @@ public sealed class ListCatalogEntitiesQueryHandler<TSummary>
         ListCatalogEntitiesQuery<TSummary> request,
         CancellationToken cancellationToken)
     {
-        try
+        var descriptor = _entityRegistry.GetRequired(request.EntityKey);
+        if (descriptor.SummaryDtoType != typeof(TSummary))
         {
-            var descriptor = _entityRegistry.GetRequired(request.EntityKey);
-            if (descriptor.SummaryDtoType != typeof(TSummary))
-            {
-                return ApiResponse<PagedResult<TSummary>>.Fail(["DTO type mismatch."], ApiStatusCodes.BadRequest);
-            }
-
-            var filters = CatalogEntityMapper.ExtractFilters(request.Filters)
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.ToString(), StringComparer.OrdinalIgnoreCase);
-
-            var result = await _readRepository.ListAsync(
-                descriptor,
-                request.Paging,
-                filters,
-                typeof(TSummary),
-                cancellationToken);
-
-            var typedItems = result.Items.Cast<TSummary>().ToList();
-            return ApiResponse<PagedResult<TSummary>>.Ok(
-                new PagedResult<TSummary>(typedItems, result.Page, result.PageSize, result.TotalCount));
+            return ApiResponse<PagedResult<TSummary>>.Fail(["DTO type mismatch."], ApiStatusCodes.BadRequest);
         }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<TSummary>>(ex);
-        }
+
+        var filters = CatalogEntityMapper.ExtractFilters(request.Filters)
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.ToString(), StringComparer.OrdinalIgnoreCase);
+
+        var result = await _readRepository.ListAsync(
+            descriptor,
+            request.Paging,
+            filters,
+            typeof(TSummary),
+            cancellationToken);
+
+        var typedItems = result.Items.Cast<TSummary>().ToList();
+        return ApiResponse<PagedResult<TSummary>>.Ok(
+            new PagedResult<TSummary>(typedItems, result.Page, result.PageSize, result.TotalCount));
     }
 }

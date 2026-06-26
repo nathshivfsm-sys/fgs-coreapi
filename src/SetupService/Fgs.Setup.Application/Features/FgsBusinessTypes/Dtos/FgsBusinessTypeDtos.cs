@@ -2,29 +2,19 @@ namespace Fgs.Setup.Application.Features.FgsBusinessTypes.Dtos;
 
 public sealed record FgsBusinessTypeSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string Code,
     string Name,
     string? Description,
     short? DisplayOrder,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsBusinessTypeDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string Code,
     string Name,
     string? Description,
     short? DisplayOrder,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsBusinessTypeLookupDto(
     long Id,

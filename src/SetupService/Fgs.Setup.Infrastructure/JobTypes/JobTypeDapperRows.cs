@@ -5,8 +5,6 @@ namespace Fgs.Setup.Infrastructure.JobTypes;
 internal sealed class JobTypeSummaryRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public long JobTypeCategoryId { get; set; }
     public long? JobTypeSubCategoryId { get; set; }
     public string JobTypeCode { get; set; }
@@ -23,14 +21,10 @@ internal sealed class JobTypeSummaryRow
     public bool ShowOnCustomerPortal { get; set; }
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
 
     public JobTypeSummaryDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             JobTypeCategoryId,
             JobTypeSubCategoryId,
             JobTypeCode,
@@ -46,16 +40,12 @@ internal sealed class JobTypeSummaryRow
             ShowToFieldTech,
             ShowOnCustomerPortal,
             DisplayOrder,
-            IsActive,
-            CreatedOn,
-            UpdatedOn);
+            IsActive);
 }
 
 internal sealed class JobTypeDetailRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public long JobTypeCategoryId { get; set; }
     public long? JobTypeSubCategoryId { get; set; }
     public string JobTypeCode { get; set; }
@@ -72,16 +62,10 @@ internal sealed class JobTypeDetailRow
     public bool ShowOnCustomerPortal { get; set; }
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public string? CreatedBy { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
-    public string? UpdatedBy { get; set; }
 
     public JobTypeDetailDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             JobTypeCategoryId,
             JobTypeSubCategoryId,
             JobTypeCode,
@@ -97,11 +81,7 @@ internal sealed class JobTypeDetailRow
             ShowToFieldTech,
             ShowOnCustomerPortal,
             DisplayOrder,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+            IsActive);
 }
 
 internal sealed class JobTypeLookupRow

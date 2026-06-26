@@ -2,29 +2,19 @@ namespace Fgs.Setup.Application.Features.ResolutionCodes.Dtos;
 
 public sealed record ResolutionCodeSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     int GloResolutionTypeId,
     string ResolutionCode,
     string ResolutionName,
     bool IsMobileVisible,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record ResolutionCodeDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     int GloResolutionTypeId,
     string ResolutionCode,
     string ResolutionName,
     bool IsMobileVisible,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record ResolutionCodeLookupDto(
     long Id,

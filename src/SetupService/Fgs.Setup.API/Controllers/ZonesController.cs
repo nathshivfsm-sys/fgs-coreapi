@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.SetupZones.Commands.PatchFgsSetupZone;
 using Fgs.Setup.Application.Features.SetupZones.Commands.UpdateFgsSetupZone;
 using Fgs.Setup.Application.Features.SetupZones.Queries.GetFgsSetupZoneById;
 using Fgs.Setup.Application.Features.SetupZones.Queries.ListSetupZones;
-using Fgs.Setup.Application.Features.SetupZones.Queries.ListActiveSetupZones;
 using Fgs.Setup.Application.Features.SetupZones.Queries.LookupSetupZones;
 using Fgs.Setup.Application.Features.SetupZones.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class ZonesController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupSetupZonesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSetupZoneSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? code = null,
-        [FromQuery] string? name = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveSetupZonesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsSetupZoneListFilters(code, name)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

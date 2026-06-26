@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.TitlesOfCourtesy.Commands.PatchTitleOfCourt
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Commands.UpdateTitleOfCourtesy;
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Dtos;
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Queries.GetTitleOfCourtesyById;
-using Fgs.Setup.Application.Features.TitlesOfCourtesy.Queries.ListActiveTitlesOfCourtesy;
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Queries.ListTitlesOfCourtesy;
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Queries.LookupTitlesOfCourtesy;
 using MediatR;
@@ -65,31 +64,6 @@ public sealed class TitlesOfCourtesyController(IMediator mediator) : ControllerB
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupTitlesOfCourtesyQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<TitleOfCourtesySummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? code = null,
-        [FromQuery] string? displayName = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveTitlesOfCourtesyQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new TitleOfCourtesyListFilters(code, displayName)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

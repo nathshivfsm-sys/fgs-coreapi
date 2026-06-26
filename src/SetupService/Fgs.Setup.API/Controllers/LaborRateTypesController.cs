@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.SetupLaborRateTypes.Commands.PatchFgsSetupL
 using Fgs.Setup.Application.Features.SetupLaborRateTypes.Commands.UpdateFgsSetupLaborRateType;
 using Fgs.Setup.Application.Features.SetupLaborRateTypes.Queries.GetFgsSetupLaborRateTypeById;
 using Fgs.Setup.Application.Features.SetupLaborRateTypes.Queries.ListSetupLaborRateTypes;
-using Fgs.Setup.Application.Features.SetupLaborRateTypes.Queries.ListActiveSetupLaborRateTypes;
 using Fgs.Setup.Application.Features.SetupLaborRateTypes.Queries.LookupSetupLaborRateTypes;
 using Fgs.Setup.Application.Features.SetupLaborRateTypes.Dtos;
 using MediatR;
@@ -62,30 +61,6 @@ public sealed class LaborRateTypesController(IMediator mediator) : ControllerBas
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupSetupLaborRateTypesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSetupLaborRateTypeSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? name = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveSetupLaborRateTypesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsSetupLaborRateTypeListFilters(name)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

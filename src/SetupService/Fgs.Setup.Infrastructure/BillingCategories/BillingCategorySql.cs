@@ -7,11 +7,11 @@ internal static class BillingCategorySql
     public const string Table = "setup.\"FgsBillingCategory\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "BillingCategoryType", "BillingCategoryName", "Description", "DisplayOrder", "IsSystemDefined", "ShowToFieldTech", "AllowToPick", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "BillingCategoryType", "BillingCategoryName", "Description", "DisplayOrder", "IsSystemDefined", "ShowToFieldTech", "AllowToPick", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "BillingCategoryType", "BillingCategoryName", "Description", "DisplayOrder", "IsSystemDefined", "ShowToFieldTech", "AllowToPick", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "BillingCategoryType", "BillingCategoryName", "Description", "DisplayOrder", "IsSystemDefined", "ShowToFieldTech", "AllowToPick", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class BillingCategorySql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "DisplayOrder", "BillingCategoryType", "BillingCategoryName", "Description", "IsSystemDefined", "ShowToFieldTech", "AllowToPick"
+        "Id", "IsActive", "DisplayOrder", "BillingCategoryType", "BillingCategoryName", "Description", "IsSystemDefined", "ShowToFieldTech", "AllowToPick"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

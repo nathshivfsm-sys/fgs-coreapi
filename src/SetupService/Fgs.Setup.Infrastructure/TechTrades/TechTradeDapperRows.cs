@@ -9,10 +9,6 @@ internal sealed class TechTradeSummaryRow
 {
     public long Id { get; set; }
 
-    public long TenantId { get; set; }
-
-    public long CompanyId { get; set; }
-
     public string TradeCode { get; set; } = null!;
 
     public string Name { get; set; } = null!;
@@ -21,21 +17,13 @@ internal sealed class TechTradeSummaryRow
 
     public bool IsActive { get; set; }
 
-    public DateTimeOffset CreatedOn { get; set; }
-
-    public DateTimeOffset? UpdatedOn { get; set; }
-
     public TechTradeSummaryDto ToDto() =>
-        new(Id, TenantId, CompanyId, TradeCode, Name, SortOrder, IsActive, CreatedOn, UpdatedOn);
+        new(Id, TradeCode, Name, SortOrder, IsActive);
 }
 
 internal sealed class TechTradeDetailRow
 {
     public long Id { get; set; }
-
-    public long TenantId { get; set; }
-
-    public long CompanyId { get; set; }
 
     public string TradeCode { get; set; } = null!;
 
@@ -47,28 +35,8 @@ internal sealed class TechTradeDetailRow
 
     public bool IsActive { get; set; }
 
-    public DateTimeOffset CreatedOn { get; set; }
-
-    public string? CreatedBy { get; set; }
-
-    public DateTimeOffset? UpdatedOn { get; set; }
-
-    public string? UpdatedBy { get; set; }
-
     public TechTradeDetailDto ToDto() =>
-        new(
-            Id,
-            TenantId,
-            CompanyId,
-            TradeCode,
-            Name,
-            Description,
-            SortOrder,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+        new(Id, TradeCode, Name, Description, SortOrder, IsActive);
 }
 
 internal sealed class TechTradeLookupRow

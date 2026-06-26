@@ -10,12 +10,13 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{inventoryServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{inventoryServiceUrl}}/api/v1/health",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/health",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
+                                                                               "inventory",
                                                                                "health"
                                                                            ]
                                                               },
@@ -59,10 +60,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Inventory service scaffold (health).",
+                 "description":  "Inventory service scaffold (health) via {{gatewayUrl}}/api/v1/inventory/...",
                  "name":  "FGS InventoryService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "ed0a547c-f7fa-4ebc-8f50-de9fbc9676b4"
+                 "_postman_id":  "5f5817eb-0b94-4608-b642-1b4681782c4e"
              },
     "event":  [
                   {

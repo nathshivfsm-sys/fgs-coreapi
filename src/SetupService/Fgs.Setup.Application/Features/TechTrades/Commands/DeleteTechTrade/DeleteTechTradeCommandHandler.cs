@@ -1,5 +1,4 @@
 using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.Setup.Application.Abstractions.TechTrades;
 using Fgs.Setup.Application.Features.TechTrades.Dtos;
 using MediatR;
@@ -16,20 +15,12 @@ public sealed class DeleteTechTradeCommandHandler(
         DeleteTechTradeCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.DeleteAsync(request.Id, cancellationToken);
-            logger.LogInformation(
+        var result = await writeService.DeleteAsync(request.Id, cancellationToken);
+        logger.LogInformation(
                 "Soft-deleted tech trade {TechTradeId} with code {TradeCode}",
                 result.Id,
                 result.TradeCode);
 
-            return ApiResponse<TechTradeDetailDto>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to delete tech trade {TechTradeId}", request.Id);
-            return CatalogCrudExceptionMapper.MapException<TechTradeDetailDto>(ex);
-        }
+        return ApiResponse<TechTradeDetailDto>.Ok(result);
     }
 }

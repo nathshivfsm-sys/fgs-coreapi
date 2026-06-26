@@ -13,14 +13,7 @@ public sealed class ListSalesActivityOutcomesQueryHandler(IFgsSalesActivityOutco
         ListSalesActivityOutcomesQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<FgsSalesActivityOutcomeSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsSalesActivityOutcomeSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<FgsSalesActivityOutcomeSummaryDto>>.Ok(result);
     }
 }

@@ -13,14 +13,7 @@ public sealed class ListSalesPipelineStatusesQueryHandler(IFgsSalesPipelineStatu
         ListSalesPipelineStatusesQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
-            return ApiResponse<PagedResult<FgsSalesPipelineStatusSummaryDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<PagedResult<FgsSalesPipelineStatusSummaryDto>>(ex);
-        }
+        var result = await readRepository.ListAsync(request.Query, request.Filters, cancellationToken);
+        return ApiResponse<PagedResult<FgsSalesPipelineStatusSummaryDto>>.Ok(result);
     }
 }

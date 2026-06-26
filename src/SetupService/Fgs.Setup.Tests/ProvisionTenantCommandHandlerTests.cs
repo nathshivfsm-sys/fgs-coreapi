@@ -32,7 +32,7 @@ public sealed class ProvisionTenantCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WhenOrchestratorFails_ReturnsFailureResponse()
+    public async Task Handle_WhenOrchestratorFails_Throws()
     {
         var orchestrator = new Mock<ITenantProvisioningOrchestrator>();
         orchestrator
@@ -40,12 +40,12 @@ public sealed class ProvisionTenantCommandHandlerTests
             .ThrowsAsync(new InvalidOperationException("Provisioning failed"));
 
         var handler = new ProvisionTenantCommandHandler(orchestrator.Object);
-        var response = await handler.Handle(
+
+        var act = () => handler.Handle(
             new ProvisionTenantCommand(new ProvisionTenantRequest(10, 1, "ACME", Guid.NewGuid())),
             CancellationToken.None);
 
-        response.Success.Should().BeFalse();
-        response.StatusCode.Should().Be(ApiStatusCodes.InternalServerError);
-        response.Errors.Should().Contain("Provisioning failed");
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("Provisioning failed");
     }
 }

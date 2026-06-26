@@ -16,7 +16,7 @@ public sealed class FgsSetupCommunicationTemplateValidatorTests
     public async Task CreateValidator_WhenCodeMissing_HasValidationError()
     {
         var validator = new CreateFgsSetupCommunicationTemplateCommandValidator(_readRepository.Object);
-        var command = new CreateFgsSetupCommunicationTemplateCommand(new FgsSetupCommunicationTemplateCreateDto(10L, 20L, "Email", "TemplateType value", "", "Name value", "Subject value", "Body value", true));
+        var command = new CreateFgsSetupCommunicationTemplateCommand(new FgsSetupCommunicationTemplateCreateDto("Email", "TemplateType value", "", "Name value", "Subject value", "Body value", true));
 
         var result = await validator.ValidateAsync(command);
 
@@ -32,7 +32,7 @@ public sealed class FgsSetupCommunicationTemplateValidatorTests
             .Setup(r => r.ExistsByCommunicationChannelAndTemplateTypeAndCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         var validator = new UpdateFgsSetupCommunicationTemplateCommandValidator(_readRepository.Object);
-        var command = new UpdateFgsSetupCommunicationTemplateCommand(5, new FgsSetupCommunicationTemplateUpdateDto(10L, 20L, "Email", "TemplateType value", "Code value", "Name value", "Subject value", "Body value", true));
+        var command = new UpdateFgsSetupCommunicationTemplateCommand(5, new FgsSetupCommunicationTemplateUpdateDto("Email", "TemplateType value", "Code value", "Name value", "Subject value", "Body value", true));
 
         var result = await validator.ValidateAsync(command);
 

@@ -2,8 +2,6 @@ namespace Fgs.Setup.Application.Features.Tags.Dtos;
 
 public sealed record FgsTagSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string? TagCode,
     string Name,
     string? Description,
@@ -11,14 +9,10 @@ public sealed record FgsTagSummaryDto(
     string? TextColor,
     long? IconFileId,
     int UsageCount,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record FgsTagDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string? TagCode,
     string Name,
     string? Description,
@@ -26,11 +20,7 @@ public sealed record FgsTagDetailDto(
     string? TextColor,
     long? IconFileId,
     int UsageCount,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record FgsTagLookupDto(
     long Id,

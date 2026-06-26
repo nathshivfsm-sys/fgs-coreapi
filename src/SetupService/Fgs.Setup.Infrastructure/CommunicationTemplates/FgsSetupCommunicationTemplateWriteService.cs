@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.CommunicationTemplates.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.CommunicationTemplates;
@@ -13,15 +14,18 @@ public sealed class FgsSetupCommunicationTemplateWriteService : IFgsSetupCommuni
     private readonly FgsSetupDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly SetupEntityAuditHelper _auditHelper;
+    private readonly ITenantContextAccessor _tenantContextAccessor;
 
     public FgsSetupCommunicationTemplateWriteService(
         FgsSetupDbContext context,
         IUnitOfWork unitOfWork,
-        SetupEntityAuditHelper auditHelper)
+        SetupEntityAuditHelper auditHelper,
+        ITenantContextAccessor tenantContextAccessor)
     {
         _context = context;
         _unitOfWork = unitOfWork;
         _auditHelper = auditHelper;
+        _tenantContextAccessor = tenantContextAccessor;
     }
 
     public async Task<FgsSetupCommunicationTemplateDetailDto> CreateAsync(
@@ -30,10 +34,18 @@ public sealed class FgsSetupCommunicationTemplateWriteService : IFgsSetupCommuni
     {
         var entity = new FgsSetupCommunicationTemplate
         {
-            TenantId = dto.TenantId, CompanyId = dto.CompanyId, CommunicationChannel = dto.CommunicationChannel.Trim(), TemplateType = dto.TemplateType.Trim(), Code = dto.Code.Trim(), Name = dto.Name.Trim(), Subject = string.IsNullOrWhiteSpace(dto.Subject) ? null : dto.Subject.Trim(), Body = dto.Body.Trim(), IsMobileVisible = dto.IsMobileVisible
+            CommunicationChannel = dto.CommunicationChannel.Trim(), TemplateType = dto.TemplateType.Trim(), Code = dto.Code.Trim(), Name = dto.Name.Trim(), Subject = string.IsNullOrWhiteSpace(dto.Subject) ? null : dto.Subject.Trim(), Body = dto.Body.Trim(), IsMobileVisible = dto.IsMobileVisible
         };
 
-        _auditHelper.StampForCreate(entity, dto.TenantId, dto.CompanyId);
+        long? tenantId = null;
+        long? companyId = null;
+        if (_tenantContextAccessor.Current is ITenantContext context)
+        {
+            tenantId = context.TenantId;
+            companyId = context.CompanyId;
+        }
+
+        _auditHelper.StampForCreate(entity, tenantId, companyId);
         await _context.FgsSetupCommunicationTemplates.AddAsync(entity, cancellationToken);
         await SaveChangesAsync(cancellationToken);
 
@@ -48,8 +60,6 @@ public sealed class FgsSetupCommunicationTemplateWriteService : IFgsSetupCommuni
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Communication Template '{id}' was not found.");
 
-        entity.TenantId = dto.TenantId;
-        entity.CompanyId = dto.CompanyId;
         entity.CommunicationChannel = dto.CommunicationChannel.Trim();
         entity.TemplateType = dto.TemplateType.Trim();
         entity.Code = dto.Code.Trim();
@@ -72,14 +82,6 @@ public sealed class FgsSetupCommunicationTemplateWriteService : IFgsSetupCommuni
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Communication Template '{id}' was not found.");
 
-        if (dto.TenantId.HasValue)
-        {
-            entity.TenantId = dto.TenantId.Value;
-        }
-        if (dto.CompanyId.HasValue)
-        {
-            entity.CompanyId = dto.CompanyId.Value;
-        }
         if (dto.CommunicationChannel is not null)
         {
             entity.CommunicationChannel = dto.CommunicationChannel.Trim();;
@@ -160,8 +162,6 @@ public sealed class FgsSetupCommunicationTemplateWriteService : IFgsSetupCommuni
     private static FgsSetupCommunicationTemplateDetailDto MapToDetail(FgsSetupCommunicationTemplate entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.CommunicationChannel,
             entity.TemplateType,
             entity.Code,
@@ -169,9 +169,5 @@ public sealed class FgsSetupCommunicationTemplateWriteService : IFgsSetupCommuni
             entity.Subject,
             entity.Body,
             entity.IsMobileVisible,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

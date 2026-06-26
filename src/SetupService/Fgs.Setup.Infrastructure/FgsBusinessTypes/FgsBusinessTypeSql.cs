@@ -7,11 +7,11 @@ internal static class FgsBusinessTypeSql
     public const string Table = "setup.\"FgsBusinessType\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "Code", "Name", "Description", "DisplayOrder", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "Code", "Name", "Description", "DisplayOrder", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "Code", "Name", "Description", "DisplayOrder", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "Code", "Name", "Description", "DisplayOrder", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class FgsBusinessTypeSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "DisplayOrder", "Code", "Name", "Description"
+        "Id", "IsActive", "DisplayOrder", "Code", "Name", "Description"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

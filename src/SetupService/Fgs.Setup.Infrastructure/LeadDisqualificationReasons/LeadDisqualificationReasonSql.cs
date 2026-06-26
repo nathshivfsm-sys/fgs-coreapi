@@ -7,11 +7,11 @@ internal static class LeadDisqualificationReasonSql
     public const string Table = "setup.\"FgsLeadDisqualificationReason\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "ReasonCode", "ReasonName", "Description", "DisplayOrder", "IsSystem", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "ReasonCode", "ReasonName", "Description", "DisplayOrder", "IsSystem", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "ReasonCode", "ReasonName", "Description", "DisplayOrder", "IsSystem", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "ReasonCode", "ReasonName", "Description", "DisplayOrder", "IsSystem", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class LeadDisqualificationReasonSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "DisplayOrder", "ReasonCode", "ReasonName", "Description", "IsSystem"
+        "Id", "IsActive", "DisplayOrder", "ReasonCode", "ReasonName", "Description", "IsSystem"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

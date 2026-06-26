@@ -7,11 +7,11 @@ internal static class FgsSalesActivityTypeSql
     public const string Table = "setup.\"FgsSalesActivityType\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "ActivityTypeCode", "ActivityTypeName", "Description", "DisplayOrder", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "AllowManualSelection", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "ActivityTypeCode", "ActivityTypeName", "Description", "DisplayOrder", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "AllowManualSelection", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "ActivityTypeCode", "ActivityTypeName", "Description", "DisplayOrder", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "AllowManualSelection", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "ActivityTypeCode", "ActivityTypeName", "Description", "DisplayOrder", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "AllowManualSelection", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class FgsSalesActivityTypeSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "DisplayOrder", "ActivityTypeCode", "ActivityTypeName", "Description", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "AllowManualSelection"
+        "Id", "IsActive", "DisplayOrder", "ActivityTypeCode", "ActivityTypeName", "Description", "IsSystem", "AppliesToLead", "AppliesToOpportunity", "AllowManualSelection"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

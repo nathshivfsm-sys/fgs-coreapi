@@ -7,11 +7,11 @@ internal static class FgsTagSql
     public const string Table = "setup.\"FgsTag\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TenantId", "CompanyId", "TagCode", "Name", "Description", "BackgroundColor", "TextColor", "IconFileId", "UsageCount", "IsActive", "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
+        "Id", "TagCode", "Name", "Description", "BackgroundColor", "TextColor", "IconFileId", "UsageCount", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TenantId", "CompanyId", "TagCode", "Name", "Description", "BackgroundColor", "TextColor", "IconFileId", "UsageCount", "IsActive", "CreatedOn", "UpdatedOn"
+        "Id", "TagCode", "Name", "Description", "BackgroundColor", "TextColor", "IconFileId", "UsageCount", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class FgsTagSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CreatedOn", "IsActive", "TagCode", "Name", "Description", "BackgroundColor", "TextColor", "IconFileId", "UsageCount"
+        "Id", "IsActive", "TagCode", "Name", "Description", "BackgroundColor", "TextColor", "IconFileId", "UsageCount"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.LeadStatuses.Commands.PatchLeadStatus;
 using Fgs.Setup.Application.Features.LeadStatuses.Commands.UpdateLeadStatus;
 using Fgs.Setup.Application.Features.LeadStatuses.Queries.GetLeadStatusById;
 using Fgs.Setup.Application.Features.LeadStatuses.Queries.ListLeadStatuses;
-using Fgs.Setup.Application.Features.LeadStatuses.Queries.ListActiveLeadStatuses;
 using Fgs.Setup.Application.Features.LeadStatuses.Queries.LookupLeadStatuses;
 using Fgs.Setup.Application.Features.LeadStatuses.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class LeadStatusesController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupLeadStatusesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<LeadStatusSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? statusCode = null,
-        [FromQuery] string? statusName = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveLeadStatusesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new LeadStatusListFilters(statusCode, statusName)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

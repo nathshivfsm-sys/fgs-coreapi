@@ -4,6 +4,7 @@ using Fgs.Setup.Application.Features.SalesActivityOutcomes.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.SalesActivityOutcomes;
@@ -170,8 +171,6 @@ public sealed class FgsSalesActivityOutcomeWriteService : IFgsSalesActivityOutco
     private static FgsSalesActivityOutcomeDetailDto MapToDetail(FgsSalesActivityOutcome entity) =>
         new(
             entity.Id,
-            entity.TenantId,
-            entity.CompanyId,
             entity.OutcomeCode,
             entity.OutcomeName,
             entity.Description,
@@ -183,9 +182,5 @@ public sealed class FgsSalesActivityOutcomeWriteService : IFgsSalesActivityOutco
             entity.IsTerminal,
             entity.RequireComment,
             entity.AllowManualSelection,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy,
-            entity.UpdatedOn,
-            entity.UpdatedBy);
+            entity.IsActive);
 }

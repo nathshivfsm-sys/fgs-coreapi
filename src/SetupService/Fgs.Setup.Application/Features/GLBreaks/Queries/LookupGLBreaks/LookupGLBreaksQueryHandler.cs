@@ -1,5 +1,4 @@
 using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.Setup.Application.Abstractions.GLBreaks;
 using Fgs.Setup.Application.Features.GLBreaks.Dtos;
 using MediatR;
@@ -13,14 +12,7 @@ public sealed class LookupGLBreaksQueryHandler(IGLBreakReadRepository readReposi
         LookupGLBreaksQuery request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
-            return ApiResponse<IReadOnlyList<GLBreakLookupDto>>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return CatalogCrudExceptionMapper.MapException<IReadOnlyList<GLBreakLookupDto>>(ex);
-        }
+        var result = await readRepository.LookupAsync(request.ActiveOnly, cancellationToken);
+        return ApiResponse<IReadOnlyList<GLBreakLookupDto>>.Ok(result);
     }
 }

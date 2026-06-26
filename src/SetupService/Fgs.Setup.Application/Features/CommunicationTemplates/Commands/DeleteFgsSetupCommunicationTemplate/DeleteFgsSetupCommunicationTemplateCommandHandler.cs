@@ -1,7 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.CommunicationTemplates;
 using Fgs.Setup.Application.Features.CommunicationTemplates.Dtos;
@@ -21,23 +20,12 @@ public sealed class DeleteFgsSetupCommunicationTemplateCommandHandler(
         DeleteFgsSetupCommunicationTemplateCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.DeleteAsync(request.Id, cancellationToken);
-            logger.LogInformation("Soft-deleted communication template {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current;
-            if (tenantScope?.IsResolved == true)
-            {
-                await cache.RemoveByPrefixAsync(
-                    CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "communication-templates"),
-                    cancellationToken);
-            }
-            return ApiResponse<FgsSetupCommunicationTemplateDetailDto>.Ok(result);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to delete communication template {Id}", request.Id);
-            return CatalogCrudExceptionMapper.MapException<FgsSetupCommunicationTemplateDetailDto>(ex);
-        }
+        var result = await writeService.DeleteAsync(request.Id, cancellationToken);
+        logger.LogInformation("Soft-deleted communication template {Id}", result.Id);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "communication-templates"),
+                cancellationToken);
+        return ApiResponse<FgsSetupCommunicationTemplateDetailDto>.Ok(result);
     }
 }

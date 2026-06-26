@@ -5,8 +5,6 @@ namespace Fgs.Setup.Infrastructure.VehicleMaintenances;
 internal sealed class FgsVehicleMaintenanceSummaryRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public long VehicleId { get; set; }
     public int VehicleMaintenanceTypeId { get; set; }
     public DateOnly ServiceDate { get; set; }
@@ -20,14 +18,10 @@ internal sealed class FgsVehicleMaintenanceSummaryRow
     public string? Description { get; set; }
     public string? Notes { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
 
     public FgsVehicleMaintenanceSummaryDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             VehicleId,
             VehicleMaintenanceTypeId,
             ServiceDate,
@@ -40,16 +34,12 @@ internal sealed class FgsVehicleMaintenanceSummaryRow
             IsCompleted,
             Description,
             Notes,
-            IsActive,
-            CreatedOn,
-            UpdatedOn);
+            IsActive);
 }
 
 internal sealed class FgsVehicleMaintenanceDetailRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public long VehicleId { get; set; }
     public int VehicleMaintenanceTypeId { get; set; }
     public DateOnly ServiceDate { get; set; }
@@ -63,16 +53,10 @@ internal sealed class FgsVehicleMaintenanceDetailRow
     public string? Description { get; set; }
     public string? Notes { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public string? CreatedBy { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
-    public string? UpdatedBy { get; set; }
 
     public FgsVehicleMaintenanceDetailDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             VehicleId,
             VehicleMaintenanceTypeId,
             ServiceDate,
@@ -85,11 +69,7 @@ internal sealed class FgsVehicleMaintenanceDetailRow
             IsCompleted,
             Description,
             Notes,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+            IsActive);
 }
 
 internal sealed class FgsVehicleMaintenanceLookupRow

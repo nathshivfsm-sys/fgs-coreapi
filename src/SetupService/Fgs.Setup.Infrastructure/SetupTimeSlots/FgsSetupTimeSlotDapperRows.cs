@@ -5,8 +5,6 @@ namespace Fgs.Setup.Infrastructure.SetupTimeSlots;
 internal sealed class FgsSetupTimeSlotSummaryRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public long? FgsSetupZoneId { get; set; }
     public string Code { get; set; }
     public string Name { get; set; }
@@ -17,14 +15,10 @@ internal sealed class FgsSetupTimeSlotSummaryRow
     public bool IsMobileVisible { get; set; }
     public bool IsCustomerPortalVisible { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
 
     public FgsSetupTimeSlotSummaryDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             FgsSetupZoneId,
             Code,
             Name,
@@ -34,16 +28,12 @@ internal sealed class FgsSetupTimeSlotSummaryRow
             MarkWorkOrderDelayedCompletionAfter,
             IsMobileVisible,
             IsCustomerPortalVisible,
-            IsActive,
-            CreatedOn,
-            UpdatedOn);
+            IsActive);
 }
 
 internal sealed class FgsSetupTimeSlotDetailRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public long? FgsSetupZoneId { get; set; }
     public string Code { get; set; }
     public string Name { get; set; }
@@ -54,16 +44,10 @@ internal sealed class FgsSetupTimeSlotDetailRow
     public bool IsMobileVisible { get; set; }
     public bool IsCustomerPortalVisible { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public string? CreatedBy { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
-    public string? UpdatedBy { get; set; }
 
     public FgsSetupTimeSlotDetailDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             FgsSetupZoneId,
             Code,
             Name,
@@ -73,11 +57,7 @@ internal sealed class FgsSetupTimeSlotDetailRow
             MarkWorkOrderDelayedCompletionAfter,
             IsMobileVisible,
             IsCustomerPortalVisible,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+            IsActive);
 }
 
 internal sealed class FgsSetupTimeSlotLookupRow

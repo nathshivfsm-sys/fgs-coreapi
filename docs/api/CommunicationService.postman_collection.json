@@ -10,12 +10,13 @@
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
-                                                                               "{{communicationServiceUrl}}"
+                                                                               "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{communicationServiceUrl}}/api/v1/health",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/communication/health",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
+                                                                               "communication",
                                                                                "health"
                                                                            ]
                                                               },
@@ -59,10 +60,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Communication service scaffold (health).",
+                 "description":  "Communication service scaffold (health) via {{gatewayUrl}}/api/v1/communication/...",
                  "name":  "FGS CommunicationService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "5274d7f6-c06b-4a5c-87a2-4f7a78aed40c"
+                 "_postman_id":  "7cd3ccfc-8602-4424-8c51-f162e15b1f2a"
              },
     "event":  [
                   {

@@ -5,27 +5,19 @@ namespace Fgs.Setup.Application.Features.GLBreaks.Dtos;
 public sealed record GLBreakTradeDto(
     long Id,
     long GLBreakId,
-    string TradeCode,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy);
+    string TradeCode);
 
 public sealed record GLBreakSummaryDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string Code,
     string Name,
     string? BreakLabel,
     short BreakLevel,
     long? LogoFileId,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    DateTimeOffset? UpdatedOn);
+    bool IsActive);
 
 public sealed record GLBreakDetailDto(
     long Id,
-    long TenantId,
-    long CompanyId,
     string Code,
     string Name,
     string? BreakLabel,
@@ -33,11 +25,7 @@ public sealed record GLBreakDetailDto(
     long? LogoFileId,
     LocationDetailDto? Address,
     IReadOnlyList<GLBreakTradeDto> Trades,
-    bool IsActive,
-    DateTimeOffset CreatedOn,
-    string? CreatedBy,
-    DateTimeOffset? UpdatedOn,
-    string? UpdatedBy);
+    bool IsActive);
 
 public sealed record GLBreakLookupDto(
     long Id,

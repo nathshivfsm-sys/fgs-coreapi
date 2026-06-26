@@ -5,8 +5,6 @@ namespace Fgs.Setup.Infrastructure.Vehicles;
 internal sealed class FgsVehicleSummaryRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public long WarehouseId { get; set; }
     public string OwnershipType { get; set; }
     public string? OwnershipCompany { get; set; }
@@ -23,14 +21,10 @@ internal sealed class FgsVehicleSummaryRow
     public bool? IsPurchasedNew { get; set; }
     public string? Notes { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
 
     public FgsVehicleSummaryDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             WarehouseId,
             OwnershipType,
             OwnershipCompany,
@@ -46,16 +40,12 @@ internal sealed class FgsVehicleSummaryRow
             PurchasedFrom,
             IsPurchasedNew,
             Notes,
-            IsActive,
-            CreatedOn,
-            UpdatedOn);
+            IsActive);
 }
 
 internal sealed class FgsVehicleDetailRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public long WarehouseId { get; set; }
     public string OwnershipType { get; set; }
     public string? OwnershipCompany { get; set; }
@@ -72,16 +62,10 @@ internal sealed class FgsVehicleDetailRow
     public bool? IsPurchasedNew { get; set; }
     public string? Notes { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public string? CreatedBy { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
-    public string? UpdatedBy { get; set; }
 
     public FgsVehicleDetailDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             WarehouseId,
             OwnershipType,
             OwnershipCompany,
@@ -97,11 +81,7 @@ internal sealed class FgsVehicleDetailRow
             PurchasedFrom,
             IsPurchasedNew,
             Notes,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+            IsActive);
 }
 
 internal sealed class FgsVehicleLookupRow

@@ -16,14 +16,14 @@ public sealed class JobTypeQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new JobTypeDetailDto(1, 10, 20, 1, null, "TEST", "TaskName", "Description value", "UsedFor", "Trade", 60, "BusinessUnit", 5, "BackgroundColor", "TextColor", true, true, 1, true, DateTimeOffset.UtcNow, "seed", null, "seed");
+        var detail = new JobTypeDetailDto(1, 1, null, "TEST", "TaskName", "Description value", "UsedFor", "Trade", 60, "BusinessUnit", 5, "BackgroundColor", "TextColor", true, true, 1, true);
 
         var readRepository = new Mock<IJobTypeReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetJobTypeByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetJobTypeByIdQuery(1), CancellationToken.None);
@@ -41,7 +41,7 @@ public sealed class JobTypeQueryHandlerTests
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
-        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20, IsResolved = true });
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
         var handler = new GetJobTypeByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
         var response = await handler.Handle(new GetJobTypeByIdQuery(99), CancellationToken.None);

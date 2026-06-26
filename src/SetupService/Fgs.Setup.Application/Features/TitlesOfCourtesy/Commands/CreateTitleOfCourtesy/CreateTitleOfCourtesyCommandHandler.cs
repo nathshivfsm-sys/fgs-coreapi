@@ -1,5 +1,4 @@
 using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
 using Fgs.Setup.Application.Abstractions.TitlesOfCourtesy;
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Dtos;
 using MediatR;
@@ -16,22 +15,12 @@ public sealed class CreateTitleOfCourtesyCommandHandler(
         CreateTitleOfCourtesyCommand request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await writeService.CreateAsync(request.Dto, cancellationToken);
-            logger.LogInformation(
-                "Created title of courtesy {TitleOfCourtesyId} with code {Code} for tenant {TenantId} company {CompanyId}",
+        var result = await writeService.CreateAsync(request.Dto, cancellationToken);
+        logger.LogInformation(
+                "Created title of courtesy {TitleOfCourtesyId} with code {Code}",
                 result.Id,
-                result.Code,
-                result.TenantId,
-                result.CompanyId);
+                result.Code);
 
-            return ApiResponse<TitleOfCourtesyDetailDto>.Ok(result, ApiStatusCodes.Created);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to create title of courtesy with code {Code}", request.Dto.Code);
-            return CatalogCrudExceptionMapper.MapException<TitleOfCourtesyDetailDto>(ex);
-        }
+        return ApiResponse<TitleOfCourtesyDetailDto>.Ok(result, ApiStatusCodes.Created);
     }
 }

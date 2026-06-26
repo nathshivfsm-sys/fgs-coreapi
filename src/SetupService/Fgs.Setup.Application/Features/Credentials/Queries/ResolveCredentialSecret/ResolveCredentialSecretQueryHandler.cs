@@ -36,21 +36,14 @@ public sealed class ResolveCredentialSecretQueryHandler
                 ApiStatusCodes.Forbidden);
         }
 
-        try
+        return request.Scope switch
         {
-            return request.Scope switch
-            {
-                CredentialScope.Global when CredentialRequestHelpers.TryParseGlobalId(request.Id, out var globalId) =>
-                    await ResolveGlobalAsync(globalId, cancellationToken),
-                CredentialScope.Tenant when CredentialRequestHelpers.TryParseTenantId(request.Id, out var tenantId) =>
-                    await ResolveTenantAsync(tenantId, cancellationToken),
-                _ => ApiResponse<CredentialSecretDto>.Fail([CredentialErrorMessages.InvalidScope], ApiStatusCodes.BadRequest)
-            };
-        }
-        catch (Exception ex)
-        {
-            return CredentialRequestHelpers.MapException<CredentialSecretDto>(ex);
-        }
+            CredentialScope.Global when CredentialRequestHelpers.TryParseGlobalId(request.Id, out var globalId) =>
+                await ResolveGlobalAsync(globalId, cancellationToken),
+            CredentialScope.Tenant when CredentialRequestHelpers.TryParseTenantId(request.Id, out var tenantId) =>
+                await ResolveTenantAsync(tenantId, cancellationToken),
+            _ => ApiResponse<CredentialSecretDto>.Fail([CredentialErrorMessages.InvalidScope], ApiStatusCodes.BadRequest)
+        };
     }
 
     private async Task<ApiResponse<CredentialSecretDto>> ResolveGlobalAsync(int id, CancellationToken cancellationToken)

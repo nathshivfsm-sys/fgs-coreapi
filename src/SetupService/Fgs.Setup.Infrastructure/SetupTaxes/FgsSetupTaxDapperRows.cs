@@ -5,8 +5,6 @@ namespace Fgs.Setup.Infrastructure.SetupTaxes;
 internal sealed class FgsSetupTaxSummaryRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string TaxCode { get; set; }
     public string Name { get; set; }
     public bool IsExternalSystemRecord { get; set; }
@@ -15,14 +13,10 @@ internal sealed class FgsSetupTaxSummaryRow
     public bool ShowTaxDetail { get; set; }
     public string? Description { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
 
     public FgsSetupTaxSummaryDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             TaxCode,
             Name,
             IsExternalSystemRecord,
@@ -30,16 +24,12 @@ internal sealed class FgsSetupTaxSummaryRow
             SyncToken,
             ShowTaxDetail,
             Description,
-            IsActive,
-            CreatedOn,
-            UpdatedOn);
+            IsActive);
 }
 
 internal sealed class FgsSetupTaxDetailRow
 {
     public long Id { get; set; }
-    public long TenantId { get; set; }
-    public long CompanyId { get; set; }
     public string TaxCode { get; set; }
     public string Name { get; set; }
     public bool IsExternalSystemRecord { get; set; }
@@ -48,16 +38,10 @@ internal sealed class FgsSetupTaxDetailRow
     public bool ShowTaxDetail { get; set; }
     public string? Description { get; set; }
     public bool IsActive { get; set; }
-    public DateTimeOffset CreatedOn { get; set; }
-    public string? CreatedBy { get; set; }
-    public DateTimeOffset? UpdatedOn { get; set; }
-    public string? UpdatedBy { get; set; }
 
     public FgsSetupTaxDetailDto ToDto() =>
         new(
             Id,
-            TenantId,
-            CompanyId,
             TaxCode,
             Name,
             IsExternalSystemRecord,
@@ -65,11 +49,7 @@ internal sealed class FgsSetupTaxDetailRow
             SyncToken,
             ShowTaxDetail,
             Description,
-            IsActive,
-            CreatedOn,
-            CreatedBy,
-            UpdatedOn,
-            UpdatedBy);
+            IsActive);
 }
 
 internal sealed class FgsSetupTaxLookupRow

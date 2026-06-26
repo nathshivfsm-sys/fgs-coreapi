@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.LeadSources.Commands.PatchLeadSource;
 using Fgs.Setup.Application.Features.LeadSources.Commands.UpdateLeadSource;
 using Fgs.Setup.Application.Features.LeadSources.Queries.GetLeadSourceById;
 using Fgs.Setup.Application.Features.LeadSources.Queries.ListLeadSources;
-using Fgs.Setup.Application.Features.LeadSources.Queries.ListActiveLeadSources;
 using Fgs.Setup.Application.Features.LeadSources.Queries.LookupLeadSources;
 using Fgs.Setup.Application.Features.LeadSources.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class LeadSourcesController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupLeadSourcesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<LeadSourceSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? sourceCode = null,
-        [FromQuery] string? sourceName = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveLeadSourcesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new LeadSourceListFilters(sourceCode, sourceName)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

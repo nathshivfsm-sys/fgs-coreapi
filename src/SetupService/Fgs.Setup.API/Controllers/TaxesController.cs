@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.SetupTaxes.Commands.PatchFgsSetupTax;
 using Fgs.Setup.Application.Features.SetupTaxes.Commands.UpdateFgsSetupTax;
 using Fgs.Setup.Application.Features.SetupTaxes.Queries.GetFgsSetupTaxById;
 using Fgs.Setup.Application.Features.SetupTaxes.Queries.ListSetupTaxes;
-using Fgs.Setup.Application.Features.SetupTaxes.Queries.ListActiveSetupTaxes;
 using Fgs.Setup.Application.Features.SetupTaxes.Queries.LookupSetupTaxes;
 using Fgs.Setup.Application.Features.SetupTaxes.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class TaxesController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupSetupTaxesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSetupTaxSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] string? taxCode = null,
-        [FromQuery] string? name = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveSetupTaxesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsSetupTaxListFilters(taxCode, name)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 

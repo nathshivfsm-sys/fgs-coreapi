@@ -9,7 +9,6 @@ using Fgs.Setup.Application.Features.VehicleMaintenances.Commands.PatchFgsVehicl
 using Fgs.Setup.Application.Features.VehicleMaintenances.Commands.UpdateFgsVehicleMaintenance;
 using Fgs.Setup.Application.Features.VehicleMaintenances.Queries.GetFgsVehicleMaintenanceById;
 using Fgs.Setup.Application.Features.VehicleMaintenances.Queries.ListVehicleMaintenances;
-using Fgs.Setup.Application.Features.VehicleMaintenances.Queries.ListActiveVehicleMaintenances;
 using Fgs.Setup.Application.Features.VehicleMaintenances.Queries.LookupVehicleMaintenances;
 using Fgs.Setup.Application.Features.VehicleMaintenances.Dtos;
 using MediatR;
@@ -63,31 +62,6 @@ public sealed class VehicleMaintenancesController(IMediator mediator) : Controll
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupVehicleMaintenancesQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpGet("active")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsVehicleMaintenanceSummaryDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListActive(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 25,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
-        [FromQuery] string? search = null,
-        [FromQuery] bool? isCompleted = null,
-        [FromQuery] long? vehicleId = null,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(
-            new ListActiveVehicleMaintenancesQuery(
-                page,
-                pageSize,
-                sortBy,
-                sortDirection,
-                search,
-                new FgsVehicleMaintenanceListFilters(isCompleted, vehicleId)),
-            cancellationToken);
-
         return StatusCode(response.StatusCode, response);
     }
 
