@@ -5,8 +5,8 @@ namespace Fgs.Setup.Infrastructure.SetupTechSkillLevels;
 internal sealed class FgsSetupTechSkillLevelSummaryRow
 {
     public long Id { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public int? SortOrder { get; set; }
     public bool IsActive { get; set; }
@@ -24,8 +24,8 @@ internal sealed class FgsSetupTechSkillLevelSummaryRow
 internal sealed class FgsSetupTechSkillLevelDetailRow
 {
     public long Id { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public int? SortOrder { get; set; }
     public bool IsActive { get; set; }
@@ -43,8 +43,8 @@ internal sealed class FgsSetupTechSkillLevelDetailRow
 internal sealed class FgsSetupTechSkillLevelLookupRow
 {
     public long Id { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public int? SortOrder { get; set; }
 
     public FgsSetupTechSkillLevelLookupDto ToDto() => new(Id,

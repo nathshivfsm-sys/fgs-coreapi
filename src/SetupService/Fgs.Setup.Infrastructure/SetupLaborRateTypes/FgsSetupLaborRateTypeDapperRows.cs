@@ -5,7 +5,7 @@ namespace Fgs.Setup.Infrastructure.SetupLaborRateTypes;
 internal sealed class FgsSetupLaborRateTypeSummaryRow
 {
     public long Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public int SortOrder { get; set; }
     public bool IsSystem { get; set; }
@@ -24,7 +24,7 @@ internal sealed class FgsSetupLaborRateTypeSummaryRow
 internal sealed class FgsSetupLaborRateTypeDetailRow
 {
     public long Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public int SortOrder { get; set; }
     public bool IsSystem { get; set; }
@@ -43,7 +43,7 @@ internal sealed class FgsSetupLaborRateTypeDetailRow
 internal sealed class FgsSetupLaborRateTypeLookupRow
 {
     public long Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public int SortOrder { get; set; }
 
     public FgsSetupLaborRateTypeLookupDto ToDto() => new(Id,

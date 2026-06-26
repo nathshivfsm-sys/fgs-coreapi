@@ -31,7 +31,11 @@ public sealed class LeadStatusWriteService : ILeadStatusWriteService
     {
         var entity = new FgsLeadStatus
         {
-            StatusCode = NormalizeCode(dto.StatusCode), StatusName = dto.StatusName.Trim(), Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(), DisplayOrder = dto.DisplayOrder ?? 1, IsSystem = dto.IsSystem
+            StatusCode = NormalizeCode(dto.StatusCode),
+            StatusName = dto.StatusName.Trim(),
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
+            DisplayOrder = dto.DisplayOrder ?? 1,
+            IsSystem = dto.IsSystem
         };
 
         _auditHelper.StampForCreate(entity);
@@ -71,15 +75,15 @@ public sealed class LeadStatusWriteService : ILeadStatusWriteService
 
         if (dto.StatusCode is not null)
         {
-            entity.StatusCode = NormalizeCode(dto.StatusCode);;
+            entity.StatusCode = NormalizeCode(dto.StatusCode); ;
         }
         if (dto.StatusName is not null)
         {
-            entity.StatusName = dto.StatusName.Trim();;
+            entity.StatusName = dto.StatusName.Trim(); ;
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
         if (dto.DisplayOrder.HasValue)
         {

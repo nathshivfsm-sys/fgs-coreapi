@@ -1,5 +1,6 @@
 using Dapper;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
+using Fgs.Setup.Infrastructure.Common;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.Persistence;
 using Fgs.Setup.Application.Abstractions.Tags;
@@ -23,7 +24,7 @@ internal sealed class FgsTagReadRepository : IFgsTagReadRepository
 
     public async Task<FgsTagDetailDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $"""
             SELECT {FgsTagSql.SelectDetailColumns}
             FROM {FgsTagSql.Table}
@@ -44,7 +45,7 @@ internal sealed class FgsTagReadRepository : IFgsTagReadRepository
         FgsTagListFilters filters,
         CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var paging = query.ToPagedQuery();
         var page = Math.Max(1, paging.Page);
         var pageSize = Math.Clamp(paging.PageSize, 1, 200);
@@ -121,7 +122,7 @@ internal sealed class FgsTagReadRepository : IFgsTagReadRepository
         bool activeOnly = true,
         CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var activeFilter = activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty;
         var sql = $"""
             SELECT {FgsTagSql.SelectLookupColumns}
@@ -137,16 +138,5 @@ internal sealed class FgsTagReadRepository : IFgsTagReadRepository
             new CommandDefinition(sql, new { TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
 
         return rows.Select(r => r.ToDto()).ToList();
-    }
-
-
-    private (long TenantId, long CompanyId) ResolveTenantScope()
-    {
-        if (_tenantContextAccessor.Current is ITenantContext context)
-        {
-            return (context.TenantId, context.CompanyId);
-        }
-
-        throw new InvalidOperationException("Tenant context is not resolved.");
     }
 }

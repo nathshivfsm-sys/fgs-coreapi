@@ -1,4 +1,4 @@
-﻿using Fgs.Credentials;
+using Fgs.Credentials;
 using Fgs.Setup.Application.Common.Options;
 using Microsoft.Extensions.Configuration;
 

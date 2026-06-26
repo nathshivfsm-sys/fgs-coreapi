@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Application.Common;
+namespace Fgs.Setup.Application.Common;
 
 /// <summary>
 /// Configuration section and key names used with <see cref="Microsoft.Extensions.Configuration.IConfiguration"/>.

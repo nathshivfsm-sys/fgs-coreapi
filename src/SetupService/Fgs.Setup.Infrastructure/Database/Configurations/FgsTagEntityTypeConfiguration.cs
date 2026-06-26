@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -21,7 +21,7 @@ internal class FgsTagEntityTypeConfiguration : IEntityTypeConfiguration<FgsTagEn
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.MasterEntityTypeId })
             .HasDatabaseName("IX_FgsTagEntityType_MasterEntityTypeId");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.MasterEntityTypeId, e.IsDefault })
-            .HasDatabaseName("IX_FgsTagEntityType_IsDefault");        entity.HasOne<FgsTag>()
+            .HasDatabaseName("IX_FgsTagEntityType_IsDefault"); entity.HasOne<FgsTag>()
             .WithMany()
             .HasForeignKey(e => e.TagId)
             .HasConstraintName("FK_FgsTagEntityType_FgsTag_TagId")

@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Domain.Entities;
 
 namespace Fgs.Setup.Application.Abstractions.Credentials;
 

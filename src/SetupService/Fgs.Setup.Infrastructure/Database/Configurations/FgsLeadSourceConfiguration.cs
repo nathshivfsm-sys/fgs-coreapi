@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -23,5 +23,6 @@ internal class FgsLeadSourceConfiguration : IEntityTypeConfiguration<FgsLeadSour
             .IsRequired()
             .HasColumnType("timestamptz")
             .HasDefaultValueSql("now()");
-        entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");    }
+        entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+    }
 }

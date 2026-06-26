@@ -1,4 +1,4 @@
-﻿using Fgs.Inventory.Domain.Entities;
+using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Infrastructure.Database.Schemas;
 using Microsoft.EntityFrameworkCore;
 

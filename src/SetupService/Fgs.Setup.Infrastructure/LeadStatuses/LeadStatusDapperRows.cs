@@ -5,8 +5,8 @@ namespace Fgs.Setup.Infrastructure.LeadStatuses;
 internal sealed class LeadStatusSummaryRow
 {
     public long Id { get; set; }
-    public string StatusCode { get; set; }
-    public string StatusName { get; set; }
+    public string StatusCode { get; set; } = null!;
+    public string StatusName { get; set; } = null!;
     public string? Description { get; set; }
     public short? DisplayOrder { get; set; }
     public bool IsSystem { get; set; }
@@ -26,8 +26,8 @@ internal sealed class LeadStatusSummaryRow
 internal sealed class LeadStatusDetailRow
 {
     public long Id { get; set; }
-    public string StatusCode { get; set; }
-    public string StatusName { get; set; }
+    public string StatusCode { get; set; } = null!;
+    public string StatusName { get; set; } = null!;
     public string? Description { get; set; }
     public short? DisplayOrder { get; set; }
     public bool IsSystem { get; set; }
@@ -47,8 +47,8 @@ internal sealed class LeadStatusDetailRow
 internal sealed class LeadStatusLookupRow
 {
     public long Id { get; set; }
-    public string StatusCode { get; set; }
-    public string StatusName { get; set; }
+    public string StatusCode { get; set; } = null!;
+    public string StatusName { get; set; } = null!;
     public short? DisplayOrder { get; set; }
 
     public LeadStatusLookupDto ToDto() => new(Id,

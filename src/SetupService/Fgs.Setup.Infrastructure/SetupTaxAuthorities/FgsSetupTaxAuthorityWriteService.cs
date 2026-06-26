@@ -31,7 +31,12 @@ public sealed class FgsSetupTaxAuthorityWriteService : IFgsSetupTaxAuthorityWrit
     {
         var entity = new FgsSetupTaxAuthority
         {
-            Code = NormalizeCode(dto.Code), Name = dto.Name.Trim(), RegionCode = string.IsNullOrWhiteSpace(dto.RegionCode) ? null : NormalizeCode(dto.RegionCode), IsExternalSystemRecord = dto.IsExternalSystemRecord, TaxPercent = dto.TaxPercent, Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim()
+            Code = NormalizeCode(dto.Code),
+            Name = dto.Name.Trim(),
+            RegionCode = string.IsNullOrWhiteSpace(dto.RegionCode) ? null : NormalizeCode(dto.RegionCode),
+            IsExternalSystemRecord = dto.IsExternalSystemRecord,
+            TaxPercent = dto.TaxPercent,
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim()
         };
 
         _auditHelper.StampForCreate(entity);
@@ -72,15 +77,15 @@ public sealed class FgsSetupTaxAuthorityWriteService : IFgsSetupTaxAuthorityWrit
 
         if (dto.Code is not null)
         {
-            entity.Code = NormalizeCode(dto.Code);;
+            entity.Code = NormalizeCode(dto.Code); ;
         }
         if (dto.Name is not null)
         {
-            entity.Name = dto.Name.Trim();;
+            entity.Name = dto.Name.Trim(); ;
         }
         if (dto.RegionCode is not null)
         {
-            entity.RegionCode = string.IsNullOrWhiteSpace(dto.RegionCode) ? null : NormalizeCode(dto.RegionCode);;
+            entity.RegionCode = string.IsNullOrWhiteSpace(dto.RegionCode) ? null : NormalizeCode(dto.RegionCode); ;
         }
         if (dto.IsExternalSystemRecord.HasValue)
         {
@@ -92,7 +97,7 @@ public sealed class FgsSetupTaxAuthorityWriteService : IFgsSetupTaxAuthorityWrit
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
 
         if (dto.IsActive.HasValue)

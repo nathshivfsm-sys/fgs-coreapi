@@ -1013,7 +1013,7 @@ def generate_dtos(cfg: EntityConfig) -> None:
 def generate_abstractions(cfg: EntityConfig) -> None:
     pf = cfg.type_prefix
     folder = cfg.abstractions_folder
-    read = f"""using Fgs.Foundation.CatalogCrud;
+    read = f"""using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
 
@@ -1105,7 +1105,7 @@ def generate_sql(cfg: EntityConfig) -> None:
     default_order = default_order_sql(cfg)
     sort_col = resolve_sort_field(cfg)
     sort_col_check = sort_col or "DisplayOrder"
-    content = f"""using Fgs.Foundation.CatalogCrud;
+    content = f"""using Fgs.Foundation.Paging;
 
 namespace Fgs.Setup.Infrastructure.{cfg.infra_folder};
 
@@ -1476,7 +1476,7 @@ def exists_impl(cfg: EntityConfig) -> str:
         long? excludeId = null,
         CancellationToken cancellationToken = default)
     {{
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $\"\"\"
             SELECT EXISTS(
                 SELECT 1
@@ -1509,7 +1509,7 @@ def exists_impl(cfg: EntityConfig) -> str:
         long? excludeId = null,
         CancellationToken cancellationToken = default)
     {{
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $\"\"\"
             SELECT EXISTS(
                 SELECT 1
@@ -1553,7 +1553,7 @@ def exists_impl(cfg: EntityConfig) -> str:
         long? excludeId = null,
         CancellationToken cancellationToken = default)
     {{
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $\"\"\"
             SELECT EXISTS(
                 SELECT 1
@@ -1591,7 +1591,7 @@ def exists_impl(cfg: EntityConfig) -> str:
         {cs} id,
         CancellationToken cancellationToken = default)
     {{
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $\"\"\"
             SELECT EXISTS(
                 SELECT 1
@@ -1618,12 +1618,12 @@ def generate_read_repository(cfg: EntityConfig) -> None:
     else:
         lookup_order = f'ORDER BY "{cfg.name_field}" ASC'
     content = f"""using Dapper;
-using Fgs.Foundation.CatalogCrud;
-using Fgs.MultiTenancy;
+using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Abstractions.Persistence;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
+using Fgs.Setup.Infrastructure.Common;
 
 namespace Fgs.Setup.Infrastructure.{cfg.infra_folder};
 
@@ -1642,7 +1642,7 @@ internal sealed class {repo_class(cfg)} : {iface_name(cfg)}
 
     public async Task<{pf}DetailDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {{
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $\"\"\"
             SELECT {{{sql_class(cfg)}.SelectDetailColumns}}
             FROM {{{sql_class(cfg)}.Table}}
@@ -1663,7 +1663,7 @@ internal sealed class {repo_class(cfg)} : {iface_name(cfg)}
         {pf}ListFilters filters,
         CancellationToken cancellationToken = default)
     {{
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var paging = query.ToPagedQuery();
         var page = Math.Max(1, paging.Page);
         var pageSize = Math.Clamp(paging.PageSize, 1, 200);
@@ -1731,7 +1731,7 @@ internal sealed class {repo_class(cfg)} : {iface_name(cfg)}
         bool activeOnly = true,
         CancellationToken cancellationToken = default)
     {{
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var activeFilter = activeOnly ? "AND \\"IsActive\\" = TRUE" : string.Empty;
         var sql = $\"\"\"
             SELECT {{{sql_class(cfg)}.SelectLookupColumns}}
@@ -1749,16 +1749,6 @@ internal sealed class {repo_class(cfg)} : {iface_name(cfg)}
         return rows.Select(r => r.ToDto()).ToList();
     }}
 {exists_impl(cfg)}
-
-    private (long TenantId, long CompanyId) ResolveTenantScope()
-    {{
-        if (_tenantContextAccessor.Current is ITenantContext context)
-        {{
-            return (context.TenantId, context.CompanyId);
-        }}
-
-        throw new InvalidOperationException("Tenant context is not resolved.");
-    }}
 }}
 """
     write(INFRA / cfg.infra_folder / f"{repo_class(cfg)}.cs", content)
@@ -1781,7 +1771,8 @@ def row_props(cfg: EntityConfig, kind: str) -> list[str]:
         if "?" in f.cs_type:
             props.append(f"public {cs}? {f.name} {{ get; set; }}")
         else:
-            props.append(f"public {cs} {f.name} {{ get; set; }}" + ("" if f.required else " = null!;"))
+            initializer = " = null!;" if cs == "string" else ""
+            props.append(f"public {cs} {f.name} {{ get; set; }}{initializer}")
     if kind != "lookup":
         props.append("public bool IsActive { get; set; }")
     return props
@@ -2142,7 +2133,7 @@ def generate_queries(cfg: EntityConfig) -> None:
         hfile = APP / "Features" / cfg.plural_folder / "Queries" / name / f"{name}QueryHandler.cs"
         if kind == "ListActive":
             qcontent = f"""using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
 using MediatR;
@@ -2156,7 +2147,7 @@ public sealed record {name}Query(
             hcontent = f"""using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Common.SetupCrud;
@@ -2317,7 +2308,7 @@ public sealed class {name}QueryHandler(
 """
         else:
             qcontent = f"""using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
 using MediatR;
@@ -2329,7 +2320,7 @@ public sealed record {name}Query(
     : IRequest<ApiResponse<{ret_inner}>>;
 """
             hcontent = f"""using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
 using MediatR;
@@ -2390,7 +2381,7 @@ def generate_controller(cfg: EntityConfig) -> None:
     content = f"""using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 {imports}
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
@@ -2802,7 +2793,7 @@ public sealed class {pf}CommandHandlerTests
 
     qcontent = f"""using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};
 using Fgs.Setup.Application.Common.SetupCrud;

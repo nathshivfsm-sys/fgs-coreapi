@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Application.Configuration;
+using Fgs.Notification.Application.Configuration;
 using Fgs.Notification.Domain.Notifications;
 using Fgs.Notification.Infrastructure.Options;
 using Microsoft.Extensions.Options;

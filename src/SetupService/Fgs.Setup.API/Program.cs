@@ -1,4 +1,4 @@
-﻿using Fgs.Credentials;
+using Fgs.Credentials;
 using Fgs.Foundation.Caching.Extensions;
 using Fgs.Foundation.Hosting;
 using Fgs.Observability.Extensions;

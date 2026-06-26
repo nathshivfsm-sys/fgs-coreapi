@@ -5,8 +5,8 @@ namespace Fgs.Setup.Infrastructure.LeadSources;
 internal sealed class LeadSourceSummaryRow
 {
     public long Id { get; set; }
-    public string SourceCode { get; set; }
-    public string SourceName { get; set; }
+    public string SourceCode { get; set; } = null!;
+    public string SourceName { get; set; } = null!;
     public string? Description { get; set; }
     public bool IsActive { get; set; }
 
@@ -22,8 +22,8 @@ internal sealed class LeadSourceSummaryRow
 internal sealed class LeadSourceDetailRow
 {
     public long Id { get; set; }
-    public string SourceCode { get; set; }
-    public string SourceName { get; set; }
+    public string SourceCode { get; set; } = null!;
+    public string SourceName { get; set; } = null!;
     public string? Description { get; set; }
     public bool IsActive { get; set; }
 
@@ -39,8 +39,8 @@ internal sealed class LeadSourceDetailRow
 internal sealed class LeadSourceLookupRow
 {
     public long Id { get; set; }
-    public string SourceCode { get; set; }
-    public string SourceName { get; set; }
+    public string SourceCode { get; set; } = null!;
+    public string SourceName { get; set; } = null!;
 
     public LeadSourceLookupDto ToDto() => new(Id,
             SourceCode,

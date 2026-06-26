@@ -31,7 +31,21 @@ public sealed class FgsVehicleWriteService : IFgsVehicleWriteService
     {
         var entity = new FgsVehicle
         {
-            WarehouseId = dto.WarehouseId, OwnershipType = dto.OwnershipType.Trim(), OwnershipCompany = string.IsNullOrWhiteSpace(dto.OwnershipCompany) ? null : dto.OwnershipCompany.Trim(), Year = dto.Year ?? 1, Make = string.IsNullOrWhiteSpace(dto.Make) ? null : dto.Make.Trim(), Model = string.IsNullOrWhiteSpace(dto.Model) ? null : dto.Model.Trim(), Color = string.IsNullOrWhiteSpace(dto.Color) ? null : dto.Color.Trim(), VIN = dto.VIN.Trim(), LicensePlate = string.IsNullOrWhiteSpace(dto.LicensePlate) ? null : dto.LicensePlate.Trim(), LicensePlateState = string.IsNullOrWhiteSpace(dto.LicensePlateState) ? null : dto.LicensePlateState.Trim(), PurchaseDate = dto.PurchaseDate, PurchasePrice = dto.PurchasePrice, PurchasedFrom = string.IsNullOrWhiteSpace(dto.PurchasedFrom) ? null : dto.PurchasedFrom.Trim(), IsPurchasedNew = dto.IsPurchasedNew, Notes = string.IsNullOrWhiteSpace(dto.Notes) ? null : dto.Notes.Trim()
+            WarehouseId = dto.WarehouseId,
+            OwnershipType = dto.OwnershipType.Trim(),
+            OwnershipCompany = string.IsNullOrWhiteSpace(dto.OwnershipCompany) ? null : dto.OwnershipCompany.Trim(),
+            Year = dto.Year ?? 1,
+            Make = string.IsNullOrWhiteSpace(dto.Make) ? null : dto.Make.Trim(),
+            Model = string.IsNullOrWhiteSpace(dto.Model) ? null : dto.Model.Trim(),
+            Color = string.IsNullOrWhiteSpace(dto.Color) ? null : dto.Color.Trim(),
+            VIN = dto.VIN.Trim(),
+            LicensePlate = string.IsNullOrWhiteSpace(dto.LicensePlate) ? null : dto.LicensePlate.Trim(),
+            LicensePlateState = string.IsNullOrWhiteSpace(dto.LicensePlateState) ? null : dto.LicensePlateState.Trim(),
+            PurchaseDate = dto.PurchaseDate,
+            PurchasePrice = dto.PurchasePrice,
+            PurchasedFrom = string.IsNullOrWhiteSpace(dto.PurchasedFrom) ? null : dto.PurchasedFrom.Trim(),
+            IsPurchasedNew = dto.IsPurchasedNew,
+            Notes = string.IsNullOrWhiteSpace(dto.Notes) ? null : dto.Notes.Trim()
         };
 
         _auditHelper.StampForCreate(entity);
@@ -85,11 +99,11 @@ public sealed class FgsVehicleWriteService : IFgsVehicleWriteService
         }
         if (dto.OwnershipType is not null)
         {
-            entity.OwnershipType = dto.OwnershipType.Trim();;
+            entity.OwnershipType = dto.OwnershipType.Trim(); ;
         }
         if (dto.OwnershipCompany is not null)
         {
-            entity.OwnershipCompany = string.IsNullOrWhiteSpace(dto.OwnershipCompany) ? null : dto.OwnershipCompany.Trim();;
+            entity.OwnershipCompany = string.IsNullOrWhiteSpace(dto.OwnershipCompany) ? null : dto.OwnershipCompany.Trim(); ;
         }
         if (dto.Year.HasValue)
         {
@@ -97,27 +111,27 @@ public sealed class FgsVehicleWriteService : IFgsVehicleWriteService
         }
         if (dto.Make is not null)
         {
-            entity.Make = string.IsNullOrWhiteSpace(dto.Make) ? null : dto.Make.Trim();;
+            entity.Make = string.IsNullOrWhiteSpace(dto.Make) ? null : dto.Make.Trim(); ;
         }
         if (dto.Model is not null)
         {
-            entity.Model = string.IsNullOrWhiteSpace(dto.Model) ? null : dto.Model.Trim();;
+            entity.Model = string.IsNullOrWhiteSpace(dto.Model) ? null : dto.Model.Trim(); ;
         }
         if (dto.Color is not null)
         {
-            entity.Color = string.IsNullOrWhiteSpace(dto.Color) ? null : dto.Color.Trim();;
+            entity.Color = string.IsNullOrWhiteSpace(dto.Color) ? null : dto.Color.Trim(); ;
         }
         if (dto.VIN is not null)
         {
-            entity.VIN = dto.VIN.Trim();;
+            entity.VIN = dto.VIN.Trim(); ;
         }
         if (dto.LicensePlate is not null)
         {
-            entity.LicensePlate = string.IsNullOrWhiteSpace(dto.LicensePlate) ? null : dto.LicensePlate.Trim();;
+            entity.LicensePlate = string.IsNullOrWhiteSpace(dto.LicensePlate) ? null : dto.LicensePlate.Trim(); ;
         }
         if (dto.LicensePlateState is not null)
         {
-            entity.LicensePlateState = string.IsNullOrWhiteSpace(dto.LicensePlateState) ? null : dto.LicensePlateState.Trim();;
+            entity.LicensePlateState = string.IsNullOrWhiteSpace(dto.LicensePlateState) ? null : dto.LicensePlateState.Trim(); ;
         }
         if (dto.PurchaseDate.HasValue)
         {
@@ -129,7 +143,7 @@ public sealed class FgsVehicleWriteService : IFgsVehicleWriteService
         }
         if (dto.PurchasedFrom is not null)
         {
-            entity.PurchasedFrom = string.IsNullOrWhiteSpace(dto.PurchasedFrom) ? null : dto.PurchasedFrom.Trim();;
+            entity.PurchasedFrom = string.IsNullOrWhiteSpace(dto.PurchasedFrom) ? null : dto.PurchasedFrom.Trim(); ;
         }
         if (dto.IsPurchasedNew.HasValue)
         {
@@ -137,7 +151,7 @@ public sealed class FgsVehicleWriteService : IFgsVehicleWriteService
         }
         if (dto.Notes is not null)
         {
-            entity.Notes = string.IsNullOrWhiteSpace(dto.Notes) ? null : dto.Notes.Trim();;
+            entity.Notes = string.IsNullOrWhiteSpace(dto.Notes) ? null : dto.Notes.Trim(); ;
         }
 
         if (dto.IsActive.HasValue)

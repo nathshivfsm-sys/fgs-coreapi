@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -44,13 +44,13 @@ internal class FgsSetupPricingMatrixLaborConfiguration : IEntityTypeConfiguratio
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
 
         entity.HasAlternateKey(e => new
-            {
-                e.TenantId,
-                e.CompanyId,
-                e.PricingMatrixId,
-                e.LaborRateTypeId,
-                e.TechSkillLevelId,
-            })
+        {
+            e.TenantId,
+            e.CompanyId,
+            e.PricingMatrixId,
+            e.LaborRateTypeId,
+            e.TechSkillLevelId,
+        })
             .HasName("UQ_FgsSetupPricingMatrixLabor");
 
         entity.HasOne<FgsSetupPricingMatrix>()

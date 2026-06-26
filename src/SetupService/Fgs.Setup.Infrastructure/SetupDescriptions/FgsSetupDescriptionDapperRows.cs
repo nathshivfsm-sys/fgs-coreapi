@@ -5,9 +5,9 @@ namespace Fgs.Setup.Infrastructure.SetupDescriptions;
 internal sealed class FgsSetupDescriptionSummaryRow
 {
     public long Id { get; set; }
-    public string DescriptionTypeCode { get; set; }
+    public string DescriptionTypeCode { get; set; } = null!;
     public string? ShortNote { get; set; }
-    public string Body { get; set; }
+    public string Body { get; set; } = null!;
     public long? FgsSetupTechTradeId { get; set; }
     public int SortOrder { get; set; }
     public bool IsActive { get; set; }
@@ -26,9 +26,9 @@ internal sealed class FgsSetupDescriptionSummaryRow
 internal sealed class FgsSetupDescriptionDetailRow
 {
     public long Id { get; set; }
-    public string DescriptionTypeCode { get; set; }
+    public string DescriptionTypeCode { get; set; } = null!;
     public string? ShortNote { get; set; }
-    public string Body { get; set; }
+    public string Body { get; set; } = null!;
     public long? FgsSetupTechTradeId { get; set; }
     public int SortOrder { get; set; }
     public bool IsActive { get; set; }
@@ -47,8 +47,8 @@ internal sealed class FgsSetupDescriptionDetailRow
 internal sealed class FgsSetupDescriptionLookupRow
 {
     public long Id { get; set; }
-    public string DescriptionTypeCode { get; set; }
-    public string Body { get; set; }
+    public string DescriptionTypeCode { get; set; } = null!;
+    public string Body { get; set; } = null!;
     public int SortOrder { get; set; }
 
     public FgsSetupDescriptionLookupDto ToDto() => new(Id,

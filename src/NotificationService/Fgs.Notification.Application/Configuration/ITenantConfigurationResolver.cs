@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Domain.Notifications;
+using Fgs.Notification.Domain.Notifications;
 
 namespace Fgs.Notification.Application.Configuration;
 

@@ -1,5 +1,6 @@
 using Dapper;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
+using Fgs.Setup.Infrastructure.Common;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.Persistence;
 using Fgs.Setup.Application.Abstractions.TechTrades;
@@ -23,7 +24,7 @@ internal sealed class TechTradeReadRepository : ITechTradeReadRepository
 
     public async Task<TechTradeDetailDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $"""
             SELECT {TechTradeSql.SelectDetailColumns}
             FROM {TechTradeSql.Table}
@@ -44,7 +45,7 @@ internal sealed class TechTradeReadRepository : ITechTradeReadRepository
         TechTradeListFilters filters,
         CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var paging = query.ToPagedQuery();
         var page = Math.Max(1, paging.Page);
         var pageSize = Math.Clamp(paging.PageSize, 1, 200);
@@ -122,7 +123,7 @@ internal sealed class TechTradeReadRepository : ITechTradeReadRepository
         bool activeOnly = true,
         CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var activeFilter = activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty;
         var sql = $"""
             SELECT {TechTradeSql.SelectLookupColumns}
@@ -145,7 +146,7 @@ internal sealed class TechTradeReadRepository : ITechTradeReadRepository
         long? excludeId = null,
         CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $"""
             SELECT EXISTS(
                 SELECT 1
@@ -176,7 +177,7 @@ internal sealed class TechTradeReadRepository : ITechTradeReadRepository
         long? excludeId = null,
         CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $"""
             SELECT EXISTS(
                 SELECT 1
@@ -207,7 +208,7 @@ internal sealed class TechTradeReadRepository : ITechTradeReadRepository
         string tradeCode,
         CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $"""
             SELECT EXISTS(
                 SELECT 1
@@ -230,15 +231,5 @@ internal sealed class TechTradeReadRepository : ITechTradeReadRepository
                     TradeCode = tradeCode.Trim().ToUpperInvariant()
                 },
                 cancellationToken: cancellationToken));
-    }
-
-    private (long TenantId, long CompanyId) ResolveTenantScope()
-    {
-        if (_tenantContextAccessor.Current is ITenantContext context)
-        {
-            return (context.TenantId, context.CompanyId);
-        }
-
-        throw new InvalidOperationException("Tenant context is not resolved.");
     }
 }

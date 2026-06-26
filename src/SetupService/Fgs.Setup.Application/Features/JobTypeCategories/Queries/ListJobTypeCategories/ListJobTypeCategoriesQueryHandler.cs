@@ -1,5 +1,5 @@
 using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Abstractions.JobTypeCategories;
 using Fgs.Setup.Application.Features.JobTypeCategories.Dtos;
 using MediatR;

@@ -31,7 +31,17 @@ public sealed class FgsSalesActivityOutcomeWriteService : IFgsSalesActivityOutco
     {
         var entity = new FgsSalesActivityOutcome
         {
-            OutcomeCode = NormalizeCode(dto.OutcomeCode), OutcomeName = dto.OutcomeName.Trim(), Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(), DisplayOrder = dto.DisplayOrder, IsSystem = dto.IsSystem, AppliesToLead = dto.AppliesToLead, AppliesToOpportunity = dto.AppliesToOpportunity, NextSalesPipelineStatusId = dto.NextSalesPipelineStatusId, IsTerminal = dto.IsTerminal, RequireComment = dto.RequireComment, AllowManualSelection = dto.AllowManualSelection
+            OutcomeCode = NormalizeCode(dto.OutcomeCode),
+            OutcomeName = dto.OutcomeName.Trim(),
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
+            DisplayOrder = dto.DisplayOrder,
+            IsSystem = dto.IsSystem,
+            AppliesToLead = dto.AppliesToLead,
+            AppliesToOpportunity = dto.AppliesToOpportunity,
+            NextSalesPipelineStatusId = dto.NextSalesPipelineStatusId,
+            IsTerminal = dto.IsTerminal,
+            RequireComment = dto.RequireComment,
+            AllowManualSelection = dto.AllowManualSelection
         };
 
         _auditHelper.StampForCreate(entity);
@@ -77,15 +87,15 @@ public sealed class FgsSalesActivityOutcomeWriteService : IFgsSalesActivityOutco
 
         if (dto.OutcomeCode is not null)
         {
-            entity.OutcomeCode = NormalizeCode(dto.OutcomeCode);;
+            entity.OutcomeCode = NormalizeCode(dto.OutcomeCode); ;
         }
         if (dto.OutcomeName is not null)
         {
-            entity.OutcomeName = dto.OutcomeName.Trim();;
+            entity.OutcomeName = dto.OutcomeName.Trim(); ;
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
         if (dto.DisplayOrder.HasValue)
         {

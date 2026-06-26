@@ -31,7 +31,9 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
     {
         var entity = new FgsSetupPostalCode
         {
-            PostalCode = dto.PostalCode.Trim(), FgsSetupZoneId = dto.FgsSetupZoneId, FgsSetupTaxId = dto.FgsSetupTaxId
+            PostalCode = dto.PostalCode.Trim(),
+            FgsSetupZoneId = dto.FgsSetupZoneId,
+            FgsSetupTaxId = dto.FgsSetupTaxId
         };
 
         _auditHelper.StampForCreate(entity);
@@ -69,7 +71,7 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
 
         if (dto.PostalCode is not null)
         {
-            entity.PostalCode = dto.PostalCode.Trim();;
+            entity.PostalCode = dto.PostalCode.Trim(); ;
         }
         if (dto.FgsSetupZoneId.HasValue)
         {

@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Notification.API.Controllers;
+
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("notifications")]
 public sealed class NotificationsController(IMediator mediator) : FgsApiControllerBase(mediator)

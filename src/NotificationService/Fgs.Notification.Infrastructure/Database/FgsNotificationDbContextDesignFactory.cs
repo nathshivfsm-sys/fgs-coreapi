@@ -1,4 +1,4 @@
-﻿using Fgs.Credentials;
+using Fgs.Credentials;
 using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;

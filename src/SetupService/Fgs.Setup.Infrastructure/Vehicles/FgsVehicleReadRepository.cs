@@ -1,5 +1,6 @@
 using Dapper;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
+using Fgs.Setup.Infrastructure.Common;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.Persistence;
 using Fgs.Setup.Application.Abstractions.Vehicles;
@@ -23,7 +24,7 @@ internal sealed class FgsVehicleReadRepository : IFgsVehicleReadRepository
 
     public async Task<FgsVehicleDetailDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $"""
             SELECT {FgsVehicleSql.SelectDetailColumns}
             FROM {FgsVehicleSql.Table}
@@ -44,7 +45,7 @@ internal sealed class FgsVehicleReadRepository : IFgsVehicleReadRepository
         FgsVehicleListFilters filters,
         CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var paging = query.ToPagedQuery();
         var page = Math.Max(1, paging.Page);
         var pageSize = Math.Clamp(paging.PageSize, 1, 200);
@@ -116,7 +117,7 @@ internal sealed class FgsVehicleReadRepository : IFgsVehicleReadRepository
         bool activeOnly = true,
         CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var activeFilter = activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty;
         var sql = $"""
             SELECT {FgsVehicleSql.SelectLookupColumns}
@@ -138,7 +139,7 @@ internal sealed class FgsVehicleReadRepository : IFgsVehicleReadRepository
         long id,
         CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveTenantScope();
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $"""
             SELECT EXISTS(
                 SELECT 1
@@ -153,15 +154,5 @@ internal sealed class FgsVehicleReadRepository : IFgsVehicleReadRepository
                 sql,
                 new { TenantId = tenantId, CompanyId = companyId, Id = id },
                 cancellationToken: cancellationToken));
-    }
-
-    private (long TenantId, long CompanyId) ResolveTenantScope()
-    {
-        if (_tenantContextAccessor.Current is ITenantContext context)
-        {
-            return (context.TenantId, context.CompanyId);
-        }
-
-        throw new InvalidOperationException("Tenant context is not resolved.");
     }
 }

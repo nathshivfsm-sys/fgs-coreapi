@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.IntegrationEvents;
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.Messaging.Options;
 using Fgs.Messaging.Serialization;
 using Fgs.Notification.Application.Notifications.Channels.Models;

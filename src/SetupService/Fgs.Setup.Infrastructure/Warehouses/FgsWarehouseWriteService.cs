@@ -31,7 +31,12 @@ public sealed class FgsWarehouseWriteService : IFgsWarehouseWriteService
     {
         var entity = new FgsWarehouse
         {
-            WarehouseCode = NormalizeCode(dto.WarehouseCode), Name = dto.Name.Trim(), WarehouseType = dto.WarehouseType.Trim(), AddressId = dto.AddressId, Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(), IsDefault = dto.IsDefault
+            WarehouseCode = NormalizeCode(dto.WarehouseCode),
+            Name = dto.Name.Trim(),
+            WarehouseType = dto.WarehouseType.Trim(),
+            AddressId = dto.AddressId,
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
+            IsDefault = dto.IsDefault
         };
 
         _auditHelper.StampForCreate(entity);
@@ -72,15 +77,15 @@ public sealed class FgsWarehouseWriteService : IFgsWarehouseWriteService
 
         if (dto.WarehouseCode is not null)
         {
-            entity.WarehouseCode = NormalizeCode(dto.WarehouseCode);;
+            entity.WarehouseCode = NormalizeCode(dto.WarehouseCode); ;
         }
         if (dto.Name is not null)
         {
-            entity.Name = dto.Name.Trim();;
+            entity.Name = dto.Name.Trim(); ;
         }
         if (dto.WarehouseType is not null)
         {
-            entity.WarehouseType = dto.WarehouseType.Trim();;
+            entity.WarehouseType = dto.WarehouseType.Trim(); ;
         }
         if (dto.AddressId.HasValue)
         {
@@ -88,7 +93,7 @@ public sealed class FgsWarehouseWriteService : IFgsWarehouseWriteService
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
         if (dto.IsDefault.HasValue)
         {

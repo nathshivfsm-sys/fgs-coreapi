@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -75,5 +75,6 @@ internal class FgsSetupGLBreakConfiguration : IEntityTypeConfiguration<FgsSetupG
             .HasDatabaseName("IX_FgsSetupGLBreak_AddressId");
 
         entity.HasIndex(e => e.LogoFileId)
-            .HasDatabaseName("IX_FgsSetupGLBreak_LogoFileId");    }
+            .HasDatabaseName("IX_FgsSetupGLBreak_LogoFileId");
+    }
 }

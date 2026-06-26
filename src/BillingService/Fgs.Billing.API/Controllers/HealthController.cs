@@ -1,12 +1,13 @@
 using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Health;
-using Fgs.Billing.Application.Features.Health.Queries.GetServiceHealth;
 using Fgs.Foundation.Api;
+using Fgs.Foundation.Health;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Billing.API.Controllers;
+
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("[controller]")]
 public sealed class HealthController(IMediator mediator) : FgsApiControllerBase(mediator)

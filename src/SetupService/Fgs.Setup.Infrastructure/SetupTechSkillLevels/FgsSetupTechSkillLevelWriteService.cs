@@ -31,7 +31,10 @@ public sealed class FgsSetupTechSkillLevelWriteService : IFgsSetupTechSkillLevel
     {
         var entity = new FgsSetupTechSkillLevel
         {
-            Code = NormalizeCode(dto.Code), Name = dto.Name.Trim(), Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(), SortOrder = dto.SortOrder ?? 1
+            Code = NormalizeCode(dto.Code),
+            Name = dto.Name.Trim(),
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
+            SortOrder = dto.SortOrder ?? 1
         };
 
         _auditHelper.StampForCreate(entity);
@@ -70,15 +73,15 @@ public sealed class FgsSetupTechSkillLevelWriteService : IFgsSetupTechSkillLevel
 
         if (dto.Code is not null)
         {
-            entity.Code = NormalizeCode(dto.Code);;
+            entity.Code = NormalizeCode(dto.Code); ;
         }
         if (dto.Name is not null)
         {
-            entity.Name = dto.Name.Trim();;
+            entity.Name = dto.Name.Trim(); ;
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
         if (dto.SortOrder.HasValue)
         {

@@ -34,7 +34,13 @@ public sealed class FgsSetupCommunicationTemplateWriteService : IFgsSetupCommuni
     {
         var entity = new FgsSetupCommunicationTemplate
         {
-            CommunicationChannel = dto.CommunicationChannel.Trim(), TemplateType = dto.TemplateType.Trim(), Code = dto.Code.Trim(), Name = dto.Name.Trim(), Subject = string.IsNullOrWhiteSpace(dto.Subject) ? null : dto.Subject.Trim(), Body = dto.Body.Trim(), IsMobileVisible = dto.IsMobileVisible
+            CommunicationChannel = dto.CommunicationChannel.Trim(),
+            TemplateType = dto.TemplateType.Trim(),
+            Code = dto.Code.Trim(),
+            Name = dto.Name.Trim(),
+            Subject = string.IsNullOrWhiteSpace(dto.Subject) ? null : dto.Subject.Trim(),
+            Body = dto.Body.Trim(),
+            IsMobileVisible = dto.IsMobileVisible
         };
 
         long? tenantId = null;
@@ -84,27 +90,27 @@ public sealed class FgsSetupCommunicationTemplateWriteService : IFgsSetupCommuni
 
         if (dto.CommunicationChannel is not null)
         {
-            entity.CommunicationChannel = dto.CommunicationChannel.Trim();;
+            entity.CommunicationChannel = dto.CommunicationChannel.Trim(); ;
         }
         if (dto.TemplateType is not null)
         {
-            entity.TemplateType = dto.TemplateType.Trim();;
+            entity.TemplateType = dto.TemplateType.Trim(); ;
         }
         if (dto.Code is not null)
         {
-            entity.Code = dto.Code.Trim();;
+            entity.Code = dto.Code.Trim(); ;
         }
         if (dto.Name is not null)
         {
-            entity.Name = dto.Name.Trim();;
+            entity.Name = dto.Name.Trim(); ;
         }
         if (dto.Subject is not null)
         {
-            entity.Subject = string.IsNullOrWhiteSpace(dto.Subject) ? null : dto.Subject.Trim();;
+            entity.Subject = string.IsNullOrWhiteSpace(dto.Subject) ? null : dto.Subject.Trim(); ;
         }
         if (dto.Body is not null)
         {
-            entity.Body = dto.Body.Trim();;
+            entity.Body = dto.Body.Trim(); ;
         }
         if (dto.IsMobileVisible.HasValue)
         {

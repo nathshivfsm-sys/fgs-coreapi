@@ -6,13 +6,13 @@ internal sealed class FgsVehicleSummaryRow
 {
     public long Id { get; set; }
     public long WarehouseId { get; set; }
-    public string OwnershipType { get; set; }
+    public string OwnershipType { get; set; } = null!;
     public string? OwnershipCompany { get; set; }
     public short? Year { get; set; }
     public string? Make { get; set; }
     public string? Model { get; set; }
     public string? Color { get; set; }
-    public string VIN { get; set; }
+    public string VIN { get; set; } = null!;
     public string? LicensePlate { get; set; }
     public string? LicensePlateState { get; set; }
     public DateOnly? PurchaseDate { get; set; }
@@ -47,13 +47,13 @@ internal sealed class FgsVehicleDetailRow
 {
     public long Id { get; set; }
     public long WarehouseId { get; set; }
-    public string OwnershipType { get; set; }
+    public string OwnershipType { get; set; } = null!;
     public string? OwnershipCompany { get; set; }
     public short? Year { get; set; }
     public string? Make { get; set; }
     public string? Model { get; set; }
     public string? Color { get; set; }
-    public string VIN { get; set; }
+    public string VIN { get; set; } = null!;
     public string? LicensePlate { get; set; }
     public string? LicensePlateState { get; set; }
     public DateOnly? PurchaseDate { get; set; }
@@ -89,7 +89,7 @@ internal sealed class FgsVehicleLookupRow
     public long Id { get; set; }
     public string? Make { get; set; }
     public string? Model { get; set; }
-    public string VIN { get; set; }
+    public string VIN { get; set; } = null!;
 
     public FgsVehicleLookupDto ToDto() => new(Id,
             Make,

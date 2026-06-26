@@ -1,4 +1,4 @@
-﻿namespace Fgs.Reporting.Infrastructure.Database.Schemas;
+namespace Fgs.Reporting.Infrastructure.Database.Schemas;
 
 public static class FgsDatabaseSchemas
 {

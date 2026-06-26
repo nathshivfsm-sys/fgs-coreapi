@@ -31,7 +31,14 @@ public sealed class FgsSalesActivityTypeWriteService : IFgsSalesActivityTypeWrit
     {
         var entity = new FgsSalesActivityType
         {
-            ActivityTypeCode = NormalizeCode(dto.ActivityTypeCode), ActivityTypeName = dto.ActivityTypeName.Trim(), Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(), DisplayOrder = dto.DisplayOrder, IsSystem = dto.IsSystem, AppliesToLead = dto.AppliesToLead, AppliesToOpportunity = dto.AppliesToOpportunity, AllowManualSelection = dto.AllowManualSelection
+            ActivityTypeCode = NormalizeCode(dto.ActivityTypeCode),
+            ActivityTypeName = dto.ActivityTypeName.Trim(),
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
+            DisplayOrder = dto.DisplayOrder,
+            IsSystem = dto.IsSystem,
+            AppliesToLead = dto.AppliesToLead,
+            AppliesToOpportunity = dto.AppliesToOpportunity,
+            AllowManualSelection = dto.AllowManualSelection
         };
 
         _auditHelper.StampForCreate(entity);
@@ -74,15 +81,15 @@ public sealed class FgsSalesActivityTypeWriteService : IFgsSalesActivityTypeWrit
 
         if (dto.ActivityTypeCode is not null)
         {
-            entity.ActivityTypeCode = NormalizeCode(dto.ActivityTypeCode);;
+            entity.ActivityTypeCode = NormalizeCode(dto.ActivityTypeCode); ;
         }
         if (dto.ActivityTypeName is not null)
         {
-            entity.ActivityTypeName = dto.ActivityTypeName.Trim();;
+            entity.ActivityTypeName = dto.ActivityTypeName.Trim(); ;
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
         if (dto.DisplayOrder.HasValue)
         {

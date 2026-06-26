@@ -1,4 +1,4 @@
-﻿namespace Fgs.Notification.Application.Reporting;
+namespace Fgs.Notification.Application.Reporting;
 
 public interface IReportExporter
 {

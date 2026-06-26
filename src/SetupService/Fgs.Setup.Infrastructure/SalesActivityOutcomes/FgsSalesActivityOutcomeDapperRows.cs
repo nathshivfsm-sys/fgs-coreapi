@@ -5,8 +5,8 @@ namespace Fgs.Setup.Infrastructure.SalesActivityOutcomes;
 internal sealed class FgsSalesActivityOutcomeSummaryRow
 {
     public long Id { get; set; }
-    public string OutcomeCode { get; set; }
-    public string OutcomeName { get; set; }
+    public string OutcomeCode { get; set; } = null!;
+    public string OutcomeName { get; set; } = null!;
     public string? Description { get; set; }
     public short DisplayOrder { get; set; }
     public bool IsSystem { get; set; }
@@ -38,8 +38,8 @@ internal sealed class FgsSalesActivityOutcomeSummaryRow
 internal sealed class FgsSalesActivityOutcomeDetailRow
 {
     public long Id { get; set; }
-    public string OutcomeCode { get; set; }
-    public string OutcomeName { get; set; }
+    public string OutcomeCode { get; set; } = null!;
+    public string OutcomeName { get; set; } = null!;
     public string? Description { get; set; }
     public short DisplayOrder { get; set; }
     public bool IsSystem { get; set; }
@@ -71,8 +71,8 @@ internal sealed class FgsSalesActivityOutcomeDetailRow
 internal sealed class FgsSalesActivityOutcomeLookupRow
 {
     public long Id { get; set; }
-    public string OutcomeCode { get; set; }
-    public string OutcomeName { get; set; }
+    public string OutcomeCode { get; set; } = null!;
+    public string OutcomeName { get; set; } = null!;
     public short DisplayOrder { get; set; }
 
     public FgsSalesActivityOutcomeLookupDto ToDto() => new(Id,

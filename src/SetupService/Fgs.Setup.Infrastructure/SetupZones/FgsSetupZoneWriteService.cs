@@ -31,7 +31,9 @@ public sealed class FgsSetupZoneWriteService : IFgsSetupZoneWriteService
     {
         var entity = new FgsSetupZone
         {
-            Code = NormalizeCode(dto.Code), Name = dto.Name.Trim(), Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim()
+            Code = NormalizeCode(dto.Code),
+            Name = dto.Name.Trim(),
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim()
         };
 
         _auditHelper.StampForCreate(entity);
@@ -69,15 +71,15 @@ public sealed class FgsSetupZoneWriteService : IFgsSetupZoneWriteService
 
         if (dto.Code is not null)
         {
-            entity.Code = NormalizeCode(dto.Code);;
+            entity.Code = NormalizeCode(dto.Code); ;
         }
         if (dto.Name is not null)
         {
-            entity.Name = dto.Name.Trim();;
+            entity.Name = dto.Name.Trim(); ;
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
 
         if (dto.IsActive.HasValue)

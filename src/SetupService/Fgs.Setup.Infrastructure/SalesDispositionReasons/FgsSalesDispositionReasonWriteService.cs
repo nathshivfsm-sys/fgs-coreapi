@@ -31,7 +31,16 @@ public sealed class FgsSalesDispositionReasonWriteService : IFgsSalesDisposition
     {
         var entity = new FgsSalesDispositionReason
         {
-            DispositionReasonCode = NormalizeCode(dto.DispositionReasonCode), DispositionReasonName = dto.DispositionReasonName.Trim(), Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(), DisplayOrder = dto.DisplayOrder, IsSystem = dto.IsSystem, AppliesToLead = dto.AppliesToLead, AppliesToOpportunity = dto.AppliesToOpportunity, RequireComment = dto.RequireComment, IsTerminal = dto.IsTerminal, AllowManualSelection = dto.AllowManualSelection
+            DispositionReasonCode = NormalizeCode(dto.DispositionReasonCode),
+            DispositionReasonName = dto.DispositionReasonName.Trim(),
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
+            DisplayOrder = dto.DisplayOrder,
+            IsSystem = dto.IsSystem,
+            AppliesToLead = dto.AppliesToLead,
+            AppliesToOpportunity = dto.AppliesToOpportunity,
+            RequireComment = dto.RequireComment,
+            IsTerminal = dto.IsTerminal,
+            AllowManualSelection = dto.AllowManualSelection
         };
 
         _auditHelper.StampForCreate(entity);
@@ -76,15 +85,15 @@ public sealed class FgsSalesDispositionReasonWriteService : IFgsSalesDisposition
 
         if (dto.DispositionReasonCode is not null)
         {
-            entity.DispositionReasonCode = NormalizeCode(dto.DispositionReasonCode);;
+            entity.DispositionReasonCode = NormalizeCode(dto.DispositionReasonCode); ;
         }
         if (dto.DispositionReasonName is not null)
         {
-            entity.DispositionReasonName = dto.DispositionReasonName.Trim();;
+            entity.DispositionReasonName = dto.DispositionReasonName.Trim(); ;
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
         if (dto.DisplayOrder.HasValue)
         {

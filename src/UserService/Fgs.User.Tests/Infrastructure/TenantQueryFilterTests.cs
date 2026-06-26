@@ -1,4 +1,4 @@
-﻿using Fgs.MultiTenancy;
+using Fgs.MultiTenancy;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;

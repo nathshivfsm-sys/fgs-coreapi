@@ -1,4 +1,4 @@
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
 
 namespace Fgs.Setup.Infrastructure.TitlesOfCourtesy;
 

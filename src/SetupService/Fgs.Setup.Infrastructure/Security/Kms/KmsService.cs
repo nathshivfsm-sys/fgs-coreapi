@@ -1,4 +1,4 @@
-﻿using Amazon.KeyManagementService;
+using Amazon.KeyManagementService;
 using Amazon.KeyManagementService.Model;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Infrastructure.Common.Options;

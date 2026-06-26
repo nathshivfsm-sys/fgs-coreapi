@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Application.Reporting;
+using Fgs.Notification.Application.Reporting;
 
 namespace Fgs.Notification.Infrastructure.Reporting;
 

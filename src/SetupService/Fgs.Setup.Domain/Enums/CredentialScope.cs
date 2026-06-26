@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Enums;
+namespace Fgs.Setup.Domain.Enums;
 
 /// <summary>
 /// Determines whether a credential is platform-global or tenant/company scoped.

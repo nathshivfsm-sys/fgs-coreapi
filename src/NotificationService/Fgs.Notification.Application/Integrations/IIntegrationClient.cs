@@ -1,4 +1,4 @@
-﻿namespace Fgs.Notification.Application.Integrations;
+namespace Fgs.Notification.Application.Integrations;
 
 public interface IIntegrationClient
 {

@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Application.Abstractions.Credentials;
+using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 

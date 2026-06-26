@@ -31,7 +31,12 @@ public sealed class FgsSetupPaymentTermWriteService : IFgsSetupPaymentTermWriteS
     {
         var entity = new FgsSetupPaymentTerm
         {
-            Name = dto.Name.Trim(), DueDateMethod = dto.DueDateMethod.Trim(), NumberOfDays = dto.NumberOfDays ?? 1, IsAccountsReceivable = dto.IsAccountsReceivable, IsAccountsPayable = dto.IsAccountsPayable, IsMobileVisible = dto.IsMobileVisible
+            Name = dto.Name.Trim(),
+            DueDateMethod = dto.DueDateMethod.Trim(),
+            NumberOfDays = dto.NumberOfDays ?? 1,
+            IsAccountsReceivable = dto.IsAccountsReceivable,
+            IsAccountsPayable = dto.IsAccountsPayable,
+            IsMobileVisible = dto.IsMobileVisible
         };
 
         _auditHelper.StampForCreate(entity);
@@ -72,11 +77,11 @@ public sealed class FgsSetupPaymentTermWriteService : IFgsSetupPaymentTermWriteS
 
         if (dto.Name is not null)
         {
-            entity.Name = dto.Name.Trim();;
+            entity.Name = dto.Name.Trim(); ;
         }
         if (dto.DueDateMethod is not null)
         {
-            entity.DueDateMethod = dto.DueDateMethod.Trim();;
+            entity.DueDateMethod = dto.DueDateMethod.Trim(); ;
         }
         if (dto.NumberOfDays.HasValue)
         {

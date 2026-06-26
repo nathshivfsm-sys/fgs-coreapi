@@ -15,9 +15,9 @@ public sealed class GetTechTradeByIdQueryHandler(ITechTradeReadRepository readRe
         var result = await readRepository.GetByIdAsync(request.Id, cancellationToken);
         if (result is null)
         {
-                return ApiResponse<TechTradeDetailDto>.Fail(
-                    [$"Tech trade '{request.Id}' was not found."],
-                    ApiStatusCodes.NotFound);
+            return ApiResponse<TechTradeDetailDto>.Fail(
+                [$"Tech trade '{request.Id}' was not found."],
+                ApiStatusCodes.NotFound);
         }
 
         return ApiResponse<TechTradeDetailDto>.Ok(result);

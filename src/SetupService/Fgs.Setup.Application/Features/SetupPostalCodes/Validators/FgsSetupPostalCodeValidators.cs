@@ -19,7 +19,7 @@ public sealed class CreateFgsSetupPostalCodeCommandValidator : AbstractValidator
             .WithMessage("The specified zone was not found.");
         RuleFor(x => x.Dto.FgsSetupTaxId).MustAsync(async (command, value, cancellationToken) =>
                 !value.HasValue || await readRepository.ExistsTaxIdAsync(value.Value, cancellationToken))
-            .WithMessage("The specified tax was not found.");        RuleFor(x => x.Dto.PostalCode).NotEmpty();
+            .WithMessage("The specified tax was not found."); RuleFor(x => x.Dto.PostalCode).NotEmpty();
         RuleFor(x => x.Dto.PostalCode).MustAsync(async (command, code, cancellationToken) =>
                 !await readRepository.ExistsByPostalCodeAsync(code, null, cancellationToken))
             .WithMessage("A postal code with this code already exists.");

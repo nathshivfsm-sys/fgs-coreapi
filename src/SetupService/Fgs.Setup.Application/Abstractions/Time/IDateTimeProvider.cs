@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Application.Abstractions.Time;
+namespace Fgs.Setup.Application.Abstractions.Time;
 
 public interface IDateTimeProvider
 {

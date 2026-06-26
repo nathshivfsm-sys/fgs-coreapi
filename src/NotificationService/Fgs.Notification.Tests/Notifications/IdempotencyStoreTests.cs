@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Infrastructure.Notifications.Queues;
+using Fgs.Notification.Infrastructure.Notifications.Queues;
 using FluentAssertions;
 
 namespace Fgs.Notification.Tests.Notifications;

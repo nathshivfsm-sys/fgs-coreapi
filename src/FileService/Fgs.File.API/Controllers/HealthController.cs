@@ -1,20 +1,26 @@
 using System.IdentityModel.Tokens.Jwt;
 using Asp.Versioning;
+using Fgs.Contracts.Api;
+using Fgs.Contracts.Health;
 using Fgs.Foundation.Api;
+using Fgs.Foundation.Health;
 using Fgs.Security.Options;
 using Fgs.Security.Services;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Fgs.File.API.Controllers;
-[ApiController]
+
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("[controller]")]
-public sealed class HealthController(IConfiguration configuration) : ControllerBase
+public sealed class HealthController(IMediator mediator, IConfiguration configuration)
+    : FgsApiControllerBase(mediator)
 {
     [HttpGet]
-    public IActionResult Get() =>
-        Ok(new { status = "healthy", service = "Fgs.File", apiVersion = FgsApiVersions.V1 });
+    [ProducesResponseType(typeof(ApiResponse<ServiceHealthDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Get(CancellationToken cancellationToken) =>
+        FromApiResponse(await Mediator.Send(new GetServiceHealthQuery(), cancellationToken));
 
     /// <summary>Development helper: validates the Bearer token and returns the validation error, if any.</summary>
     [HttpGet("auth-check")]

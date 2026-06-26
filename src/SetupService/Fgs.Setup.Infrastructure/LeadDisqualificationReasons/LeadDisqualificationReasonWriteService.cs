@@ -31,7 +31,11 @@ public sealed class LeadDisqualificationReasonWriteService : ILeadDisqualificati
     {
         var entity = new FgsLeadDisqualificationReason
         {
-            ReasonCode = NormalizeCode(dto.ReasonCode), ReasonName = dto.ReasonName.Trim(), Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(), DisplayOrder = dto.DisplayOrder ?? 1, IsSystem = dto.IsSystem
+            ReasonCode = NormalizeCode(dto.ReasonCode),
+            ReasonName = dto.ReasonName.Trim(),
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
+            DisplayOrder = dto.DisplayOrder ?? 1,
+            IsSystem = dto.IsSystem
         };
 
         _auditHelper.StampForCreate(entity);
@@ -71,15 +75,15 @@ public sealed class LeadDisqualificationReasonWriteService : ILeadDisqualificati
 
         if (dto.ReasonCode is not null)
         {
-            entity.ReasonCode = NormalizeCode(dto.ReasonCode);;
+            entity.ReasonCode = NormalizeCode(dto.ReasonCode); ;
         }
         if (dto.ReasonName is not null)
         {
-            entity.ReasonName = dto.ReasonName.Trim();;
+            entity.ReasonName = dto.ReasonName.Trim(); ;
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
         if (dto.DisplayOrder.HasValue)
         {

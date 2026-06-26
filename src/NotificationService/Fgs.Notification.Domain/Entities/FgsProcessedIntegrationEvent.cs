@@ -1,4 +1,4 @@
-﻿namespace Fgs.Notification.Domain.Entities;
+namespace Fgs.Notification.Domain.Entities;
 
 public sealed class FgsProcessedIntegrationEvent
 {

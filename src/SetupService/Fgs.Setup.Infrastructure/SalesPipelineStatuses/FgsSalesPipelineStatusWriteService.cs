@@ -31,7 +31,15 @@ public sealed class FgsSalesPipelineStatusWriteService : IFgsSalesPipelineStatus
     {
         var entity = new FgsSalesPipelineStatus
         {
-            StatusCode = NormalizeCode(dto.StatusCode), StatusName = dto.StatusName.Trim(), Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(), DisplayOrder = dto.DisplayOrder, IsSystem = dto.IsSystem, AppliesToLead = dto.AppliesToLead, AppliesToOpportunity = dto.AppliesToOpportunity, IsTerminal = dto.IsTerminal, AllowManualSelection = dto.AllowManualSelection
+            StatusCode = NormalizeCode(dto.StatusCode),
+            StatusName = dto.StatusName.Trim(),
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
+            DisplayOrder = dto.DisplayOrder,
+            IsSystem = dto.IsSystem,
+            AppliesToLead = dto.AppliesToLead,
+            AppliesToOpportunity = dto.AppliesToOpportunity,
+            IsTerminal = dto.IsTerminal,
+            AllowManualSelection = dto.AllowManualSelection
         };
 
         _auditHelper.StampForCreate(entity);
@@ -75,15 +83,15 @@ public sealed class FgsSalesPipelineStatusWriteService : IFgsSalesPipelineStatus
 
         if (dto.StatusCode is not null)
         {
-            entity.StatusCode = NormalizeCode(dto.StatusCode);;
+            entity.StatusCode = NormalizeCode(dto.StatusCode); ;
         }
         if (dto.StatusName is not null)
         {
-            entity.StatusName = dto.StatusName.Trim();;
+            entity.StatusName = dto.StatusName.Trim(); ;
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
         if (dto.DisplayOrder.HasValue)
         {

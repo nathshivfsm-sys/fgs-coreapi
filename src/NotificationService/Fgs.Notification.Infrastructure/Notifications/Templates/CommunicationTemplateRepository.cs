@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.Api;
+using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
 using Fgs.Notification.Application.Notifications.Templates;
 using Fgs.Notification.Domain.Entities;

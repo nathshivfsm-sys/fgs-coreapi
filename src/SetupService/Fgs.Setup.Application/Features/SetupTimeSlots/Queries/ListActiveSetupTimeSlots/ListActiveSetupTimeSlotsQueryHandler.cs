@@ -1,5 +1,5 @@
 using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
@@ -39,18 +39,18 @@ public sealed class ListActiveSetupTimeSlotsQueryHandler(
         cacheKey,
         async () =>
         {
-                var query = new SetupListQuery(
-                    request.Page,
-                    request.PageSize,
-                    request.SortBy,
-                    request.SortDirection,
-                    request.Search,
-                    IsActive: true);
+            var query = new SetupListQuery(
+                request.Page,
+                request.PageSize,
+                request.SortBy,
+                request.SortDirection,
+                request.Search,
+                IsActive: true);
 
-                return await readRepository.ListAsync(
-                    query,
-                    request.Filters ?? new FgsSetupTimeSlotListFilters(),
-                    cancellationToken);
+            return await readRepository.ListAsync(
+                query,
+                request.Filters ?? new FgsSetupTimeSlotListFilters(),
+                cancellationToken);
         },
         cancellationToken: cancellationToken);
 

@@ -5,10 +5,10 @@ namespace Fgs.Setup.Infrastructure.Vendors;
 internal sealed class FgsVendorSummaryRow
 {
     public long Id { get; set; }
-    public string VendorCode { get; set; }
-    public string Name { get; set; }
+    public string VendorCode { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public string? LegalName { get; set; }
-    public string VendorType { get; set; }
+    public string VendorType { get; set; } = null!;
     public long? PaymentTermId { get; set; }
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }
@@ -44,10 +44,10 @@ internal sealed class FgsVendorSummaryRow
 internal sealed class FgsVendorDetailRow
 {
     public long Id { get; set; }
-    public string VendorCode { get; set; }
-    public string Name { get; set; }
+    public string VendorCode { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public string? LegalName { get; set; }
-    public string VendorType { get; set; }
+    public string VendorType { get; set; } = null!;
     public long? PaymentTermId { get; set; }
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }
@@ -83,8 +83,8 @@ internal sealed class FgsVendorDetailRow
 internal sealed class FgsVendorLookupRow
 {
     public long Id { get; set; }
-    public string VendorCode { get; set; }
-    public string Name { get; set; }
+    public string VendorCode { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
     public FgsVendorLookupDto ToDto() => new(Id,
             VendorCode,

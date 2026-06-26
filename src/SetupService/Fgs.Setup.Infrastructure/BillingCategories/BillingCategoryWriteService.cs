@@ -31,7 +31,13 @@ public sealed class BillingCategoryWriteService : IBillingCategoryWriteService
     {
         var entity = new FgsBillingCategory
         {
-            BillingCategoryType = NormalizeCode(dto.BillingCategoryType), BillingCategoryName = dto.BillingCategoryName.Trim(), Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(), DisplayOrder = dto.DisplayOrder ?? 1, IsSystemDefined = dto.IsSystemDefined, ShowToFieldTech = dto.ShowToFieldTech, AllowToPick = dto.AllowToPick
+            BillingCategoryType = NormalizeCode(dto.BillingCategoryType),
+            BillingCategoryName = dto.BillingCategoryName.Trim(),
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
+            DisplayOrder = dto.DisplayOrder ?? 1,
+            IsSystemDefined = dto.IsSystemDefined,
+            ShowToFieldTech = dto.ShowToFieldTech,
+            AllowToPick = dto.AllowToPick
         };
 
         _auditHelper.StampForCreate(entity);
@@ -73,15 +79,15 @@ public sealed class BillingCategoryWriteService : IBillingCategoryWriteService
 
         if (dto.BillingCategoryType is not null)
         {
-            entity.BillingCategoryType = NormalizeCode(dto.BillingCategoryType);;
+            entity.BillingCategoryType = NormalizeCode(dto.BillingCategoryType); ;
         }
         if (dto.BillingCategoryName is not null)
         {
-            entity.BillingCategoryName = dto.BillingCategoryName.Trim();;
+            entity.BillingCategoryName = dto.BillingCategoryName.Trim(); ;
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
         if (dto.DisplayOrder.HasValue)
         {

@@ -1,4 +1,4 @@
-﻿using Fgs.User.Domain.Entities;
+using Fgs.User.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -21,7 +21,7 @@ internal class FgsTenantConfiguration : IEntityTypeConfiguration<FgsTenant>
         entity.HasIndex(e => e.TenantGuid).IsUnique();
         entity.Property(e => e.FgsTenantStatusId)
             .HasColumnOrder(2)
-            .HasDefaultValue((short)1);        entity.HasIndex(e => e.TenantCode).IsUnique();
+            .HasDefaultValue((short)1); entity.HasIndex(e => e.TenantCode).IsUnique();
         entity.Property(e => e.TenantCode).HasMaxLength(50);
         entity.Property(e => e.Name).HasMaxLength(200);
         entity.Property(e => e.LegalName).HasMaxLength(300);

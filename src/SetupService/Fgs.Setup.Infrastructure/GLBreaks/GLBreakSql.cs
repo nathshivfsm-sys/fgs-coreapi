@@ -1,4 +1,4 @@
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
 
 namespace Fgs.Setup.Infrastructure.GLBreaks;
 
@@ -32,7 +32,7 @@ internal static class GLBreakSql
         "Id", "GLBreakId", "TradeCode"
         """;
 
-  public const string LocationJoin = """
+    public const string LocationJoin = """
         LEFT JOIN setup."FgsLocation" loc
           ON loc."Id" = glb."AddressId" AND loc."IsActive" = TRUE
         """;

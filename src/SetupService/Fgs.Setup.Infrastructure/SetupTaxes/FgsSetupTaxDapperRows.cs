@@ -5,8 +5,8 @@ namespace Fgs.Setup.Infrastructure.SetupTaxes;
 internal sealed class FgsSetupTaxSummaryRow
 {
     public long Id { get; set; }
-    public string TaxCode { get; set; }
-    public string Name { get; set; }
+    public string TaxCode { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public bool IsExternalSystemRecord { get; set; }
     public string? ExternalSystemId { get; set; }
     public string? SyncToken { get; set; }
@@ -30,8 +30,8 @@ internal sealed class FgsSetupTaxSummaryRow
 internal sealed class FgsSetupTaxDetailRow
 {
     public long Id { get; set; }
-    public string TaxCode { get; set; }
-    public string Name { get; set; }
+    public string TaxCode { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public bool IsExternalSystemRecord { get; set; }
     public string? ExternalSystemId { get; set; }
     public string? SyncToken { get; set; }
@@ -55,8 +55,8 @@ internal sealed class FgsSetupTaxDetailRow
 internal sealed class FgsSetupTaxLookupRow
 {
     public long Id { get; set; }
-    public string TaxCode { get; set; }
-    public string Name { get; set; }
+    public string TaxCode { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
     public FgsSetupTaxLookupDto ToDto() => new(Id,
             TaxCode,

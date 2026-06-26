@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Application.Notifications.Queues;
+using Fgs.Notification.Application.Notifications.Queues;
 using Fgs.Notification.Domain.Entities;
 using Fgs.Notification.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;

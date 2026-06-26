@@ -1,4 +1,4 @@
-﻿using Fgs.Kernel.Entities;
+using Fgs.Kernel.Entities;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Database.Schemas;
 using Microsoft.EntityFrameworkCore;

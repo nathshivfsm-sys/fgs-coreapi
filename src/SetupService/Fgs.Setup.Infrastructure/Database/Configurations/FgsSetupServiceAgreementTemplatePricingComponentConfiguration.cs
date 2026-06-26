@@ -42,12 +42,12 @@ internal class FgsSetupServiceAgreementTemplatePricingComponentConfiguration
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
 
         entity.HasAlternateKey(e => new
-            {
-                e.TenantId,
-                e.CompanyId,
-                e.ServiceAgreementTemplateId,
-                e.PricingComponentCode,
-            })
+        {
+            e.TenantId,
+            e.CompanyId,
+            e.ServiceAgreementTemplateId,
+            e.PricingComponentCode,
+        })
             .HasName("UQ_FgsSetupServiceAgreementTemplatePricingComponent_TenantId_CompanyId_TemplateId_ComponentCode");
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.ServiceAgreementTemplateId })

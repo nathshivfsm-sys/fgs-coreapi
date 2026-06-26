@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.IntegrationEvents;
+using Fgs.Contracts.IntegrationEvents;
 
 namespace Fgs.Setup.Application.Abstractions.Provisioning;
 

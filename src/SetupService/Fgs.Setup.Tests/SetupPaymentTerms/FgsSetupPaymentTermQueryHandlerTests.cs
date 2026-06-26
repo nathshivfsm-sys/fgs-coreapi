@@ -1,6 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.SetupPaymentTerms;
 using Fgs.Setup.Application.Common.SetupCrud;

@@ -19,7 +19,7 @@ public sealed class CreateJobTypeCategoryCommandValidator : AbstractValidator<Cr
         RuleFor(x => x.Dto.Name).NotEmpty();
         RuleFor(x => x.Dto.Name).MaximumLength(150);
 
-        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);        RuleFor(x => x.Dto.CategoryCode).NotEmpty();
+        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue); RuleFor(x => x.Dto.CategoryCode).NotEmpty();
         RuleFor(x => x.Dto.CategoryCode).MaximumLength(50);
         RuleFor(x => x.Dto.CategoryCode).Must(code => string.Equals(code, code.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("CategoryCode must be uppercase.");
         RuleFor(x => x.Dto.CategoryCode).MustAsync(async (command, code, cancellationToken) =>

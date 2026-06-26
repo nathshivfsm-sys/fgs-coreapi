@@ -1,4 +1,4 @@
-﻿using Fgs.MultiTenancy;
+using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Notification.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-﻿namespace Fgs.Crm.Infrastructure.Database.Schemas;
+namespace Fgs.Crm.Infrastructure.Database.Schemas;
 
 public static class FgsDatabaseSchemas
 {

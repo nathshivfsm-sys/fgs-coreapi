@@ -5,8 +5,8 @@ namespace Fgs.Setup.Infrastructure.JobTypeSubCategories;
 internal sealed class JobTypeSubCategorySummaryRow
 {
     public long Id { get; set; }
-    public string SubCategoryCode { get; set; }
-    public string Name { get; set; }
+    public string SubCategoryCode { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
@@ -24,8 +24,8 @@ internal sealed class JobTypeSubCategorySummaryRow
 internal sealed class JobTypeSubCategoryDetailRow
 {
     public long Id { get; set; }
-    public string SubCategoryCode { get; set; }
-    public string Name { get; set; }
+    public string SubCategoryCode { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
@@ -43,8 +43,8 @@ internal sealed class JobTypeSubCategoryDetailRow
 internal sealed class JobTypeSubCategoryLookupRow
 {
     public long Id { get; set; }
-    public string SubCategoryCode { get; set; }
-    public string Name { get; set; }
+    public string SubCategoryCode { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public short? DisplayOrder { get; set; }
 
     public JobTypeSubCategoryLookupDto ToDto() => new(Id,

@@ -1,4 +1,4 @@
-﻿using Fgs.Audit.Domain.Entities;
+using Fgs.Audit.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

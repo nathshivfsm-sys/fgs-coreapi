@@ -5,8 +5,8 @@ namespace Fgs.Setup.Infrastructure.SetupPaymentTerms;
 internal sealed class FgsSetupPaymentTermSummaryRow
 {
     public long Id { get; set; }
-    public string Name { get; set; }
-    public string DueDateMethod { get; set; }
+    public string Name { get; set; } = null!;
+    public string DueDateMethod { get; set; } = null!;
     public int? NumberOfDays { get; set; }
     public bool IsAccountsReceivable { get; set; }
     public bool IsAccountsPayable { get; set; }
@@ -28,8 +28,8 @@ internal sealed class FgsSetupPaymentTermSummaryRow
 internal sealed class FgsSetupPaymentTermDetailRow
 {
     public long Id { get; set; }
-    public string Name { get; set; }
-    public string DueDateMethod { get; set; }
+    public string Name { get; set; } = null!;
+    public string DueDateMethod { get; set; } = null!;
     public int? NumberOfDays { get; set; }
     public bool IsAccountsReceivable { get; set; }
     public bool IsAccountsPayable { get; set; }
@@ -51,7 +51,7 @@ internal sealed class FgsSetupPaymentTermDetailRow
 internal sealed class FgsSetupPaymentTermLookupRow
 {
     public long Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public FgsSetupPaymentTermLookupDto ToDto() => new(Id,
             Name);

@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Entities;
+namespace Fgs.Setup.Domain.Entities;
 
 /// <summary>
 /// Allowed <see cref="FgsVehicle.OwnershipType"/> values (see CK_FgsVehicle_OwnershipType).

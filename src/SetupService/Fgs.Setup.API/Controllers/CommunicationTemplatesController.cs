@@ -2,7 +2,7 @@ using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
 using Fgs.Foundation.Api;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.CommunicationTemplates.Commands.CreateFgsSetupCommunicationTemplate;
 using Fgs.Setup.Application.Features.CommunicationTemplates.Commands.DeleteFgsSetupCommunicationTemplate;

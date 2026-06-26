@@ -6,8 +6,8 @@ internal sealed class FgsSetupTimeSlotSummaryRow
 {
     public long Id { get; set; }
     public long? FgsSetupZoneId { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public TimeSpan BeginTime { get; set; }
     public TimeSpan EndTime { get; set; }
     public TimeSpan? MarkTechArrivedLateAfter { get; set; }
@@ -35,8 +35,8 @@ internal sealed class FgsSetupTimeSlotDetailRow
 {
     public long Id { get; set; }
     public long? FgsSetupZoneId { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public TimeSpan BeginTime { get; set; }
     public TimeSpan EndTime { get; set; }
     public TimeSpan? MarkTechArrivedLateAfter { get; set; }
@@ -63,8 +63,8 @@ internal sealed class FgsSetupTimeSlotDetailRow
 internal sealed class FgsSetupTimeSlotLookupRow
 {
     public long Id { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
     public FgsSetupTimeSlotLookupDto ToDto() => new(Id,
             Code,

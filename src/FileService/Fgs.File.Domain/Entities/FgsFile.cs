@@ -1,4 +1,4 @@
-﻿using Fgs.Kernel.Entities;
+using Fgs.Kernel.Entities;
 
 namespace Fgs.File.Domain.Entities;
 

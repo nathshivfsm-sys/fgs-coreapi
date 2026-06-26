@@ -1,4 +1,4 @@
-﻿namespace Fgs.File.Application.Abstractions.Storage;
+namespace Fgs.File.Application.Abstractions.Storage;
 
 public interface IS3ObjectKeyBuilder
 {

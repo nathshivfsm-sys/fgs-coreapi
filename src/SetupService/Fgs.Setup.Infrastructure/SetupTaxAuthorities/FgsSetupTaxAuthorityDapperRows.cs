@@ -5,8 +5,8 @@ namespace Fgs.Setup.Infrastructure.SetupTaxAuthorities;
 internal sealed class FgsSetupTaxAuthoritySummaryRow
 {
     public long Id { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public string? RegionCode { get; set; }
     public bool IsExternalSystemRecord { get; set; }
     public decimal TaxPercent { get; set; }
@@ -28,8 +28,8 @@ internal sealed class FgsSetupTaxAuthoritySummaryRow
 internal sealed class FgsSetupTaxAuthorityDetailRow
 {
     public long Id { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public string? RegionCode { get; set; }
     public bool IsExternalSystemRecord { get; set; }
     public decimal TaxPercent { get; set; }
@@ -51,8 +51,8 @@ internal sealed class FgsSetupTaxAuthorityDetailRow
 internal sealed class FgsSetupTaxAuthorityLookupRow
 {
     public long Id { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public decimal TaxPercent { get; set; }
 
     public FgsSetupTaxAuthorityLookupDto ToDto() => new(Id,

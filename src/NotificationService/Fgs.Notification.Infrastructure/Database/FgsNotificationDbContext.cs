@@ -1,4 +1,4 @@
-﻿using Fgs.MultiTenancy;
+using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Notification.Domain.Entities;
 using Fgs.Notification.Infrastructure.Database.Schemas;

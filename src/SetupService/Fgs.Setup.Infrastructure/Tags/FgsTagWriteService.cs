@@ -31,7 +31,12 @@ public sealed class FgsTagWriteService : IFgsTagWriteService
     {
         var entity = new FgsTag
         {
-            TagCode = string.IsNullOrWhiteSpace(dto.TagCode) ? null : NormalizeCode(dto.TagCode), Name = dto.Name.Trim(), Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(), BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim(), TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim(), IconFileId = dto.IconFileId
+            TagCode = string.IsNullOrWhiteSpace(dto.TagCode) ? null : NormalizeCode(dto.TagCode),
+            Name = dto.Name.Trim(),
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
+            BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim(),
+            TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim(),
+            IconFileId = dto.IconFileId
         };
 
         entity.NormalizedName = dto.Name.Trim().ToUpperInvariant();
@@ -74,23 +79,23 @@ public sealed class FgsTagWriteService : IFgsTagWriteService
 
         if (dto.TagCode is not null)
         {
-            entity.TagCode = string.IsNullOrWhiteSpace(dto.TagCode) ? null : NormalizeCode(dto.TagCode);;
+            entity.TagCode = string.IsNullOrWhiteSpace(dto.TagCode) ? null : NormalizeCode(dto.TagCode); ;
         }
         if (dto.Name is not null)
         {
-            entity.Name = dto.Name.Trim();;
+            entity.Name = dto.Name.Trim(); ;
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
         if (dto.BackgroundColor is not null)
         {
-            entity.BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim();;
+            entity.BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim(); ;
         }
         if (dto.TextColor is not null)
         {
-            entity.TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim();;
+            entity.TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim(); ;
         }
         if (dto.IconFileId.HasValue)
         {

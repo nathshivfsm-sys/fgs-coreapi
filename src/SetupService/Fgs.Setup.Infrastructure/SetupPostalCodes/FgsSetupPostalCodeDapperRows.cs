@@ -5,7 +5,7 @@ namespace Fgs.Setup.Infrastructure.SetupPostalCodes;
 internal sealed class FgsSetupPostalCodeSummaryRow
 {
     public long Id { get; set; }
-    public string PostalCode { get; set; }
+    public string PostalCode { get; set; } = null!;
     public long? FgsSetupZoneId { get; set; }
     public long? FgsSetupTaxId { get; set; }
     public bool IsActive { get; set; }
@@ -22,7 +22,7 @@ internal sealed class FgsSetupPostalCodeSummaryRow
 internal sealed class FgsSetupPostalCodeDetailRow
 {
     public long Id { get; set; }
-    public string PostalCode { get; set; }
+    public string PostalCode { get; set; } = null!;
     public long? FgsSetupZoneId { get; set; }
     public long? FgsSetupTaxId { get; set; }
     public bool IsActive { get; set; }
@@ -39,7 +39,7 @@ internal sealed class FgsSetupPostalCodeDetailRow
 internal sealed class FgsSetupPostalCodeLookupRow
 {
     public long Id { get; set; }
-    public string PostalCode { get; set; }
+    public string PostalCode { get; set; } = null!;
 
     public FgsSetupPostalCodeLookupDto ToDto() => new(Id,
             PostalCode);

@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.IntegrationEvents;
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.Notification.Application.Notifications.Templates;
 using Fgs.Notification.Domain.Entities;
 using Fgs.Notification.Domain.Notifications;

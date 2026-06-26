@@ -31,7 +31,13 @@ public sealed class FgsSetupTaxWriteService : IFgsSetupTaxWriteService
     {
         var entity = new FgsSetupTax
         {
-            TaxCode = NormalizeCode(dto.TaxCode), Name = dto.Name.Trim(), IsExternalSystemRecord = dto.IsExternalSystemRecord, ExternalSystemId = string.IsNullOrWhiteSpace(dto.ExternalSystemId) ? null : dto.ExternalSystemId.Trim(), SyncToken = string.IsNullOrWhiteSpace(dto.SyncToken) ? null : dto.SyncToken.Trim(), ShowTaxDetail = dto.ShowTaxDetail, Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim()
+            TaxCode = NormalizeCode(dto.TaxCode),
+            Name = dto.Name.Trim(),
+            IsExternalSystemRecord = dto.IsExternalSystemRecord,
+            ExternalSystemId = string.IsNullOrWhiteSpace(dto.ExternalSystemId) ? null : dto.ExternalSystemId.Trim(),
+            SyncToken = string.IsNullOrWhiteSpace(dto.SyncToken) ? null : dto.SyncToken.Trim(),
+            ShowTaxDetail = dto.ShowTaxDetail,
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim()
         };
 
         _auditHelper.StampForCreate(entity);
@@ -73,11 +79,11 @@ public sealed class FgsSetupTaxWriteService : IFgsSetupTaxWriteService
 
         if (dto.TaxCode is not null)
         {
-            entity.TaxCode = NormalizeCode(dto.TaxCode);;
+            entity.TaxCode = NormalizeCode(dto.TaxCode); ;
         }
         if (dto.Name is not null)
         {
-            entity.Name = dto.Name.Trim();;
+            entity.Name = dto.Name.Trim(); ;
         }
         if (dto.IsExternalSystemRecord.HasValue)
         {
@@ -85,11 +91,11 @@ public sealed class FgsSetupTaxWriteService : IFgsSetupTaxWriteService
         }
         if (dto.ExternalSystemId is not null)
         {
-            entity.ExternalSystemId = string.IsNullOrWhiteSpace(dto.ExternalSystemId) ? null : dto.ExternalSystemId.Trim();;
+            entity.ExternalSystemId = string.IsNullOrWhiteSpace(dto.ExternalSystemId) ? null : dto.ExternalSystemId.Trim(); ;
         }
         if (dto.SyncToken is not null)
         {
-            entity.SyncToken = string.IsNullOrWhiteSpace(dto.SyncToken) ? null : dto.SyncToken.Trim();;
+            entity.SyncToken = string.IsNullOrWhiteSpace(dto.SyncToken) ? null : dto.SyncToken.Trim(); ;
         }
         if (dto.ShowTaxDetail.HasValue)
         {
@@ -97,7 +103,7 @@ public sealed class FgsSetupTaxWriteService : IFgsSetupTaxWriteService
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
 
         if (dto.IsActive.HasValue)

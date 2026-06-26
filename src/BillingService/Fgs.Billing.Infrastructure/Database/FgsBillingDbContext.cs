@@ -1,4 +1,4 @@
-﻿using Fgs.Billing.Domain.Entities;
+using Fgs.Billing.Domain.Entities;
 using Fgs.Billing.Infrastructure.Database.Configurations;
 using Fgs.Billing.Infrastructure.Database.Schemas;
 using Microsoft.EntityFrameworkCore;

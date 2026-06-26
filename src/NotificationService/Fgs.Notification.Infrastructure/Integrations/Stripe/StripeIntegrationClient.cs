@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Application.Integrations.Stripe;
+using Fgs.Notification.Application.Integrations.Stripe;
 
 namespace Fgs.Notification.Infrastructure.Integrations.Stripe;
 

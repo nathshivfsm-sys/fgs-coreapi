@@ -31,7 +31,11 @@ public sealed class FgsSetupDescriptionWriteService : IFgsSetupDescriptionWriteS
     {
         var entity = new FgsSetupDescription
         {
-            DescriptionTypeCode = dto.DescriptionTypeCode.Trim(), ShortNote = string.IsNullOrWhiteSpace(dto.ShortNote) ? null : dto.ShortNote.Trim(), Body = dto.Body.Trim(), FgsSetupTechTradeId = dto.FgsSetupTechTradeId, SortOrder = dto.SortOrder
+            DescriptionTypeCode = dto.DescriptionTypeCode.Trim(),
+            ShortNote = string.IsNullOrWhiteSpace(dto.ShortNote) ? null : dto.ShortNote.Trim(),
+            Body = dto.Body.Trim(),
+            FgsSetupTechTradeId = dto.FgsSetupTechTradeId,
+            SortOrder = dto.SortOrder
         };
 
         _auditHelper.StampForCreate(entity);
@@ -71,15 +75,15 @@ public sealed class FgsSetupDescriptionWriteService : IFgsSetupDescriptionWriteS
 
         if (dto.DescriptionTypeCode is not null)
         {
-            entity.DescriptionTypeCode = dto.DescriptionTypeCode.Trim();;
+            entity.DescriptionTypeCode = dto.DescriptionTypeCode.Trim(); ;
         }
         if (dto.ShortNote is not null)
         {
-            entity.ShortNote = string.IsNullOrWhiteSpace(dto.ShortNote) ? null : dto.ShortNote.Trim();;
+            entity.ShortNote = string.IsNullOrWhiteSpace(dto.ShortNote) ? null : dto.ShortNote.Trim(); ;
         }
         if (dto.Body is not null)
         {
-            entity.Body = dto.Body.Trim();;
+            entity.Body = dto.Body.Trim(); ;
         }
         if (dto.FgsSetupTechTradeId.HasValue)
         {

@@ -1,3 +1,3 @@
-﻿namespace Fgs.Notification.Application.Integrations.Stripe;
+namespace Fgs.Notification.Application.Integrations.Stripe;
 
 public interface IStripeIntegrationClient : IIntegrationClient;

@@ -1,4 +1,4 @@
-﻿namespace Fgs.Notification.Application.BackgroundJobs;
+namespace Fgs.Notification.Application.BackgroundJobs;
 
 public interface IBackgroundJobQueue
 {

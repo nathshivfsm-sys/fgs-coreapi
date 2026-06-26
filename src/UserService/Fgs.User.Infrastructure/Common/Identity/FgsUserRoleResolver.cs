@@ -1,4 +1,4 @@
-﻿using Fgs.User.Application.Abstractions.Identity;
+using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Abstractions.Persistence;
 
 namespace Fgs.User.Infrastructure.Common.Identity;

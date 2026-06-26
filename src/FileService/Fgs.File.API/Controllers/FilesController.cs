@@ -11,6 +11,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.File.API.Controllers;
+
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("files")]
 public sealed class FilesController(IMediator mediator) : FgsApiControllerBase(mediator)

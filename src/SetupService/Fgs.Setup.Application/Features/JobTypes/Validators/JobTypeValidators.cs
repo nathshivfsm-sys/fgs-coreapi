@@ -35,7 +35,7 @@ public sealed class CreateJobTypeCommandValidator : AbstractValidator<CreateJobT
         RuleFor(x => x.Dto.TextColor).MaximumLength(20);
 
 
-        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);        RuleFor(x => x.Dto.JobTypeCategoryId).MustAsync(async (command, value, cancellationToken) =>
+        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue); RuleFor(x => x.Dto.JobTypeCategoryId).MustAsync(async (command, value, cancellationToken) =>
                 await readRepository.ExistsJobTypeCategoryIdAsync(value, cancellationToken))
             .WithMessage("The specified job type category was not found.");
         RuleFor(x => x.Dto.JobTypeSubCategoryId).MustAsync(async (command, value, cancellationToken) =>

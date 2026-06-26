@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Infrastructure.Common.Options;
+namespace Fgs.Setup.Infrastructure.Common.Options;
 
 public sealed class AwsCredentialsOptions
 {

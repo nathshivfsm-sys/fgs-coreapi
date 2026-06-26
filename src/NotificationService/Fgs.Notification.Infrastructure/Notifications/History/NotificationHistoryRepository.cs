@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Application.Notifications.History;
+using Fgs.Notification.Application.Notifications.History;
 using Fgs.Notification.Domain.Entities;
 using Fgs.Notification.Domain.Notifications;
 using Fgs.Notification.Infrastructure.Database;

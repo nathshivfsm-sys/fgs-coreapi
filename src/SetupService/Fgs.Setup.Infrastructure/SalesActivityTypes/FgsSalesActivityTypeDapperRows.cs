@@ -5,8 +5,8 @@ namespace Fgs.Setup.Infrastructure.SalesActivityTypes;
 internal sealed class FgsSalesActivityTypeSummaryRow
 {
     public long Id { get; set; }
-    public string ActivityTypeCode { get; set; }
-    public string ActivityTypeName { get; set; }
+    public string ActivityTypeCode { get; set; } = null!;
+    public string ActivityTypeName { get; set; } = null!;
     public string? Description { get; set; }
     public short DisplayOrder { get; set; }
     public bool IsSystem { get; set; }
@@ -32,8 +32,8 @@ internal sealed class FgsSalesActivityTypeSummaryRow
 internal sealed class FgsSalesActivityTypeDetailRow
 {
     public long Id { get; set; }
-    public string ActivityTypeCode { get; set; }
-    public string ActivityTypeName { get; set; }
+    public string ActivityTypeCode { get; set; } = null!;
+    public string ActivityTypeName { get; set; } = null!;
     public string? Description { get; set; }
     public short DisplayOrder { get; set; }
     public bool IsSystem { get; set; }
@@ -59,8 +59,8 @@ internal sealed class FgsSalesActivityTypeDetailRow
 internal sealed class FgsSalesActivityTypeLookupRow
 {
     public long Id { get; set; }
-    public string ActivityTypeCode { get; set; }
-    public string ActivityTypeName { get; set; }
+    public string ActivityTypeCode { get; set; } = null!;
+    public string ActivityTypeName { get; set; } = null!;
     public short DisplayOrder { get; set; }
 
     public FgsSalesActivityTypeLookupDto ToDto() => new(Id,

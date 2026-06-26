@@ -5,8 +5,8 @@ namespace Fgs.Setup.Infrastructure.SalesDispositionReasons;
 internal sealed class FgsSalesDispositionReasonSummaryRow
 {
     public long Id { get; set; }
-    public string DispositionReasonCode { get; set; }
-    public string DispositionReasonName { get; set; }
+    public string DispositionReasonCode { get; set; } = null!;
+    public string DispositionReasonName { get; set; } = null!;
     public string? Description { get; set; }
     public short DisplayOrder { get; set; }
     public bool IsSystem { get; set; }
@@ -36,8 +36,8 @@ internal sealed class FgsSalesDispositionReasonSummaryRow
 internal sealed class FgsSalesDispositionReasonDetailRow
 {
     public long Id { get; set; }
-    public string DispositionReasonCode { get; set; }
-    public string DispositionReasonName { get; set; }
+    public string DispositionReasonCode { get; set; } = null!;
+    public string DispositionReasonName { get; set; } = null!;
     public string? Description { get; set; }
     public short DisplayOrder { get; set; }
     public bool IsSystem { get; set; }
@@ -67,8 +67,8 @@ internal sealed class FgsSalesDispositionReasonDetailRow
 internal sealed class FgsSalesDispositionReasonLookupRow
 {
     public long Id { get; set; }
-    public string DispositionReasonCode { get; set; }
-    public string DispositionReasonName { get; set; }
+    public string DispositionReasonCode { get; set; } = null!;
+    public string DispositionReasonName { get; set; } = null!;
     public short DisplayOrder { get; set; }
 
     public FgsSalesDispositionReasonLookupDto ToDto() => new(Id,

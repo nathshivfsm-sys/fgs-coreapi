@@ -1,4 +1,4 @@
-﻿using Fgs.User.Domain.Entities;
+using Fgs.User.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,7 +16,7 @@ internal class FgsRoleConfiguration : IEntityTypeConfiguration<FgsRole>
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.RoleCode }).IsUnique();
         entity.Property(e => e.RoleCode).HasMaxLength(50);
         entity.Property(e => e.Name).HasMaxLength(100);
-        entity.Property(e => e.Description).HasMaxLength(255);        entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
+        entity.Property(e => e.Description).HasMaxLength(255); entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Fgs.Notification.Application.Notifications.Templates;
+namespace Fgs.Notification.Application.Notifications.Templates;
 
 public sealed class TemplateRenderingException : Exception
 {

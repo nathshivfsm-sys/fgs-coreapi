@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Constants;
+namespace Fgs.Setup.Domain.Constants;
 
 public static class CredentialAuditActions
 {

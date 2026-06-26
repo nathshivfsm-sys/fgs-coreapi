@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Application.Features.TenantProvisioning;
+using Fgs.Setup.Application.Features.TenantProvisioning;
 
 namespace Fgs.Setup.Application.Abstractions.Provisioning;
 

@@ -5,7 +5,7 @@ namespace Fgs.Setup.Infrastructure.SetupPaymentMethods;
 internal sealed class FgsSetupPaymentMethodSummaryRow
 {
     public long Id { get; set; }
-    public string DisplayName { get; set; }
+    public string DisplayName { get; set; } = null!;
     public int SortOrder { get; set; }
     public bool IsMobileVisible { get; set; }
     public bool IsCustomerPortalVisible { get; set; }
@@ -24,7 +24,7 @@ internal sealed class FgsSetupPaymentMethodSummaryRow
 internal sealed class FgsSetupPaymentMethodDetailRow
 {
     public long Id { get; set; }
-    public string DisplayName { get; set; }
+    public string DisplayName { get; set; } = null!;
     public int SortOrder { get; set; }
     public bool IsMobileVisible { get; set; }
     public bool IsCustomerPortalVisible { get; set; }
@@ -43,7 +43,7 @@ internal sealed class FgsSetupPaymentMethodDetailRow
 internal sealed class FgsSetupPaymentMethodLookupRow
 {
     public long Id { get; set; }
-    public string DisplayName { get; set; }
+    public string DisplayName { get; set; } = null!;
     public int SortOrder { get; set; }
 
     public FgsSetupPaymentMethodLookupDto ToDto() => new(Id,

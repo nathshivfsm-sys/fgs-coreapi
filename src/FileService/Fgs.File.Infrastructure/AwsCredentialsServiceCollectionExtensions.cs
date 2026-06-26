@@ -1,5 +1,6 @@
 using Amazon;
 using Amazon.S3;
+using Fgs.Credentials.Aws;
 using Fgs.File.Infrastructure.Common.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -22,20 +23,13 @@ public static class AwsCredentialsServiceCollectionExtensions
         var options = sp.GetRequiredService<IOptions<AwsCredentialsOptions>>().Value;
         var config = new AmazonS3Config
         {
-            RegionEndpoint = ResolveRegionEndpoint(options.Region),
+            RegionEndpoint = AwsClientCredentialHelper.ResolveRegionEndpoint(options.Region),
             SignatureVersion = "4",
             UseHttp = false
         };
 
-        return HasExplicitCredentials(options)
+        return AwsClientCredentialHelper.HasExplicitCredentials(options.AccessKeyId, options.SecretAccessKey)
             ? new AmazonS3Client(options.AccessKeyId!, options.SecretAccessKey!, config)
             : new AmazonS3Client(config);
     }
-
-    private static bool HasExplicitCredentials(AwsCredentialsOptions options) =>
-        !string.IsNullOrWhiteSpace(options.AccessKeyId)
-        && !string.IsNullOrWhiteSpace(options.SecretAccessKey);
-
-    private static RegionEndpoint ResolveRegionEndpoint(string? region) =>
-        RegionEndpoint.GetBySystemName(string.IsNullOrWhiteSpace(region) ? "us-east-1" : region);
 }

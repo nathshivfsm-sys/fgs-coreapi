@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Application.Notifications.Preferences;
+using Fgs.Notification.Application.Notifications.Preferences;
 
 namespace Fgs.Notification.Infrastructure.Notifications.Preferences;
 

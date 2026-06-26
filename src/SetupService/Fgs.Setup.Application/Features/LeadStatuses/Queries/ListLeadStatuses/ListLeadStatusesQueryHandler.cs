@@ -1,5 +1,5 @@
 using Fgs.Contracts.Api;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Abstractions.LeadStatuses;
 using Fgs.Setup.Application.Features.LeadStatuses.Dtos;
 using MediatR;

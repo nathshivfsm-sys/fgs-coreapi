@@ -5,8 +5,8 @@ namespace Fgs.Setup.Infrastructure.SetupZones;
 internal sealed class FgsSetupZoneSummaryRow
 {
     public long Id { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public bool IsActive { get; set; }
 
@@ -22,8 +22,8 @@ internal sealed class FgsSetupZoneSummaryRow
 internal sealed class FgsSetupZoneDetailRow
 {
     public long Id { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public bool IsActive { get; set; }
 
@@ -39,8 +39,8 @@ internal sealed class FgsSetupZoneDetailRow
 internal sealed class FgsSetupZoneLookupRow
 {
     public long Id { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
     public FgsSetupZoneLookupDto ToDto() => new(Id,
             Code,

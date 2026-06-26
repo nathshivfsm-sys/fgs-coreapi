@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Domain.Enums;
+using Fgs.Setup.Domain.Enums;
 
 namespace Fgs.Setup.Application.Features.Credentials.DTOs;
 

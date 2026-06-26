@@ -31,7 +31,10 @@ public sealed class FgsSetupPaymentMethodWriteService : IFgsSetupPaymentMethodWr
     {
         var entity = new FgsSetupPaymentMethod
         {
-            DisplayName = dto.DisplayName.Trim(), SortOrder = dto.SortOrder, IsMobileVisible = dto.IsMobileVisible, IsCustomerPortalVisible = dto.IsCustomerPortalVisible
+            DisplayName = dto.DisplayName.Trim(),
+            SortOrder = dto.SortOrder,
+            IsMobileVisible = dto.IsMobileVisible,
+            IsCustomerPortalVisible = dto.IsCustomerPortalVisible
         };
 
         _auditHelper.StampForCreate(entity);
@@ -70,7 +73,7 @@ public sealed class FgsSetupPaymentMethodWriteService : IFgsSetupPaymentMethodWr
 
         if (dto.DisplayName is not null)
         {
-            entity.DisplayName = dto.DisplayName.Trim();;
+            entity.DisplayName = dto.DisplayName.Trim(); ;
         }
         if (dto.SortOrder.HasValue)
         {

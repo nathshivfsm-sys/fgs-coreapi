@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Application.Configuration;
+using Fgs.Notification.Application.Configuration;
 using Fgs.Notification.Application.Notifications.Channels;
 using Fgs.Notification.Application.Notifications.Providers;
 using Fgs.Notification.Domain.Notifications;

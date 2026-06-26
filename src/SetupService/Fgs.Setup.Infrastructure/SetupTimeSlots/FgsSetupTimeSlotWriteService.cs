@@ -31,7 +31,15 @@ public sealed class FgsSetupTimeSlotWriteService : IFgsSetupTimeSlotWriteService
     {
         var entity = new FgsSetupTimeSlot
         {
-            FgsSetupZoneId = dto.FgsSetupZoneId, Code = NormalizeCode(dto.Code), Name = dto.Name.Trim(), BeginTime = dto.BeginTime, EndTime = dto.EndTime, MarkTechArrivedLateAfter = dto.MarkTechArrivedLateAfter, MarkWorkOrderDelayedCompletionAfter = dto.MarkWorkOrderDelayedCompletionAfter, IsMobileVisible = dto.IsMobileVisible, IsCustomerPortalVisible = dto.IsCustomerPortalVisible
+            FgsSetupZoneId = dto.FgsSetupZoneId,
+            Code = NormalizeCode(dto.Code),
+            Name = dto.Name.Trim(),
+            BeginTime = dto.BeginTime,
+            EndTime = dto.EndTime,
+            MarkTechArrivedLateAfter = dto.MarkTechArrivedLateAfter,
+            MarkWorkOrderDelayedCompletionAfter = dto.MarkWorkOrderDelayedCompletionAfter,
+            IsMobileVisible = dto.IsMobileVisible,
+            IsCustomerPortalVisible = dto.IsCustomerPortalVisible
         };
 
         _auditHelper.StampForCreate(entity);
@@ -79,11 +87,11 @@ public sealed class FgsSetupTimeSlotWriteService : IFgsSetupTimeSlotWriteService
         }
         if (dto.Code is not null)
         {
-            entity.Code = NormalizeCode(dto.Code);;
+            entity.Code = NormalizeCode(dto.Code); ;
         }
         if (dto.Name is not null)
         {
-            entity.Name = dto.Name.Trim();;
+            entity.Name = dto.Name.Trim(); ;
         }
         if (dto.BeginTime.HasValue)
         {

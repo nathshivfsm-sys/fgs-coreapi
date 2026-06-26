@@ -6,7 +6,7 @@ internal sealed class FgsTagSummaryRow
 {
     public long Id { get; set; }
     public string? TagCode { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public string? BackgroundColor { get; set; }
     public string? TextColor { get; set; }
@@ -31,7 +31,7 @@ internal sealed class FgsTagDetailRow
 {
     public long Id { get; set; }
     public string? TagCode { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public string? BackgroundColor { get; set; }
     public string? TextColor { get; set; }
@@ -56,7 +56,7 @@ internal sealed class FgsTagLookupRow
 {
     public long Id { get; set; }
     public string? TagCode { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public FgsTagLookupDto ToDto() => new(Id,
             TagCode,

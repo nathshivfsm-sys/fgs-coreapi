@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Entities;
+namespace Fgs.Setup.Domain.Entities;
 
 /// <summary>
 /// Allowed <see cref="FgsWarehouse.WarehouseType"/> values (see CK_FgsWarehouse_WarehouseType).

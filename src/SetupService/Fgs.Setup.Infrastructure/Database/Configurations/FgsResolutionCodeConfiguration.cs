@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,7 +12,7 @@ internal class FgsResolutionCodeConfiguration : IEntityTypeConfiguration<FgsReso
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id).HasColumnOrder(0);
         entity.Property(e => e.TenantId).HasColumnOrder(1);
-        entity.Property(e => e.CompanyId).HasColumnOrder(2);        entity.HasOne(e => e.ResolutionType)
+        entity.Property(e => e.CompanyId).HasColumnOrder(2); entity.HasOne(e => e.ResolutionType)
             .WithMany()
             .HasForeignKey(e => e.GloResolutionTypeId)
             .HasPrincipalKey(p => p.ResolutionTypeId)

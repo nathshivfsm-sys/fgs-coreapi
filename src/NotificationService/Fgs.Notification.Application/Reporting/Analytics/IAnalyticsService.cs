@@ -1,3 +1,3 @@
-﻿namespace Fgs.Notification.Application.Reporting.Analytics;
+namespace Fgs.Notification.Application.Reporting.Analytics;
 
 public interface IAnalyticsService;

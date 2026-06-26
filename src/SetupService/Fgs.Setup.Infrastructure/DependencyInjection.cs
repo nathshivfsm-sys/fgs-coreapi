@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.Clients;
+using Fgs.Contracts.Clients;
 using Fgs.Foundation.Caching.Options;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Application.Abstractions.GLBreaks;

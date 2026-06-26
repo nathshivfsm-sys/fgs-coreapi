@@ -18,7 +18,7 @@ public sealed class CreateFgsSetupTechSkillLevelCommandValidator : AbstractValid
             .WithMessage("A tech skill level with this code already exists.");
         RuleFor(x => x.Dto.Name).NotEmpty();
 
-        RuleFor(x => x.Dto.SortOrder).GreaterThanOrEqualTo(0).When(x => x.Dto.SortOrder.HasValue);        RuleFor(x => x.Dto.Code).NotEmpty();
+        RuleFor(x => x.Dto.SortOrder).GreaterThanOrEqualTo(0).When(x => x.Dto.SortOrder.HasValue); RuleFor(x => x.Dto.Code).NotEmpty();
         RuleFor(x => x.Dto.Code).MaximumLength(100);
         RuleFor(x => x.Dto.Code).Must(code => string.Equals(code, code.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("Code must be uppercase.");
         RuleFor(x => x.Dto.Code).MustAsync(async (command, code, cancellationToken) =>

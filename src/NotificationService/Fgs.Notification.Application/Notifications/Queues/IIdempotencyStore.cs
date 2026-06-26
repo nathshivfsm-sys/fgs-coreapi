@@ -1,4 +1,4 @@
-﻿namespace Fgs.Notification.Application.Notifications.Queues;
+namespace Fgs.Notification.Application.Notifications.Queues;
 
 public interface IIdempotencyStore
 {

@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -86,5 +86,6 @@ internal class FgsWarehouseConfiguration : IEntityTypeConfiguration<FgsWarehouse
             .HasDatabaseName("IX_FgsWarehouse_TenantId_CompanyId_IsActive");
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.WarehouseType })
-            .HasDatabaseName("IX_FgsWarehouse_TenantId_CompanyId_WarehouseType");    }
+            .HasDatabaseName("IX_FgsWarehouse_TenantId_CompanyId_WarehouseType");
+    }
 }

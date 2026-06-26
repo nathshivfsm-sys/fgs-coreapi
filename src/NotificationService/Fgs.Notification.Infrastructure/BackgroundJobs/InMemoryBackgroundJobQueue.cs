@@ -1,4 +1,4 @@
-﻿using System.Threading.Channels;
+using System.Threading.Channels;
 using Fgs.Notification.Application.BackgroundJobs;
 
 namespace Fgs.Notification.Infrastructure.BackgroundJobs;

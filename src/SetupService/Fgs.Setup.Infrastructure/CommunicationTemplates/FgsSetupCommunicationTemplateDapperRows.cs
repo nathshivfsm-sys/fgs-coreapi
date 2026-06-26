@@ -5,12 +5,12 @@ namespace Fgs.Setup.Infrastructure.CommunicationTemplates;
 internal sealed class FgsSetupCommunicationTemplateSummaryRow
 {
     public long Id { get; set; }
-    public string CommunicationChannel { get; set; }
-    public string TemplateType { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string CommunicationChannel { get; set; } = null!;
+    public string TemplateType { get; set; } = null!;
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public string? Subject { get; set; }
-    public string Body { get; set; }
+    public string Body { get; set; } = null!;
     public bool IsMobileVisible { get; set; }
     public bool IsActive { get; set; }
 
@@ -30,12 +30,12 @@ internal sealed class FgsSetupCommunicationTemplateSummaryRow
 internal sealed class FgsSetupCommunicationTemplateDetailRow
 {
     public long Id { get; set; }
-    public string CommunicationChannel { get; set; }
-    public string TemplateType { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string CommunicationChannel { get; set; } = null!;
+    public string TemplateType { get; set; } = null!;
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public string? Subject { get; set; }
-    public string Body { get; set; }
+    public string Body { get; set; } = null!;
     public bool IsMobileVisible { get; set; }
     public bool IsActive { get; set; }
 
@@ -55,10 +55,10 @@ internal sealed class FgsSetupCommunicationTemplateDetailRow
 internal sealed class FgsSetupCommunicationTemplateLookupRow
 {
     public long Id { get; set; }
-    public string CommunicationChannel { get; set; }
-    public string TemplateType { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string CommunicationChannel { get; set; } = null!;
+    public string TemplateType { get; set; } = null!;
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
     public FgsSetupCommunicationTemplateLookupDto ToDto() => new(Id,
             CommunicationChannel,

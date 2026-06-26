@@ -31,7 +31,10 @@ public sealed class JobTypeSubCategoryWriteService : IJobTypeSubCategoryWriteSer
     {
         var entity = new FgsJobTypeSubCategory
         {
-            SubCategoryCode = NormalizeCode(dto.SubCategoryCode), Name = dto.Name.Trim(), Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(), DisplayOrder = dto.DisplayOrder ?? 1
+            SubCategoryCode = NormalizeCode(dto.SubCategoryCode),
+            Name = dto.Name.Trim(),
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
+            DisplayOrder = dto.DisplayOrder ?? 1
         };
 
         _auditHelper.StampForCreate(entity);
@@ -70,15 +73,15 @@ public sealed class JobTypeSubCategoryWriteService : IJobTypeSubCategoryWriteSer
 
         if (dto.SubCategoryCode is not null)
         {
-            entity.SubCategoryCode = NormalizeCode(dto.SubCategoryCode);;
+            entity.SubCategoryCode = NormalizeCode(dto.SubCategoryCode); ;
         }
         if (dto.Name is not null)
         {
-            entity.Name = dto.Name.Trim();;
+            entity.Name = dto.Name.Trim(); ;
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
         if (dto.DisplayOrder.HasValue)
         {

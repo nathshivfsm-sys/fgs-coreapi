@@ -1,4 +1,4 @@
-﻿using Fgs.Security.Abstractions;
+using Fgs.Security.Abstractions;
 using Fgs.Security.Extensions;
 using Fgs.Setup.Application.Abstractions.Credentials;
 

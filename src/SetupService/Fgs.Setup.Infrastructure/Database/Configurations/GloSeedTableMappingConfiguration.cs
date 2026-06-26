@@ -1,4 +1,4 @@
-﻿using Fgs.Persistence.Extensions;
+using Fgs.Persistence.Extensions;
 using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

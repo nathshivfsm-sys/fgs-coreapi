@@ -31,7 +31,9 @@ public sealed class LeadSourceWriteService : ILeadSourceWriteService
     {
         var entity = new FgsLeadSource
         {
-            SourceCode = NormalizeCode(dto.SourceCode), SourceName = dto.SourceName.Trim(), Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim()
+            SourceCode = NormalizeCode(dto.SourceCode),
+            SourceName = dto.SourceName.Trim(),
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim()
         };
 
         _auditHelper.StampForCreate(entity);
@@ -69,15 +71,15 @@ public sealed class LeadSourceWriteService : ILeadSourceWriteService
 
         if (dto.SourceCode is not null)
         {
-            entity.SourceCode = NormalizeCode(dto.SourceCode);;
+            entity.SourceCode = NormalizeCode(dto.SourceCode); ;
         }
         if (dto.SourceName is not null)
         {
-            entity.SourceName = dto.SourceName.Trim();;
+            entity.SourceName = dto.SourceName.Trim(); ;
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
 
         if (dto.IsActive.HasValue)

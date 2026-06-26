@@ -7,10 +7,10 @@ internal sealed class JobTypeSummaryRow
     public long Id { get; set; }
     public long JobTypeCategoryId { get; set; }
     public long? JobTypeSubCategoryId { get; set; }
-    public string JobTypeCode { get; set; }
-    public string TaskName { get; set; }
+    public string JobTypeCode { get; set; } = null!;
+    public string TaskName { get; set; } = null!;
     public string? Description { get; set; }
-    public string UsedFor { get; set; }
+    public string UsedFor { get; set; } = null!;
     public string? Trade { get; set; }
     public int? EstimatedDurationMinutes { get; set; }
     public string? BusinessUnit { get; set; }
@@ -48,10 +48,10 @@ internal sealed class JobTypeDetailRow
     public long Id { get; set; }
     public long JobTypeCategoryId { get; set; }
     public long? JobTypeSubCategoryId { get; set; }
-    public string JobTypeCode { get; set; }
-    public string TaskName { get; set; }
+    public string JobTypeCode { get; set; } = null!;
+    public string TaskName { get; set; } = null!;
     public string? Description { get; set; }
-    public string UsedFor { get; set; }
+    public string UsedFor { get; set; } = null!;
     public string? Trade { get; set; }
     public int? EstimatedDurationMinutes { get; set; }
     public string? BusinessUnit { get; set; }
@@ -87,8 +87,8 @@ internal sealed class JobTypeDetailRow
 internal sealed class JobTypeLookupRow
 {
     public long Id { get; set; }
-    public string JobTypeCode { get; set; }
-    public string TaskName { get; set; }
+    public string JobTypeCode { get; set; } = null!;
+    public string TaskName { get; set; } = null!;
     public short? DisplayOrder { get; set; }
 
     public JobTypeLookupDto ToDto() => new(Id,

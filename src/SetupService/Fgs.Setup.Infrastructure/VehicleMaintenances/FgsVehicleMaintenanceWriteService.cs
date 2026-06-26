@@ -31,7 +31,18 @@ public sealed class FgsVehicleMaintenanceWriteService : IFgsVehicleMaintenanceWr
     {
         var entity = new FgsVehicleMaintenance
         {
-            VehicleId = dto.VehicleId, VehicleMaintenanceTypeId = dto.VehicleMaintenanceTypeId, ServiceDate = dto.ServiceDate, MileageAtService = dto.MileageAtService ?? 1, ServiceProvider = string.IsNullOrWhiteSpace(dto.ServiceProvider) ? null : dto.ServiceProvider.Trim(), InvoiceNumber = string.IsNullOrWhiteSpace(dto.InvoiceNumber) ? null : dto.InvoiceNumber.Trim(), Cost = dto.Cost, NextServiceDate = dto.NextServiceDate, NextServiceMileage = dto.NextServiceMileage ?? 1, IsCompleted = dto.IsCompleted, Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(), Notes = string.IsNullOrWhiteSpace(dto.Notes) ? null : dto.Notes.Trim()
+            VehicleId = dto.VehicleId,
+            VehicleMaintenanceTypeId = dto.VehicleMaintenanceTypeId,
+            ServiceDate = dto.ServiceDate,
+            MileageAtService = dto.MileageAtService ?? 1,
+            ServiceProvider = string.IsNullOrWhiteSpace(dto.ServiceProvider) ? null : dto.ServiceProvider.Trim(),
+            InvoiceNumber = string.IsNullOrWhiteSpace(dto.InvoiceNumber) ? null : dto.InvoiceNumber.Trim(),
+            Cost = dto.Cost,
+            NextServiceDate = dto.NextServiceDate,
+            NextServiceMileage = dto.NextServiceMileage ?? 1,
+            IsCompleted = dto.IsCompleted,
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
+            Notes = string.IsNullOrWhiteSpace(dto.Notes) ? null : dto.Notes.Trim()
         };
 
         _auditHelper.StampForCreate(entity);
@@ -94,11 +105,11 @@ public sealed class FgsVehicleMaintenanceWriteService : IFgsVehicleMaintenanceWr
         }
         if (dto.ServiceProvider is not null)
         {
-            entity.ServiceProvider = string.IsNullOrWhiteSpace(dto.ServiceProvider) ? null : dto.ServiceProvider.Trim();;
+            entity.ServiceProvider = string.IsNullOrWhiteSpace(dto.ServiceProvider) ? null : dto.ServiceProvider.Trim(); ;
         }
         if (dto.InvoiceNumber is not null)
         {
-            entity.InvoiceNumber = string.IsNullOrWhiteSpace(dto.InvoiceNumber) ? null : dto.InvoiceNumber.Trim();;
+            entity.InvoiceNumber = string.IsNullOrWhiteSpace(dto.InvoiceNumber) ? null : dto.InvoiceNumber.Trim(); ;
         }
         if (dto.Cost.HasValue)
         {
@@ -118,11 +129,11 @@ public sealed class FgsVehicleMaintenanceWriteService : IFgsVehicleMaintenanceWr
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
         }
         if (dto.Notes is not null)
         {
-            entity.Notes = string.IsNullOrWhiteSpace(dto.Notes) ? null : dto.Notes.Trim();;
+            entity.Notes = string.IsNullOrWhiteSpace(dto.Notes) ? null : dto.Notes.Trim(); ;
         }
 
         if (dto.IsActive.HasValue)

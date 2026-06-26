@@ -15,9 +15,9 @@ public sealed class GetTitleOfCourtesyByIdQueryHandler(ITitleOfCourtesyReadRepos
         var result = await readRepository.GetByIdAsync(request.Id, cancellationToken);
         if (result is null)
         {
-                return ApiResponse<TitleOfCourtesyDetailDto>.Fail(
-                    [$"Title of courtesy '{request.Id}' was not found."],
-                    ApiStatusCodes.NotFound);
+            return ApiResponse<TitleOfCourtesyDetailDto>.Fail(
+                [$"Title of courtesy '{request.Id}' was not found."],
+                ApiStatusCodes.NotFound);
         }
 
         return ApiResponse<TitleOfCourtesyDetailDto>.Ok(result);

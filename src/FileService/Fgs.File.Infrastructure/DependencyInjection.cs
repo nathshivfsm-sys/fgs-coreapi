@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.Clients;
+using Fgs.Contracts.Clients;
 using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;

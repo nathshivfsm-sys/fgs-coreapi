@@ -31,7 +31,20 @@ public sealed class FgsVendorWriteService : IFgsVendorWriteService
     {
         var entity = new FgsVendor
         {
-            VendorCode = NormalizeCode(dto.VendorCode), Name = dto.Name.Trim(), LegalName = string.IsNullOrWhiteSpace(dto.LegalName) ? null : dto.LegalName.Trim(), VendorType = dto.VendorType.Trim(), PaymentTermId = dto.PaymentTermId, Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email.Trim(), PhoneNumber = string.IsNullOrWhiteSpace(dto.PhoneNumber) ? null : dto.PhoneNumber.Trim(), MobileNumber = string.IsNullOrWhiteSpace(dto.MobileNumber) ? null : dto.MobileNumber.Trim(), Website = string.IsNullOrWhiteSpace(dto.Website) ? null : dto.Website.Trim(), TaxIdentificationNumber = string.IsNullOrWhiteSpace(dto.TaxIdentificationNumber) ? null : dto.TaxIdentificationNumber.Trim(), LicenseNumber = string.IsNullOrWhiteSpace(dto.LicenseNumber) ? null : dto.LicenseNumber.Trim(), InsurancePolicyNumber = string.IsNullOrWhiteSpace(dto.InsurancePolicyNumber) ? null : dto.InsurancePolicyNumber.Trim(), Notes = string.IsNullOrWhiteSpace(dto.Notes) ? null : dto.Notes.Trim(), Is1099Eligible = dto.Is1099Eligible
+            VendorCode = NormalizeCode(dto.VendorCode),
+            Name = dto.Name.Trim(),
+            LegalName = string.IsNullOrWhiteSpace(dto.LegalName) ? null : dto.LegalName.Trim(),
+            VendorType = dto.VendorType.Trim(),
+            PaymentTermId = dto.PaymentTermId,
+            Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email.Trim(),
+            PhoneNumber = string.IsNullOrWhiteSpace(dto.PhoneNumber) ? null : dto.PhoneNumber.Trim(),
+            MobileNumber = string.IsNullOrWhiteSpace(dto.MobileNumber) ? null : dto.MobileNumber.Trim(),
+            Website = string.IsNullOrWhiteSpace(dto.Website) ? null : dto.Website.Trim(),
+            TaxIdentificationNumber = string.IsNullOrWhiteSpace(dto.TaxIdentificationNumber) ? null : dto.TaxIdentificationNumber.Trim(),
+            LicenseNumber = string.IsNullOrWhiteSpace(dto.LicenseNumber) ? null : dto.LicenseNumber.Trim(),
+            InsurancePolicyNumber = string.IsNullOrWhiteSpace(dto.InsurancePolicyNumber) ? null : dto.InsurancePolicyNumber.Trim(),
+            Notes = string.IsNullOrWhiteSpace(dto.Notes) ? null : dto.Notes.Trim(),
+            Is1099Eligible = dto.Is1099Eligible
         };
 
         _auditHelper.StampForCreate(entity);
@@ -80,19 +93,19 @@ public sealed class FgsVendorWriteService : IFgsVendorWriteService
 
         if (dto.VendorCode is not null)
         {
-            entity.VendorCode = NormalizeCode(dto.VendorCode);;
+            entity.VendorCode = NormalizeCode(dto.VendorCode); ;
         }
         if (dto.Name is not null)
         {
-            entity.Name = dto.Name.Trim();;
+            entity.Name = dto.Name.Trim(); ;
         }
         if (dto.LegalName is not null)
         {
-            entity.LegalName = string.IsNullOrWhiteSpace(dto.LegalName) ? null : dto.LegalName.Trim();;
+            entity.LegalName = string.IsNullOrWhiteSpace(dto.LegalName) ? null : dto.LegalName.Trim(); ;
         }
         if (dto.VendorType is not null)
         {
-            entity.VendorType = dto.VendorType.Trim();;
+            entity.VendorType = dto.VendorType.Trim(); ;
         }
         if (dto.PaymentTermId.HasValue)
         {
@@ -100,35 +113,35 @@ public sealed class FgsVendorWriteService : IFgsVendorWriteService
         }
         if (dto.Email is not null)
         {
-            entity.Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email.Trim();;
+            entity.Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email.Trim(); ;
         }
         if (dto.PhoneNumber is not null)
         {
-            entity.PhoneNumber = string.IsNullOrWhiteSpace(dto.PhoneNumber) ? null : dto.PhoneNumber.Trim();;
+            entity.PhoneNumber = string.IsNullOrWhiteSpace(dto.PhoneNumber) ? null : dto.PhoneNumber.Trim(); ;
         }
         if (dto.MobileNumber is not null)
         {
-            entity.MobileNumber = string.IsNullOrWhiteSpace(dto.MobileNumber) ? null : dto.MobileNumber.Trim();;
+            entity.MobileNumber = string.IsNullOrWhiteSpace(dto.MobileNumber) ? null : dto.MobileNumber.Trim(); ;
         }
         if (dto.Website is not null)
         {
-            entity.Website = string.IsNullOrWhiteSpace(dto.Website) ? null : dto.Website.Trim();;
+            entity.Website = string.IsNullOrWhiteSpace(dto.Website) ? null : dto.Website.Trim(); ;
         }
         if (dto.TaxIdentificationNumber is not null)
         {
-            entity.TaxIdentificationNumber = string.IsNullOrWhiteSpace(dto.TaxIdentificationNumber) ? null : dto.TaxIdentificationNumber.Trim();;
+            entity.TaxIdentificationNumber = string.IsNullOrWhiteSpace(dto.TaxIdentificationNumber) ? null : dto.TaxIdentificationNumber.Trim(); ;
         }
         if (dto.LicenseNumber is not null)
         {
-            entity.LicenseNumber = string.IsNullOrWhiteSpace(dto.LicenseNumber) ? null : dto.LicenseNumber.Trim();;
+            entity.LicenseNumber = string.IsNullOrWhiteSpace(dto.LicenseNumber) ? null : dto.LicenseNumber.Trim(); ;
         }
         if (dto.InsurancePolicyNumber is not null)
         {
-            entity.InsurancePolicyNumber = string.IsNullOrWhiteSpace(dto.InsurancePolicyNumber) ? null : dto.InsurancePolicyNumber.Trim();;
+            entity.InsurancePolicyNumber = string.IsNullOrWhiteSpace(dto.InsurancePolicyNumber) ? null : dto.InsurancePolicyNumber.Trim(); ;
         }
         if (dto.Notes is not null)
         {
-            entity.Notes = string.IsNullOrWhiteSpace(dto.Notes) ? null : dto.Notes.Trim();;
+            entity.Notes = string.IsNullOrWhiteSpace(dto.Notes) ? null : dto.Notes.Trim(); ;
         }
         if (dto.Is1099Eligible.HasValue)
         {

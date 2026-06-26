@@ -1,4 +1,4 @@
-﻿using Fgs.File.Application.Abstractions.Storage;
+using Fgs.File.Application.Abstractions.Storage;
 
 namespace Fgs.File.Infrastructure.Storage;
 

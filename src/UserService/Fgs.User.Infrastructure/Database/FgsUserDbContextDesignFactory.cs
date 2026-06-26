@@ -1,4 +1,4 @@
-﻿using Fgs.MultiTenancy.Persistence;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;

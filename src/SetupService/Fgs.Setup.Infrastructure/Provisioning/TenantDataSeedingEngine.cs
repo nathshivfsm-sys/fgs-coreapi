@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Data.Common;
 using Fgs.Setup.Application.Abstractions.Provisioning;
 using Fgs.Setup.Application.Features.TenantProvisioning;

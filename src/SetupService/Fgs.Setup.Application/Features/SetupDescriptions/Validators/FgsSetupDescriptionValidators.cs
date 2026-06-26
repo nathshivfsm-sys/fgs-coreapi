@@ -19,7 +19,7 @@ public sealed class CreateFgsSetupDescriptionCommandValidator : AbstractValidato
         RuleFor(x => x.Dto.FgsSetupTechTradeId).MustAsync(async (command, value, cancellationToken) =>
                 !value.HasValue || await readRepository.ExistsTechTradeIdAsync(value.Value, cancellationToken))
             .WithMessage("The specified tech trade was not found.");
-        RuleFor(x => x.Dto.SortOrder).GreaterThanOrEqualTo(0);        RuleFor(x => x.Dto.DescriptionTypeCode).NotEmpty();
+        RuleFor(x => x.Dto.SortOrder).GreaterThanOrEqualTo(0); RuleFor(x => x.Dto.DescriptionTypeCode).NotEmpty();
         RuleFor(x => x.Dto.DescriptionTypeCode).MustAsync(async (command, code, cancellationToken) =>
                 !await readRepository.ExistsByDescriptionTypeCodeAsync(code, null, cancellationToken))
             .WithMessage("A setup description with this code already exists.");

@@ -1,5 +1,5 @@
 using Fgs.Foundation.Caching;
-using Fgs.Foundation.CatalogCrud;
+using Fgs.Foundation.Paging;
 
 namespace Fgs.Foundation.Tests.Caching;
 

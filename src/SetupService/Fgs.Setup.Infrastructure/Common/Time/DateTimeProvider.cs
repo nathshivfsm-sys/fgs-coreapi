@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Application.Abstractions.Time;
+using Fgs.Setup.Application.Abstractions.Time;
 
 namespace Fgs.Setup.Infrastructure.Common.Time;
 

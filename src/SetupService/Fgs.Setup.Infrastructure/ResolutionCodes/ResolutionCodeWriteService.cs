@@ -31,7 +31,10 @@ public sealed class ResolutionCodeWriteService : IResolutionCodeWriteService
     {
         var entity = new FgsResolutionCode
         {
-            GloResolutionTypeId = dto.GloResolutionTypeId, ResolutionCode = NormalizeCode(dto.ResolutionCode), ResolutionName = dto.ResolutionName.Trim(), IsMobileVisible = dto.IsMobileVisible
+            GloResolutionTypeId = dto.GloResolutionTypeId,
+            ResolutionCode = NormalizeCode(dto.ResolutionCode),
+            ResolutionName = dto.ResolutionName.Trim(),
+            IsMobileVisible = dto.IsMobileVisible
         };
 
         _auditHelper.StampForCreate(entity);
@@ -74,11 +77,11 @@ public sealed class ResolutionCodeWriteService : IResolutionCodeWriteService
         }
         if (dto.ResolutionCode is not null)
         {
-            entity.ResolutionCode = NormalizeCode(dto.ResolutionCode);;
+            entity.ResolutionCode = NormalizeCode(dto.ResolutionCode); ;
         }
         if (dto.ResolutionName is not null)
         {
-            entity.ResolutionName = dto.ResolutionName.Trim();;
+            entity.ResolutionName = dto.ResolutionName.Trim(); ;
         }
         if (dto.IsMobileVisible.HasValue)
         {

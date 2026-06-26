@@ -2,7 +2,6 @@ using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using Fgs.Persistence.Extensions;
-using Fgs.Security.Extensions;
 using Fgs.ServiceAgreement.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,16 +15,7 @@ public static class DependencyInjection
         this IServiceCollection services,
         ConfigurationManager configuration)
     {
-        services.AddFgsCredentialConsumer(
-            configuration,
-            configuration,
-            options =>
-            {
-                options.ServiceName = "fgs-service-agreement-service";
-                options.RequiredProviders = ["DATABASE"];
-            });
-
-        services.AddFgsApiSecurity(configuration);
+        services.AddFgsStandardInfrastructure(configuration, "fgs-service-agreement-service", "DATABASE");
 
         services.AddDbContext<FgsServiceAgreementDbContext>((sp, options) =>
         {

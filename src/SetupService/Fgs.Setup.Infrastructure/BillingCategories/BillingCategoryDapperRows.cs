@@ -5,8 +5,8 @@ namespace Fgs.Setup.Infrastructure.BillingCategories;
 internal sealed class BillingCategorySummaryRow
 {
     public long Id { get; set; }
-    public string BillingCategoryType { get; set; }
-    public string BillingCategoryName { get; set; }
+    public string BillingCategoryType { get; set; } = null!;
+    public string BillingCategoryName { get; set; } = null!;
     public string? Description { get; set; }
     public short? DisplayOrder { get; set; }
     public bool IsSystemDefined { get; set; }
@@ -30,8 +30,8 @@ internal sealed class BillingCategorySummaryRow
 internal sealed class BillingCategoryDetailRow
 {
     public long Id { get; set; }
-    public string BillingCategoryType { get; set; }
-    public string BillingCategoryName { get; set; }
+    public string BillingCategoryType { get; set; } = null!;
+    public string BillingCategoryName { get; set; } = null!;
     public string? Description { get; set; }
     public short? DisplayOrder { get; set; }
     public bool IsSystemDefined { get; set; }
@@ -55,8 +55,8 @@ internal sealed class BillingCategoryDetailRow
 internal sealed class BillingCategoryLookupRow
 {
     public long Id { get; set; }
-    public string BillingCategoryType { get; set; }
-    public string BillingCategoryName { get; set; }
+    public string BillingCategoryType { get; set; } = null!;
+    public string BillingCategoryName { get; set; } = null!;
     public short? DisplayOrder { get; set; }
 
     public BillingCategoryLookupDto ToDto() => new(Id,

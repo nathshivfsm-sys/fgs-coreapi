@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Audit.API.Controllers;
+
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("credential-audits")]
 public sealed class CredentialAuditsController(IMediator mediator) : FgsApiControllerBase(mediator)
