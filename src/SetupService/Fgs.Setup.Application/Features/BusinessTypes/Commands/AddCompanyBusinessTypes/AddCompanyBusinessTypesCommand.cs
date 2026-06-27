@@ -7,5 +7,7 @@ namespace Fgs.Setup.Application.Features.BusinessTypes.Commands.AddCompanyBusine
 public sealed record AddCompanyBusinessTypesCommand(
     long TenantId,
     long CompanyId,
-    AddCompanyBusinessTypesRequest Request)
+    AddCompanyBusinessTypesRequest Request,
+    string? InternalServiceKey = null,
+    string? RequestingServiceName = null)
     : IRequest<ApiResponse<object>>;

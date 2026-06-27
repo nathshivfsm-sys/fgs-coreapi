@@ -1,4 +1,6 @@
 using Fgs.Contracts.Clients;
+using Fgs.Credentials.Extensions;
+using Fgs.Credentials.Options;
 using Fgs.Foundation.Caching.Options;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Application.Abstractions.GLBreaks;
@@ -100,6 +102,8 @@ public static class DependencyInjection
     {
         services.AddFgsApiSecurity(configuration);
 
+        services.Configure<CredentialConsumerOptions>(options => options.ServiceName = "fgs-setup-service");
+
         services.Configure<TenantProvisioningOptions>(configuration.GetSection(TenantProvisioningOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
 
@@ -129,12 +133,12 @@ public static class DependencyInjection
             services.AddSingleton<ICredentialAuditRecorder, NoOpCredentialAuditRecorder>();
         }
 
-        services.AddFgsRefitClient<IUserTenantClient>(
+        services.AddFgsInternalServiceRefitClient<IUserTenantClient>(
             configuration,
             "UserService:BaseUrl",
             "http://user-service:5001");
 
-        services.AddFgsRefitClient<IFileTenantClient>(
+        services.AddFgsInternalServiceRefitClient<IFileTenantClient>(
             configuration,
             "FileService:BaseUrl",
             "http://file-service:5005");

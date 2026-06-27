@@ -31,6 +31,7 @@ COPY src/FileService/ src/FileService/
 
 WORKDIR /src/src/FileService/Fgs.File.API
 RUN --mount=type=cache,target=/root/.nuget/packages \
+    /usr/local/bin/restore-with-retry.sh Fgs.File.API.csproj && \
     dotnet build Fgs.File.API.csproj -c Release --no-restore
 
 ENV ASPNETCORE_URLS=http://+:5005 \

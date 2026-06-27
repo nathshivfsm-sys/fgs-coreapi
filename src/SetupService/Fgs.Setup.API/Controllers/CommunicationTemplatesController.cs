@@ -1,8 +1,11 @@
 using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
+using Fgs.Credentials;
+using Fgs.Credentials.Options;
 using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
+using Fgs.Setup.Application.Common;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.CommunicationTemplates.Commands.CreateFgsSetupCommunicationTemplate;
 using Fgs.Setup.Application.Features.CommunicationTemplates.Commands.DeleteFgsSetupCommunicationTemplate;
@@ -14,7 +17,9 @@ using Fgs.Setup.Application.Features.CommunicationTemplates.Queries.GetFgsSetupC
 using Fgs.Setup.Application.Features.CommunicationTemplates.Queries.ListCommunicationTemplates;
 using Fgs.Setup.Application.Features.CommunicationTemplates.Queries.LookupCommunicationTemplates;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.Setup.API.Controllers;
 
@@ -24,24 +29,45 @@ namespace Fgs.Setup.API.Controllers;
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("communication-templates")]
 [Produces("application/json")]
-public sealed class CommunicationTemplatesController(IMediator mediator) : FgsApiControllerBase(mediator)
+public sealed class CommunicationTemplatesController(
+    IMediator mediator,
+    IOptions<CredentialDistributionOptions> distributionOptions) : FgsApiControllerBase(mediator)
 {
+    /// <summary>
+    /// Resolves the active template for a tenant/company scope.
+    /// Accepts JWT or <see cref="CredentialDistributionHeaders.InternalServiceKey"/> for service-to-service calls.
+    /// </summary>
+    [AllowAnonymous]
     [HttpGet("active")]
     [ProducesResponseType(typeof(ApiResponse<CommunicationTemplateDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetActive(
         [FromQuery] long? tenantId,
         [FromQuery] long? companyId,
         [FromQuery] string templateType,
         [FromQuery] string code,
-        CancellationToken cancellationToken) =>
-        FromApiResponse(await Mediator.Send(
+        [FromHeader(Name = CredentialDistributionHeaders.InternalServiceKey)] string? serviceKey,
+        CancellationToken cancellationToken)
+    {
+        var isInternalService = InternalServiceAuthorization.IsAuthorized(
+            serviceKey,
+            distributionOptions.Value);
+        if (!isInternalService && User?.Identity?.IsAuthenticated != true)
+        {
+            return StatusCode(
+                StatusCodes.Status401Unauthorized,
+                ApiResponse<object>.Fail(["Unauthorized."], ApiStatusCodes.Unauthorized));
+        }
+
+        return FromApiResponse(await Mediator.Send(
             new GetActiveCommunicationTemplateQuery(
                 tenantId,
                 companyId,
                 templateType,
                 code),
             cancellationToken));
+    }
 
     [HttpGet("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsSetupCommunicationTemplateDetailDto>), StatusCodes.Status200OK)]

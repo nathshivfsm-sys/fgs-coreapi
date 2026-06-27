@@ -3,13 +3,15 @@ using Fgs.Foundation.Api;
 using Fgs.User.API.Constants;
 using Fgs.User.Application.Features.Invitations.Commands.StartInvitation;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
 
 /// <summary>
-/// Email invitation deep links (preâ€“Entra redirect).
+/// Email invitation deep links (pre–Entra redirect).
 /// </summary>
+[AllowAnonymous]
 [ApiController]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("invite")]

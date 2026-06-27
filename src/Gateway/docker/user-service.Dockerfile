@@ -32,6 +32,7 @@ COPY src/UserService/ src/UserService/
 
 WORKDIR /src/src/UserService/Fgs.User.API
 RUN --mount=type=cache,target=/root/.nuget/packages \
+    /usr/local/bin/restore-with-retry.sh Fgs.User.API.csproj && \
     dotnet build Fgs.User.API.csproj -c Release --no-restore
 
 ENV ASPNETCORE_URLS=http://+:5001 \

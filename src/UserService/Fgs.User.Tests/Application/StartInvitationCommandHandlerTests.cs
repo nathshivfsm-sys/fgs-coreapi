@@ -1,3 +1,4 @@
+using Fgs.MultiTenancy;
 using Fgs.User.Infrastructure.Common.Security;
 using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
@@ -178,6 +179,71 @@ public sealed class StartInvitationCommandHandlerTests
 
         result.Success.Should().BeFalse();
         result.ErrorMessage.Should().Be(InvitationErrorMessages.Expired);
+    }
+
+    [Fact]
+    public async Task Handle_WhenTenantContextDoesNotMatchInvitation_StillFindsToken()
+    {
+        var tokenService = new InvitationTokenService();
+        var plain = tokenService.GenerateToken();
+        var hash = tokenService.HashToken(plain);
+
+        var accessor = new TestTenantContextAccessor
+        {
+            Current = new TenantContext { TenantId = 99, CompanyId = 1 }
+        };
+        var context = await TestDbContextFactory.CreateAndInitializeAsync(accessor);
+        var invitationId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        context.FgsUsers.Add(new FgsUser
+        {
+            Id = userId,
+            TenantId = 1,
+            CompanyId = 1,
+            Email = "a@test.com",
+            DisplayName = "Acme Admin",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        context.FgsInvitations.Add(new FgsInvitation
+        {
+            Id = invitationId,
+            UserId = userId,
+            TenantId = 1,
+            Email = "a@test.com",
+            TokenHash = hash,
+            Status = InvitationStatus.Pending,
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(1),
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        await context.SaveChangesAsync();
+
+        var entraMock = new Mock<IEntraExternalIdService>();
+        entraMock
+            .Setup(s => s.BuildAuthorizationUrl(
+                invitationId,
+                It.IsAny<string>(),
+                "a@test.com"))
+            .Returns("https://login.example/authorize");
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback"
+            })
+            .Build();
+
+        var handler = new StartInvitationCommandHandler(
+            new EfUnitOfWork<FgsUserDbContext>(context),
+            tokenService,
+            entraMock.Object,
+            new DateTimeProvider(),
+            configuration);
+
+        var result = await handler.Handle(new StartInvitationCommand(plain), CancellationToken.None);
+
+        result.Success.Should().BeTrue();
+        result.RedirectUrl.Should().Be("https://login.example/authorize");
     }
 
     [Fact]

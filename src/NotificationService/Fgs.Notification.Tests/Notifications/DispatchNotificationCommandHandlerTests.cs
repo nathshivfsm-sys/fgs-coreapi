@@ -22,6 +22,8 @@ public sealed class DispatchNotificationCommandHandlerTests
     public async Task Handle_EventShape_DispatchesMappedNotification()
     {
         _mapper.Setup(m => m.CanMap(IntegrationEventRoutingKeys.CompanySignupInviteEmail)).Returns(true);
+        _idempotency.Setup(i => i.HasBeenProcessedAsync("msg-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         _idempotency.Setup(i => i.TryMarkProcessedAsync("msg-1", IntegrationEventRoutingKeys.CompanySignupInviteEmail, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
@@ -62,6 +64,86 @@ public sealed class DispatchNotificationCommandHandlerTests
 
         response.Success.Should().BeTrue();
         _dispatcher.Verify(d => d.DispatchAsync(dispatchRequest, It.IsAny<CancellationToken>()), Times.Once);
+        _idempotency.Verify(
+            i => i.TryMarkProcessedAsync("msg-1", IntegrationEventRoutingKeys.CompanySignupInviteEmail, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_WhenAlreadyProcessed_SkipsDispatch()
+    {
+        _mapper.Setup(m => m.CanMap(IntegrationEventRoutingKeys.CompanySignupInviteEmail)).Returns(true);
+        _idempotency.Setup(i => i.HasBeenProcessedAsync("msg-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var handler = CreateHandler();
+        var payload = JsonSerializer.Serialize(new CompanySignupInviteEmailEvent(
+            1, 2, Guid.NewGuid(), Guid.NewGuid(), "user@example.com",
+            CommunicationTemplateCodes.CompanyAdminInvitation, "User", "FGS", "https://invite", "72", "support@fgs.example"));
+
+        var response = await handler.Handle(
+            new DispatchNotificationCommand(new DispatchNotificationRequest
+            {
+                RoutingKey = IntegrationEventRoutingKeys.CompanySignupInviteEmail,
+                Payload = payload,
+                CorrelationId = "corr-1",
+                MessageId = "msg-1"
+            }),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        _dispatcher.Verify(d => d.DispatchAsync(It.IsAny<NotificationDispatchRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+        _idempotency.Verify(
+            i => i.TryMarkProcessedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_WhenDispatchFails_DoesNotMarkProcessed()
+    {
+        _mapper.Setup(m => m.CanMap(IntegrationEventRoutingKeys.CompanySignupInviteEmail)).Returns(true);
+        _idempotency.Setup(i => i.HasBeenProcessedAsync("msg-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        var dispatchRequest = new NotificationDispatchRequest(
+            1,
+            2,
+            NotificationChannel.Email,
+            CommunicationTemplateCodes.CompanyAdminInvitation,
+            "user@example.com",
+            new Dictionary<string, string>(),
+            "corr-1",
+            "msg-1");
+
+        _mapper.Setup(m => m.Map(
+                IntegrationEventRoutingKeys.CompanySignupInviteEmail,
+                It.IsAny<string>(),
+                "corr-1",
+                "msg-1"))
+            .Returns(dispatchRequest);
+
+        _dispatcher.Setup(d => d.DispatchAsync(dispatchRequest, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new NotificationDispatchResult(false, null, "Provider unavailable."));
+
+        var handler = CreateHandler();
+        var payload = JsonSerializer.Serialize(new CompanySignupInviteEmailEvent(
+            1, 2, Guid.NewGuid(), Guid.NewGuid(), "user@example.com",
+            CommunicationTemplateCodes.CompanyAdminInvitation, "User", "FGS", "https://invite", "72", "support@fgs.example"));
+
+        var response = await handler.Handle(
+            new DispatchNotificationCommand(new DispatchNotificationRequest
+            {
+                RoutingKey = IntegrationEventRoutingKeys.CompanySignupInviteEmail,
+                Payload = payload,
+                CorrelationId = "corr-1",
+                MessageId = "msg-1"
+            }),
+            CancellationToken.None);
+
+        response.Success.Should().BeFalse();
+        _idempotency.Verify(
+            i => i.TryMarkProcessedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

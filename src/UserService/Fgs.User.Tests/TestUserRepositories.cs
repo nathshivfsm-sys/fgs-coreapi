@@ -90,6 +90,7 @@ internal static class TestUserRepositories
             .Returns<string, DateTimeOffset, CancellationToken>(async (normalizedEmail, nowUtc, cancellationToken) =>
             {
                 var invitations = await context.FgsInvitations
+                    .IgnoreQueryFilters()
                     .Where(i => i.Status == InvitationStatus.Pending && i.ExpiresAtUtc > nowUtc)
                     .Select(i => i.Email)
                     .ToListAsync(cancellationToken);

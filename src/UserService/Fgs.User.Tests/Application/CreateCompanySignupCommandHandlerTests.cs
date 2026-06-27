@@ -294,7 +294,8 @@ public sealed class CreateCompanySignupCommandHandlerTests
         var signupUniquenessValidator = new SignupUniquenessValidator(
             unitOfWork,
             new EmailNormalizer(),
-            dateTime);
+            dateTime,
+            TestUserRepositories.InvitationRead(userContext));
 
         return new CreateCompanySignupCommandHandler(
             unitOfWork,

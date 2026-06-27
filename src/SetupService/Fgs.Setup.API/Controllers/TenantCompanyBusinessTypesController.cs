@@ -1,10 +1,9 @@
 using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
-using Fgs.Contracts.Requests;
 using Fgs.Foundation.Api;
 using Fgs.Setup.Application.Common;
-using Fgs.Setup.Application.Features.TenantProvisioning.Commands.ProvisionTenant;
+using Fgs.Setup.Application.Features.BusinessTypes.Commands.AddCompanyBusinessTypes;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,27 +11,33 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fgs.Setup.API.Controllers;
 
 /// <summary>
-/// Internal tenant provisioning orchestration invoked by the consumer service.
+/// Internal tenant company business type bootstrap used during signup and provisioning.
 /// </summary>
 [AllowAnonymous]
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("tenant-provisioning")]
-public sealed class TenantProvisioningController(IMediator mediator) : ControllerBase
+[FgsVersionedRoute("tenants/{tenantId:long}/companies/{companyId:long}/business-types")]
+[Produces("application/json")]
+public sealed class TenantCompanyBusinessTypesController(IMediator mediator) : ControllerBase
 {
+    /// <summary>
+    /// Seeds tenant-scoped business types from global catalog selections.
+    /// Authenticated via <see cref="CredentialDistributionHeaders.InternalServiceKey"/>, not JWT.
+    /// </summary>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ProvisionTenant(
-        [FromBody] ProvisionTenantRequest request,
+    public async Task<IActionResult> AddCompanyBusinessTypes(
+        long tenantId,
+        long companyId,
+        [FromBody] AddCompanyBusinessTypesRequest request,
         [FromHeader(Name = CredentialDistributionHeaders.InternalServiceKey)] string? serviceKey,
         [FromHeader(Name = CredentialDistributionHeaders.ServiceName)] string? serviceName,
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(
-            new ProvisionTenantCommand(request, serviceKey, serviceName),
+            new AddCompanyBusinessTypesCommand(tenantId, companyId, request, serviceKey, serviceName),
             cancellationToken);
+
         return StatusCode(response.StatusCode, response);
     }
 }

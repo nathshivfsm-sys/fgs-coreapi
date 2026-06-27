@@ -9,6 +9,9 @@ internal sealed class InvitationReadQuery(
     IUserReadConnectionFactory connectionFactory,
     IEmailNormalizer emailNormalizer) : IInvitationReadQuery
 {
+    private const string PendingStatus = nameof(InvitationStatus.Pending);
+    private const string AcceptedStatus = nameof(InvitationStatus.Accepted);
+
     private static readonly string ValidInvitationSql = $"""
         SELECT EXISTS(
             SELECT 1
@@ -34,8 +37,8 @@ internal sealed class InvitationReadQuery(
             new
             {
                 userId,
-                pendingStatus = (int)InvitationStatus.Pending,
-                acceptedStatus = (int)InvitationStatus.Accepted
+                pendingStatus = PendingStatus,
+                acceptedStatus = AcceptedStatus
             });
     }
 
@@ -50,7 +53,7 @@ internal sealed class InvitationReadQuery(
             PendingInvitationsSql,
             new
             {
-                pendingStatus = (int)InvitationStatus.Pending,
+                pendingStatus = PendingStatus,
                 nowUtc
             });
 
