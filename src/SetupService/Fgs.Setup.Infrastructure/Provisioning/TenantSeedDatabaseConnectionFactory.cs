@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 using Fgs.Setup.Application.Abstractions.Provisioning;
 using Microsoft.Extensions.Options;
 using Npgsql;

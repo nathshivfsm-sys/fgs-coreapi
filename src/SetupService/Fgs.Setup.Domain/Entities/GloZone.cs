@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Entities;
+namespace Fgs.Setup.Domain.Entities;
 
 /// <summary>
 /// Global default service zones used for onboarding seed data.

@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.Clients;
+using Fgs.Contracts.Clients;
 
 namespace Fgs.Setup.Application.Common;
 

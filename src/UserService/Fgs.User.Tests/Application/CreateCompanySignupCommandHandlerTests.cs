@@ -10,6 +10,7 @@ using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
+using Fgs.Foundation.Caching.Abstractions;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Signup;
 using Fgs.Contracts.IntegrationEvents;
@@ -220,7 +221,8 @@ public sealed class CreateCompanySignupCommandHandlerTests
             new DateTimeProvider(),
             new ConfigurationBuilder().Build(),
             Mock.Of<IAddressLocaleResolver>(),
-            signupUniquenessValidatorMock.Object);
+            signupUniquenessValidatorMock.Object,
+            Mock.Of<ICacheService>());
 
         var response = await handler.Handle(ValidCommand(), CancellationToken.None);
 
@@ -292,7 +294,8 @@ public sealed class CreateCompanySignupCommandHandlerTests
         var signupUniquenessValidator = new SignupUniquenessValidator(
             unitOfWork,
             new EmailNormalizer(),
-            dateTime);
+            dateTime,
+            TestUserRepositories.InvitationRead(userContext));
 
         return new CreateCompanySignupCommandHandler(
             unitOfWork,
@@ -302,6 +305,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
             dateTime,
             configuration,
             localeResolver,
-            signupUniquenessValidator);
+            signupUniquenessValidator,
+            Mock.Of<ICacheService>());
     }
 }

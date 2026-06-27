@@ -355,7 +355,9 @@ FROM (
             'Database Connections',
             '[
                 {"key":"FgsUser","label":"User Service (FgsUser)","type":"password","required":false,"sensitive":true},
+                {"key":"FgsUserReadOnly","label":"User Service Read-Only (FgsUserReadOnly)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsSetup","label":"Setup Service (FgsSetup)","type":"password","required":false,"sensitive":true},
+                {"key":"FgsSetupReadOnly","label":"Setup Service Read-Only (FgsSetupReadOnly)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsFile","label":"File Service (FgsFile)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsNotification","label":"Notification Service (FgsNotification)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsConsumer","label":"Consumer Service (FgsConsumer)","type":"password","required":false,"sensitive":true},
@@ -381,6 +383,17 @@ FROM (
                 {"key":"Username","label":"Username","type":"text","required":true},
                 {"key":"Password","label":"Password","type":"password","required":true,"sensitive":true},
                 {"key":"ConnectionUri","label":"Connection URI","type":"text","required":false,"sensitive":true}
+            ]',
+            TRUE
+        ),
+        (
+            'REDIS',
+            'Redis Cache',
+            '[
+                {"key":"Enabled","label":"Enabled","type":"boolean","required":true},
+                {"key":"ConnectionString","label":"Connection String","type":"text","required":true},
+                {"key":"InstanceName","label":"Instance Name Prefix","type":"text","required":false},
+                {"key":"DefaultAbsoluteExpirationMinutes","label":"Default Cache TTL (minutes)","type":"number","required":false}
             ]',
             TRUE
         ),
@@ -499,7 +512,9 @@ FROM (
             'Database Connections',
             '[
                 {"key":"FgsUser","label":"User Service (FgsUser)","type":"password","required":false,"sensitive":true},
+                {"key":"FgsUserReadOnly","label":"User Service Read-Only (FgsUserReadOnly)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsSetup","label":"Setup Service (FgsSetup)","type":"password","required":false,"sensitive":true},
+                {"key":"FgsSetupReadOnly","label":"Setup Service Read-Only (FgsSetupReadOnly)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsFile","label":"File Service (FgsFile)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsNotification","label":"Notification Service (FgsNotification)","type":"password","required":false,"sensitive":true},
                 {"key":"FgsConsumer","label":"Consumer Service (FgsConsumer)","type":"password","required":false,"sensitive":true},
@@ -525,6 +540,17 @@ FROM (
                 {"key":"Username","label":"Username","type":"text","required":true},
                 {"key":"Password","label":"Password","type":"password","required":true,"sensitive":true},
                 {"key":"ConnectionUri","label":"Connection URI","type":"text","required":false,"sensitive":true}
+            ]',
+            TRUE
+        ),
+        (
+            'REDIS',
+            'Redis Cache',
+            '[
+                {"key":"Enabled","label":"Enabled","type":"boolean","required":true},
+                {"key":"ConnectionString","label":"Connection String","type":"text","required":true},
+                {"key":"InstanceName","label":"Instance Name Prefix","type":"text","required":false},
+                {"key":"DefaultAbsoluteExpirationMinutes","label":"Default Cache TTL (minutes)","type":"number","required":false}
             ]',
             TRUE
         ),
@@ -1738,6 +1764,40 @@ SELECT setval(
     COALESCE((SELECT MAX("Id") FROM glo."GloSalesActivityOutcome"), 1),
     true);
 
+-- GloEstimateStatus (global estimate statuses for tenant provisioning seed)
+INSERT INTO glo."GloEstimateStatus"
+(
+    "StatusCode",
+    "Name",
+    "DisplayOrder",
+    "CreatedOn"
+)
+SELECT
+    v."StatusCode",
+    v."Name",
+    v."DisplayOrder",
+    now()
+FROM (
+    VALUES
+        ('DRAFT',     'Draft',     1::smallint),
+        ('SENT',      'Sent',      2::smallint),
+        ('VIEWED',    'Viewed',    3::smallint),
+        ('FOLLOWUP',  'Follow Up', 4::smallint),
+        ('SOLD',      'Sold',      5::smallint),
+        ('DECLINED',  'Declined',  6::smallint),
+        ('EXPIRED',   'Expired',   7::smallint),
+        ('BOOKED',    'Booked',    8::smallint),
+        ('CANCELLED', 'Cancelled', 9::smallint)
+) AS v("StatusCode", "Name", "DisplayOrder")
+WHERE NOT EXISTS (
+    SELECT 1 FROM glo."GloEstimateStatus" s WHERE s."StatusCode" = v."StatusCode"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloEstimateStatus"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloEstimateStatus"), 1),
+    true);
+
 -- GloUnitOfMeasure (global units of measure)
 INSERT INTO glo."GloUnitOfMeasure"
 (
@@ -1921,6 +1981,8 @@ FROM (
         ('ALL_GloSalesDispositionReason', 'fgs_dev_db', 'glo', 'GloSalesDispositionReason', 'fgs_dev_db', 'setup', 'FgsSalesDispositionReason', 200, 'Sales Disposition Reason', true),
         ('ALL_GloSalesActivityType', 'fgs_dev_db', 'glo', 'GloSalesActivityType', 'fgs_dev_db', 'setup', 'FgsSalesActivityType', 201, 'Sales Activity Type', true),
         ('ALL_GloSalesActivityOutcome', 'fgs_dev_db', 'glo', 'GloSalesActivityOutcome', 'fgs_dev_db', 'setup', 'FgsSalesActivityOutcome', 202, 'Sales Activity Outcome', true),
+        ('ALL_GloEstimateFlavor', 'fgs_dev_db', 'glo', 'GloEstimateFlavor', 'fgs_dev_db', 'crm', 'FgsEstimateFlavor', 203, 'Estimate Flavor', true),
+        ('ALL_GloEstimateStatus', 'fgs_dev_db', 'glo', 'GloEstimateStatus', 'fgs_dev_db', 'crm', 'FgsEstimateStatus', 204, 'Estimate Status', true),
         ('ALL_GloPaymentMethodType', 'fgs_dev_db', 'glo', 'GloPaymentMethodType', 'fgs_dev_db', 'setup', 'FgsSetupPaymentMethod', 220, 'Payment Method', true),
         ('ALL_GloResolutionType', 'fgs_dev_db', 'glo', 'GloResolutionType', 'fgs_dev_db', 'setup', 'FgsResolutionCode', 250, 'Resolution Code', true),
         ('ALL_GloSetupLaborRateType', 'fgs_dev_db', 'glo', 'GloSetupLaborRateType', 'fgs_dev_db', 'setup', 'FgsSetupLaborRateType', 280, 'Labor Rate Type', true),
@@ -2215,6 +2277,28 @@ INNER JOIN (
         ('ALL_GloSalesActivityOutcome', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 14, true, true),
         ('ALL_GloSalesActivityOutcome', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 15, false, true),
 
+        -- ALL_GloEstimateFlavor -> crm.FgsEstimateFlavor
+        ('ALL_GloEstimateFlavor', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloEstimateFlavor', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloEstimateFlavor', 'FlavorCode', 'FlavorCode', NULL, NULL, 3, true, true),
+        ('ALL_GloEstimateFlavor', 'Name', 'Name', NULL, NULL, 4, true, true),
+        ('ALL_GloEstimateFlavor', 'BackgroundColor', 'BackgroundColor', NULL, NULL, 5, true, true),
+        ('ALL_GloEstimateFlavor', 'TextColor', 'TextColor', NULL, NULL, 6, true, true),
+        ('ALL_GloEstimateFlavor', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 7, true, true),
+        ('ALL_GloEstimateFlavor', NULL, 'IsActive', 'STATIC', 'true', 8, true, true),
+        ('ALL_GloEstimateFlavor', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 9, true, true),
+        ('ALL_GloEstimateFlavor', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 10, false, true),
+
+        -- ALL_GloEstimateStatus -> crm.FgsEstimateStatus
+        ('ALL_GloEstimateStatus', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloEstimateStatus', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloEstimateStatus', 'StatusCode', 'StatusCode', NULL, NULL, 3, true, true),
+        ('ALL_GloEstimateStatus', 'Name', 'Name', NULL, NULL, 4, true, true),
+        ('ALL_GloEstimateStatus', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 5, true, true),
+        ('ALL_GloEstimateStatus', NULL, 'IsActive', 'STATIC', 'true', 6, true, true),
+        ('ALL_GloEstimateStatus', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+        ('ALL_GloEstimateStatus', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 8, false, true),
+
         -- ALL_GloPaymentMethodType -> FgsSetupPaymentMethod
         ('ALL_GloPaymentMethodType', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
         ('ALL_GloPaymentMethodType', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
@@ -2342,6 +2426,92 @@ WHERE existing."SeedTableMappingId" = m."Id"
 SELECT setval(
     pg_get_serial_sequence('glo."GloSeedTableColumnMapping"', 'Id'),
     COALESCE((SELECT MAX("Id") FROM glo."GloSeedTableColumnMapping"), 1),
+    true);
+
+-- GloInventoryTransactionSourceType
+INSERT INTO glo."GloInventoryTransactionSourceType"
+(
+    "Code",
+    "Name",
+    "Description",
+    "SortOrder",
+    "IsSystem",
+    "IsActive"
+)
+SELECT
+    v."Code",
+    v."Name",
+    v."Description",
+    v."SortOrder",
+    true,
+    true
+FROM (
+    VALUES
+        ('INITIAL_BALANCE',      'Initial Balance',              'Opening inventory balances loaded during implementation or inventory setup.',                    10),
+        ('PURCHASE_RECEIPT',       'Purchase Receipt',             'Inventory received from a vendor purchase order.',                                              20),
+        ('INVENTORY_TRANSFER',     'Inventory Transfer',           'Inventory transferred between warehouses, trucks, or storage locations.',                       30),
+        ('INVENTORY_ADJUSTMENT',   'Inventory Adjustment',         'Inventory quantity corrected due to count variance, damage, loss, or correction.',              40),
+        ('WORK_ORDER_MATERIAL',    'Work Order Material Usage',    'Inventory consumed or returned during work order execution.',                                   50),
+        ('PHYSICAL_COUNT',         'Physical Count',               'Inventory quantity adjusted during physical inventory counting.',                                 60),
+        ('VENDOR_RETURN',          'Vendor Return',                'Inventory returned to a vendor.',                                                               70),
+        ('INVENTORY_CONVERSION',   'Inventory Conversion',         'Inventory converted through kit assembly, kit disassembly, or item conversion.',                  80),
+        ('INTEGRATION_SYNC',       'Integration Synchronization',  'Inventory movement created by an external accounting or ERP integration.',                      90)
+) AS v("Code", "Name", "Description", "SortOrder")
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM glo."GloInventoryTransactionSourceType" t
+    WHERE t."Code" = v."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloInventoryTransactionSourceType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloInventoryTransactionSourceType"), 1),
+    true);
+
+-- GloInventoryTransactionType
+INSERT INTO glo."GloInventoryTransactionType"
+(
+    "InventoryTransactionSourceTypeId",
+    "Code",
+    "Name",
+    "Description",
+    "SortOrder",
+    "IsActive"
+)
+SELECT
+    s."Id",
+    x."Code",
+    x."Name",
+    x."Description",
+    x."SortOrder",
+    true
+FROM (
+    VALUES
+        ('INITIAL_BALANCE',      'INITIAL_BALANCE',      'Initial Balance',        'Opening inventory balance loaded during implementation or inventory setup.',                    10),
+        ('PURCHASE_RECEIPT',     'PURCHASE_RECEIPT',     'Purchase Receipt',       'Inventory received from a vendor purchase order.',                                              20),
+        ('INVENTORY_TRANSFER',   'TRANSFER_OUT',         'Transfer Out',           'Inventory transferred out of a warehouse, truck, or storage location.',                         30),
+        ('INVENTORY_TRANSFER',   'TRANSFER_IN',          'Transfer In',            'Inventory transferred into a warehouse, truck, or storage location.',                             40),
+        ('INVENTORY_ADJUSTMENT', 'ADJUSTMENT_IN',        'Adjustment Increase',    'Inventory quantity increased due to correction, count variance, or found inventory.',             50),
+        ('INVENTORY_ADJUSTMENT', 'ADJUSTMENT_OUT',       'Adjustment Decrease',    'Inventory quantity decreased due to correction, damage, loss, theft, or count variance.',        60),
+        ('WORK_ORDER_MATERIAL',  'WORK_ORDER_USAGE',     'Work Order Usage',       'Inventory consumed on a work order.',                                                           70),
+        ('WORK_ORDER_MATERIAL',  'RETURN_TO_STOCK',      'Return To Stock',        'Unused inventory returned from a work order back into stock.',                                  80),
+        ('PHYSICAL_COUNT',       'PHYSICAL_COUNT',       'Physical Count',         'Inventory adjusted as part of a physical inventory count.',                                     90),
+        ('VENDOR_RETURN',        'VENDOR_RETURN',        'Vendor Return',          'Inventory returned to a vendor.',                                                               100),
+        ('INVENTORY_CONVERSION', 'CONVERSION_OUT',       'Conversion Out',         'Inventory consumed during kit assembly, disassembly, manufacturing, or conversion.',            110),
+        ('INVENTORY_CONVERSION', 'CONVERSION_IN',        'Conversion In',          'Inventory produced during kit assembly, disassembly, manufacturing, or conversion.',            120),
+        ('INTEGRATION_SYNC',     'INTEGRATION_SYNC',     'Integration Sync',       'Inventory movement synchronized from an external system such as QuickBooks Online or Sage Intacct.', 130)
+) AS x("SourceCode", "Code", "Name", "Description", "SortOrder")
+INNER JOIN glo."GloInventoryTransactionSourceType" s
+    ON s."Code" = x."SourceCode"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM glo."GloInventoryTransactionType" t
+    WHERE t."Code" = x."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloInventoryTransactionType"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloInventoryTransactionType"), 1),
     true);
 
 COMMIT;

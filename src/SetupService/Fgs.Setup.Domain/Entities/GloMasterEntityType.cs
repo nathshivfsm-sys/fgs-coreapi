@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Entities;
+namespace Fgs.Setup.Domain.Entities;
 
 /// <summary>
 /// Global catalog of entity kinds that can own locations, attachments, etc.

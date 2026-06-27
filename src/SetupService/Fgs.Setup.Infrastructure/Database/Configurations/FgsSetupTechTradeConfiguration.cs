@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -13,8 +13,11 @@ internal class FgsSetupTechTradeConfiguration : IEntityTypeConfiguration<FgsSetu
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id).UseIdentityByDefaultColumn();
         entity.ConfigureTenantCompanySetupColumns();
-        entity.HasAlternateKey(e => new { e.TenantId, e.CompanyId, e.TradeCode })
-            .HasName("UQ_FgsSetupTechTrade");
+        entity.Property(e => e.TradeCode).HasMaxLength(50);
+        entity.Property(e => e.Name).HasMaxLength(200);
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.TradeCode })
+            .IsUnique()
+            .HasDatabaseName("UQ_FgsSetupTechTrade");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.SortOrder })
             .HasDatabaseName("IX_FgsSetupTechTrade_SortOrder");
         entity.ToTable(t =>

@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Application.Abstractions.Credentials;
+namespace Fgs.Setup.Application.Abstractions.Credentials;
 
 public interface ICredentialSecretAccessPolicy
 {

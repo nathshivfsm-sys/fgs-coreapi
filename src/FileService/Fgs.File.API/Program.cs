@@ -1,4 +1,4 @@
-﻿using Fgs.Credentials;
+using Fgs.Credentials;
 using Fgs.Credentials.Extensions;
 using Fgs.File.Application;
 using Fgs.File.Infrastructure;

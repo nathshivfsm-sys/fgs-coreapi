@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Enums;
+namespace Fgs.Setup.Domain.Enums;
 
 public enum InvitationStatus
 {

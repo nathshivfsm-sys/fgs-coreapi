@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Application.Features.TenantProvisioning;
+namespace Fgs.Setup.Application.Features.TenantProvisioning;
 
 public static class SeedTransformationTypes
 {

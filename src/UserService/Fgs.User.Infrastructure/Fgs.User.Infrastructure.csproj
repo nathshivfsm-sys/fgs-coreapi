@@ -30,6 +30,8 @@
 
   <ItemGroup>
 
+    <PackageReference Include="Dapper" Version="2.1.66" />
+
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.8" />
 
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
@@ -89,12 +91,6 @@
 
 
   <PropertyGroup>
-
-    <TargetFramework>net10.0</TargetFramework>
-
-    <ImplicitUsings>enable</ImplicitUsings>
-
-    <Nullable>enable</Nullable>
 
   </PropertyGroup>
 

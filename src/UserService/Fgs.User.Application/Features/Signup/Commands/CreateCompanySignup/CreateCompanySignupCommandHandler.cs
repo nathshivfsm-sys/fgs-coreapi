@@ -6,6 +6,9 @@ using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
+using Fgs.MultiTenancy.Constants;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Signup.DTOs;
 using Fgs.Contracts.IntegrationEvents;
@@ -29,6 +32,7 @@ public sealed class CreateCompanySignupCommandHandler
     private readonly IConfiguration _configuration;
     private readonly IAddressLocaleResolver _addressLocaleResolver;
     private readonly ISignupUniquenessValidator _signupUniquenessValidator;
+    private readonly ICacheService _cache;
 
     public CreateCompanySignupCommandHandler(
         IUnitOfWork unitOfWork,
@@ -38,7 +42,8 @@ public sealed class CreateCompanySignupCommandHandler
         IDateTimeProvider dateTime,
         IConfiguration configuration,
         IAddressLocaleResolver addressLocaleResolver,
-        ISignupUniquenessValidator signupUniquenessValidator)
+        ISignupUniquenessValidator signupUniquenessValidator,
+        ICacheService cache)
     {
         _unitOfWork = unitOfWork;
         _setupClient = setupClient;
@@ -48,6 +53,7 @@ public sealed class CreateCompanySignupCommandHandler
         _configuration = configuration;
         _addressLocaleResolver = addressLocaleResolver;
         _signupUniquenessValidator = signupUniquenessValidator;
+        _cache = cache;
     }
 
     public async Task<ApiResponse<CompanySignupResultDto>> Handle(
@@ -261,6 +267,14 @@ public sealed class CreateCompanySignupCommandHandler
                         invitationId,
                         inviteUrl);
                 },
+                cancellationToken);
+
+            await _cache.RemoveAsync(
+                CacheKeys.Build(
+                    result.TenantId,
+                    TenantScopeConstants.PlatformCompanyId,
+                    "tenant-companies",
+                    "list"),
                 cancellationToken);
 
             return ApiResponse<CompanySignupResultDto>.Ok(result, ApiStatusCodes.Created);

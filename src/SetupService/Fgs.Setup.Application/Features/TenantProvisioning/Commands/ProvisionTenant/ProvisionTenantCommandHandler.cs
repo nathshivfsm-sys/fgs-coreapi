@@ -1,17 +1,29 @@
 using Fgs.Contracts.Api;
 using Fgs.Contracts.IntegrationEvents;
+using Fgs.Credentials;
+using Fgs.Credentials.Options;
 using Fgs.Setup.Application.Abstractions.Provisioning;
 using MediatR;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.Setup.Application.Features.TenantProvisioning.Commands.ProvisionTenant;
 
-public sealed class ProvisionTenantCommandHandler(ITenantProvisioningOrchestrator orchestrator)
+public sealed class ProvisionTenantCommandHandler(
+    ITenantProvisioningOrchestrator orchestrator,
+    IOptions<CredentialDistributionOptions> distributionOptions)
     : IRequestHandler<ProvisionTenantCommand, ApiResponse<object>>
 {
     public async Task<ApiResponse<object>> Handle(
         ProvisionTenantCommand command,
         CancellationToken cancellationToken)
     {
+        if (!InternalServiceAuthorization.IsAuthorized(
+                command.InternalServiceKey,
+                distributionOptions.Value))
+        {
+            return ApiResponse<object>.Fail(["Unauthorized."], ApiStatusCodes.Unauthorized);
+        }
+
         var request = command.Request;
         var provisionEvent = new TenantProvisionRequestedEvent(
             request.TenantId,
@@ -20,16 +32,7 @@ public sealed class ProvisionTenantCommandHandler(ITenantProvisioningOrchestrato
             request.CorrelationId,
             request.UserId);
 
-        try
-        {
-            await orchestrator.ProvisionAsync(provisionEvent, cancellationToken);
-            return ApiResponse<object>.Ok(new object(), ApiStatusCodes.NoContent);
-        }
-        catch (Exception ex)
-        {
-            return ApiResponse<object>.Fail(
-                [ex.Message],
-                ApiStatusCodes.InternalServerError);
-        }
+        await orchestrator.ProvisionAsync(provisionEvent, cancellationToken);
+        return ApiResponse<object>.Ok(new object(), ApiStatusCodes.NoContent);
     }
 }

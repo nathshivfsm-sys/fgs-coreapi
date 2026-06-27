@@ -1,4 +1,4 @@
-﻿using Fgs.Kernel.Entities;
+using Fgs.Kernel.Entities;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Database.Schemas;
 using Microsoft.EntityFrameworkCore;
@@ -72,6 +72,7 @@ internal static class FgsSetupDbContextConfigurationExtensions
     {
         var excludedTypes = new HashSet<Type>
         {
+            typeof(FgsLocation),
             typeof(FgsTenantCompanyCache),
             typeof(GloCredentialProviderTypeCache),
             typeof(GloResolutionTypeCache),

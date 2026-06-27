@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Application.Audit;
+using Fgs.Notification.Application.Audit;
 using Microsoft.Extensions.Logging;
 
 namespace Fgs.Notification.Infrastructure.Audit;

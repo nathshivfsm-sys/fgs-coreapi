@@ -1,6 +1,11 @@
+# syntax=docker/dockerfile:1
 FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl ca-certificates && update-ca-certificates
 WORKDIR /src
+
+COPY NuGet.config .
+COPY src/Gateway/docker/restore-with-retry.sh /usr/local/bin/restore-with-retry.sh
+RUN chmod +x /usr/local/bin/restore-with-retry.sh
 
 COPY Directory.Build.props .
 COPY src/Directory.Build.props src/
@@ -18,13 +23,16 @@ COPY src/FileService/Fgs.File.Application/Fgs.File.Application.csproj src/FileSe
 COPY src/FileService/Fgs.File.Domain/Fgs.File.Domain.csproj src/FileService/Fgs.File.Domain/
 COPY src/FileService/Fgs.File.Infrastructure/Fgs.File.Infrastructure.csproj src/FileService/Fgs.File.Infrastructure/
 
-RUN dotnet restore src/FileService/Fgs.File.API/Fgs.File.API.csproj
+RUN --mount=type=cache,target=/root/.nuget/packages \
+    /usr/local/bin/restore-with-retry.sh src/FileService/Fgs.File.API/Fgs.File.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/FileService/ src/FileService/
 
 WORKDIR /src/src/FileService/Fgs.File.API
-RUN dotnet build Fgs.File.API.csproj -c Release --no-restore
+RUN --mount=type=cache,target=/root/.nuget/packages \
+    /usr/local/bin/restore-with-retry.sh Fgs.File.API.csproj && \
+    dotnet build Fgs.File.API.csproj -c Release --no-restore
 
 ENV ASPNETCORE_URLS=http://+:5005 \
     ASPNETCORE_ENVIRONMENT=Development \

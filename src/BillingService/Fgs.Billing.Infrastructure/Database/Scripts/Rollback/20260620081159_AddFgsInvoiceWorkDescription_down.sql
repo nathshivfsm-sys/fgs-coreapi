@@ -1,0 +1,2 @@
+﻿-- Rollback for 20260620081159_AddFgsInvoiceWorkDescription
+-- TODO: author idempotent DROP statements mirroring schema objects created in 20260620081159_AddFgsInvoiceWorkDescription_up.sql

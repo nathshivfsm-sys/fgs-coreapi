@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Entities;
+namespace Fgs.Setup.Domain.Entities;
 
 /// <summary>
 /// Column-level mapping for a <see cref="GloSeedTableMapping"/> seed operation.

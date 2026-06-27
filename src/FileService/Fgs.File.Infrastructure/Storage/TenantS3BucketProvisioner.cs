@@ -1,4 +1,4 @@
-﻿using Amazon;
+using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Fgs.File.Application.Abstractions.Provisioning;
@@ -61,23 +61,29 @@ public sealed class TenantS3BucketProvisioner(
             }
         }, cancellationToken);
 
+        var encryptionRule = new ServerSideEncryptionRule { BucketKeyEnabled = true };
+        if (!string.IsNullOrWhiteSpace(_options.KmsKeyArn))
+        {
+            encryptionRule.ServerSideEncryptionByDefault = new ServerSideEncryptionByDefault
+            {
+                ServerSideEncryptionAlgorithm = ServerSideEncryptionMethod.AWSKMS,
+                ServerSideEncryptionKeyManagementServiceKeyId = _options.KmsKeyArn
+            };
+        }
+        else
+        {
+            encryptionRule.ServerSideEncryptionByDefault = new ServerSideEncryptionByDefault
+            {
+                ServerSideEncryptionAlgorithm = ServerSideEncryptionMethod.AES256
+            };
+        }
+
         await s3Client.PutBucketEncryptionAsync(new PutBucketEncryptionRequest
         {
             BucketName = bucketName,
             ServerSideEncryptionConfiguration = new ServerSideEncryptionConfiguration
             {
-                ServerSideEncryptionRules =
-                [
-                    new ServerSideEncryptionRule
-                    {
-                        ServerSideEncryptionByDefault = new ServerSideEncryptionByDefault
-                        {
-                            ServerSideEncryptionAlgorithm = ServerSideEncryptionMethod.AWSKMS,
-                            ServerSideEncryptionKeyManagementServiceKeyId = _options.KmsKeyArn
-                        },
-                        BucketKeyEnabled = true
-                    }
-                ]
+                ServerSideEncryptionRules = [encryptionRule]
             }
         }, cancellationToken);
 
@@ -87,8 +93,46 @@ public sealed class TenantS3BucketProvisioner(
             VersioningConfig = new S3BucketVersioningConfig { Status = VersionStatus.Enabled }
         }, cancellationToken);
 
+        await TryConfigureBucketCorsAsync(bucketName, tenantId, cancellationToken);
+
         logger.LogInformation("Created S3 bucket {Bucket} for tenant {TenantId}", bucketName, tenantId);
         return bucketName;
+    }
+
+    private async Task TryConfigureBucketCorsAsync(
+        string bucketName,
+        long tenantId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await s3Client.PutCORSConfigurationAsync(new PutCORSConfigurationRequest
+            {
+                BucketName = bucketName,
+                Configuration = new CORSConfiguration
+                {
+                    Rules =
+                    [
+                        new CORSRule
+                        {
+                            AllowedMethods = ["GET", "PUT", "HEAD"],
+                            AllowedOrigins = ["*"],
+                            AllowedHeaders = ["*"],
+                            MaxAgeSeconds = 3600
+                        }
+                    ]
+                }
+            }, cancellationToken);
+        }
+        catch (AmazonS3Exception ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Skipped S3 CORS configuration for bucket {Bucket} (tenant {TenantId}). "
+                + "Bucket provisioning will continue; grant s3:PutBucketCORS if browser uploads require CORS.",
+                bucketName,
+                tenantId);
+        }
     }
 
     public async Task InitializeFolderStructureAsync(

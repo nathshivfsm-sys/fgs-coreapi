@@ -1,15 +1,15 @@
-﻿using Fgs.Contracts.Api;
+using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
+using Fgs.Credentials.Options;
 using Fgs.Notification.Application.Notifications.Templates;
 using Fgs.Notification.Domain.Entities;
-using Fgs.Notification.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 
 namespace Fgs.Notification.Infrastructure.Notifications.Templates;
 
 public sealed class CommunicationTemplateRepository(
     ISetupClient setupClient,
-    IOptions<SetupServiceClientOptions> clientOptions) : ICommunicationTemplateRepository
+    IOptions<CredentialDistributionOptions> distributionOptions) : ICommunicationTemplateRepository
 {
     public async Task<FgsSetupCommunicationTemplate?> GetActiveTemplateAsync(
         long? tenantId,
@@ -23,7 +23,7 @@ public sealed class CommunicationTemplateRepository(
             companyId,
             templateType.Trim(),
             code.Trim(),
-            clientOptions.Value.InternalServiceKey,
+            distributionOptions.Value.InternalServiceKey,
             cancellationToken);
 
         if (!response.Success || response.Data is null)

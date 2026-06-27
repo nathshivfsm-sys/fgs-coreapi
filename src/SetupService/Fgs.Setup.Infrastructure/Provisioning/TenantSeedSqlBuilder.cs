@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Fgs.Setup.Application.Features.TenantProvisioning;
 using Fgs.Setup.Domain.Entities;
 

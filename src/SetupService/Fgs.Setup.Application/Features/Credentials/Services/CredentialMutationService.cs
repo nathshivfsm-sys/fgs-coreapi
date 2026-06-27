@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Fgs.Contracts.CredentialAudit;
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.Messaging.Abstractions;
@@ -296,23 +296,23 @@ public sealed class CredentialMutationService
         switch (rotationMode)
         {
             case CredentialRotationMode.Full:
-            {
-                var envelope = await _encryptionService.ReEncryptPayloadAsync(
-                    credentialData,
-                    encryptedDataKey,
-                    cancellationToken);
-                assign(envelope.CredentialData, envelope.EncryptedDataKey, envelope.KeyIdentifier);
-                break;
-            }
+                {
+                    var envelope = await _encryptionService.ReEncryptPayloadAsync(
+                        credentialData,
+                        encryptedDataKey,
+                        cancellationToken);
+                    assign(envelope.CredentialData, envelope.EncryptedDataKey, envelope.KeyIdentifier);
+                    break;
+                }
             case CredentialRotationMode.KmsReEncrypt:
-            {
-                var reEncrypted = await _encryptionService.ReEncryptDataKeyOnlyAsync(
-                    encryptedDataKey,
-                    keyIdentifier,
-                    cancellationToken);
-                assign(credentialData, reEncrypted.EncryptedDataKey, reEncrypted.KeyIdentifier);
-                break;
-            }
+                {
+                    var reEncrypted = await _encryptionService.ReEncryptDataKeyOnlyAsync(
+                        encryptedDataKey,
+                        keyIdentifier,
+                        cancellationToken);
+                    assign(credentialData, reEncrypted.EncryptedDataKey, reEncrypted.KeyIdentifier);
+                    break;
+                }
             default:
                 throw new ArgumentOutOfRangeException(nameof(rotationMode), rotationMode, null);
         }

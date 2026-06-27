@@ -2,18 +2,14 @@ using System.Linq.Expressions;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.Persistence.Abstractions;
-using Fgs.Credentials.Options;
 using Fgs.Setup.Application.Features.CommunicationTemplates.Queries.GetActiveCommunicationTemplate;
 using Fgs.Setup.Domain.Entities;
-using Microsoft.Extensions.Options;
 using Moq;
 
 namespace Fgs.Setup.Tests;
 
 public sealed class GetActiveCommunicationTemplateQueryHandlerTests
 {
-    private const string InternalServiceKey = "test-internal-key";
-
     [Fact]
     public async Task Handle_WhenFgsTemplateExists_ReturnsFgsTemplate()
     {
@@ -35,7 +31,7 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
             gloTemplates: []);
 
         var response = await handler.Handle(
-            new GetActiveCommunicationTemplateQuery(1, 2, "EMAIL", CommunicationTemplateCodes.CompanyAdminInvitation, InternalServiceKey),
+            new GetActiveCommunicationTemplateQuery(1, 2, "EMAIL", CommunicationTemplateCodes.CompanyAdminInvitation),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -61,8 +57,7 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
                 100,
                 200,
                 "EMAIL",
-                CommunicationTemplateCodes.CompanyAdminInvitation,
-                InternalServiceKey),
+                CommunicationTemplateCodes.CompanyAdminInvitation),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -85,8 +80,7 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
                 100,
                 200,
                 "EMAIL",
-                CommunicationTemplateCodes.CompanyAdminInvitation,
-                InternalServiceKey),
+                CommunicationTemplateCodes.CompanyAdminInvitation),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -109,8 +103,7 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
                 999,
                 888,
                 "EMAIL",
-                CommunicationTemplateCodes.CompanyAdminInvitation,
-                InternalServiceKey),
+                CommunicationTemplateCodes.CompanyAdminInvitation),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -138,7 +131,7 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
             gloTemplates: [gloTemplate]);
 
         var response = await handler.Handle(
-            new GetActiveCommunicationTemplateQuery(1, 2, "EMAIL", CommunicationTemplateCodes.CompanyAdminInvitation, InternalServiceKey),
+            new GetActiveCommunicationTemplateQuery(1, 2, "EMAIL", CommunicationTemplateCodes.CompanyAdminInvitation),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -155,24 +148,11 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
         var handler = CreateHandler(fgsTemplates: [], gloTemplates: []);
 
         var response = await handler.Handle(
-            new GetActiveCommunicationTemplateQuery(null, null, "EMAIL", "MISSING_CODE", InternalServiceKey),
+            new GetActiveCommunicationTemplateQuery(null, null, "EMAIL", "MISSING_CODE"),
             CancellationToken.None);
 
         response.Success.Should().BeFalse();
         response.StatusCode.Should().Be(ApiStatusCodes.NotFound);
-    }
-
-    [Fact]
-    public async Task Handle_WhenInternalServiceKeyInvalid_ReturnsUnauthorized()
-    {
-        var handler = CreateHandler(fgsTemplates: [], gloTemplates: []);
-
-        var response = await handler.Handle(
-            new GetActiveCommunicationTemplateQuery(null, null, "EMAIL", CommunicationTemplateCodes.CompanyAdminInvitation, "wrong-key"),
-            CancellationToken.None);
-
-        response.Success.Should().BeFalse();
-        response.StatusCode.Should().Be(ApiStatusCodes.Unauthorized);
     }
 
     private static FgsSetupCommunicationTemplate CreateFgsTemplate(
@@ -213,11 +193,6 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
         unitOfWorkMock.Setup(u => u.Repository<FgsSetupCommunicationTemplate>()).Returns(fgsRepoMock.Object);
         unitOfWorkMock.Setup(u => u.Repository<GloCommunicationTemplate>()).Returns(gloRepoMock.Object);
 
-        var options = Options.Create(new CredentialDistributionOptions
-        {
-            InternalServiceKey = InternalServiceKey
-        });
-
-        return new GetActiveCommunicationTemplateQueryHandler(unitOfWorkMock.Object, options);
+        return new GetActiveCommunicationTemplateQueryHandler(unitOfWorkMock.Object);
     }
 }

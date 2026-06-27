@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using Fgs.Setup.Application.Abstractions.Credentials;
 
 namespace Fgs.Setup.Infrastructure.Security.Encryption;

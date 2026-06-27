@@ -1,4 +1,4 @@
-﻿namespace Fgs.Inventory.Infrastructure.Database.Schemas;
+namespace Fgs.Inventory.Infrastructure.Database.Schemas;
 
 public static class FgsDatabaseSchemas
 {

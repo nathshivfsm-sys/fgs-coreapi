@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Entities;
+namespace Fgs.Setup.Domain.Entities;
 
 public class FgsSetupPricingMatrixLabor : FgsTenantCompanySetupEntityBase<long>
 {

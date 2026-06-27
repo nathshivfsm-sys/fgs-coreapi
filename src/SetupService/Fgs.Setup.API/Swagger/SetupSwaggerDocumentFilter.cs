@@ -36,7 +36,7 @@ public sealed class SetupSwaggerDocumentFilter : IDocumentFilter
 
         foreach (var tag in swaggerDoc.Tags)
         {
-            if (TagDescriptions.TryGetValue(tag.Name, out var description))
+            if (tag.Name is not null && TagDescriptions.TryGetValue(tag.Name, out var description))
             {
                 tag.Description = description;
             }

@@ -23,6 +23,54 @@ namespace Fgs.Integration.Infrastructure.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Fgs.Integration.Domain.Entities.FgsPaymentTransactionPayload", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<long>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<long>("PaymentTransactionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("RequestJson")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("ResponseJson")
+                        .HasColumnType("jsonb");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentTransactionId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsPaymentTransactionPayload_PaymentTransaction");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsPaymentTransactionPayload_TenantCompany");
+
+                    b.ToTable("FgsPaymentTransactionPayload", "integration", t =>
+                        {
+                            t.HasComment("Stores optional payment processor request and response payloads for troubleshooting, support, auditing, and integration diagnostics.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Integration.Domain.Entities.FgsTenantCompanyCache", b =>
                 {
                     b.Property<long>("TenantId")

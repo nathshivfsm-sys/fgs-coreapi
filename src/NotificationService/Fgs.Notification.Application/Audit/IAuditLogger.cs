@@ -1,4 +1,4 @@
-﻿namespace Fgs.Notification.Application.Audit;
+namespace Fgs.Notification.Application.Audit;
 
 public interface IAuditLogger
 {

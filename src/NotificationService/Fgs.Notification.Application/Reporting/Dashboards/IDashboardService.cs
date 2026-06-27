@@ -1,3 +1,3 @@
-﻿namespace Fgs.Notification.Application.Reporting.Dashboards;
+namespace Fgs.Notification.Application.Reporting.Dashboards;
 
 public interface IDashboardService;

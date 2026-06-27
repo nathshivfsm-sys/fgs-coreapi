@@ -4,12 +4,10 @@ using Fgs.Contracts.Api;
 using Fgs.Contracts.CredentialAudit;
 using Fgs.Foundation.Api;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Audit.API.Controllers;
 
-[AllowAnonymous]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("credential-audits")]
 public sealed class CredentialAuditsController(IMediator mediator) : FgsApiControllerBase(mediator)

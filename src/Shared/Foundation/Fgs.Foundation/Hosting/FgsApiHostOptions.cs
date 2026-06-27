@@ -21,4 +21,6 @@ public sealed class FgsApiHostOptions
     public bool UseForwardedHeaders { get; set; }
 
     public bool UseTenantResolution { get; set; } = true;
+
+    public bool UseResponseCompression { get; set; } = true;
 }

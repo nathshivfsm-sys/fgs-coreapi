@@ -19,4 +19,8 @@ public static class AuthErrorMessages
     public const string TenantNotFound = "Tenant was not found.";
 
     public const string TenantCompanyNotFound = "Tenant company was not found.";
+
+    public const string Unauthenticated = "Authentication is required.";
+
+    public const string UserNotFound = "User profile was not found.";
 }

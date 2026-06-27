@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Entities;
+namespace Fgs.Setup.Domain.Entities;
 
 public class FgsSetupTaxDetail : FgsTenantCompanySetupEntityBase<long>
 {
@@ -9,8 +9,6 @@ public class FgsSetupTaxDetail : FgsTenantCompanySetupEntityBase<long>
     public DateOnly EffectiveFromDate { get; set; }
 
     public DateOnly? EffectiveToDate { get; set; }
-
-    public decimal TaxPercent { get; set; }
 
     public bool IsExternalSystemRecord { get; set; }
 }

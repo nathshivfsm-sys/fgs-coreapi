@@ -12,13 +12,19 @@ using Fgs.User.Infrastructure.Common.Identity;
 using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Common.Security;
 using Fgs.User.Infrastructure.Common.Time;
+using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Infrastructure.Database;
+using Fgs.User.Infrastructure.Database.Read;
+using Fgs.User.Infrastructure.Persistence.Queries;
+using Fgs.User.Infrastructure.Persistence.Read;
+using Fgs.User.Infrastructure.Persistence.Write;
 using Fgs.Persistence.Extensions;
 using Microsoft.Extensions.Http.Resilience;
 using Refit;
 using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
+using Fgs.Foundation.Caching.Options;
 using Fgs.User.Infrastructure.Messaging;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -38,10 +44,11 @@ public static class DependencyInjection
             options =>
             {
                 options.ServiceName = "fgs-user-service";
-                options.RequiredProviders = ["DATABASE", "ENTRA_EXTERNAL_ID", "AWS"];
+                options.RequiredProviders = ["DATABASE", "ENTRA_EXTERNAL_ID", "AWS", "REDIS"];
             },
             typeof(EntraExternalIdOptions),
-            typeof(AwsCredentialsOptions));
+            typeof(AwsCredentialsOptions),
+            typeof(RedisCacheOptions));
 
         services.AddFgsUserFacingSecurity(configuration);
         services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));
@@ -53,16 +60,9 @@ public static class DependencyInjection
 
         services.AddDbContext<FgsUserDbContext>((sp, options) =>
         {
-            var configuration = sp.GetRequiredService<IConfiguration>();
+            var appConfiguration = sp.GetRequiredService<IConfiguration>();
             var credentialProvider = sp.GetService<ICredentialConfigurationProvider>();
-            var connectionString = ConnectionStringResolver.Resolve(
-                    configuration,
-                    ConnectionStringNames.FgsUser,
-                    "FGS_USER_DB",
-                    credentialProvider)
-                ?? configuration["Database:ConnectionString"]
-                ?? throw new InvalidOperationException(
-                    $"PostgreSQL connection string is required. Set ConnectionStrings:{ConnectionStringNames.FgsUser}, FGS_USER_DB, or load DATABASE credentials from Setup Service.");
+            var connectionString = FgsUserConnectionString.ResolveRequired(appConfiguration, credentialProvider);
             options.UseFgsNpgsql(
                 connectionString,
                 "__EFMigrationsHistory",
@@ -71,6 +71,12 @@ public static class DependencyInjection
         });
 
         services.AddFgsPersistence<FgsUserDbContext>();
+        services.AddSingleton<IUserReadConnectionFactory, FgsUserReadConnectionFactory>();
+        services.AddScoped(typeof(IUserReadRepository<>), typeof(UserDapperReadRepository<>));
+        services.AddScoped(typeof(IUserWriteRepository<>), typeof(UserEfWriteRepository<>));
+        services.AddScoped<ITenantCompanyDetailsReadQuery, TenantCompanyDetailsReadQuery>();
+        services.AddScoped<IUserRoleCodesReadQuery, UserRoleCodesReadQuery>();
+        services.AddScoped<IInvitationReadQuery, InvitationReadQuery>();
         services.AddScoped<IOutboxWriter, OutboxWriter>();
         services.AddScoped<IAddressLocaleResolver, AddressLocaleResolver>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();

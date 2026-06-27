@@ -1,5 +1,5 @@
-﻿using Amazon;
 using Amazon.KeyManagementService;
+using Fgs.Credentials.Aws;
 using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Configuration;
@@ -98,33 +98,18 @@ public static class CredentialServiceCollectionExtensions
         var options = sp.GetRequiredService<IOptions<AwsCredentialsOptions>>().Value;
         var config = new AmazonKeyManagementServiceConfig
         {
-            RegionEndpoint = ResolveRegionEndpoint(options.Region)
+            RegionEndpoint = AwsClientCredentialHelper.ResolveRegionEndpoint(options.Region)
         };
 
-        if (TryResolveExplicitCredentials(options, out var accessKeyId, out var secretAccessKey))
+        if (AwsClientCredentialHelper.TryResolveExplicitCredentials(
+                options.AccessKeyId,
+                options.SecretAccessKey,
+                out var accessKeyId,
+                out var secretAccessKey))
         {
             return new AmazonKeyManagementServiceClient(accessKeyId, secretAccessKey, config);
         }
 
         return new AmazonKeyManagementServiceClient(config);
     }
-
-    private static bool TryResolveExplicitCredentials(
-        AwsCredentialsOptions options,
-        out string accessKeyId,
-        out string secretAccessKey)
-    {
-        accessKeyId = options.AccessKeyId
-            ?? Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID")
-            ?? string.Empty;
-        secretAccessKey = options.SecretAccessKey
-            ?? Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY")
-            ?? string.Empty;
-
-        return !string.IsNullOrWhiteSpace(accessKeyId)
-            && !string.IsNullOrWhiteSpace(secretAccessKey);
-    }
-
-    private static RegionEndpoint ResolveRegionEndpoint(string? region) =>
-        RegionEndpoint.GetBySystemName(string.IsNullOrWhiteSpace(region) ? "us-east-1" : region);
 }

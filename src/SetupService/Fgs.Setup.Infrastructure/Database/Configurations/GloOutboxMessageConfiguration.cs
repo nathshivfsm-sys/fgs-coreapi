@@ -1,4 +1,4 @@
-﻿using Fgs.Persistence.Extensions;
+using Fgs.Persistence.Extensions;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Domain.Enums;
 using Microsoft.EntityFrameworkCore;

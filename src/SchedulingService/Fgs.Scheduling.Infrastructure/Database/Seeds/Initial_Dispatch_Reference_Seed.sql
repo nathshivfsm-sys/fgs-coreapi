@@ -1,0 +1,30 @@
+-- Initial_Dispatch_Reference_Seed.sql
+-- Idempotent reference documentation for dispatch schema enums enforced by check constraints.
+-- Run manually after migrations and dispatch.FgsTenantCompanyCache is populated.
+--
+-- AppointmentStatusId (dispatch.FgsAppointment):
+--   1 = Unassigned
+--   2 = Open
+--   3 = Completed
+--
+-- PayrollStatusId (dispatch.FgsPayrollPayPeriod):
+--   1 = Open
+--   2 = Calculated
+--   3 = Approved
+--   4 = Exported
+--
+-- PayrollLineTypeId (dispatch.FgsPayrollLine):
+--   1 = Commission
+--   2 = Bonus
+--   3 = Adjustment
+--
+-- BurdenTypeId (dispatch.FgsPayroll):
+--   P = Percent
+--   F = Fixed Amount
+--
+-- EventTypeId references glo.GloAppointmentAssignmentEventType (seeded in SetupService).
+--
+-- WorkOrderStatusId, PriorityId, JobTypeId and other setup catalog references
+-- are stored as scalar identifiers without FK. Future tenant-scoped catalogs may be seeded here.
+
+SELECT 1 WHERE FALSE;

@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Entities;
+namespace Fgs.Setup.Domain.Entities;
 
 /// <summary>
 /// FSM-provided communication template available for system use or tenant customization.

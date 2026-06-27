@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Entities;
+namespace Fgs.Setup.Domain.Entities;
 
 /// <summary>
 /// Defines which tags apply to which master entity types for a tenant/company.

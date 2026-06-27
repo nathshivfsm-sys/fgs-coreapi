@@ -1,4 +1,5 @@
-﻿using Fgs.Credentials;
+using Fgs.Credentials;
+using Fgs.Foundation.Caching.Extensions;
 using Fgs.Foundation.Hosting;
 using Fgs.Observability.Extensions;
 using Fgs.Setup.API.Swagger;
@@ -21,17 +22,19 @@ var hostOptions = builder.AddFgsApiHost(options =>
 builder.Services.AddFgsSetupSwagger();
 builder.Services.AddFgsSetupApplication();
 builder.Services.AddFgsSetupInfrastructure(builder.Configuration);
+await builder.LoadFgsSetupCredentialsAsync();
+builder.Services.AddFgsRedisCache(builder.Configuration);
 builder.Services.AddFgsObservability(builder.Configuration, hostOptions.ServiceName);
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+app.UseFgsApiHost(hostOptions);
+
+if (app.Environment.IsDevelopment())
 {
-    var loader = scope.ServiceProvider.GetRequiredService<CredentialConfigurationLoader>();
-    await loader.ReloadAsync();
+    app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 }
 
-app.UseFgsApiHost(hostOptions);
 app.MapFgsHealthChecks();
 app.Run();
 

@@ -1,4 +1,5 @@
 using Fgs.Integration.Domain.Entities;
+using Fgs.Integration.Infrastructure.Database.Configurations;
 using Fgs.Integration.Infrastructure.Database.Schemas;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,9 +11,12 @@ public sealed class FgsIntegrationDbContext(DbContextOptions<FgsIntegrationDbCon
 
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
 
+    public DbSet<FgsPaymentTransactionPayload> FgsPaymentTransactionPayloads => Set<FgsPaymentTransactionPayload>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(FgsDatabaseSchemas.Integration);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsIntegrationDbContext).Assembly);
+        FgsIntegrationDbContextConfigurationExtensions.ApplyTenantCompanyCacheForeignKeys(modelBuilder);
     }
 }

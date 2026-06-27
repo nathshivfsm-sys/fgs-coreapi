@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -29,7 +29,7 @@ internal class FgsEntityTagConfiguration : IEntityTypeConfiguration<FgsEntityTag
             .HasDatabaseName("IX_FgsEntityTag_MasterEntityTypeId");
         entity.HasIndex(e => e.CreatedOn)
             .IsDescending(true)
-            .HasDatabaseName("IX_FgsEntityTag_CreatedOn");        entity.HasOne<FgsTag>()
+            .HasDatabaseName("IX_FgsEntityTag_CreatedOn"); entity.HasOne<FgsTag>()
             .WithMany()
             .HasForeignKey(e => e.TagId)
             .HasConstraintName("FK_FgsEntityTag_FgsTag_TagId")

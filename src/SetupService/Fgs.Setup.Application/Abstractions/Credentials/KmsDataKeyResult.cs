@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Application.Abstractions.Credentials;
+namespace Fgs.Setup.Application.Abstractions.Credentials;
 
 /// <summary>
 /// Plaintext and KMS-wrapped data encryption key returned from AWS KMS GenerateDataKey.

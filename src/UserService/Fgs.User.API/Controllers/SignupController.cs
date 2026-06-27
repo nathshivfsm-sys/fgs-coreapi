@@ -12,7 +12,6 @@ namespace Fgs.User.API.Controllers;
 /// <summary>
 /// Company signup and tenant onboarding.
 /// </summary>
-[AllowAnonymous]
 [ApiController]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("signup")]
@@ -28,6 +27,7 @@ public sealed class SignupController(IMediator mediator) : ControllerBase
     /// Tenant code is derived from the company name; timezone and currency are inferred from <c>company.address</c> (override with optional <c>timeZone</c> / <c>defaultCurrency</c>).
     /// Returns the standard JSON envelope with <c>tenantId</c>, <c>companyNumber</c>, <c>companyGuid</c>, user/invitation ids, and invite URL; email delivery uses the outbox.
     /// </remarks>
+    [AllowAnonymous]
     [HttpPost("company")]
     [ProducesResponseType(typeof(ApiResponse<CompanySignupResultDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

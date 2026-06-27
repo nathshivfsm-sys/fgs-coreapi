@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Application.Features.Credentials.Commands.CreateCredential;
+using Fgs.Setup.Application.Features.Credentials.Commands.CreateCredential;
 using FluentValidation;
 
 namespace Fgs.Setup.Application.Features.Credentials.Validators;

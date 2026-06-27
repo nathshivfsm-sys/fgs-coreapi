@@ -1,4 +1,4 @@
-﻿namespace Fgs.Notification.Domain.Notifications;
+namespace Fgs.Notification.Domain.Notifications;
 
 public enum NotificationDeliveryStatus
 {

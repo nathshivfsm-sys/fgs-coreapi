@@ -31,10 +31,7 @@ public static class DependencyInjection
             typeof(RabbitMqOptions));
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
 
-        services.AddFgsRefitClient<ISetupClient>(
-            configuration,
-            "SetupService:BaseUrl",
-            "http://setup-service:5004");
+        services.AddFgsSetupClient(configuration);
 
         services.AddFgsRefitClient<INotificationDispatchClient>(
             configuration,

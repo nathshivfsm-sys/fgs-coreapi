@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -57,5 +57,6 @@ internal class FgsSetupGLBreakTradeConfiguration : IEntityTypeConfiguration<FgsS
             .WithMany(b => b.Trades)
             .HasForeignKey(e => e.GLBreakId)
             .HasConstraintName("FK_FgsSetupGLBreakTrade_FgsSetupGLBreak_GLBreakId")
-            .OnDelete(DeleteBehavior.Cascade);    }
+            .OnDelete(DeleteBehavior.Cascade);
+    }
 }

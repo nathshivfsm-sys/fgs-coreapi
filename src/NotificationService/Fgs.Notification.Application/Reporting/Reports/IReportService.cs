@@ -1,3 +1,3 @@
-﻿namespace Fgs.Notification.Application.Reporting.Reports;
+namespace Fgs.Notification.Application.Reporting.Reports;
 
 public interface IReportService;

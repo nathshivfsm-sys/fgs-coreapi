@@ -29,6 +29,15 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsCredential> FgsCredentials => Set<FgsCredential>();
 
+    public DbSet<FgsCrew> FgsCrews => Set<FgsCrew>();
+
+    public DbSet<FgsCrewMember> FgsCrewMembers => Set<FgsCrewMember>();
+
+    public DbSet<FgsEmployee> FgsEmployees => Set<FgsEmployee>();
+
+    public DbSet<FgsEmployeeTechnicianProfile> FgsEmployeeTechnicianProfiles =>
+        Set<FgsEmployeeTechnicianProfile>();
+
     public DbSet<GloCredential> GloCredentials => Set<GloCredential>();
 
     public DbSet<GloCredentialProviderType> GloCredentialProviderTypes => Set<GloCredentialProviderType>();
@@ -91,6 +100,12 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<GloInventorySubCategory> GloInventorySubCategories => Set<GloInventorySubCategory>();
 
+    public DbSet<GloInventoryTransactionSourceType> GloInventoryTransactionSourceTypes =>
+        Set<GloInventoryTransactionSourceType>();
+
+    public DbSet<GloInventoryTransactionType> GloInventoryTransactionTypes =>
+        Set<GloInventoryTransactionType>();
+
     public DbSet<FgsInventoryItemType> FgsInventoryItemTypes => Set<FgsInventoryItemType>();
 
     public DbSet<FgsInventoryCategory> FgsInventoryCategories => Set<FgsInventoryCategory>();
@@ -148,11 +163,18 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<GloLeadStatus> GloLeadStatuses => Set<GloLeadStatus>();
 
+    public DbSet<GloAppointmentAssignmentEventType> GloAppointmentAssignmentEventTypes =>
+        Set<GloAppointmentAssignmentEventType>();
+
     public DbSet<FgsLeadStatus> FgsLeadStatuses => Set<FgsLeadStatus>();
 
     public DbSet<GloLeadDisqualificationReason> GloLeadDisqualificationReasons => Set<GloLeadDisqualificationReason>();
 
     public DbSet<FgsLeadDisqualificationReason> FgsLeadDisqualificationReasons => Set<FgsLeadDisqualificationReason>();
+
+    public DbSet<GloEstimateFlavor> GloEstimateFlavors => Set<GloEstimateFlavor>();
+
+    public DbSet<GloEstimateStatus> GloEstimateStatuses => Set<GloEstimateStatus>();
 
     public DbSet<GloSalesPipelineStatus> GloSalesPipelineStatuses => Set<GloSalesPipelineStatus>();
 
@@ -229,6 +251,8 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsSetupServiceAgreementTemplateCoverage> FgsSetupServiceAgreementTemplateCoverages =>
         Set<FgsSetupServiceAgreementTemplateCoverage>();
+
+    public DbSet<FgsLocation> FgsLocations => Set<FgsLocation>();
 
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
 

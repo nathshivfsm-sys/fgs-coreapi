@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Application.Abstractions.Credentials;
+namespace Fgs.Setup.Application.Abstractions.Credentials;
 
 /// <summary>
 /// AES-256-GCM encryption using a plaintext data encryption key.

@@ -2,15 +2,34 @@ using System.Reflection;
 using Fgs.Contracts.Clients;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Configuration;
+using Fgs.Credentials.Http;
 using Fgs.Credentials.Options;
 using Fgs.Foundation.Extensions;
+using Fgs.Security.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Fgs.Credentials.Extensions;
 
 public static class CredentialServiceCollectionExtensions
 {
+    public static IServiceCollection AddFgsStandardInfrastructure(
+        this IServiceCollection services,
+        ConfigurationManager configuration,
+        string serviceName,
+        params string[] requiredProviders) =>
+        services
+            .AddFgsCredentialConsumer(
+                configuration,
+                configuration,
+                options =>
+                {
+                    options.ServiceName = serviceName;
+                    options.RequiredProviders = requiredProviders;
+                })
+            .AddFgsApiSecurity(configuration);
+
     public static IServiceCollection AddFgsCredentialConsumer(
         this IServiceCollection services,
         IConfiguration configuration,
@@ -78,8 +97,37 @@ public static class CredentialServiceCollectionExtensions
 
         if (registerSetupClient)
         {
-            services.AddFgsRefitClient<ISetupClient>(configuration, setupBaseUrlKey, setupDefaultBaseUrl);
+            services.AddFgsSetupClient(configuration, setupBaseUrlKey, setupDefaultBaseUrl);
         }
+
+        return services;
+    }
+
+    public static IServiceCollection AddFgsSetupClient(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        string setupBaseUrlKey = "SetupService:BaseUrl",
+        string setupDefaultBaseUrl = "http://setup-service:5004")
+    {
+        return services.AddFgsInternalServiceRefitClient<ISetupClient>(
+            configuration,
+            setupBaseUrlKey,
+            setupDefaultBaseUrl);
+    }
+
+    public static IServiceCollection AddFgsInternalServiceRefitClient<TClient>(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        string baseUrlConfigurationKey,
+        string? defaultBaseUrl = null)
+        where TClient : class
+    {
+        services.TryAddTransient<InternalServiceKeyDelegatingHandler>();
+        services.AddFgsRefitClient<TClient>(
+            configuration,
+            baseUrlConfigurationKey,
+            defaultBaseUrl,
+            builder => builder.AddHttpMessageHandler<InternalServiceKeyDelegatingHandler>());
 
         return services;
     }

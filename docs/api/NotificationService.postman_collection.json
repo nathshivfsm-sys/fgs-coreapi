@@ -1,0 +1,159 @@
+﻿{
+    "item":  [
+                 {
+                     "description":  "HealthController - health",
+                     "name":  "HealthController",
+                     "item":  [
+                                  {
+                                      "name":  "Get",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/notifications/health",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "notifications",
+                                                                               "health"
+                                                                           ]
+                                                              },
+                                                      "description":  "Get",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "description":  "NotificationsController - notifications",
+                     "name":  "NotificationsController",
+                     "item":  [
+                                  {
+                                      "name":  "Dispatch",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/notifications/notifications/dispatch",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "notifications",
+                                                                               "notifications",
+                                                                               "dispatch"
+                                                                           ]
+                                                              },
+                                                      "description":  "Dispatch",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"tenantId\": 4,\r\n  \"companyId\": 1,\r\n  \"channel\": \"Email\",\r\n  \"templateCode\": \"INVITE\",\r\n  \"recipient\": \"{{entraUserEmail}}\",\r\n  \"correlationId\": \"postman-test-001\",\r\n  \"tokens\": {\r\n    \"CompanyName\": \"Plumbing Ltd\",\r\n    \"InviteUrl\": \"https://localhost:8443/api/v1/invite/start?token=sample\"\r\n  }\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 }
+             ],
+    "variable":  [
+                     {
+                         "key":  "apiVersion",
+                         "value":  "v1"
+                     }
+                 ],
+    "info":  {
+                 "description":  "Notification dispatch via {{gatewayUrl}}/api/v1/notifications/...",
+                 "name":  "FGS NotificationService",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+                 "_postman_id":  "dc313eb4-d33e-48d7-8463-d8ba454aa390"
+             },
+    "event":  [
+                  {
+                      "script":  {
+                                     "exec":  [
+                                                  "if (pm.environment.get(\u0027tenantId\u0027)) {",
+                                                  "  pm.request.headers.upsert({ key: \u0027X-Tenant-Id\u0027, value: pm.environment.get(\u0027tenantId\u0027) });",
+                                                  "  pm.request.headers.upsert({ key: \u0027X-Company-Id\u0027, value: pm.environment.get(\u0027companyId\u0027) });",
+                                                  "}"
+                                              ],
+                                     "type":  "text/javascript"
+                                 },
+                      "listen":  "prerequest"
+                  }
+              ],
+    "auth":  {
+                 "bearer":  [
+                                {
+                                    "key":  "token",
+                                    "type":  "string",
+                                    "value":  "{{accessToken}}"
+                                }
+                            ],
+                 "type":  "bearer"
+             }
+}

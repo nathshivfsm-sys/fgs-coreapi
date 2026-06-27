@@ -1,0 +1,92 @@
+﻿{
+    "item":  [
+                 {
+                     "description":  "HealthController - health",
+                     "name":  "HealthController",
+                     "item":  [
+                                  {
+                                      "name":  "Get",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/scheduling/health",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "scheduling",
+                                                                               "health"
+                                                                           ]
+                                                              },
+                                                      "description":  "Get",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 }
+             ],
+    "variable":  [
+                     {
+                         "key":  "apiVersion",
+                         "value":  "v1"
+                     }
+                 ],
+    "info":  {
+                 "description":  "Scheduling service scaffold (health) via {{gatewayUrl}}/api/v1/scheduling/...",
+                 "name":  "FGS SchedulingService",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+                 "_postman_id":  "8dada376-524c-4df6-9df0-f69c39b00c76"
+             },
+    "event":  [
+                  {
+                      "script":  {
+                                     "exec":  [
+                                                  "if (pm.environment.get(\u0027tenantId\u0027)) {",
+                                                  "  pm.request.headers.upsert({ key: \u0027X-Tenant-Id\u0027, value: pm.environment.get(\u0027tenantId\u0027) });",
+                                                  "  pm.request.headers.upsert({ key: \u0027X-Company-Id\u0027, value: pm.environment.get(\u0027companyId\u0027) });",
+                                                  "}"
+                                              ],
+                                     "type":  "text/javascript"
+                                 },
+                      "listen":  "prerequest"
+                  }
+              ],
+    "auth":  {
+                 "bearer":  [
+                                {
+                                    "key":  "token",
+                                    "type":  "string",
+                                    "value":  "{{accessToken}}"
+                                }
+                            ],
+                 "type":  "bearer"
+             }
+}

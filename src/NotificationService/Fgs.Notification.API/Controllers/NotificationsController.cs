@@ -4,12 +4,10 @@ using Fgs.Contracts.Requests;
 using Fgs.Foundation.Api;
 using Fgs.Notification.Application.Features.Notifications.Commands.DispatchNotification;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Notification.API.Controllers;
 
-[AllowAnonymous]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("notifications")]
 public sealed class NotificationsController(IMediator mediator) : FgsApiControllerBase(mediator)

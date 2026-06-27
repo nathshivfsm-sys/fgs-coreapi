@@ -1,4 +1,4 @@
-﻿namespace Fgs.Notification.Application.Notifications.Channels.Models;
+namespace Fgs.Notification.Application.Notifications.Channels.Models;
 
 public sealed record NotificationDispatchResult(
     bool Success,

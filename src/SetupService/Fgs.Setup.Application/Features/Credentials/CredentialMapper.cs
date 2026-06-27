@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Application.Features.Credentials.DTOs;
 using Fgs.Setup.Domain.Entities;
@@ -58,11 +58,7 @@ internal static class CredentialMapper
             credential.CredentialName,
             credential.Description,
             credential.IsActive,
-            credential.KeyIdentifier,
-            null,
-            null,
-            credential.CreatedOn,
-            credential.UpdatedOn);
+            credential.KeyIdentifier);
 
     public static CredentialSummaryDto ToSummary(FgsCredential credential) =>
         new(
@@ -73,11 +69,7 @@ internal static class CredentialMapper
             credential.CredentialName,
             credential.Description,
             credential.IsActive,
-            credential.KeyIdentifier,
-            credential.TenantId,
-            credential.CompanyId,
-            credential.CreatedOn,
-            credential.UpdatedOn);
+            credential.KeyIdentifier);
 
     public static CredentialDetailDto ToDetail(GloCredential credential) =>
         new(
@@ -88,13 +80,7 @@ internal static class CredentialMapper
             credential.CredentialName,
             credential.Description,
             credential.IsActive,
-            credential.KeyIdentifier,
-            null,
-            null,
-            credential.CreatedOn,
-            credential.CreatedBy,
-            credential.UpdatedOn,
-            credential.UpdatedBy);
+            credential.KeyIdentifier);
 
     public static CredentialDetailDto ToDetail(FgsCredential credential) =>
         new(
@@ -105,11 +91,5 @@ internal static class CredentialMapper
             credential.CredentialName,
             credential.Description,
             credential.IsActive,
-            credential.KeyIdentifier,
-            credential.TenantId,
-            credential.CompanyId,
-            credential.CreatedOn,
-            credential.CreatedBy,
-            credential.UpdatedOn,
-            credential.UpdatedBy);
+            credential.KeyIdentifier);
 }

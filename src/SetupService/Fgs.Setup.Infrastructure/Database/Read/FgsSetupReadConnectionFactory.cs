@@ -1,20 +1,20 @@
-using Fgs.Persistence.CatalogCrud;
-using Fgs.Setup.Infrastructure.Database.Read;
+using System.Data.Common;
+using Fgs.Setup.Application.Abstractions.Persistence;
+using Fgs.Setup.Infrastructure.Database;
 using Microsoft.Extensions.Configuration;
-using Npgsql;
 
 namespace Fgs.Setup.Infrastructure.Database.Read;
 
-public sealed class FgsSetupReadConnectionFactory : ICatalogReadConnectionFactory
+internal sealed class FgsSetupReadConnectionFactory : ISetupReadConnectionFactory
 {
     private readonly string _connectionString;
 
     public FgsSetupReadConnectionFactory(IConfiguration configuration) =>
         _connectionString = FgsSetupConnectionString.ResolveReadOnly(configuration);
 
-    public async Task<NpgsqlConnection> CreateOpenConnectionAsync(CancellationToken cancellationToken = default)
+    public async Task<DbConnection> CreateOpenConnectionAsync(CancellationToken cancellationToken = default)
     {
-        var connection = new NpgsqlConnection(_connectionString);
+        var connection = new Npgsql.NpgsqlConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
         return connection;
     }

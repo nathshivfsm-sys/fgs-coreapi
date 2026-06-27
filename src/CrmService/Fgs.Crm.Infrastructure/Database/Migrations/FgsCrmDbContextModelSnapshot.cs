@@ -810,6 +810,198 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                     b.ToTable("CrmOutboxMessage", "crm");
                 });
 
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmReminder", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User identifier of the user who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<DateTimeOffset>("DueOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the reminder is due.");
+
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("integer")
+                        .HasComment("Related entity identifier.");
+
+                    b.Property<long?>("EntityValue")
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key value of the related business record.");
+
+                    b.Property<short>("PriorityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)2)
+                        .HasComment("Priority. 1=Low, 2=Normal, 3=High, 4=Critical.");
+
+                    b.Property<string>("ReminderText")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasComment("Reminder details, notes, instructions, or comments.");
+
+                    b.Property<short>("StatusId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Status. 1=Open, 2=Completed, 3=Cancelled.");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasComment("Reminder subject.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User identifier of the user who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id")
+                        .HasName("PK_CrmReminder");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_CrmReminder_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "CreatedBy")
+                        .HasDatabaseName("IX_CrmReminder_CreatedBy");
+
+                    b.HasIndex("TenantId", "CompanyId", "EntityId", "EntityValue")
+                        .HasDatabaseName("IX_CrmReminder_EntityId_EntityValue");
+
+                    b.HasIndex("TenantId", "CompanyId", "StatusId", "DueOn")
+                        .HasDatabaseName("IX_CrmReminder_StatusId_DueOn");
+
+                    b.ToTable("CrmReminder", "crm", t =>
+                        {
+                            t.HasComment("Stores reminders assigned to users or roles for follow-up, review, approval, notification, and workflow activities.");
+
+                            t.HasCheckConstraint("CK_CrmReminder_Entity", "(\"EntityId\" IS NULL AND \"EntityValue\" IS NULL) OR (\"EntityId\" IS NOT NULL AND \"EntityValue\" IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_CrmReminder_PriorityId", "\"PriorityId\" IN (1, 2, 3, 4)");
+
+                            t.HasCheckConstraint("CK_CrmReminder_StatusId", "\"StatusId\" IN (1, 2, 3)");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmReminderAssignment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<long?>("CompletedByUserId")
+                        .HasColumnType("bigint")
+                        .HasComment("User identifier of the user who completed the reminder.");
+
+                    b.Property<DateTimeOffset?>("CompletedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the assignment was completed.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User identifier of the user who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<long>("ReminderId")
+                        .HasColumnType("bigint")
+                        .HasComment("Related reminder identifier.");
+
+                    b.Property<string>("ResponseText")
+                        .HasColumnType("text")
+                        .HasComment("Response or completion notes entered by the assignee.");
+
+                    b.Property<long?>("RoleId")
+                        .HasColumnType("bigint")
+                        .HasComment("Assigned role identifier.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User identifier of the user who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint")
+                        .HasComment("Assigned user identifier.");
+
+                    b.HasKey("Id")
+                        .HasName("PK_CrmReminderAssignment");
+
+                    b.HasIndex("ReminderId")
+                        .HasDatabaseName("IX_CrmReminderAssignment_ReminderId1");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_CrmReminderAssignment_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ReminderId")
+                        .HasDatabaseName("IX_CrmReminderAssignment_ReminderId");
+
+                    b.HasIndex("TenantId", "CompanyId", "RoleId")
+                        .HasDatabaseName("IX_CrmReminderAssignment_RoleId")
+                        .HasFilter("\"RoleId\" IS NOT NULL");
+
+                    b.HasIndex("TenantId", "CompanyId", "UserId")
+                        .HasDatabaseName("IX_CrmReminderAssignment_UserId")
+                        .HasFilter("\"UserId\" IS NOT NULL");
+
+                    b.ToTable("CrmReminderAssignment", "crm", t =>
+                        {
+                            t.HasComment("Stores user and role assignments for reminders.");
+
+                            t.HasCheckConstraint("CK_CrmReminderAssignment_Assignee", "(\"UserId\" IS NOT NULL AND \"RoleId\" IS NULL) OR (\"UserId\" IS NULL AND \"RoleId\" IS NOT NULL)");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmServiceLocation", b =>
                 {
                     b.Property<long>("Id")
@@ -854,6 +1046,1401 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                         .HasDatabaseName("UQ_CrmServiceLocation_Customer_LocationSequence");
 
                     b.ToTable("CrmServiceLocation", "crm");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimate", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("Break1Id")
+                        .HasColumnType("bigint")
+                        .HasComment("First accounting segment used for GL exports and reporting.");
+
+                    b.Property<long?>("Break2Id")
+                        .HasColumnType("bigint")
+                        .HasComment("Second accounting segment used for GL exports and reporting.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<long>("CustomerId")
+                        .HasColumnType("bigint")
+                        .HasComment("Associated customer.");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Total discount amount.");
+
+                    b.Property<DateOnly>("EstimateDate")
+                        .HasColumnType("date")
+                        .HasComment("Date estimate was created.");
+
+                    b.Property<string>("EstimateNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("User-facing estimate number.");
+
+                    b.Property<long?>("EstimateSourceId")
+                        .HasColumnType("bigint")
+                        .HasComment("Source that originated the estimate.");
+
+                    b.Property<long>("EstimateStatusId")
+                        .HasColumnType("bigint")
+                        .HasComment("Current estimate status.");
+
+                    b.Property<long>("EstimateTypeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Estimate presentation style such as Single Option or Good Better Best.");
+
+                    b.Property<DateOnly?>("ExpirationDate")
+                        .HasColumnType("date")
+                        .HasComment("Date estimate expires.");
+
+                    b.Property<decimal>("GrossProfitAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Gross profit amount.");
+
+                    b.Property<decimal>("GrossProfitPercent")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(9,4)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Gross profit percentage.");
+
+                    b.Property<long?>("JobTypeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Job type associated with the estimate.");
+
+                    b.Property<long?>("LaborPricingMatrixId")
+                        .HasColumnType("bigint")
+                        .HasComment("Labor pricing matrix used for pricing calculations.");
+
+                    b.Property<long?>("MaterialPricingMatrixId")
+                        .HasColumnType("bigint")
+                        .HasComment("Material pricing matrix used for pricing calculations.");
+
+                    b.Property<long?>("OpportunityId")
+                        .HasColumnType("bigint")
+                        .HasComment("Associated opportunity.");
+
+                    b.Property<long?>("OtherPricingMatrixId")
+                        .HasColumnType("bigint")
+                        .HasComment("Other pricing matrix used for pricing calculations.");
+
+                    b.Property<long?>("PaymentMethodId")
+                        .HasColumnType("bigint")
+                        .HasComment("Preferred payment method for the estimate.");
+
+                    b.Property<long?>("PaymentTermId")
+                        .HasColumnType("bigint")
+                        .HasComment("Payment terms applicable to the estimate.");
+
+                    b.Property<string>("QuoteDescription")
+                        .HasColumnType("text")
+                        .HasComment("Detailed quote description presented to the customer.");
+
+                    b.Property<string>("QuoteName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("User-facing quote name.");
+
+                    b.Property<long?>("QuotedByEmployeeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Employee who prepared or presented the estimate.");
+
+                    b.Property<long?>("SelectedEstimateOptionId")
+                        .HasColumnType("bigint")
+                        .HasComment("Estimate option selected by the customer.");
+
+                    b.Property<long>("ServiceLocationId")
+                        .HasColumnType("bigint")
+                        .HasComment("Service location where work will be performed.");
+
+                    b.Property<long?>("SignatureFileId")
+                        .HasColumnType("bigint")
+                        .HasComment("File identifier pointing to the signature image stored in file.FgsFile.");
+
+                    b.Property<string>("SignedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Name entered by the person signing the estimate.");
+
+                    b.Property<DateTimeOffset?>("SignedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the estimate was signed.");
+
+                    b.Property<long?>("SoldByEmployeeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Employee credited with the sale.");
+
+                    b.Property<decimal>("SubtotalAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Subtotal before discounts and taxes.");
+
+                    b.Property<decimal>("TaxAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Total tax amount.");
+
+                    b.Property<string>("TaxAuthoritySnapshotJson")
+                        .HasColumnType("jsonb")
+                        .HasComment("Historical snapshot of tax authority codes, names, and rates used for tax calculations.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<decimal>("TotalAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Final estimate amount.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.Property<long?>("WorkOrderId")
+                        .HasColumnType("bigint")
+                        .HasComment("Work order generated from the estimate.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EstimateStatusId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsEstimate_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "CustomerId")
+                        .HasDatabaseName("IX_FgsEstimate_TenantId_CompanyId_CustomerId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateNumber")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEstimate_TenantId_CompanyId_EstimateNumber");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateStatusId")
+                        .HasDatabaseName("IX_FgsEstimate_TenantId_CompanyId_EstimateStatusId");
+
+                    b.HasIndex("TenantId", "CompanyId", "OpportunityId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEstimate_TenantId_CompanyId_OpportunityId")
+                        .HasFilter("\"OpportunityId\" IS NOT NULL");
+
+                    b.HasIndex("TenantId", "CompanyId", "ServiceLocationId")
+                        .HasDatabaseName("IX_FgsEstimate_TenantId_CompanyId_ServiceLocationId");
+
+                    b.HasIndex("TenantId", "CompanyId", "WorkOrderId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEstimate_TenantId_CompanyId_WorkOrderId")
+                        .HasFilter("\"WorkOrderId\" IS NOT NULL");
+
+                    b.ToTable("FgsEstimate", "crm", t =>
+                        {
+                            t.HasComment("Stores estimate header information and pricing totals for the selected/sold estimate option.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateClause", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ClauseName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("User-friendly clause name.");
+
+                    b.Property<string>("ClauseText")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasComment("Customer-facing clause text displayed on estimate documents.");
+
+                    b.Property<long>("ClauseTypeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Clause type such as Inclusion, Exclusion, or Terms and Conditions.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Default display order.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the clause is available for use.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsEstimateClause_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ClauseTypeId")
+                        .HasDatabaseName("IX_FgsEstimateClause_TenantId_CompanyId_ClauseTypeId");
+
+                    b.HasIndex("TenantId", "CompanyId", "DisplayOrder")
+                        .HasDatabaseName("IX_FgsEstimateClause_TenantId_CompanyId_DisplayOrder");
+
+                    b.HasIndex("TenantId", "CompanyId", "ClauseTypeId", "ClauseName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEstimateClause_TenantId_CompanyId_ClauseTypeId_ClauseName");
+
+                    b.ToTable("FgsEstimateClause", "crm", t =>
+                        {
+                            t.HasComment("Stores reusable estimate clauses that may be used across estimates and estimate templates.");
+
+                            t.HasCheckConstraint("CK_FgsEstimateClause_DisplayOrder", "\"DisplayOrder\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateClauseItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("ClauseId")
+                        .HasColumnType("bigint")
+                        .HasComment("Source clause from crm.FgsEstimateClause.");
+
+                    b.Property<string>("ClauseName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Snapshot of clause name at the time it was added to the estimate.");
+
+                    b.Property<string>("ClauseText")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasComment("Snapshot of clause text at the time it was added to the estimate.");
+
+                    b.Property<long>("ClauseTypeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Snapshot of clause type such as Inclusion, Exclusion, or Terms and Conditions.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls display sequence on estimate documents.");
+
+                    b.Property<long>("EstimateId")
+                        .HasColumnType("bigint")
+                        .HasComment("Parent estimate.");
+
+                    b.Property<bool>("ShowOnProposal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the clause should be displayed on customer-facing proposal documents.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClauseId");
+
+                    b.HasIndex("EstimateId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsEstimateClauseItem_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ClauseTypeId")
+                        .HasDatabaseName("IX_FgsEstimateClauseItem_TenantId_CompanyId_ClauseTypeId");
+
+                    b.HasIndex("TenantId", "CompanyId", "DisplayOrder")
+                        .HasDatabaseName("IX_FgsEstimateClauseItem_TenantId_CompanyId_DisplayOrder");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateId")
+                        .HasDatabaseName("IX_FgsEstimateClauseItem_TenantId_CompanyId_EstimateId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateId", "DisplayOrder")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEstimateClauseItem_TenantId_CompanyId_EstimateId_DisplayOrder");
+
+                    b.ToTable("FgsEstimateClauseItem", "crm", t =>
+                        {
+                            t.HasComment("Stores estimate-specific clause snapshots. Changes to the clause library do not affect existing estimates.");
+
+                            t.HasCheckConstraint("CK_FgsEstimateClauseItem_DisplayOrder", "\"DisplayOrder\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateFlavor", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BackgroundColor")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<string>("FlavorCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("TextColor")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsEstimateFlavor_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "FlavorCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEstimateFlavor_TenantId_CompanyId_FlavorCode");
+
+                    b.ToTable("FgsEstimateFlavor", "crm", t =>
+                        {
+                            t.HasComment("Stores estimate flavor definitions used to visually categorize estimate options such as Good, Better, Best, Popular, Premium, Bronze, Silver, and Gold.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateOption", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Option discount amount.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Display order within the estimate.");
+
+                    b.Property<long>("EstimateId")
+                        .HasColumnType("bigint")
+                        .HasComment("Parent estimate.");
+
+                    b.Property<string>("InternalNotes")
+                        .HasColumnType("text")
+                        .HasComment("Internal notes not visible to customers.");
+
+                    b.Property<bool>("IsRecommended")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the option is highlighted as the recommended option.");
+
+                    b.Property<bool>("IsSelected")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the customer selected this option.");
+
+                    b.Property<string>("OptionDescription")
+                        .HasColumnType("text")
+                        .HasComment("Detailed customer-facing option description.");
+
+                    b.Property<string>("OptionName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Customer-facing option name.");
+
+                    b.Property<DateTimeOffset?>("SelectedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the option was selected by the customer.");
+
+                    b.Property<decimal>("SubtotalAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Option subtotal amount.");
+
+                    b.Property<decimal>("TaxAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Option tax amount.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<decimal>("TotalAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Option total amount.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EstimateId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsEstimateOption_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateId")
+                        .HasDatabaseName("IX_FgsEstimateOption_TenantId_CompanyId_EstimateId");
+
+                    b.ToTable("FgsEstimateOption", "crm", t =>
+                        {
+                            t.HasComment("Stores sellable estimate options/packages belonging to an estimate. Detailed pricing is stored in crm.FgsEstimateOptionLine.");
+
+                            t.HasCheckConstraint("CK_FgsEstimateOption_DiscountAmount", "\"DiscountAmount\" >= 0");
+
+                            t.HasCheckConstraint("CK_FgsEstimateOption_DisplayOrder", "\"DisplayOrder\" > 0");
+
+                            t.HasCheckConstraint("CK_FgsEstimateOption_SubtotalAmount", "\"SubtotalAmount\" >= 0");
+
+                            t.HasCheckConstraint("CK_FgsEstimateOption_TaxAmount", "\"TaxAmount\" >= 0");
+
+                            t.HasCheckConstraint("CK_FgsEstimateOption_TotalAmount", "\"TotalAmount\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateOptionLine", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("BillingCategoryId")
+                        .HasColumnType("bigint")
+                        .HasComment("Billing category such as Material, Labor, Service, Equipment, Discount, Tax, Fee, or Other.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasComment("Customer-facing description, service description, tax authority name, or other detail text.");
+
+                    b.Property<int>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1)
+                        .HasComment("Display sequence within the estimate option.");
+
+                    b.Property<long>("EstimateOptionId")
+                        .HasColumnType("bigint")
+                        .HasComment("Parent estimate option.");
+
+                    b.Property<decimal>("ExtendedCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Quantity multiplied by UnitCost.");
+
+                    b.Property<decimal>("ExtendedPrice")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Quantity multiplied by UnitPrice.");
+
+                    b.Property<string>("ItemCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Associated item identifier. May represent inventory, non-inventory, service, labor, fee, or miscellaneous items.");
+
+                    b.Property<long?>("ParentLineId")
+                        .HasColumnType("bigint")
+                        .HasComment("Parent estimate option line used for service breakdowns, discounts, taxes, bundles, rebates, and other hierarchical structures.");
+
+                    b.Property<decimal>("Quantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(1m)
+                        .HasComment("Quantity associated with the line.");
+
+                    b.Property<long?>("RateOfDayId")
+                        .HasColumnType("bigint")
+                        .HasComment("Rate of day applied to labor pricing such as Regular, Overtime, Double Time, Weekend, Holiday, or Emergency.");
+
+                    b.Property<bool>("ShowOnProposal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the line should be displayed on customer-facing proposal documents.");
+
+                    b.Property<bool>("ShowPriceOnProposal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether price and amount should be displayed on customer-facing proposal documents.");
+
+                    b.Property<bool>("ShowToFieldTechnician")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the line should be visible to field technicians.");
+
+                    b.Property<string>("Source")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Indicates where the line originated such as Manual, Template, ServiceItem, PricingMatrix, Bundle, Import, Clone, or System.");
+
+                    b.Property<long?>("TemplateId")
+                        .HasColumnType("bigint")
+                        .HasComment("Source estimate template.");
+
+                    b.Property<long?>("TemplateLineId")
+                        .HasColumnType("bigint")
+                        .HasComment("Source estimate template option line.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<decimal>("UnitCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Cost per unit.");
+
+                    b.Property<decimal>("UnitPrice")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Selling price per unit.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EstimateOptionId");
+
+                    b.HasIndex("ParentLineId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsEstimateOptionLine_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateOptionId")
+                        .HasDatabaseName("IX_FgsEstimateOptionLine_TenantId_CompanyId_EstimateOptionId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ParentLineId")
+                        .HasDatabaseName("IX_FgsEstimateOptionLine_TenantId_CompanyId_ParentLineId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateOptionId", "DisplayOrder")
+                        .HasDatabaseName("IX_FgsEstimateOptionLine_TenantId_CompanyId_DisplayOrder");
+
+                    b.ToTable("FgsEstimateOptionLine", "crm", t =>
+                        {
+                            t.HasComment("Stores detailed pricing lines belonging to an estimate option. Supports materials, labor, services, discounts, taxes, fees, and hierarchical pricing structures.");
+
+                            t.HasCheckConstraint("CK_FgsEstimateOptionLine_Quantity", "\"Quantity\" >= 0");
+
+                            t.HasCheckConstraint("CK_FgsEstimateOptionLine_UnitCost", "\"UnitCost\" >= 0");
+
+                            t.HasCheckConstraint("CK_FgsEstimateOptionLine_UnitPrice", "\"UnitPrice\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateOptionTemplate", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Order in which templates were applied to the estimate option.");
+
+                    b.Property<long>("EstimateOptionId")
+                        .HasColumnType("bigint")
+                        .HasComment("Parent estimate option.");
+
+                    b.Property<long>("EstimateTemplateId")
+                        .HasColumnType("bigint")
+                        .HasComment("Source estimate template applied to the estimate option.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EstimateOptionId");
+
+                    b.HasIndex("EstimateTemplateId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsEstimateOptionTemplate_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateOptionId")
+                        .HasDatabaseName("IX_FgsEstimateOptionTemplate_TenantId_CompanyId_EstimateOptionId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateTemplateId")
+                        .HasDatabaseName("IX_FgsEstimateOptionTemplate_TenantId_CompanyId_EstimateTemplateId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateOptionId", "DisplayOrder")
+                        .HasDatabaseName("IX_FgsEstimateOptionTemplate_TenantId_CompanyId_DisplayOrder");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateOptionId", "EstimateTemplateId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEstimateOptionTemplate_TenantId_CompanyId_OptionId_TemplateId");
+
+                    b.ToTable("FgsEstimateOptionTemplate", "crm", t =>
+                        {
+                            t.HasComment("Stores estimate templates applied to an estimate option and tracks template contributions to pricing lines, clauses, and other estimate content.");
+
+                            t.HasCheckConstraint("CK_FgsEstimateOptionTemplate_DisplayOrder", "\"DisplayOrder\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateStatus", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-facing display name that may be customized by the tenant.");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Immutable system status code used by application business logic.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsEstimateStatus_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEstimateStatus_TenantId_CompanyId_Name");
+
+                    b.HasIndex("TenantId", "CompanyId", "StatusCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEstimateStatus_TenantId_CompanyId_StatusCode");
+
+                    b.ToTable("FgsEstimateStatus", "crm", t =>
+                        {
+                            t.HasComment("Stores estimate statuses available to a specific tenant/company. StatusCode is immutable and used by application business logic.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateTemplate", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CategoryId")
+                        .HasColumnType("bigint")
+                        .HasComment("Template category.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls display sequence within a category.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether template is available for use.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("User-facing template name.");
+
+                    b.Property<bool>("ShowToFieldTechnician")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether template-generated content should be visible to field technicians.");
+
+                    b.Property<string>("TemplateCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique internal template code within a company.");
+
+                    b.Property<string>("TemplateDescription")
+                        .HasColumnType("text")
+                        .HasComment("Description copied into estimate description when estimate is generated from template.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsEstimateTemplate_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "CategoryId")
+                        .HasDatabaseName("IX_FgsEstimateTemplate_TenantId_CompanyId_CategoryId");
+
+                    b.HasIndex("TenantId", "CompanyId", "TemplateCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEstimateTemplate_TenantId_CompanyId_TemplateCode");
+
+                    b.HasIndex("TenantId", "CompanyId", "CategoryId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEstimateTemplate_TenantId_CompanyId_CategoryId_Name");
+
+                    b.ToTable("FgsEstimateTemplate", "crm", t =>
+                        {
+                            t.HasComment("Stores reusable estimate templates used to generate estimate options and pricing lines.");
+
+                            t.HasCheckConstraint("CK_FgsEstimateTemplate_DisplayOrder", "\"DisplayOrder\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateTemplateCategory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CategoryCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique internal category code within a company.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Optional category description.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls display sequence of categories.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-facing category name.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsEstimateTemplateCategory_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "CategoryCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEstimateTemplateCategory_TenantId_CompanyId_CategoryCode");
+
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEstimateTemplateCategory_TenantId_CompanyId_Name");
+
+                    b.ToTable("FgsEstimateTemplateCategory", "crm", t =>
+                        {
+                            t.HasComment("Stores estimate template categories used to organize estimate templates into logical groups.");
+
+                            t.HasCheckConstraint("CK_FgsEstimateTemplateCategory_DisplayOrder", "\"DisplayOrder\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateTemplateOption", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("AllowPriceChange")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether pricing may be modified after template application.");
+
+                    b.Property<bool>("AllowQuantityChange")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether quantity may be modified after template application.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls display sequence within the template.");
+
+                    b.Property<long>("EstimateFlavorId")
+                        .HasColumnType("bigint")
+                        .HasComment("Flavor assigned to the option such as Standard, Good, Better, Best, or Add-On.");
+
+                    b.Property<long>("EstimateTemplateId")
+                        .HasColumnType("bigint")
+                        .HasComment("Parent estimate template.");
+
+                    b.Property<bool>("IsSelectedByDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the option should be selected by default when the template is applied.");
+
+                    b.Property<string>("OptionDescription")
+                        .HasColumnType("text")
+                        .HasComment("Customer-facing option description copied to the estimate option.");
+
+                    b.Property<string>("OptionName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Customer-facing option name copied to the estimate option.");
+
+                    b.Property<bool>("ShowOnProposal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the option should be displayed on customer-facing proposals.");
+
+                    b.Property<bool>("ShowPriceOnProposal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether pricing should be displayed on customer-facing proposals.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EstimateFlavorId");
+
+                    b.HasIndex("EstimateTemplateId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsEstimateTemplateOption_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateFlavorId")
+                        .HasDatabaseName("IX_FgsEstimateTemplateOption_TenantId_CompanyId_EstimateFlavorId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateTemplateId")
+                        .HasDatabaseName("IX_FgsEstimateTemplateOption_TenantId_CompanyId_EstimateTemplateId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateTemplateId", "DisplayOrder")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsEstimateTemplateOption_TenantId_CompanyId_EstimateTemplateId_DisplayOrder");
+
+                    b.ToTable("FgsEstimateTemplateOption", "crm", t =>
+                        {
+                            t.HasComment("Stores reusable estimate options belonging to an estimate template. Template options are copied into estimate options when a template is applied.");
+
+                            t.HasCheckConstraint("CK_FgsEstimateTemplateOption_DisplayOrder", "\"DisplayOrder\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateTemplateOptionLine", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("AllowPriceChange")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether pricing may be modified after template application.");
+
+                    b.Property<bool>("AllowQuantityChange")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether quantity may be modified after template application.");
+
+                    b.Property<long>("BillingCategoryId")
+                        .HasColumnType("bigint")
+                        .HasComment("Billing category such as Material, Labor, Service, Equipment, Discount, Tax, or Other.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Customer-facing description or tax authority name.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Display sequence within the template option.");
+
+                    b.Property<long>("EstimateTemplateOptionId")
+                        .HasColumnType("bigint")
+                        .HasComment("Parent estimate template option.");
+
+                    b.Property<decimal>("ExtendedCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Quantity multiplied by UnitCost.");
+
+                    b.Property<decimal>("ExtendedPrice")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Quantity multiplied by UnitPrice.");
+
+                    b.Property<long?>("ItemId")
+                        .HasColumnType("bigint")
+                        .HasComment("Item associated with the line.");
+
+                    b.Property<long?>("ParentLineId")
+                        .HasColumnType("bigint")
+                        .HasComment("Parent template option line used for service breakdowns, bundles, discounts, rebates, credits, and other hierarchical pricing structures.");
+
+                    b.Property<decimal>("Quantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(1m)
+                        .HasComment("Default quantity applied when template is used.");
+
+                    b.Property<long?>("RateOfDayId")
+                        .HasColumnType("bigint")
+                        .HasComment("Rate of day applied to labor pricing such as Regular, Overtime, Double Time, Weekend, Holiday, or Emergency.");
+
+                    b.Property<bool>("ShowOnProposal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the line should be displayed on customer-facing proposals.");
+
+                    b.Property<bool>("ShowPriceOnProposal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether pricing amounts should be displayed on customer-facing proposals.");
+
+                    b.Property<string>("Source")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Identifies where the line originated such as Manual, ServiceItem, PricingMatrix, Bundle, Import, or Clone.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<decimal>("UnitCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Default cost per unit.");
+
+                    b.Property<decimal>("UnitPrice")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Default selling price per unit.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EstimateTemplateOptionId");
+
+                    b.HasIndex("ParentLineId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsEstimateTemplateOptionLine_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EstimateTemplateOptionId")
+                        .HasDatabaseName("IX_FgsEstimateTemplateOptionLine_TenantId_CompanyId_EstimateTemplateOptionId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ParentLineId")
+                        .HasDatabaseName("IX_FgsEstimateTemplateOptionLine_TenantId_CompanyId_ParentLineId");
+
+                    b.ToTable("FgsEstimateTemplateOptionLine", "crm", t =>
+                        {
+                            t.HasComment("Stores detailed pricing lines belonging to an estimate template option and are copied into estimate option lines when a template is applied.");
+
+                            t.HasCheckConstraint("CK_FgsEstimateTemplateOptionLine_DisplayOrder", "\"DisplayOrder\" > 0");
+
+                            t.HasCheckConstraint("CK_FgsEstimateTemplateOptionLine_Quantity", "\"Quantity\" >= 0");
+
+                            t.HasCheckConstraint("CK_FgsEstimateTemplateOptionLine_UnitCost", "\"UnitCost\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", b =>
@@ -988,6 +2575,33 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                         .HasConstraintName("FK_CrmNote_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmReminder", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmReminder_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmReminderAssignment", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.CrmReminder", null)
+                        .WithMany()
+                        .HasForeignKey("ReminderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmReminderAssignment_CrmReminder_ReminderId");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_CrmReminderAssignment_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
             modelBuilder.Entity("Fgs.Crm.Domain.Entities.CrmServiceLocation", b =>
                 {
                     b.HasOne("Fgs.Crm.Domain.Entities.CrmCustomer", null)
@@ -1003,6 +2617,214 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_CrmServiceLocation_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimate", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsEstimateStatus", null)
+                        .WithMany()
+                        .HasForeignKey("EstimateStatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimate_EstimateStatus");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimate_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateClause", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateClause_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateClauseItem", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsEstimateClause", null)
+                        .WithMany()
+                        .HasForeignKey("ClauseId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_FgsEstimateClauseItem_Clause");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsEstimate", null)
+                        .WithMany()
+                        .HasForeignKey("EstimateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateClauseItem_Estimate");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateClauseItem_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateFlavor", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateFlavor_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateOption", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsEstimate", null)
+                        .WithMany()
+                        .HasForeignKey("EstimateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateOption_Estimate");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateOption_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateOptionLine", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsEstimateOption", null)
+                        .WithMany()
+                        .HasForeignKey("EstimateOptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateOptionLine_EstimateOption");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsEstimateOptionLine", null)
+                        .WithMany()
+                        .HasForeignKey("ParentLineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsEstimateOptionLine_ParentLine");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateOptionLine_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateOptionTemplate", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsEstimateOption", null)
+                        .WithMany()
+                        .HasForeignKey("EstimateOptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateOptionTemplate_EstimateOption");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsEstimateTemplate", null)
+                        .WithMany()
+                        .HasForeignKey("EstimateTemplateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateOptionTemplate_EstimateTemplate");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateOptionTemplate_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateStatus", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateStatus_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateTemplate", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsEstimateTemplateCategory", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateTemplate_Category");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateTemplate_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateTemplateCategory", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateTemplateCategory_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateTemplateOption", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsEstimateFlavor", null)
+                        .WithMany()
+                        .HasForeignKey("EstimateFlavorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateTemplateOption_EstimateFlavor");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsEstimateTemplate", null)
+                        .WithMany()
+                        .HasForeignKey("EstimateTemplateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateTemplateOption_EstimateTemplate");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateTemplateOption_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Crm.Domain.Entities.FgsEstimateTemplateOptionLine", b =>
+                {
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsEstimateTemplateOption", null)
+                        .WithMany()
+                        .HasForeignKey("EstimateTemplateOptionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateTemplateOptionLine_EstimateTemplateOption");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsEstimateTemplateOptionLine", null)
+                        .WithMany()
+                        .HasForeignKey("ParentLineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsEstimateTemplateOptionLine_ParentLine");
+
+                    b.HasOne("Fgs.Crm.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEstimateTemplateOptionLine_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 #pragma warning restore 612, 618
         }

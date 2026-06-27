@@ -1,5 +1,6 @@
 using Fgs.Kernel.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Configuration;
 
@@ -56,5 +57,90 @@ public static class EntityFrameworkExtensions
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.CreatedBy).HasMaxLength(100);
         entity.Property(e => e.UpdatedBy).HasMaxLength(100);
+    }
+
+    public static void ConfigureTenantCompanyColumns<T>(this EntityTypeBuilder<T> entity)
+        where T : class, ITenantCompanyScoped
+    {
+        entity.Property(nameof(ITenantCompanyScoped.TenantId)).HasColumnOrder(1);
+        entity.Property(nameof(ITenantCompanyScoped.CompanyId)).HasColumnOrder(2);
+    }
+
+    public static void ConfigureTimestamptzAuditColumns(this EntityTypeBuilder entity)
+    {
+        entity.Property("CreatedOn").HasColumnType("timestamptz");
+        entity.Property("UpdatedOn").HasColumnType("timestamptz");
+    }
+
+    public static void ConfigureTenantCompanyCacheFkNonGeneric(
+        this EntityTypeBuilder entity,
+        Type tenantCompanyCacheClrType,
+        string constraintName)
+    {
+        entity.HasOne(tenantCompanyCacheClrType)
+            .WithMany()
+            .HasForeignKey(nameof(ITenantCompanyScoped.TenantId), nameof(ITenantCompanyScoped.CompanyId))
+            .HasConstraintName(constraintName)
+            .OnDelete(DeleteBehavior.Restrict);
+    }
+
+    public static void ConfigureTenantCompanyCacheFk<T>(
+        this EntityTypeBuilder<T> entity,
+        Type tenantCompanyCacheClrType,
+        string constraintName)
+        where T : class, ITenantCompanyScoped =>
+        ((EntityTypeBuilder)entity).ConfigureTenantCompanyCacheFkNonGeneric(tenantCompanyCacheClrType, constraintName);
+
+    public static void ApplyTenantCompanyCacheForeignKeys(
+        this ModelBuilder modelBuilder,
+        Type tenantCompanyCacheClrType,
+        IReadOnlySet<Type>? excludedClrTypes = null,
+        Func<string, string>? resolveConstraintName = null)
+    {
+        excludedClrTypes ??= new HashSet<Type>();
+        resolveConstraintName ??= tableName => $"FK_{tableName}_FgsTenantCompanyCache_TenantId_CompanyId";
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var clrType = entityType.ClrType;
+            if (clrType is null || excludedClrTypes.Contains(clrType))
+            {
+                continue;
+            }
+
+            if (!typeof(ITenantCompanyScoped).IsAssignableFrom(clrType))
+            {
+                continue;
+            }
+
+            var tableName = entityType.GetTableName();
+            if (string.IsNullOrEmpty(tableName))
+            {
+                continue;
+            }
+
+            ((EntityTypeBuilder)modelBuilder.Entity(clrType))
+                .ConfigureTenantCompanyCacheFkNonGeneric(
+                    tenantCompanyCacheClrType,
+                    resolveConstraintName(tableName));
+        }
+    }
+
+    public static void ConfigureAuditActorColumns(this ModelBuilder modelBuilder, int maxLength = 100)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var createdBy = entityType.FindProperty("CreatedBy");
+            if (createdBy?.ClrType == typeof(string))
+            {
+                createdBy.SetMaxLength(maxLength);
+            }
+
+            var updatedBy = entityType.FindProperty("UpdatedBy");
+            if (updatedBy?.ClrType == typeof(string))
+            {
+                updatedBy.SetMaxLength(maxLength);
+            }
+        }
     }
 }

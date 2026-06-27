@@ -1,4 +1,4 @@
-﻿using Fgs.MultiTenancy;
+using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Notification.Domain.Entities;
 using Fgs.Notification.Infrastructure.Database.Schemas;
@@ -18,6 +18,8 @@ public sealed class FgsNotificationDbContext : FgsTenantFilteredDbContext
     }
 
     public DbSet<FgsNotificationHistory> NotificationHistory => Set<FgsNotificationHistory>();
+
+    public DbSet<FgsEmailHistory> FgsEmailHistories => Set<FgsEmailHistory>();
 
     public DbSet<FgsProcessedIntegrationEvent> ProcessedIntegrationEvents => Set<FgsProcessedIntegrationEvent>();
 

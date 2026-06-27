@@ -6,6 +6,7 @@ RUN apk add --no-cache curl \
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY conf.d/site.conf /etc/nginx/conf.d/site.conf
+COPY conf.d/includes/ /etc/nginx/conf.d/includes/
 COPY proxy_params.conf /etc/nginx/proxy_params.conf
 COPY cache_params.conf /etc/nginx/cache_params.conf
 

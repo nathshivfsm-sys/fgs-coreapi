@@ -1,4 +1,4 @@
-﻿namespace Fgs.Notification.Application.Notifications.Preferences;
+namespace Fgs.Notification.Application.Notifications.Preferences;
 
 public interface INotificationPreferenceService
 {

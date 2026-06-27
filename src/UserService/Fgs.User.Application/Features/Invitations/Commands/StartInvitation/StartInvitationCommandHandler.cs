@@ -29,7 +29,7 @@ public sealed class StartInvitationCommandHandler(
 
         var tokenHash = tokenService.HashToken(request.Token);
         var invitations = unitOfWork.Repository<FgsInvitation>();
-        var matched = await invitations.FirstOrDefaultAsync(
+        var matched = await invitations.FirstOrDefaultIgnoreFiltersAsync(
             i => i.TokenHash == tokenHash,
             cancellationToken);
 

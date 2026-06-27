@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Application.Common.Options;
+namespace Fgs.Setup.Application.Common.Options;
 
 /// <summary>
 /// Flattened decrypted credential values bound to configuration at startup.

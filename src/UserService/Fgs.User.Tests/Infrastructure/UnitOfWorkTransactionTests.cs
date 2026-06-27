@@ -1,4 +1,4 @@
-﻿using Fgs.User.Domain.Entities;
+using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Database;
 using Fgs.Persistence.Implementations;
 using Microsoft.EntityFrameworkCore;

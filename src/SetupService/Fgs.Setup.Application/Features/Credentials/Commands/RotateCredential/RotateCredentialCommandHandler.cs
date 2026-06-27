@@ -18,23 +18,16 @@ public sealed class RotateCredentialCommandHandler
         RotateCredentialCommand request,
         CancellationToken cancellationToken)
     {
-        try
+        return request.Scope switch
         {
-            return request.Scope switch
-            {
-                CredentialScope.Global when CredentialRequestHelpers.TryParseGlobalId(request.Id, out var globalId) =>
-                    await RotateGlobalAsync(globalId, request, cancellationToken),
-                CredentialScope.Tenant when CredentialRequestHelpers.TryParseTenantId(request.Id, out var tenantId) =>
-                    await RotateTenantAsync(tenantId, request, cancellationToken),
-                _ => ApiResponse<CredentialMutationResultDto>.Fail(
-                    [CredentialErrorMessages.InvalidScope],
-                    ApiStatusCodes.BadRequest)
-            };
-        }
-        catch (Exception ex)
-        {
-            return CredentialRequestHelpers.MapException<CredentialMutationResultDto>(ex);
-        }
+            CredentialScope.Global when CredentialRequestHelpers.TryParseGlobalId(request.Id, out var globalId) =>
+                await RotateGlobalAsync(globalId, request, cancellationToken),
+            CredentialScope.Tenant when CredentialRequestHelpers.TryParseTenantId(request.Id, out var tenantId) =>
+                await RotateTenantAsync(tenantId, request, cancellationToken),
+            _ => ApiResponse<CredentialMutationResultDto>.Fail(
+                [CredentialErrorMessages.InvalidScope],
+                ApiStatusCodes.BadRequest)
+        };
     }
 
     private async Task<ApiResponse<CredentialMutationResultDto>> RotateGlobalAsync(
@@ -65,4 +58,3 @@ public sealed class RotateCredentialCommandHandler
                 credential.CredentialName));
     }
 }
-

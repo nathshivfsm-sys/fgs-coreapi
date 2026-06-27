@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Application.Notifications.Queues;
+using Fgs.Notification.Application.Notifications.Queues;
 using Fgs.Notification.Domain.Entities;
 using Fgs.Notification.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +7,12 @@ namespace Fgs.Notification.Infrastructure.Notifications.Queues;
 
 public sealed class IdempotencyStore(FgsNotificationDbContext context) : IIdempotencyStore
 {
+    public Task<bool> HasBeenProcessedAsync(
+        string messageId,
+        CancellationToken cancellationToken = default) =>
+        context.ProcessedIntegrationEvents
+            .AnyAsync(e => e.MessageId == messageId, cancellationToken);
+
     public async Task<bool> TryMarkProcessedAsync(
         string messageId,
         string eventType,

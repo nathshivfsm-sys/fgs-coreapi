@@ -1,7 +1,5 @@
 using System.Net;
 using System.Text.Json;
-using FluentValidation;
-using Fgs.Foundation.Constants;
 using Fgs.Contracts.Api;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -65,20 +63,6 @@ public sealed class ExceptionHandlingMiddleware
             }
         }
 
-        return exception switch
-        {
-            ValidationException validation => (
-                HttpStatusCode.BadRequest,
-                validation.Errors.Select(e => e.ErrorMessage).ToArray()),
-            UnauthorizedAccessException => (
-                HttpStatusCode.Unauthorized,
-                new[] { ApiErrorMessages.Unauthorized }),
-            KeyNotFoundException => (
-                HttpStatusCode.NotFound,
-                new[] { exception.Message }),
-            _ => (
-                HttpStatusCode.InternalServerError,
-                new[] { ApiErrorMessages.UnexpectedError })
-        };
+        return ExceptionMappingRules.Map(exception);
     }
 }

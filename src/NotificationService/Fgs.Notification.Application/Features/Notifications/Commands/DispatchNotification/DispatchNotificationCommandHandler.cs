@@ -29,15 +29,22 @@ public sealed class DispatchNotificationCommandHandler(
         }
 
         if (resolved.RequiresIdempotency
-            && !await idempotency.TryMarkProcessedAsync(
-                resolved.MessageId!,
-                resolved.IdempotencyKey!,
-                cancellationToken))
+            && await idempotency.HasBeenProcessedAsync(resolved.MessageId!, cancellationToken))
         {
             return ApiResponse<object>.Ok(new object());
         }
 
-        return await DispatchAsync(resolved.DispatchRequest!, cancellationToken);
+        var response = await DispatchAsync(resolved.DispatchRequest!, cancellationToken);
+        if (response.Success
+            && resolved.RequiresIdempotency)
+        {
+            await idempotency.TryMarkProcessedAsync(
+                resolved.MessageId!,
+                resolved.IdempotencyKey!,
+                cancellationToken);
+        }
+
+        return response;
     }
 
     private async Task<ApiResponse<object>> DispatchAsync(

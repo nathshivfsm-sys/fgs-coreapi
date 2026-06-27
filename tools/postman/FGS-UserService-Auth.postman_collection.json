@@ -1,0 +1,241 @@
+{
+  "info": {
+    "_postman_id": "fgs-user-auth-flow",
+    "name": "FGS User Service Auth",
+    "description": "Company signup through Entra token issuance.\n\nFlow:\n1. Company Signup — creates tenant/user and returns inviteUrl\n2. Start Invitation — captures Entra authorize URL (disable follow redirects)\n3. Manual — open Entra URL in browser, sign up with the same email, copy OAuth `code` from callback URL into `authCode`\n4. Entra Token Exchange — obtain access token\n5. Auth Me / Get Tenant — call protected APIs with Bearer token",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://localhost:8443" },
+    { "key": "entraAuthority", "value": "https://fsdemoapp.ciamlogin.com" },
+    { "key": "entraTenantId", "value": "f9417a96-cb71-4919-8332-7087f1ad0455" },
+    { "key": "entraClientId", "value": "3c788340-59a5-4864-b1b4-4f9adeffcb37" },
+    { "key": "entraClientSecret", "value": "" },
+    { "key": "entraUserFlow", "value": "Fgs_SignUpSignIn" },
+    { "key": "redirectUri", "value": "https://localhost:8443/api/v1/auth/entra/callback" },
+    { "key": "signupEmail", "value": "admin@example.com" },
+    { "key": "inviteToken", "value": "" },
+    { "key": "invitationId", "value": "" },
+    { "key": "entraAuthorizeUrl", "value": "" },
+    { "key": "authCode", "value": "" },
+    { "key": "accessToken", "value": "" },
+    { "key": "tenantId", "value": "" },
+    { "key": "companyId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Company Signup",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Signup succeeded', function () {",
+              "  pm.response.to.have.status(201);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.success).to.eql(true);",
+              "  pm.collectionVariables.set('tenantId', String(body.data.tenantId));",
+              "  pm.collectionVariables.set('companyId', String(body.data.companyNumber));",
+              "  const inviteUrl = body.data.inviteUrl;",
+              "  const tokenMatch = inviteUrl.match(/[?&]token=([^&]+)/);",
+              "  pm.expect(tokenMatch, 'inviteUrl contains token').to.be.ok;",
+              "  pm.collectionVariables.set('inviteToken', decodeURIComponent(tokenMatch[1]));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contact\": {\n    \"name\": \"Admin User\",\n    \"phoneNumber\": \"+15551234567\",\n    \"email\": \"{{signupEmail}}\"\n  },\n  \"company\": {\n    \"name\": \"Acme Field Services\",\n    \"website\": \"https://acme.example.com\",\n    \"companySize\": \"11-50\",\n    \"address\": {\n      \"addressLine1\": \"100 Main St\",\n      \"city\": \"Austin\",\n      \"state\": \"TX\",\n      \"postalCode\": \"78701\",\n      \"country\": \"US\"\n    }\n  },\n  \"businessTypeIds\": [1]\n}"
+        },
+        "url": "{{baseUrl}}/api/v1/signup/company"
+      }
+    },
+    {
+      "name": "2. Start Invitation",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Redirect to Entra', function () {",
+              "  pm.response.to.have.status(302);",
+              "  const location = pm.response.headers.get('Location');",
+              "  pm.expect(location).to.be.a('string');",
+              "  pm.collectionVariables.set('entraAuthorizeUrl', location);",
+              "  const stateMatch = location.match(/[?&]state=([^&]+)/);",
+              "  if (stateMatch) {",
+              "    pm.collectionVariables.set('invitationId', decodeURIComponent(stateMatch[1]));",
+              "  }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/v1/invite/start?token={{inviteToken}}"
+      }
+    },
+    {
+      "name": "3. Manual — Entra sign-up in browser",
+      "request": {
+        "method": "GET",
+        "url": "{{entraAuthorizeUrl}}",
+        "description": "Open this URL in a browser (or run after step 2). Sign up with the same email as signupEmail. After redirect to the callback URL, copy the `code` query parameter and set the collection variable `authCode`."
+      }
+    },
+    {
+      "name": "4. Entra Token Exchange",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Token exchange succeeded', function () {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.access_token).to.be.a('string');",
+              "  pm.collectionVariables.set('accessToken', body.access_token);",
+              "  const parts = body.access_token.split('.');",
+              "  if (parts.length >= 2) {",
+              "    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));",
+              "    if (payload.tenant_id) pm.collectionVariables.set('tenantId', String(payload.tenant_id));",
+              "    if (payload.company_id) pm.collectionVariables.set('companyId', String(payload.company_id));",
+              "  }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "grant_type", "value": "authorization_code" },
+            { "key": "client_id", "value": "{{entraClientId}}" },
+            { "key": "client_secret", "value": "{{entraClientSecret}}" },
+            { "key": "code", "value": "{{authCode}}" },
+            { "key": "redirect_uri", "value": "{{redirectUri}}" },
+            { "key": "scope", "value": "openid profile email offline_access" }
+          ]
+        },
+        "url": "{{entraAuthority}}/{{entraTenantId}}/oauth2/v2.0/token"
+      }
+    },
+    {
+      "name": "5. Auth Me (protected)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Auth me succeeded', function () {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.success).to.eql(true);",
+              "  pm.expect(body.data.tenantId).to.exist;",
+              "  pm.expect(body.data.companyId).to.exist;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "GET",
+        "url": "{{baseUrl}}/api/v1/auth/me"
+      }
+    },
+    {
+      "name": "6. Get Tenant (protected)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Get tenant succeeded', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [
+          { "key": "X-Tenant-Id", "value": "{{tenantId}}" },
+          { "key": "X-Company-Id", "value": "{{companyId}}" }
+        ],
+        "url": "{{baseUrl}}/api/v1/tenants/{{tenantId}}"
+      }
+    },
+    {
+      "name": "7. Auth Me without token (401)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Unauthorized without token', function () {",
+              "  pm.response.to.have.status(401);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/v1/auth/me"
+      }
+    },
+    {
+      "name": "Entra API Connector (dev test)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Connector returns Continue', function () {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.action).to.eql('Continue');",
+              "  pm.expect(body.tenant_id).to.exist;",
+              "  pm.expect(body.company_id).to.exist;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{signupEmail}}\",\n  \"objectId\": null\n}"
+        },
+        "url": "{{baseUrl}}/api/v1/auth/entra/connector"
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Application.Abstractions.Credentials;
+using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Infrastructure.Common.Options;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;

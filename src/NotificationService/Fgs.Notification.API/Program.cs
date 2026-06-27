@@ -1,4 +1,4 @@
-﻿using Fgs.Credentials.Extensions;
+using Fgs.Credentials.Extensions;
 using Fgs.Foundation.Hosting;
 using Fgs.Notification.Application;
 using Fgs.Notification.Infrastructure;

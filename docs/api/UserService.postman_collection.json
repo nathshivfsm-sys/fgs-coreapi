@@ -1,0 +1,898 @@
+﻿{
+    "item":  [
+                 {
+                     "description":  "Run in order. Step 3 is manual: sign up in Entra with signupEmail, then set authCode.",
+                     "name":  "00 - Authentication Flow",
+                     "item":  [
+                                  {
+                                      "name":  "1. Company Signup",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/signup/company",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "signup",
+                                                                               "company"
+                                                                           ]
+                                                              },
+                                                      "description":  "",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"contact\": { \"name\": \"Admin User\", \"phoneNumber\": \"+15551234567\", \"email\": \"{{signupEmail}}\" },\r\n  \"company\": {\r\n    \"name\": \"Acme Field Services\",\r\n    \"website\": \"https://acme.example.com\",\r\n    \"companySize\": \"11-50\",\r\n    \"address\": { \"addressLine1\": \"100 Main St\", \"city\": \"Austin\", \"state\": \"TX\", \"postalCode\": \"78701\", \"country\": \"US\" }\r\n  },\r\n  \"businessTypeIds\": [1]\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "2. Start Invitation",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "token",
+                                                                                    "description":  "",
+                                                                                    "value":  "{{inviteToken}}"
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/invite/start?token={{inviteToken}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "invite",
+                                                                               "start"
+                                                                           ]
+                                                              },
+                                                      "description":  "Disable Follow Redirects. Copy Entra URL from Location header, open in browser, sign up, paste auth code into environment.",
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "3. Manual - Entra sign-up in browser",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "(open Location URL from step 2)"
+                                                              },
+                                                      "description":  "Sign up with signupEmail. Copy code from callback into authCode.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "request":  {
+                                                      "body":  {
+                                                                   "urlencoded":  [
+                                                                                      {
+                                                                                          "key":  "grant_type",
+                                                                                          "value":  "authorization_code"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "client_id",
+                                                                                          "value":  "{{entraClientId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "client_secret",
+                                                                                          "value":  "{{entraClientSecret}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "code",
+                                                                                          "value":  "{{authCode}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "redirect_uri",
+                                                                                          "value":  "{{redirectUri}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "scope",
+                                                                                          "value":  "openid profile email offline_access"
+                                                                                      }
+                                                                                  ],
+                                                                   "mode":  "urlencoded"
+                                                               },
+                                                      "description":  "Run after browser sign-up. Set authCode from callback URL.",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/x-www-form-urlencoded"
+                                                                     }
+                                                                 ],
+                                                      "method":  "POST",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               },
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{entraAuthority}}"
+                                                                           ],
+                                                                  "raw":  "{{entraAuthority}}/{{entraTenantId}}/oauth2/v2.0/token",
+                                                                  "path":  [
+                                                                               "{{entraTenantId}}",
+                                                                               "oauth2",
+                                                                               "v2.0",
+                                                                               "token"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "name":  "4. Entra Token Exchange",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.access_token) pm.environment.set(\"accessToken\", body.access_token);"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "5. Auth Me",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/auth/me",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "auth",
+                                                                               "me"
+                                                                           ]
+                                                              },
+                                                      "description":  "",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "description":  "AuthController - auth",
+                     "name":  "AuthController",
+                     "item":  [
+                                  {
+                                      "name":  "EntraCallback",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "code",
+                                                                                    "description":  "",
+                                                                                    "value":  "{{authCode}}"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "state",
+                                                                                    "description":  "",
+                                                                                    "value":  "{{invitationId}}"
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/auth/entra/callback?code={{authCode}}\u0026state={{invitationId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "auth",
+                                                                               "entra",
+                                                                               "callback"
+                                                                           ]
+                                                              },
+                                                      "description":  "EntraCallback",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "EntraConnector",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/auth/entra/connector",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "auth",
+                                                                               "entra",
+                                                                               "connector"
+                                                                           ]
+                                                              },
+                                                      "description":  "EntraConnector",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{ \"email\": \"{{signupEmail}}\", \"objectId\": null }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "GetMe",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/auth/me",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "auth",
+                                                                               "me"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetMe",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "description":  "DashboardController - dashboard",
+                     "name":  "DashboardController",
+                     "item":  [
+                                  {
+                                      "name":  "Get",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "token",
+                                                                                    "description":  "",
+                                                                                    "value":  "{{accessToken}}"
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/dashboard?token={{accessToken}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "dashboard"
+                                                                           ]
+                                                              },
+                                                      "description":  "Get",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "description":  "InviteController - invite",
+                     "name":  "InviteController",
+                     "item":  [
+                                  {
+                                      "name":  "Start",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "token",
+                                                                                    "description":  "",
+                                                                                    "value":  "{{inviteToken}}"
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/invite/start?token={{inviteToken}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "invite",
+                                                                               "start"
+                                                                           ]
+                                                              },
+                                                      "description":  "Start",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "description":  "SignupController - signup",
+                     "name":  "SignupController",
+                     "item":  [
+                                  {
+                                      "name":  "CompanySignup",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/signup/company",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "signup",
+                                                                               "company"
+                                                                           ]
+                                                              },
+                                                      "description":  "CompanySignup",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"contact\": { \"name\": \"Admin User\", \"phoneNumber\": \"+15551234567\", \"email\": \"{{signupEmail}}\" },\r\n  \"company\": {\r\n    \"name\": \"Acme Field Services\",\r\n    \"website\": \"https://acme.example.com\",\r\n    \"companySize\": \"11-50\",\r\n    \"address\": { \"addressLine1\": \"100 Main St\", \"city\": \"Austin\", \"state\": \"TX\", \"postalCode\": \"78701\", \"country\": \"US\" }\r\n  },\r\n  \"businessTypeIds\": [1]\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "description":  "TenantsController - tenants",
+                     "name":  "TenantsController",
+                     "item":  [
+                                  {
+                                      "name":  "GetTenant",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "tenants",
+                                                                               "{{tenantId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetTenant",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "GetCompanies",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/companies",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "tenants",
+                                                                               "{{tenantId}}",
+                                                                               "companies"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetCompanies",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "GetDetails",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/companies/{{companyId}}/details",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "tenants",
+                                                                               "{{tenantId}}",
+                                                                               "companies",
+                                                                               "{{companyId}}",
+                                                                               "details"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetDetails",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "UpdateDetails",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/companies/{{companyId}}/details",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "tenants",
+                                                                               "{{tenantId}}",
+                                                                               "companies",
+                                                                               "{{companyId}}",
+                                                                               "details"
+                                                                           ]
+                                                              },
+                                                      "description":  "UpdateDetails",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"tenant\": {\r\n    \"name\": \"Plumbing Ltd\",\r\n    \"legalName\": \"Plumbing Ltd LLC\",\r\n    \"email\": \"admin@plumbing.example.com\",\r\n    \"phoneNumber\": \"+15551234567\",\r\n    \"website\": \"https://plumbing.example.com\",\r\n    \"timeZone\": \"America/Chicago\",\r\n    \"defaultCurrency\": \"USD\",\r\n    \"defaultLanguageId\": null\r\n  },\r\n  \"company\": {\r\n    \"name\": \"Plumbing Ltd\",\r\n    \"legalName\": \"Plumbing Ltd LLC\",\r\n    \"email\": \"office@plumbing.example.com\",\r\n    \"phoneNumber\": \"+15559876543\",\r\n    \"website\": \"https://plumbing.example.com\",\r\n    \"taxId\": \"12-3456789\",\r\n    \"companySize\": \"11-50\",\r\n    \"businessTypeId\": 1,\r\n    \"physicalAddress\": {\r\n      \"addressLine1\": \"100 Main St\",\r\n      \"city\": \"Dallas\",\r\n      \"state\": \"TX\",\r\n      \"postalCode\": \"75201\",\r\n      \"country\": \"US\"\r\n    },\r\n    \"billingAddress\": {\r\n      \"addressLine1\": \"100 Main St\",\r\n      \"city\": \"Dallas\",\r\n      \"state\": \"TX\",\r\n      \"postalCode\": \"75201\",\r\n      \"country\": \"US\"\r\n    }\r\n  }\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "UpdateStatus",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/status",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "tenants",
+                                                                               "{{tenantId}}",
+                                                                               "status"
+                                                                           ]
+                                                              },
+                                                      "description":  "UpdateStatus",
+                                                      "method":  "PATCH",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{ \"fgsTenantStatusId\": 3 }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "UpdateStorageBucket",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/storage-bucket",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "tenants",
+                                                                               "{{tenantId}}",
+                                                                               "storage-bucket"
+                                                                           ]
+                                                              },
+                                                      "description":  "UpdateStorageBucket",
+                                                      "method":  "PATCH",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{ \"storageBucketName\": \"fgs-dev-tenant-{{tenantId}}-demo\" }",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 }
+             ],
+    "variable":  [
+                     {
+                         "key":  "apiVersion",
+                         "value":  "v1"
+                     }
+                 ],
+    "info":  {
+                 "description":  "Company onboarding, Entra auth, dashboard, and tenant admin APIs via {{gatewayUrl}}.",
+                 "name":  "FGS UserService",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+                 "_postman_id":  "d3f4a7bf-5b4e-4c5d-9960-cb52db83dbc4"
+             },
+    "event":  [
+                  {
+                      "script":  {
+                                     "exec":  [
+                                                  "if (pm.environment.get(\u0027tenantId\u0027)) {",
+                                                  "  pm.request.headers.upsert({ key: \u0027X-Tenant-Id\u0027, value: pm.environment.get(\u0027tenantId\u0027) });",
+                                                  "  pm.request.headers.upsert({ key: \u0027X-Company-Id\u0027, value: pm.environment.get(\u0027companyId\u0027) });",
+                                                  "}"
+                                              ],
+                                     "type":  "text/javascript"
+                                 },
+                      "listen":  "prerequest"
+                  }
+              ],
+    "auth":  {
+                 "bearer":  [
+                                {
+                                    "key":  "token",
+                                    "type":  "string",
+                                    "value":  "{{accessToken}}"
+                                }
+                            ],
+                 "type":  "bearer"
+             }
+}

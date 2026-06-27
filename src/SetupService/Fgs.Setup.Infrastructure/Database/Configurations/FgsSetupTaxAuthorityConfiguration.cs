@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -25,6 +25,9 @@ internal class FgsSetupTaxAuthorityConfiguration : IEntityTypeConfiguration<FgsS
             t.HasCheckConstraint(
                 "CK_FgsSetupTaxAuthority_RegionCode_Upper",
                 "\"RegionCode\" IS NULL OR \"RegionCode\" = UPPER(\"RegionCode\")");
+            t.HasCheckConstraint(
+                "CK_FgsSetupTaxAuthority_TaxPercent",
+                "\"TaxPercent\" >= 0 AND \"TaxPercent\" <= 100");
         });
     }
 }

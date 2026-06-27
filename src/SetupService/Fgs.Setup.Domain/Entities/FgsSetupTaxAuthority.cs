@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Entities;
+namespace Fgs.Setup.Domain.Entities;
 
 public class FgsSetupTaxAuthority : FgsTenantCompanySetupEntityBase<long>
 {
@@ -9,6 +9,8 @@ public class FgsSetupTaxAuthority : FgsTenantCompanySetupEntityBase<long>
     public string? RegionCode { get; set; }
 
     public bool IsExternalSystemRecord { get; set; }
+
+    public decimal TaxPercent { get; set; }
 
     public string? Description { get; set; }
 }

@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Entities;
+namespace Fgs.Setup.Domain.Entities;
 
 /// <summary>
 /// Tenant- and company-scoped job type subcategory catalog seeded from GloJobTypeSubCategory.

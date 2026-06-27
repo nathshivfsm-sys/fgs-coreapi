@@ -5,12 +5,21 @@ public interface IFgsUserProfileResolver
     Task<FgsUserProfile?> ResolveByEntraObjectIdAsync(
         string entraObjectId,
         CancellationToken cancellationToken = default);
+
+    Task<FgsUserProfile?> ResolveBySignupEmailAsync(
+        string normalizedEmail,
+        CancellationToken cancellationToken = default);
+
+    Task<FgsUserProfile?> ResolveForEntraConnectorAsync(
+        string? objectId,
+        string? email,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record FgsUserProfile(
     Guid UserId,
     string Email,
-    string EntraObjectId,
+    string? EntraObjectId,
     long TenantId,
     long CompanyId,
     IReadOnlyList<string> Roles);

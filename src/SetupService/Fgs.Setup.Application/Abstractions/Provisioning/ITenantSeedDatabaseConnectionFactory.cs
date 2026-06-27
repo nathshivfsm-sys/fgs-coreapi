@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Application.Abstractions.Provisioning;
+namespace Fgs.Setup.Application.Abstractions.Provisioning;
 
 /// <summary>
 /// Opens PostgreSQL connections for tenant seed operations, including cross-database copies.

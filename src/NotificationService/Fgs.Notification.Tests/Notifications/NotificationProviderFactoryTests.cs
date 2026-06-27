@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Domain.Notifications;
+using Fgs.Notification.Domain.Notifications;
 using Fgs.Notification.Application.Configuration;
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.Notification.Infrastructure.Notifications.Providers;

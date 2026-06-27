@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Entities;
+namespace Fgs.Setup.Domain.Entities;
 
 public class FgsSetupTax : FgsTenantCompanySetupEntityBase<long>
 {
@@ -15,4 +15,6 @@ public class FgsSetupTax : FgsTenantCompanySetupEntityBase<long>
     public bool ShowTaxDetail { get; set; }
 
     public string? Description { get; set; }
+
+    public ICollection<FgsSetupTaxDetail> TaxDetails { get; set; } = [];
 }

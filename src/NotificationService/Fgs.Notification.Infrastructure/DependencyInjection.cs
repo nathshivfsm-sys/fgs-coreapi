@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Application.Audit;
+using Fgs.Notification.Application.Audit;
 using Fgs.Notification.Application.BackgroundJobs;
 using Fgs.Notification.Application.Configuration;
 using Fgs.Notification.Application.Integrations.QuickBooks;
@@ -17,6 +17,7 @@ using Fgs.Notification.Infrastructure.Audit;
 using Fgs.Notification.Infrastructure.BackgroundJobs;
 using Fgs.Notification.Infrastructure.Configuration;
 using Fgs.Notification.Infrastructure.Database;
+using Fgs.Persistence.Extensions;
 using Fgs.Notification.Infrastructure.Integrations.QuickBooks;
 using Fgs.Notification.Infrastructure.Integrations.SendGrid;
 using Fgs.Notification.Infrastructure.Integrations.Stripe;
@@ -74,11 +75,7 @@ public static class DependencyInjection
                 ConnectionStringNames.FgsNotification,
                 "FGS_NOTIFICATION_DB",
                 sp.GetService<ICredentialConfigurationProvider>());
-            options.UseNpgsql(connectionString, npgsql =>
-            {
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsNotificationDbContext.MigrationHistorySchema);
-                npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
-            });
+            options.UseFgsNpgsql(connectionString, "__EFMigrationsHistory", FgsNotificationDbContext.MigrationHistorySchema);
         });
 
         services.AddScoped<INotificationHistoryRepository, NotificationHistoryRepository>();

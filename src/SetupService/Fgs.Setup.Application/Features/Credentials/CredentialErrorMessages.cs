@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Application.Features.Credentials;
+namespace Fgs.Setup.Application.Features.Credentials;
 
 internal static class CredentialErrorMessages
 {

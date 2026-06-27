@@ -1,3 +1,3 @@
-﻿namespace Fgs.Notification.Application.Reporting.KPIs;
+namespace Fgs.Notification.Application.Reporting.KPIs;
 
 public interface IKpiService;

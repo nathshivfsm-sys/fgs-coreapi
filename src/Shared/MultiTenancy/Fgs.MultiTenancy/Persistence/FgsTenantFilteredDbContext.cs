@@ -20,13 +20,13 @@ public abstract class FgsTenantFilteredDbContext : DbContext
     /// Evaluated per query on the active DbContext instance (required for EF global filters).
     /// </summary>
     private bool FgsTenantCompanyFilterEnabled =>
-        _tenantContextAccessor.Current is { IsResolved: true };
+        _tenantContextAccessor.Current is not null;
 
     private long FgsFilterTenantId =>
-        _tenantContextAccessor.Current is { IsResolved: true } ctx ? ctx.TenantId : 0;
+        _tenantContextAccessor.Current?.TenantId ?? 0;
 
     private long FgsFilterCompanyId =>
-        _tenantContextAccessor.Current is { IsResolved: true } ctx ? ctx.CompanyId : 0;
+        _tenantContextAccessor.Current?.CompanyId ?? 0;
 
     protected void ApplyFgsTenantQueryFilters(ModelBuilder modelBuilder)
     {

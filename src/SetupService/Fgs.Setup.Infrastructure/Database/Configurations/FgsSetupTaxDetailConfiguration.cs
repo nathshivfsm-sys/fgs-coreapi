@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -14,7 +14,7 @@ internal class FgsSetupTaxDetailConfiguration : IEntityTypeConfiguration<FgsSetu
         entity.Property(e => e.Id).UseIdentityByDefaultColumn();
         entity.ConfigureTenantCompanySetupColumns();
         entity.HasOne<FgsSetupTax>()
-            .WithMany()
+            .WithMany(t => t.TaxDetails)
             .HasForeignKey(e => e.FgsSetupTaxId)
             .HasConstraintName("FK_FgsSetupTaxDetail_Tax")
             .OnDelete(DeleteBehavior.Restrict);
@@ -35,9 +35,6 @@ internal class FgsSetupTaxDetailConfiguration : IEntityTypeConfiguration<FgsSetu
             .HasDatabaseName("IX_FgsSetupTaxDetail_TaxAuthId");
         entity.ToTable(t =>
         {
-            t.HasCheckConstraint(
-                "CK_FgsSetupTaxDetail_TaxPercent",
-                "\"TaxPercent\" >= 0 AND \"TaxPercent\" <= 100");
             t.HasCheckConstraint(
                 "CK_FgsSetupTaxDetail_EffectiveDates",
                 "\"EffectiveToDate\" IS NULL OR \"EffectiveToDate\" >= \"EffectiveFromDate\"");

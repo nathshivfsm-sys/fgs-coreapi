@@ -1,4 +1,4 @@
-﻿using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -58,6 +58,10 @@ internal class FgsVehicleMaintenanceConfiguration : IEntityTypeConfiguration<Fgs
             .HasComment(
                 "Indicates whether the maintenance activity has been completed. False indicates a scheduled or pending maintenance item.");
 
+        entity.Property(e => e.IsActive)
+            .HasDefaultValue(true)
+            .HasComment("Indicates whether the maintenance record is active and available for use.");
+
         entity.Property(e => e.Description)
             .HasMaxLength(500)
             .HasComment("Short summary of the maintenance activity performed or scheduled.");
@@ -99,6 +103,10 @@ internal class FgsVehicleMaintenanceConfiguration : IEntityTypeConfiguration<Fgs
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.IsCompleted })
             .HasDatabaseName("IX_FgsVehicleMaintenance_TenantId_CompanyId_IsCompleted");
+
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.IsActive })
+            .HasDatabaseName("IX_FgsVehicleMaintenance_TenantId_CompanyId_IsActive");
+
         entity.HasOne<FgsVehicle>()
             .WithMany()
             .HasForeignKey(e => e.VehicleId)

@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Application.Abstractions.Credentials;
+namespace Fgs.Setup.Application.Abstractions.Credentials;
 
 /// <summary>
 /// AWS KMS operations for envelope encryption.

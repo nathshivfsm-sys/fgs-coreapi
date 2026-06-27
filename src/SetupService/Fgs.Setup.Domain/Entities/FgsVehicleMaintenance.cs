@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Entities;
+namespace Fgs.Setup.Domain.Entities;
 
 /// <summary>
 /// Completed or scheduled maintenance activity for a company vehicle.
@@ -30,6 +30,8 @@ public class FgsVehicleMaintenance : FgsEntityBase, ITenantCompanyScoped
     public int? NextServiceMileage { get; set; }
 
     public bool IsCompleted { get; set; } = true;
+
+    public bool IsActive { get; set; } = true;
 
     public string? Description { get; set; }
 

@@ -22,6 +22,135 @@ namespace Fgs.Notification.Infrastructure.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Fgs.Notification.Domain.Entities.FgsEmailHistory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BccEmailAddresses")
+                        .HasColumnType("jsonb")
+                        .HasComment("JSON array containing blind carbon copy recipient email addresses.");
+
+                    b.Property<string>("BodyHtml")
+                        .HasColumnType("text")
+                        .HasComment("Email body in HTML format.");
+
+                    b.Property<string>("BodyText")
+                        .HasColumnType("text")
+                        .HasComment("Email body in plain text format.");
+
+                    b.Property<string>("CcEmailAddresses")
+                        .HasColumnType("jsonb")
+                        .HasComment("JSON array containing carbon copy recipient email addresses.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
+                        .HasComment("User or process that created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<long?>("EmailTemplateId")
+                        .HasColumnType("bigint")
+                        .HasComment("Email template used to generate the email.");
+
+                    b.Property<long>("EntityId")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifier of the associated business entity.");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Entity associated with the email such as Estimate, Invoice, WorkOrder, Opportunity, or Customer.");
+
+                    b.Property<string>("FailureReason")
+                        .HasColumnType("text")
+                        .HasComment("Failure reason returned by the email provider when send fails.");
+
+                    b.Property<string>("FromDisplayName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Sender display name.");
+
+                    b.Property<string>("FromEmailAddress")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Sender email address.");
+
+                    b.Property<bool>("HasAttachments")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether one or more attachments were included in the email.");
+
+                    b.Property<string>("ProviderMessageId")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Provider-specific message identifier used for troubleshooting and webhook tracking.");
+
+                    b.Property<DateTimeOffset?>("SentOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the email was sent.");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Email delivery status such as Queued, Sent, Delivered, Opened, Failed, or Bounced.");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Email subject line.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("ToEmailAddresses")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasComment("JSON array containing recipient email addresses.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProviderMessageId")
+                        .HasDatabaseName("IX_FgsEmailHistory_ProviderMessageId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsEmailHistory_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "SentOn")
+                        .HasDatabaseName("IX_FgsEmailHistory_TenantId_CompanyId_SentOn");
+
+                    b.HasIndex("TenantId", "CompanyId", "Status")
+                        .HasDatabaseName("IX_FgsEmailHistory_TenantId_CompanyId_Status");
+
+                    b.HasIndex("TenantId", "CompanyId", "EntityType", "EntityId")
+                        .HasDatabaseName("IX_FgsEmailHistory_TenantId_CompanyId_EntityType_EntityId");
+
+                    b.ToTable("FgsEmailHistory", "notification", t =>
+                        {
+                            t.HasComment("Stores outbound email history for business entities and provides a permanent audit trail of email communications.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Notification.Domain.Entities.FgsNotificationHistory", b =>
                 {
                     b.Property<Guid>("Id")

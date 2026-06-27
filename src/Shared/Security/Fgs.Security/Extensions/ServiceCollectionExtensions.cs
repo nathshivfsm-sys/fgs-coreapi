@@ -1,16 +1,10 @@
-using System.Security.Claims;
-using Fgs.Contracts.Clients;
-using Fgs.Contracts.Options;
 using Fgs.Security.Abstractions;
-using Microsoft.Extensions.Http.Resilience;
-using Refit;
 using Fgs.Security.Options;
 using Fgs.Security.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Logging;
 
 namespace Fgs.Security.Extensions;
 
@@ -35,6 +29,8 @@ public static class ServiceCollectionExtensions
         }
 
         var authority = entraOptions.ResolveAuthority();
+        var clientId = entraOptions.ClientId;
+        var signingKeyResolver = new FgsEntraSigningKeyResolver(entraOptions);
 
         services.AddHttpContextAccessor();
         services.AddScoped<IFgsUserContext, HttpFgsUserContext>();
@@ -45,32 +41,49 @@ public static class ServiceCollectionExtensions
             {
                 options.Authority = authority;
                 options.MetadataAddress = entraOptions.ResolveMetadataAddress();
-                options.Audience = entraOptions.ClientId;
                 options.MapInboundClaims = false;
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    NameClaimType = "name",
-                    RoleClaimType = ClaimTypes.Role,
-                    ClockSkew = TimeSpan.FromMinutes(1)
-                };
+                options.RefreshOnIssuerKeyNotFound = true;
+                options.TokenValidationParameters = FgsEntraTokenValidation.CreateValidationParameters(entraOptions);
+                options.TokenValidationParameters.IssuerSigningKeyResolver =
+                    signingKeyResolver.Resolve;
                 options.Events = new JwtBearerEvents
                 {
-                    OnTokenValidated = async context =>
+                    OnMessageReceived = context =>
                     {
-                        if (context.Principal is null)
+                        var token = context.Token;
+                        if (string.IsNullOrWhiteSpace(token))
                         {
-                            return;
+                            token = FgsRequestAuthContext.ExtractBearerToken(context.HttpContext);
                         }
 
-                        var enricher = context.HttpContext.RequestServices.GetService<IFgsClaimsEnricher>();
-                        if (enricher is not null)
+                        var normalized = FgsEntraGraphAccessTokenNormalizer.NormalizeIfRequired(
+                            token ?? string.Empty);
+                        if (!string.IsNullOrEmpty(normalized))
                         {
-                            await enricher.EnrichAsync(context.Principal, context.HttpContext.RequestAborted);
+                            context.Token = normalized;
                         }
+
+                        return Task.CompletedTask;
+                    },
+                    OnAuthenticationFailed = context =>
+                    {
+                        var logger = context.HttpContext.RequestServices
+                            .GetService<ILoggerFactory>()
+                            ?.CreateLogger("JwtBearer");
+                        logger?.LogWarning(
+                            context.Exception,
+                            "JWT authentication failed: {Message}",
+                            context.Exception.Message);
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = context =>
+                    {
+                        if (!FgsEntraTokenValidation.ValidateGraphAudienceAppId(context.Principal, clientId))
+                        {
+                            context.Fail("Access token appid does not match configured Entra client id.");
+                        }
+
+                        return Task.CompletedTask;
                     }
                 };
             });
@@ -81,35 +94,8 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddFgsApiSecurity(
         this IServiceCollection services,
-        IConfiguration configuration)
-    {
+        IConfiguration configuration) =>
         services.AddFgsEntraAuthentication(configuration);
-        services.AddFgsRemoteClaimsEnrichment(configuration);
-        return services;
-    }
-
-    public static IServiceCollection AddFgsRemoteClaimsEnrichment(
-        this IServiceCollection services,
-        IConfiguration configuration)
-    {
-        services.Configure<UserServiceClientOptions>(
-            configuration.GetSection(UserServiceClientOptions.SectionName));
-
-        var resilience = configuration.GetSection(HttpResilienceOptions.SectionName).Get<HttpResilienceOptions>()
-            ?? new HttpResilienceOptions();
-
-        var baseUrl = configuration[$"{UserServiceClientOptions.SectionName}:BaseUrl"]
-            ?? "http://user-service:5001";
-
-        services.AddScoped<IFgsClaimsEnricher, RemoteFgsClaimsEnricher>();
-        services
-            .AddRefitClient<IFgsClaimsClient>()
-            .ConfigureHttpClient(client =>
-                client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/"))
-            .AddStandardResilienceHandler(options => HttpResilienceConfigurator.Configure(options, resilience));
-
-        return services;
-    }
 
     public static IServiceCollection AddFgsWorkerSecurity(
         this IServiceCollection services,

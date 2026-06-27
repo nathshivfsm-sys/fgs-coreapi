@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Application.Notifications.Templates;
+using Fgs.Notification.Application.Notifications.Templates;
 using Fgs.Notification.Infrastructure.Notifications.Templates;
 using FluentAssertions;
 

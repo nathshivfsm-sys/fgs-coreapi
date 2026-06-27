@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Application.Common;
+namespace Fgs.Setup.Application.Common;
 
 /// <summary>
 /// Fallback URLs when configuration values are not set (local development).

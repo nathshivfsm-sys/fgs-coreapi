@@ -199,6 +199,235 @@ namespace Fgs.Asset.Infrastructure.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fgs.Asset.Domain.Entities.FgsAssetAttribute", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Unique asset attribute identifier.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AssetTypeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Asset type that owns this attribute definition.");
+
+                    b.Property<string>("AttributeCode")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("character varying(75)")
+                        .HasComment("Unique attribute code within the asset type. Stored in uppercase.");
+
+                    b.Property<string>("AttributeName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Display name shown to users.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<long?>("DefaultOptionId")
+                        .HasColumnType("bigint")
+                        .HasComment("Default dropdown option when InputType is DROPDOWN.");
+
+                    b.Property<bool?>("DefaultValueBoolean")
+                        .HasColumnType("boolean")
+                        .HasComment("Default boolean value.");
+
+                    b.Property<DateOnly?>("DefaultValueDate")
+                        .HasColumnType("date")
+                        .HasComment("Default date value.");
+
+                    b.Property<decimal?>("DefaultValueDecimal")
+                        .HasColumnType("numeric(18,4)")
+                        .HasComment("Default decimal value.");
+
+                    b.Property<int?>("DefaultValueInteger")
+                        .HasColumnType("integer")
+                        .HasComment("Default integer value.");
+
+                    b.Property<string>("DefaultValueText")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Default text value.");
+
+                    b.Property<int>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasComment("Controls the display order of attributes within the asset type.");
+
+                    b.Property<string>("InputType")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("character varying(25)")
+                        .HasComment("Input type. Valid values: TEXT, TEXTAREA, INTEGER, DECIMAL, DATE, BOOLEAN, DROPDOWN.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the attribute definition is active.");
+
+                    b.Property<bool>("IsRequired")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether a value must be supplied when creating or updating an asset.");
+
+                    b.Property<bool>("IsSearchable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the attribute should be available in asset search and filtering screens.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id")
+                        .HasName("PK_FgsAssetAttribute");
+
+                    b.HasIndex("AssetTypeId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsAssetAttribute_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "AssetTypeId")
+                        .HasDatabaseName("IX_FgsAssetAttribute_TenantId_CompanyId_AssetTypeId");
+
+                    b.HasIndex("TenantId", "CompanyId", "AssetTypeId", "AttributeCode")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_FgsAssetAttribute_TenantCompanyAssetTypeCode");
+
+                    b.ToTable("FgsAssetAttribute", "asset", t =>
+                        {
+                            t.HasComment("Defines custom asset attributes that can be assigned to specific asset types.");
+
+                            t.HasCheckConstraint("CK_FgsAssetAttribute_AttributeCode_Upper", "\"AttributeCode\" = upper(\"AttributeCode\")");
+
+                            t.HasCheckConstraint("CK_FgsAssetAttribute_InputType_Upper", "\"InputType\" = upper(\"InputType\")");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Asset.Domain.Entities.FgsAssetAttributeOption", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Unique asset attribute option identifier.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AssetAttributeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Asset attribute definition that owns this option.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<int>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasComment("Controls the order in which options are displayed to users.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the option is available for selection on new or updated assets.");
+
+                    b.Property<string>("OptionCode")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("character varying(75)")
+                        .HasComment("Unique option code within the asset attribute. Stored in uppercase.");
+
+                    b.Property<string>("OptionName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Display name shown to users.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id")
+                        .HasName("PK_FgsAssetAttributeOption");
+
+                    b.HasIndex("AssetAttributeId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsAssetAttributeOption_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "AssetAttributeId")
+                        .HasDatabaseName("IX_FgsAssetAttributeOption_TenantId_CompanyId_AssetAttributeId");
+
+                    b.HasIndex("TenantId", "CompanyId", "AssetAttributeId", "OptionCode")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_FgsAssetAttributeOption_Code");
+
+                    b.HasIndex("TenantId", "CompanyId", "AssetAttributeId", "OptionName")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_FgsAssetAttributeOption_Name");
+
+                    b.ToTable("FgsAssetAttributeOption", "asset", t =>
+                        {
+                            t.HasComment("Stores selectable dropdown values for asset attributes.");
+
+                            t.HasCheckConstraint("CK_FgsAssetAttributeOption_OptionCode_Upper", "\"OptionCode\" = upper(\"OptionCode\")");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Asset.Domain.Entities.FgsAssetManufacturer", b =>
                 {
                     b.Property<long>("Id")
@@ -547,6 +776,115 @@ namespace Fgs.Asset.Infrastructure.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fgs.Asset.Domain.Entities.FgsAssetWarranty", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Unique warranty record identifier.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AssetId")
+                        .HasColumnType("bigint")
+                        .HasComment("Asset covered by the warranty.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CoverageDescription")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasComment("Detailed description of warranty coverage including covered components, labor coverage, exclusions, reimbursement limitations, registration requirements, and special warranty terms.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date")
+                        .HasComment("Date warranty coverage expires.");
+
+                    b.Property<string>("RegistrationNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Warranty registration confirmation number provided by the warranty issuer.");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasComment("Date warranty coverage becomes effective.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.Property<string>("WarrantyNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Warranty contract number, policy number, or manufacturer warranty identifier.");
+
+                    b.Property<string>("WarrantyProvider")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Manufacturer, contractor, dealer, or third-party organization providing the warranty coverage.");
+
+                    b.Property<string>("WarrantyType")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("character varying(75)")
+                        .HasComment("Warranty type such as MANUFACTURER, MANUFACTURER_EXTENDED, LABOR, LABOR_EXTENDED, PARTS, COMPRESSOR, HEAT_EXCHANGER, INSTALLATION, or OTHER.");
+
+                    b.HasKey("Id")
+                        .HasName("PK_FgsAssetWarranty");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsAssetWarranty_TenantId_CompanyId");
+
+                    b.HasIndex("AssetId", "WarrantyType", "StartDate")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_FgsAssetWarranty_AssetId_WarrantyType_StartDate");
+
+                    b.HasIndex("TenantId", "CompanyId", "AssetId")
+                        .HasDatabaseName("IX_FgsAssetWarranty_TenantId_CompanyId_AssetId");
+
+                    b.HasIndex("TenantId", "CompanyId", "EndDate")
+                        .HasDatabaseName("IX_FgsAssetWarranty_TenantId_CompanyId_EndDate");
+
+                    b.HasIndex("TenantId", "CompanyId", "WarrantyType")
+                        .HasDatabaseName("IX_FgsAssetWarranty_TenantId_CompanyId_WarrantyType");
+
+                    b.HasIndex("TenantId", "CompanyId", "StartDate", "EndDate")
+                        .HasDatabaseName("IX_FgsAssetWarranty_TenantId_CompanyId_StartDate_EndDate");
+
+                    b.ToTable("FgsAssetWarranty", "asset", t =>
+                        {
+                            t.HasComment("Stores warranty coverage associated with customer assets and equipment.");
+
+                            t.HasCheckConstraint("CK_FgsAssetWarranty_DateRange", "\"EndDate\" >= \"StartDate\"");
+
+                            t.HasCheckConstraint("CK_FgsAssetWarranty_WarrantyType_Upper", "\"WarrantyType\" = upper(\"WarrantyType\")");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Asset.Domain.Entities.FgsServiceLocationCache", b =>
                 {
                     b.Property<long>("TenantId")
@@ -689,6 +1027,40 @@ namespace Fgs.Asset.Infrastructure.Database.Migrations
                         .HasConstraintName("FK_FgsAsset_ServiceLocationCache");
                 });
 
+            modelBuilder.Entity("Fgs.Asset.Domain.Entities.FgsAssetAttribute", b =>
+                {
+                    b.HasOne("Fgs.Asset.Domain.Entities.FgsAssetType", null)
+                        .WithMany()
+                        .HasForeignKey("AssetTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsAssetAttribute_AssetType");
+
+                    b.HasOne("Fgs.Asset.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsAssetAttribute_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Asset.Domain.Entities.FgsAssetAttributeOption", b =>
+                {
+                    b.HasOne("Fgs.Asset.Domain.Entities.FgsAssetAttribute", null)
+                        .WithMany()
+                        .HasForeignKey("AssetAttributeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsAssetAttributeOption_AssetAttribute");
+
+                    b.HasOne("Fgs.Asset.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsAssetAttributeOption_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
             modelBuilder.Entity("Fgs.Asset.Domain.Entities.FgsAssetManufacturer", b =>
                 {
                     b.HasOne("Fgs.Asset.Domain.Entities.FgsTenantCompanyCache", null)
@@ -741,6 +1113,23 @@ namespace Fgs.Asset.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsAssetType_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Asset.Domain.Entities.FgsAssetWarranty", b =>
+                {
+                    b.HasOne("Fgs.Asset.Domain.Entities.FgsAsset", null)
+                        .WithMany()
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsAssetWarranty_Asset");
+
+                    b.HasOne("Fgs.Asset.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsAssetWarranty_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Asset.Domain.Entities.FgsServiceLocationCache", b =>

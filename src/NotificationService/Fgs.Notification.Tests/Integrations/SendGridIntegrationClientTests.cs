@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Application.Notifications.Channels;
+using Fgs.Notification.Application.Notifications.Channels;
 using Fgs.Notification.Infrastructure.Integrations.SendGrid;
 using Fgs.Notification.Infrastructure.Options;
 using FluentAssertions;

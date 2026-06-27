@@ -1,4 +1,4 @@
-﻿using Fgs.Reporting.Domain.Entities;
+using Fgs.Reporting.Domain.Entities;
 using Fgs.Reporting.Infrastructure.Database.Schemas;
 using Microsoft.EntityFrameworkCore;
 

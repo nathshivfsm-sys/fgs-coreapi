@@ -1,4 +1,4 @@
-﻿namespace Fgs.Setup.Domain.Enums;
+namespace Fgs.Setup.Domain.Enums;
 
 /// <summary>
 /// Controls how credential key material is rotated.

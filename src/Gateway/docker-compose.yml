@@ -1,9 +1,9 @@
 ﻿name: fgs-local
 
-# Startup order (credential consolidation):
-#   1. rabbitmq
-#   2. setup-service  — bootstraps DB/KMS credentials (no consumer deps)
-#   3. audit + credential consumers — load secrets from Setup at startup
+# Startup order:
+#   1. rabbitmq, redis
+#   2. setup-service  — credential authority (audit disabled locally; see AuditService__Enabled)
+#   3. audit-service starts first among consumers, then other credential consumers
 #   4. publisher / consumer — messaging workers
 #   5. nginx — public gateway after upstream health checks pass
 
@@ -21,6 +21,12 @@ x-credential-consumer-env: &credential-consumer-env
 
 x-depends-on-setup: &depends-on-setup
   setup-service:
+    condition: service_healthy
+
+x-depends-on-setup-and-audit: &depends-on-setup-and-audit
+  setup-service:
+    condition: service_healthy
+  audit-service:
     condition: service_healthy
 
 services:
@@ -47,6 +53,23 @@ services:
       - fgs-private
     restart: unless-stopped
 
+  redis:
+    image: redis:7-alpine
+    hostname: redis
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+    networks:
+      - fgs-private
+    restart: unless-stopped
+
   # Tier 1 — credential authority (bootstrap ConnectionStrings:FgsSetup from mounted appsettings)
   setup-service:
     <<: *service-network
@@ -58,7 +81,11 @@ services:
       UserService__BaseUrl: http://user-service:5001
       FileService__BaseUrl: http://file-service:5005
       AuditService__BaseUrl: http://audit-service:5008
-      AuditService__Enabled: "true"
+      # Setup starts before audit is listening; disable credential audit in local Compose to avoid connection-refused noise.
+      AuditService__Enabled: "false"
+    depends_on:
+      redis:
+        condition: service_healthy
     volumes:
       - ../SetupService/Fgs.Setup.API/appsettings.json:/src/src/SetupService/Fgs.Setup.API/appsettings.json:ro
       - ../SetupService/Fgs.Setup.API/appsettings.Development.json:/src/src/SetupService/Fgs.Setup.API/appsettings.Development.json:ro
@@ -106,8 +133,11 @@ services:
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: ENTRA_EXTERNAL_ID
       CredentialConsumer__RequiredProviders__2: AWS
+      CredentialConsumer__RequiredProviders__3: REDIS
     depends_on:
-      <<: *depends-on-setup
+      redis:
+        condition: service_healthy
+      <<: *depends-on-setup-and-audit
     volumes:
       - ../UserService/Fgs.User.API/appsettings.json:/src/src/UserService/Fgs.User.API/appsettings.json:ro
       - ../UserService/Fgs.User.API/appsettings.Development.json:/src/src/UserService/Fgs.User.API/appsettings.Development.json:ro
@@ -131,7 +161,7 @@ services:
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: AWS
     depends_on:
-      <<: *depends-on-setup
+      <<: *depends-on-setup-and-audit
     volumes:
       - ../FileService/Fgs.File.API/appsettings.json:/src/src/FileService/Fgs.File.API/appsettings.json:ro
       - ../FileService/Fgs.File.API/appsettings.Development.json:/src/src/FileService/Fgs.File.API/appsettings.Development.json:ro
@@ -157,6 +187,8 @@ services:
       UserService__BaseUrl: http://user-service:5001
     depends_on:
       setup-service:
+        condition: service_healthy
+      audit-service:
         condition: service_healthy
       user-service:
         condition: service_healthy
@@ -190,6 +222,8 @@ services:
         condition: service_healthy
       setup-service:
         condition: service_healthy
+      audit-service:
+        condition: service_healthy
       user-service:
         condition: service_healthy
     volumes:
@@ -222,6 +256,8 @@ services:
         condition: service_healthy
       setup-service:
         condition: service_healthy
+      audit-service:
+        condition: service_healthy
       user-service:
         condition: service_healthy
       notification-service:
@@ -245,6 +281,8 @@ services:
       dockerfile: Dockerfile
     depends_on:
       setup-service:
+        condition: service_healthy
+      audit-service:
         condition: service_healthy
       user-service:
         condition: service_healthy
@@ -272,3 +310,4 @@ networks:
 
 volumes:
   rabbitmq-data:
+  redis-data:

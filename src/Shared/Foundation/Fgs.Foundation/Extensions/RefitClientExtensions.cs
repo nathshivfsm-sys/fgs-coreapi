@@ -15,7 +15,8 @@ public static class RefitClientExtensions
         this IServiceCollection services,
         IConfiguration configuration,
         string baseUrlConfigurationKey,
-        string? defaultBaseUrl = null)
+        string? defaultBaseUrl = null,
+        Action<IHttpClientBuilder>? configureBuilder = null)
         where TClient : class
     {
         var baseUrl = configuration[baseUrlConfigurationKey] ?? defaultBaseUrl
@@ -25,25 +26,32 @@ public static class RefitClientExtensions
         var resilience = configuration.GetSection(HttpResilienceOptions.SectionName).Get<HttpResilienceOptions>()
             ?? new HttpResilienceOptions();
 
-        services
+        var builder = services
             .AddRefitClient<TClient>()
-            .ConfigureHttpClient(client => client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/"))
-            .AddStandardResilienceHandler(options => ConfigureResilience(options, resilience));
+            .ConfigureHttpClient(client => client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/"));
+
+        configureBuilder?.Invoke(builder);
+
+        builder.AddStandardResilienceHandler(options => ConfigureResilience(options, resilience));
 
         return services;
     }
 
     public static IServiceCollection AddFgsRefitClient<TClient>(
         this IServiceCollection services,
-        Uri baseAddress)
+        Uri baseAddress,
+        Action<IHttpClientBuilder>? configureBuilder = null)
         where TClient : class
     {
         var resilience = new HttpResilienceOptions();
 
-        services
+        var builder = services
             .AddRefitClient<TClient>()
-            .ConfigureHttpClient(client => client.BaseAddress = baseAddress)
-            .AddStandardResilienceHandler(options => ConfigureResilience(options, resilience));
+            .ConfigureHttpClient(client => client.BaseAddress = baseAddress);
+
+        configureBuilder?.Invoke(builder);
+
+        builder.AddStandardResilienceHandler(options => ConfigureResilience(options, resilience));
 
         return services;
     }

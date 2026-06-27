@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Application.Integrations.QuickBooks;
+using Fgs.Notification.Application.Integrations.QuickBooks;
 
 namespace Fgs.Notification.Infrastructure.Integrations.QuickBooks;
 

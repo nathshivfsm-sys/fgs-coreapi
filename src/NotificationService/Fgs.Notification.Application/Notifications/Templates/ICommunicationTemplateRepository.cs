@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Domain.Entities;
+using Fgs.Notification.Domain.Entities;
 
 namespace Fgs.Notification.Application.Notifications.Templates;
 

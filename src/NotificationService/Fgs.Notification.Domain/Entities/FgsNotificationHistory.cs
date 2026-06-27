@@ -1,4 +1,4 @@
-﻿using Fgs.Kernel.Entities;
+using Fgs.Kernel.Entities;
 using Fgs.Notification.Domain.Notifications;
 
 namespace Fgs.Notification.Domain.Entities;

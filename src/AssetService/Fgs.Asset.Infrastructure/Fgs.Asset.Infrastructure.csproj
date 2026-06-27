@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Fgs.Asset.Application\Fgs.Asset.Application.csproj" />
     <ProjectReference Include="..\Fgs.Asset.Domain\Fgs.Asset.Domain.csproj" />
     <ProjectReference Include="..\..\Shared\Persistence\Fgs.Persistence\Fgs.Persistence.csproj" />
     <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
@@ -22,9 +21,6 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <EfMigrationsDirectory>Database\Migrations</EfMigrationsDirectory>
   </PropertyGroup>
 

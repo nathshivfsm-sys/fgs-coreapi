@@ -1,4 +1,4 @@
-﻿using Fgs.Notification.Application.Integrations.Twilio;
+using Fgs.Notification.Application.Integrations.Twilio;
 
 namespace Fgs.Notification.Infrastructure.Integrations.Twilio;
 

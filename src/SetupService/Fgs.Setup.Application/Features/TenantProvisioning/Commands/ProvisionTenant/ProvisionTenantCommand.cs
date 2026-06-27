@@ -4,5 +4,8 @@ using MediatR;
 
 namespace Fgs.Setup.Application.Features.TenantProvisioning.Commands.ProvisionTenant;
 
-public sealed record ProvisionTenantCommand(ProvisionTenantRequest Request)
+public sealed record ProvisionTenantCommand(
+    ProvisionTenantRequest Request,
+    string? InternalServiceKey = null,
+    string? RequestingServiceName = null)
     : IRequest<ApiResponse<object>>;

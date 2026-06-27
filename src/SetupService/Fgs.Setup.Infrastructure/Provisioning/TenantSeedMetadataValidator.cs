@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 using Fgs.Setup.Application.Features.TenantProvisioning;
 using Fgs.Setup.Domain.Entities;
 

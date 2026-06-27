@@ -1,0 +1,2 @@
+-- Rollback for 20260615140336_AddCrmReminderEntities
+-- TODO: author idempotent DROP statements mirroring schema objects created in 20260615140336_AddCrmReminderEntities_up.sql

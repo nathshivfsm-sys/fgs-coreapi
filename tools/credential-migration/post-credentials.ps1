@@ -1,7 +1,9 @@
 param(
     [string]$BaseUrl = "http://localhost:5071",
     [switch]$UpdateDatabaseOnly,
-    [switch]$UpdateAwsOnly
+    [switch]$UpdateAwsOnly,
+    [switch]$UpdateRedisOnly,
+    [switch]$RedisOnly
 )
 
 $platformKmsKeyArn = "arn:aws:kms:us-east-1:286093098927:key/8ad55556-fcb0-4dd7-8ed1-4de526a38a78"
@@ -25,9 +27,11 @@ function Get-RdsConnectionString {
 
 # All platform services share the RDS dev database.
 $databaseConnections = [ordered]@{
-    FgsUser           = "fgs_dev_db"
-    FgsSetup          = "fgs_dev_db"
-    FgsFile           = "fgs_dev_db"
+    FgsUser             = "fgs_dev_db"
+    FgsUserReadOnly     = "fgs_dev_db"
+    FgsSetup            = "fgs_dev_db"
+    FgsSetupReadOnly    = "fgs_dev_db"
+    FgsFile             = "fgs_dev_db"
     FgsNotification   = "fgs_dev_db"
     FgsConsumer       = "fgs_dev_db"
     FgsAudit          = "fgs_dev_db"
@@ -47,6 +51,13 @@ foreach ($entry in $databaseConnections.GetEnumerator()) {
     $databasePayload[$entry.Key] = Get-RdsConnectionString -Database $entry.Value
 }
 $databasePayloadJson = $databasePayload | ConvertTo-Json -Compress
+
+$redisPayloadJson = (@{
+    Enabled                            = $true
+    ConnectionString                   = "redis:6379"
+    InstanceName                       = "fgs:"
+    DefaultAbsoluteExpirationMinutes   = 30
+} | ConvertTo-Json -Compress)
 
 if ($UpdateAwsOnly) {
     Write-Host "Updating AWS credential on $BaseUrl..."
@@ -68,6 +79,48 @@ if ($UpdateAwsOnly) {
 
     Write-Host "  OK ($($response.statusCode)) id=$($awsCred.id)"
     Write-Host "AWS credential updated (AccessKeyId, SecretAccessKey, KmsKeyArn for consumer services)."
+    return
+}
+
+if ($UpdateRedisOnly) {
+    Write-Host "Updating REDIS credential on $BaseUrl..."
+    $list = Invoke-RestMethod -Uri "${endpoint}?scope=global&activeOnly=true" -Method Get
+    $redisCred = $list.data | Where-Object { $_.providerCode -eq "REDIS" } | Select-Object -First 1
+    if (-not $redisCred) {
+        throw "REDIS credential not found. Run post-credentials.ps1 without -UpdateRedisOnly first."
+    }
+
+    $body = @{
+        credentialName = $redisCred.credentialName
+        payload        = $redisPayloadJson
+    } | ConvertTo-Json -Compress
+
+    $response = Invoke-RestMethod -Uri "${endpoint}/$($redisCred.id)?scope=global" -Method Put -ContentType "application/json" -Body $body
+    if (-not $response.success) {
+        throw "Failed: $($response.errors -join '; ')"
+    }
+
+    Write-Host "  OK ($($response.statusCode)) id=$($redisCred.id)"
+    Write-Host "REDIS credential updated (shared cache settings for all services)."
+    return
+}
+
+if ($RedisOnly) {
+    Write-Host "POST REDIS credential on $BaseUrl..."
+    $body = @{
+        scope          = "global"
+        providerCode   = "REDIS"
+        credentialName = "platform-redis"
+        payload        = $redisPayloadJson
+    } | ConvertTo-Json -Compress
+
+    $response = Invoke-RestMethod -Uri $endpoint -Method Post -ContentType "application/json" -Body $body
+    if (-not $response.success) {
+        throw "Failed: $($response.errors -join '; ')"
+    }
+
+    Write-Host "  OK ($($response.statusCode)) id=$($response.data.id)"
+    Write-Host "REDIS credential created (shared cache settings for all services)."
     return
 }
 
@@ -106,6 +159,12 @@ $payloads = @(
         providerCode   = "RABBITMQ"
         credentialName = "platform-rabbitmq"
         payload        = '{"Username":"fgs","Password":"fgsdevlocal"}'
+    },
+    @{
+        scope          = "global"
+        providerCode   = "REDIS"
+        credentialName = "platform-redis"
+        payload        = $redisPayloadJson
     },
     @{
         scope          = "global"

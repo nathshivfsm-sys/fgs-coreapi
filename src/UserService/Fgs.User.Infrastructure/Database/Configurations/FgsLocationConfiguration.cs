@@ -1,4 +1,4 @@
-﻿using Fgs.User.Domain.Entities;
+using Fgs.User.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -27,7 +27,7 @@ internal class FgsLocationConfiguration : IEntityTypeConfiguration<FgsLocation>
         entity.Property(e => e.Longitude).HasPrecision(18, 10);
         entity.Property(e => e.PlaceId).HasMaxLength(500);
         entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
-        entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.MasterEntityTypeId, e.EntityNumber })
+        entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz"); entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.MasterEntityTypeId, e.EntityNumber })
             .HasDatabaseName("IX_FgsLocation_Tenant_Company_Entity");
     }
 }

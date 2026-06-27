@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using Fgs.Notification.Application.Notifications.Templates;
 
 namespace Fgs.Notification.Infrastructure.Notifications.Templates;
