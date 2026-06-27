@@ -3,12 +3,15 @@
   <ItemGroup>
     <ProjectReference Include="..\Fgs.Inventory.Application\Fgs.Inventory.Application.csproj" />
     <ProjectReference Include="..\Fgs.Inventory.Domain\Fgs.Inventory.Domain.csproj" />
+    <ProjectReference Include="..\..\Shared\MultiTenancy\Fgs.MultiTenancy\Fgs.MultiTenancy.csproj" />
+    <ProjectReference Include="..\..\Shared\Foundation\Fgs.Foundation\Fgs.Foundation.csproj" />
     <ProjectReference Include="..\..\Shared\Persistence\Fgs.Persistence\Fgs.Persistence.csproj" />
     <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
     <ProjectReference Include="..\..\Shared\Credentials\Fgs.Credentials\Fgs.Credentials.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
       <PrivateAssets>all</PrivateAssets>

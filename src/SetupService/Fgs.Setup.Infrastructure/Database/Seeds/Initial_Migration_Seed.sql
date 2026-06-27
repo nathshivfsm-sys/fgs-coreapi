@@ -1972,6 +1972,7 @@ FROM (
         ('TENANT_FgsTenantCompany_svc_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'svc', 'FgsTenantCompanyCache', 11, 'Tenant company cache (svc)', true),
         ('TENANT_CrmServiceLocation_asset_cache', 'fgs_dev_db', 'crm', 'CrmServiceLocation', 'fgs_dev_db', 'asset', 'FgsServiceLocationCache', 12, 'Service location cache (asset)', true),
         ('ALL_GloBillingCategory', 'fgs_dev_db', 'glo', 'GloBillingCategory', 'fgs_dev_db', 'setup', 'FgsBillingCategory', 100, 'Billing Category', true),
+        ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', 'fgs_dev_db', 'glo', 'GloInventoryCategory', 'fgs_dev_db', 'inventory', 'FgsInventoryCategory', 105, 'Inventory Category', true),
         ('ALL_GloJobTypeCategory', 'fgs_dev_db', 'glo', 'GloJobTypeCategory', 'fgs_dev_db', 'setup', 'FgsJobTypeCategory', 130, 'JobType Categories', true),
         ('ALL_GloJobTypeSubCategory', 'fgs_dev_db', 'glo', 'GloJobTypeSubCategory', 'fgs_dev_db', 'setup', 'FgsJobTypeSubCategory', 160, 'JobType Sub Categories', true),
         ('ALL_GloLeadSource', 'fgs_dev_db', 'glo', 'GloLeadSource', 'fgs_dev_db', 'setup', 'FgsLeadSource', 190, 'Lead Source', true),
@@ -2155,6 +2156,18 @@ INNER JOIN (
         ('ALL_GloBillingCategory', NULL, 'IsActive', 'STATIC', 'true', 10, true, true),
         ('ALL_GloBillingCategory', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 11, true, true),
         ('ALL_GloBillingCategory', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 12, false, true),
+
+        -- GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY -> inventory.FgsInventoryCategory
+        ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', 'CategoryCode', 'CategoryCode', NULL, NULL, 3, true, true),
+        ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', 'Name', 'Name', NULL, NULL, 4, true, true),
+        ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 6, true, true),
+        ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', NULL, 'IsSystem', 'STATIC', 'true', 7, true, true),
+        ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', 'IsActive', 'IsActive', NULL, NULL, 8, true, true),
+        ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 9, true, true),
+        ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 10, false, true),
 
         -- ALL_GloJobTypeCategory -> FgsJobTypeCategory
         ('ALL_GloJobTypeCategory', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),

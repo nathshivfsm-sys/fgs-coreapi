@@ -31,7 +31,7 @@ public sealed class FgsVehicleWriteService : IFgsVehicleWriteService
     {
         var entity = new FgsVehicle
         {
-            WarehouseId = dto.WarehouseId,
+            InventoryLocationId = dto.InventoryLocationId,
             OwnershipType = dto.OwnershipType.Trim(),
             OwnershipCompany = string.IsNullOrWhiteSpace(dto.OwnershipCompany) ? null : dto.OwnershipCompany.Trim(),
             Year = dto.Year ?? 1,
@@ -63,7 +63,7 @@ public sealed class FgsVehicleWriteService : IFgsVehicleWriteService
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Vehicle '{id}' was not found.");
 
-        entity.WarehouseId = dto.WarehouseId;
+        entity.InventoryLocationId = dto.InventoryLocationId;
         entity.OwnershipType = dto.OwnershipType.Trim();
         entity.OwnershipCompany = string.IsNullOrWhiteSpace(dto.OwnershipCompany) ? null : dto.OwnershipCompany.Trim();
         entity.Year = dto.Year ?? entity.Year;
@@ -93,9 +93,9 @@ public sealed class FgsVehicleWriteService : IFgsVehicleWriteService
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Vehicle '{id}' was not found.");
 
-        if (dto.WarehouseId.HasValue)
+        if (dto.InventoryLocationId.HasValue)
         {
-            entity.WarehouseId = dto.WarehouseId.Value;
+            entity.InventoryLocationId = dto.InventoryLocationId.Value;
         }
         if (dto.OwnershipType is not null)
         {
@@ -205,7 +205,7 @@ public sealed class FgsVehicleWriteService : IFgsVehicleWriteService
     private static FgsVehicleDetailDto MapToDetail(FgsVehicle entity) =>
         new(
             entity.Id,
-            entity.WarehouseId,
+            entity.InventoryLocationId,
             entity.OwnershipType,
             entity.OwnershipCompany,
             entity.Year,

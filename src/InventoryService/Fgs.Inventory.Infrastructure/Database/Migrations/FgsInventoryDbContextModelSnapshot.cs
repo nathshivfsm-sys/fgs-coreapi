@@ -23,6 +23,1276 @@ namespace Fgs.Inventory.Infrastructure.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryCategory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Unique identifier.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BackgroundColor")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("UI background color.");
+
+                    b.Property<string>("CategoryCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique category code within a company.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Created by user.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Created timestamp.");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasComment("Optional description.");
+
+                    b.Property<long?>("DisplayIconFileId")
+                        .HasColumnType("bigint")
+                        .HasComment("Display icon stored in FgsFile.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Display order.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Active flag.");
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Seeded system record.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasComment("Category display name.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("TextColor")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("UI text color.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Updated by user.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Updated timestamp.");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "CategoryCode")
+                        .HasName("UQ_FgsInventoryCategory_TenantId_CompanyId_CategoryCode");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsInventoryCategory_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsInventoryCategory_TenantId_CompanyId_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .HasDatabaseName("IX_FgsInventoryCategory_TenantId_CompanyId_Name");
+
+                    b.ToTable("FgsInventoryCategory", "inventory", t =>
+                        {
+                            t.HasComment("Stores the first level of inventory classification.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<bool>("DefaultTaxable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("InventoryCategoryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("InventoryItemTypeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("InventorySubCategoryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("ItemCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ManufacturerName")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("ManufacturerPartNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("PurchaseDescription")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SalesDescription")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("SalesPrice")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<string>("Sku")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("StandardUnitCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<bool>("TracksInventory")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("UPCCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("UnitCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<string>("UnitOfMeasure")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "ItemCode")
+                        .HasName("UQ_FgsInventoryItem_TenantId_CompanyId_ItemCode");
+
+                    b.HasIndex("InventoryCategoryId")
+                        .HasDatabaseName("IX_FgsInventoryItem_InventoryCategoryId1");
+
+                    b.HasIndex("InventoryItemTypeId");
+
+                    b.HasIndex("InventorySubCategoryId")
+                        .HasDatabaseName("IX_FgsInventoryItem_InventorySubCategoryId1");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryCategoryId")
+                        .HasDatabaseName("IX_FgsInventoryItem_InventoryCategoryId");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryItemTypeId")
+                        .HasDatabaseName("IX_FgsInventoryItem_TenantId_CompanyId_InventoryItemTypeId");
+
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .HasDatabaseName("IX_FgsInventoryItem_TenantId_CompanyId_Name");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryItemTypeId", "InventorySubCategoryId")
+                        .HasDatabaseName("IX_FgsInventoryItem_InventorySubCategoryId");
+
+                    b.ToTable("FgsInventoryItem", "inventory", t =>
+                        {
+                            t.HasComment("Inventory item master record for purchasing, sales, and stock tracking.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryItemAlternate", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AlternateInventoryItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<long>("InventoryItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<short>("PriorityOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "InventoryItemId", "AlternateInventoryItemId")
+                        .HasName("UQ_FgsInventoryItemAlternate_TenantId_CompanyId_InventoryItemId_AlternateInventoryItemId");
+
+                    b.HasIndex("AlternateInventoryItemId");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryItemId")
+                        .HasDatabaseName("IX_FgsInventoryItemAlternate_TenantId_CompanyId_InventoryItemId");
+
+                    b.ToTable("FgsInventoryItemAlternate", "inventory");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryItemDependency", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<long>("DependentInventoryItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<long>("InventoryItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsRequired")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Quantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(1m);
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "InventoryItemId", "DependentInventoryItemId")
+                        .HasName("UQ_FgsInventoryItemDependency_TenantId_CompanyId_InventoryItemId_DependentInventoryItemId");
+
+                    b.HasIndex("DependentInventoryItemId");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryItemId")
+                        .HasDatabaseName("IX_FgsInventoryItemDependency_TenantId_CompanyId_InventoryItemId");
+
+                    b.ToTable("FgsInventoryItemDependency", "inventory");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryItemType", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Unique identifier for the inventory item type.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company that owns this record.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasComment("Optional description of the inventory item type.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls display order in user interfaces.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the record is active.");
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether this is a system-defined record.");
+
+                    b.Property<string>("ItemTypeCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasComment("Unique code for the inventory item type within a company.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Display name of the inventory item type.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant that owns this record.");
+
+                    b.Property<bool>("TracksQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether inventory quantities are maintained for this item type.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "ItemTypeCode")
+                        .HasName("UQ_FgsInventoryItemType_TenantId_CompanyId_ItemTypeCode");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsInventoryItemType_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsInventoryItemType_TenantId_CompanyId_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .HasDatabaseName("IX_FgsInventoryItemType_TenantId_CompanyId_Name");
+
+                    b.ToTable("FgsInventoryItemType", "inventory", t =>
+                        {
+                            t.HasComment("Stores inventory item types used to classify inventory items and determine whether quantity is tracked.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryLocation", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Address1")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Address line 1.");
+
+                    b.Property<string>("Address2")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Address line 2.");
+
+                    b.Property<string>("BackgroundColor")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("UI background color.");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("City.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("ContactName")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasComment("Primary contact.");
+
+                    b.Property<string>("Country")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Country.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasComment("Description or notes.");
+
+                    b.Property<long?>("DisplayIconFileId")
+                        .HasColumnType("bigint")
+                        .HasComment("Display icon file identifier.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Display order.");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Contact email.");
+
+                    b.Property<string>("InventoryLocationCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique inventory location code.");
+
+                    b.Property<string>("InventoryLocationType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasComment("WAREHOUSE, TRUCK, TRAILER, JOBSITE, CONSIGNMENT or VENDOR.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Active flag.");
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Default inventory location.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Display name.");
+
+                    b.Property<long?>("ParentInventoryLocationId")
+                        .HasColumnType("bigint")
+                        .HasComment("Optional parent inventory location.");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Contact phone.");
+
+                    b.Property<string>("PostalCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Postal code.");
+
+                    b.Property<string>("StateProvince")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("State or province.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("TextColor")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("UI text color.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "InventoryLocationCode")
+                        .HasName("UQ_FgsInventoryLocation_TenantId_CompanyId_InventoryLocationCode");
+
+                    b.HasIndex("ParentInventoryLocationId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsInventoryLocation_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryLocationType")
+                        .HasDatabaseName("IX_FgsInventoryLocation_TenantId_CompanyId_InventoryLocationType");
+
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .HasDatabaseName("IX_FgsInventoryLocation_TenantId_CompanyId_Name");
+
+                    b.ToTable("FgsInventoryLocation", "inventory", t =>
+                        {
+                            t.HasComment("Stores all inventory locations including warehouses, trucks, trailers, job sites, vendor locations and consignment locations.");
+
+                            t.HasCheckConstraint("CK_FgsInventoryLocation_InventoryLocationType", "\"InventoryLocationType\" IN ('WAREHOUSE', 'TRUCK', 'TRAILER', 'JOBSITE', 'CONSIGNMENT', 'VENDOR')");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryStock", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("AverageCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<long>("InventoryItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("LastCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<DateTimeOffset?>("LastPurchaseDate")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<DateTimeOffset?>("LastSoldDate")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<decimal>("QuantityAvailable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<decimal>("QuantityCommitted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<decimal>("QuantityOnHand")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<DateTimeOffset>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "InventoryItemId")
+                        .HasName("UQ_FgsInventoryStock_TenantId_CompanyId_InventoryItemId");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsInventoryStock_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryItemId")
+                        .HasDatabaseName("IX_FgsInventoryStock_TenantId_CompanyId_InventoryItemId");
+
+                    b.HasIndex("TenantId", "CompanyId", "LastPurchaseDate")
+                        .HasDatabaseName("IX_FgsInventoryStock_TenantId_CompanyId_LastPurchaseDate");
+
+                    b.HasIndex("TenantId", "CompanyId", "LastSoldDate")
+                        .HasDatabaseName("IX_FgsInventoryStock_TenantId_CompanyId_LastSoldDate");
+
+                    b.ToTable("FgsInventoryStock", "inventory");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventorySubCategory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Unique identifier.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BackgroundColor")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("UI background color.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Created by.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Created date/time.");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasComment("Description.");
+
+                    b.Property<long?>("DisplayIconFileId")
+                        .HasColumnType("bigint")
+                        .HasComment("Icon file identifier.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Display order.");
+
+                    b.Property<long>("InventoryCategoryId")
+                        .HasColumnType("bigint")
+                        .HasComment("Parent inventory category.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Active flag.");
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("System record.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasComment("Display name.");
+
+                    b.Property<string>("SubCategoryCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique code within a category.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("TextColor")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("UI text color.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Updated by.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Updated date/time.");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "InventoryCategoryId", "SubCategoryCode")
+                        .HasName("UQ_FgsInventorySubCategory_TenantId_CompanyId_InventoryCategoryId_SubCategoryCode");
+
+                    b.HasIndex("InventoryCategoryId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsInventorySubCategory_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryCategoryId")
+                        .HasDatabaseName("IX_FgsInventorySubCategory_TenantId_CompanyId_InventoryCategoryId");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsInventorySubCategory_TenantId_CompanyId_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .HasDatabaseName("IX_FgsInventorySubCategory_TenantId_CompanyId_Name");
+
+                    b.ToTable("FgsInventorySubCategory", "inventory", t =>
+                        {
+                            t.HasComment("Stores inventory sub-categories used to classify inventory items under a parent category.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryTransaction", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<long?>("FromInventoryLocationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("InventoryItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<long?>("ReferenceId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ReferenceType")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<long?>("ToInventoryLocationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("TransactionDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("TransactionNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("TransactionType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<decimal>("UnitCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "TransactionNumber")
+                        .HasName("UQ_FgsInventoryTransaction_TenantId_CompanyId_TransactionNumber");
+
+                    b.HasIndex("FromInventoryLocationId");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.HasIndex("ToInventoryLocationId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsInventoryTransaction_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryItemId")
+                        .HasDatabaseName("IX_FgsInventoryTransaction_TenantId_CompanyId_InventoryItemId");
+
+                    b.HasIndex("TenantId", "CompanyId", "TransactionDate")
+                        .HasDatabaseName("IX_FgsInventoryTransaction_TenantId_CompanyId_TransactionDate");
+
+                    b.HasIndex("TenantId", "CompanyId", "TransactionType")
+                        .HasDatabaseName("IX_FgsInventoryTransaction_TenantId_CompanyId_TransactionType");
+
+                    b.HasIndex("TenantId", "CompanyId", "ReferenceType", "ReferenceId")
+                        .HasDatabaseName("IX_FgsInventoryTransaction_TenantId_CompanyId_ReferenceType_ReferenceId");
+
+                    b.ToTable("FgsInventoryTransaction", "inventory", t =>
+                        {
+                            t.HasComment("Stores an immutable audit log of every inventory movement between inventory locations or into and out of inventory.");
+
+                            t.HasCheckConstraint("CK_FgsInventoryTransaction_TransactionType", "\"TransactionType\" IN ('INITIAL', 'PURCHASE_RECEIPT', 'TRANSFER', 'USAGE', 'ADJUSTMENT', 'RETURN', 'PHYSICAL_COUNT')");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsPurchaseOrder", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("BuyerEmployeeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Employee responsible for purchasing and vendor follow-up.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<DateTimeOffset?>("ExpectedDeliveryDate")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<decimal>("FreightAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<string>("InternalNotes")
+                        .HasColumnType("text")
+                        .HasComment("Internal office notes not printed on the purchase order.");
+
+                    b.Property<decimal>("OtherCharges")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<DateTimeOffset>("PurchaseOrderDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("PurchaseOrderNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("User-visible purchase order number.");
+
+                    b.Property<string>("PurchaseOrderStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasDefaultValue("OPEN")
+                        .HasComment("OPEN, PARTIAL, RECEIVED, CLOSED or CANCELLED.");
+
+                    b.Property<string>("PurchaseTaxJson")
+                        .HasColumnType("jsonb")
+                        .HasComment("JSON tax breakdown supporting multiple tax jurisdictions such as GST, PST, HST, VAT and Sales Tax.");
+
+                    b.Property<long?>("RequestedByEmployeeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Employee requesting the purchase.");
+
+                    b.Property<string>("RequestedByName")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasComment("Snapshot of the requester name when the purchase order was created.");
+
+                    b.Property<string>("ShipToAddress1")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ShipToAddress2")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ShipToCity")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ShipToCountry")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long?>("ShipToInventoryLocationId")
+                        .HasColumnType("bigint")
+                        .HasComment("Inventory location receiving the shipment.");
+
+                    b.Property<string>("ShipToName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ShipToPostalCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<long?>("ShipToServiceLocationId")
+                        .HasColumnType("bigint")
+                        .HasComment("Service location or job site receiving the shipment.");
+
+                    b.Property<string>("ShipToStateProvince")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("Subtotal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<decimal>("TaxableAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<decimal>("TotalAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<string>("VendorContactName")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("VendorEmail")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<long>("VendorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("VendorNotes")
+                        .HasColumnType("text")
+                        .HasComment("Notes printed on the purchase order for the vendor.");
+
+                    b.Property<string>("VendorPhoneNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("VendorReferenceNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "PurchaseOrderNumber")
+                        .HasName("UQ_FgsPurchaseOrder_TenantId_CompanyId_PurchaseOrderNumber");
+
+                    b.HasIndex("ShipToInventoryLocationId");
+
+                    b.HasIndex("VendorId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsPurchaseOrder_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "BuyerEmployeeId")
+                        .HasDatabaseName("IX_FgsPurchaseOrder_TenantId_CompanyId_BuyerEmployeeId");
+
+                    b.HasIndex("TenantId", "CompanyId", "PurchaseOrderDate")
+                        .HasDatabaseName("IX_FgsPurchaseOrder_TenantId_CompanyId_PurchaseOrderDate");
+
+                    b.HasIndex("TenantId", "CompanyId", "PurchaseOrderStatus")
+                        .HasDatabaseName("IX_FgsPurchaseOrder_TenantId_CompanyId_PurchaseOrderStatus");
+
+                    b.HasIndex("TenantId", "CompanyId", "VendorId")
+                        .HasDatabaseName("IX_FgsPurchaseOrder_TenantId_CompanyId_VendorId");
+
+                    b.ToTable("FgsPurchaseOrder", "inventory", t =>
+                        {
+                            t.HasComment("Stores purchase order header information including vendor, shipping destination, tax summary and purchasing details.");
+
+                            t.HasCheckConstraint("CK_FgsPurchaseOrder_PurchaseOrderStatus", "\"PurchaseOrderStatus\" IN ('OPEN', 'PARTIAL', 'RECEIVED', 'CLOSED', 'CANCELLED')");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsPurchaseOrderDetail", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<DateTimeOffset?>("ExpectedDeliveryDate")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<decimal>("ExtendedAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Extended amount calculated from quantity, unit cost and discount before document-level taxes and freight.");
+
+                    b.Property<bool>("IsTaxable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("ItemDescription")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Description printed on the purchase order.");
+
+                    b.Property<long>("ItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<short>("LineNumber")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("OrderedQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<long>("PurchaseOrderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("ReceivedQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<decimal>("UnitCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Unit cost at the time the purchase order was created.");
+
+                    b.Property<string>("UnitOfMeasureCode")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("character varying(25)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<string>("VendorPartNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "PurchaseOrderId", "LineNumber")
+                        .HasName("UQ_FgsPurchaseOrderDetail_TenantId_CompanyId_PurchaseOrderId_LineNumber");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("PurchaseOrderId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsPurchaseOrderDetail_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ItemId")
+                        .HasDatabaseName("IX_FgsPurchaseOrderDetail_TenantId_CompanyId_ItemId");
+
+                    b.HasIndex("TenantId", "CompanyId", "PurchaseOrderId")
+                        .HasDatabaseName("IX_FgsPurchaseOrderDetail_TenantId_CompanyId_PurchaseOrderId");
+
+                    b.ToTable("FgsPurchaseOrderDetail", "inventory", t =>
+                        {
+                            t.HasComment("Stores purchase order line items for inventory purchased from vendors.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsTenantCompanyCache", b =>
                 {
                     b.Property<long>("TenantId")
@@ -73,6 +1343,278 @@ namespace Fgs.Inventory.Infrastructure.Database.Migrations
                     b.ToTable("FgsTenantCompanyCache", "inventory", t =>
                         {
                             t.HasComment("Local cache of tenant company information used by the inventory schema to eliminate cross-schema dependencies on tenant.FgsTenantCompany.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsVendor", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Address1")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Address2")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("ContactName")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("ContactTitle")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Country")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("FaxNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("InsurancePolicyNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("Is1099Eligible")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("LegalName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("LicenseNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("MobileNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("PaymentTermId")
+                        .HasColumnType("bigint")
+                        .HasComment("References setup payment terms; scalar only — no cross-schema FK.");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("PostalCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("PurchaseOrderEmail")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("StateProvince")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("TaxIdNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<string>("VendorAccountNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("VendorCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("VendorStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasDefaultValue("ACTIVE");
+
+                    b.Property<string>("VendorType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "VendorCode")
+                        .HasName("UQ_FgsVendor_TenantId_CompanyId_VendorCode");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsVendor_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ContactName")
+                        .HasDatabaseName("IX_FgsVendor_TenantId_CompanyId_VendorContactName");
+
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .HasDatabaseName("IX_FgsVendor_TenantId_CompanyId_Name");
+
+                    b.HasIndex("TenantId", "CompanyId", "PhoneNumber")
+                        .HasDatabaseName("IX_FgsVendor_TenantId_CompanyId_PhoneNumber");
+
+                    b.ToTable("FgsVendor", "inventory", t =>
+                        {
+                            t.HasComment("Stores vendor and subcontractor master information for purchasing, AP, and subcontractor management.");
+
+                            t.HasCheckConstraint("CK_FgsVendor_VendorStatus", "\"VendorStatus\" IN ('ACTIVE', 'INACTIVE', 'ON_HOLD')");
+
+                            t.HasCheckConstraint("CK_FgsVendor_VendorType", "\"VendorType\" IN ('VENDOR', 'SUBCONTRACTOR')");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsVendorInventoryItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<long>("InventoryItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<decimal>("LastCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Most recent purchase cost from this vendor for the inventory item.");
+
+                    b.Property<DateTimeOffset?>("LastReceivedDate")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date the inventory item was last received from this vendor.");
+
+                    b.Property<short?>("LeadTimeDays")
+                        .HasColumnType("smallint")
+                        .HasComment("Expected number of days required for the vendor to deliver the inventory item after the purchase order is placed.");
+
+                    b.Property<string>("PurchaseOrderComments")
+                        .HasColumnType("text")
+                        .HasComment("Vendor-specific notes automatically included or displayed during purchase order creation for this inventory item.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<long>("VendorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("VendorPartName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Vendor's description of the inventory item as it appears on catalogs or purchase orders.");
+
+                    b.Property<string>("VendorPartNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Vendor's part number used when purchasing this inventory item.");
+
+                    b.Property<short>("VendorPriority")
+                        .HasColumnType("smallint")
+                        .HasComment("Specifies the purchasing priority for this vendor and inventory item combination. Lower numbers indicate higher priority.");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "VendorId", "InventoryItemId")
+                        .HasName("UQ_FgsVendorInventoryItem_TenantId_CompanyId_VendorId_InventoryItemId");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.HasIndex("VendorId");
+
+                    b.HasIndex("TenantId", "CompanyId", "InventoryItemId")
+                        .HasDatabaseName("IX_FgsVendorInventoryItem_TenantId_CompanyId_InventoryItemId");
+
+                    b.HasIndex("TenantId", "CompanyId", "VendorId")
+                        .HasDatabaseName("IX_FgsVendorInventoryItem_TenantId_CompanyId_VendorId");
+
+                    b.ToTable("FgsVendorInventoryItem", "inventory", t =>
+                        {
+                            t.HasComment("Stores vendor-specific purchasing information for inventory items, including vendor part numbers, descriptions, pricing, purchasing priority, lead times, and other information used during purchase order creation and inventory replenishment.");
                         });
                 });
 
@@ -181,6 +1723,263 @@ namespace Fgs.Inventory.Infrastructure.Database.Migrations
                         .HasDatabaseName("IX_InventoryOutboxMessage_Status_NextRetryOn");
 
                     b.ToTable("InventoryOutboxMessage", "inventory");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryCategory", b =>
+                {
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryCategory_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryItem", b =>
+                {
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryCategory", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsInventoryItem_FgsInventoryCategory");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryItemType", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryItemTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItem_FgsInventoryItemType");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventorySubCategory", null)
+                        .WithMany()
+                        .HasForeignKey("InventorySubCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsInventoryItem_FgsInventorySubCategory");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItem_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryItemAlternate", b =>
+                {
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("AlternateInventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemAlternate_FgsInventoryItem_AlternateInventoryItemId");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemAlternate_FgsInventoryItem_InventoryItemId");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemAlternate_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryItemDependency", b =>
+                {
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("DependentInventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemDependency_FgsInventoryItem_DependentInventoryItemId");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemDependency_FgsInventoryItem_InventoryItemId");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemDependency_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryItemType", b =>
+                {
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryItemType_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryLocation", b =>
+                {
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryLocation", null)
+                        .WithMany()
+                        .HasForeignKey("ParentInventoryLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsInventoryLocation_ParentInventoryLocation");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryLocation_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryStock", b =>
+                {
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryStock_FgsInventoryItem");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryStock_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventorySubCategory", b =>
+                {
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryCategory", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventorySubCategory_FgsInventoryCategory");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventorySubCategory_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsInventoryTransaction", b =>
+                {
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryLocation", null)
+                        .WithMany()
+                        .HasForeignKey("FromInventoryLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsInventoryTransaction_FromInventoryLocation");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryTransaction_FgsInventoryItem");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryLocation", null)
+                        .WithMany()
+                        .HasForeignKey("ToInventoryLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsInventoryTransaction_ToInventoryLocation");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsInventoryTransaction_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsPurchaseOrder", b =>
+                {
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryLocation", null)
+                        .WithMany()
+                        .HasForeignKey("ShipToInventoryLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsPurchaseOrder_FgsInventoryLocation");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsVendor", null)
+                        .WithMany()
+                        .HasForeignKey("VendorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsPurchaseOrder_FgsVendor");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsPurchaseOrder_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsPurchaseOrderDetail", b =>
+                {
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsPurchaseOrderDetail_FgsInventoryItem");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsPurchaseOrder", null)
+                        .WithMany()
+                        .HasForeignKey("PurchaseOrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsPurchaseOrderDetail_FgsPurchaseOrder");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsPurchaseOrderDetail_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsVendor", b =>
+                {
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVendor_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Inventory.Domain.Entities.FgsVendorInventoryItem", b =>
+                {
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsInventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVendorInventoryItem_FgsInventoryItem");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsVendor", null)
+                        .WithMany()
+                        .HasForeignKey("VendorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVendorInventoryItem_FgsVendor");
+
+                    b.HasOne("Fgs.Inventory.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsVendorInventoryItem_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 #pragma warning restore 612, 618
         }

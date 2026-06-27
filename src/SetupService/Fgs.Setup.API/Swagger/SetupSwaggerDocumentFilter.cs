@@ -20,9 +20,6 @@ public sealed class SetupSwaggerDocumentFilter : IDocumentFilter
         ["Setup - ServiceAssets"] = "Service asset types, manufacturers, and model references.",
         ["Setup - Communication"] = "Communication templates and resolution codes.",
         ["Setup - JobTypes"] = "Job type categories, subcategories, types, and lead sources.",
-        ["Setup - Inventory"] = "Inventory item types, categories, items, alternates, and dependencies.",
-        ["Setup - Vendors"] = "Vendor catalogs and vendor inventory item mappings.",
-        ["Setup - Warehouses"] = "Warehouse locations and defaults.",
         ["Setup - Vehicles"] = "Fleet vehicles and maintenance records.",
         ["Setup - Tags"] = "Tenant tag definitions."
     };

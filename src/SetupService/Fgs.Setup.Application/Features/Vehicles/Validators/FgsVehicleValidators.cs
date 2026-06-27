@@ -10,9 +10,9 @@ public sealed class CreateFgsVehicleCommandValidator : AbstractValidator<CreateF
 {
     public CreateFgsVehicleCommandValidator(IFgsVehicleReadRepository readRepository)
     {
-        RuleFor(x => x.Dto.WarehouseId).MustAsync(async (command, value, cancellationToken) =>
-                await readRepository.ExistsWarehouseIdAsync(value, cancellationToken))
-            .WithMessage("The specified warehouse was not found.");
+        RuleFor(x => x.Dto.InventoryLocationId).MustAsync(async (command, value, cancellationToken) =>
+                await readRepository.ExistsInventoryLocationIdAsync(value, cancellationToken))
+            .WithMessage("The specified inventory location was not found.");
         RuleFor(x => x.Dto.OwnershipType).NotEmpty();
         RuleFor(x => x.Dto.OwnershipType).MaximumLength(20);
         RuleFor(x => x.Dto.OwnershipCompany).MaximumLength(200);
@@ -28,9 +28,9 @@ public sealed class CreateFgsVehicleCommandValidator : AbstractValidator<CreateF
 
         RuleFor(x => x.Dto.PurchasedFrom).MaximumLength(200);
 
-        RuleFor(x => x.Dto.WarehouseId).MustAsync(async (command, value, cancellationToken) =>
-                await readRepository.ExistsWarehouseIdAsync(value, cancellationToken))
-            .WithMessage("The specified warehouse was not found.");
+        RuleFor(x => x.Dto.InventoryLocationId).MustAsync(async (command, value, cancellationToken) =>
+                await readRepository.ExistsInventoryLocationIdAsync(value, cancellationToken))
+            .WithMessage("The specified inventory location was not found.");
         RuleFor(x => x.Dto.OwnershipType).NotEmpty();
         RuleFor(x => x.Dto.OwnershipType).MaximumLength(20);
         RuleFor(x => x.Dto.OwnershipCompany).MaximumLength(200);
@@ -55,9 +55,9 @@ public sealed class UpdateFgsVehicleCommandValidator : AbstractValidator<UpdateF
     public UpdateFgsVehicleCommandValidator(IFgsVehicleReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.WarehouseId).MustAsync(async (command, value, cancellationToken) =>
-                await readRepository.ExistsWarehouseIdAsync(value, cancellationToken))
-            .WithMessage("The specified warehouse was not found.");
+        RuleFor(x => x.Dto.InventoryLocationId).MustAsync(async (command, value, cancellationToken) =>
+                await readRepository.ExistsInventoryLocationIdAsync(value, cancellationToken))
+            .WithMessage("The specified inventory location was not found.");
         RuleFor(x => x.Dto.OwnershipType).NotEmpty();
         RuleFor(x => x.Dto.OwnershipType).MaximumLength(20);
         RuleFor(x => x.Dto.OwnershipCompany).MaximumLength(200);
@@ -82,9 +82,9 @@ public sealed class PatchFgsVehicleCommandValidator : AbstractValidator<PatchFgs
     public PatchFgsVehicleCommandValidator(IFgsVehicleReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.WarehouseId).MustAsync(async (command, value, cancellationToken) =>
-                !value.HasValue || await readRepository.ExistsWarehouseIdAsync(value.Value, cancellationToken))
-            .WithMessage("The specified warehouse was not found.").When(x => x.Dto.WarehouseId.HasValue);
+        RuleFor(x => x.Dto.InventoryLocationId).MustAsync(async (command, value, cancellationToken) =>
+                !value.HasValue || await readRepository.ExistsInventoryLocationIdAsync(value.Value, cancellationToken))
+            .WithMessage("The specified warehouse was not found.").When(x => x.Dto.InventoryLocationId.HasValue);
         RuleFor(x => x.Dto.OwnershipType).NotEmpty();
         RuleFor(x => x.Dto.OwnershipType).MaximumLength(20);
         RuleFor(x => x.Dto.OwnershipCompany).MaximumLength(200).When(x => x.Dto.OwnershipCompany is not null);

@@ -341,7 +341,7 @@ public sealed class TenantDataSeedingEngine(
     {
         var referenceMapping = mappings.FirstOrDefault();
         var sourceSchema = referenceMapping?.SourceSchemaName ?? FgsDatabaseSchemas.Glo;
-        var targetSchema = referenceMapping?.TargetSchemaName ?? sourceSchema;
+        var targetSchema = FgsDatabaseSchemas.Inventory;
         var sourceDatabaseName = referenceMapping?.SourceDatabaseName;
         var targetDatabaseName = referenceMapping?.TargetDatabaseName;
 
@@ -377,9 +377,12 @@ public sealed class TenantDataSeedingEngine(
             return;
         }
 
-        var alreadySeeded = await dbContext.FgsInventorySubCategories
-            .AsNoTracking()
-            .AnyAsync(sc => sc.TenantId == tenantId && sc.CompanyId == companyId, cancellationToken);
+        var alreadySeeded = await IsInventorySubCategorySeededAsync(
+            targetConnection,
+            targetSchema,
+            tenantId,
+            companyId,
+            cancellationToken);
 
         if (alreadySeeded)
         {
@@ -723,6 +726,28 @@ public sealed class TenantDataSeedingEngine(
         AddParameter(command, SeedTransformationTypes.SqlParameters.TenantId, tenantId);
         var exists = Convert.ToBoolean(await command.ExecuteScalarAsync(cancellationToken) ?? false);
         return exists;
+    }
+
+    private static async Task<bool> IsInventorySubCategorySeededAsync(
+        DbConnection connection,
+        string targetSchema,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var table = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsInventorySubCategory");
+        await using var command = connection.CreateCommand();
+        command.CommandText = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {table}
+                WHERE "TenantId" = @TenantId AND "CompanyId" = @CompanyId
+            )
+            """;
+        AddParameter(command, "TenantId", tenantId);
+        AddParameter(command, "CompanyId", companyId);
+        var result = await command.ExecuteScalarAsync(cancellationToken);
+        return result is true or 1 or 1L;
     }
 
     private static async Task<string> GetCurrentDatabaseNameAsync(

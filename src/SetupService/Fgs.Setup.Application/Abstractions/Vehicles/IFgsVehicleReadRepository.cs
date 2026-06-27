@@ -17,7 +17,7 @@ public interface IFgsVehicleReadRepository
         bool activeOnly = true,
         CancellationToken cancellationToken = default);
 
-    Task<bool> ExistsWarehouseIdAsync(
+    Task<bool> ExistsInventoryLocationIdAsync(
         long id,
         CancellationToken cancellationToken = default);
 }

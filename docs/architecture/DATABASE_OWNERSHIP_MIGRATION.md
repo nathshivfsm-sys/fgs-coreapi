@@ -14,7 +14,7 @@ This document records the service-per-schema database ownership split executed f
 | **BillingService** | `billing` (placeholder) | `FgsBilling` | `20260603212540_InitialSchema` |
 | **CrmService** | `crm` (placeholder) | `FgsCrm` | `20260603212808_InitialSchema` |
 | **SchedulingService** | `dispatch` (placeholder) | `FgsDispatch` | `20260603213051_InitialSchema` |
-| **InventoryService** | `inventory` (placeholder) | `FgsInventory` | `20260603213321_InitialSchema` |
+| **InventoryService** | `inventory` | `FgsInventory` | `20260627155750_AddInventoryCoreEntities` |
 | **ReportingService** | `reporting` (placeholder) | `FgsReporting` | `20260603214016_InitialSchema` |
 | **IntegrationService** | `integration` (placeholder) | `FgsIntegration` | `AddFgsTenantCompanyCache` |
 | **AssetService** | `asset` | `FgsAsset` | `InitialSchema` |
@@ -33,7 +33,7 @@ This document records the service-per-schema database ownership split executed f
 
 ### SetupService (`setup` + `glo`)
 
-All former monolith `glo.*` reference tables, all former `setup.*` tenant configuration tables (including interim inventory/billing/dispatch tables still physically in `setup`), and tag tables relocated from deprecated `shared`:
+All former monolith `glo.*` reference tables and former `setup.*` tenant configuration tables (excluding inventory master/transaction tables, now in `inventory`), and tag tables relocated from deprecated `shared`:
 
 - `FgsTag`, `FgsEntityTag`, `FgsTagEntityType` → `setup`
 - All `Glo*` entities → `glo`
@@ -42,6 +42,14 @@ All former monolith `glo.*` reference tables, all former `setup.*` tenant config
 - Communication templates: `FgsSetupCommunicationTemplate`, `GloCommunicationTemplate*` → `setup` / `glo`
 
 See `Fgs.Setup.Infrastructure/Database/Schemas/EntitySchemaRegistry.cs` for the authoritative entity→schema map.
+
+### InventoryService (`inventory`)
+
+| Entity | Schema |
+|--------|--------|
+| `FgsInventoryItemType`, `FgsInventoryCategory`, `FgsInventorySubCategory`, `FgsVendor`, `FgsInventoryLocation`, `FgsInventoryItem`, `FgsInventoryItemAlternate`, `FgsInventoryItemDependency`, `FgsInventoryStock`, `FgsVendorInventoryItem`, `FgsInventoryTransaction`, `FgsPurchaseOrder`, `FgsPurchaseOrderDetail` | `inventory` |
+
+No cross-schema FKs. `setup.FgsVehicle.InventoryLocationId` references `inventory.FgsInventoryLocation` as a scalar column only (validated via Inventory API/SQL).
 
 ### FileService (`file`)
 
@@ -119,8 +127,10 @@ Generate new migrations with [`scripts/generate-migration-sql.ps1`](../../script
 | Global + glo reference data + seed mappings | SetupService | `Fgs.Setup.Infrastructure/Database/Seeds/Initial_Migration_Seed.sql` |
 | Glo cache tables (provider + resolution types) | SetupService | `Fgs.Setup.Infrastructure/Database/Seeds/Glo_Cache_Tables_Seed.sql` |
 | Glo seed rollback | SetupService | `Fgs.Setup.Infrastructure/Database/Seeds/Initial_Migration_Seed_Down.sql` |
+| Inventory reference seed (item types + default location) | InventoryService | `Fgs.Inventory.Infrastructure/Database/Seeds/Initial_Inventory_Reference_Seed.sql` |
+| Inventory reference seed rollback | InventoryService | `Fgs.Inventory.Infrastructure/Database/Seeds/Initial_Inventory_Reference_Seed_Down.sql` |
 
-**Run order (greenfield):** all service `dotnet ef database update` → `Initial_Migration_Seed.sql` → `Glo_Cache_Tables_Seed.sql`. `FgsTenantCompanyCache` rows are filled on first tenant provision (`SeedOrder` 1–9), before glo→setup catalog copy (`SeedOrder` 100+).
+**Run order (greenfield):** all service `dotnet ef database update` → `Initial_Migration_Seed.sql` → `Glo_Cache_Tables_Seed.sql` → `Initial_Inventory_Reference_Seed.sql`. `FgsTenantCompanyCache` rows are filled on first tenant provision (`SeedOrder` 1–11), before glo→tenant catalog copy (`SeedOrder` 100+). Inventory categories seed to `inventory.FgsInventoryCategory` via `GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY`; subcategories via dedicated engine logic targeting `inventory` schema.
 
 ## Refit / integration contracts
 
@@ -155,7 +165,7 @@ RabbitMQ: TenantProvisionRequested
 
 When domain microservices mature, move tables currently interim-stored in `setup` to their owning schemas with a second migration wave:
 
-1. Inventory tables → `inventory` schema (InventoryService)
+1. ~~Inventory tables → `inventory` schema (InventoryService)~~ **Done**
 2. Billing tables → `billing` schema (BillingService)
 3. Dispatch tables → `dispatch` schema (SchedulingService)
 4. CRM tables → `crm` schema (CrmService)

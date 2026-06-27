@@ -5,7 +5,7 @@ namespace Fgs.Setup.Infrastructure.Vehicles;
 internal sealed class FgsVehicleSummaryRow
 {
     public long Id { get; set; }
-    public long WarehouseId { get; set; }
+    public long InventoryLocationId { get; set; }
     public string OwnershipType { get; set; } = null!;
     public string? OwnershipCompany { get; set; }
     public short? Year { get; set; }
@@ -25,7 +25,7 @@ internal sealed class FgsVehicleSummaryRow
     public FgsVehicleSummaryDto ToDto() =>
         new(
             Id,
-            WarehouseId,
+            InventoryLocationId,
             OwnershipType,
             OwnershipCompany,
             Year,
@@ -46,7 +46,7 @@ internal sealed class FgsVehicleSummaryRow
 internal sealed class FgsVehicleDetailRow
 {
     public long Id { get; set; }
-    public long WarehouseId { get; set; }
+    public long InventoryLocationId { get; set; }
     public string OwnershipType { get; set; } = null!;
     public string? OwnershipCompany { get; set; }
     public short? Year { get; set; }
@@ -66,7 +66,7 @@ internal sealed class FgsVehicleDetailRow
     public FgsVehicleDetailDto ToDto() =>
         new(
             Id,
-            WarehouseId,
+            InventoryLocationId,
             OwnershipType,
             OwnershipCompany,
             Year,

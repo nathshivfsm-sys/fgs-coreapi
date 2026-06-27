@@ -174,6 +174,36 @@ services:
       retries: 5
       start_period: 90s
 
+  inventory-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/inventory-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      CredentialConsumer__ServiceName: fgs-inventory-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: REDIS
+      UserService__BaseUrl: http://user-service:5001
+      SetupService__BaseUrl: http://setup-service:5004
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+    depends_on:
+      redis:
+        condition: service_healthy
+      <<: *depends-on-setup-and-audit
+    volumes:
+      - ../InventoryService/Fgs.Inventory.API/appsettings.json:/src/src/InventoryService/Fgs.Inventory.API/appsettings.json:ro
+      - ../InventoryService/Fgs.Inventory.API/appsettings.Development.json:/src/src/InventoryService/Fgs.Inventory.API/appsettings.Development.json:ro
+    expose:
+      - "5012"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5012/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
   notification-service:
     <<: *service-network
     build:
@@ -289,6 +319,8 @@ services:
       notification-service:
         condition: service_healthy
       file-service:
+        condition: service_healthy
+      inventory-service:
         condition: service_healthy
     ports:
       - "8080:80"
