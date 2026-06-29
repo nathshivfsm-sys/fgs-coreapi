@@ -71,6 +71,16 @@ internal sealed class BillingCategoryReadRepository : IBillingCategoryReadReposi
             where.Add("\"BillingCategoryName\" ILIKE @BillingCategoryName");
         }
 
+        if (filters.ShowToFieldTech.HasValue)
+        {
+            where.Add("\"ShowToFieldTech\" = @ShowToFieldTech");
+        }
+
+        if (filters.AllowToPick.HasValue)
+        {
+            where.Add("\"AllowToPick\" = @AllowToPick");
+        }
+
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
             where.Add(
@@ -99,6 +109,8 @@ internal sealed class BillingCategoryReadRepository : IBillingCategoryReadReposi
             IsActive = paging.IsActive,
             BillingCategoryType = filters.BillingCategoryType?.Trim().ToUpperInvariant(),
             BillingCategoryName = string.IsNullOrWhiteSpace(filters.BillingCategoryName) ? null : $"%{filters.BillingCategoryName.Trim()}%",
+            ShowToFieldTech = filters.ShowToFieldTech,
+            AllowToPick = filters.AllowToPick,
             Search = string.IsNullOrWhiteSpace(paging.Search) ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
             Offset = offset
@@ -121,13 +133,13 @@ internal sealed class BillingCategoryReadRepository : IBillingCategoryReadReposi
     public async Task<IReadOnlyList<BillingCategoryLookupDto>> LookupAsync(
         bool activeOnly = true,
         bool? showToFieldTech = null,
+        bool? allowToPick = null,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var filters = new List<string>
         {
-            "\"IsActive\" = TRUE",
-            "\"AllowToPick\" = TRUE"
+            "\"IsActive\" = TRUE"
         };
 
         if (activeOnly)
@@ -138,6 +150,11 @@ internal sealed class BillingCategoryReadRepository : IBillingCategoryReadReposi
         if (showToFieldTech.HasValue)
         {
             filters.Add("\"ShowToFieldTech\" = @ShowToFieldTech");
+        }
+
+        if (allowToPick.HasValue)
+        {
+            filters.Add("\"AllowToPick\" = @AllowToPick");
         }
 
         var filterClause = string.Join(" AND ", filters);
@@ -154,7 +171,7 @@ internal sealed class BillingCategoryReadRepository : IBillingCategoryReadReposi
         var rows = await connection.QueryAsync<BillingCategoryLookupRow>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, CompanyId = companyId, ShowToFieldTech = showToFieldTech },
+                new { TenantId = tenantId, CompanyId = companyId, ShowToFieldTech = showToFieldTech, AllowToPick = allowToPick },
                 cancellationToken: cancellationToken));
 
         return rows.Select(r => r.ToDto()).ToList();

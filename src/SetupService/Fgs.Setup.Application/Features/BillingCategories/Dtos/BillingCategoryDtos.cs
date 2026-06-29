@@ -54,4 +54,6 @@ public sealed record BillingCategoryPatchDto(
 
 public sealed record BillingCategoryListFilters(
     string? BillingCategoryType = null,
-    string? BillingCategoryName = null);
+    string? BillingCategoryName = null,
+    bool? ShowToFieldTech = null,
+    bool? AllowToPick = null);

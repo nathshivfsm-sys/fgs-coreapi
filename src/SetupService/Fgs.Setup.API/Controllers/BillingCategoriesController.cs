@@ -44,12 +44,14 @@ public sealed class BillingCategoriesController(IMediator mediator) : Controller
         [FromQuery] bool? isActive = null,
         [FromQuery] string? billingCategoryType = null,
         [FromQuery] string? billingCategoryName = null,
+        [FromQuery] bool? showToFieldTech = null,
+        [FromQuery] bool? allowToPick = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListBillingCategoriesQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new BillingCategoryListFilters(billingCategoryType, billingCategoryName)),
+                new BillingCategoryListFilters(billingCategoryType, billingCategoryName, showToFieldTech, allowToPick)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);
@@ -60,9 +62,10 @@ public sealed class BillingCategoriesController(IMediator mediator) : Controller
     public async Task<IActionResult> Lookup(
         [FromQuery] bool activeOnly = true,
         [FromQuery] bool? showToFieldTech = null,
+        [FromQuery] bool? allowToPick = null,
         CancellationToken cancellationToken = default)
     {
-        var response = await mediator.Send(new LookupBillingCategoriesQuery(activeOnly, showToFieldTech), cancellationToken);
+        var response = await mediator.Send(new LookupBillingCategoriesQuery(activeOnly, showToFieldTech, allowToPick), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 

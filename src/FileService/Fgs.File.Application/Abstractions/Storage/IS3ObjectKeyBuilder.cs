@@ -8,7 +8,7 @@ public interface IS3ObjectKeyBuilder
         long entityId,
         string fileName);
 
-    string BuildThumbnailKey(string originalObjectKey);
+    string BuildThumbnailKey(string mainObjectKey, string originalFileName);
 
     string TenantAssetsPrefix { get; }
 

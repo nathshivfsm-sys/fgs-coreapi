@@ -15,7 +15,7 @@ public sealed class BillingCategoryLookupQueryHandlerTests
     {
         var readRepository = new Mock<IBillingCategoryReadRepository>();
         readRepository
-            .Setup(r => r.LookupAsync(true, true, It.IsAny<CancellationToken>()))
+            .Setup(r => r.LookupAsync(true, true, true, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<BillingCategoryLookupDto> { new(1, "LABOR", "Labor", 1) });
 
         var cache = new Mock<ICacheService>();
@@ -36,11 +36,11 @@ public sealed class BillingCategoryLookupQueryHandlerTests
             tenantAccessor.Object);
 
         var response = await handler.Handle(
-            new LookupBillingCategoriesQuery(ActiveOnly: true, ShowToFieldTech: true),
+            new LookupBillingCategoriesQuery(ActiveOnly: true, ShowToFieldTech: true, AllowToPick: true),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.Data.Should().ContainSingle();
-        readRepository.Verify(r => r.LookupAsync(true, true, It.IsAny<CancellationToken>()), Times.Once);
+        readRepository.Verify(r => r.LookupAsync(true, true, true, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

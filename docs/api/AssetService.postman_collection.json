@@ -63,7 +63,7 @@
                  "description":  "Asset service scaffold (health) via {{gatewayUrl}}/api/v1/asset/...",
                  "name":  "FGS AssetService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "85bb57a5-feb8-474d-85b6-badcca39c29a"
+                 "_postman_id":  "b2e2b46f-df03-41b4-9a28-eed2ac485f67"
              },
     "event":  [
                   {

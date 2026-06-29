@@ -241,8 +241,8 @@ function Get-GatewayExternalPath {
     if ($ServiceKey -eq 'FileService' -and $RouteTemplate -eq 'tenants') {
         return '/api/v1/tenants'
     }
-    if ($ServiceKey -eq 'FileService' -and $RouteTemplate -eq 'files') {
-        return '/api/v1/files'
+    if ($ServiceKey -eq 'FileService' -and $RouteTemplate -eq 'attachments') {
+        return '/api/v1/attachments'
     }
 
     # Notification nginx rewrite: /api/v1/notifications/* -> /api/v1/*
@@ -584,7 +584,7 @@ function Parse-ControllerFile {
     $controllerDescription = "$fileName - $routeTemplate"
 
     $items = @()
-    $methodRegex = [regex]::Matches($content, '(?s)((?:\s*///[^\r\n]*\r?\n)*)\s*(?:\[(?:AllowAnonymous|Authorize[^\]]*)\]\s*)*(\[Http(Get|Post|Put|Patch|Delete)(?:\("([^"]*)"\))?\])\s*(?:\[[^\]]+\]\s*)*public\s+(?:async\s+)?(?:Task<(?:IActionResult|ActionResult(?:<[^>]+>)?)>|ContentResult|IActionResult)\s+(\w+)\s*\(')
+    $methodRegex = [regex]::Matches($content, '(?s)((?:\s*///[^\r\n]*\r?\n)*)\s*(?:\[(?:AllowAnonymous|Authorize[^\]]*)\]\s*)*(\[Http(Get|Post|Put|Patch|Delete)(?:\("([^"]*)"(?:[^)]*)?\))?\])\s*(?:\[[^\]]+\]\s*)*public\s+(?:async\s+)?(?:Task<(?:IActionResult|ActionResult(?:<[^>]+>)?)>|ContentResult|IActionResult)\s+(\w+)\s*\(')
 
     foreach ($m in $methodRegex) {
         $block = $m.Value
@@ -619,6 +619,9 @@ function Parse-ControllerFile {
         if ($methodName -eq 'List' -and (Test-IsPaginatedListAction $signatureBlock)) {
             $queryItems = @(Get-StandardPaginationQueryItems) + @(Get-ListFilterQueryItemsFromBlock $signatureBlock)
         }
+        if ($methodName -eq 'Lookup') {
+            $queryItems = @(Get-ListFilterQueryItemsFromBlock $signatureBlock)
+        }
         if ($methodName -eq 'GetActive' -and $routeTemplate -eq 'communication-templates') {
             $query = @{ tenantId = '{{tenantId}}'; companyId = '{{companyId}}'; templateType = 'Email'; code = 'INVITE' }
             $headers['X-Internal-Service-Key'] = '{{internalServiceKey}}'
@@ -628,7 +631,7 @@ function Parse-ControllerFile {
             $fullPath = '{{gatewayUrl}}/api/v1/dashboard?token={{accessToken}}'
             $useAuth = $false
         }
-        if ($httpAttr -in @('Post','Put','Patch') -and $methodName -notin @('EntraCallback','EntraConnector','CompanySignup','Start','CompleteUpload')) {
+        if ($httpAttr -in @('Post','Put','Patch') -and $methodName -notin @('EntraCallback','EntraConnector','CompanySignup','Start','Upload')) {
             $body = "{}"
         }
         if ($methodName -eq 'CompanySignup') {
@@ -757,26 +760,26 @@ function Parse-ControllerFile {
 }
 '@
         }
-        if ($fileName -eq 'FilesController') {
-            if ($methodName -eq 'CreateUploadUrl') {
-                $body = @'
-{
-  "fileName": "company-logo.png",
-  "contentType": "image/png",
-  "fileSizeBytes": 102400,
-  "entityType": "Company",
-  "entityId": {{companyId}},
-  "requestedVariant": "full",
-  "description": "Company logo upload",
-  "tags": []
-}
-'@
-            }
-            if ($methodName -eq 'CompleteUpload') {
+        if ($fileName -eq 'AttachmentsController') {
+            if ($methodName -eq 'Upload') {
                 $body = $null
             }
-            if ($methodName -eq 'GetByEntity') {
-                $query = @{ entityType = 'Company'; entityId = '{{companyId}}' }
+            if ($methodName -eq 'List') {
+                $queryItems = @(
+                    (Get-StandardPaginationQueryItems) + @(Get-ListFilterQueryItemsFromBlock $signatureBlock)
+                ) | Where-Object { $_.key -ne 'isActive' }
+                $queryItems += @(
+                    @{ key = 'entityType'; value = 'Company'; description = '' }
+                    @{ key = 'entityId'; value = '{{companyId}}'; description = '' }
+                    @{ key = 'isVisibleToCustomer'; value = 'true'; description = '' }
+                    @{ key = 'isVisibleToFieldTechnician'; value = 'true'; description = '' }
+                )
+            }
+            if ($methodName -eq 'BulkDeleteByEntity') {
+                $query = @{ entityType = 'Company'; entityId = '{{companyId}}'; category = 'general' }
+            }
+            if ($methodName -in @('Download', 'Thumbnail')) {
+                $headers['Accept'] = '*/*'
             }
             $headers['X-Tenant-Id'] = '{{tenantId}}'
             $headers['X-Company-Id'] = '{{companyId}}'
@@ -1025,26 +1028,17 @@ function Parse-ControllerFile {
                 }
             })
         }
-        if ($fileName -eq 'FilesController' -and $methodName -eq 'CreateUploadUrl') {
+        if ($fileName -eq 'AttachmentsController' -and $methodName -eq 'Upload') {
             $req['event'] = @(@{
                 listen = 'test'
                 script = @{
                     type = 'text/javascript'
                     exec = @(
                         'const body = pm.response.json();',
-                        'if (body.success && body.data) {',
-                        '  if (body.data.fileId) {',
-                        '    pm.environment.set("fileId", String(body.data.fileId));',
-                        '    pm.environment.set("recordId", String(body.data.fileId));',
-                        '  }',
-                        '  if (body.data.uploadUrl) {',
-                        '    pm.environment.set("uploadUrl", body.data.uploadUrl);',
-                        '  }',
-                        '  if (body.data.requiredHeaders) {',
-                        '    const headers = body.data.requiredHeaders;',
-                        '    const contentType = headers["Content-Type"] || headers["content-type"] || "image/png";',
-                        '    pm.environment.set("uploadContentType", contentType);',
-                        '  }',
+                        'if (body.success && body.data && body.data.attachmentId) {',
+                        '  pm.environment.set("attachmentId", String(body.data.attachmentId));',
+                        '  pm.environment.set("fileId", String(body.data.attachmentId));',
+                        '  pm.environment.set("recordId", String(body.data.attachmentId));',
                         '}'
                     )
                 }
@@ -1141,51 +1135,99 @@ function New-AuthFlowFolder {
     }
 }
 
-function New-UploadFileToS3Request {
-    return @{
-        name = 'UploadFileToS3'
-        request = @{
-            method = 'PUT'
-            auth = @{ type = 'noauth' }
-            header = @(@{ key = 'Content-Type'; value = '{{uploadContentType}}'; type = 'text' })
-            body = @{ mode = 'file'; file = @{} }
-            url = @{ raw = '{{uploadUrl}}' }
-            description = 'Step 2 of 3: PUT binary file to the presigned S3 URL from CreateUploadUrl. Body tab: binary — select a local image file. No Bearer token or tenant headers. Expect HTTP 200 from S3, then run CompleteUpload.'
-        }
-        event = @(@{
-            listen = 'prerequest'
-            script = @{
-                type = 'text/javascript'
-                exec = @(
-                    "if (!pm.environment.get('uploadUrl')) {",
-                    "  throw new Error('Run CreateUploadUrl first to set uploadUrl.');",
-                    "}",
-                    "const contentType = pm.environment.get('uploadContentType') || 'image/png';",
-                    "pm.request.headers.upsert({ key: 'Content-Type', value: contentType });"
-                )
-            }
-        })
+function New-AttachmentUploadFormBody {
+    param(
+        [string]$Category = 'general',
+        [string]$LogoVariant = '',
+        [string]$Description = 'Sample attachment upload'
+    )
+
+    $form = @(
+        @{ key = 'file'; type = 'file'; src = @() }
+        @{ key = 'entityType'; value = 'Company'; type = 'text' }
+        @{ key = 'entityId'; value = '{{companyId}}'; type = 'text' }
+        @{ key = 'category'; value = $Category; type = 'text' }
+        @{ key = 'description'; value = $Description; type = 'text' }
+        @{ key = 'tags'; value = 'postman'; type = 'text' }
+        @{ key = 'isVisibleToCustomer'; value = 'true'; type = 'text' }
+        @{ key = 'isVisibleToFieldTechnician'; value = 'true'; type = 'text' }
+    )
+    if (-not [string]::IsNullOrWhiteSpace($LogoVariant)) {
+        $form += @{ key = 'logoVariant'; value = $LogoVariant; type = 'text' }
+    }
+    return $form
+}
+
+function Set-AttachmentUploadRequestBody {
+    param(
+        $RequestItem,
+        [string]$Category = 'general',
+        [string]$LogoVariant = '',
+        [string]$Description
+    )
+
+    $RequestItem.request.header = @(
+        @{ key = 'Accept'; value = 'application/json'; type = 'text' }
+        @{ key = 'X-Tenant-Id'; value = '{{tenantId}}'; type = 'text' }
+        @{ key = 'X-Company-Id'; value = '{{companyId}}'; type = 'text' }
+    )
+    $RequestItem.request.body = @{
+        mode = 'formdata'
+        formdata = New-AttachmentUploadFormBody -Category $Category -LogoVariant $LogoVariant -Description $Description
     }
 }
 
-function Add-FileUploadWorkflowToFolder {
+function Add-AttachmentEnhancementsToFolder {
     param($Folder)
 
-    if ($Folder.name -ne 'FilesController') { return $Folder }
+    if ($Folder.name -ne 'AttachmentsController') { return $Folder }
 
-    $Folder.description = 'File upload workflow (CreateUploadUrl -> UploadFileToS3 -> CompleteUpload), metadata, and company logo lookup via {{gatewayUrl}}.'
+    $Folder.description = 'Attachment management via {{gatewayUrl}}: multipart upload, metadata, streaming download/thumbnail, list/filter, and soft delete. S3 is never exposed to clients.'
 
     $newItems = @()
     foreach ($item in $Folder.item) {
-        if ($item.name -eq 'CreateUploadUrl') {
-            $item.request.description = 'Step 1 of 3: Request a presigned S3 upload URL. Saves fileId, uploadUrl, and uploadContentType to the environment.'
+        if ($item.name -eq 'Upload') {
+            $item.request.description = 'Upload a file via multipart/form-data. Body tab: form-data - select a local file for the file field. Saves attachmentId to the environment.'
+            Set-AttachmentUploadRequestBody -RequestItem $item -Category 'general' -Description 'General attachment upload'
         }
-        if ($item.name -eq 'CompleteUpload') {
-            $item.request.description = 'Step 3 of 3: Finalize upload after S3 PUT succeeds. Generates the logo variant.'
+        if ($item.name -eq 'Download') {
+            $item.request.description = 'Stream/download attachment bytes (supports Range requests for video/audio).'
+            $item.request.header = @(
+                @{ key = 'Accept'; value = '*/*'; type = 'text' }
+                @{ key = 'X-Tenant-Id'; value = '{{tenantId}}'; type = 'text' }
+                @{ key = 'X-Company-Id'; value = '{{companyId}}'; type = 'text' }
+            )
+        }
+        if ($item.name -eq 'Thumbnail') {
+            $item.request.description = 'Stream attachment thumbnail/preview image.'
+            $item.request.header = @(
+                @{ key = 'Accept'; value = '*/*'; type = 'text' }
+                @{ key = 'X-Tenant-Id'; value = '{{tenantId}}'; type = 'text' }
+                @{ key = 'X-Company-Id'; value = '{{companyId}}'; type = 'text' }
+            )
+        }
+        if ($item.name -eq 'GetMetadata') {
+            $item.request.description = 'Get attachment metadata including application download/thumbnail URLs (no S3 URLs).'
+        }
+        if ($item.name -eq 'List') {
+            $item.request.description = 'Paginated attachment list with dynamic filters and sorting.'
+        }
+        if ($item.name -eq 'Delete') {
+            $item.request.description = 'Soft delete attachment (sets IsActive=false).'
+        }
+        if ($item.name -eq 'BulkDeleteByEntity') {
+            $item.request.description = 'Bulk soft delete attachments for an entity (optional category filter).'
         }
         $newItems += $item
-        if ($item.name -eq 'CreateUploadUrl') {
-            $newItems += New-UploadFileToS3Request
+        if ($item.name -eq 'Upload') {
+            $logoUpload = @{
+                name = 'UploadCompanyLogo'
+                request = ($item.request | ConvertTo-Json -Depth 20 | ConvertFrom-Json)
+                event = $item.event
+            }
+            $logoUpload.request.description = 'Upload a company logo via multipart/form-data (category=logo, logoVariant=full|compact|icon|favicon). Generates variant and supersedes prior logo rows.'
+            Set-AttachmentUploadRequestBody -RequestItem $logoUpload -Category 'logo' -LogoVariant 'full' -Description 'Company logo upload'
+            $newItems += $logoUpload
         }
     }
 
@@ -1248,7 +1290,7 @@ $serviceConfigs = @(
     @{ Key = 'UserService'; Path = 'src\UserService\Fgs.User.API\Controllers'; Desc = 'Company onboarding, Entra auth, dashboard, and tenant admin APIs via {{gatewayUrl}}.'; AuthFlow = $true }
     @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup catalog APIs via {{gatewayUrl}}/api/v1/{catalog}.'; AuthFlow = $false }
     @{ Key = 'NotificationService'; Path = 'src\NotificationService\Fgs.Notification.API\Controllers'; Desc = 'Notification dispatch via {{gatewayUrl}}/api/v1/notifications/...'; AuthFlow = $false }
-    @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 provisioning and file upload workflow via {{gatewayUrl}}. Upload flow: 1) CreateUploadUrl 2) UploadFileToS3 (direct PUT to S3 presigned URL) 3) CompleteUpload.'; AuthFlow = $false }
+    @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 provisioning and attachment management via {{gatewayUrl}}. Upload via multipart/form-data; download/thumbnail stream through the API (no S3 URLs exposed).'; AuthFlow = $false }
     @{ Key = 'AuditService'; Path = 'src\AuditService\Fgs.Audit.API\Controllers'; Desc = 'Credential audit trail via {{gatewayUrl}}.'; AuthFlow = $false }
     @{ Key = 'PublisherService'; Path = 'src\PublisherService\Fgs.Publisher.API\Controllers'; Desc = 'Outbox publisher worker API via {{gatewayUrl}}/api/v1/publisher/...'; AuthFlow = $false }
     @{ Key = 'ConsumerService'; Path = 'src\ConsumerService\Fgs.Consumer.API\Controllers'; Desc = 'Message consumer worker API via {{gatewayUrl}}/api/v1/consumer/...'; AuthFlow = $false }
@@ -1282,7 +1324,7 @@ foreach ($svc in $serviceConfigs) {
         $folder = Parse-ControllerFile -FilePath $file.FullName -ServiceKey $svc.Key -DtoRegistry $script:DtoRegistry
         if ($null -ne $folder) {
             if ($svc.Key -eq 'FileService') {
-                $folder = Add-FileUploadWorkflowToFolder -Folder $folder
+                $folder = Add-AttachmentEnhancementsToFolder -Folder $folder
             }
             $folders += $folder
         }

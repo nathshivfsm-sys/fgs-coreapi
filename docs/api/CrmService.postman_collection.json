@@ -63,7 +63,7 @@
                  "description":  "CRM service scaffold (health) via {{gatewayUrl}}/api/v1/crm/...",
                  "name":  "FGS CrmService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "9f743093-7551-4a94-b0df-d9f67868df57"
+                 "_postman_id":  "31c326cc-6420-4cdc-96b8-65a1f76aaf57"
              },
     "event":  [
                   {

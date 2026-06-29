@@ -62,7 +62,7 @@ NGINX listens on `https://localhost:8443` locally.
 | `/api/v1/tenants/{tenantId}/companies/{path}` | `user-service:5001` | Tenant company management (details, list) |
 | `/api/v1/tenants/{tenantId}/bucket` | `file-service:5005` | S3 bucket and folder provisioning |
 | `/api/v1/tenants/{path}` (other) | `file-service:5005` | Fallback tenant storage routes |
-| `/api/v1/files/{path}` | `file-service:5005` | File upload, download, and metadata |
+| `/api/v1/attachments/{path}` | `file-service:5005` | Attachment upload, download, metadata, and list |
 | `/api/v1/crm/{path}` | `crm-service:5009` | `/api/v1/{path}` |
 | `/api/v1/scheduling/{path}` | `scheduling-service:5010` | `/api/v1/{path}` |
 | `/api/v1/billing/{path}` | `billing-service:5011` | `/api/v1/{path}` |

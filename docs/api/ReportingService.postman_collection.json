@@ -63,7 +63,7 @@
                  "description":  "Reporting service scaffold (health) via {{gatewayUrl}}/api/v1/reporting/...",
                  "name":  "FGS ReportingService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "c4ded5fb-450b-415d-9f89-6189ea734dab"
+                 "_postman_id":  "a97bd78e-c6f8-4e8c-bcc3-1b2329d45bde"
              },
     "event":  [
                   {
