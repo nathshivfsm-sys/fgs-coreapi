@@ -102,7 +102,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
         company.LegalName.Should().Be(companyName);
         company.PhoneNumber.Should().Be("15550199");
         company.CompanySize.Should().Be("1-2");
-        company.BusinessTypeId.Should().Be(1);
+        company.TimeZone.Should().Be("America/Chicago");
         company.Website.Should().Be("https://example.com");
         company.PhysicalLocationId.Should().Be(tenant.PhysicalLocationId);
         company.BillingLocationId.Should().Be(tenant.PhysicalLocationId);
@@ -157,7 +157,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WithMultipleBusinessTypes_PersistsPrimaryAndCallsSetupClient()
+    public async Task Handle_WithMultipleBusinessTypes_PersistsAllInFgsBusinessTypeViaSetupClient()
     {
         var (handler, userContext, setupClientMock) = await CreateHandlerAsync();
         var command = ValidCommand() with { BusinessTypeIds = [1, 2] };
@@ -165,7 +165,6 @@ public sealed class CreateCompanySignupCommandHandlerTests
 
         response.Success.Should().BeTrue();
         var company = await userContext.FgsTenantCompanies.SingleAsync();
-        company.BusinessTypeId.Should().Be(1);
 
         setupClientMock.Verify(
             c => c.AddCompanyBusinessTypesAsync(

@@ -66,7 +66,6 @@ internal sealed class TenantCompanyDetailsReadQuery(
                 tenant.Email,
                 tenant.PhoneNumber,
                 tenant.Website,
-                tenant.TimeZone,
                 tenant.DefaultCurrency,
                 tenant.DefaultLanguageId,
                 tenant.FgsTenantStatusId,
@@ -83,7 +82,7 @@ internal sealed class TenantCompanyDetailsReadQuery(
                 company.Website,
                 company.TaxId,
                 company.CompanySize,
-                company.BusinessTypeId,
+                company.TimeZone,
                 company.IsActive,
                 LocationMapper.ToDetailDto(physicalLocation),
                 LocationMapper.ToDetailDto(billingLocation)));

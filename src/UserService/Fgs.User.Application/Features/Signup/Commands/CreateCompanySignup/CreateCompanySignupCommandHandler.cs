@@ -68,8 +68,6 @@ public sealed class CreateCompanySignupCommandHandler
             .Distinct()
             .ToList();
 
-        var primaryBusinessTypeId = selectedBusinessTypeIds[0];
-
         var uniquenessErrors = await _signupUniquenessValidator.ValidateAsync(request, cancellationToken);
         if (uniquenessErrors.Count > 0)
         {
@@ -152,7 +150,6 @@ public sealed class CreateCompanySignupCommandHandler
                         CompanyGuid = companyUid,
                         TenantId = tenantId,
                         CompanyNumber = companyNumber,
-                        BusinessTypeId = primaryBusinessTypeId,
                         CompanySize = companySize,
                         Code = tenantCode,
                         Name = companyNameTrimmed,
@@ -160,6 +157,7 @@ public sealed class CreateCompanySignupCommandHandler
                         Email = emailTrimmed,
                         PhoneNumber = phoneStored,
                         Website = companyWebsite,
+                        TimeZone = timeZone,
                         PhysicalLocationId = locationId,
                         BillingLocationId = locationId,
                         IsActive = true,
@@ -223,6 +221,7 @@ public sealed class CreateCompanySignupCommandHandler
 
                     await _unitOfWork.SaveChangesAsync(ct);
 
+                    // All selected global business types are copied into setup.FgsBusinessType for this company.
                     (await _setupClient.AddCompanyBusinessTypesAsync(
                         tenantId,
                         tenantCompany.CompanyNumber,

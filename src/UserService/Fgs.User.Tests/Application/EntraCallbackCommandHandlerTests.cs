@@ -324,7 +324,6 @@ public sealed class EntraCallbackCommandHandlerTests
             CompanyGuid = companyId,
             TenantId = tenantId,
             CompanyNumber = 1,
-            BusinessTypeId = 1,
             Code = "c1",
             Name = "Company",
             CreatedOn = DateTimeOffset.UtcNow
@@ -384,7 +383,6 @@ public sealed class EntraCallbackCommandHandlerTests
             CompanyGuid = companyId,
             TenantId = tenantId,
             CompanyNumber = 1,
-            BusinessTypeId = 1,
             Code = "c1",
             Name = "Company",
             CreatedOn = DateTimeOffset.UtcNow

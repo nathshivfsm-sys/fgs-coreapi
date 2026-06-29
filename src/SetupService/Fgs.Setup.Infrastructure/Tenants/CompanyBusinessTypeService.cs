@@ -63,6 +63,14 @@ public sealed class CompanyBusinessTypeService(
             .OrderBy(g => g.Id)
             .ToListAsync(cancellationToken);
 
+        var resolvedIds = gloTypes.Select(g => g.Id).ToHashSet();
+        var unresolvedIds = requestedIds.Where(id => !resolvedIds.Contains(id)).ToList();
+        if (unresolvedIds.Count > 0)
+        {
+            throw new InvalidOperationException(
+                $"One or more business types are invalid or inactive: {string.Join(", ", unresolvedIds)}.");
+        }
+
         var existingCodes = await dbContext.FgsBusinessTypes
             .AsNoTracking()
             .Where(b => b.TenantId == tenantId && b.CompanyId == companyId)

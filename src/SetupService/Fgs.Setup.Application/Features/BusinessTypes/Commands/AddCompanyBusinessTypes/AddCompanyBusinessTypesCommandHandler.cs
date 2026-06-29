@@ -23,11 +23,18 @@ public sealed class AddCompanyBusinessTypesCommandHandler(
             return ApiResponse<object>.Fail(["Unauthorized."], ApiStatusCodes.Unauthorized);
         }
 
-        await service.AddCompanyBusinessTypesAsync(
-            request.TenantId,
-            request.CompanyId,
-            request.Request,
-            cancellationToken);
+        try
+        {
+            await service.AddCompanyBusinessTypesAsync(
+                request.TenantId,
+                request.CompanyId,
+                request.Request,
+                cancellationToken);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return ApiResponse<object>.Fail([ex.Message], ApiStatusCodes.BadRequest);
+        }
 
         return ApiResponse<object>.Ok(new object());
     }

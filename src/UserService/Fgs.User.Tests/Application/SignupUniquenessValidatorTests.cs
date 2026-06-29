@@ -113,8 +113,7 @@ public sealed class SignupUniquenessValidatorTests
             CompanyNumber = companyId,
             CompanyGuid = Guid.NewGuid(),
             Code = $"company-{companyId}",
-            Name = $"Company {companyId}",
-            BusinessTypeId = 1
+            Name = $"Company {companyId}"
         });
 
         await context.SaveChangesAsync();

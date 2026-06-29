@@ -14,8 +14,6 @@ public class FgsTenantCompany : FgsEntityBase
 
     public long CompanyNumber { get; set; }
 
-    public int BusinessTypeId { get; set; }
-
     public string? CompanySize { get; set; }
 
     public string Code { get; set; } = null!;
@@ -32,17 +30,15 @@ public class FgsTenantCompany : FgsEntityBase
 
     public string? TaxId { get; set; }
 
+    public string? TimeZone { get; set; }
+
     public Guid? PhysicalLocationId { get; set; }
 
     public Guid? BillingLocationId { get; set; }
 
-    public string? FullLogoUrl { get; set; }
+    public long? FullLogoUrl { get; set; }
 
-    public string? CompactLogoUrl { get; set; }
-
-    public string? IconLogoUrl { get; set; }
-
-    public string? FaviconUrl { get; set; }
+    public long? CompactLogoUrl { get; set; }
 
     public bool IsActive { get; set; } = true;
 }

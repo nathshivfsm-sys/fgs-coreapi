@@ -1,6 +1,5 @@
 using System.Data.Common;
 using Fgs.Setup.Application.Abstractions.Persistence;
-using Fgs.Setup.Infrastructure.Database;
 using Microsoft.Extensions.Configuration;
 
 namespace Fgs.Setup.Infrastructure.Database.Read;

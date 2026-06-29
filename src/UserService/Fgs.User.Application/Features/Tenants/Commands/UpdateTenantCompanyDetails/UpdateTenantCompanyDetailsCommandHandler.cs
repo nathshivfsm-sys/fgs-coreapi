@@ -101,7 +101,6 @@ public sealed class UpdateTenantCompanyDetailsCommandHandler(
             ? null
             : SignupPhoneNormalizer.ToStorageFormat(request.PhoneNumber);
         tenant.Website = TrimOrNull(request.Website);
-        tenant.TimeZone = TrimOrNull(request.TimeZone);
         tenant.DefaultCurrency = TrimOrNull(request.DefaultCurrency);
         tenant.DefaultLanguageId = request.DefaultLanguageId;
         tenant.UpdatedOn = now;
@@ -118,7 +117,7 @@ public sealed class UpdateTenantCompanyDetailsCommandHandler(
         company.Website = TrimOrNull(request.Website);
         company.TaxId = TrimOrNull(request.TaxId);
         company.CompanySize = TrimOrNull(request.CompanySize);
-        company.BusinessTypeId = request.BusinessTypeId;
+        company.TimeZone = TrimOrNull(request.TimeZone);
         company.UpdatedOn = now;
     }
 
