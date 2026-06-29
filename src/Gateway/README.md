@@ -73,6 +73,33 @@ NGINX listens on `https://localhost:8443` locally.
 | `/api/v1/service-agreements/{path}` | `service-agreement-service:5016` | `/api/v1/{path}` |
 | `/api/v1/communication/{path}` | `communication-service:5017` | `/api/v1/{path}` |
 
+### Swagger (OpenAPI UI)
+
+Swagger is exposed through the gateway at **`https://localhost:8443/swagger/`**, which lists every service. Each service UI lives under a path prefix that matches its container configuration (`Swagger__RoutePrefix` in `docker-compose.yml`).
+
+| Swagger URL | Service |
+| --- | --- |
+| `https://localhost:8443/swagger/user/` | User |
+| `https://localhost:8443/swagger/notification/` | Notification |
+| `https://localhost:8443/swagger/setup/` | Setup |
+| `https://localhost:8443/swagger/file/` | File |
+| `https://localhost:8443/swagger/audit/` | Audit |
+| `https://localhost:8443/swagger/inventory/` | Inventory |
+| `https://localhost:8443/swagger/publisher/` | Publisher |
+| `https://localhost:8443/swagger/consumer/` | Consumer |
+| `https://localhost:8443/swagger/crm/` | CRM (502 until container is running) |
+| `https://localhost:8443/swagger/scheduling/` | Scheduling |
+| `https://localhost:8443/swagger/billing/` | Billing |
+| `https://localhost:8443/swagger/reporting/` | Reporting |
+| `https://localhost:8443/swagger/integration/` | Integration |
+| `https://localhost:8443/swagger/asset/` | Asset |
+| `https://localhost:8443/swagger/service-agreement/` | Service Agreement |
+| `https://localhost:8443/swagger/communication/` | Communication |
+
+NGINX proxies `/swagger/{service}/` to the matching upstream with the same path. Each API sets `Swagger:RoutePrefix` (via `Swagger__RoutePrefix`) so Swagger UI and `swagger.json` URLs align with the gateway. Swagger is enabled in Development by default; set `Swagger:Enabled` to `true` in other environments if needed.
+
+When adding a service to local Compose, set `Swagger__RoutePrefix: swagger/{service}` on that container and add a matching block in `conf.d/includes/swagger-routes.conf`.
+
 ### Database-backed services (local dev)
 
 Each service uses its own connection string (`FgsUser`, `FgsSetup`, `FgsFile`, etc.). PostgreSQL init script: [`scripts/init-postgres.sql`](scripts/init-postgres.sql). Ownership map: [`docs/architecture/DATABASE_OWNERSHIP_MIGRATION.md`](../../docs/architecture/DATABASE_OWNERSHIP_MIGRATION.md).

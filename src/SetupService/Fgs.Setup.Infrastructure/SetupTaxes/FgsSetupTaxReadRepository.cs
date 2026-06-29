@@ -37,7 +37,13 @@ internal sealed class FgsSetupTaxReadRepository : IFgsSetupTaxReadRepository
         var row = await connection.QueryFirstOrDefaultAsync<FgsSetupTaxDetailRow>(
             new CommandDefinition(sql, new { Id = id, TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
 
-        return row?.ToDto();
+        if (row is null)
+        {
+            return null;
+        }
+
+        var taxDetails = await LoadTaxDetailsAsync(connection, id, tenantId, companyId, cancellationToken);
+        return row.ToDto(taxDetails);
     }
 
     public async Task<PagedResult<FgsSetupTaxSummaryDto>> ListAsync(
@@ -169,5 +175,34 @@ internal sealed class FgsSetupTaxReadRepository : IFgsSetupTaxReadRepository
                     ExcludeId = excludeId
                 },
                 cancellationToken: cancellationToken));
+    }
+
+    private static async Task<IReadOnlyList<FgsSetupTaxLineDetailDto>> LoadTaxDetailsAsync(
+        System.Data.Common.DbConnection connection,
+        long taxId,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var sql = $"""
+            SELECT {FgsSetupTaxSql.SelectTaxDetailColumns}
+            FROM {FgsSetupTaxSql.TaxDetailTable} td
+            INNER JOIN {FgsSetupTaxSql.TaxAuthorityTable} ta
+                ON ta."Id" = td."FgsSetupTaxAuthorityId"
+               AND ta."TenantId" = td."TenantId"
+               AND ta."CompanyId" = td."CompanyId"
+            WHERE td."FgsSetupTaxId" = @TaxId
+              AND td."TenantId" = @TenantId
+              AND td."CompanyId" = @CompanyId
+            ORDER BY td."EffectiveFromDate" ASC, td."Id" ASC
+            """;
+
+        var rows = await connection.QueryAsync<FgsSetupTaxLineDetailRow>(
+            new CommandDefinition(
+                sql,
+                new { TaxId = taxId, TenantId = tenantId, CompanyId = companyId },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(r => r.ToDto()).ToList();
     }
 }

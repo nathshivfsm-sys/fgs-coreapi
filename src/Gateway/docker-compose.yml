@@ -78,6 +78,7 @@ services:
       dockerfile: src/Gateway/docker/setup-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      Swagger__RoutePrefix: swagger/setup
       UserService__BaseUrl: http://user-service:5001
       FileService__BaseUrl: http://file-service:5005
       AuditService__BaseUrl: http://audit-service:5008
@@ -106,6 +107,7 @@ services:
       dockerfile: src/Gateway/docker/audit-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/audit
       CredentialConsumer__ServiceName: fgs-audit-service
       CredentialConsumer__RequiredProviders__0: DATABASE
     depends_on:
@@ -129,6 +131,7 @@ services:
       dockerfile: src/Gateway/docker/user-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/user
       CredentialConsumer__ServiceName: fgs-user-service
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: ENTRA_EXTERNAL_ID
@@ -157,9 +160,11 @@ services:
       dockerfile: src/Gateway/docker/file-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/file
       CredentialConsumer__ServiceName: fgs-file-service
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: AWS
+      UserService__BaseUrl: http://user-service:5001
     depends_on:
       <<: *depends-on-setup-and-audit
     volumes:
@@ -181,6 +186,7 @@ services:
       dockerfile: src/Gateway/docker/inventory-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/inventory
       CredentialConsumer__ServiceName: fgs-inventory-service
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: REDIS
@@ -211,6 +217,7 @@ services:
       dockerfile: src/Gateway/docker/notification-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/notification
       CredentialConsumer__ServiceName: fgs-notification-service
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: SENDGRID
@@ -242,6 +249,7 @@ services:
       dockerfile: src/Gateway/docker/publisher-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/publisher
       CredentialConsumer__ServiceName: fgs-publisher-service
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: RABBITMQ
@@ -275,6 +283,7 @@ services:
       dockerfile: src/Gateway/docker/consumer-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/consumer
       CredentialConsumer__ServiceName: fgs-consumer-service
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: RABBITMQ

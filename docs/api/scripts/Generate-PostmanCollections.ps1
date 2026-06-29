@@ -764,11 +764,11 @@ function Parse-ControllerFile {
   "fileName": "company-logo.png",
   "contentType": "image/png",
   "fileSizeBytes": 102400,
-  "entityType": "COMPANY",
-  "entityId": 1,
-  "requestedVariant": "Logo",
+  "entityType": "Company",
+  "entityId": {{companyId}},
+  "requestedVariant": "full",
   "description": "Company logo upload",
-  "tags": ["logo"]
+  "tags": []
 }
 '@
             }
@@ -776,7 +776,7 @@ function Parse-ControllerFile {
                 $body = $null
             }
             if ($methodName -eq 'GetByEntity') {
-                $query = @{ entityType = 'COMPANY'; entityId = '{{companyId}}' }
+                $query = @{ entityType = 'Company'; entityId = '{{companyId}}' }
             }
             $headers['X-Tenant-Id'] = '{{tenantId}}'
             $headers['X-Company-Id'] = '{{companyId}}'
@@ -1032,9 +1032,19 @@ function Parse-ControllerFile {
                     type = 'text/javascript'
                     exec = @(
                         'const body = pm.response.json();',
-                        'if (body.success && body.data && body.data.fileId) {',
-                        '  pm.environment.set("fileId", String(body.data.fileId));',
-                        '  pm.environment.set("recordId", String(body.data.fileId));',
+                        'if (body.success && body.data) {',
+                        '  if (body.data.fileId) {',
+                        '    pm.environment.set("fileId", String(body.data.fileId));',
+                        '    pm.environment.set("recordId", String(body.data.fileId));',
+                        '  }',
+                        '  if (body.data.uploadUrl) {',
+                        '    pm.environment.set("uploadUrl", body.data.uploadUrl);',
+                        '  }',
+                        '  if (body.data.requiredHeaders) {',
+                        '    const headers = body.data.requiredHeaders;',
+                        '    const contentType = headers["Content-Type"] || headers["content-type"] || "image/png";',
+                        '    pm.environment.set("uploadContentType", contentType);',
+                        '  }',
                         '}'
                     )
                 }
@@ -1131,6 +1141,58 @@ function New-AuthFlowFolder {
     }
 }
 
+function New-UploadFileToS3Request {
+    return @{
+        name = 'UploadFileToS3'
+        request = @{
+            method = 'PUT'
+            auth = @{ type = 'noauth' }
+            header = @(@{ key = 'Content-Type'; value = '{{uploadContentType}}'; type = 'text' })
+            body = @{ mode = 'file'; file = @{} }
+            url = @{ raw = '{{uploadUrl}}' }
+            description = 'Step 2 of 3: PUT binary file to the presigned S3 URL from CreateUploadUrl. Body tab: binary — select a local image file. No Bearer token or tenant headers. Expect HTTP 200 from S3, then run CompleteUpload.'
+        }
+        event = @(@{
+            listen = 'prerequest'
+            script = @{
+                type = 'text/javascript'
+                exec = @(
+                    "if (!pm.environment.get('uploadUrl')) {",
+                    "  throw new Error('Run CreateUploadUrl first to set uploadUrl.');",
+                    "}",
+                    "const contentType = pm.environment.get('uploadContentType') || 'image/png';",
+                    "pm.request.headers.upsert({ key: 'Content-Type', value: contentType });"
+                )
+            }
+        })
+    }
+}
+
+function Add-FileUploadWorkflowToFolder {
+    param($Folder)
+
+    if ($Folder.name -ne 'FilesController') { return $Folder }
+
+    $Folder.description = 'File upload workflow (CreateUploadUrl -> UploadFileToS3 -> CompleteUpload), metadata, and company logo lookup via {{gatewayUrl}}.'
+
+    $newItems = @()
+    foreach ($item in $Folder.item) {
+        if ($item.name -eq 'CreateUploadUrl') {
+            $item.request.description = 'Step 1 of 3: Request a presigned S3 upload URL. Saves fileId, uploadUrl, and uploadContentType to the environment.'
+        }
+        if ($item.name -eq 'CompleteUpload') {
+            $item.request.description = 'Step 3 of 3: Finalize upload after S3 PUT succeeds. Generates the logo variant.'
+        }
+        $newItems += $item
+        if ($item.name -eq 'CreateUploadUrl') {
+            $newItems += New-UploadFileToS3Request
+        }
+    }
+
+    $Folder.item = $newItems
+    return $Folder
+}
+
 function New-Collection {
     param(
         [string]$ServiceName,
@@ -1186,7 +1248,7 @@ $serviceConfigs = @(
     @{ Key = 'UserService'; Path = 'src\UserService\Fgs.User.API\Controllers'; Desc = 'Company onboarding, Entra auth, dashboard, and tenant admin APIs via {{gatewayUrl}}.'; AuthFlow = $true }
     @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup catalog APIs via {{gatewayUrl}}/api/v1/{catalog}.'; AuthFlow = $false }
     @{ Key = 'NotificationService'; Path = 'src\NotificationService\Fgs.Notification.API\Controllers'; Desc = 'Notification dispatch via {{gatewayUrl}}/api/v1/notifications/...'; AuthFlow = $false }
-    @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 bucket provisioning and file health via {{gatewayUrl}}.'; AuthFlow = $false }
+    @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 provisioning and file upload workflow via {{gatewayUrl}}. Upload flow: 1) CreateUploadUrl 2) UploadFileToS3 (direct PUT to S3 presigned URL) 3) CompleteUpload.'; AuthFlow = $false }
     @{ Key = 'AuditService'; Path = 'src\AuditService\Fgs.Audit.API\Controllers'; Desc = 'Credential audit trail via {{gatewayUrl}}.'; AuthFlow = $false }
     @{ Key = 'PublisherService'; Path = 'src\PublisherService\Fgs.Publisher.API\Controllers'; Desc = 'Outbox publisher worker API via {{gatewayUrl}}/api/v1/publisher/...'; AuthFlow = $false }
     @{ Key = 'ConsumerService'; Path = 'src\ConsumerService\Fgs.Consumer.API\Controllers'; Desc = 'Message consumer worker API via {{gatewayUrl}}/api/v1/consumer/...'; AuthFlow = $false }
@@ -1218,7 +1280,12 @@ foreach ($svc in $serviceConfigs) {
 
     foreach ($file in $files) {
         $folder = Parse-ControllerFile -FilePath $file.FullName -ServiceKey $svc.Key -DtoRegistry $script:DtoRegistry
-        if ($null -ne $folder) { $folders += $folder }
+        if ($null -ne $folder) {
+            if ($svc.Key -eq 'FileService') {
+                $folder = Add-FileUploadWorkflowToFolder -Folder $folder
+            }
+            $folders += $folder
+        }
     }
 
     if ($folders.Count -eq 0) { continue }

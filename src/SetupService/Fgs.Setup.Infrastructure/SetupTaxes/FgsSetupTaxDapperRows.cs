@@ -39,7 +39,7 @@ internal sealed class FgsSetupTaxDetailRow
     public string? Description { get; set; }
     public bool IsActive { get; set; }
 
-    public FgsSetupTaxDetailDto ToDto() =>
+    public FgsSetupTaxDetailDto ToDto(IReadOnlyList<FgsSetupTaxLineDetailDto> taxDetails) =>
         new(
             Id,
             TaxCode,
@@ -49,6 +49,32 @@ internal sealed class FgsSetupTaxDetailRow
             SyncToken,
             ShowTaxDetail,
             Description,
+            IsActive,
+            taxDetails);
+}
+
+internal sealed class FgsSetupTaxLineDetailRow
+{
+    public long Id { get; set; }
+    public long FgsSetupTaxAuthorityId { get; set; }
+    public string TaxAuthorityCode { get; set; } = null!;
+    public string TaxAuthorityName { get; set; } = null!;
+    public decimal TaxPercent { get; set; }
+    public DateOnly EffectiveFromDate { get; set; }
+    public DateOnly? EffectiveToDate { get; set; }
+    public bool IsExternalSystemRecord { get; set; }
+    public bool IsActive { get; set; }
+
+    public FgsSetupTaxLineDetailDto ToDto() =>
+        new(
+            Id,
+            FgsSetupTaxAuthorityId,
+            TaxAuthorityCode,
+            TaxAuthorityName,
+            TaxPercent,
+            EffectiveFromDate,
+            EffectiveToDate,
+            IsExternalSystemRecord,
             IsActive);
 }
 

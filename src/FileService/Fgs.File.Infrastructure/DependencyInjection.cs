@@ -38,7 +38,7 @@ public static class DependencyInjection
         services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));
         services.Configure<FileServiceOptions>(configuration.GetSection(FileServiceOptions.SectionName));
 
-        services.AddFgsRefitClient<IUserTenantClient>(
+        services.AddFgsInternalServiceRefitClient<IUserTenantClient>(
             configuration,
             "UserService:BaseUrl",
             "http://user-service:5001");

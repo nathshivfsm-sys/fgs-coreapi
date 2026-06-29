@@ -6,6 +6,15 @@ internal static class FgsSetupTaxSql
 {
     public const string Table = "setup.\"FgsSetupTax\"";
 
+    public const string TaxDetailTable = "setup.\"FgsSetupTaxDetail\"";
+
+    public const string TaxAuthorityTable = "setup.\"FgsSetupTaxAuthority\"";
+
+    public const string SelectTaxDetailColumns = """
+        td."Id", td."FgsSetupTaxAuthorityId", ta."Code" AS "TaxAuthorityCode", ta."Name" AS "TaxAuthorityName",
+        ta."TaxPercent", td."EffectiveFromDate", td."EffectiveToDate", td."IsExternalSystemRecord", td."IsActive"
+        """;
+
     public const string SelectDetailColumns = """
         "Id", "TaxCode", "Name", "IsExternalSystemRecord", "ExternalSystemId", "SyncToken", "ShowTaxDetail", "Description", "IsActive"
         """;
@@ -28,7 +37,7 @@ internal static class FgsSetupTaxSql
         var dir = direction == SortDirection.Desc ? "DESC" : "ASC";
         if (string.IsNullOrWhiteSpace(sortBy) || !AllowedSortColumns.Contains(sortBy))
         {
-            return $"ORDER BY \"Name\" {dir}";
+            return $"ORDER BY \"Id\" {dir}";
         }
 
         var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));

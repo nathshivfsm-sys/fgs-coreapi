@@ -164,5 +164,6 @@ public sealed class FgsSetupTaxWriteService : IFgsSetupTaxWriteService
             entity.SyncToken,
             entity.ShowTaxDetail,
             entity.Description,
-            entity.IsActive);
+            entity.IsActive,
+            []);
 }

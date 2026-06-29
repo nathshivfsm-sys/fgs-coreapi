@@ -11,6 +11,17 @@ public sealed record FgsSetupTaxSummaryDto(
     string? Description,
     bool IsActive);
 
+public sealed record FgsSetupTaxLineDetailDto(
+    long Id,
+    long FgsSetupTaxAuthorityId,
+    string TaxAuthorityCode,
+    string TaxAuthorityName,
+    decimal TaxPercent,
+    DateOnly EffectiveFromDate,
+    DateOnly? EffectiveToDate,
+    bool IsExternalSystemRecord,
+    bool IsActive);
+
 public sealed record FgsSetupTaxDetailDto(
     long Id,
     string TaxCode,
@@ -20,7 +31,8 @@ public sealed record FgsSetupTaxDetailDto(
     string? SyncToken,
     bool ShowTaxDetail,
     string? Description,
-    bool IsActive);
+    bool IsActive,
+    IReadOnlyList<FgsSetupTaxLineDetailDto> TaxDetails);
 
 public sealed record FgsSetupTaxLookupDto(
     long Id,

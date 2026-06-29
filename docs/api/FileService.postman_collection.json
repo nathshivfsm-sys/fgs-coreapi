@@ -1,7 +1,7 @@
 ﻿{
     "item":  [
                  {
-                     "description":  "FilesController - files",
+                     "description":  "File upload workflow (CreateUploadUrl → UploadFileToS3 → CompleteUpload), metadata, and company logo lookup via {{gatewayUrl}}.",
                      "name":  "FilesController",
                      "item":  [
                                   {
@@ -18,7 +18,7 @@
                                                                                "upload-url"
                                                                            ]
                                                               },
-                                                      "description":  "CreateUploadUrl",
+                                      "description":  "Step 1 of 3: Request a presigned S3 upload URL. Saves fileId, uploadUrl, and uploadContentType to the environment.",
                                                       "method":  "POST",
                                                       "header":  [
                                                                      {
@@ -43,7 +43,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"fileName\": \"company-logo.png\",\r\n  \"contentType\": \"image/png\",\r\n  \"fileSizeBytes\": 102400,\r\n  \"entityType\": \"COMPANY\",\r\n  \"entityId\": 1,\r\n  \"requestedVariant\": \"Logo\",\r\n  \"description\": \"Company logo upload\",\r\n  \"tags\": [\"logo\"]\r\n}",
+                                                                   "raw":  "{\r\n  \"fileName\": \"company-logo.png\",\r\n  \"contentType\": \"image/png\",\r\n  \"fileSizeBytes\": 102400,\r\n  \"entityType\": \"Company\",\r\n  \"entityId\": {{companyId}},\r\n  \"requestedVariant\": \"full\",\r\n  \"description\": \"Company logo upload\",\r\n  \"tags\": []\r\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -68,14 +68,65 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.fileId) {",
-                                                                                    "  pm.environment.set(\"fileId\", String(body.data.fileId));",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.fileId));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  if (body.data.fileId) {",
+                                                                                    "    pm.environment.set(\"fileId\", String(body.data.fileId));",
+                                                                                    "    pm.environment.set(\"recordId\", String(body.data.fileId));",
+                                                                                    "  }",
+                                                                                    "  if (body.data.uploadUrl) {",
+                                                                                    "    pm.environment.set(\"uploadUrl\", body.data.uploadUrl);",
+                                                                                    "  }",
+                                                                                    "  if (body.data.requiredHeaders) {",
+                                                                                    "    const headers = body.data.requiredHeaders;",
+                                                                                    "    const contentType = headers[\"Content-Type\"] || headers[\"content-type\"] || \"image/png\";",
+                                                                                    "    pm.environment.set(\"uploadContentType\", contentType);",
+                                                                                    "  }",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
                                                                    },
                                                         "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "UploadFileToS3",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               },
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "{{uploadContentType}}"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "file",
+                                                                   "file":  {
+
+                                                                            }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{uploadUrl}}"
+                                                              },
+                                                      "description":  "Step 2 of 3: PUT the file bytes directly to the presigned S3 URL from CreateUploadUrl. Body tab: binary — select company-logo.png (or matching content type). No Bearer token or tenant headers. Expect HTTP 200 from S3, then run CompleteUpload."
+                                                  },
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "if (!pm.environment.get(\"uploadUrl\")) {",
+                                                                                    "  throw new Error(\"Run CreateUploadUrl first to set uploadUrl.\");",
+                                                                                    "}",
+                                                                                    "const contentType = pm.environment.get(\"uploadContentType\") || \"image/png\";",
+                                                                                    "pm.request.headers.upsert({ key: \"Content-Type\", value: contentType });"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "prerequest"
                                                     }
                                                 ]
                                   },
@@ -96,7 +147,7 @@
                                                                                "complete"
                                                                            ]
                                                               },
-                                                      "description":  "CompleteUpload",
+                                                      "description":  "Step 3 of 3: Finalize upload after S3 PUT succeeds. Generates the logo variant.",
                                                       "header":  [
                                                                      {
                                                                          "key":  "Accept",
@@ -140,7 +191,7 @@
                                                                                 {
                                                                                     "key":  "entityType",
                                                                                     "description":  "",
-                                                                                    "value":  "COMPANY"
+                                                                                    "value":  "Company"
                                                                                 }
                                                                             ],
                                                                   "host":  [
@@ -451,7 +502,7 @@
                      }
                  ],
     "info":  {
-                 "description":  "Tenant S3 bucket provisioning and file health via {{gatewayUrl}}.",
+                 "description":  "Tenant S3 provisioning and file upload workflow via {{gatewayUrl}}. Upload flow: 1) CreateUploadUrl 2) UploadFileToS3 (direct PUT to S3 presigned URL) 3) CompleteUpload.",
                  "name":  "FGS FileService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
                  "_postman_id":  "0e70515a-9e4c-47bc-bed3-3766303649e0"

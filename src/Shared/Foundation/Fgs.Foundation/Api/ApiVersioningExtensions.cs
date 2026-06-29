@@ -40,9 +40,20 @@ public static class ApiVersioningExtensions
     {
         services.AddOptions<FgsSwaggerOptions>()
             .Configure(configure)
+            .Configure<IConfiguration>((options, configuration) =>
+            {
+                var routePrefix = configuration[$"{FgsSwaggerOptions.ConfigurationSectionName}:RoutePrefix"];
+                if (!string.IsNullOrWhiteSpace(routePrefix))
+                {
+                    options.RoutePrefix = routePrefix.Trim().Trim('/');
+                }
+            })
             .Validate(
                 options => !string.IsNullOrWhiteSpace(options.Title),
-                "Swagger title is required.");
+                "Swagger title is required.")
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(options.RoutePrefix),
+                "Swagger route prefix is required.");
 
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
@@ -63,14 +74,25 @@ public static class ApiVersioningExtensions
 
         var swagger = app.Services.GetRequiredService<IOptions<FgsSwaggerOptions>>().Value;
         var versionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+        var routePrefix = swagger.RoutePrefix.Trim().Trim('/');
+        if (string.IsNullOrWhiteSpace(routePrefix))
+        {
+            routePrefix = "swagger";
+        }
 
-        app.UseSwagger();
+        app.UseSwagger(options =>
+        {
+            options.RouteTemplate = $"{routePrefix}/{{documentName}}/swagger.json";
+        });
+
         app.UseSwaggerUI(options =>
         {
+            options.RoutePrefix = routePrefix;
+
             foreach (var description in versionProvider.ApiVersionDescriptions.OrderByDescending(d => d.ApiVersion))
             {
                 options.SwaggerEndpoint(
-                    $"/swagger/{description.GroupName}/swagger.json",
+                    $"{description.GroupName}/swagger.json",
                     $"{swagger.Title} {description.GroupName.ToUpperInvariant()}");
             }
 

@@ -1093,10 +1093,7 @@ def allowed_sort(cfg: EntityConfig) -> list[str]:
 
 
 def default_order_sql(cfg: EntityConfig) -> str:
-    sort_col = resolve_sort_field(cfg)
-    if sort_col:
-        return f'ORDER BY \\"{sort_col}\\" {{dir}} NULLS LAST, \\"{cfg.name_field}\\" {{dir}}'
-    return f'ORDER BY \\"{cfg.name_field}\\" {{dir}}'
+    return 'ORDER BY \\"Id\\" {dir}'
 
 
 def generate_sql(cfg: EntityConfig) -> None:
