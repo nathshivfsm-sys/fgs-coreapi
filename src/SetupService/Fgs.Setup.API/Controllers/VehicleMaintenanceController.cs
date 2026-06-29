@@ -4,7 +4,6 @@ using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.VehicleMaintenances.Commands.CreateFgsVehicleMaintenance;
-using Fgs.Setup.Application.Features.VehicleMaintenances.Commands.DeleteFgsVehicleMaintenance;
 using Fgs.Setup.Application.Features.VehicleMaintenances.Commands.PatchFgsVehicleMaintenance;
 using Fgs.Setup.Application.Features.VehicleMaintenances.Commands.UpdateFgsVehicleMaintenance;
 using Fgs.Setup.Application.Features.VehicleMaintenances.Queries.GetFgsVehicleMaintenanceById;
@@ -20,9 +19,9 @@ namespace Fgs.Setup.API.Controllers;
 /// Tenant-scoped vehicle maintenance catalog management.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("vehiclemaintenances")]
+[FgsVersionedRoute("vehiclemaintenance")]
 [Produces("application/json")]
-public sealed class VehicleMaintenancesController(IMediator mediator) : ControllerBase
+public sealed class VehicleMaintenanceController(IMediator mediator) : ControllerBase
 {
     [HttpGet("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsVehicleMaintenanceDetailDto>), StatusCodes.Status200OK)]
@@ -41,7 +40,7 @@ public sealed class VehicleMaintenancesController(IMediator mediator) : Controll
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] bool? isCompleted = null,
         [FromQuery] long? vehicleId = null,
         CancellationToken cancellationToken = default)
@@ -100,15 +99,6 @@ public sealed class VehicleMaintenancesController(IMediator mediator) : Controll
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchFgsVehicleMaintenanceCommand(id, request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsVehicleMaintenanceDetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DeleteFgsVehicleMaintenanceCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

@@ -4,7 +4,6 @@ using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Commands.CreateFgsSetupPostalCode;
-using Fgs.Setup.Application.Features.SetupPostalCodes.Commands.DeleteFgsSetupPostalCode;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Commands.PatchFgsSetupPostalCode;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Commands.UpdateFgsSetupPostalCode;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Queries.GetFgsSetupPostalCodeById;
@@ -41,7 +40,7 @@ public sealed class PostalCodesController(IMediator mediator) : ControllerBase
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? postalCode = null,
         CancellationToken cancellationToken = default)
     {
@@ -99,15 +98,6 @@ public sealed class PostalCodesController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchFgsSetupPostalCodeCommand(id, request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsSetupPostalCodeDetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DeleteFgsSetupPostalCodeCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

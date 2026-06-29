@@ -4,7 +4,6 @@ using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.LeadSources.Commands.CreateLeadSource;
-using Fgs.Setup.Application.Features.LeadSources.Commands.DeleteLeadSource;
 using Fgs.Setup.Application.Features.LeadSources.Commands.PatchLeadSource;
 using Fgs.Setup.Application.Features.LeadSources.Commands.UpdateLeadSource;
 using Fgs.Setup.Application.Features.LeadSources.Queries.GetLeadSourceById;
@@ -41,7 +40,7 @@ public sealed class LeadSourcesController(IMediator mediator) : ControllerBase
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? sourceCode = null,
         [FromQuery] string? sourceName = null,
         CancellationToken cancellationToken = default)
@@ -100,15 +99,6 @@ public sealed class LeadSourcesController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchLeadSourceCommand(id, request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<LeadSourceDetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DeleteLeadSourceCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

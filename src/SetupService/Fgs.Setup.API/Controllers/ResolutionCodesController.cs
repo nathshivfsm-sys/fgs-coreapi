@@ -4,7 +4,6 @@ using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.ResolutionCodes.Commands.CreateResolutionCode;
-using Fgs.Setup.Application.Features.ResolutionCodes.Commands.DeleteResolutionCode;
 using Fgs.Setup.Application.Features.ResolutionCodes.Commands.PatchResolutionCode;
 using Fgs.Setup.Application.Features.ResolutionCodes.Commands.UpdateResolutionCode;
 using Fgs.Setup.Application.Features.ResolutionCodes.Queries.GetResolutionCodeById;
@@ -41,7 +40,7 @@ public sealed class ResolutionCodesController(IMediator mediator) : ControllerBa
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? resolutionCode = null,
         [FromQuery] string? resolutionName = null,
         CancellationToken cancellationToken = default)
@@ -59,9 +58,10 @@ public sealed class ResolutionCodesController(IMediator mediator) : ControllerBa
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ResolutionCodeLookupDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Lookup(
         [FromQuery] bool activeOnly = true,
+        [FromQuery] bool? isMobileVisible = null,
         CancellationToken cancellationToken = default)
     {
-        var response = await mediator.Send(new LookupResolutionCodesQuery(activeOnly), cancellationToken);
+        var response = await mediator.Send(new LookupResolutionCodesQuery(activeOnly, isMobileVisible), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -100,15 +100,6 @@ public sealed class ResolutionCodesController(IMediator mediator) : ControllerBa
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchResolutionCodeCommand(id, request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<ResolutionCodeDetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DeleteResolutionCodeCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

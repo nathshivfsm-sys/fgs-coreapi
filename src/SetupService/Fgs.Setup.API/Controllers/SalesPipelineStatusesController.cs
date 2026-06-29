@@ -41,7 +41,7 @@ public sealed class SalesPipelineStatusesController(IMediator mediator) : Contro
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? statusCode = null,
         [FromQuery] string? statusName = null,
         CancellationToken cancellationToken = default)

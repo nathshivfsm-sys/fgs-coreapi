@@ -41,7 +41,7 @@ public sealed class TaxAuthoritiesController(IMediator mediator) : ControllerBas
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? code = null,
         [FromQuery] string? name = null,
         CancellationToken cancellationToken = default)

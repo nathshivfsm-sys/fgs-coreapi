@@ -12,6 +12,7 @@ internal sealed class FgsSetupTaxSummaryRow
     public string? SyncToken { get; set; }
     public bool ShowTaxDetail { get; set; }
     public string? Description { get; set; }
+    public decimal TaxRate { get; set; }
     public bool IsActive { get; set; }
 
     public FgsSetupTaxSummaryDto ToDto() =>
@@ -24,6 +25,7 @@ internal sealed class FgsSetupTaxSummaryRow
             SyncToken,
             ShowTaxDetail,
             Description,
+            TaxRate,
             IsActive);
 }
 
@@ -49,6 +51,7 @@ internal sealed class FgsSetupTaxDetailRow
             SyncToken,
             ShowTaxDetail,
             Description,
+            taxDetails.Where(d => d.IsActive).Sum(d => d.TaxPercent),
             IsActive,
             taxDetails);
 }
@@ -83,8 +86,10 @@ internal sealed class FgsSetupTaxLookupRow
     public long Id { get; set; }
     public string TaxCode { get; set; } = null!;
     public string Name { get; set; } = null!;
+    public decimal TaxRate { get; set; }
 
     public FgsSetupTaxLookupDto ToDto() => new(Id,
             TaxCode,
-            Name);
+            Name,
+            TaxRate);
 }

@@ -23,11 +23,11 @@ public sealed class LookupBillingCategoriesQueryHandler(
             tenantScope.TenantId,
             tenantScope.CompanyId,
             "billingcategories",
-            CacheKeys.LookupSegment(request.ActiveOnly));
+            $"{CacheKeys.LookupSegment(request.ActiveOnly)}:showToFieldTech={request.ShowToFieldTech?.ToString() ?? "all"}");
 
         var result = await cache.GetOrSetAsync(
             cacheKey,
-            () => readRepository.LookupAsync(request.ActiveOnly, cancellationToken),
+            () => readRepository.LookupAsync(request.ActiveOnly, request.ShowToFieldTech, cancellationToken),
             cancellationToken: cancellationToken);
 
         return ApiResponse<IReadOnlyList<BillingCategoryLookupDto>>.Ok(result ?? Array.Empty<BillingCategoryLookupDto>());

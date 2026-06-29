@@ -4,7 +4,6 @@ using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Commands.CreateTitleOfCourtesy;
-using Fgs.Setup.Application.Features.TitlesOfCourtesy.Commands.DeleteTitleOfCourtesy;
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Commands.PatchTitleOfCourtesy;
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Commands.UpdateTitleOfCourtesy;
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Dtos;
@@ -22,9 +21,9 @@ namespace Fgs.Setup.API.Controllers;
 /// </summary>
 //[Authorize]
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("titlesofcourtesy")]
+[FgsVersionedRoute("titleofcourtesy")]
 [Produces("application/json")]
-public sealed class TitlesOfCourtesyController(IMediator mediator) : ControllerBase
+public sealed class TitleOfCourtesyController(IMediator mediator) : ControllerBase
 {
     [HttpGet("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<TitleOfCourtesyDetailDto>), StatusCodes.Status200OK)]
@@ -43,7 +42,7 @@ public sealed class TitlesOfCourtesyController(IMediator mediator) : ControllerB
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? code = null,
         [FromQuery] string? displayName = null,
         CancellationToken cancellationToken = default)
@@ -102,15 +101,6 @@ public sealed class TitlesOfCourtesyController(IMediator mediator) : ControllerB
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchTitleOfCourtesyCommand(id, request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<TitleOfCourtesyDetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DeleteTitleOfCourtesyCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

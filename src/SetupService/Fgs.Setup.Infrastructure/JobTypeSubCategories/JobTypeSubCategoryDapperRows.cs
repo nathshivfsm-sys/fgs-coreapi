@@ -36,8 +36,7 @@ internal sealed class JobTypeSubCategoryDetailRow
             SubCategoryCode,
             Name,
             Description,
-            DisplayOrder,
-            IsActive);
+            DisplayOrder);
 }
 
 internal sealed class JobTypeSubCategoryLookupRow

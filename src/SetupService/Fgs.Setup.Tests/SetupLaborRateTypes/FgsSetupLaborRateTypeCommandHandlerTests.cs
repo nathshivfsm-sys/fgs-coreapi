@@ -38,7 +38,7 @@ public sealed class FgsSetupLaborRateTypeCommandHandlerTests
             NullLogger<CreateFgsSetupLaborRateTypeCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateFgsSetupLaborRateTypeCommand(new FgsSetupLaborRateTypeCreateDto("Name value", "Description value", 1, false)),
+            new CreateFgsSetupLaborRateTypeCommand(new FgsSetupLaborRateTypeCreateDto("Name value", "Description value", 1)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -70,7 +70,7 @@ public sealed class FgsSetupLaborRateTypeCommandHandlerTests
             NullLogger<DeleteFgsSetupLaborRateTypeCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateFgsSetupLaborRateTypeCommand(new FgsSetupLaborRateTypeCreateDto("Name value", "Description value", 1, false)),
+            new CreateFgsSetupLaborRateTypeCommand(new FgsSetupLaborRateTypeCreateDto("Name value", "Description value", 1)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 

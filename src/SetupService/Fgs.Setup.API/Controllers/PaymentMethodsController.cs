@@ -4,7 +4,6 @@ using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.SetupPaymentMethods.Commands.CreateFgsSetupPaymentMethod;
-using Fgs.Setup.Application.Features.SetupPaymentMethods.Commands.DeleteFgsSetupPaymentMethod;
 using Fgs.Setup.Application.Features.SetupPaymentMethods.Commands.PatchFgsSetupPaymentMethod;
 using Fgs.Setup.Application.Features.SetupPaymentMethods.Commands.UpdateFgsSetupPaymentMethod;
 using Fgs.Setup.Application.Features.SetupPaymentMethods.Queries.GetFgsSetupPaymentMethodById;
@@ -41,7 +40,7 @@ public sealed class PaymentMethodsController(IMediator mediator) : ControllerBas
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? displayName = null,
         CancellationToken cancellationToken = default)
     {
@@ -58,9 +57,13 @@ public sealed class PaymentMethodsController(IMediator mediator) : ControllerBas
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<FgsSetupPaymentMethodLookupDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Lookup(
         [FromQuery] bool activeOnly = true,
+        [FromQuery] bool? isMobileVisible = null,
+        [FromQuery] bool? isCustomerPortalVisible = null,
         CancellationToken cancellationToken = default)
     {
-        var response = await mediator.Send(new LookupSetupPaymentMethodsQuery(activeOnly), cancellationToken);
+        var response = await mediator.Send(
+            new LookupSetupPaymentMethodsQuery(activeOnly, isMobileVisible, isCustomerPortalVisible),
+            cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -99,15 +102,6 @@ public sealed class PaymentMethodsController(IMediator mediator) : ControllerBas
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchFgsSetupPaymentMethodCommand(id, request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsSetupPaymentMethodDetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DeleteFgsSetupPaymentMethodCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

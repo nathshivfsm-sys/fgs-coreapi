@@ -16,7 +16,7 @@ public sealed class FgsSetupTaxAuthorityQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsSetupTaxAuthorityDetailDto(1, "TEST", "Name value", "TEST", false, 10.5m, "Description value", true);
+        var detail = new FgsSetupTaxAuthorityDetailDto(1, "TEST", "Name value", "TEST", false, 10.5m, "Description value", 0, true);
 
         var readRepository = new Mock<IFgsSetupTaxAuthorityReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);

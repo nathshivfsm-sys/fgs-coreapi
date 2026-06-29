@@ -3,111 +3,112 @@ using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
-using Fgs.Setup.Application.Features.Vehicles.Commands.CreateFgsVehicle;
-using Fgs.Setup.Application.Features.Vehicles.Commands.DeleteFgsVehicle;
-using Fgs.Setup.Application.Features.Vehicles.Commands.PatchFgsVehicle;
-using Fgs.Setup.Application.Features.Vehicles.Commands.UpdateFgsVehicle;
-using Fgs.Setup.Application.Features.Vehicles.Queries.GetFgsVehicleById;
-using Fgs.Setup.Application.Features.Vehicles.Queries.ListVehicles;
-using Fgs.Setup.Application.Features.Vehicles.Queries.LookupVehicles;
-using Fgs.Setup.Application.Features.Vehicles.Dtos;
+using Fgs.Setup.Application.Features.SetupTaxes.Commands.CreateFgsSetupTax;
+using Fgs.Setup.Application.Features.SetupTaxes.Commands.DeleteFgsSetupTax;
+using Fgs.Setup.Application.Features.SetupTaxes.Commands.PatchFgsSetupTax;
+using Fgs.Setup.Application.Features.SetupTaxes.Commands.UpdateFgsSetupTax;
+using Fgs.Setup.Application.Features.SetupTaxes.Queries.GetFgsSetupTaxById;
+using Fgs.Setup.Application.Features.SetupTaxes.Queries.ListSetupTaxes;
+using Fgs.Setup.Application.Features.SetupTaxes.Queries.LookupSetupTaxes;
+using Fgs.Setup.Application.Features.SetupTaxes.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
 
 /// <summary>
-/// Tenant-scoped vehicle catalog management.
+/// Tenant-scoped tax catalog management.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("vehicles")]
+[FgsVersionedRoute("tax")]
 [Produces("application/json")]
-public sealed class VehiclesController(IMediator mediator) : ControllerBase
+public sealed class TaxController(IMediator mediator) : ControllerBase
 {
     [HttpGet("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsVehicleDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<FgsSetupTaxDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new GetFgsVehicleByIdQuery(id), cancellationToken);
+        var response = await mediator.Send(new GetFgsSetupTaxByIdQuery(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsVehicleSummaryDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSetupTaxSummaryDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> List(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 25,
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
-        [FromQuery] string? vIN = null,
+        [FromQuery] bool? isActive = null,
+        [FromQuery] string? taxCode = null,
+        [FromQuery] string? name = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
-            new ListVehiclesQuery(
+            new ListSetupTaxesQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new FgsVehicleListFilters(vIN)),
+                new FgsSetupTaxListFilters(taxCode, name)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpGet("lookup")]
-    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<FgsVehicleLookupDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<FgsSetupTaxLookupDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Lookup(
         [FromQuery] bool activeOnly = true,
         CancellationToken cancellationToken = default)
     {
-        var response = await mediator.Send(new LookupVehiclesQuery(activeOnly), cancellationToken);
+        var response = await mediator.Send(new LookupSetupTaxesQuery(activeOnly), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(ApiResponse<FgsVehicleDetailDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<FgsSetupTaxDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create(
-        [FromBody] FgsVehicleCreateDto request,
+        [FromBody] FgsSetupTaxCreateDto request,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new CreateFgsVehicleCommand(request), cancellationToken);
+        var response = await mediator.Send(new CreateFgsSetupTaxCommand(request), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpPut("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsVehicleDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<FgsSetupTaxDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(
         long id,
-        [FromBody] FgsVehicleUpdateDto request,
+        [FromBody] FgsSetupTaxUpdateDto request,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new UpdateFgsVehicleCommand(id, request), cancellationToken);
+        var response = await mediator.Send(new UpdateFgsSetupTaxCommand(id, request), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpPatch("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsVehicleDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<FgsSetupTaxDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Patch(
         long id,
-        [FromBody] FgsVehiclePatchDto request,
+        [FromBody] FgsSetupTaxPatchDto request,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new PatchFgsVehicleCommand(id, request), cancellationToken);
+        var response = await mediator.Send(new PatchFgsSetupTaxCommand(id, request), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsVehicleDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<FgsSetupTaxDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new DeleteFgsVehicleCommand(id), cancellationToken);
+        var response = await mediator.Send(new DeleteFgsSetupTaxCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

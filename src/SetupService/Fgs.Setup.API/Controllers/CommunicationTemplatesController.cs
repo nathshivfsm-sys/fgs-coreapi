@@ -86,7 +86,7 @@ public sealed class CommunicationTemplatesController(
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? communicationChannel = null,
         [FromQuery] string? templateType = null,
         [FromQuery] string? code = null,

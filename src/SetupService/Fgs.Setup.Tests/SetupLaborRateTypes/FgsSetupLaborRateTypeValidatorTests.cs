@@ -16,7 +16,7 @@ public sealed class FgsSetupLaborRateTypeValidatorTests
     public async Task CreateValidator_WhenNameMissing_HasValidationError()
     {
         var validator = new CreateFgsSetupLaborRateTypeCommandValidator(_readRepository.Object);
-        var command = new CreateFgsSetupLaborRateTypeCommand(new FgsSetupLaborRateTypeCreateDto("", "Description value", 1, false));
+        var command = new CreateFgsSetupLaborRateTypeCommand(new FgsSetupLaborRateTypeCreateDto("", "Description value", 1));
 
         var result = await validator.ValidateAsync(command);
 
@@ -32,7 +32,7 @@ public sealed class FgsSetupLaborRateTypeValidatorTests
             .Setup(r => r.ExistsByNameAsync(It.IsAny<string>(), 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         var validator = new UpdateFgsSetupLaborRateTypeCommandValidator(_readRepository.Object);
-        var command = new UpdateFgsSetupLaborRateTypeCommand(5, new FgsSetupLaborRateTypeUpdateDto("Name value", "Description value", 1, false));
+        var command = new UpdateFgsSetupLaborRateTypeCommand(5, new FgsSetupLaborRateTypeUpdateDto("Name value", "Description value", 1));
 
         var result = await validator.ValidateAsync(command);
 

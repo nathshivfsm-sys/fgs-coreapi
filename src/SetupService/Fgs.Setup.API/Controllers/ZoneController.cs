@@ -3,47 +3,37 @@ using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
-using Fgs.Setup.Application.Features.GLBreaks.Commands.CreateGLBreak;
-using Fgs.Setup.Application.Features.GLBreaks.Commands.PatchGLBreak;
-using Fgs.Setup.Application.Features.GLBreaks.Commands.UpdateGLBreak;
-using Fgs.Setup.Application.Features.GLBreaks.Dtos;
-using Fgs.Setup.Application.Features.GLBreaks.Queries.GetGLBreakById;
-using Fgs.Setup.Application.Features.GLBreaks.Queries.ListGLBreaks;
-using Fgs.Setup.Application.Features.GLBreaks.Queries.LookupGLBreaks;
+using Fgs.Setup.Application.Features.SetupZones.Commands.CreateFgsSetupZone;
+using Fgs.Setup.Application.Features.SetupZones.Commands.PatchFgsSetupZone;
+using Fgs.Setup.Application.Features.SetupZones.Commands.UpdateFgsSetupZone;
+using Fgs.Setup.Application.Features.SetupZones.Queries.GetFgsSetupZoneById;
+using Fgs.Setup.Application.Features.SetupZones.Queries.ListSetupZones;
+using Fgs.Setup.Application.Features.SetupZones.Queries.LookupSetupZones;
+using Fgs.Setup.Application.Features.SetupZones.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
 
 /// <summary>
-/// Tenant-scoped GL break catalog management.
+/// Tenant-scoped zone catalog management.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("glbreaks")]
+[FgsVersionedRoute("zone")]
 [Produces("application/json")]
-public sealed class GLBreaksController(IMediator mediator) : ControllerBase
+public sealed class ZoneController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("lookup")]
-    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<GLBreakLookupDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Lookup(
-        [FromQuery] bool activeOnly = true,
-        CancellationToken cancellationToken = default)
-    {
-        var response = await mediator.Send(new LookupGLBreaksQuery(activeOnly), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
     [HttpGet("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<GLBreakDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<FgsSetupZoneDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new GetGLBreakByIdQuery(id), cancellationToken);
+        var response = await mediator.Send(new GetFgsSetupZoneByIdQuery(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<GLBreakSummaryDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSetupZoneSummaryDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> List(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 25,
@@ -53,54 +43,62 @@ public sealed class GLBreaksController(IMediator mediator) : ControllerBase
         [FromQuery] bool? isActive = null,
         [FromQuery] string? code = null,
         [FromQuery] string? name = null,
-        [FromQuery] short? breakLevel = null,
-        [FromQuery] string? tradeCode = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
-            new ListGLBreaksQuery(
+            new ListSetupZonesQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new GLBreakListFilters(code, name, breakLevel, tradeCode)),
+                new FgsSetupZoneListFilters(code, name)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);
     }
 
+    [HttpGet("lookup")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<FgsSetupZoneLookupDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Lookup(
+        [FromQuery] bool activeOnly = true,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await mediator.Send(new LookupSetupZonesQuery(activeOnly), cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
     [HttpPost]
-    [ProducesResponseType(typeof(ApiResponse<GLBreakDetailDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<FgsSetupZoneDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create(
-        [FromBody] GLBreakCreateDto request,
+        [FromBody] FgsSetupZoneCreateDto request,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new CreateGLBreakCommand(request), cancellationToken);
+        var response = await mediator.Send(new CreateFgsSetupZoneCommand(request), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpPut("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<GLBreakDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<FgsSetupZoneDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(
         long id,
-        [FromBody] GLBreakUpdateDto request,
+        [FromBody] FgsSetupZoneUpdateDto request,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new UpdateGLBreakCommand(id, request), cancellationToken);
+        var response = await mediator.Send(new UpdateFgsSetupZoneCommand(id, request), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpPatch("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<GLBreakDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<FgsSetupZoneDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Patch(
         long id,
-        [FromBody] GLBreakPatchDto request,
+        [FromBody] FgsSetupZonePatchDto request,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new PatchGLBreakCommand(id, request), cancellationToken);
+        var response = await mediator.Send(new PatchFgsSetupZoneCommand(id, request), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

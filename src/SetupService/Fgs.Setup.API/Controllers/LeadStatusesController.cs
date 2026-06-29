@@ -4,7 +4,6 @@ using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.LeadStatuses.Commands.CreateLeadStatus;
-using Fgs.Setup.Application.Features.LeadStatuses.Commands.DeleteLeadStatus;
 using Fgs.Setup.Application.Features.LeadStatuses.Commands.PatchLeadStatus;
 using Fgs.Setup.Application.Features.LeadStatuses.Commands.UpdateLeadStatus;
 using Fgs.Setup.Application.Features.LeadStatuses.Queries.GetLeadStatusById;
@@ -41,7 +40,7 @@ public sealed class LeadStatusesController(IMediator mediator) : ControllerBase
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? statusCode = null,
         [FromQuery] string? statusName = null,
         CancellationToken cancellationToken = default)
@@ -100,15 +99,6 @@ public sealed class LeadStatusesController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchLeadStatusCommand(id, request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<LeadStatusDetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DeleteLeadStatusCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

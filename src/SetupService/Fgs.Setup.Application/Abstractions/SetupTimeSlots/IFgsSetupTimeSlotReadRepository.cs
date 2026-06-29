@@ -15,6 +15,8 @@ public interface IFgsSetupTimeSlotReadRepository
 
     Task<IReadOnlyList<FgsSetupTimeSlotLookupDto>> LookupAsync(
         bool activeOnly = true,
+        bool? isMobileVisible = null,
+        bool? isCustomerPortalVisible = null,
         CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByCodeAsync(

@@ -13,8 +13,7 @@ public sealed record JobTypeSubCategoryDetailDto(
     string SubCategoryCode,
     string Name,
     string? Description,
-    short? DisplayOrder,
-    bool IsActive);
+    short? DisplayOrder);
 
 public sealed record JobTypeSubCategoryLookupDto(
     long Id,

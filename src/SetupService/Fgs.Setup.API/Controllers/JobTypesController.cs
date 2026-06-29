@@ -4,7 +4,6 @@ using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.JobTypes.Commands.CreateJobType;
-using Fgs.Setup.Application.Features.JobTypes.Commands.DeleteJobType;
 using Fgs.Setup.Application.Features.JobTypes.Commands.PatchJobType;
 using Fgs.Setup.Application.Features.JobTypes.Commands.UpdateJobType;
 using Fgs.Setup.Application.Features.JobTypes.Queries.GetJobTypeById;
@@ -41,7 +40,7 @@ public sealed class JobTypesController(IMediator mediator) : ControllerBase
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? jobTypeCode = null,
         [FromQuery] string? taskName = null,
         CancellationToken cancellationToken = default)
@@ -100,15 +99,6 @@ public sealed class JobTypesController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchJobTypeCommand(id, request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<JobTypeDetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DeleteJobTypeCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

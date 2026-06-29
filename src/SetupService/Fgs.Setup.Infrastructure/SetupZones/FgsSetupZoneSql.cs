@@ -28,7 +28,7 @@ internal static class FgsSetupZoneSql
         var dir = direction == SortDirection.Desc ? "DESC" : "ASC";
         if (string.IsNullOrWhiteSpace(sortBy) || !AllowedSortColumns.Contains(sortBy))
         {
-            return $"ORDER BY \"Id\" {dir}";
+            return $"ORDER BY \"Name\" {dir}";
         }
 
         var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));

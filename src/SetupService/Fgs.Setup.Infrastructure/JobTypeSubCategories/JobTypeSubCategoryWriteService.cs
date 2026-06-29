@@ -142,6 +142,5 @@ public sealed class JobTypeSubCategoryWriteService : IJobTypeSubCategoryWriteSer
             entity.SubCategoryCode,
             entity.Name,
             entity.Description,
-            entity.DisplayOrder,
-            entity.IsActive);
+            entity.DisplayOrder);
 }

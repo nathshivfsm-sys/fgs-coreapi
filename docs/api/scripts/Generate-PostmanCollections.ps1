@@ -820,7 +820,7 @@ function Parse-ControllerFile {
 }
 '@
         }
-        if ($fileName -eq 'TechTradesController') {
+        if ($fileName -eq 'TechTradeController') {
             if ($methodName -eq 'Lookup') {
                 $query = @{ activeOnly = 'true' }
             }
@@ -884,7 +884,7 @@ function Parse-ControllerFile {
             $headers['X-Tenant-Id'] = '{{tenantId}}'
             $headers['X-Company-Id'] = '{{companyId}}'
         }
-        if ($fileName -eq 'TaxesController') {
+        if ($fileName -eq 'TaxController') {
             if ($methodName -eq 'Create') {
                 $body = @'
 {
@@ -969,7 +969,7 @@ function Parse-ControllerFile {
         }
         $description = if ($docSummary) { $docSummary } else { $methodName }
         $req = New-PostmanRequest -Name $displayName -Method $verb -Url $fullPath -UseAuth $useAuth -Description $description -Query $query -QueryItems $queryItems -Body $body -Headers $headers
-        if ($fileName -eq 'TechTradesController' -and $methodName -eq 'Create') {
+        if ($fileName -eq 'TechTradeController' -and $methodName -eq 'Create') {
             $req['event'] = @(@{
                 listen = 'test'
                 script = @{

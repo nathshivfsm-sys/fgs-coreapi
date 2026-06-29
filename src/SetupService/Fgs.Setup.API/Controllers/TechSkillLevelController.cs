@@ -4,7 +4,6 @@ using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.SetupTechSkillLevels.Commands.CreateFgsSetupTechSkillLevel;
-using Fgs.Setup.Application.Features.SetupTechSkillLevels.Commands.DeleteFgsSetupTechSkillLevel;
 using Fgs.Setup.Application.Features.SetupTechSkillLevels.Commands.PatchFgsSetupTechSkillLevel;
 using Fgs.Setup.Application.Features.SetupTechSkillLevels.Commands.UpdateFgsSetupTechSkillLevel;
 using Fgs.Setup.Application.Features.SetupTechSkillLevels.Queries.GetFgsSetupTechSkillLevelById;
@@ -20,9 +19,9 @@ namespace Fgs.Setup.API.Controllers;
 /// Tenant-scoped tech skill level catalog management.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("techskilllevels")]
+[FgsVersionedRoute("techskilllevel")]
 [Produces("application/json")]
-public sealed class TechSkillLevelsController(IMediator mediator) : ControllerBase
+public sealed class TechSkillLevelController(IMediator mediator) : ControllerBase
 {
     [HttpGet("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsSetupTechSkillLevelDetailDto>), StatusCodes.Status200OK)]
@@ -41,7 +40,7 @@ public sealed class TechSkillLevelsController(IMediator mediator) : ControllerBa
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? code = null,
         [FromQuery] string? name = null,
         CancellationToken cancellationToken = default)
@@ -100,15 +99,6 @@ public sealed class TechSkillLevelsController(IMediator mediator) : ControllerBa
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchFgsSetupTechSkillLevelCommand(id, request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsSetupTechSkillLevelDetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DeleteFgsSetupTechSkillLevelCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

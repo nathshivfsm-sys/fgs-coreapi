@@ -8,6 +8,7 @@ public sealed record FgsSetupTaxAuthoritySummaryDto(
     bool IsExternalSystemRecord,
     decimal TaxPercent,
     string? Description,
+    int UsageCount,
     bool IsActive);
 
 public sealed record FgsSetupTaxAuthorityDetailDto(
@@ -18,6 +19,7 @@ public sealed record FgsSetupTaxAuthorityDetailDto(
     bool IsExternalSystemRecord,
     decimal TaxPercent,
     string? Description,
+    int UsageCount,
     bool IsActive);
 
 public sealed record FgsSetupTaxAuthorityLookupDto(

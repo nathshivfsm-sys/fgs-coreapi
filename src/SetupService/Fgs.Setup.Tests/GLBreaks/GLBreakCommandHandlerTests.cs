@@ -53,7 +53,6 @@ public sealed class GLBreakCommandHandlerTests
         response.Data.Address.Should().NotBeNull();
         response.Data.Address!.AddressLine1.Should().Be("123 Main St");
         response.Data.Trades.Should().ContainSingle();
-        response.Data.Trades[0].GLBreakId.Should().Be(response.Data.Id);
         response.Data.Trades[0].TradeCode.Should().Be("HVAC");
     }
 

@@ -10,21 +10,38 @@ internal static class FgsSetupTaxSql
 
     public const string TaxAuthorityTable = "setup.\"FgsSetupTaxAuthority\"";
 
+    private const string TaxRateColumn = """
+        COALESCE((
+            SELECT SUM(ta."TaxPercent")
+            FROM setup."FgsSetupTaxDetail" td
+            INNER JOIN setup."FgsSetupTaxAuthority" ta
+                ON ta."Id" = td."FgsSetupTaxAuthorityId"
+               AND ta."TenantId" = td."TenantId"
+               AND ta."CompanyId" = td."CompanyId"
+            WHERE td."FgsSetupTaxId" = t."Id"
+              AND td."TenantId" = t."TenantId"
+              AND td."CompanyId" = t."CompanyId"
+              AND td."IsActive" = TRUE
+        ), 0) AS "TaxRate"
+        """;
+
     public const string SelectTaxDetailColumns = """
         td."Id", td."FgsSetupTaxAuthorityId", ta."Code" AS "TaxAuthorityCode", ta."Name" AS "TaxAuthorityName",
         ta."TaxPercent", td."EffectiveFromDate", td."EffectiveToDate", td."IsExternalSystemRecord", td."IsActive"
         """;
 
     public const string SelectDetailColumns = """
-        "Id", "TaxCode", "Name", "IsExternalSystemRecord", "ExternalSystemId", "SyncToken", "ShowTaxDetail", "Description", "IsActive"
+        t."Id", t."TaxCode", t."Name", t."IsExternalSystemRecord", t."ExternalSystemId", t."SyncToken", t."ShowTaxDetail", t."Description", t."IsActive"
         """;
 
-    public const string SelectSummaryColumns = """
-        "Id", "TaxCode", "Name", "IsExternalSystemRecord", "ExternalSystemId", "SyncToken", "ShowTaxDetail", "Description", "IsActive"
+    public const string SelectSummaryColumns = $"""
+        t."Id", t."TaxCode", t."Name", t."IsExternalSystemRecord", t."ExternalSystemId", t."SyncToken", t."ShowTaxDetail", t."Description", t."IsActive",
+        {TaxRateColumn}
         """;
 
-    public const string SelectLookupColumns = """
-        "Id", "TaxCode", "Name"
+    public const string SelectLookupColumns = $"""
+        t."Id", t."TaxCode", t."Name",
+        {TaxRateColumn}
         """;
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
@@ -37,12 +54,12 @@ internal static class FgsSetupTaxSql
         var dir = direction == SortDirection.Desc ? "DESC" : "ASC";
         if (string.IsNullOrWhiteSpace(sortBy) || !AllowedSortColumns.Contains(sortBy))
         {
-            return $"ORDER BY \"Id\" {dir}";
+            return $"ORDER BY t.\"Id\" {dir}";
         }
 
         var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));
         return column.Equals("DisplayOrder", StringComparison.OrdinalIgnoreCase)
-            ? $"ORDER BY \"Name\" {dir}"
-            : $"ORDER BY \"{column}\" {dir}";
+            ? $"ORDER BY t.\"Name\" {dir}"
+            : $"ORDER BY t.\"{column}\" {dir}";
     }
 }

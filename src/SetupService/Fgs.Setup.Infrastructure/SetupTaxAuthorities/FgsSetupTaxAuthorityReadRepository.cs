@@ -27,10 +27,10 @@ internal sealed class FgsSetupTaxAuthorityReadRepository : IFgsSetupTaxAuthority
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $"""
             SELECT {FgsSetupTaxAuthoritySql.SelectDetailColumns}
-            FROM {FgsSetupTaxAuthoritySql.Table}
-            WHERE "Id" = @Id
-              AND "TenantId" = @TenantId
-              AND "CompanyId" = @CompanyId
+            FROM {FgsSetupTaxAuthoritySql.Table} ta
+            WHERE ta."Id" = @Id
+              AND ta."TenantId" = @TenantId
+              AND ta."CompanyId" = @CompanyId
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -53,28 +53,28 @@ internal sealed class FgsSetupTaxAuthorityReadRepository : IFgsSetupTaxAuthority
 
         var where = new List<string>
         {
-            "\"TenantId\" = @TenantId",
-            "\"CompanyId\" = @CompanyId"
+            "ta.\"TenantId\" = @TenantId",
+            "ta.\"CompanyId\" = @CompanyId"
         };
 
         if (paging.IsActive.HasValue)
         {
-            where.Add("\"IsActive\" = @IsActive");
+            where.Add("ta.\"IsActive\" = @IsActive");
         }
 
         if (!string.IsNullOrWhiteSpace(filters.Code))
         {
-            where.Add("\"Code\" = @Code");
+            where.Add("ta.\"Code\" = @Code");
         }
         if (!string.IsNullOrWhiteSpace(filters.Name))
         {
-            where.Add("\"Name\" ILIKE @Name");
+            where.Add("ta.\"Name\" ILIKE @Name");
         }
 
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
             where.Add(
-                "(\"Code\" ILIKE @Search OR \"Name\" ILIKE @Search OR \"RegionCode\" ILIKE @Search OR \"Description\" ILIKE @Search)");
+                "(ta.\"Code\" ILIKE @Search OR ta.\"Name\" ILIKE @Search OR ta.\"RegionCode\" ILIKE @Search OR ta.\"Description\" ILIKE @Search)");
         }
 
         var whereClause = string.Join(" AND ", where);
@@ -82,13 +82,13 @@ internal sealed class FgsSetupTaxAuthorityReadRepository : IFgsSetupTaxAuthority
 
         var sql = $"""
             SELECT {FgsSetupTaxAuthoritySql.SelectSummaryColumns}
-            FROM {FgsSetupTaxAuthoritySql.Table}
+            FROM {FgsSetupTaxAuthoritySql.Table} ta
             WHERE {whereClause}
             {orderBy}
             LIMIT @PageSize OFFSET @Offset;
 
             SELECT COUNT(*)
-            FROM {FgsSetupTaxAuthoritySql.Table}
+            FROM {FgsSetupTaxAuthoritySql.Table} ta
             WHERE {whereClause};
             """;
 

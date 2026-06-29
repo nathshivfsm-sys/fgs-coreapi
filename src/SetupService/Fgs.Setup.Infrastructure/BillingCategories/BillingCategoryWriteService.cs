@@ -160,9 +160,5 @@ public sealed class BillingCategoryWriteService : IBillingCategoryWriteService
             entity.BillingCategoryType,
             entity.BillingCategoryName,
             entity.Description,
-            entity.DisplayOrder,
-            entity.IsSystemDefined,
-            entity.ShowToFieldTech,
-            entity.AllowToPick,
-            entity.IsActive);
+            entity.DisplayOrder);
 }

@@ -4,7 +4,6 @@ using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.Tags.Commands.CreateFgsTag;
-using Fgs.Setup.Application.Features.Tags.Commands.DeleteFgsTag;
 using Fgs.Setup.Application.Features.Tags.Commands.PatchFgsTag;
 using Fgs.Setup.Application.Features.Tags.Commands.UpdateFgsTag;
 using Fgs.Setup.Application.Features.Tags.Queries.GetFgsTagById;
@@ -41,7 +40,7 @@ public sealed class TagsController(IMediator mediator) : ControllerBase
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? tagCode = null,
         [FromQuery] string? name = null,
         CancellationToken cancellationToken = default)
@@ -100,15 +99,6 @@ public sealed class TagsController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchFgsTagCommand(id, request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsTagDetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DeleteFgsTagCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

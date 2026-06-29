@@ -3,112 +3,111 @@ using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
-using Fgs.Setup.Application.Features.SetupTimeSlots.Commands.CreateFgsSetupTimeSlot;
-using Fgs.Setup.Application.Features.SetupTimeSlots.Commands.DeleteFgsSetupTimeSlot;
-using Fgs.Setup.Application.Features.SetupTimeSlots.Commands.PatchFgsSetupTimeSlot;
-using Fgs.Setup.Application.Features.SetupTimeSlots.Commands.UpdateFgsSetupTimeSlot;
-using Fgs.Setup.Application.Features.SetupTimeSlots.Queries.GetFgsSetupTimeSlotById;
-using Fgs.Setup.Application.Features.SetupTimeSlots.Queries.ListSetupTimeSlots;
-using Fgs.Setup.Application.Features.SetupTimeSlots.Queries.LookupSetupTimeSlots;
-using Fgs.Setup.Application.Features.SetupTimeSlots.Dtos;
+using Fgs.Setup.Application.Features.Vehicles.Commands.CreateFgsVehicle;
+using Fgs.Setup.Application.Features.Vehicles.Commands.DeleteFgsVehicle;
+using Fgs.Setup.Application.Features.Vehicles.Commands.PatchFgsVehicle;
+using Fgs.Setup.Application.Features.Vehicles.Commands.UpdateFgsVehicle;
+using Fgs.Setup.Application.Features.Vehicles.Queries.GetFgsVehicleById;
+using Fgs.Setup.Application.Features.Vehicles.Queries.ListVehicles;
+using Fgs.Setup.Application.Features.Vehicles.Queries.LookupVehicles;
+using Fgs.Setup.Application.Features.Vehicles.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
 
 /// <summary>
-/// Tenant-scoped time slot catalog management.
+/// Tenant-scoped vehicle catalog management.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("timeslots")]
+[FgsVersionedRoute("vehicle")]
 [Produces("application/json")]
-public sealed class TimeSlotsController(IMediator mediator) : ControllerBase
+public sealed class VehicleController(IMediator mediator) : ControllerBase
 {
     [HttpGet("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsSetupTimeSlotDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<FgsVehicleDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new GetFgsSetupTimeSlotByIdQuery(id), cancellationToken);
+        var response = await mediator.Send(new GetFgsVehicleByIdQuery(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsSetupTimeSlotSummaryDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsVehicleSummaryDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> List(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 25,
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
-        [FromQuery] string? code = null,
-        [FromQuery] string? name = null,
+        [FromQuery] bool? isActive = null,
+        [FromQuery] string? vIN = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
-            new ListSetupTimeSlotsQuery(
+            new ListVehiclesQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new FgsSetupTimeSlotListFilters(code, name)),
+                new FgsVehicleListFilters(vIN)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpGet("lookup")]
-    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<FgsSetupTimeSlotLookupDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<FgsVehicleLookupDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Lookup(
         [FromQuery] bool activeOnly = true,
         CancellationToken cancellationToken = default)
     {
-        var response = await mediator.Send(new LookupSetupTimeSlotsQuery(activeOnly), cancellationToken);
+        var response = await mediator.Send(new LookupVehiclesQuery(activeOnly), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(ApiResponse<FgsSetupTimeSlotDetailDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<FgsVehicleDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create(
-        [FromBody] FgsSetupTimeSlotCreateDto request,
+        [FromBody] FgsVehicleCreateDto request,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new CreateFgsSetupTimeSlotCommand(request), cancellationToken);
+        var response = await mediator.Send(new CreateFgsVehicleCommand(request), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpPut("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsSetupTimeSlotDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<FgsVehicleDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(
         long id,
-        [FromBody] FgsSetupTimeSlotUpdateDto request,
+        [FromBody] FgsVehicleUpdateDto request,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new UpdateFgsSetupTimeSlotCommand(id, request), cancellationToken);
+        var response = await mediator.Send(new UpdateFgsVehicleCommand(id, request), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpPatch("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsSetupTimeSlotDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<FgsVehicleDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Patch(
         long id,
-        [FromBody] FgsSetupTimeSlotPatchDto request,
+        [FromBody] FgsVehiclePatchDto request,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new PatchFgsSetupTimeSlotCommand(id, request), cancellationToken);
+        var response = await mediator.Send(new PatchFgsVehicleCommand(id, request), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsSetupTimeSlotDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<FgsVehicleDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new DeleteFgsSetupTimeSlotCommand(id), cancellationToken);
+        var response = await mediator.Send(new DeleteFgsVehicleCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

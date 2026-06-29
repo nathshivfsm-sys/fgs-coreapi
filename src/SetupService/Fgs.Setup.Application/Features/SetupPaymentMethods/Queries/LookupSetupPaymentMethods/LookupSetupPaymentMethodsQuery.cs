@@ -4,5 +4,8 @@ using MediatR;
 
 namespace Fgs.Setup.Application.Features.SetupPaymentMethods.Queries.LookupSetupPaymentMethods;
 
-public sealed record LookupSetupPaymentMethodsQuery(bool ActiveOnly = true)
+public sealed record LookupSetupPaymentMethodsQuery(
+    bool ActiveOnly = true,
+    bool? IsMobileVisible = null,
+    bool? IsCustomerPortalVisible = null)
     : IRequest<ApiResponse<IReadOnlyList<FgsSetupPaymentMethodLookupDto>>>;

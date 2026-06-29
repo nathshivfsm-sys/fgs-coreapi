@@ -116,6 +116,15 @@ public sealed class FgsSetupTaxAuthorityWriteService : IFgsSetupTaxAuthorityWrit
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Tax Authority '{id}' was not found.");
 
+        var activeUsageCount = await _context.FgsSetupTaxDetails
+            .CountAsync(td => td.FgsSetupTaxAuthorityId == id && td.IsActive, cancellationToken);
+
+        if (activeUsageCount > 0)
+        {
+            throw new InvalidOperationException(
+                $"Cannot delete tax authority '{entity.Code}' because it is referenced by {activeUsageCount} active tax detail line(s).");
+        }
+
         if (entity.IsActive)
         {
             entity.IsActive = false;
@@ -157,5 +166,6 @@ public sealed class FgsSetupTaxAuthorityWriteService : IFgsSetupTaxAuthorityWrit
             entity.IsExternalSystemRecord,
             entity.TaxPercent,
             entity.Description,
+            UsageCount: 0,
             entity.IsActive);
 }

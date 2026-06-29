@@ -41,7 +41,7 @@ public sealed class BillingCategoriesController(IMediator mediator) : Controller
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? billingCategoryType = null,
         [FromQuery] string? billingCategoryName = null,
         CancellationToken cancellationToken = default)
@@ -59,9 +59,10 @@ public sealed class BillingCategoriesController(IMediator mediator) : Controller
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<BillingCategoryLookupDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Lookup(
         [FromQuery] bool activeOnly = true,
+        [FromQuery] bool? showToFieldTech = null,
         CancellationToken cancellationToken = default)
     {
-        var response = await mediator.Send(new LookupBillingCategoriesQuery(activeOnly), cancellationToken);
+        var response = await mediator.Send(new LookupBillingCategoriesQuery(activeOnly, showToFieldTech), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 

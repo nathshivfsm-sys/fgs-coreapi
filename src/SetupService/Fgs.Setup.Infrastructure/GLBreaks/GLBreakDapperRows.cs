@@ -83,14 +83,14 @@ internal sealed class GLBreakDetailRow
             trades,
             IsActive);
 
-    private LocationDetailDto? ToLocationDto()
+    private GLBreakAddressDetailDto? ToLocationDto()
     {
         if (LocationId is not Guid locationId)
         {
             return null;
         }
 
-        return new LocationDetailDto(
+        return new GLBreakAddressDetailDto(
             locationId,
             AddressLine1,
             AddressLine2,
@@ -98,14 +98,11 @@ internal sealed class GLBreakDetailRow
             AddressLine4,
             City,
             State,
-            County,
             Country,
             PostalCode,
             FormattedAddress,
             Latitude,
-            Longitude,
-            PlaceId,
-            LocationIsActive ?? true);
+            Longitude);
     }
 }
 
@@ -130,5 +127,5 @@ internal sealed class GLBreakTradeRow
 
     public string TradeCode { get; set; } = null!;
 
-    public GLBreakTradeDto ToDto() => new(Id, GLBreakId, TradeCode);
+    public GLBreakTradeDto ToDto() => new(Id, TradeCode);
 }

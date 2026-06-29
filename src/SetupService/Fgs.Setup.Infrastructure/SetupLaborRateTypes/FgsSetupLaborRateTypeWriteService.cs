@@ -33,8 +33,7 @@ public sealed class FgsSetupLaborRateTypeWriteService : IFgsSetupLaborRateTypeWr
         {
             Name = dto.Name.Trim(),
             Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
-            SortOrder = dto.SortOrder,
-            IsSystem = dto.IsSystem
+            SortOrder = dto.SortOrder
         };
 
         _auditHelper.StampForCreate(entity);
@@ -55,7 +54,6 @@ public sealed class FgsSetupLaborRateTypeWriteService : IFgsSetupLaborRateTypeWr
         entity.Name = dto.Name.Trim();
         entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
         entity.SortOrder = dto.SortOrder;
-        entity.IsSystem = dto.IsSystem;
 
         _auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
@@ -82,10 +80,6 @@ public sealed class FgsSetupLaborRateTypeWriteService : IFgsSetupLaborRateTypeWr
         if (dto.SortOrder.HasValue)
         {
             entity.SortOrder = dto.SortOrder.Value;
-        }
-        if (dto.IsSystem.HasValue)
-        {
-            entity.IsSystem = dto.IsSystem.Value;
         }
 
         if (dto.IsActive.HasValue)
@@ -142,6 +136,5 @@ public sealed class FgsSetupLaborRateTypeWriteService : IFgsSetupLaborRateTypeWr
             entity.Name,
             entity.Description,
             entity.SortOrder,
-            entity.IsSystem,
             entity.IsActive);
 }

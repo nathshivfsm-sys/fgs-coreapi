@@ -120,22 +120,42 @@ internal sealed class BillingCategoryReadRepository : IBillingCategoryReadReposi
 
     public async Task<IReadOnlyList<BillingCategoryLookupDto>> LookupAsync(
         bool activeOnly = true,
+        bool? showToFieldTech = null,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
-        var activeFilter = activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty;
+        var filters = new List<string>
+        {
+            "\"IsActive\" = TRUE",
+            "\"AllowToPick\" = TRUE"
+        };
+
+        if (activeOnly)
+        {
+            // Pickable active rows are always required; activeOnly retained for API compatibility.
+        }
+
+        if (showToFieldTech.HasValue)
+        {
+            filters.Add("\"ShowToFieldTech\" = @ShowToFieldTech");
+        }
+
+        var filterClause = string.Join(" AND ", filters);
         var sql = $"""
             SELECT {BillingCategorySql.SelectLookupColumns}
             FROM {BillingCategorySql.Table}
             WHERE "TenantId" = @TenantId
               AND "CompanyId" = @CompanyId
-              {activeFilter}
+              AND {filterClause}
             ORDER BY "DisplayOrder" ASC NULLS LAST, "BillingCategoryName" ASC
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         var rows = await connection.QueryAsync<BillingCategoryLookupRow>(
-            new CommandDefinition(sql, new { TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, CompanyId = companyId, ShowToFieldTech = showToFieldTech },
+                cancellationToken: cancellationToken));
 
         return rows.Select(r => r.ToDto()).ToList();
     }

@@ -4,5 +4,7 @@ using MediatR;
 
 namespace Fgs.Setup.Application.Features.ResolutionCodes.Queries.LookupResolutionCodes;
 
-public sealed record LookupResolutionCodesQuery(bool ActiveOnly = true)
+public sealed record LookupResolutionCodesQuery(
+    bool ActiveOnly = true,
+    bool? IsMobileVisible = null)
     : IRequest<ApiResponse<IReadOnlyList<ResolutionCodeLookupDto>>>;

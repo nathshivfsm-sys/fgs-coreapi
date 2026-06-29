@@ -120,22 +120,50 @@ internal sealed class FgsSetupTimeSlotReadRepository : IFgsSetupTimeSlotReadRepo
 
     public async Task<IReadOnlyList<FgsSetupTimeSlotLookupDto>> LookupAsync(
         bool activeOnly = true,
+        bool? isMobileVisible = null,
+        bool? isCustomerPortalVisible = null,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
-        var activeFilter = activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty;
+        var filters = new List<string>();
+
+        if (activeOnly)
+        {
+            filters.Add("\"IsActive\" = TRUE");
+        }
+
+        if (isMobileVisible.HasValue)
+        {
+            filters.Add("\"IsMobileVisible\" = @IsMobileVisible");
+        }
+
+        if (isCustomerPortalVisible.HasValue)
+        {
+            filters.Add("\"IsCustomerPortalVisible\" = @IsCustomerPortalVisible");
+        }
+
+        var filterClause = filters.Count > 0 ? $"AND {string.Join(" AND ", filters)}" : string.Empty;
         var sql = $"""
             SELECT {FgsSetupTimeSlotSql.SelectLookupColumns}
             FROM {FgsSetupTimeSlotSql.Table}
             WHERE "TenantId" = @TenantId
               AND "CompanyId" = @CompanyId
-              {activeFilter}
+              {filterClause}
             ORDER BY "Name" ASC
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         var rows = await connection.QueryAsync<FgsSetupTimeSlotLookupRow>(
-            new CommandDefinition(sql, new { TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    IsMobileVisible = isMobileVisible,
+                    IsCustomerPortalVisible = isCustomerPortalVisible
+                },
+                cancellationToken: cancellationToken));
 
         return rows.Select(r => r.ToDto()).ToList();
     }

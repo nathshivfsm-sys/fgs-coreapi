@@ -201,7 +201,7 @@ public sealed class GLBreakWriteService : IGLBreakWriteService
             .Include(e => e.Trades)
             .FirstAsync(e => e.Id == id, cancellationToken);
 
-        LocationDetailDto? address = null;
+        GLBreakAddressDetailDto? address = null;
         if (entity.AddressId is Guid addressId)
         {
             var location = await _context.FgsLocations
@@ -216,7 +216,7 @@ public sealed class GLBreakWriteService : IGLBreakWriteService
 
         var trades = entity.Trades
             .OrderBy(t => t.TradeCode)
-            .Select(t => new GLBreakTradeDto(t.Id, t.GLBreakId, t.TradeCode))
+            .Select(t => new GLBreakTradeDto(t.Id, t.TradeCode))
             .ToList();
 
         return new GLBreakDetailDto(
@@ -231,7 +231,7 @@ public sealed class GLBreakWriteService : IGLBreakWriteService
             entity.IsActive);
     }
 
-    private static LocationDetailDto MapLocation(FgsLocation location) =>
+    private static GLBreakAddressDetailDto MapLocation(FgsLocation location) =>
         new(
             location.Id,
             location.AddressLine1,
@@ -240,14 +240,11 @@ public sealed class GLBreakWriteService : IGLBreakWriteService
             location.AddressLine4,
             location.City,
             location.State,
-            location.County,
             location.Country,
             location.PostalCode,
             location.FormattedAddress,
             location.Latitude,
-            location.Longitude,
-            location.PlaceId,
-            location.IsActive);
+            location.Longitude);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

@@ -1,4 +1,4 @@
-﻿{
+{
     "item":  [
                  {
                      "description":  "BillingCategoriesController - billingcategories",
@@ -9910,11 +9910,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/taxes/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tax/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "taxes",
+                                                                               "tax",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -10003,11 +10003,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/taxes",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tax",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "taxes"
+                                                                               "tax"
                                                                            ]
                                                               },
                                                       "description":  "List",
@@ -10048,11 +10048,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/taxes/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tax/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "taxes",
+                                                                               "tax",
                                                                                "lookup"
                                                                            ]
                                                               },
@@ -10092,11 +10092,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/taxes",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tax",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "taxes"
+                                                                               "tax"
                                                                            ]
                                                               },
                                                       "description":  "Create",
@@ -10166,11 +10166,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/taxes/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tax/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "taxes",
+                                                                               "tax",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -10226,11 +10226,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/taxes/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tax/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "taxes",
+                                                                               "tax",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -10287,11 +10287,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/taxes/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tax/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "taxes",
+                                                                               "tax",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -10339,11 +10339,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/techskilllevels/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/techskilllevel/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "techskilllevels",
+                                                                               "techskilllevel",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -10432,11 +10432,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/techskilllevels",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/techskilllevel",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "techskilllevels"
+                                                                               "techskilllevel"
                                                                            ]
                                                               },
                                                       "description":  "List",
@@ -10477,11 +10477,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/techskilllevels/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/techskilllevel/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "techskilllevels",
+                                                                               "techskilllevel",
                                                                                "lookup"
                                                                            ]
                                                               },
@@ -10521,11 +10521,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/techskilllevels",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/techskilllevel",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "techskilllevels"
+                                                                               "techskilllevel"
                                                                            ]
                                                               },
                                                       "description":  "Create",
@@ -10595,11 +10595,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/techskilllevels/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/techskilllevel/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "techskilllevels",
+                                                                               "techskilllevel",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -10655,11 +10655,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/techskilllevels/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/techskilllevel/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "techskilllevels",
+                                                                               "techskilllevel",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -10716,11 +10716,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/techskilllevels/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/techskilllevel/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "techskilllevels",
+                                                                               "techskilllevel",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -10768,11 +10768,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/techtrades/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/techtrade/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "techtrades",
+                                                                               "techtrade",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -10861,11 +10861,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/techtrades",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/techtrade",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "techtrades"
+                                                                               "techtrade"
                                                                            ]
                                                               },
                                                       "description":  "List",
@@ -10913,11 +10913,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/techtrades/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/techtrade/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "techtrades",
+                                                                               "techtrade",
                                                                                "lookup"
                                                                            ]
                                                               },
@@ -10957,11 +10957,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/techtrades",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/techtrade",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "techtrades"
+                                                                               "techtrade"
                                                                            ]
                                                               },
                                                       "description":  "Create",
@@ -11031,11 +11031,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/techtrades/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/techtrade/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "techtrades",
+                                                                               "techtrade",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -11091,11 +11091,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/techtrades/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/techtrade/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "techtrades",
+                                                                               "techtrade",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -11152,11 +11152,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/techtrades/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/techtrade/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "techtrades",
+                                                                               "techtrade",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -11269,11 +11269,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/timeslots/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/timeslot/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "timeslots",
+                                                                               "timeslot",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -11362,11 +11362,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/timeslots",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/timeslot",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "timeslots"
+                                                                               "timeslot"
                                                                            ]
                                                               },
                                                       "description":  "List",
@@ -11407,11 +11407,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/timeslots/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/timeslot/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "timeslots",
+                                                                               "timeslot",
                                                                                "lookup"
                                                                            ]
                                                               },
@@ -11451,11 +11451,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/timeslots",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/timeslot",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "timeslots"
+                                                                               "timeslot"
                                                                            ]
                                                               },
                                                       "description":  "Create",
@@ -11525,11 +11525,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/timeslots/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/timeslot/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "timeslots",
+                                                                               "timeslot",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -11585,11 +11585,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/timeslots/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/timeslot/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "timeslots",
+                                                                               "timeslot",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -11646,11 +11646,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/timeslots/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/timeslot/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "timeslots",
+                                                                               "timeslot",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -11698,11 +11698,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/titlesofcourtesy/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/titleofcourtesy/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "titlesofcourtesy",
+                                                                               "titleofcourtesy",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -11791,11 +11791,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/titlesofcourtesy",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/titleofcourtesy",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "titlesofcourtesy"
+                                                                               "titleofcourtesy"
                                                                            ]
                                                               },
                                                       "description":  "List",
@@ -11836,11 +11836,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/titlesofcourtesy/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/titleofcourtesy/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "titlesofcourtesy",
+                                                                               "titleofcourtesy",
                                                                                "lookup"
                                                                            ]
                                                               },
@@ -11880,11 +11880,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/titlesofcourtesy",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/titleofcourtesy",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "titlesofcourtesy"
+                                                                               "titleofcourtesy"
                                                                            ]
                                                               },
                                                       "description":  "Create",
@@ -11954,11 +11954,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/titlesofcourtesy/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/titleofcourtesy/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "titlesofcourtesy",
+                                                                               "titleofcourtesy",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -12014,11 +12014,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/titlesofcourtesy/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/titleofcourtesy/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "titlesofcourtesy",
+                                                                               "titleofcourtesy",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -12075,11 +12075,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/titlesofcourtesy/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/titleofcourtesy/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "titlesofcourtesy",
+                                                                               "titleofcourtesy",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -12127,11 +12127,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehiclemaintenances/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehiclemaintenance/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "vehiclemaintenances",
+                                                                               "vehiclemaintenance",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -12220,11 +12220,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehiclemaintenances",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehiclemaintenance",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "vehiclemaintenances"
+                                                                               "vehiclemaintenance"
                                                                            ]
                                                               },
                                                       "description":  "List",
@@ -12265,11 +12265,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehiclemaintenances/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehiclemaintenance/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "vehiclemaintenances",
+                                                                               "vehiclemaintenance",
                                                                                "lookup"
                                                                            ]
                                                               },
@@ -12309,11 +12309,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehiclemaintenances",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehiclemaintenance",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "vehiclemaintenances"
+                                                                               "vehiclemaintenance"
                                                                            ]
                                                               },
                                                       "description":  "Create",
@@ -12383,11 +12383,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehiclemaintenances/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehiclemaintenance/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "vehiclemaintenances",
+                                                                               "vehiclemaintenance",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -12443,11 +12443,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehiclemaintenances/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehiclemaintenance/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "vehiclemaintenances",
+                                                                               "vehiclemaintenance",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -12504,11 +12504,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehiclemaintenances/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehiclemaintenance/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "vehiclemaintenances",
+                                                                               "vehiclemaintenance",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -12556,11 +12556,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehicles/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehicle/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "vehicles",
+                                                                               "vehicle",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -12643,11 +12643,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehicles",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehicle",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "vehicles"
+                                                                               "vehicle"
                                                                            ]
                                                               },
                                                       "description":  "List",
@@ -12688,11 +12688,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehicles/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehicle/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "vehicles",
+                                                                               "vehicle",
                                                                                "lookup"
                                                                            ]
                                                               },
@@ -12732,11 +12732,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehicles",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehicle",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "vehicles"
+                                                                               "vehicle"
                                                                            ]
                                                               },
                                                       "description":  "Create",
@@ -12806,11 +12806,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehicles/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehicle/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "vehicles",
+                                                                               "vehicle",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -12866,11 +12866,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehicles/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehicle/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "vehicles",
+                                                                               "vehicle",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -12927,11 +12927,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehicles/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vehicle/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "vehicles",
+                                                                               "vehicle",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -13837,11 +13837,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/zones/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/zone/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "zones",
+                                                                               "zone",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -13930,11 +13930,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/zones",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/zone",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "zones"
+                                                                               "zone"
                                                                            ]
                                                               },
                                                       "description":  "List",
@@ -13975,11 +13975,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/zones/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/zone/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "zones",
+                                                                               "zone",
                                                                                "lookup"
                                                                            ]
                                                               },
@@ -14019,11 +14019,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/zones",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/zone",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "zones"
+                                                                               "zone"
                                                                            ]
                                                               },
                                                       "description":  "Create",
@@ -14093,11 +14093,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/zones/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/zone/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "zones",
+                                                                               "zone",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -14153,11 +14153,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/zones/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/zone/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "zones",
+                                                                               "zone",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -14214,11 +14214,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/zones/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/zone/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "zones",
+                                                                               "zone",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },

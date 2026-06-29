@@ -9,6 +9,7 @@ public sealed record FgsSetupTaxSummaryDto(
     string? SyncToken,
     bool ShowTaxDetail,
     string? Description,
+    decimal TaxRate,
     bool IsActive);
 
 public sealed record FgsSetupTaxLineDetailDto(
@@ -31,13 +32,15 @@ public sealed record FgsSetupTaxDetailDto(
     string? SyncToken,
     bool ShowTaxDetail,
     string? Description,
+    decimal TaxRate,
     bool IsActive,
     IReadOnlyList<FgsSetupTaxLineDetailDto> TaxDetails);
 
 public sealed record FgsSetupTaxLookupDto(
     long Id,
     string TaxCode,
-    string Name);
+    string Name,
+    decimal TaxRate);
 
 public sealed record FgsSetupTaxCreateDto(
     string TaxCode,

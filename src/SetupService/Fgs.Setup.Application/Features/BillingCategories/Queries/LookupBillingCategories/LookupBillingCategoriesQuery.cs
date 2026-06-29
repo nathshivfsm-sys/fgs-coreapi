@@ -4,5 +4,5 @@ using MediatR;
 
 namespace Fgs.Setup.Application.Features.BillingCategories.Queries.LookupBillingCategories;
 
-public sealed record LookupBillingCategoriesQuery(bool ActiveOnly = true)
+public sealed record LookupBillingCategoriesQuery(bool ActiveOnly = true, bool? ShowToFieldTech = null)
     : IRequest<ApiResponse<IReadOnlyList<BillingCategoryLookupDto>>>;

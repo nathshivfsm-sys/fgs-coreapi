@@ -4,7 +4,6 @@ using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.JobTypeSubCategories.Commands.CreateJobTypeSubCategory;
-using Fgs.Setup.Application.Features.JobTypeSubCategories.Commands.DeleteJobTypeSubCategory;
 using Fgs.Setup.Application.Features.JobTypeSubCategories.Commands.PatchJobTypeSubCategory;
 using Fgs.Setup.Application.Features.JobTypeSubCategories.Commands.UpdateJobTypeSubCategory;
 using Fgs.Setup.Application.Features.JobTypeSubCategories.Queries.GetJobTypeSubCategoryById;
@@ -41,7 +40,7 @@ public sealed class JobTypeSubCategoriesController(IMediator mediator) : Control
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? subCategoryCode = null,
         [FromQuery] string? name = null,
         CancellationToken cancellationToken = default)
@@ -100,15 +99,6 @@ public sealed class JobTypeSubCategoriesController(IMediator mediator) : Control
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchJobTypeSubCategoryCommand(id, request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<JobTypeSubCategoryDetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DeleteJobTypeSubCategoryCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

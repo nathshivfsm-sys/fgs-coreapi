@@ -5,7 +5,6 @@ public sealed record FgsSetupLaborRateTypeSummaryDto(
     string Name,
     string? Description,
     int SortOrder,
-    bool IsSystem,
     bool IsActive);
 
 public sealed record FgsSetupLaborRateTypeDetailDto(
@@ -13,7 +12,6 @@ public sealed record FgsSetupLaborRateTypeDetailDto(
     string Name,
     string? Description,
     int SortOrder,
-    bool IsSystem,
     bool IsActive);
 
 public sealed record FgsSetupLaborRateTypeLookupDto(
@@ -24,20 +22,17 @@ public sealed record FgsSetupLaborRateTypeLookupDto(
 public sealed record FgsSetupLaborRateTypeCreateDto(
     string Name,
     string? Description,
-    int SortOrder,
-    bool IsSystem);
+    int SortOrder);
 
 public sealed record FgsSetupLaborRateTypeUpdateDto(
     string Name,
     string? Description,
-    int SortOrder,
-    bool IsSystem);
+    int SortOrder);
 
 public sealed record FgsSetupLaborRateTypePatchDto(
     string? Name,
     string? Description,
     int? SortOrder,
-    bool? IsSystem,
     bool? IsActive);
 
 public sealed record FgsSetupLaborRateTypeListFilters(

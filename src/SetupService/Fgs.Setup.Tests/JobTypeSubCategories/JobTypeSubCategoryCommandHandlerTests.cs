@@ -43,7 +43,7 @@ public sealed class JobTypeSubCategoryCommandHandlerTests
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
-        response.Data!.IsActive.Should().BeTrue();
+        (await context.FgsJobTypeSubCategories.SingleAsync()).IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
                 CacheKeys.EntityPrefix(TenantId, CompanyId, "jobtypesubcategories"),
@@ -79,7 +79,7 @@ public sealed class JobTypeSubCategoryCommandHandlerTests
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
-        response.Data!.IsActive.Should().BeFalse();
+        (await context.FgsJobTypeSubCategories.SingleAsync()).IsActive.Should().BeFalse();
     }
 
     private static ITenantContextAccessor CreateTenantContextAccessor() =>

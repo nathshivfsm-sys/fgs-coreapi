@@ -4,7 +4,6 @@ using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.TechTrades.Commands.CreateTechTrade;
-using Fgs.Setup.Application.Features.TechTrades.Commands.DeleteTechTrade;
 using Fgs.Setup.Application.Features.TechTrades.Commands.PatchTechTrade;
 using Fgs.Setup.Application.Features.TechTrades.Commands.UpdateTechTrade;
 using Fgs.Setup.Application.Features.TechTrades.Dtos;
@@ -22,9 +21,9 @@ namespace Fgs.Setup.API.Controllers;
 /// </summary>
 //[Authorize]
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("techtrades")]
+[FgsVersionedRoute("techtrade")]
 [Produces("application/json")]
-public sealed class TechTradesController(IMediator mediator) : ControllerBase
+public sealed class TechTradeController(IMediator mediator) : ControllerBase
 {
     [HttpGet("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<TechTradeDetailDto>), StatusCodes.Status200OK)]
@@ -43,7 +42,7 @@ public sealed class TechTradesController(IMediator mediator) : ControllerBase
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
         [FromQuery] string? tradeCode = null,
         [FromQuery] string? name = null,
         CancellationToken cancellationToken = default)
@@ -102,15 +101,6 @@ public sealed class TechTradesController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchTechTradeCommand(id, request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<TechTradeDetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DeleteTechTradeCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }
