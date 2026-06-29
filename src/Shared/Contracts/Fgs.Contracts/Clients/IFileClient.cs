@@ -74,7 +74,14 @@ public sealed record FileMetadataDto(
     long FileSizeBytes,
     string[]? Tags,
     string? Description,
-    DateTimeOffset CreatedOn);
+    bool IsVisibleToCustomer,
+    bool IsVisibleToFieldTechnician,
+    string FileUrl,
+    string? ThumbnailUrl,
+    DateTimeOffset CreatedOn,
+    string? CreatedBy,
+    DateTimeOffset? UpdatedOn,
+    string? UpdatedBy);
 
 public sealed record FileContentUrlResponse(
     long FileId,

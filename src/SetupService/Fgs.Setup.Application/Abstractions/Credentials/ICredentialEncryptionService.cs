@@ -17,7 +17,7 @@ public interface ICredentialEncryptionService
         byte[] encryptedDataKey,
         CancellationToken cancellationToken = default);
 
-    Task<(byte[] EncryptedDataKey, string KeyIdentifier)> ReEncryptDataKeyOnlyAsync(
+    Task<byte[]> ReEncryptDataKeyOnlyAsync(
         byte[] encryptedDataKey,
         string? sourceKeyIdentifier,
         CancellationToken cancellationToken = default);

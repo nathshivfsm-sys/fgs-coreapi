@@ -1,12 +1,19 @@
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
+using Fgs.File.Application.Abstractions.Storage;
+using Fgs.File.Application.Common.Options;
 using Fgs.File.Domain.Entities;
 using Fgs.Persistence.Abstractions;
 using MediatR;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.File.Application.Features.Files.Queries.GetFileById;
 
-public sealed class GetFileByIdQueryHandler(IUnitOfWork unitOfWork)
+public sealed class GetFileByIdQueryHandler(
+    IUnitOfWork unitOfWork,
+    IFileContentUrlBuilder contentUrlBuilder,
+    IS3ObjectStorageService objectStorageService,
+    IOptions<FileServiceOptions> fileOptions)
     : IRequestHandler<GetFileByIdQuery, ApiResponse<FileMetadataDto>>
 {
     public async Task<ApiResponse<FileMetadataDto>> Handle(
@@ -21,6 +28,17 @@ public sealed class GetFileByIdQueryHandler(IUnitOfWork unitOfWork)
             return ApiResponse<FileMetadataDto>.Fail(["File not found."], ApiStatusCodes.NotFound);
         }
 
+        string? thumbnailUrl = null;
+        if (!string.IsNullOrWhiteSpace(file.ThumbnailObjectKey))
+        {
+            var expiry = TimeSpan.FromMinutes(fileOptions.Value.DownloadUrlExpiryMinutes);
+            thumbnailUrl = await objectStorageService.CreateDownloadUrlAsync(
+                file.BucketName,
+                file.ThumbnailObjectKey,
+                expiry,
+                cancellationToken);
+        }
+
         return ApiResponse<FileMetadataDto>.Ok(new FileMetadataDto(
             file.Id,
             file.TenantId,
@@ -32,6 +50,13 @@ public sealed class GetFileByIdQueryHandler(IUnitOfWork unitOfWork)
             file.FileSizeBytes,
             file.Tags,
             file.Description,
-            file.CreatedOn));
+            file.IsVisibleToCustomer,
+            file.IsVisibleToFieldTechnician,
+            contentUrlBuilder.BuildContentUrl(file.Id),
+            thumbnailUrl,
+            file.CreatedOn,
+            file.CreatedBy,
+            file.UpdatedOn,
+            file.UpdatedBy));
     }
 }

@@ -57,8 +57,7 @@ internal static class CredentialMapper
             credential.ProviderType.ProviderName,
             credential.CredentialName,
             credential.Description,
-            credential.IsActive,
-            credential.KeyIdentifier);
+            credential.IsActive);
 
     public static CredentialSummaryDto ToSummary(FgsCredential credential) =>
         new(
@@ -68,8 +67,7 @@ internal static class CredentialMapper
             credential.ProviderType.ProviderName,
             credential.CredentialName,
             credential.Description,
-            credential.IsActive,
-            credential.KeyIdentifier);
+            credential.IsActive);
 
     public static CredentialDetailDto ToDetail(GloCredential credential) =>
         new(
@@ -79,8 +77,7 @@ internal static class CredentialMapper
             credential.ProviderType.ProviderName,
             credential.CredentialName,
             credential.Description,
-            credential.IsActive,
-            credential.KeyIdentifier);
+            credential.IsActive);
 
     public static CredentialDetailDto ToDetail(FgsCredential credential) =>
         new(
@@ -90,6 +87,5 @@ internal static class CredentialMapper
             credential.ProviderType.ProviderName,
             credential.CredentialName,
             credential.Description,
-            credential.IsActive,
-            credential.KeyIdentifier);
+            credential.IsActive);
 }

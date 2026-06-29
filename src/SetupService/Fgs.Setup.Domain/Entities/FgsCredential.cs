@@ -27,9 +27,6 @@ public class FgsCredential : FgsEntityBase, ITenantCompanyScoped
     /// <summary>Data Encryption Key encrypted using AWS KMS.</summary>
     public byte[] EncryptedDataKey { get; set; } = null!;
 
-    /// <summary>AWS KMS key ARN or alias used to encrypt the Data Encryption Key.</summary>
-    public string? KeyIdentifier { get; set; }
-
     /// <summary>Indicates whether the credential is active and available for use.</summary>
     public bool IsActive { get; set; } = true;
 

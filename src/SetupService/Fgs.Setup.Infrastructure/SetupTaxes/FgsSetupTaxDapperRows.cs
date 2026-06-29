@@ -20,9 +20,6 @@ internal sealed class FgsSetupTaxSummaryRow
             Id,
             TaxCode,
             Name,
-            IsExternalSystemRecord,
-            ExternalSystemId,
-            SyncToken,
             ShowTaxDetail,
             Description,
             TaxRate,
@@ -46,9 +43,6 @@ internal sealed class FgsSetupTaxDetailRow
             Id,
             TaxCode,
             Name,
-            IsExternalSystemRecord,
-            ExternalSystemId,
-            SyncToken,
             ShowTaxDetail,
             Description,
             taxDetails.Where(d => d.IsActive).Sum(d => d.TaxPercent),
@@ -77,7 +71,6 @@ internal sealed class FgsSetupTaxLineDetailRow
             TaxPercent,
             EffectiveFromDate,
             EffectiveToDate,
-            IsExternalSystemRecord,
             IsActive);
 }
 

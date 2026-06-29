@@ -32,9 +32,6 @@ internal class FgsCredentialConfiguration : IEntityTypeConfiguration<FgsCredenti
         entity.Property(e => e.EncryptedDataKey)
             .HasColumnType("bytea")
             .HasComment("Data Encryption Key encrypted using AWS KMS.");
-        entity.Property(e => e.KeyIdentifier)
-            .HasMaxLength(200)
-            .HasComment("AWS KMS key ARN or alias used to encrypt the Data Encryption Key.");
         entity.Property(e => e.IsActive)
             .HasDefaultValue(true)
             .HasComment("Indicates whether the credential is active and available for use.");

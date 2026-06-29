@@ -4,9 +4,6 @@ public sealed record FgsSetupTaxSummaryDto(
     long Id,
     string TaxCode,
     string Name,
-    bool IsExternalSystemRecord,
-    string? ExternalSystemId,
-    string? SyncToken,
     bool ShowTaxDetail,
     string? Description,
     decimal TaxRate,
@@ -20,16 +17,12 @@ public sealed record FgsSetupTaxLineDetailDto(
     decimal TaxPercent,
     DateOnly EffectiveFromDate,
     DateOnly? EffectiveToDate,
-    bool IsExternalSystemRecord,
     bool IsActive);
 
 public sealed record FgsSetupTaxDetailDto(
     long Id,
     string TaxCode,
     string Name,
-    bool IsExternalSystemRecord,
-    string? ExternalSystemId,
-    string? SyncToken,
     bool ShowTaxDetail,
     string? Description,
     decimal TaxRate,

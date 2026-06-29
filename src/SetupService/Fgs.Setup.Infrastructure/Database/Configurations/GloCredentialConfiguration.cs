@@ -17,7 +17,6 @@ internal class GloCredentialConfiguration : IEntityTypeConfiguration<GloCredenti
         entity.Property(e => e.Description).HasMaxLength(500);
         entity.Property(e => e.CredentialData).HasColumnType("bytea");
         entity.Property(e => e.EncryptedDataKey).HasColumnType("bytea");
-        entity.Property(e => e.KeyIdentifier).HasMaxLength(200);
         entity.Property(e => e.IsActive).HasDefaultValue(true);
         entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
