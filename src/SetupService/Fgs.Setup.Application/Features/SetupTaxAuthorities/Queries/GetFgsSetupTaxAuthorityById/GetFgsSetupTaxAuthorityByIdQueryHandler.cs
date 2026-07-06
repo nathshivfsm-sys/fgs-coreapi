@@ -22,7 +22,7 @@ public sealed class GetFgsSetupTaxAuthorityByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "taxauthorities",
+            "taxauthority",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<FgsSetupTaxAuthorityDetailDto>(cacheKey, cancellationToken);

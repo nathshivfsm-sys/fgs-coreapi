@@ -46,7 +46,7 @@ public sealed class FgsSetupLaborRateTypeCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "laborratetypes"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "laborratetype"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

@@ -24,7 +24,7 @@ public sealed class PatchFgsSetupPaymentTermCommandHandler(
         logger.LogInformation("Patchd payment term {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "paymentterms"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "paymentterm"),
                 cancellationToken);
         return ApiResponse<FgsSetupPaymentTermDetailDto>.Ok(result);
     }

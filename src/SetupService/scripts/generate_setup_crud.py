@@ -129,7 +129,7 @@ ENTITIES: list[EntityConfig] = [
             Field("DisplayOrder", "short?", required=False, in_lookup=True),
         ]),
         search_columns=["Code", "Name", "Description"],
-        expose_http_delete=True,
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="BillingCategory",
@@ -156,7 +156,7 @@ ENTITIES: list[EntityConfig] = [
             Field("AllowToPick", "bool", default="true"),
         ]),
         search_columns=["BillingCategoryType", "BillingCategoryName", "Description"],
-        expose_http_delete=True,
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="JobTypeCategory",
@@ -258,7 +258,7 @@ ENTITIES: list[EntityConfig] = [
             Field("IsSystem", "bool", default="false"),
         ]),
         search_columns=["ReasonCode", "ReasonName", "Description"],
-        expose_http_delete=True,
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="LeadSource",
@@ -357,7 +357,7 @@ NEW_ENTITIES: list[EntityConfig] = [
             Field("AllowManualSelection", "bool", default="true"),
         ]),
         search_columns=["StatusCode", "StatusName", "Description"],
-        expose_http_delete=True,
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="FgsSalesActivityType",
@@ -414,7 +414,7 @@ NEW_ENTITIES: list[EntityConfig] = [
             Field("AllowManualSelection", "bool", default="true"),
         ]),
         search_columns=["DispositionReasonCode", "DispositionReasonName", "Description"],
-        expose_http_delete=True,
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="FgsSalesActivityOutcome",
@@ -534,7 +534,7 @@ NEW_ENTITIES: list[EntityConfig] = [
             Field("Description", "string?", required=False),
         ]),
         search_columns=["TaxCode", "Name", "Description"],
-        expose_http_delete=True,
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="FgsSetupTaxAuthority",
@@ -557,7 +557,7 @@ NEW_ENTITIES: list[EntityConfig] = [
             Field("Description", "string?", required=False),
         ]),
         search_columns=["Code", "Name", "RegionCode", "Description"],
-        expose_http_delete=True,
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="FgsSetupPostalCode",
@@ -709,7 +709,7 @@ NEW_ENTITIES: list[EntityConfig] = [
             Field("IsMobileVisible", "bool", default="true"),
         ]),
         search_columns=["CommunicationChannel", "TemplateType", "Code", "Name", "Subject"],
-        expose_http_delete=True,
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="FgsTag",
@@ -824,7 +824,7 @@ NEW_ENTITIES: list[EntityConfig] = [
             ("WarehouseId", "ExistsWarehouseIdAsync", "warehouse"),
         ],
         search_columns=["VIN", "Make", "Model", "LicensePlate"],
-        expose_http_delete=True,
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="FgsVehicleMaintenance",

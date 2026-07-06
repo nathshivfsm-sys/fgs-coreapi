@@ -24,7 +24,7 @@ public sealed class UpdateResolutionCodeCommandHandler(
         logger.LogInformation("Updated resolution code {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "resolutioncodes"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "resolutioncode"),
                 cancellationToken);
         return ApiResponse<ResolutionCodeDetailDto>.Ok(result);
     }

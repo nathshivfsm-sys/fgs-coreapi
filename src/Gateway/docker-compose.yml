@@ -210,6 +210,33 @@ services:
       retries: 5
       start_period: 90s
 
+  asset-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/asset-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/asset
+      CredentialConsumer__ServiceName: fgs-asset-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: REDIS
+      UserService__BaseUrl: http://user-service:5001
+      SetupService__BaseUrl: http://setup-service:5004
+    depends_on:
+      <<: *depends-on-setup-and-audit
+    volumes:
+      - ../AssetService/Fgs.Asset.API/appsettings.json:/src/src/AssetService/Fgs.Asset.API/appsettings.json:ro
+      - ../AssetService/Fgs.Asset.API/appsettings.Development.json:/src/src/AssetService/Fgs.Asset.API/appsettings.Development.json:ro
+    expose:
+      - "5015"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5015/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
   notification-service:
     <<: *service-network
     build:
@@ -330,6 +357,8 @@ services:
       file-service:
         condition: service_healthy
       inventory-service:
+        condition: service_healthy
+      asset-service:
         condition: service_healthy
     ports:
       - "8080:80"

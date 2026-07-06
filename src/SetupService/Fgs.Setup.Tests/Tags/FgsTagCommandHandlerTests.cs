@@ -46,7 +46,7 @@ public sealed class FgsTagCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "tags"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "tag"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

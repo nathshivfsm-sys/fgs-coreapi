@@ -22,7 +22,7 @@ public sealed class LookupSetupPaymentMethodsQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "paymentmethods",
+            "paymentmethod",
             $"{CacheKeys.LookupSegment(request.ActiveOnly)}:isMobileVisible={request.IsMobileVisible?.ToString() ?? "all"}:isCustomerPortalVisible={request.IsCustomerPortalVisible?.ToString() ?? "all"}");
 
         var result = await cache.GetOrSetAsync(

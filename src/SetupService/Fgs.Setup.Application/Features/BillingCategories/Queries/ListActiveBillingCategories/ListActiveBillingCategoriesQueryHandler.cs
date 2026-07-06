@@ -32,7 +32,7 @@ public sealed class ListActiveBillingCategoriesQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "billingcategories",
+        "billingcategory",
         segment);
 
         var cached = await cache.GetOrSetAsync(

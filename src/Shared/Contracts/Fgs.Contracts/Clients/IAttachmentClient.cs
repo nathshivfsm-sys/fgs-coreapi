@@ -8,7 +8,7 @@ namespace Fgs.Contracts.Clients;
 public interface IAttachmentClient
 {
     [Multipart]
-    [Post("/api/v1/attachments")]
+    [Post("/api/v1/attachment")]
     Task<Fgs.Contracts.Api.ApiResponse<AttachmentMetadataDto>> UploadAsync(
         StreamPart file,
         [AliasAs("entityType")] string entityType,
@@ -21,13 +21,13 @@ public interface IAttachmentClient
         [AliasAs("logoVariant")] string? logoVariant,
         CancellationToken cancellationToken = default);
 
-    [Get("/api/v1/attachments/{entityType}/{attachmentId}/metadata")]
+    [Get("/api/v1/attachment/{entityType}/{attachmentId}/metadata")]
     Task<Fgs.Contracts.Api.ApiResponse<AttachmentMetadataDto>> GetMetadataAsync(
         string entityType,
         long attachmentId,
         CancellationToken cancellationToken = default);
 
-    [Get("/api/v1/attachments")]
+    [Get("/api/v1/attachment")]
     Task<Fgs.Contracts.Api.ApiResponse<AttachmentPagedResultDto<AttachmentMetadataDto>>> ListAsync(
         [Query] int page,
         [Query] int pageSize,
@@ -47,12 +47,12 @@ public interface IAttachmentClient
         [Query] string? tags,
         CancellationToken cancellationToken = default);
 
-    [Delete("/api/v1/attachments/{attachmentId}")]
+    [Delete("/api/v1/attachment/{attachmentId}")]
     Task<Fgs.Contracts.Api.ApiResponse<object>> DeleteAsync(
         long attachmentId,
         CancellationToken cancellationToken = default);
 
-    [Delete("/api/v1/attachments/by-entity")]
+    [Delete("/api/v1/attachment/by-entity")]
     Task<Fgs.Contracts.Api.ApiResponse<object>> BulkDeleteByEntityAsync(
         [Query] string entityType,
         [Query] long entityId,

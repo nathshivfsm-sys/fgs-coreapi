@@ -63,7 +63,7 @@ public sealed class FgsInventoryLocationCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "inventory-locations"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "inventory-location"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

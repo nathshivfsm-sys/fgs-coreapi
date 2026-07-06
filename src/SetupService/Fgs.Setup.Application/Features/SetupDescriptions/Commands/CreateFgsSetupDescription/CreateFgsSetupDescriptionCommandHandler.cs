@@ -24,7 +24,7 @@ public sealed class CreateFgsSetupDescriptionCommandHandler(
         logger.LogInformation("Created setup description {Id} with code {DescriptionTypeCode}", result.Id, result.DescriptionTypeCode);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "setupdescriptions"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "setupdescription"),
                 cancellationToken);
         return ApiResponse<FgsSetupDescriptionDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.Api;
+using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
@@ -24,7 +24,7 @@ public sealed class PatchFgsVendorCommandHandler(
         logger.LogInformation("Patched vendor {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "vendors"),
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "vendor"),
             cancellationToken);
         return ApiResponse<FgsVendorDetailDto>.Ok(result);
     }

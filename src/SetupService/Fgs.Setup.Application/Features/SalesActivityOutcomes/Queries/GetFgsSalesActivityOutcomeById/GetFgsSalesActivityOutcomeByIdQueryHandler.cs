@@ -22,7 +22,7 @@ public sealed class GetFgsSalesActivityOutcomeByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "salesactivityoutcomes",
+            "salesactivityoutcome",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<FgsSalesActivityOutcomeDetailDto>(cacheKey, cancellationToken);

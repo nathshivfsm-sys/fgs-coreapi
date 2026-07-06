@@ -32,7 +32,7 @@ public sealed class ListActiveSalesActivityOutcomesQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "salesactivityoutcomes",
+        "salesactivityoutcome",
         segment);
 
         var cached = await cache.GetOrSetAsync(

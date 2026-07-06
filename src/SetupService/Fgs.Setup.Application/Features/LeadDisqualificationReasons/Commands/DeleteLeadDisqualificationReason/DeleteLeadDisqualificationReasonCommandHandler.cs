@@ -24,7 +24,7 @@ public sealed class DeleteLeadDisqualificationReasonCommandHandler(
         logger.LogInformation("Soft-deleted lead disqualification reason {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "leaddisqualificationreasons"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "leaddisqualificationreason"),
                 cancellationToken);
         return ApiResponse<LeadDisqualificationReasonDetailDto>.Ok(result);
     }

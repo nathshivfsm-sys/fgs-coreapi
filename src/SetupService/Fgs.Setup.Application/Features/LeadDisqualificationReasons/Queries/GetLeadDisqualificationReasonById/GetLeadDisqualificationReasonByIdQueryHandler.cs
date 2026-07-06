@@ -22,7 +22,7 @@ public sealed class GetLeadDisqualificationReasonByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "leaddisqualificationreasons",
+            "leaddisqualificationreason",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<LeadDisqualificationReasonDetailDto>(cacheKey, cancellationToken);

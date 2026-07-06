@@ -22,7 +22,7 @@ public sealed class GetFgsSetupDescriptionByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "setupdescriptions",
+            "setupdescription",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<FgsSetupDescriptionDetailDto>(cacheKey, cancellationToken);

@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.Api;
+using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
@@ -24,7 +24,7 @@ public sealed class CreateFgsInventoryLocationCommandHandler(
         logger.LogInformation("Created inventory location {Id} with code {InventoryLocationCode}", result.Id, result.InventoryLocationCode);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "inventory-locations"),
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "inventory-location"),
             cancellationToken);
         return ApiResponse<FgsInventoryLocationDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

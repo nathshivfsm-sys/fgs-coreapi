@@ -46,7 +46,7 @@ public sealed class BillingCategoryCommandHandlerTests
         (await context.FgsBillingCategories.SingleAsync()).IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "billingcategories"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "billingcategory"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

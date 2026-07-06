@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.Api;
+using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
@@ -22,7 +22,7 @@ public sealed class LookupVendorsQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "vendors",
+            "vendor",
             CacheKeys.LookupSegment(request.ActiveOnly));
 
         var result = await cache.GetOrSetAsync(

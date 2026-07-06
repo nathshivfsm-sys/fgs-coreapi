@@ -1,4 +1,4 @@
-using Fgs.Asset.Domain.Entities;
+﻿using Fgs.Asset.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,7 +10,7 @@ internal sealed class FgsAssetTypeConfiguration : IEntityTypeConfiguration<FgsAs
     public void Configure(EntityTypeBuilder<FgsAssetType> entity)
     {
         entity.ToTable(
-            "FgsAssetType",
+            "assettype",
             t =>
             {
                 t.HasComment("Defines equipment classifications used by service assets.");
@@ -54,3 +54,4 @@ internal sealed class FgsAssetTypeConfiguration : IEntityTypeConfiguration<FgsAs
             .HasDatabaseName("IX_FgsAssetType_TenantId_CompanyId_IsActive");
     }
 }
+

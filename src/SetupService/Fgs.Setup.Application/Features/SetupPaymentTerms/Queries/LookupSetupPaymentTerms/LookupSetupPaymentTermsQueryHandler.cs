@@ -22,7 +22,7 @@ public sealed class LookupSetupPaymentTermsQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "paymentterms",
+            "paymentterm",
             CacheKeys.LookupSegment(request.ActiveOnly));
 
         var result = await cache.GetOrSetAsync(

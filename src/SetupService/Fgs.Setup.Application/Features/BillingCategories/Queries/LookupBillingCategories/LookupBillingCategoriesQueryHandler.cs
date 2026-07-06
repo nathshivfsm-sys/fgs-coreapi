@@ -22,7 +22,7 @@ public sealed class LookupBillingCategoriesQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "billingcategories",
+            "billingcategory",
             $"{CacheKeys.LookupSegment(request.ActiveOnly)}:showToFieldTech={request.ShowToFieldTech?.ToString() ?? "all"}:allowToPick={request.AllowToPick?.ToString() ?? "all"}");
 
         var result = await cache.GetOrSetAsync(

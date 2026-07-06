@@ -46,7 +46,7 @@ public sealed class ResolutionCodeCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "resolutioncodes"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "resolutioncode"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

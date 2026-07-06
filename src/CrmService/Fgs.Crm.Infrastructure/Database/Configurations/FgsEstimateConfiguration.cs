@@ -35,16 +35,28 @@ internal sealed class FgsEstimateConfiguration : IEntityTypeConfiguration<FgsEst
         entity.Property(e => e.PaymentMethodId).HasComment("Preferred payment method for the estimate.");
         entity.Property(e => e.Break1Id).HasComment("First accounting segment used for GL exports and reporting.");
         entity.Property(e => e.Break2Id).HasComment("Second accounting segment used for GL exports and reporting.");
-        entity.Property(e => e.QuoteName).HasMaxLength(255).IsRequired()
-            .HasComment("User-facing quote name.");
-        entity.Property(e => e.QuoteDescription).HasColumnType("text")
-            .HasComment("Detailed quote description presented to the customer.");
+        entity.Property(e => e.EstimateName).HasMaxLength(255).IsRequired()
+            .HasComment("User-facing estimate name.");
+        entity.Property(e => e.EstimateDescription).HasColumnType("text")
+            .HasComment("Detailed estimate description, scope summary, or explanatory information presented to the customer.");
+        entity.Property(e => e.InternalNotes).HasColumnType("text")
+            .HasComment("Stores internal notes related to the estimate. This information is intended for internal company use and should not be displayed to the customer.");
+        entity.Property(e => e.InstallationDescription).HasColumnType("text")
+            .HasComment("Stores installation instructions, installation scope details, or other information intended for the installation or field service team.");
         entity.Property(e => e.EstimateDate).HasColumnType("date")
             .HasComment("Date estimate was created.");
         entity.Property(e => e.ExpirationDate).HasColumnType("date")
             .HasComment("Date estimate expires.");
         entity.Property(e => e.QuotedByEmployeeId).HasComment("Employee who prepared or presented the estimate.");
         entity.Property(e => e.SoldByEmployeeId).HasComment("Employee credited with the sale.");
+        entity.Property(e => e.RecommendedByEmployeeId).HasComment(
+            "Stores the employee ID of the employee who recommended the estimate or proposed work to the customer.");
+        entity.Property(e => e.VerificationRequired).HasDefaultValue(false)
+            .HasComment("Indicates whether the estimate requires internal verification before it can proceed through the estimate workflow.");
+        entity.Property(e => e.VerifiedByEmployeeId).HasComment(
+            "Stores the employee ID of the employee who reviewed and verified the estimate.");
+        entity.Property(e => e.VerifiedOn).HasColumnType("timestamptz")
+            .HasComment("Stores the date and time when the estimate was verified.");
         entity.Property(e => e.SelectedEstimateOptionId).HasComment("Estimate option selected by the customer.");
         entity.Property(e => e.SignedBy).HasMaxLength(255)
             .HasComment("Name entered by the person signing the estimate.");

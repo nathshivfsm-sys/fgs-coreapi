@@ -32,7 +32,7 @@ public sealed class ListActiveInventoryLocationsQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "inventory-locations",
+            "inventory-location",
             segment);
 
         var cached = await cache.GetOrSetAsync(

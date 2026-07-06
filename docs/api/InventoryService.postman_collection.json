@@ -53,8 +53,8 @@
                               ]
                  },
                  {
-                     "description":  "InventoryLocationsController - inventory-locations",
-                     "name":  "InventoryLocationsController",
+                     "description":  "InventoryLocationController - inventory-location",
+                     "name":  "InventoryLocationController",
                      "item":  [
                                   {
                                       "name":  "GetById",
@@ -64,12 +64,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-locations/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-location/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "inventory",
-                                                                               "inventory-locations",
+                                                                               "inventory-location",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -158,12 +158,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-locations",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-location",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "inventory",
-                                                                               "inventory-locations"
+                                                                               "inventory-location"
                                                                            ]
                                                               },
                                                       "description":  "List",
@@ -212,12 +212,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-locations/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-location/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "inventory",
-                                                                               "inventory-locations",
+                                                                               "inventory-location",
                                                                                "lookup"
                                                                            ]
                                                               },
@@ -257,12 +257,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-locations",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-location",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "inventory",
-                                                                               "inventory-locations"
+                                                                               "inventory-location"
                                                                            ]
                                                               },
                                                       "description":  "Create",
@@ -332,12 +332,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-locations/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-location/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "inventory",
-                                                                               "inventory-locations",
+                                                                               "inventory-location",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -393,12 +393,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-locations/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-location/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "inventory",
-                                                                               "inventory-locations",
+                                                                               "inventory-location",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -446,59 +446,12 @@
                                                                    "type":  "bearer"
                                                                }
                                                   }
-                                  },
-                                  {
-                                      "name":  "Delete",
-                                      "request":  {
-                                                      "method":  "DELETE",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-locations/{{recordId}}",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "inventory",
-                                                                               "inventory-locations",
-                                                                               "{{recordId}}"
-                                                                           ]
-                                                              },
-                                                      "description":  "Delete",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
                                   }
                               ]
                  },
                  {
-                     "description":  "VendorsController - vendors",
-                     "name":  "VendorsController",
+                     "description":  "VendorController - vendor",
+                     "name":  "VendorController",
                      "item":  [
                                   {
                                       "name":  "GetById",
@@ -508,12 +461,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendors/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendor/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "inventory",
-                                                                               "vendors",
+                                                                               "vendor",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -602,12 +555,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendors",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendor",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "inventory",
-                                                                               "vendors"
+                                                                               "vendor"
                                                                            ]
                                                               },
                                                       "description":  "List",
@@ -656,12 +609,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendors/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendor/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "inventory",
-                                                                               "vendors",
+                                                                               "vendor",
                                                                                "lookup"
                                                                            ]
                                                               },
@@ -701,12 +654,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendors",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendor",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "inventory",
-                                                                               "vendors"
+                                                                               "vendor"
                                                                            ]
                                                               },
                                                       "description":  "Create",
@@ -776,12 +729,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendors/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendor/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "inventory",
-                                                                               "vendors",
+                                                                               "vendor",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -837,12 +790,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendors/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendor/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "inventory",
-                                                                               "vendors",
+                                                                               "vendor",
                                                                                "{{recordId}}"
                                                                            ]
                                                               },
@@ -890,53 +843,6 @@
                                                                    "type":  "bearer"
                                                                }
                                                   }
-                                  },
-                                  {
-                                      "name":  "Delete",
-                                      "request":  {
-                                                      "method":  "DELETE",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendors/{{recordId}}",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "inventory",
-                                                                               "vendors",
-                                                                               "{{recordId}}"
-                                                                           ]
-                                                              },
-                                                      "description":  "Delete",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
                                   }
                               ]
                  }
@@ -951,7 +857,7 @@
                  "description":  "Inventory service scaffold (health) via {{gatewayUrl}}/api/v1/inventory/...",
                  "name":  "FGS InventoryService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "d2e72d25-2ba8-4297-ae6f-d881204df721"
+                 "_postman_id":  "14401797-6381-401d-b8c2-af0bfeff92c0"
              },
     "event":  [
                   {

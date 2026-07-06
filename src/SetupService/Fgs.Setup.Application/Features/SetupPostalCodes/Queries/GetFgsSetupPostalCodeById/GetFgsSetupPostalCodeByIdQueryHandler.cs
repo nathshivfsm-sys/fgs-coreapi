@@ -22,7 +22,7 @@ public sealed class GetFgsSetupPostalCodeByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "postalcodes",
+            "postalcode",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<FgsSetupPostalCodeDetailDto>(cacheKey, cancellationToken);

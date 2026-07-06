@@ -22,7 +22,7 @@ public sealed class GetFgsBusinessTypeByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "businesstypes",
+            "businesstype",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<FgsBusinessTypeDetailDto>(cacheKey, cancellationToken);

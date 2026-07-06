@@ -24,7 +24,7 @@ public sealed class DeleteBillingCategoryCommandHandler(
         logger.LogInformation("Soft-deleted billing category {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "billingcategories"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "billingcategory"),
                 cancellationToken);
         return ApiResponse<BillingCategoryDetailDto>.Ok(result);
     }

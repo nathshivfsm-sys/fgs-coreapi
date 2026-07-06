@@ -1,3 +1,5 @@
+using Fgs.Setup.Domain.Enums;
+
 namespace Fgs.Setup.Domain.Entities;
 
 public class FgsSetupPricingMatrix : FgsTenantCompanySetupEntityBase<long>
@@ -15,4 +17,6 @@ public class FgsSetupPricingMatrix : FgsTenantCompanySetupEntityBase<long>
     public DateOnly? EffectiveTo { get; set; }
 
     public bool IsMobileVisible { get; set; } = true;
+
+    public PriceAdjustmentType PriceAdjustmentTypeId { get; set; }
 }

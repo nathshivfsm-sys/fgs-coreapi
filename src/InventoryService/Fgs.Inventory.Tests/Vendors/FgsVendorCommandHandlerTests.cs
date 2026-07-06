@@ -74,7 +74,7 @@ public sealed class FgsVendorCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "vendors"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "vendor"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

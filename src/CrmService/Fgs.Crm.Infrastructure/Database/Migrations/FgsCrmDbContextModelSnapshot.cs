@@ -1095,6 +1095,16 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                         .HasColumnType("date")
                         .HasComment("Date estimate was created.");
 
+                    b.Property<string>("EstimateDescription")
+                        .HasColumnType("text")
+                        .HasComment("Detailed estimate description, scope summary, or explanatory information presented to the customer.");
+
+                    b.Property<string>("EstimateName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("User-facing estimate name.");
+
                     b.Property<string>("EstimateNumber")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -1129,6 +1139,14 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                         .HasDefaultValue(0m)
                         .HasComment("Gross profit percentage.");
 
+                    b.Property<string>("InstallationDescription")
+                        .HasColumnType("text")
+                        .HasComment("Stores installation instructions, installation scope details, or other information intended for the installation or field service team.");
+
+                    b.Property<string>("InternalNotes")
+                        .HasColumnType("text")
+                        .HasComment("Stores internal notes related to the estimate. This information is intended for internal company use and should not be displayed to the customer.");
+
                     b.Property<long?>("JobTypeId")
                         .HasColumnType("bigint")
                         .HasComment("Job type associated with the estimate.");
@@ -1157,19 +1175,13 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                         .HasColumnType("bigint")
                         .HasComment("Payment terms applicable to the estimate.");
 
-                    b.Property<string>("QuoteDescription")
-                        .HasColumnType("text")
-                        .HasComment("Detailed quote description presented to the customer.");
-
-                    b.Property<string>("QuoteName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasComment("User-facing quote name.");
-
                     b.Property<long?>("QuotedByEmployeeId")
                         .HasColumnType("bigint")
                         .HasComment("Employee who prepared or presented the estimate.");
+
+                    b.Property<long?>("RecommendedByEmployeeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Stores the employee ID of the employee who recommended the estimate or proposed work to the customer.");
 
                     b.Property<long?>("SelectedEstimateOptionId")
                         .HasColumnType("bigint")
@@ -1231,6 +1243,20 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                     b.Property<DateTimeOffset?>("UpdatedOn")
                         .HasColumnType("timestamptz")
                         .HasComment("Date and time the record was last updated.");
+
+                    b.Property<bool>("VerificationRequired")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the estimate requires internal verification before it can proceed through the estimate workflow.");
+
+                    b.Property<long?>("VerifiedByEmployeeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Stores the employee ID of the employee who reviewed and verified the estimate.");
+
+                    b.Property<DateTimeOffset?>("VerifiedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Stores the date and time when the estimate was verified.");
 
                     b.Property<long?>("WorkOrderId")
                         .HasColumnType("bigint")

@@ -22,7 +22,7 @@ public sealed class GetFgsSetupPaymentMethodByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "paymentmethods",
+            "paymentmethod",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<FgsSetupPaymentMethodDetailDto>(cacheKey, cancellationToken);

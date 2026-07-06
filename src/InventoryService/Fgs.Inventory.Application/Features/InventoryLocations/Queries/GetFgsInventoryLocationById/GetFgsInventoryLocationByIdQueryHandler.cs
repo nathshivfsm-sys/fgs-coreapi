@@ -22,7 +22,7 @@ public sealed class GetFgsInventoryLocationByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "inventory-locations",
+            "inventory-location",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<FgsInventoryLocationDetailDto>(cacheKey, cancellationToken);

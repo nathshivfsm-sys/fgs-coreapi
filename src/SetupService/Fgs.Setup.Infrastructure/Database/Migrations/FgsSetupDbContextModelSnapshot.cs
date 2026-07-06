@@ -2556,6 +2556,10 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<short>("PriceAdjustmentTypeId")
+                        .HasColumnType("smallint")
+                        .HasComment("Pricing adjustment method. Valid values: 1=Markup Percent, 2=Markup Amount, 3=Multiplier.");
+
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
                         .HasColumnOrder(1);
@@ -2581,6 +2585,8 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.ToTable("FgsSetupPricingMatrix", "setup", t =>
                         {
                             t.HasCheckConstraint("CK_FgsSetupPricingMatrix_EffectiveDates", "\"EffectiveTo\" IS NULL OR \"EffectiveTo\" >= \"EffectiveFrom\"");
+
+                            t.HasCheckConstraint("CK_FgsSetupPricingMatrix_PriceAdjustmentTypeId", "\"PriceAdjustmentTypeId\" BETWEEN 1 AND 3");
                         });
                 });
 
@@ -2788,10 +2794,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
 
-                    b.Property<short>("PriceAdjustmentTypeId")
-                        .HasColumnType("smallint")
-                        .HasComment("Pricing adjustment method. Valid values: 1=Markup Percent, 2=Markup Amount, 3=Multiplier.");
-
                     b.Property<long>("PricingMatrixId")
                         .HasColumnType("bigint")
                         .HasComment("Reference to the pricing matrix that contains this tier.");
@@ -2816,9 +2818,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     b.HasIndex("PricingMatrixId");
 
-                    b.HasIndex("TenantId", "CompanyId", "PriceAdjustmentTypeId")
-                        .HasDatabaseName("IX_FgsSetupPricingMatrixMaterialTier_TenantId_CompanyId_PriceAdjustmentTypeId");
-
                     b.HasIndex("TenantId", "CompanyId", "PricingMatrixId")
                         .HasDatabaseName("IX_FgsSetupPricingMatrixMaterialTier_TenantId_CompanyId_PricingMatrixId");
 
@@ -2833,8 +2832,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                             t.HasCheckConstraint("CK_FgsSetupPricingMatrixMaterialTier_AdjustmentValue", "\"AdjustmentValue\" >= 0");
 
                             t.HasCheckConstraint("CK_FgsSetupPricingMatrixMaterialTier_FromCost", "\"FromCost\" >= 0");
-
-                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixMaterialTier_PriceAdjustmentTypeId", "\"PriceAdjustmentTypeId\" BETWEEN 1 AND 3");
 
                             t.HasCheckConstraint("CK_FgsSetupPricingMatrixMaterialTier_ToCost", "\"ToCost\" IS NULL OR \"ToCost\" >= \"FromCost\"");
                         });

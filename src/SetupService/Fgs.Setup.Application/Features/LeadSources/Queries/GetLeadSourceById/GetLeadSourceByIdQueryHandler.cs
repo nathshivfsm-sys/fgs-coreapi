@@ -22,7 +22,7 @@ public sealed class GetLeadSourceByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "leadsources",
+            "leadsource",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<LeadSourceDetailDto>(cacheKey, cancellationToken);

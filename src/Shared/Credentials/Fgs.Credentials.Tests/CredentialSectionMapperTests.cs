@@ -38,6 +38,9 @@ public sealed class CredentialSectionMapperTests
 
         CredentialSectionMapper.TryMap("Global:DATABASE:FgsSetupReadOnly", out var setupKey, out _).Should().BeTrue();
         setupKey.Should().Be("ConnectionStrings:FgsSetupReadOnly");
+
+        CredentialSectionMapper.TryMap("Global:DATABASE:FgsAssetReadOnly", out var assetKey, out _).Should().BeTrue();
+        assetKey.Should().Be("ConnectionStrings:FgsAssetReadOnly");
     }
 
     [Fact]
@@ -46,7 +49,8 @@ public sealed class CredentialSectionMapperTests
         var values = new Dictionary<string, string>
         {
             ["Global:DATABASE:FgsUserReadOnly"] = "Host=localhost;Database=fgs_user_ro",
-            ["Global:DATABASE:FgsSetupReadOnly"] = "Host=localhost;Database=fgs_setup_ro"
+            ["Global:DATABASE:FgsSetupReadOnly"] = "Host=localhost;Database=fgs_setup_ro",
+            ["Global:DATABASE:FgsAssetReadOnly"] = "Host=localhost;Database=fgs_asset_ro"
         };
 
         CredentialSectionMapper.TryResolveValue(
@@ -64,6 +68,14 @@ public sealed class CredentialSectionMapperTests
                 out var setupResolved)
             .Should().BeTrue();
         setupResolved.Should().Be("Host=localhost;Database=fgs_setup_ro");
+
+        CredentialSectionMapper.TryResolveValue(
+                "Global:DATABASE:FgsAssetReadOnly",
+                "ConnectionStrings:FgsAssetReadOnly",
+                values,
+                out var assetResolved)
+            .Should().BeTrue();
+        assetResolved.Should().Be("Host=localhost;Database=fgs_asset_ro");
     }
 
     [Fact]

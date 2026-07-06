@@ -22,7 +22,7 @@ public sealed class LookupFgsBusinessTypesQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "businesstypes",
+            "businesstype",
             CacheKeys.LookupSegment(request.ActiveOnly));
 
         var result = await cache.GetOrSetAsync(

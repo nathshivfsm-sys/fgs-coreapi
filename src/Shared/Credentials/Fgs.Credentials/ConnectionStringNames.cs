@@ -18,5 +18,6 @@ public static class ConnectionStringNames
     public const string FgsIntegration = "FgsIntegration";
     public const string FgsInventory = "FgsInventory";
     public const string FgsAsset = "FgsAsset";
+    public const string FgsAssetReadOnly = "FgsAssetReadOnly";
     public const string FgsReporting = "FgsReporting";
 }

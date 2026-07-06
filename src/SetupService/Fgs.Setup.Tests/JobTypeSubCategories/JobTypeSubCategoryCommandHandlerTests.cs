@@ -46,7 +46,7 @@ public sealed class JobTypeSubCategoryCommandHandlerTests
         (await context.FgsJobTypeSubCategories.SingleAsync()).IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "jobtypesubcategories"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "jobtypesubcategory"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

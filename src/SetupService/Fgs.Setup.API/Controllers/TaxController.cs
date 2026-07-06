@@ -4,7 +4,6 @@ using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.SetupTaxes.Commands.CreateFgsSetupTax;
-using Fgs.Setup.Application.Features.SetupTaxes.Commands.DeleteFgsSetupTax;
 using Fgs.Setup.Application.Features.SetupTaxes.Commands.PatchFgsSetupTax;
 using Fgs.Setup.Application.Features.SetupTaxes.Commands.UpdateFgsSetupTax;
 using Fgs.Setup.Application.Features.SetupTaxes.Queries.GetFgsSetupTaxById;
@@ -100,15 +99,6 @@ public sealed class TaxController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchFgsSetupTaxCommand(id, request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsSetupTaxDetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DeleteFgsSetupTaxCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

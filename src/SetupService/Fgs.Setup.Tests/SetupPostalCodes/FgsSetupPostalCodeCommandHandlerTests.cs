@@ -46,7 +46,7 @@ public sealed class FgsSetupPostalCodeCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "postalcodes"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "postalcode"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

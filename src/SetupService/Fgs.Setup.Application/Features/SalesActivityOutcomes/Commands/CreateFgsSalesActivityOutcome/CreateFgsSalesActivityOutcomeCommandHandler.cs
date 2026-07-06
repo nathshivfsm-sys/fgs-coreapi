@@ -24,7 +24,7 @@ public sealed class CreateFgsSalesActivityOutcomeCommandHandler(
         logger.LogInformation("Created sales activity outcome {Id} with code {OutcomeCode}", result.Id, result.OutcomeCode);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesactivityoutcomes"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesactivityoutcome"),
                 cancellationToken);
         return ApiResponse<FgsSalesActivityOutcomeDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

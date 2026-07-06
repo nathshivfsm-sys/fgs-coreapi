@@ -7,7 +7,7 @@ namespace Fgs.Contracts.Clients;
 /// </summary>
 public interface IFileTenantClient
 {
-    [Post("/api/v1/tenants/{tenantId}/bucket")]
+    [Post("/api/v1/tenant/{tenantId}/bucket")]
     Task<Fgs.Contracts.Api.ApiResponse<ProvisionTenantBucketResponse>> ProvisionBucketAsync(
         long tenantId,
         [Body] ProvisionTenantBucketRequest request,

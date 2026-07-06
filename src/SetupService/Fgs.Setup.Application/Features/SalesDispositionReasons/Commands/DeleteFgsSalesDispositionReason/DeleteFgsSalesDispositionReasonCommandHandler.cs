@@ -24,7 +24,7 @@ public sealed class DeleteFgsSalesDispositionReasonCommandHandler(
         logger.LogInformation("Soft-deleted sales disposition reason {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesdispositionreasons"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesdispositionreason"),
                 cancellationToken);
         return ApiResponse<FgsSalesDispositionReasonDetailDto>.Ok(result);
     }

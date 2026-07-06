@@ -32,7 +32,7 @@ public sealed class ListActiveSalesDispositionReasonsQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "salesdispositionreasons",
+        "salesdispositionreason",
         segment);
 
         var cached = await cache.GetOrSetAsync(

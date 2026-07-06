@@ -22,7 +22,7 @@ public sealed class GetFgsSalesPipelineStatusByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "salespipelinestatuses",
+            "salespipelinestatus",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<FgsSalesPipelineStatusDetailDto>(cacheKey, cancellationToken);

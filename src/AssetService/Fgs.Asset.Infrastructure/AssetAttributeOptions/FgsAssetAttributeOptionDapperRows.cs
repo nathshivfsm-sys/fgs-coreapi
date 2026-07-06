@@ -1,0 +1,5 @@
+using Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos;
+namespace Fgs.Asset.Infrastructure.AssetAttributeOptions;
+internal class FgsAssetAttributeOptionSummaryRow { public long Id { get; set; } public long AssetAttributeId { get; set; } public string OptionCode { get; set; } = null!; public string OptionName { get; set; } = null!; public int DisplayOrder { get; set; } public bool IsActive { get; set; } public FgsAssetAttributeOptionSummaryDto ToDto() => new(Id, AssetAttributeId, OptionCode, OptionName, DisplayOrder, IsActive); }
+internal sealed class FgsAssetAttributeOptionDetailRow : FgsAssetAttributeOptionSummaryRow { public new FgsAssetAttributeOptionDetailDto ToDto() => new(Id, AssetAttributeId, OptionCode, OptionName, DisplayOrder, IsActive); }
+internal sealed class FgsAssetAttributeOptionLookupRow { public long Id { get; set; } public string OptionCode { get; set; } = null!; public string OptionName { get; set; } = null!; public FgsAssetAttributeOptionLookupDto ToDto() => new(Id, OptionCode, OptionName); }

@@ -22,7 +22,7 @@ public sealed class LookupResolutionCodesQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "resolutioncodes",
+            "resolutioncode",
             $"{CacheKeys.LookupSegment(request.ActiveOnly)}:isMobileVisible={request.IsMobileVisible?.ToString() ?? "all"}");
 
         var result = await cache.GetOrSetAsync(

@@ -4,7 +4,6 @@ using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.Vehicles.Commands.CreateFgsVehicle;
-using Fgs.Setup.Application.Features.Vehicles.Commands.DeleteFgsVehicle;
 using Fgs.Setup.Application.Features.Vehicles.Commands.PatchFgsVehicle;
 using Fgs.Setup.Application.Features.Vehicles.Commands.UpdateFgsVehicle;
 using Fgs.Setup.Application.Features.Vehicles.Queries.GetFgsVehicleById;
@@ -99,15 +98,6 @@ public sealed class VehicleController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchFgsVehicleCommand(id, request), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<FgsVehicleDetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new DeleteFgsVehicleCommand(id), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

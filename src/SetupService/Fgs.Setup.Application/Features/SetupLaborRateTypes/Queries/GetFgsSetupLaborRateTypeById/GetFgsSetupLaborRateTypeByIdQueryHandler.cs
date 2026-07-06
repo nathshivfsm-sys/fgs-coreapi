@@ -22,7 +22,7 @@ public sealed class GetFgsSetupLaborRateTypeByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "laborratetypes",
+            "laborratetype",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<FgsSetupLaborRateTypeDetailDto>(cacheKey, cancellationToken);

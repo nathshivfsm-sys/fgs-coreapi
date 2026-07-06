@@ -24,7 +24,7 @@ public sealed class CreateResolutionCodeCommandHandler(
         logger.LogInformation("Created resolution code {Id} with code {ResolutionCode}", result.Id, result.ResolutionCode);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "resolutioncodes"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "resolutioncode"),
                 cancellationToken);
         return ApiResponse<ResolutionCodeDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

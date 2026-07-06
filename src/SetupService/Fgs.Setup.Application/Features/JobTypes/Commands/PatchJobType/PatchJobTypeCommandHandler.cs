@@ -24,7 +24,7 @@ public sealed class PatchJobTypeCommandHandler(
         logger.LogInformation("Patchd job type {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtypes"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtype"),
                 cancellationToken);
         return ApiResponse<JobTypeDetailDto>.Ok(result);
     }

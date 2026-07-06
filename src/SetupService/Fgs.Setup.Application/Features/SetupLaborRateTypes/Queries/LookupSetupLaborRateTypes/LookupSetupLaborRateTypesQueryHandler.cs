@@ -22,7 +22,7 @@ public sealed class LookupSetupLaborRateTypesQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "laborratetypes",
+            "laborratetype",
             CacheKeys.LookupSegment(request.ActiveOnly));
 
         var result = await cache.GetOrSetAsync(

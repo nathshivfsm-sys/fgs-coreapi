@@ -22,7 +22,7 @@ public sealed class LookupSetupDescriptionsQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "setupdescriptions",
+            "setupdescription",
             CacheKeys.LookupSegment(request.ActiveOnly));
 
         var result = await cache.GetOrSetAsync(

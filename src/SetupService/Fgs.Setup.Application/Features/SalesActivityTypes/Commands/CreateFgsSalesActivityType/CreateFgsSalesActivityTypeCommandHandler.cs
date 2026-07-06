@@ -24,7 +24,7 @@ public sealed class CreateFgsSalesActivityTypeCommandHandler(
         logger.LogInformation("Created sales activity type {Id} with code {ActivityTypeCode}", result.Id, result.ActivityTypeCode);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesactivitytypes"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesactivitytype"),
                 cancellationToken);
         return ApiResponse<FgsSalesActivityTypeDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

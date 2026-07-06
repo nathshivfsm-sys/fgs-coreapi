@@ -24,7 +24,7 @@ public sealed class CreateLeadDisqualificationReasonCommandHandler(
         logger.LogInformation("Created lead disqualification reason {Id} with code {ReasonCode}", result.Id, result.ReasonCode);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "leaddisqualificationreasons"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "leaddisqualificationreason"),
                 cancellationToken);
         return ApiResponse<LeadDisqualificationReasonDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

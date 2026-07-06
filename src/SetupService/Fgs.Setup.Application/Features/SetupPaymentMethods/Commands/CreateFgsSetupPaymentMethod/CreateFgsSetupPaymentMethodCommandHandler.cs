@@ -24,7 +24,7 @@ public sealed class CreateFgsSetupPaymentMethodCommandHandler(
         logger.LogInformation("Created payment method {Id} with code {DisplayName}", result.Id, result.DisplayName);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "paymentmethods"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "paymentmethod"),
                 cancellationToken);
         return ApiResponse<FgsSetupPaymentMethodDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

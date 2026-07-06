@@ -24,7 +24,7 @@ public sealed class CreateFgsTagCommandHandler(
         logger.LogInformation("Created tag {Id} with code {TagCode}", result.Id, result.TagCode);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "tags"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "tag"),
                 cancellationToken);
         return ApiResponse<FgsTagDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

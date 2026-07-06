@@ -1,4 +1,4 @@
-using Fgs.Asset.Domain.Entities;
+﻿using Fgs.Asset.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,7 +10,7 @@ internal sealed class FgsAssetStatusConfiguration : IEntityTypeConfiguration<Fgs
     public void Configure(EntityTypeBuilder<FgsAssetStatus> entity)
     {
         entity.ToTable(
-            "FgsAssetStatus",
+            "assetstatus",
             t =>
             {
                 t.HasComment("Stores lifecycle status values used to classify service assets.");
@@ -54,3 +54,4 @@ internal sealed class FgsAssetStatusConfiguration : IEntityTypeConfiguration<Fgs
             .HasDatabaseName("IX_FgsAssetStatus_TenantId_CompanyId_IsActive");
     }
 }
+

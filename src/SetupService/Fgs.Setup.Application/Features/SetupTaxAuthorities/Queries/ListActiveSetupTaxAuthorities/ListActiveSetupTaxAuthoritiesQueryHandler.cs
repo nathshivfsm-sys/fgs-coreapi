@@ -32,7 +32,7 @@ public sealed class ListActiveSetupTaxAuthoritiesQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "taxauthorities",
+        "taxauthority",
         segment);
 
         var cached = await cache.GetOrSetAsync(

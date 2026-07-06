@@ -47,10 +47,13 @@ Use `[FgsVersionedRoute("{entity}")]` — routes are `/api/v1/...`, not `/api/se
 
 ### Route naming
 
-Prefer **singular** route segments for catalog resources where the API has been standardized:
+All catalog routes use **singular** lowercase segments (concatenated or kebab-case):
 
 | Route | Controller |
 |-------|------------|
+| `billingcategory` | `BillingCategoryController` |
+| `jobtype` | `JobTypeController` |
+| `communication-template` | `CommunicationTemplateController` |
 | `techtrade` | `TechTradeController` |
 | `techskilllevel` | `TechSkillLevelController` |
 | `timeslot` | `TimeslotController` |
@@ -60,7 +63,7 @@ Prefer **singular** route segments for catalog resources where the API has been 
 | `zone` | `ZoneController` |
 | `tax` | `TaxController` |
 
-Other catalogs may remain plural (e.g. `paymentmethods`, `billingcategories`). Match existing neighbors in `Fgs.Setup.API/Controllers`.
+Match existing neighbors in `Fgs.Setup.API/Controllers`. Keep `[FgsVersionedRoute]` templates in sync with `src/Gateway/conf.d/includes/api-v1-routes.conf`.
 
 ### List query conventions
 

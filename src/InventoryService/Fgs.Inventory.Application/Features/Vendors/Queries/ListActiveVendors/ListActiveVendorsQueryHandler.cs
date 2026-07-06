@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.Api;
+using Fgs.Contracts.Api;
 using Fgs.Foundation.Paging;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
@@ -32,7 +32,7 @@ public sealed class ListActiveVendorsQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "vendors",
+            "vendor",
             segment);
 
         var cached = await cache.GetOrSetAsync(

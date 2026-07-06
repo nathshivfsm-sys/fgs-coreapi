@@ -24,7 +24,7 @@ public sealed class UpdateFgsSalesActivityTypeCommandHandler(
         logger.LogInformation("Updated sales activity type {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesactivitytypes"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesactivitytype"),
                 cancellationToken);
         return ApiResponse<FgsSalesActivityTypeDetailDto>.Ok(result);
     }

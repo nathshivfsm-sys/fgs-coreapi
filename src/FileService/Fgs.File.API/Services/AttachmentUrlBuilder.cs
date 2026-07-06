@@ -40,10 +40,10 @@ public sealed class AttachmentUrlBuilder(
         var encodedEntityType = Uri.EscapeDataString(entityType);
         return routeName switch
         {
-            AttachmentRouteNames.Download => $"{baseUrl}/api/v1/attachments/{encodedEntityType}/{attachmentId}",
-            AttachmentRouteNames.Thumbnail => $"{baseUrl}/api/v1/attachments/{encodedEntityType}/{attachmentId}/thumbnail",
-            AttachmentRouteNames.Metadata => $"{baseUrl}/api/v1/attachments/{encodedEntityType}/{attachmentId}/metadata",
-            _ => $"{baseUrl}/api/v1/attachments/{encodedEntityType}/{attachmentId}"
+            AttachmentRouteNames.Download => $"{baseUrl}/api/v1/attachment/{encodedEntityType}/{attachmentId}",
+            AttachmentRouteNames.Thumbnail => $"{baseUrl}/api/v1/attachment/{encodedEntityType}/{attachmentId}/thumbnail",
+            AttachmentRouteNames.Metadata => $"{baseUrl}/api/v1/attachment/{encodedEntityType}/{attachmentId}/metadata",
+            _ => $"{baseUrl}/api/v1/attachment/{encodedEntityType}/{attachmentId}"
         };
     }
 }

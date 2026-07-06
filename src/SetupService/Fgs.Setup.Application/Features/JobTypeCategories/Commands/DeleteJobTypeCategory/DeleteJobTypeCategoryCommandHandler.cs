@@ -24,7 +24,7 @@ public sealed class DeleteJobTypeCategoryCommandHandler(
         logger.LogInformation("Soft-deleted job type category {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtypecategories"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtypecategory"),
                 cancellationToken);
         return ApiResponse<JobTypeCategoryDetailDto>.Ok(result);
     }

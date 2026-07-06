@@ -22,7 +22,7 @@ public sealed class LookupSetupPostalCodesQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "postalcodes",
+            "postalcode",
             CacheKeys.LookupSegment(request.ActiveOnly));
 
         var result = await cache.GetOrSetAsync(

@@ -22,7 +22,7 @@ public sealed class LookupLeadDisqualificationReasonsQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "leaddisqualificationreasons",
+            "leaddisqualificationreason",
             CacheKeys.LookupSegment(request.ActiveOnly));
 
         var result = await cache.GetOrSetAsync(

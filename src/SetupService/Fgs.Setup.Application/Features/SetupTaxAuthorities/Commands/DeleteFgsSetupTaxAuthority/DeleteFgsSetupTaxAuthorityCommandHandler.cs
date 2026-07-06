@@ -26,7 +26,7 @@ public sealed class DeleteFgsSetupTaxAuthorityCommandHandler(
             logger.LogInformation("Soft-deleted tax authority {Id}", result.Id);
             var tenantScope = tenantContextAccessor.Current!;
             await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "taxauthorities"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "taxauthority"),
                 cancellationToken);
             return ApiResponse<FgsSetupTaxAuthorityDetailDto>.Ok(result);
         }

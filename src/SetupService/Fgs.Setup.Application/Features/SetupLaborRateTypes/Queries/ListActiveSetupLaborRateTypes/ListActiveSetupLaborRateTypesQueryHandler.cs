@@ -32,7 +32,7 @@ public sealed class ListActiveSetupLaborRateTypesQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "laborratetypes",
+        "laborratetype",
         segment);
 
         var cached = await cache.GetOrSetAsync(

@@ -1,5 +1,4 @@
 using Fgs.Setup.Domain.Entities;
-using Fgs.Setup.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -25,9 +24,6 @@ internal class FgsSetupPricingMatrixMaterialTierConfiguration : IEntityTypeConfi
                 t.HasCheckConstraint(
                     "CK_FgsSetupPricingMatrixMaterialTier_AdjustmentValue",
                     "\"AdjustmentValue\" >= 0");
-                t.HasCheckConstraint(
-                    "CK_FgsSetupPricingMatrixMaterialTier_PriceAdjustmentTypeId",
-                    "\"PriceAdjustmentTypeId\" BETWEEN 1 AND 3");
             });
 
         entity.HasKey(e => e.Id);
@@ -46,9 +42,6 @@ internal class FgsSetupPricingMatrixMaterialTierConfiguration : IEntityTypeConfi
             .HasPrecision(18, 6)
             .HasDefaultValue(0m)
             .HasComment("Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = fixed dollar markup, 1.75 = multiplier.");
-        entity.Property(e => e.PriceAdjustmentTypeId)
-            .HasColumnType("smallint")
-            .HasComment("Pricing adjustment method. Valid values: 1=Markup Percent, 2=Markup Amount, 3=Multiplier.");
         entity.Property(e => e.IsActive).HasDefaultValue(true);
 
         entity.Property(e => e.CreatedOn)
@@ -65,9 +58,6 @@ internal class FgsSetupPricingMatrixMaterialTierConfiguration : IEntityTypeConfi
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.PricingMatrixId })
             .HasDatabaseName("IX_FgsSetupPricingMatrixMaterialTier_TenantId_CompanyId_PricingMatrixId");
-
-        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.PriceAdjustmentTypeId })
-            .HasDatabaseName("IX_FgsSetupPricingMatrixMaterialTier_TenantId_CompanyId_PriceAdjustmentTypeId");
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.PricingMatrixId, e.FromCost })
             .IsUnique()

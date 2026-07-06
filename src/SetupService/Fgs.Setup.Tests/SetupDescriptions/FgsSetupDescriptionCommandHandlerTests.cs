@@ -46,7 +46,7 @@ public sealed class FgsSetupDescriptionCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "setupdescriptions"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "setupdescription"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

@@ -24,7 +24,7 @@ public sealed class PatchFgsSetupPaymentMethodCommandHandler(
         logger.LogInformation("Patchd payment method {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "paymentmethods"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "paymentmethod"),
                 cancellationToken);
         return ApiResponse<FgsSetupPaymentMethodDetailDto>.Ok(result);
     }

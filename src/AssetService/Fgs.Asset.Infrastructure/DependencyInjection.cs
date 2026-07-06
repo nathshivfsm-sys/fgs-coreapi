@@ -1,5 +1,25 @@
+using Fgs.Asset.Application.Abstractions.AssetAttributeOptions;
+using Fgs.Asset.Application.Abstractions.AssetAttributes;
+using Fgs.Asset.Application.Abstractions.AssetManufacturers;
+using Fgs.Asset.Application.Abstractions.AssetModels;
+using Fgs.Asset.Application.Abstractions.Assets;
+using Fgs.Asset.Application.Abstractions.AssetStatuses;
+using Fgs.Asset.Application.Abstractions.AssetTypes;
+using Fgs.Asset.Application.Abstractions.AssetWarranties;
+using Fgs.Asset.Application.Abstractions.Persistence;
+using Fgs.Asset.Application.Abstractions.Time;
+using Fgs.Asset.Infrastructure.AssetAttributeOptions;
+using Fgs.Asset.Infrastructure.AssetAttributes;
+using Fgs.Asset.Infrastructure.AssetManufacturers;
+using Fgs.Asset.Infrastructure.AssetModels;
+using Fgs.Asset.Infrastructure.Assets;
+using Fgs.Asset.Infrastructure.AssetStatuses;
+using Fgs.Asset.Infrastructure.AssetTypes;
+using Fgs.Asset.Infrastructure.AssetWarranties;
+using Fgs.Asset.Infrastructure.Common;
+using Fgs.Asset.Infrastructure.Common.Time;
 using Fgs.Asset.Infrastructure.Database;
-using Fgs.Credentials;
+using Fgs.Asset.Infrastructure.Database.Read;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using Fgs.Persistence.Extensions;
@@ -11,27 +31,36 @@ namespace Fgs.Asset.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddFgsAssetInfrastructure(
-        this IServiceCollection services,
-        ConfigurationManager configuration)
+    public static IServiceCollection AddFgsAssetInfrastructure(this IServiceCollection services, ConfigurationManager configuration)
     {
         services.AddFgsStandardInfrastructure(configuration, "fgs-asset-service", "DATABASE");
-
         services.AddDbContext<FgsAssetDbContext>((sp, options) =>
         {
-            var connectionString = ConnectionStringResolver.ResolveRequired(
-                sp.GetRequiredService<IConfiguration>(),
-                ConnectionStringNames.FgsAsset,
-                "FGS_ASSET_DB",
-                sp.GetService<ICredentialConfigurationProvider>());
-            options.UseFgsNpgsql(
-                connectionString,
-                "__EFMigrationsHistory",
-                FgsAssetDbContext.MigrationHistorySchema);
+            var appConfiguration = sp.GetRequiredService<IConfiguration>();
+            var credentialProvider = sp.GetService<ICredentialConfigurationProvider>();
+            var connectionString = FgsAssetConnectionString.ResolveRequired(appConfiguration, credentialProvider);
+            options.UseFgsNpgsql(connectionString, "__EFMigrationsHistory", FgsAssetDbContext.MigrationHistorySchema);
         });
-
         services.AddFgsPersistence<FgsAssetDbContext>();
-
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        services.AddSingleton<IAssetReadConnectionFactory, FgsAssetReadConnectionFactory>();
+        services.AddScoped<AssetEntityAuditHelper>();
+        services.AddScoped<IFgsAssetTypeReadRepository, FgsAssetTypeReadRepository>();
+        services.AddScoped<IFgsAssetTypeWriteService, FgsAssetTypeWriteService>();
+        services.AddScoped<IFgsAssetManufacturerReadRepository, FgsAssetManufacturerReadRepository>();
+        services.AddScoped<IFgsAssetManufacturerWriteService, FgsAssetManufacturerWriteService>();
+        services.AddScoped<IFgsAssetStatusReadRepository, FgsAssetStatusReadRepository>();
+        services.AddScoped<IFgsAssetStatusWriteService, FgsAssetStatusWriteService>();
+        services.AddScoped<IFgsAssetModelReadRepository, FgsAssetModelReadRepository>();
+        services.AddScoped<IFgsAssetModelWriteService, FgsAssetModelWriteService>();
+        services.AddScoped<IFgsAssetAttributeReadRepository, FgsAssetAttributeReadRepository>();
+        services.AddScoped<IFgsAssetAttributeWriteService, FgsAssetAttributeWriteService>();
+        services.AddScoped<IFgsAssetAttributeOptionReadRepository, FgsAssetAttributeOptionReadRepository>();
+        services.AddScoped<IFgsAssetAttributeOptionWriteService, FgsAssetAttributeOptionWriteService>();
+        services.AddScoped<IFgsAssetReadRepository, FgsAssetReadRepository>();
+        services.AddScoped<IFgsAssetWriteService, FgsAssetWriteService>();
+        services.AddScoped<IFgsAssetWarrantyReadRepository, FgsAssetWarrantyReadRepository>();
+        services.AddScoped<IFgsAssetWarrantyWriteService, FgsAssetWarrantyWriteService>();
         return services;
     }
 }
