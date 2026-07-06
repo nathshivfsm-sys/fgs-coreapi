@@ -22,7 +22,7 @@ public sealed class LookupSalesDispositionReasonsQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "salesdispositionreasons",
+            "salesdispositionreason",
             CacheKeys.LookupSegment(request.ActiveOnly));
 
         var result = await cache.GetOrSetAsync(

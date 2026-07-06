@@ -6,12 +6,25 @@ internal static class FgsSetupTaxAuthoritySql
 {
     public const string Table = "setup.\"FgsSetupTaxAuthority\"";
 
-    public const string SelectDetailColumns = """
-        "Id", "Code", "Name", "RegionCode", "IsExternalSystemRecord", "TaxPercent", "Description", "IsActive"
+    public const string TaxDetailTable = "setup.\"FgsSetupTaxDetail\"";
+
+    private const string UsageCountColumn = """
+        (SELECT COUNT(*)::integer
+         FROM setup."FgsSetupTaxDetail" td
+         WHERE td."FgsSetupTaxAuthorityId" = ta."Id"
+           AND td."TenantId" = ta."TenantId"
+           AND td."CompanyId" = ta."CompanyId"
+           AND td."IsActive" = TRUE) AS "UsageCount"
         """;
 
-    public const string SelectSummaryColumns = """
-        "Id", "Code", "Name", "RegionCode", "IsExternalSystemRecord", "TaxPercent", "Description", "IsActive"
+    public const string SelectDetailColumns = $"""
+        ta."Id", ta."Code", ta."Name", ta."RegionCode", ta."IsExternalSystemRecord", ta."TaxPercent", ta."Description", ta."IsActive",
+        {UsageCountColumn}
+        """;
+
+    public const string SelectSummaryColumns = $"""
+        ta."Id", ta."Code", ta."Name", ta."RegionCode", ta."IsExternalSystemRecord", ta."TaxPercent", ta."Description", ta."IsActive",
+        {UsageCountColumn}
         """;
 
     public const string SelectLookupColumns = """
@@ -28,12 +41,12 @@ internal static class FgsSetupTaxAuthoritySql
         var dir = direction == SortDirection.Desc ? "DESC" : "ASC";
         if (string.IsNullOrWhiteSpace(sortBy) || !AllowedSortColumns.Contains(sortBy))
         {
-            return $"ORDER BY \"Name\" {dir}";
+            return $"ORDER BY ta.\"Id\" {dir}";
         }
 
         var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));
         return column.Equals("DisplayOrder", StringComparison.OrdinalIgnoreCase)
-            ? $"ORDER BY \"Name\" {dir}"
-            : $"ORDER BY \"{column}\" {dir}";
+            ? $"ORDER BY ta.\"Name\" {dir}"
+            : $"ORDER BY ta.\"{column}\" {dir}";
     }
 }

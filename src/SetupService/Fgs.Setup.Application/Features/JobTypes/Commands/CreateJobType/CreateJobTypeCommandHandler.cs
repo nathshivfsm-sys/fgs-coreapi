@@ -24,7 +24,7 @@ public sealed class CreateJobTypeCommandHandler(
         logger.LogInformation("Created job type {Id} with code {JobTypeCode}", result.Id, result.JobTypeCode);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtypes"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtype"),
                 cancellationToken);
         return ApiResponse<JobTypeDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

@@ -14,7 +14,7 @@ $platformAwsPayloadJson = (@{
 } | ConvertTo-Json -Compress)
 
 $ErrorActionPreference = "Stop"
-$endpoint = "$BaseUrl/api/v1/credentials"
+$endpoint = "$BaseUrl/api/v1/credential"
 
 function Get-RdsConnectionString {
     param([string]$Database)
@@ -36,6 +36,7 @@ $databaseConnections = [ordered]@{
     FgsConsumer       = "fgs_dev_db"
     FgsAudit          = "fgs_dev_db"
     FgsAsset          = "fgs_dev_db"
+    FgsAssetReadOnly  = "fgs_dev_db"
     FgsBilling        = "fgs_dev_db"
     FgsCommunication  = "fgs_dev_db"
     FgsServiceAgreement = "fgs_dev_db"

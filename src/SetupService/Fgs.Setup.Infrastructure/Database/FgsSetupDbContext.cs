@@ -106,26 +106,6 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
     public DbSet<GloInventoryTransactionType> GloInventoryTransactionTypes =>
         Set<GloInventoryTransactionType>();
 
-    public DbSet<FgsInventoryItemType> FgsInventoryItemTypes => Set<FgsInventoryItemType>();
-
-    public DbSet<FgsInventoryCategory> FgsInventoryCategories => Set<FgsInventoryCategory>();
-
-    public DbSet<FgsInventorySubCategory> FgsInventorySubCategories => Set<FgsInventorySubCategory>();
-
-    public DbSet<FgsInventoryItem> FgsInventoryItems => Set<FgsInventoryItem>();
-
-    public DbSet<FgsInventoryStock> FgsInventoryStocks => Set<FgsInventoryStock>();
-
-    public DbSet<FgsInventoryItemAlternate> FgsInventoryItemAlternates => Set<FgsInventoryItemAlternate>();
-
-    public DbSet<FgsInventoryItemDependency> FgsInventoryItemDependencies => Set<FgsInventoryItemDependency>();
-
-    public DbSet<FgsVendor> FgsVendors => Set<FgsVendor>();
-
-    public DbSet<FgsVendorInventoryItem> FgsVendorInventoryItems => Set<FgsVendorInventoryItem>();
-
-    public DbSet<FgsWarehouse> FgsWarehouses => Set<FgsWarehouse>();
-
     public DbSet<FgsVehicle> FgsVehicles => Set<FgsVehicle>();
 
     public DbSet<FgsVehicleMaintenance> FgsVehicleMaintenances => Set<FgsVehicleMaintenance>();

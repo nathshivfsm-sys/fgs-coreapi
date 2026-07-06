@@ -7,11 +7,11 @@ internal static class FgsVehicleSql
     public const string Table = "setup.\"FgsVehicle\"";
 
     public const string SelectDetailColumns = """
-        "Id", "WarehouseId", "OwnershipType", "OwnershipCompany", "Year", "Make", "Model", "Color", "VIN", "LicensePlate", "LicensePlateState", "PurchaseDate", "PurchasePrice", "PurchasedFrom", "IsPurchasedNew", "Notes", "IsActive"
+        "Id", "InventoryLocationId", "OwnershipType", "OwnershipCompany", "Year", "Make", "Model", "Color", "VIN", "LicensePlate", "LicensePlateState", "PurchaseDate", "PurchasePrice", "PurchasedFrom", "IsPurchasedNew", "Notes", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "WarehouseId", "OwnershipType", "OwnershipCompany", "Year", "Make", "Model", "Color", "VIN", "LicensePlate", "LicensePlateState", "PurchaseDate", "PurchasePrice", "PurchasedFrom", "IsPurchasedNew", "Notes", "IsActive"
+        "Id", "InventoryLocationId", "OwnershipType", "OwnershipCompany", "Year", "Make", "Model", "Color", "VIN", "LicensePlate", "LicensePlateState", "PurchaseDate", "PurchasePrice", "PurchasedFrom", "IsPurchasedNew", "Notes", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +20,7 @@ internal static class FgsVehicleSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "IsActive", "WarehouseId", "OwnershipType", "OwnershipCompany", "Year", "Make", "Model", "Color", "VIN", "LicensePlate", "LicensePlateState", "PurchaseDate", "PurchasePrice", "PurchasedFrom", "IsPurchasedNew", "Notes"
+        "Id", "IsActive", "InventoryLocationId", "OwnershipType", "OwnershipCompany", "Year", "Make", "Model", "Color", "VIN", "LicensePlate", "LicensePlateState", "PurchaseDate", "PurchasePrice", "PurchasedFrom", "IsPurchasedNew", "Notes"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)
@@ -28,7 +28,7 @@ internal static class FgsVehicleSql
         var dir = direction == SortDirection.Desc ? "DESC" : "ASC";
         if (string.IsNullOrWhiteSpace(sortBy) || !AllowedSortColumns.Contains(sortBy))
         {
-            return $"ORDER BY \"VIN\" {dir}";
+            return $"ORDER BY \"Id\" {dir}";
         }
 
         var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));

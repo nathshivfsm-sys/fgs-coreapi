@@ -15,6 +15,8 @@ public interface IFgsSetupPaymentMethodReadRepository
 
     Task<IReadOnlyList<FgsSetupPaymentMethodLookupDto>> LookupAsync(
         bool activeOnly = true,
+        bool? isMobileVisible = null,
+        bool? isCustomerPortalVisible = null,
         CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByDisplayNameAsync(

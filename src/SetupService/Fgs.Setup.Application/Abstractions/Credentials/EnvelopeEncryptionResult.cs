@@ -5,5 +5,4 @@ namespace Fgs.Setup.Application.Abstractions.Credentials;
 /// </summary>
 public sealed record EnvelopeEncryptionResult(
     byte[] CredentialData,
-    byte[] EncryptedDataKey,
-    string KeyIdentifier);
+    byte[] EncryptedDataKey);

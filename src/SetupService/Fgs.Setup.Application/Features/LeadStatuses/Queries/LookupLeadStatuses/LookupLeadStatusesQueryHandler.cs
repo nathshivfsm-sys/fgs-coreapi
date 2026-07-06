@@ -22,7 +22,7 @@ public sealed class LookupLeadStatusesQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "leadstatuses",
+            "leadstatus",
             CacheKeys.LookupSegment(request.ActiveOnly));
 
         var result = await cache.GetOrSetAsync(

@@ -159,10 +159,9 @@ public sealed class FgsSetupTaxWriteService : IFgsSetupTaxWriteService
             entity.Id,
             entity.TaxCode,
             entity.Name,
-            entity.IsExternalSystemRecord,
-            entity.ExternalSystemId,
-            entity.SyncToken,
             entity.ShowTaxDetail,
             entity.Description,
-            entity.IsActive);
+            TaxRate: 0m,
+            entity.IsActive,
+            []);
 }

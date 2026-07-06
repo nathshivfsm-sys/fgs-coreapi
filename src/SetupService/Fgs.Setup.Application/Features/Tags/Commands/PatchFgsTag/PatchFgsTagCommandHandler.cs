@@ -24,7 +24,7 @@ public sealed class PatchFgsTagCommandHandler(
         logger.LogInformation("Patchd tag {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "tags"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "tag"),
                 cancellationToken);
         return ApiResponse<FgsTagDetailDto>.Ok(result);
     }

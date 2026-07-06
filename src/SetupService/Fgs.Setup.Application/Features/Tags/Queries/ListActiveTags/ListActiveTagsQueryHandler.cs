@@ -32,7 +32,7 @@ public sealed class ListActiveTagsQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "tags",
+        "tag",
         segment);
 
         var cached = await cache.GetOrSetAsync(

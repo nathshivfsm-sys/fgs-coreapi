@@ -22,7 +22,7 @@ public sealed class GetResolutionCodeByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "resolutioncodes",
+            "resolutioncode",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<ResolutionCodeDetailDto>(cacheKey, cancellationToken);

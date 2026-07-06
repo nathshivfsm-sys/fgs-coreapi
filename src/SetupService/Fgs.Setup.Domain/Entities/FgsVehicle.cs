@@ -5,7 +5,8 @@ namespace Fgs.Setup.Domain.Entities;
 /// </summary>
 public class FgsVehicle : FgsTenantCompanySetupEntityBase<long>
 {
-    public long WarehouseId { get; set; }
+    /// <summary>References inventory.FgsInventoryLocation; scalar only — no cross-schema FK.</summary>
+    public long InventoryLocationId { get; set; }
 
     public string OwnershipType { get; set; } = VehicleOwnershipTypes.Owned;
 

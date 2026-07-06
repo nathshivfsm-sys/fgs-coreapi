@@ -16,7 +16,7 @@ public sealed class FgsSetupLaborRateTypeQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsSetupLaborRateTypeDetailDto(1, "Name value", "Description value", 1, false, true);
+        var detail = new FgsSetupLaborRateTypeDetailDto(1, "Name value", "Description value", 1, true);
 
         var readRepository = new Mock<IFgsSetupLaborRateTypeReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);

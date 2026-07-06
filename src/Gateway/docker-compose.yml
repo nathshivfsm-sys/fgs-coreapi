@@ -78,6 +78,7 @@ services:
       dockerfile: src/Gateway/docker/setup-service.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      Swagger__RoutePrefix: swagger/setup
       UserService__BaseUrl: http://user-service:5001
       FileService__BaseUrl: http://file-service:5005
       AuditService__BaseUrl: http://audit-service:5008
@@ -106,6 +107,7 @@ services:
       dockerfile: src/Gateway/docker/audit-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/audit
       CredentialConsumer__ServiceName: fgs-audit-service
       CredentialConsumer__RequiredProviders__0: DATABASE
     depends_on:
@@ -129,6 +131,7 @@ services:
       dockerfile: src/Gateway/docker/user-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/user
       CredentialConsumer__ServiceName: fgs-user-service
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: ENTRA_EXTERNAL_ID
@@ -157,9 +160,11 @@ services:
       dockerfile: src/Gateway/docker/file-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/file
       CredentialConsumer__ServiceName: fgs-file-service
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: AWS
+      UserService__BaseUrl: http://user-service:5001
     depends_on:
       <<: *depends-on-setup-and-audit
     volumes:
@@ -174,6 +179,64 @@ services:
       retries: 5
       start_period: 90s
 
+  inventory-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/inventory-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/inventory
+      CredentialConsumer__ServiceName: fgs-inventory-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: REDIS
+      UserService__BaseUrl: http://user-service:5001
+      SetupService__BaseUrl: http://setup-service:5004
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+    depends_on:
+      redis:
+        condition: service_healthy
+      <<: *depends-on-setup-and-audit
+    volumes:
+      - ../InventoryService/Fgs.Inventory.API/appsettings.json:/src/src/InventoryService/Fgs.Inventory.API/appsettings.json:ro
+      - ../InventoryService/Fgs.Inventory.API/appsettings.Development.json:/src/src/InventoryService/Fgs.Inventory.API/appsettings.Development.json:ro
+    expose:
+      - "5012"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5012/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  asset-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/asset-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/asset
+      CredentialConsumer__ServiceName: fgs-asset-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: REDIS
+      UserService__BaseUrl: http://user-service:5001
+      SetupService__BaseUrl: http://setup-service:5004
+    depends_on:
+      <<: *depends-on-setup-and-audit
+    volumes:
+      - ../AssetService/Fgs.Asset.API/appsettings.json:/src/src/AssetService/Fgs.Asset.API/appsettings.json:ro
+      - ../AssetService/Fgs.Asset.API/appsettings.Development.json:/src/src/AssetService/Fgs.Asset.API/appsettings.Development.json:ro
+    expose:
+      - "5015"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5015/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
   notification-service:
     <<: *service-network
     build:
@@ -181,6 +244,7 @@ services:
       dockerfile: src/Gateway/docker/notification-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/notification
       CredentialConsumer__ServiceName: fgs-notification-service
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: SENDGRID
@@ -212,6 +276,7 @@ services:
       dockerfile: src/Gateway/docker/publisher-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/publisher
       CredentialConsumer__ServiceName: fgs-publisher-service
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: RABBITMQ
@@ -245,6 +310,7 @@ services:
       dockerfile: src/Gateway/docker/consumer-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/consumer
       CredentialConsumer__ServiceName: fgs-consumer-service
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: RABBITMQ
@@ -289,6 +355,10 @@ services:
       notification-service:
         condition: service_healthy
       file-service:
+        condition: service_healthy
+      inventory-service:
+        condition: service_healthy
+      asset-service:
         condition: service_healthy
     ports:
       - "8080:80"

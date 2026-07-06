@@ -22,7 +22,7 @@ public sealed class GetFgsTagByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "tags",
+            "tag",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<FgsTagDetailDto>(cacheKey, cancellationToken);

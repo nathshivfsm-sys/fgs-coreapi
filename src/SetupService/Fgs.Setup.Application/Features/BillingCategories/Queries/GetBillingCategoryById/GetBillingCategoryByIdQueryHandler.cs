@@ -22,7 +22,7 @@ public sealed class GetBillingCategoryByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "billingcategories",
+            "billingcategory",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<BillingCategoryDetailDto>(cacheKey, cancellationToken);

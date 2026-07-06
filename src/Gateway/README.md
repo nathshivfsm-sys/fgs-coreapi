@@ -62,7 +62,7 @@ NGINX listens on `https://localhost:8443` locally.
 | `/api/v1/tenants/{tenantId}/companies/{path}` | `user-service:5001` | Tenant company management (details, list) |
 | `/api/v1/tenants/{tenantId}/bucket` | `file-service:5005` | S3 bucket and folder provisioning |
 | `/api/v1/tenants/{path}` (other) | `file-service:5005` | Fallback tenant storage routes |
-| `/api/v1/files/{path}` | `file-service:5005` | File upload, download, and metadata |
+| `/api/v1/attachments/{path}` | `file-service:5005` | Attachment upload, download, metadata, and list |
 | `/api/v1/crm/{path}` | `crm-service:5009` | `/api/v1/{path}` |
 | `/api/v1/scheduling/{path}` | `scheduling-service:5010` | `/api/v1/{path}` |
 | `/api/v1/billing/{path}` | `billing-service:5011` | `/api/v1/{path}` |
@@ -72,6 +72,33 @@ NGINX listens on `https://localhost:8443` locally.
 | `/api/v1/asset/{path}` | `asset-service:5015` | `/api/v1/{path}` |
 | `/api/v1/service-agreements/{path}` | `service-agreement-service:5016` | `/api/v1/{path}` |
 | `/api/v1/communication/{path}` | `communication-service:5017` | `/api/v1/{path}` |
+
+### Swagger (OpenAPI UI)
+
+Swagger is exposed through the gateway at **`https://localhost:8443/swagger/`**, which lists every service. Each service UI lives under a path prefix that matches its container configuration (`Swagger__RoutePrefix` in `docker-compose.yml`).
+
+| Swagger URL | Service |
+| --- | --- |
+| `https://localhost:8443/swagger/user/` | User |
+| `https://localhost:8443/swagger/notification/` | Notification |
+| `https://localhost:8443/swagger/setup/` | Setup |
+| `https://localhost:8443/swagger/file/` | File |
+| `https://localhost:8443/swagger/audit/` | Audit |
+| `https://localhost:8443/swagger/inventory/` | Inventory |
+| `https://localhost:8443/swagger/publisher/` | Publisher |
+| `https://localhost:8443/swagger/consumer/` | Consumer |
+| `https://localhost:8443/swagger/crm/` | CRM (502 until container is running) |
+| `https://localhost:8443/swagger/scheduling/` | Scheduling |
+| `https://localhost:8443/swagger/billing/` | Billing |
+| `https://localhost:8443/swagger/reporting/` | Reporting |
+| `https://localhost:8443/swagger/integration/` | Integration |
+| `https://localhost:8443/swagger/asset/` | Asset |
+| `https://localhost:8443/swagger/service-agreement/` | Service Agreement |
+| `https://localhost:8443/swagger/communication/` | Communication |
+
+NGINX proxies `/swagger/{service}/` to the matching upstream with the same path. Each API sets `Swagger:RoutePrefix` (via `Swagger__RoutePrefix`) so Swagger UI and `swagger.json` URLs align with the gateway. Swagger is enabled in Development by default; set `Swagger:Enabled` to `true` in other environments if needed.
+
+When adding a service to local Compose, set `Swagger__RoutePrefix: swagger/{service}` on that container and add a matching block in `conf.d/includes/swagger-routes.conf`.
 
 ### Database-backed services (local dev)
 

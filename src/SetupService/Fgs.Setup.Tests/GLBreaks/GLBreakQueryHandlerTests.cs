@@ -15,7 +15,7 @@ public sealed class GLBreakQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsAddressAndTrades()
     {
-        var address = new LocationDetailDto(
+        var address = new GLBreakAddressDetailDto(
             Guid.NewGuid(),
             "123 Main St",
             null,
@@ -23,18 +23,15 @@ public sealed class GLBreakQueryHandlerTests
             null,
             "Dallas",
             "TX",
-            null,
             "US",
             "75201",
             null,
             null,
-            null,
-            null,
-            true);
+            null);
 
         var trades = new List<GLBreakTradeDto>
         {
-            new(1, 5, "HVAC")
+            new(1, "HVAC")
         };
 
         var detail = new GLBreakDetailDto(
@@ -50,7 +47,6 @@ public sealed class GLBreakQueryHandlerTests
 
         response.Success.Should().BeTrue();
         response.Data!.Address!.City.Should().Be("Dallas");
-        response.Data.Trades[0].GLBreakId.Should().Be(5);
         response.Data.Trades[0].TradeCode.Should().Be("HVAC");
     }
 

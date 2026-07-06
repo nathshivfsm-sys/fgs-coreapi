@@ -22,7 +22,7 @@ public sealed class GetFgsSetupCommunicationTemplateByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "communication-templates",
+            "communication-template",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<FgsSetupCommunicationTemplateDetailDto>(cacheKey, cancellationToken);

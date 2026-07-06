@@ -46,7 +46,7 @@ public sealed class FgsSetupTaxAuthorityCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "taxauthorities"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "taxauthority"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

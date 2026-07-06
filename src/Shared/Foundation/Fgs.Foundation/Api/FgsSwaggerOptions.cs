@@ -13,4 +13,10 @@ public sealed class FgsSwaggerOptions
     public string? ContactName { get; set; }
 
     public Assembly? XmlCommentsAssembly { get; set; }
+
+    /// <summary>
+    /// URL segment for Swagger UI and OpenAPI JSON (e.g. <c>swagger/user</c> behind the gateway).
+    /// Defaults to <c>swagger</c>.
+    /// </summary>
+    public string RoutePrefix { get; set; } = "swagger";
 }

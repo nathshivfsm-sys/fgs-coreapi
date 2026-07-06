@@ -8,7 +8,7 @@ public sealed record SetupListQuery(
     string? SortBy = null,
     SortDirection SortDirection = SortDirection.Asc,
     string? Search = null,
-    bool? IsActive = true)
+    bool? IsActive = null)
 {
     public PagedQuery ToPagedQuery() =>
         new(Page, PageSize, SortBy, SortDirection, Search, IsActive);

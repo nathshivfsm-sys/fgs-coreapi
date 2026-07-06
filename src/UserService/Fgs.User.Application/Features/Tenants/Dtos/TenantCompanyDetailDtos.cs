@@ -11,7 +11,6 @@ public sealed record TenantDetailSectionDto(
     string? Email,
     string? PhoneNumber,
     string? Website,
-    string? TimeZone,
     string? DefaultCurrency,
     int? DefaultLanguageId,
     short FgsTenantStatusId,
@@ -29,7 +28,7 @@ public sealed record CompanyDetailSectionDto(
     string? Website,
     string? TaxId,
     string? CompanySize,
-    int BusinessTypeId,
+    string? TimeZone,
     bool IsActive,
     LocationDetailDto? PhysicalAddress,
     LocationDetailDto? BillingAddress);
@@ -44,7 +43,6 @@ public sealed record UpdateTenantSectionRequest(
     string? Email,
     string? PhoneNumber,
     string? Website,
-    string? TimeZone,
     string? DefaultCurrency,
     int? DefaultLanguageId);
 
@@ -56,7 +54,7 @@ public sealed record UpdateCompanySectionRequest(
     string? Website,
     string? TaxId,
     string? CompanySize,
-    int BusinessTypeId,
+    string? TimeZone,
     LocationWriteDto? PhysicalAddress,
     LocationWriteDto? BillingAddress);
 

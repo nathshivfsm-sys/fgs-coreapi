@@ -24,7 +24,7 @@ public sealed class CreateFgsSetupPaymentTermCommandHandler(
         logger.LogInformation("Created payment term {Id} with code {Name}", result.Id, result.Name);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "paymentterms"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "paymentterm"),
                 cancellationToken);
         return ApiResponse<FgsSetupPaymentTermDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

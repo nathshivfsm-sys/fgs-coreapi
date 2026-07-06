@@ -24,7 +24,7 @@ public sealed class DeleteLeadStatusCommandHandler(
         logger.LogInformation("Soft-deleted lead status {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "leadstatuses"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "leadstatus"),
                 cancellationToken);
         return ApiResponse<LeadStatusDetailDto>.Ok(result);
     }

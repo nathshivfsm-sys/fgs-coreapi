@@ -16,11 +16,7 @@ public sealed record BillingCategoryDetailDto(
     string BillingCategoryType,
     string BillingCategoryName,
     string? Description,
-    short? DisplayOrder,
-    bool IsSystemDefined,
-    bool ShowToFieldTech,
-    bool AllowToPick,
-    bool IsActive);
+    short? DisplayOrder);
 
 public sealed record BillingCategoryLookupDto(
     long Id,
@@ -58,4 +54,6 @@ public sealed record BillingCategoryPatchDto(
 
 public sealed record BillingCategoryListFilters(
     string? BillingCategoryType = null,
-    string? BillingCategoryName = null);
+    string? BillingCategoryName = null,
+    bool? ShowToFieldTech = null,
+    bool? AllowToPick = null);

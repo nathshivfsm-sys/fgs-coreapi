@@ -15,6 +15,8 @@ public interface IBillingCategoryReadRepository
 
     Task<IReadOnlyList<BillingCategoryLookupDto>> LookupAsync(
         bool activeOnly = true,
+        bool? showToFieldTech = null,
+        bool? allowToPick = null,
         CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByBillingCategoryTypeAndBillingCategoryNameAsync(

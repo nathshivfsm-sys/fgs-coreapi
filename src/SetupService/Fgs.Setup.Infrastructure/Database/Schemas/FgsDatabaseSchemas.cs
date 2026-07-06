@@ -4,5 +4,6 @@ public static class FgsDatabaseSchemas
 {
     public const string Glo = "glo";
     public const string Setup = "setup";
+    public const string Inventory = "inventory";
     public const string MigrationHistory = Setup;
 }

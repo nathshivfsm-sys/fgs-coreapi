@@ -32,7 +32,7 @@ public sealed class ListActiveJobTypeSubCategoriesQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "jobtypesubcategories",
+        "jobtypesubcategory",
         segment);
 
         var cached = await cache.GetOrSetAsync(

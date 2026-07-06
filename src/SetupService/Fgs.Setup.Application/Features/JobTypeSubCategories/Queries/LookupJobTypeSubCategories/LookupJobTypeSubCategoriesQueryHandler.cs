@@ -22,7 +22,7 @@ public sealed class LookupJobTypeSubCategoriesQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "jobtypesubcategories",
+            "jobtypesubcategory",
             CacheKeys.LookupSegment(request.ActiveOnly));
 
         var result = await cache.GetOrSetAsync(

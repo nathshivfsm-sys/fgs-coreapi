@@ -32,7 +32,7 @@ public sealed class ListActiveSetupPaymentTermsQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "paymentterms",
+        "paymentterm",
         segment);
 
         var cached = await cache.GetOrSetAsync(

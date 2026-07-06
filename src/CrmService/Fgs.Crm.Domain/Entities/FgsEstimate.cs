@@ -36,9 +36,13 @@ public class FgsEstimate : FgsEntityBase, ITenantCompanyScoped
 
     public long? Break2Id { get; set; }
 
-    public string QuoteName { get; set; } = null!;
+    public string EstimateName { get; set; } = null!;
 
-    public string? QuoteDescription { get; set; }
+    public string? EstimateDescription { get; set; }
+
+    public string? InternalNotes { get; set; }
+
+    public string? InstallationDescription { get; set; }
 
     public DateOnly EstimateDate { get; set; }
 
@@ -47,6 +51,14 @@ public class FgsEstimate : FgsEntityBase, ITenantCompanyScoped
     public long? QuotedByEmployeeId { get; set; }
 
     public long? SoldByEmployeeId { get; set; }
+
+    public long? RecommendedByEmployeeId { get; set; }
+
+    public bool VerificationRequired { get; set; }
+
+    public long? VerifiedByEmployeeId { get; set; }
+
+    public DateTimeOffset? VerifiedOn { get; set; }
 
     public long? SelectedEstimateOptionId { get; set; }
 

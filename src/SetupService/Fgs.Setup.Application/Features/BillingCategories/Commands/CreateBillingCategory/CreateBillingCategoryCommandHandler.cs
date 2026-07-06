@@ -24,7 +24,7 @@ public sealed class CreateBillingCategoryCommandHandler(
         logger.LogInformation("Created billing category {Id} with code {BillingCategoryType}", result.Id, result.BillingCategoryType);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "billingcategories"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "billingcategory"),
                 cancellationToken);
         return ApiResponse<BillingCategoryDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

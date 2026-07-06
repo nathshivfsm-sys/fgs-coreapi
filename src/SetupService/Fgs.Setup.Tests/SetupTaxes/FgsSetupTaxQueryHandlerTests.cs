@@ -16,7 +16,7 @@ public sealed class FgsSetupTaxQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsSetupTaxDetailDto(1, "TEST", "Name value", false, "ExternalSystemId", "SyncToken", false, "Description value", true);
+        var detail = new FgsSetupTaxDetailDto(1, "TEST", "Name value", false, "Description value", 0m, true, []);
 
         var readRepository = new Mock<IFgsSetupTaxReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);

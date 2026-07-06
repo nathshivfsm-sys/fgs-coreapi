@@ -46,7 +46,7 @@ public sealed class JobTypeCategoryCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "jobtypecategories"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "jobtypecategory"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

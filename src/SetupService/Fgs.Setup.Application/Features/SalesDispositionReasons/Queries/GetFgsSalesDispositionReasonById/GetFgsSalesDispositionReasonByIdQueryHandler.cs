@@ -22,7 +22,7 @@ public sealed class GetFgsSalesDispositionReasonByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "salesdispositionreasons",
+            "salesdispositionreason",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<FgsSalesDispositionReasonDetailDto>(cacheKey, cancellationToken);

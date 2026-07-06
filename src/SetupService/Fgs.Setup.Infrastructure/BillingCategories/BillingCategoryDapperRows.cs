@@ -45,11 +45,7 @@ internal sealed class BillingCategoryDetailRow
             BillingCategoryType,
             BillingCategoryName,
             Description,
-            DisplayOrder,
-            IsSystemDefined,
-            ShowToFieldTech,
-            AllowToPick,
-            IsActive);
+            DisplayOrder);
 }
 
 internal sealed class BillingCategoryLookupRow

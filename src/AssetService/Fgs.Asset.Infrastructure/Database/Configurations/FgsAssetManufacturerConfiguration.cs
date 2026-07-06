@@ -1,4 +1,4 @@
-using Fgs.Asset.Domain.Entities;
+﻿using Fgs.Asset.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,7 +10,7 @@ internal sealed class FgsAssetManufacturerConfiguration : IEntityTypeConfigurati
     public void Configure(EntityTypeBuilder<FgsAssetManufacturer> entity)
     {
         entity.ToTable(
-            "FgsAssetManufacturer",
+            "assetmanufacturer",
             t =>
             {
                 t.HasComment("Stores equipment manufacturers available for asset management.");
@@ -54,3 +54,4 @@ internal sealed class FgsAssetManufacturerConfiguration : IEntityTypeConfigurati
             .HasDatabaseName("IX_FgsAssetManufacturer_TenantId_CompanyId_IsActive");
     }
 }
+

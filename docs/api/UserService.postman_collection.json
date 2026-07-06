@@ -243,27 +243,10 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   }
                                   },
@@ -292,16 +275,6 @@
                                                                          "value":  "application/json"
                                                                      },
                                                                      {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     },
-                                                                     {
                                                                          "key":  "Content-Type",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
@@ -317,14 +290,7 @@
                                                                    "mode":  "raw"
                                                                },
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   }
                                   },
@@ -450,27 +416,10 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   }
                                   }
@@ -526,8 +475,8 @@
                               ]
                  },
                  {
-                     "description":  "TenantsController - tenants",
-                     "name":  "TenantsController",
+                     "description":  "TenantController - tenant",
+                     "name":  "TenantController",
                      "item":  [
                                   {
                                       "name":  "GetTenant",
@@ -537,11 +486,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenant/{{tenantId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "tenants",
+                                                                               "tenant",
                                                                                "{{tenantId}}"
                                                                            ]
                                                               },
@@ -551,27 +500,10 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   }
                                   },
@@ -583,11 +515,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/companies",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenant/{{tenantId}}/companies",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "tenants",
+                                                                               "tenant",
                                                                                "{{tenantId}}",
                                                                                "companies"
                                                                            ]
@@ -598,27 +530,10 @@
                                                                          "key":  "Accept",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   }
                                   },
@@ -630,11 +545,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/companies/{{companyId}}/details",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenant/{{tenantId}}/companies/{{companyId}}/details",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "tenants",
+                                                                               "tenant",
                                                                                "{{tenantId}}",
                                                                                "companies",
                                                                                "{{companyId}}",
@@ -678,11 +593,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/companies/{{companyId}}/details",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenant/{{tenantId}}/companies/{{companyId}}/details",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "tenants",
+                                                                               "tenant",
                                                                                "{{tenantId}}",
                                                                                "companies",
                                                                                "{{companyId}}",
@@ -714,7 +629,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"tenant\": {\r\n    \"name\": \"Plumbing Ltd\",\r\n    \"legalName\": \"Plumbing Ltd LLC\",\r\n    \"email\": \"admin@plumbing.example.com\",\r\n    \"phoneNumber\": \"+15551234567\",\r\n    \"website\": \"https://plumbing.example.com\",\r\n    \"timeZone\": \"America/Chicago\",\r\n    \"defaultCurrency\": \"USD\",\r\n    \"defaultLanguageId\": null\r\n  },\r\n  \"company\": {\r\n    \"name\": \"Plumbing Ltd\",\r\n    \"legalName\": \"Plumbing Ltd LLC\",\r\n    \"email\": \"office@plumbing.example.com\",\r\n    \"phoneNumber\": \"+15559876543\",\r\n    \"website\": \"https://plumbing.example.com\",\r\n    \"taxId\": \"12-3456789\",\r\n    \"companySize\": \"11-50\",\r\n    \"businessTypeId\": 1,\r\n    \"physicalAddress\": {\r\n      \"addressLine1\": \"100 Main St\",\r\n      \"city\": \"Dallas\",\r\n      \"state\": \"TX\",\r\n      \"postalCode\": \"75201\",\r\n      \"country\": \"US\"\r\n    },\r\n    \"billingAddress\": {\r\n      \"addressLine1\": \"100 Main St\",\r\n      \"city\": \"Dallas\",\r\n      \"state\": \"TX\",\r\n      \"postalCode\": \"75201\",\r\n      \"country\": \"US\"\r\n    }\r\n  }\r\n}",
+                                                                   "raw":  "{\n  \"tenant\": \"sample\",\n  \"company\": \"sample\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -741,11 +656,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/status",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenant/{{tenantId}}/status",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "tenants",
+                                                                               "tenant",
                                                                                "{{tenantId}}",
                                                                                "status"
                                                                            ]
@@ -759,23 +674,13 @@
                                                                          "value":  "application/json"
                                                                      },
                                                                      {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     },
-                                                                     {
                                                                          "key":  "Content-Type",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{ \"fgsTenantStatusId\": 3 }",
+                                                                   "raw":  "{}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -784,14 +689,7 @@
                                                                    "mode":  "raw"
                                                                },
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   }
                                   },
@@ -802,11 +700,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenants/{{tenantId}}/storage-bucket",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/tenant/{{tenantId}}/storage-bucket",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "tenants",
+                                                                               "tenant",
                                                                                "{{tenantId}}",
                                                                                "storage-bucket"
                                                                            ]
@@ -820,23 +718,13 @@
                                                                          "value":  "application/json"
                                                                      },
                                                                      {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     },
-                                                                     {
                                                                          "key":  "Content-Type",
                                                                          "type":  "text",
                                                                          "value":  "application/json"
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{ \"storageBucketName\": \"fgs-dev-tenant-{{tenantId}}-demo\" }",
+                                                                   "raw":  "{}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -845,14 +733,7 @@
                                                                    "mode":  "raw"
                                                                },
                                                       "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
+                                                                   "type":  "noauth"
                                                                }
                                                   }
                                   }
@@ -869,7 +750,7 @@
                  "description":  "Company onboarding, Entra auth, dashboard, and tenant admin APIs via {{gatewayUrl}}.",
                  "name":  "FGS UserService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "d3f4a7bf-5b4e-4c5d-9960-cb52db83dbc4"
+                 "_postman_id":  "7445b01d-1db2-4493-9566-f26b5c303873"
              },
     "event":  [
                   {

@@ -11,4 +11,6 @@ public sealed class FileServiceOptions
     public int DownloadUrlExpiryMinutes { get; set; } = 15;
 
     public long MaxUploadSizeBytes { get; set; } = 10 * 1024 * 1024;
+
+    public int StreamCacheControlMaxAgeSeconds { get; set; } = 3600;
 }

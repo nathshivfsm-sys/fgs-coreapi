@@ -27,17 +27,23 @@ internal sealed class FgsSetupTaxReadRepository : IFgsSetupTaxReadRepository
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $"""
             SELECT {FgsSetupTaxSql.SelectDetailColumns}
-            FROM {FgsSetupTaxSql.Table}
-            WHERE "Id" = @Id
-              AND "TenantId" = @TenantId
-              AND "CompanyId" = @CompanyId
+            FROM {FgsSetupTaxSql.Table} t
+            WHERE t."Id" = @Id
+              AND t."TenantId" = @TenantId
+              AND t."CompanyId" = @CompanyId
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         var row = await connection.QueryFirstOrDefaultAsync<FgsSetupTaxDetailRow>(
             new CommandDefinition(sql, new { Id = id, TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
 
-        return row?.ToDto();
+        if (row is null)
+        {
+            return null;
+        }
+
+        var taxDetails = await LoadTaxDetailsAsync(connection, id, tenantId, companyId, cancellationToken);
+        return row.ToDto(taxDetails);
     }
 
     public async Task<PagedResult<FgsSetupTaxSummaryDto>> ListAsync(
@@ -53,28 +59,28 @@ internal sealed class FgsSetupTaxReadRepository : IFgsSetupTaxReadRepository
 
         var where = new List<string>
         {
-            "\"TenantId\" = @TenantId",
-            "\"CompanyId\" = @CompanyId"
+            "t.\"TenantId\" = @TenantId",
+            "t.\"CompanyId\" = @CompanyId"
         };
 
         if (paging.IsActive.HasValue)
         {
-            where.Add("\"IsActive\" = @IsActive");
+            where.Add("t.\"IsActive\" = @IsActive");
         }
 
         if (!string.IsNullOrWhiteSpace(filters.TaxCode))
         {
-            where.Add("\"TaxCode\" = @TaxCode");
+            where.Add("t.\"TaxCode\" = @TaxCode");
         }
         if (!string.IsNullOrWhiteSpace(filters.Name))
         {
-            where.Add("\"Name\" ILIKE @Name");
+            where.Add("t.\"Name\" ILIKE @Name");
         }
 
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
             where.Add(
-                "(\"TaxCode\" ILIKE @Search OR \"Name\" ILIKE @Search OR \"Description\" ILIKE @Search)");
+                "(t.\"TaxCode\" ILIKE @Search OR t.\"Name\" ILIKE @Search OR t.\"Description\" ILIKE @Search)");
         }
 
         var whereClause = string.Join(" AND ", where);
@@ -82,13 +88,13 @@ internal sealed class FgsSetupTaxReadRepository : IFgsSetupTaxReadRepository
 
         var sql = $"""
             SELECT {FgsSetupTaxSql.SelectSummaryColumns}
-            FROM {FgsSetupTaxSql.Table}
+            FROM {FgsSetupTaxSql.Table} t
             WHERE {whereClause}
             {orderBy}
             LIMIT @PageSize OFFSET @Offset;
 
             SELECT COUNT(*)
-            FROM {FgsSetupTaxSql.Table}
+            FROM {FgsSetupTaxSql.Table} t
             WHERE {whereClause};
             """;
 
@@ -123,14 +129,14 @@ internal sealed class FgsSetupTaxReadRepository : IFgsSetupTaxReadRepository
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
-        var activeFilter = activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty;
+        var activeFilter = activeOnly ? "AND t.\"IsActive\" = TRUE" : string.Empty;
         var sql = $"""
             SELECT {FgsSetupTaxSql.SelectLookupColumns}
-            FROM {FgsSetupTaxSql.Table}
-            WHERE "TenantId" = @TenantId
-              AND "CompanyId" = @CompanyId
+            FROM {FgsSetupTaxSql.Table} t
+            WHERE t."TenantId" = @TenantId
+              AND t."CompanyId" = @CompanyId
               {activeFilter}
-            ORDER BY "Name" ASC
+            ORDER BY t."Name" ASC
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -169,5 +175,34 @@ internal sealed class FgsSetupTaxReadRepository : IFgsSetupTaxReadRepository
                     ExcludeId = excludeId
                 },
                 cancellationToken: cancellationToken));
+    }
+
+    private static async Task<IReadOnlyList<FgsSetupTaxLineDetailDto>> LoadTaxDetailsAsync(
+        System.Data.Common.DbConnection connection,
+        long taxId,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var sql = $"""
+            SELECT {FgsSetupTaxSql.SelectTaxDetailColumns}
+            FROM {FgsSetupTaxSql.TaxDetailTable} td
+            INNER JOIN {FgsSetupTaxSql.TaxAuthorityTable} ta
+                ON ta."Id" = td."FgsSetupTaxAuthorityId"
+               AND ta."TenantId" = td."TenantId"
+               AND ta."CompanyId" = td."CompanyId"
+            WHERE td."FgsSetupTaxId" = @TaxId
+              AND td."TenantId" = @TenantId
+              AND td."CompanyId" = @CompanyId
+            ORDER BY td."EffectiveFromDate" ASC, td."Id" ASC
+            """;
+
+        var rows = await connection.QueryAsync<FgsSetupTaxLineDetailRow>(
+            new CommandDefinition(
+                sql,
+                new { TaxId = taxId, TenantId = tenantId, CompanyId = companyId },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(r => r.ToDto()).ToList();
     }
 }

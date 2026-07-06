@@ -24,7 +24,7 @@ public sealed class DeleteFgsSetupPostalCodeCommandHandler(
         logger.LogInformation("Soft-deleted postal code {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "postalcodes"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "postalcode"),
                 cancellationToken);
         return ApiResponse<FgsSetupPostalCodeDetailDto>.Ok(result);
     }

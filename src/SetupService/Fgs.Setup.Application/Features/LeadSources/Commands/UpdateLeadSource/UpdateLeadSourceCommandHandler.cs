@@ -24,7 +24,7 @@ public sealed class UpdateLeadSourceCommandHandler(
         logger.LogInformation("Updated lead source {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "leadsources"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "leadsource"),
                 cancellationToken);
         return ApiResponse<LeadSourceDetailDto>.Ok(result);
     }

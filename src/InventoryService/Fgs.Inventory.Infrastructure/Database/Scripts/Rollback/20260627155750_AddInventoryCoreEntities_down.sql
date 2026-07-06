@@ -1,0 +1,2 @@
+-- Rollback placeholder for AddInventoryCoreEntities
+-- TODO: implement down migration if required

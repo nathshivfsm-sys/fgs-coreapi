@@ -28,7 +28,7 @@ internal static class FgsSetupCommunicationTemplateSql
         var dir = direction == SortDirection.Desc ? "DESC" : "ASC";
         if (string.IsNullOrWhiteSpace(sortBy) || !AllowedSortColumns.Contains(sortBy))
         {
-            return $"ORDER BY \"Name\" {dir}";
+            return $"ORDER BY \"Id\" {dir}";
         }
 
         var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));

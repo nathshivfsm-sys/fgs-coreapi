@@ -19,10 +19,7 @@ public sealed class CredentialEncryptionService : ICredentialEncryptionService
         try
         {
             var credentialData = _aesEncryptionService.Encrypt(plaintext, dataKey.PlaintextKey);
-            return new EnvelopeEncryptionResult(
-                credentialData,
-                dataKey.EncryptedKey,
-                dataKey.KeyIdentifier);
+            return new EnvelopeEncryptionResult(credentialData, dataKey.EncryptedKey);
         }
         finally
         {
@@ -55,11 +52,11 @@ public sealed class CredentialEncryptionService : ICredentialEncryptionService
         return await EncryptAsync(plaintext, cancellationToken);
     }
 
-    public Task<(byte[] EncryptedDataKey, string KeyIdentifier)> ReEncryptDataKeyOnlyAsync(
+    public Task<byte[]> ReEncryptDataKeyOnlyAsync(
         byte[] encryptedDataKey,
         string? sourceKeyIdentifier,
         CancellationToken cancellationToken = default) =>
-        _kmsService.ReEncryptDataKeyWithMetadataAsync(encryptedDataKey, sourceKeyIdentifier, cancellationToken);
+        _kmsService.ReEncryptDataKeyAsync(encryptedDataKey, sourceKeyIdentifier, cancellationToken);
 }
 
 internal static class CryptographicBufferWipe

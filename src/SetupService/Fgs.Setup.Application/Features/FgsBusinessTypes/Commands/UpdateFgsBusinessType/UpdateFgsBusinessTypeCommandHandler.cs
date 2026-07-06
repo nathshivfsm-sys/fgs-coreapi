@@ -24,7 +24,7 @@ public sealed class UpdateFgsBusinessTypeCommandHandler(
         logger.LogInformation("Updated business type {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "businesstypes"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "businesstype"),
                 cancellationToken);
         return ApiResponse<FgsBusinessTypeDetailDto>.Ok(result);
     }

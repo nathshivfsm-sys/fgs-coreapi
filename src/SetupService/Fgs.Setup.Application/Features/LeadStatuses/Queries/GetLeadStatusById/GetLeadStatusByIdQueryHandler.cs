@@ -22,7 +22,7 @@ public sealed class GetLeadStatusByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "leadstatuses",
+            "leadstatus",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<LeadStatusDetailDto>(cacheKey, cancellationToken);

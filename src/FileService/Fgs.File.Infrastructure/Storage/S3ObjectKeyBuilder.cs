@@ -31,18 +31,20 @@ public sealed class S3ObjectKeyBuilder : IS3ObjectKeyBuilder
         return $"{CompanyAssetsPrefix(companyId)}{normalizedEntityType}/{entityId}/{fileName.TrimStart('/')}";
     }
 
-    public string BuildThumbnailKey(string originalObjectKey)
+    public string BuildThumbnailKey(string mainObjectKey, string originalFileName)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(originalObjectKey);
+        ArgumentException.ThrowIfNullOrWhiteSpace(mainObjectKey);
+        ArgumentException.ThrowIfNullOrWhiteSpace(originalFileName);
 
-        var lastDot = originalObjectKey.LastIndexOf('.');
-        if (lastDot < 0)
+        var slashIndex = mainObjectKey.LastIndexOf('/');
+        var dir = slashIndex >= 0 ? mainObjectKey[..(slashIndex + 1)] : string.Empty;
+        var baseName = Path.GetFileNameWithoutExtension(originalFileName);
+        var ext = Path.GetExtension(originalFileName);
+        if (string.IsNullOrWhiteSpace(ext))
         {
-            return $"{originalObjectKey}-thumb";
+            ext = ".png";
         }
 
-        var nameWithoutExtension = originalObjectKey[..lastDot];
-        var extension = originalObjectKey[lastDot..];
-        return $"{nameWithoutExtension}-thumb{extension}";
+        return $"{dir}{baseName}_thumbnail{ext}";
     }
 }

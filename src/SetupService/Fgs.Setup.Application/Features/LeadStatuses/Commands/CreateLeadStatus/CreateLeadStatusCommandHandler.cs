@@ -24,7 +24,7 @@ public sealed class CreateLeadStatusCommandHandler(
         logger.LogInformation("Created lead status {Id} with code {StatusCode}", result.Id, result.StatusCode);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "leadstatuses"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "leadstatus"),
                 cancellationToken);
         return ApiResponse<LeadStatusDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

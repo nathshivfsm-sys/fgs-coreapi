@@ -17,7 +17,6 @@ internal sealed class FgsSetupLaborRateTypeSummaryRow
             Name,
             Description,
             SortOrder,
-            IsSystem,
             IsActive);
 }
 
@@ -36,7 +35,6 @@ internal sealed class FgsSetupLaborRateTypeDetailRow
             Name,
             Description,
             SortOrder,
-            IsSystem,
             IsActive);
 }
 

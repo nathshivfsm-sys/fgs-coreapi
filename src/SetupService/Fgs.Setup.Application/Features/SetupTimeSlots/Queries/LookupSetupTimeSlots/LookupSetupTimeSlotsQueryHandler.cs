@@ -23,11 +23,15 @@ public sealed class LookupSetupTimeSlotsQueryHandler(
             tenantScope.TenantId,
             tenantScope.CompanyId,
             "timeslots",
-            CacheKeys.LookupSegment(request.ActiveOnly));
+            $"{CacheKeys.LookupSegment(request.ActiveOnly)}:isMobileVisible={request.IsMobileVisible?.ToString() ?? "all"}:isCustomerPortalVisible={request.IsCustomerPortalVisible?.ToString() ?? "all"}");
 
         var result = await cache.GetOrSetAsync(
             cacheKey,
-            () => readRepository.LookupAsync(request.ActiveOnly, cancellationToken),
+            () => readRepository.LookupAsync(
+                request.ActiveOnly,
+                request.IsMobileVisible,
+                request.IsCustomerPortalVisible,
+                cancellationToken),
             cancellationToken: cancellationToken);
 
         return ApiResponse<IReadOnlyList<FgsSetupTimeSlotLookupDto>>.Ok(result ?? Array.Empty<FgsSetupTimeSlotLookupDto>());

@@ -46,7 +46,7 @@ public sealed class LeadDisqualificationReasonCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "leaddisqualificationreasons"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "leaddisqualificationreason"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

@@ -1,0 +1,5 @@
+using Fgs.Asset.Application.Features.AssetManufacturers.Dtos;
+namespace Fgs.Asset.Infrastructure.AssetManufacturers;
+internal sealed class FgsAssetManufacturerSummaryRow { public long Id { get; set; } public string Code { get; set; } = null!; public string Name { get; set; } = null!; public string? Description { get; set; } public bool IsActive { get; set; } public FgsAssetManufacturerSummaryDto ToDto() => new(Id, Code, Name, Description, IsActive); }
+internal sealed class FgsAssetManufacturerDetailRow { public long Id { get; set; } public string Code { get; set; } = null!; public string Name { get; set; } = null!; public string? Description { get; set; } public bool IsActive { get; set; } public FgsAssetManufacturerDetailDto ToDto() => new(Id, Code, Name, Description, IsActive); }
+internal sealed class FgsAssetManufacturerLookupRow { public long Id { get; set; } public string Code { get; set; } = null!; public string Name { get; set; } = null!; public FgsAssetManufacturerLookupDto ToDto() => new(Id, Code, Name); }

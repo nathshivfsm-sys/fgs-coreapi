@@ -24,7 +24,7 @@ public sealed class PatchFgsSetupDescriptionCommandHandler(
         logger.LogInformation("Patchd setup description {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "setupdescriptions"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "setupdescription"),
                 cancellationToken);
         return ApiResponse<FgsSetupDescriptionDetailDto>.Ok(result);
     }

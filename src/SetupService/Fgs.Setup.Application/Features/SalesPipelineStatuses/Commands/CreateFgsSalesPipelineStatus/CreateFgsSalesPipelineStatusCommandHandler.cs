@@ -24,7 +24,7 @@ public sealed class CreateFgsSalesPipelineStatusCommandHandler(
         logger.LogInformation("Created sales pipeline status {Id} with code {StatusCode}", result.Id, result.StatusCode);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salespipelinestatuses"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salespipelinestatus"),
                 cancellationToken);
         return ApiResponse<FgsSalesPipelineStatusDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

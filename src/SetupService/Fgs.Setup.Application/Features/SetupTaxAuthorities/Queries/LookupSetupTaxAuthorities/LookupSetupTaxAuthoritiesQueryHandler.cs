@@ -22,7 +22,7 @@ public sealed class LookupSetupTaxAuthoritiesQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "taxauthorities",
+            "taxauthority",
             CacheKeys.LookupSegment(request.ActiveOnly));
 
         var result = await cache.GetOrSetAsync(

@@ -46,7 +46,7 @@ public sealed class LeadSourceCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "leadsources"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "leadsource"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

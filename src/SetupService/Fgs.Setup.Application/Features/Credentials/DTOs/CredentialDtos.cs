@@ -9,8 +9,7 @@ public sealed record CredentialSummaryDto(
     string ProviderName,
     string CredentialName,
     string? Description,
-    bool IsActive,
-    string? KeyIdentifier);
+    bool IsActive);
 
 public sealed record CredentialDetailDto(
     CredentialScope Scope,
@@ -19,8 +18,7 @@ public sealed record CredentialDetailDto(
     string ProviderName,
     string CredentialName,
     string? Description,
-    bool IsActive,
-    string? KeyIdentifier);
+    bool IsActive);
 
 public sealed record CredentialSecretDto(
     CredentialScope Scope,

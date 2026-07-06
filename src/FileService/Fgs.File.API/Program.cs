@@ -19,6 +19,8 @@ var hostOptions = builder.AddFgsApiHost(options =>
 
 builder.Services.AddFgsFileApplication();
 builder.Services.AddFgsFileInfrastructure(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<Fgs.File.Application.Abstractions.Storage.IAttachmentUrlBuilder, Fgs.File.API.Services.AttachmentUrlBuilder>();
 builder.Services.AddFgsObservability(builder.Configuration, hostOptions.ServiceName);
 
 var app = builder.Build();

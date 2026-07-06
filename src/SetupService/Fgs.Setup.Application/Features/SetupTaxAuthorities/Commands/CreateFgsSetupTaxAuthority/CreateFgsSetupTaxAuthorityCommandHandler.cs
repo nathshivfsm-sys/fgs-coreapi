@@ -24,7 +24,7 @@ public sealed class CreateFgsSetupTaxAuthorityCommandHandler(
         logger.LogInformation("Created tax authority {Id} with code {Code}", result.Id, result.Code);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "taxauthorities"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "taxauthority"),
                 cancellationToken);
         return ApiResponse<FgsSetupTaxAuthorityDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

@@ -15,6 +15,7 @@ public interface IResolutionCodeReadRepository
 
     Task<IReadOnlyList<ResolutionCodeLookupDto>> LookupAsync(
         bool activeOnly = true,
+        bool? isMobileVisible = null,
         CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByResolutionCodeAsync(

@@ -62,6 +62,48 @@ public sealed class CompanyBusinessTypeServiceTests
         (await context.FgsBusinessTypes.CountAsync()).Should().Be(2);
     }
 
+    [Fact]
+    public async Task AddCompanyBusinessTypesAsync_InsertsAllRequestedBusinessTypes()
+    {
+        await using var context = await CreateContextAsync();
+        context.GloBusinessTypes.AddRange(
+            new GloBusinessType { Id = 1, Code = "HVAC", Name = "HVAC", IsActive = true, CreatedOn = DateTimeOffset.UtcNow },
+            new GloBusinessType { Id = 2, Code = "PLUMBING", Name = "Plumbing", IsActive = true, CreatedOn = DateTimeOffset.UtcNow },
+            new GloBusinessType { Id = 3, Code = "ELECTRICAL", Name = "Electrical", IsActive = true, CreatedOn = DateTimeOffset.UtcNow });
+        await context.SaveChangesAsync();
+
+        var service = new CompanyBusinessTypeService(context, new DateTimeProvider());
+
+        await service.AddCompanyBusinessTypesAsync(
+            10,
+            1,
+            new AddCompanyBusinessTypesRequest([1, 2, 3], Guid.NewGuid(), "ACME", "Acme Co"),
+            CancellationToken.None);
+
+        var businessTypes = await context.FgsBusinessTypes
+            .OrderBy(b => b.DisplayOrder)
+            .Select(b => b.Code)
+            .ToListAsync();
+
+        businessTypes.Should().Equal("HVAC", "PLUMBING", "ELECTRICAL");
+    }
+
+    [Fact]
+    public async Task AddCompanyBusinessTypesAsync_WhenBusinessTypeIsUnknown_Throws()
+    {
+        await using var context = await CreateContextAsync();
+        var service = new CompanyBusinessTypeService(context, new DateTimeProvider());
+
+        var act = () => service.AddCompanyBusinessTypesAsync(
+            10,
+            1,
+            new AddCompanyBusinessTypesRequest([99], Guid.NewGuid(), "ACME", "Acme Co"),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*invalid or inactive*99*");
+    }
+
     private static async Task<FgsSetupDbContext> CreateContextAsync()
     {
         var options = new DbContextOptionsBuilder<FgsSetupDbContext>()

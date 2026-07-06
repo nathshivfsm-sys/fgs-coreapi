@@ -94,7 +94,6 @@ public sealed class EntraApiConnectorCommandHandlerTests
             TenantId = tenantId,
             CompanyNumber = companyId,
             CompanyGuid = Guid.NewGuid(),
-            BusinessTypeId = 1,
             Code = "c1",
             Name = "Company",
             IsActive = true,

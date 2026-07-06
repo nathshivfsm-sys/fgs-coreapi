@@ -32,7 +32,7 @@ public sealed class ListActiveFgsBusinessTypesQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "businesstypes",
+        "businesstype",
         segment);
 
         var cached = await cache.GetOrSetAsync(

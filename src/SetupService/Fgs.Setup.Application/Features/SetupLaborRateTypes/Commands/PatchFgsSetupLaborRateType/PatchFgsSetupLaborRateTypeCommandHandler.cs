@@ -24,7 +24,7 @@ public sealed class PatchFgsSetupLaborRateTypeCommandHandler(
         logger.LogInformation("Patchd labor rate type {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "laborratetypes"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "laborratetype"),
                 cancellationToken);
         return ApiResponse<FgsSetupLaborRateTypeDetailDto>.Ok(result);
     }

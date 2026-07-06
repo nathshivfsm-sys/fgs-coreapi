@@ -26,10 +26,7 @@ internal class FgsTenantCompanyConfiguration : IEntityTypeConfiguration<FgsTenan
         entity.Property(e => e.Website).HasMaxLength(500);
         entity.Property(e => e.CompanySize).HasMaxLength(20);
         entity.Property(e => e.TaxId).HasMaxLength(100);
-        entity.Property(e => e.FullLogoUrl).HasMaxLength(1000);
-        entity.Property(e => e.CompactLogoUrl).HasMaxLength(1000);
-        entity.Property(e => e.IconLogoUrl).HasMaxLength(1000);
-        entity.Property(e => e.FaviconUrl).HasMaxLength(1000);
+        entity.Property(e => e.TimeZone).HasMaxLength(100);
         entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
     }

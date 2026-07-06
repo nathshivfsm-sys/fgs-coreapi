@@ -46,7 +46,7 @@ public sealed class FgsSalesActivityTypeCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "salesactivitytypes"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "salesactivitytype"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

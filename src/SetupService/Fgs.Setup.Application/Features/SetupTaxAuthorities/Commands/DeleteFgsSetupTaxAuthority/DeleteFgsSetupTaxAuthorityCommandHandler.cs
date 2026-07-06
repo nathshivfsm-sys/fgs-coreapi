@@ -20,12 +20,19 @@ public sealed class DeleteFgsSetupTaxAuthorityCommandHandler(
         DeleteFgsSetupTaxAuthorityCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await writeService.DeleteAsync(request.Id, cancellationToken);
-        logger.LogInformation("Soft-deleted tax authority {Id}", result.Id);
-        var tenantScope = tenantContextAccessor.Current!;
-        await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "taxauthorities"),
+        try
+        {
+            var result = await writeService.DeleteAsync(request.Id, cancellationToken);
+            logger.LogInformation("Soft-deleted tax authority {Id}", result.Id);
+            var tenantScope = tenantContextAccessor.Current!;
+            await cache.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "taxauthority"),
                 cancellationToken);
-        return ApiResponse<FgsSetupTaxAuthorityDetailDto>.Ok(result);
+            return ApiResponse<FgsSetupTaxAuthorityDetailDto>.Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return ApiResponse<FgsSetupTaxAuthorityDetailDto>.Fail([ex.Message], ApiStatusCodes.Conflict);
+        }
     }
 }

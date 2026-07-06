@@ -46,7 +46,7 @@ public sealed class FgsSalesPipelineStatusCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "salespipelinestatuses"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "salespipelinestatus"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

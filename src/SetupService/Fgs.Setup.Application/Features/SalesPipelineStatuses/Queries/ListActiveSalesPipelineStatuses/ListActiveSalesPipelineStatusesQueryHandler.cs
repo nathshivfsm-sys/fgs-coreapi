@@ -32,7 +32,7 @@ public sealed class ListActiveSalesPipelineStatusesQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "salespipelinestatuses",
+        "salespipelinestatus",
         segment);
 
         var cached = await cache.GetOrSetAsync(

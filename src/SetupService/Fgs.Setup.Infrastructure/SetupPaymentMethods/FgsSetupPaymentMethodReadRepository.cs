@@ -115,22 +115,50 @@ internal sealed class FgsSetupPaymentMethodReadRepository : IFgsSetupPaymentMeth
 
     public async Task<IReadOnlyList<FgsSetupPaymentMethodLookupDto>> LookupAsync(
         bool activeOnly = true,
+        bool? isMobileVisible = null,
+        bool? isCustomerPortalVisible = null,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
-        var activeFilter = activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty;
+        var filters = new List<string>();
+
+        if (activeOnly)
+        {
+            filters.Add("\"IsActive\" = TRUE");
+        }
+
+        if (isMobileVisible.HasValue)
+        {
+            filters.Add("\"IsMobileVisible\" = @IsMobileVisible");
+        }
+
+        if (isCustomerPortalVisible.HasValue)
+        {
+            filters.Add("\"IsCustomerPortalVisible\" = @IsCustomerPortalVisible");
+        }
+
+        var filterClause = filters.Count > 0 ? $"AND {string.Join(" AND ", filters)}" : string.Empty;
         var sql = $"""
             SELECT {FgsSetupPaymentMethodSql.SelectLookupColumns}
             FROM {FgsSetupPaymentMethodSql.Table}
             WHERE "TenantId" = @TenantId
               AND "CompanyId" = @CompanyId
-              {activeFilter}
+              {filterClause}
             ORDER BY "SortOrder" ASC NULLS LAST, "DisplayName" ASC
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         var rows = await connection.QueryAsync<FgsSetupPaymentMethodLookupRow>(
-            new CommandDefinition(sql, new { TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    IsMobileVisible = isMobileVisible,
+                    IsCustomerPortalVisible = isCustomerPortalVisible
+                },
+                cancellationToken: cancellationToken));
 
         return rows.Select(r => r.ToDto()).ToList();
     }

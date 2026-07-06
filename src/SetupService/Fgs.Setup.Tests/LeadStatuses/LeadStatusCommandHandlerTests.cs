@@ -46,7 +46,7 @@ public sealed class LeadStatusCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "leadstatuses"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "leadstatus"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

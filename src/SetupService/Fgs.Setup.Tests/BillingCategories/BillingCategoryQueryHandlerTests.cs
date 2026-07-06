@@ -16,7 +16,7 @@ public sealed class BillingCategoryQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new BillingCategoryDetailDto(1, "TEST", "BillingCategoryName", "Description value", 1, false, false, true, true);
+        var detail = new BillingCategoryDetailDto(1, "TEST", "BillingCategoryName", "Description value", 1);
 
         var readRepository = new Mock<IBillingCategoryReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);

@@ -36,7 +36,7 @@ docker run --rm -e PGPASSWORD -v "${PWD}/seed-provider-types.sql:/seed.sql:ro" p
 .\post-credentials.ps1 -BaseUrl http://localhost:5071 -RedisOnly
 ```
 
-All platform `DATABASE` keys use AWS RDS `fgs_dev_db`, including `FgsAsset`, `FgsDispatch` (Scheduling), and `FgsServiceAgreement`.
+All platform `DATABASE` keys use AWS RDS `fgs_dev_db`, including `FgsAsset`, `FgsAssetReadOnly`, `FgsDispatch` (Scheduling), and `FgsServiceAgreement`.
 
 If `platform-databases` was created before these keys were added, refresh the credential without re-posting everything:
 
@@ -130,6 +130,7 @@ Maps to the `Redis` configuration section (`Redis:ConnectionString`, `Redis:Enab
 | `FGS_FILE_DB` | File Service DB fallback |
 | `FGS_NOTIFICATION_DB` | Notification Service DB fallback |
 | `FGS_ASSET_DB` | Asset Service DB fallback |
+| `FGS_ASSET_DB_READONLY` | Asset Service read-only DB fallback |
 | `FGS_DISPATCH_DB` | Scheduling Service DB fallback |
 | `FGS_SVC_DB` | Service Agreement Service DB fallback |
 | `KMS_KEY_ARN` | Setup Service KMS bootstrap only (consumers read `KmsKeyArn` from Setup AWS credential) |

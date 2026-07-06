@@ -46,7 +46,7 @@ public sealed class FgsSetupCommunicationTemplateCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "communication-templates"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "communication-template"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

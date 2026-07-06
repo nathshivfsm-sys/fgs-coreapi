@@ -4,28 +4,36 @@ public sealed record FgsSetupTaxSummaryDto(
     long Id,
     string TaxCode,
     string Name,
-    bool IsExternalSystemRecord,
-    string? ExternalSystemId,
-    string? SyncToken,
     bool ShowTaxDetail,
     string? Description,
+    decimal TaxRate,
+    bool IsActive);
+
+public sealed record FgsSetupTaxLineDetailDto(
+    long Id,
+    long FgsSetupTaxAuthorityId,
+    string TaxAuthorityCode,
+    string TaxAuthorityName,
+    decimal TaxPercent,
+    DateOnly EffectiveFromDate,
+    DateOnly? EffectiveToDate,
     bool IsActive);
 
 public sealed record FgsSetupTaxDetailDto(
     long Id,
     string TaxCode,
     string Name,
-    bool IsExternalSystemRecord,
-    string? ExternalSystemId,
-    string? SyncToken,
     bool ShowTaxDetail,
     string? Description,
-    bool IsActive);
+    decimal TaxRate,
+    bool IsActive,
+    IReadOnlyList<FgsSetupTaxLineDetailDto> TaxDetails);
 
 public sealed record FgsSetupTaxLookupDto(
     long Id,
     string TaxCode,
-    string Name);
+    string Name,
+    decimal TaxRate);
 
 public sealed record FgsSetupTaxCreateDto(
     string TaxCode,

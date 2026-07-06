@@ -120,22 +120,43 @@ internal sealed class ResolutionCodeReadRepository : IResolutionCodeReadReposito
 
     public async Task<IReadOnlyList<ResolutionCodeLookupDto>> LookupAsync(
         bool activeOnly = true,
+        bool? isMobileVisible = null,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
-        var activeFilter = activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty;
+        var filters = new List<string>();
+
+        if (activeOnly)
+        {
+            filters.Add("\"IsActive\" = TRUE");
+        }
+
+        if (isMobileVisible.HasValue)
+        {
+            filters.Add("\"IsMobileVisible\" = @IsMobileVisible");
+        }
+
+        var filterClause = filters.Count > 0 ? $"AND {string.Join(" AND ", filters)}" : string.Empty;
         var sql = $"""
             SELECT {ResolutionCodeSql.SelectLookupColumns}
             FROM {ResolutionCodeSql.Table}
             WHERE "TenantId" = @TenantId
               AND "CompanyId" = @CompanyId
-              {activeFilter}
+              {filterClause}
             ORDER BY "ResolutionName" ASC
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         var rows = await connection.QueryAsync<ResolutionCodeLookupRow>(
-            new CommandDefinition(sql, new { TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    IsMobileVisible = isMobileVisible
+                },
+                cancellationToken: cancellationToken));
 
         return rows.Select(r => r.ToDto()).ToList();
     }

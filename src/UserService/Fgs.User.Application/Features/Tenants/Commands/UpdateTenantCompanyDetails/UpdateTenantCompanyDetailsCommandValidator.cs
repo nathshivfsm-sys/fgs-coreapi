@@ -30,7 +30,6 @@ public sealed class UpdateTenantSectionRequestValidator : AbstractValidator<Upda
             .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
             .WithMessage(SignupErrorMessages.InvalidPhoneFormat);
         RuleFor(x => x.Website).MaximumLength(500).When(x => !string.IsNullOrWhiteSpace(x.Website));
-        RuleFor(x => x.TimeZone).MaximumLength(100).When(x => !string.IsNullOrWhiteSpace(x.TimeZone));
         RuleFor(x => x.DefaultCurrency).MaximumLength(20).When(x => !string.IsNullOrWhiteSpace(x.DefaultCurrency));
     }
 }
@@ -50,7 +49,7 @@ public sealed class UpdateCompanySectionRequestValidator : AbstractValidator<Upd
         RuleFor(x => x.Website).MaximumLength(500).When(x => !string.IsNullOrWhiteSpace(x.Website));
         RuleFor(x => x.TaxId).MaximumLength(100).When(x => !string.IsNullOrWhiteSpace(x.TaxId));
         RuleFor(x => x.CompanySize).MaximumLength(20).When(x => !string.IsNullOrWhiteSpace(x.CompanySize));
-        RuleFor(x => x.BusinessTypeId).GreaterThan(0);
+        RuleFor(x => x.TimeZone).MaximumLength(100).When(x => !string.IsNullOrWhiteSpace(x.TimeZone));
         RuleFor(x => x.PhysicalAddress).SetValidator(new LocationWriteDtoValidator()!)
             .When(x => x.PhysicalAddress is not null);
         RuleFor(x => x.BillingAddress).SetValidator(new LocationWriteDtoValidator()!)

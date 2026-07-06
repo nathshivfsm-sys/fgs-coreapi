@@ -32,7 +32,7 @@ public sealed class ListActiveSetupPostalCodesQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "postalcodes",
+        "postalcode",
         segment);
 
         var cached = await cache.GetOrSetAsync(

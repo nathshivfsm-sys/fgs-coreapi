@@ -22,12 +22,12 @@ public sealed class LookupResolutionCodesQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "resolutioncodes",
-            CacheKeys.LookupSegment(request.ActiveOnly));
+            "resolutioncode",
+            $"{CacheKeys.LookupSegment(request.ActiveOnly)}:isMobileVisible={request.IsMobileVisible?.ToString() ?? "all"}");
 
         var result = await cache.GetOrSetAsync(
             cacheKey,
-            () => readRepository.LookupAsync(request.ActiveOnly, cancellationToken),
+            () => readRepository.LookupAsync(request.ActiveOnly, request.IsMobileVisible, cancellationToken),
             cancellationToken: cancellationToken);
 
         return ApiResponse<IReadOnlyList<ResolutionCodeLookupDto>>.Ok(result ?? Array.Empty<ResolutionCodeLookupDto>());

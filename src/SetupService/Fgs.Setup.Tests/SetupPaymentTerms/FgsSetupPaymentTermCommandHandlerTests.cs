@@ -46,7 +46,7 @@ public sealed class FgsSetupPaymentTermCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "paymentterms"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "paymentterm"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

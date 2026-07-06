@@ -8,14 +8,14 @@ namespace Fgs.Contracts.Clients;
 /// </summary>
 public interface ISetupClient
 {
-    [Post("/api/v1/tenants/{tenantId}/companies/{companyId}/business-types")]
+    [Post("/api/v1/tenant/{tenantId}/companies/{companyId}/business-type")]
     Task<Fgs.Contracts.Api.ApiResponse<object>> AddCompanyBusinessTypesAsync(
         long tenantId,
         long companyId,
         [Body] AddCompanyBusinessTypesRequest request,
         CancellationToken cancellationToken = default);
 
-    [Get("/api/v1/communication-templates/active")]
+    [Get("/api/v1/communication-template/active")]
     Task<Fgs.Contracts.Api.ApiResponse<CommunicationTemplateDto>> GetActiveTemplateAsync(
         [Query] long? tenantId,
         [Query] long? companyId,
@@ -29,7 +29,7 @@ public interface ISetupClient
         [Body] ProvisionTenantRequest request,
         CancellationToken cancellationToken = default);
 
-    [Get("/api/v1/credentials/resolved")]
+    [Get("/api/v1/credential/resolved")]
     Task<Fgs.Contracts.Api.ApiResponse<ResolvedCredentialConfigurationDto>> GetResolvedCredentialsAsync(
         [Header(InternalServiceHeaders.ServiceKey)] string internalServiceKey,
         [Header(InternalServiceHeaders.ServiceName)] string? serviceName = null,

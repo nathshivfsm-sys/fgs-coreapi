@@ -24,7 +24,7 @@ public sealed class UpdateFgsSalesDispositionReasonCommandHandler(
         logger.LogInformation("Updated sales disposition reason {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesdispositionreasons"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesdispositionreason"),
                 cancellationToken);
         return ApiResponse<FgsSalesDispositionReasonDetailDto>.Ok(result);
     }

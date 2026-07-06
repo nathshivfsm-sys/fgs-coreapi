@@ -32,7 +32,7 @@ public sealed class ListActiveSetupDescriptionsQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "setupdescriptions",
+        "setupdescription",
         segment);
 
         var cached = await cache.GetOrSetAsync(

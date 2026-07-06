@@ -22,7 +22,7 @@ public sealed class GetJobTypeSubCategoryByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "jobtypesubcategories",
+            "jobtypesubcategory",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<JobTypeSubCategoryDetailDto>(cacheKey, cancellationToken);

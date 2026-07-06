@@ -14,7 +14,7 @@ internal class FgsVehicleConfiguration : IEntityTypeConfiguration<FgsVehicle>
             t =>
             {
                 t.HasComment(
-                    "Stores company-owned or leased vehicles used for field service operations. Each vehicle is associated with a truck warehouse that serves as an inventory location.");
+                    "Stores company-owned or leased vehicles used for field service operations. Each vehicle is associated with an inventory location that serves as a truck storage location.");
                 t.HasCheckConstraint(
                     "CK_FgsVehicle_OwnershipType",
                     "\"OwnershipType\" IN ('Owned', 'Leased', 'Rented')");
@@ -30,8 +30,8 @@ internal class FgsVehicleConfiguration : IEntityTypeConfiguration<FgsVehicle>
         entity.Property(e => e.TenantId).HasComment("Tenant identifier.");
         entity.Property(e => e.CompanyId).HasComment("Company identifier.");
 
-        entity.Property(e => e.WarehouseId)
-            .HasComment("Associated truck warehouse used as the vehicle inventory location.");
+        entity.Property(e => e.InventoryLocationId)
+            .HasComment("Associated truck inventory location. References inventory.FgsInventoryLocation; scalar only — no cross-schema FK.");
 
         entity.Property(e => e.OwnershipType)
             .HasMaxLength(20)
@@ -110,19 +110,13 @@ internal class FgsVehicleConfiguration : IEntityTypeConfiguration<FgsVehicle>
             .HasMaxLength(100)
             .HasComment("User who last updated the record.");
 
-        entity.HasAlternateKey(e => e.WarehouseId)
-            .HasName("UQ_FgsVehicle_WarehouseId");
+        entity.HasAlternateKey(e => e.InventoryLocationId)
+            .HasName("UQ_FgsVehicle_InventoryLocationId");
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.IsActive })
             .HasDatabaseName("IX_FgsVehicle_TenantId_CompanyId_IsActive");
 
-        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.WarehouseId })
-            .HasDatabaseName("IX_FgsVehicle_TenantId_CompanyId_WarehouseId");
-
-        entity.HasOne<FgsWarehouse>()
-            .WithMany()
-            .HasForeignKey(e => e.WarehouseId)
-            .HasConstraintName("FK_FgsVehicle_FgsWarehouse_WarehouseId")
-            .OnDelete(DeleteBehavior.Restrict);
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.InventoryLocationId })
+            .HasDatabaseName("IX_FgsVehicle_TenantId_CompanyId_InventoryLocationId");
     }
 }

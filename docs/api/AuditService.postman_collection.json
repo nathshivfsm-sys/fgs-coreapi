@@ -1,8 +1,8 @@
 ﻿{
     "item":  [
                  {
-                     "description":  "CredentialAuditsController - credential-audits",
-                     "name":  "CredentialAuditsController",
+                     "description":  "CredentialAuditController - credential-audit",
+                     "name":  "CredentialAuditController",
                      "item":  [
                                   {
                                       "name":  "Record",
@@ -11,11 +11,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/credential-audits",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/audit/credential-audit",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "credential-audits"
+                                                                               "audit",
+                                                                               "credential-audit"
                                                                            ]
                                                               },
                                                       "description":  "Record",
@@ -43,7 +44,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"tenantId\": 4,\r\n  \"companyId\": 1,\r\n  \"credentialId\": \"11111111-1111-1111-1111-111111111111\",\r\n  \"actionType\": \"READ\",\r\n  \"remarks\": \"Postman audit test\",\r\n  \"oldVersionNo\": null,\r\n  \"newVersionNo\": 1,\r\n  \"createdBy\": \"postman\"\r\n}",
+                                                                   "raw":  "{}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -128,7 +129,7 @@
                  "description":  "Credential audit trail via {{gatewayUrl}}.",
                  "name":  "FGS AuditService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "d5a8837e-5149-40ad-b0f4-ea26f5536352"
+                 "_postman_id":  "1a709adb-f4d5-4d61-9a36-1a12ce4acf1c"
              },
     "event":  [
                   {

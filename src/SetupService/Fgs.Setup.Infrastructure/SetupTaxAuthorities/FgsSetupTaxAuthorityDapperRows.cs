@@ -11,6 +11,7 @@ internal sealed class FgsSetupTaxAuthoritySummaryRow
     public bool IsExternalSystemRecord { get; set; }
     public decimal TaxPercent { get; set; }
     public string? Description { get; set; }
+    public int UsageCount { get; set; }
     public bool IsActive { get; set; }
 
     public FgsSetupTaxAuthoritySummaryDto ToDto() =>
@@ -22,6 +23,7 @@ internal sealed class FgsSetupTaxAuthoritySummaryRow
             IsExternalSystemRecord,
             TaxPercent,
             Description,
+            UsageCount,
             IsActive);
 }
 
@@ -34,6 +36,7 @@ internal sealed class FgsSetupTaxAuthorityDetailRow
     public bool IsExternalSystemRecord { get; set; }
     public decimal TaxPercent { get; set; }
     public string? Description { get; set; }
+    public int UsageCount { get; set; }
     public bool IsActive { get; set; }
 
     public FgsSetupTaxAuthorityDetailDto ToDto() =>
@@ -45,6 +48,7 @@ internal sealed class FgsSetupTaxAuthorityDetailRow
             IsExternalSystemRecord,
             TaxPercent,
             Description,
+            UsageCount,
             IsActive);
 }
 

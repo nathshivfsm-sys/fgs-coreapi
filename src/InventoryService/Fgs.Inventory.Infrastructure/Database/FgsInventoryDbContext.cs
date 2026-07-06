@@ -1,4 +1,5 @@
 using Fgs.Inventory.Domain.Entities;
+using Fgs.Inventory.Infrastructure.Database.Configurations;
 using Fgs.Inventory.Infrastructure.Database.Schemas;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,9 +13,36 @@ public sealed class FgsInventoryDbContext(DbContextOptions<FgsInventoryDbContext
 
     public DbSet<InventoryOutboxMessage> InventoryOutboxMessages => Set<InventoryOutboxMessage>();
 
+    public DbSet<FgsInventoryItemType> FgsInventoryItemTypes => Set<FgsInventoryItemType>();
+
+    public DbSet<FgsInventoryCategory> FgsInventoryCategories => Set<FgsInventoryCategory>();
+
+    public DbSet<FgsInventorySubCategory> FgsInventorySubCategories => Set<FgsInventorySubCategory>();
+
+    public DbSet<FgsVendor> FgsVendors => Set<FgsVendor>();
+
+    public DbSet<FgsInventoryLocation> FgsInventoryLocations => Set<FgsInventoryLocation>();
+
+    public DbSet<FgsInventoryItem> FgsInventoryItems => Set<FgsInventoryItem>();
+
+    public DbSet<FgsInventoryItemAlternate> FgsInventoryItemAlternates => Set<FgsInventoryItemAlternate>();
+
+    public DbSet<FgsInventoryItemDependency> FgsInventoryItemDependencies => Set<FgsInventoryItemDependency>();
+
+    public DbSet<FgsInventoryStock> FgsInventoryStocks => Set<FgsInventoryStock>();
+
+    public DbSet<FgsVendorInventoryItem> FgsVendorInventoryItems => Set<FgsVendorInventoryItem>();
+
+    public DbSet<FgsInventoryTransaction> FgsInventoryTransactions => Set<FgsInventoryTransaction>();
+
+    public DbSet<FgsPurchaseOrder> FgsPurchaseOrders => Set<FgsPurchaseOrder>();
+
+    public DbSet<FgsPurchaseOrderDetail> FgsPurchaseOrderDetails => Set<FgsPurchaseOrderDetail>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(FgsDatabaseSchemas.Inventory);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsInventoryDbContext).Assembly);
+        FgsInventoryDbContextConfigurationExtensions.ApplyTenantCompanyCacheForeignKeys(modelBuilder);
     }
 }

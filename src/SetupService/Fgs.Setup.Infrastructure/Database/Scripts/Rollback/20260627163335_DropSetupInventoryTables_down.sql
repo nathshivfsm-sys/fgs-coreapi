@@ -1,0 +1,2 @@
+-- Rollback placeholder for DropSetupInventoryTables
+-- TODO: implement down migration if required

@@ -46,7 +46,7 @@ public sealed class FgsSalesDispositionReasonCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "salesdispositionreasons"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "salesdispositionreason"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

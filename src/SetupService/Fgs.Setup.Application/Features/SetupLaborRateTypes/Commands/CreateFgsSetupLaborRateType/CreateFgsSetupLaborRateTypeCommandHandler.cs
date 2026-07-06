@@ -24,7 +24,7 @@ public sealed class CreateFgsSetupLaborRateTypeCommandHandler(
         logger.LogInformation("Created labor rate type {Id} with code {Name}", result.Id, result.Name);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "laborratetypes"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "laborratetype"),
                 cancellationToken);
         return ApiResponse<FgsSetupLaborRateTypeDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

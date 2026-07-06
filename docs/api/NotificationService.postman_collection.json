@@ -53,8 +53,8 @@
                               ]
                  },
                  {
-                     "description":  "NotificationsController - notifications",
-                     "name":  "NotificationsController",
+                     "description":  "NotificationController - notification",
+                     "name":  "NotificationController",
                      "item":  [
                                   {
                                       "name":  "Dispatch",
@@ -63,12 +63,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/notifications/notifications/dispatch",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/notifications/notification/dispatch",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "notifications",
-                                                                               "notifications",
+                                                                               "notification",
                                                                                "dispatch"
                                                                            ]
                                                               },
@@ -97,7 +97,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"tenantId\": 4,\r\n  \"companyId\": 1,\r\n  \"channel\": \"Email\",\r\n  \"templateCode\": \"INVITE\",\r\n  \"recipient\": \"{{entraUserEmail}}\",\r\n  \"correlationId\": \"postman-test-001\",\r\n  \"tokens\": {\r\n    \"CompanyName\": \"Plumbing Ltd\",\r\n    \"InviteUrl\": \"https://localhost:8443/api/v1/invite/start?token=sample\"\r\n  }\r\n}",
+                                                                   "raw":  "{}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -130,7 +130,7 @@
                  "description":  "Notification dispatch via {{gatewayUrl}}/api/v1/notifications/...",
                  "name":  "FGS NotificationService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "dc313eb4-d33e-48d7-8463-d8ba454aa390"
+                 "_postman_id":  "46a380bc-26ae-4a61-ba25-fde6b51c61ad"
              },
     "event":  [
                   {

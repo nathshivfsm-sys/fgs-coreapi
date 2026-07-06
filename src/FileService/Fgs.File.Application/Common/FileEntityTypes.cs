@@ -14,4 +14,7 @@ public static class FileEntityTypes
 
     public static bool RequiresMatchingCompanyContext(FileEntityType entityType) =>
         entityType == FileEntityType.Company;
+
+    public static bool RouteValueMatchesStorage(string routeEntityType, string storedEntityType) =>
+        string.Equals(routeEntityType, storedEntityType, StringComparison.OrdinalIgnoreCase);
 }

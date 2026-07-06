@@ -2,7 +2,7 @@ namespace Fgs.Setup.Application.Features.Vehicles.Dtos;
 
 public sealed record FgsVehicleSummaryDto(
     long Id,
-    long WarehouseId,
+    long InventoryLocationId,
     string OwnershipType,
     string? OwnershipCompany,
     short? Year,
@@ -21,7 +21,7 @@ public sealed record FgsVehicleSummaryDto(
 
 public sealed record FgsVehicleDetailDto(
     long Id,
-    long WarehouseId,
+    long InventoryLocationId,
     string OwnershipType,
     string? OwnershipCompany,
     short? Year,
@@ -45,7 +45,7 @@ public sealed record FgsVehicleLookupDto(
     string VIN);
 
 public sealed record FgsVehicleCreateDto(
-    long WarehouseId,
+    long InventoryLocationId,
     string OwnershipType,
     string? OwnershipCompany,
     short? Year,
@@ -62,7 +62,7 @@ public sealed record FgsVehicleCreateDto(
     string? Notes);
 
 public sealed record FgsVehicleUpdateDto(
-    long WarehouseId,
+    long InventoryLocationId,
     string OwnershipType,
     string? OwnershipCompany,
     short? Year,
@@ -79,7 +79,7 @@ public sealed record FgsVehicleUpdateDto(
     string? Notes);
 
 public sealed record FgsVehiclePatchDto(
-    long? WarehouseId,
+    long? InventoryLocationId,
     string? OwnershipType,
     string? OwnershipCompany,
     short? Year,

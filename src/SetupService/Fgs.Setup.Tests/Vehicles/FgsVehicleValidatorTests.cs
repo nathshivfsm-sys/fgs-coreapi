@@ -29,7 +29,7 @@ public sealed class FgsVehicleValidatorTests
     {
 
         _readRepository
-            .Setup(r => r.ExistsWarehouseIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.ExistsInventoryLocationIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         var validator = new UpdateFgsVehicleCommandValidator(_readRepository.Object);
         var command = new UpdateFgsVehicleCommand(5, new FgsVehicleUpdateDto(1, "OwnershipType", "OwnershipCompany", 1, "Make", "Model", "Color", "VIN", "LicensePlate", "LicensePlateState", null, 10.5m, "PurchasedFrom", null, "Notes value"));

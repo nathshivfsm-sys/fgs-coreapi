@@ -24,7 +24,7 @@ public sealed class CreateJobTypeSubCategoryCommandHandler(
         logger.LogInformation("Created job type subcategory {Id} with code {SubCategoryCode}", result.Id, result.SubCategoryCode);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtypesubcategories"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtypesubcategory"),
                 cancellationToken);
         return ApiResponse<JobTypeSubCategoryDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

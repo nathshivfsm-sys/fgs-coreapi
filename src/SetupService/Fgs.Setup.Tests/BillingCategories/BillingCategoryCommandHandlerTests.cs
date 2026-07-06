@@ -43,10 +43,10 @@ public sealed class BillingCategoryCommandHandlerTests
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
-        response.Data!.IsActive.Should().BeTrue();
+        (await context.FgsBillingCategories.SingleAsync()).IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "billingcategories"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "billingcategory"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -79,7 +79,7 @@ public sealed class BillingCategoryCommandHandlerTests
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
-        response.Data!.IsActive.Should().BeFalse();
+        (await context.FgsBillingCategories.SingleAsync()).IsActive.Should().BeFalse();
     }
 
     private static ITenantContextAccessor CreateTenantContextAccessor() =>

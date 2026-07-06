@@ -22,7 +22,7 @@ public sealed class GetFgsSalesActivityTypeByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "salesactivitytypes",
+            "salesactivitytype",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<FgsSalesActivityTypeDetailDto>(cacheKey, cancellationToken);

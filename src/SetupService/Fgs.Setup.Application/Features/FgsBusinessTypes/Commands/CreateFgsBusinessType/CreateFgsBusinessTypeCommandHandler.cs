@@ -24,7 +24,7 @@ public sealed class CreateFgsBusinessTypeCommandHandler(
         logger.LogInformation("Created business type {Id} with code {Code}", result.Id, result.Code);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "businesstypes"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "businesstype"),
                 cancellationToken);
         return ApiResponse<FgsBusinessTypeDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

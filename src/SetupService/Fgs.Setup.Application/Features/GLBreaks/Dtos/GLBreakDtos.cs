@@ -4,8 +4,21 @@ namespace Fgs.Setup.Application.Features.GLBreaks.Dtos;
 
 public sealed record GLBreakTradeDto(
     long Id,
-    long GLBreakId,
     string TradeCode);
+
+public sealed record GLBreakAddressDetailDto(
+    Guid Id,
+    string? AddressLine1,
+    string? AddressLine2,
+    string? AddressLine3,
+    string? AddressLine4,
+    string? City,
+    string? State,
+    string? Country,
+    string? PostalCode,
+    string? FormattedAddress,
+    decimal? Latitude,
+    decimal? Longitude);
 
 public sealed record GLBreakSummaryDto(
     long Id,
@@ -23,7 +36,7 @@ public sealed record GLBreakDetailDto(
     string? BreakLabel,
     short BreakLevel,
     long? LogoFileId,
-    LocationDetailDto? Address,
+    GLBreakAddressDetailDto? Address,
     IReadOnlyList<GLBreakTradeDto> Trades,
     bool IsActive);
 

@@ -24,7 +24,7 @@ public sealed class DeleteFgsSalesActivityOutcomeCommandHandler(
         logger.LogInformation("Soft-deleted sales activity outcome {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesactivityoutcomes"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "salesactivityoutcome"),
                 cancellationToken);
         return ApiResponse<FgsSalesActivityOutcomeDetailDto>.Ok(result);
     }

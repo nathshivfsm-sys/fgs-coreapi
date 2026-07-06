@@ -68,7 +68,6 @@ public sealed class CredentialMutationService
             Description = description?.Trim(),
             CredentialData = envelope.CredentialData,
             EncryptedDataKey = envelope.EncryptedDataKey,
-            KeyIdentifier = envelope.KeyIdentifier,
             IsActive = true,
             CreatedOn = now,
             CreatedBy = actor
@@ -110,7 +109,6 @@ public sealed class CredentialMutationService
             Description = description?.Trim(),
             CredentialData = envelope.CredentialData,
             EncryptedDataKey = envelope.EncryptedDataKey,
-            KeyIdentifier = envelope.KeyIdentifier,
             IsActive = true,
             CreatedOn = now,
             CreatedBy = actor
@@ -148,7 +146,6 @@ public sealed class CredentialMutationService
             var envelope = await _encryptionService.EncryptAsync(payload, cancellationToken);
             credential.CredentialData = envelope.CredentialData;
             credential.EncryptedDataKey = envelope.EncryptedDataKey;
-            credential.KeyIdentifier = envelope.KeyIdentifier;
         }
 
         credential.UpdatedOn = _dateTimeProvider.UtcNow;
@@ -183,7 +180,6 @@ public sealed class CredentialMutationService
             var envelope = await _encryptionService.EncryptAsync(payload, cancellationToken);
             credential.CredentialData = envelope.CredentialData;
             credential.EncryptedDataKey = envelope.EncryptedDataKey;
-            credential.KeyIdentifier = envelope.KeyIdentifier;
         }
 
         credential.UpdatedOn = _dateTimeProvider.UtcNow;
@@ -229,13 +225,11 @@ public sealed class CredentialMutationService
         await ApplyRotationAsync(
             credential.CredentialData,
             credential.EncryptedDataKey,
-            credential.KeyIdentifier,
             rotationMode,
-            (data, key, keyId) =>
+            (data, key) =>
             {
                 credential.CredentialData = data;
                 credential.EncryptedDataKey = key;
-                credential.KeyIdentifier = keyId;
                 credential.UpdatedOn = _dateTimeProvider.UtcNow;
                 credential.UpdatedBy = _actorResolver.ResolveActorId();
             },
@@ -259,13 +253,11 @@ public sealed class CredentialMutationService
         await ApplyRotationAsync(
             credential.CredentialData,
             credential.EncryptedDataKey,
-            credential.KeyIdentifier,
             rotationMode,
-            (data, key, keyId) =>
+            (data, key) =>
             {
                 credential.CredentialData = data;
                 credential.EncryptedDataKey = key;
-                credential.KeyIdentifier = keyId;
                 credential.UpdatedOn = _dateTimeProvider.UtcNow;
                 credential.UpdatedBy = _actorResolver.ResolveActorId();
             },
@@ -288,9 +280,8 @@ public sealed class CredentialMutationService
     private async Task ApplyRotationAsync(
         byte[] credentialData,
         byte[] encryptedDataKey,
-        string? keyIdentifier,
         CredentialRotationMode rotationMode,
-        Action<byte[], byte[], string> assign,
+        Action<byte[], byte[]> assign,
         CancellationToken cancellationToken)
     {
         switch (rotationMode)
@@ -301,16 +292,16 @@ public sealed class CredentialMutationService
                         credentialData,
                         encryptedDataKey,
                         cancellationToken);
-                    assign(envelope.CredentialData, envelope.EncryptedDataKey, envelope.KeyIdentifier);
+                    assign(envelope.CredentialData, envelope.EncryptedDataKey);
                     break;
                 }
             case CredentialRotationMode.KmsReEncrypt:
                 {
                     var reEncrypted = await _encryptionService.ReEncryptDataKeyOnlyAsync(
                         encryptedDataKey,
-                        keyIdentifier,
+                        sourceKeyIdentifier: null,
                         cancellationToken);
-                    assign(credentialData, reEncrypted.EncryptedDataKey, reEncrypted.KeyIdentifier);
+                    assign(credentialData, reEncrypted);
                     break;
                 }
             default:

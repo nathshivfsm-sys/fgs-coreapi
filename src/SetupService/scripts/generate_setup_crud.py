@@ -59,6 +59,7 @@ class EntityConfig:
     search_columns: list[str] = field(default_factory=list)
     abstractions_folder: str | None = None
     infra_folder: str | None = None
+    expose_http_delete: bool = False
 
 
 FK_EXISTS_TABLES: dict[str, tuple[str, str]] = {
@@ -128,6 +129,7 @@ ENTITIES: list[EntityConfig] = [
             Field("DisplayOrder", "short?", required=False, in_lookup=True),
         ]),
         search_columns=["Code", "Name", "Description"],
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="BillingCategory",
@@ -154,6 +156,7 @@ ENTITIES: list[EntityConfig] = [
             Field("AllowToPick", "bool", default="true"),
         ]),
         search_columns=["BillingCategoryType", "BillingCategoryName", "Description"],
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="JobTypeCategory",
@@ -255,6 +258,7 @@ ENTITIES: list[EntityConfig] = [
             Field("IsSystem", "bool", default="false"),
         ]),
         search_columns=["ReasonCode", "ReasonName", "Description"],
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="LeadSource",
@@ -353,6 +357,7 @@ NEW_ENTITIES: list[EntityConfig] = [
             Field("AllowManualSelection", "bool", default="true"),
         ]),
         search_columns=["StatusCode", "StatusName", "Description"],
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="FgsSalesActivityType",
@@ -409,6 +414,7 @@ NEW_ENTITIES: list[EntityConfig] = [
             Field("AllowManualSelection", "bool", default="true"),
         ]),
         search_columns=["DispositionReasonCode", "DispositionReasonName", "Description"],
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="FgsSalesActivityOutcome",
@@ -446,8 +452,8 @@ NEW_ENTITIES: list[EntityConfig] = [
     EntityConfig(
         type_prefix="FgsSetupZone",
         plural_folder="SetupZones",
-        route="zones",
-        controller="ZonesController",
+        route="zone",
+        controller="ZoneController",
         domain_entity="FgsSetupZone",
         table='setup."FgsSetupZone"',
         dbset="FgsSetupZones",
@@ -465,8 +471,8 @@ NEW_ENTITIES: list[EntityConfig] = [
     EntityConfig(
         type_prefix="FgsSetupTechSkillLevel",
         plural_folder="SetupTechSkillLevels",
-        route="techskilllevels",
-        controller="TechSkillLevelsController",
+        route="techskilllevel",
+        controller="TechSkillLevelController",
         domain_entity="FgsSetupTechSkillLevel",
         table='setup."FgsSetupTechSkillLevel"',
         dbset="FgsSetupTechSkillLevels",
@@ -509,8 +515,8 @@ NEW_ENTITIES: list[EntityConfig] = [
     EntityConfig(
         type_prefix="FgsSetupTax",
         plural_folder="SetupTaxes",
-        route="taxes",
-        controller="TaxesController",
+        route="tax",
+        controller="TaxController",
         domain_entity="FgsSetupTax",
         table='setup."FgsSetupTax"',
         dbset="FgsSetupTaxes",
@@ -528,6 +534,7 @@ NEW_ENTITIES: list[EntityConfig] = [
             Field("Description", "string?", required=False),
         ]),
         search_columns=["TaxCode", "Name", "Description"],
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="FgsSetupTaxAuthority",
@@ -550,6 +557,7 @@ NEW_ENTITIES: list[EntityConfig] = [
             Field("Description", "string?", required=False),
         ]),
         search_columns=["Code", "Name", "RegionCode", "Description"],
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="FgsSetupPostalCode",
@@ -649,8 +657,8 @@ NEW_ENTITIES: list[EntityConfig] = [
     EntityConfig(
         type_prefix="FgsSetupTimeSlot",
         plural_folder="SetupTimeSlots",
-        route="timeslots",
-        controller="TimeSlotsController",
+        route="timeslot",
+        controller="TimeslotController",
         domain_entity="FgsSetupTimeSlot",
         table='setup."FgsSetupTimeSlot"',
         dbset="FgsSetupTimeSlots",
@@ -701,6 +709,7 @@ NEW_ENTITIES: list[EntityConfig] = [
             Field("IsMobileVisible", "bool", default="true"),
         ]),
         search_columns=["CommunicationChannel", "TemplateType", "Code", "Name", "Subject"],
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="FgsTag",
@@ -784,8 +793,8 @@ NEW_ENTITIES: list[EntityConfig] = [
     EntityConfig(
         type_prefix="FgsVehicle",
         plural_folder="Vehicles",
-        route="vehicles",
-        controller="VehiclesController",
+        route="vehicle",
+        controller="VehicleController",
         domain_entity="FgsVehicle",
         table='setup."FgsVehicle"',
         dbset="FgsVehicles",
@@ -815,12 +824,13 @@ NEW_ENTITIES: list[EntityConfig] = [
             ("WarehouseId", "ExistsWarehouseIdAsync", "warehouse"),
         ],
         search_columns=["VIN", "Make", "Model", "LicensePlate"],
+        expose_http_delete=False,
     ),
     EntityConfig(
         type_prefix="FgsVehicleMaintenance",
         plural_folder="VehicleMaintenances",
-        route="vehiclemaintenances",
-        controller="VehicleMaintenancesController",
+        route="vehiclemaintenance",
+        controller="VehicleMaintenanceController",
         domain_entity="FgsVehicleMaintenance",
         table='setup."FgsVehicleMaintenance"',
         dbset="FgsVehicleMaintenances",
@@ -1093,10 +1103,7 @@ def allowed_sort(cfg: EntityConfig) -> list[str]:
 
 
 def default_order_sql(cfg: EntityConfig) -> str:
-    sort_col = resolve_sort_field(cfg)
-    if sort_col:
-        return f'ORDER BY \\"{sort_col}\\" {{dir}} NULLS LAST, \\"{cfg.name_field}\\" {{dir}}'
-    return f'ORDER BY \\"{cfg.name_field}\\" {{dir}}'
+    return 'ORDER BY \\"Id\\" {dir}'
 
 
 def generate_sql(cfg: EntityConfig) -> None:
@@ -2371,13 +2378,28 @@ def generate_controller(cfg: EntityConfig) -> None:
         print(f"  Skipping controller (merge manually): {cfg.controller}")
         return
     pf = cfg.type_prefix
+    command_actions = ["Create", "Patch", "Update"]
+    if cfg.expose_http_delete:
+        command_actions.insert(1, "Delete")
     imports = "\n".join(
         f"using Fgs.Setup.Application.Features.{cfg.plural_folder}.Commands.{a}{pf};"
-        for a in ["Create", "Delete", "Patch", "Update"]
+        for a in command_actions
     ) + "\n" + "\n".join(
         f"using Fgs.Setup.Application.Features.{cfg.plural_folder}.Queries.{q};"
         for q in [f"Get{pf}ById", f"List{cfg.plural_folder}", f"Lookup{cfg.plural_folder}"]
     )
+    delete_action = ""
+    if cfg.expose_http_delete:
+        delete_action = """
+    [HttpDelete("{id:long}")]
+    [ProducesResponseType(typeof(ApiResponse<{pf}DetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
+    {{
+        var response = await mediator.Send(new Delete{pf}Command(id), cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }}
+""".format(pf=pf)
     content = f"""using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
@@ -2415,7 +2437,7 @@ public sealed class {cfg.controller}(IMediator mediator) : ControllerBase
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool? isActive = null,
 {controller_filter_params(cfg)}
         CancellationToken cancellationToken = default)
     {{
@@ -2475,16 +2497,7 @@ public sealed class {cfg.controller}(IMediator mediator) : ControllerBase
         var response = await mediator.Send(new Patch{pf}Command(id, request), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }}
-
-    [HttpDelete("{{id:long}}")]
-    [ProducesResponseType(typeof(ApiResponse<{pf}DetailDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {{
-        var response = await mediator.Send(new Delete{pf}Command(id), cancellationToken);
-        return StatusCode(response.StatusCode, response);
-    }}
-}}
+{delete_action}}}
 """
     write(API / "Controllers" / f"{cfg.controller}.cs", content)
 

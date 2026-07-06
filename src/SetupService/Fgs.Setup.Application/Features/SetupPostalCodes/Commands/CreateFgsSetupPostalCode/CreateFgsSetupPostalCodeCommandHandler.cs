@@ -24,7 +24,7 @@ public sealed class CreateFgsSetupPostalCodeCommandHandler(
         logger.LogInformation("Created postal code {Id} with code {PostalCode}", result.Id, result.PostalCode);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "postalcodes"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "postalcode"),
                 cancellationToken);
         return ApiResponse<FgsSetupPostalCodeDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

@@ -32,7 +32,7 @@ public sealed class ListActiveLeadDisqualificationReasonsQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "leaddisqualificationreasons",
+        "leaddisqualificationreason",
         segment);
 
         var cached = await cache.GetOrSetAsync(

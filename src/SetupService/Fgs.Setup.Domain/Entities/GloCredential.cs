@@ -17,8 +17,6 @@ public class GloCredential
 
     public byte[] EncryptedDataKey { get; set; } = null!;
 
-    public string? KeyIdentifier { get; set; }
-
     public bool IsActive { get; set; } = true;
 
     public DateTimeOffset CreatedOn { get; set; }

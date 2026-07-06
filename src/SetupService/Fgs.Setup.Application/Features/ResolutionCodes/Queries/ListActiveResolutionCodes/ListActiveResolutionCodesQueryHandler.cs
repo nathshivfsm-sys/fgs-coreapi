@@ -32,7 +32,7 @@ public sealed class ListActiveResolutionCodesQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "resolutioncodes",
+        "resolutioncode",
         segment);
 
         var cached = await cache.GetOrSetAsync(

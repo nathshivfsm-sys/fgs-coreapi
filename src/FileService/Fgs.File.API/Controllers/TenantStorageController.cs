@@ -14,7 +14,7 @@ namespace Fgs.File.API.Controllers;
 
 [AllowAnonymous]
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("tenants")]
+[FgsVersionedRoute("tenant")]
 public sealed class TenantStorageController(
     IMediator mediator,
     IOptions<CredentialDistributionOptions> distributionOptions) : FgsApiControllerBase(mediator)
