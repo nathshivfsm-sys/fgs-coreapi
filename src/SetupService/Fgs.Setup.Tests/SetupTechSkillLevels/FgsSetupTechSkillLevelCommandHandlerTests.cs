@@ -11,7 +11,7 @@ using Fgs.Setup.Application.Features.SetupTechSkillLevels.Dtos;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Common.Time;
 using Fgs.Setup.Infrastructure.Database;
-using Fgs.Setup.Infrastructure.SetupTechSkillLevels;
+using Fgs.Setup.Infrastructure.Entities.SetupTechSkillLevels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;

@@ -11,7 +11,7 @@ using Fgs.Setup.Application.Features.FgsBusinessTypes.Dtos;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Common.Time;
 using Fgs.Setup.Infrastructure.Database;
-using Fgs.Setup.Infrastructure.FgsBusinessTypes;
+using Fgs.Setup.Infrastructure.Entities.FgsBusinessTypes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;

@@ -14,6 +14,7 @@ APP = ROOT / "Fgs.Setup.Application"
 INFRA = ROOT / "Fgs.Setup.Infrastructure"
 API = ROOT / "Fgs.Setup.API"
 TESTS = ROOT / "Fgs.Setup.Tests"
+INFRA_ENTITIES = "Entities"
 
 
 @dataclass
@@ -31,6 +32,8 @@ class Field:
     in_list_filter: bool = False
     default: str | None = None
     validator_min: int | None = None
+    validator_max: int | None = None
+    validator_exclusive_min: bool = False
 
 
 @dataclass
@@ -59,7 +62,10 @@ class EntityConfig:
     search_columns: list[str] = field(default_factory=list)
     abstractions_folder: str | None = None
     infra_folder: str | None = None
+    infra_parent_folder: str | None = None
     expose_http_delete: bool = False
+    use_write_repository: bool = False
+    extra_lookup_filters: list[tuple[str, str]] = field(default_factory=list)
 
 
 FK_EXISTS_TABLES: dict[str, tuple[str, str]] = {
@@ -75,6 +81,8 @@ FK_EXISTS_TABLES: dict[str, tuple[str, str]] = {
     "VehicleId": ('setup."FgsVehicle"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
     "VehicleMaintenanceTypeId": ('glo."GloVehicleMaintenanceType"', '"Id" = @Id AND "IsActive" = TRUE'),
     "NextSalesPipelineStatusId": ('setup."FgsSalesPipelineStatus"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
+    "UniversalPricingServiceId": ('setup."FgsUniversalPricingService"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
+    "UniversalPricingServiceCode": ('glo."GloUniversalPricingService"', '"ServiceCode" = UPPER(@Code)'),
 }
 
 
@@ -92,10 +100,30 @@ def composite_exists_method(cfg: EntityConfig) -> str:
     return "ExistsBy" + "And".join(cfg.unique_composite) + "Async"
 
 
+def field_cs_type(name: str, cfg: EntityConfig) -> str:
+    field_obj = next((f for f in cfg.fields if f.name == name), None)
+    if not field_obj:
+        return "string"
+    return field_obj.cs_type.replace("?", "")
+
+
+def composite_field_assign(name: str, cfg: EntityConfig) -> str:
+    field_obj = next((f for f in cfg.fields if f.name == name), None)
+    if not field_obj:
+        return f"{name} = {lc(name)}.Trim()"
+    if field_obj.cs_type in ("long", "int", "short", "decimal"):
+        return f"{name} = {lc(name)}"
+    if field_obj.uppercase:
+        return f"{name} = {lc(name)}.Trim().ToUpperInvariant()"
+    if field_obj.cs_type.startswith("string"):
+        return f"{name} = {lc(name)}.Trim()"
+    return f"{name} = {lc(name)}"
+
+
 def composite_exists_params(cfg: EntityConfig) -> str:
     if not cfg.unique_composite:
         return ""
-    return ", ".join(f"string {lc(name)}" for name in cfg.unique_composite)
+    return ", ".join(f"{field_cs_type(name, cfg)} {lc(name)}" for name in cfg.unique_composite)
 
 
 def composite_exists_args(cfg: EntityConfig) -> str:
@@ -862,9 +890,232 @@ NEW_ENTITIES: list[EntityConfig] = [
     ),
 ]
 
-for e in ENTITIES + NEW_ENTITIES:
+UNIVERSAL_MATRIX_ENTITIES: list[EntityConfig] = [
+    EntityConfig(
+        type_prefix="FgsUniversalPricingService",
+        plural_folder="UniversalPricingServices",
+        route="universalpricingservice",
+        controller="UniversalPricingServiceController",
+        domain_entity="FgsUniversalPricingService",
+        table='setup."FgsUniversalPricingService"',
+        dbset="FgsUniversalPricingServices",
+        display_name="universal pricing service",
+        base="setup_tenant",
+        code_field="UniversalPricingServiceCode",
+        name_field="UniversalPricingServiceCode",
+        has_display_order=True,
+        use_write_repository=True,
+        fields=f([
+            Field("UniversalPricingServiceCode", "string", 50, uppercase=True, in_lookup=True, in_list_filter=True),
+            Field("DisplayOrder", "short", default="1", in_lookup=True, validator_min=1),
+        ]),
+        fk_checks=[
+            ("UniversalPricingServiceCode", "ExistsGloUniversalPricingServiceCodeAsync", "universal pricing service"),
+        ],
+        search_columns=["UniversalPricingServiceCode"],
+    ),
+    EntityConfig(
+        type_prefix="FgsUniversalMatrixTier",
+        plural_folder="UniversalMatrixTiers",
+        route="universalmatrixtier",
+        controller="UniversalMatrixTierController",
+        domain_entity="FgsUniversalMatrixTier",
+        table='setup."FgsUniversalMatrixTier"',
+        dbset="FgsUniversalMatrixTiers",
+        display_name="universal matrix tier",
+        base="setup_tenant",
+        code_field="Name",
+        name_field="Name",
+        has_display_order=True,
+        unique_code=False,
+        unique_composite=("UniversalPricingServiceId", "Name"),
+        use_write_repository=True,
+        extra_list_filters=[("UniversalPricingServiceId", "long?")],
+        extra_lookup_filters=[("UniversalPricingServiceId", "long?")],
+        fields=f([
+            Field("UniversalPricingServiceId", "long", in_lookup=True),
+            Field("Name", "string", 100, in_lookup=True, in_list_filter=True),
+            Field("Multiplier", "decimal", default="1.0000m", validator_min=0, validator_exclusive_min=True),
+            Field("DisplayOrder", "short", default="1", in_lookup=True, validator_min=1),
+        ]),
+        fk_checks=[
+            ("UniversalPricingServiceId", "ExistsUniversalPricingServiceIdAsync", "universal pricing service"),
+        ],
+        search_columns=["Name"],
+    ),
+    EntityConfig(
+        type_prefix="FgsUniversalMatrixSizeTier",
+        plural_folder="UniversalMatrixSizeTiers",
+        route="universalmatrixsizetier",
+        controller="UniversalMatrixSizeTierController",
+        domain_entity="FgsUniversalMatrixSizeTier",
+        table='setup."FgsUniversalMatrixSizeTier"',
+        dbset="FgsUniversalMatrixSizeTiers",
+        display_name="universal matrix size tier",
+        base="setup_tenant",
+        code_field="Name",
+        name_field="Name",
+        has_display_order=True,
+        unique_code=False,
+        unique_composite=("UniversalPricingServiceId", "Name"),
+        use_write_repository=True,
+        extra_list_filters=[("UniversalPricingServiceId", "long?")],
+        extra_lookup_filters=[("UniversalPricingServiceId", "long?")],
+        fields=f([
+            Field("UniversalPricingServiceId", "long", in_lookup=True),
+            Field("Name", "string", 100, in_lookup=True, in_list_filter=True),
+            Field("Multiplier", "decimal", default="1.0000m", validator_min=0, validator_exclusive_min=True),
+            Field("DisplayOrder", "short", default="1", in_lookup=True, validator_min=1),
+        ]),
+        fk_checks=[
+            ("UniversalPricingServiceId", "ExistsUniversalPricingServiceIdAsync", "universal pricing service"),
+        ],
+        search_columns=["Name"],
+    ),
+    EntityConfig(
+        type_prefix="FgsUniversalMatrixItem",
+        plural_folder="UniversalMatrixItems",
+        route="universalmatrixitem",
+        controller="UniversalMatrixItemController",
+        domain_entity="FgsUniversalMatrixItem",
+        table='setup."FgsUniversalMatrixItem"',
+        dbset="FgsUniversalMatrixItems",
+        display_name="universal matrix item",
+        base="setup_tenant",
+        code_field="ItemName",
+        name_field="ItemName",
+        has_display_order=True,
+        unique_code=False,
+        unique_composite=("UniversalPricingServiceId", "ItemName"),
+        use_write_repository=True,
+        extra_list_filters=[("UniversalPricingServiceId", "long?")],
+        extra_lookup_filters=[("UniversalPricingServiceId", "long?")],
+        fields=f([
+            Field("UniversalPricingServiceId", "long", in_lookup=True),
+            Field("ItemName", "string", 150, in_lookup=True, in_list_filter=True),
+            Field("UnitType", "string", 50),
+            Field("BasePrice", "decimal", default="0m", validator_min=0),
+            Field("DisplayOrder", "short", default="1", in_lookup=True, validator_min=1),
+        ]),
+        fk_checks=[
+            ("UniversalPricingServiceId", "ExistsUniversalPricingServiceIdAsync", "universal pricing service"),
+        ],
+        search_columns=["ItemName", "UnitType"],
+    ),
+    EntityConfig(
+        type_prefix="FgsUniversalMatrixFrequencyDiscount",
+        plural_folder="UniversalMatrixFrequencyDiscounts",
+        route="universalmatrixfrequencydiscount",
+        controller="UniversalMatrixFrequencyDiscountController",
+        domain_entity="FgsUniversalMatrixFrequencyDiscount",
+        table='setup."FgsUniversalMatrixFrequencyDiscount"',
+        dbset="FgsUniversalMatrixFrequencyDiscounts",
+        display_name="universal matrix frequency discount",
+        base="setup_tenant",
+        code_field="Name",
+        name_field="Name",
+        has_display_order=True,
+        unique_code=False,
+        unique_composite=("UniversalPricingServiceId", "Name"),
+        use_write_repository=True,
+        extra_list_filters=[("UniversalPricingServiceId", "long?")],
+        extra_lookup_filters=[("UniversalPricingServiceId", "long?")],
+        fields=f([
+            Field("UniversalPricingServiceId", "long", in_lookup=True),
+            Field("Name", "string", 100, in_lookup=True, in_list_filter=True),
+            Field("DiscountPercent", "decimal", default="0m", validator_min=0, validator_max=100),
+            Field("DisplayOrder", "short", default="1", in_lookup=True, validator_min=1),
+        ]),
+        fk_checks=[
+            ("UniversalPricingServiceId", "ExistsUniversalPricingServiceIdAsync", "universal pricing service"),
+        ],
+        search_columns=["Name"],
+    ),
+    EntityConfig(
+        type_prefix="FgsUniversalMatrixOneTimeFee",
+        plural_folder="UniversalMatrixOneTimeFees",
+        route="universalmatrixonetimefee",
+        controller="UniversalMatrixOneTimeFeeController",
+        domain_entity="FgsUniversalMatrixOneTimeFee",
+        table='setup."FgsUniversalMatrixOneTimeFee"',
+        dbset="FgsUniversalMatrixOneTimeFees",
+        display_name="universal matrix one-time fee",
+        base="setup_tenant",
+        code_field="Name",
+        name_field="Name",
+        has_display_order=True,
+        unique_code=False,
+        unique_composite=("UniversalPricingServiceId", "Name"),
+        use_write_repository=True,
+        extra_list_filters=[("UniversalPricingServiceId", "long?")],
+        extra_lookup_filters=[("UniversalPricingServiceId", "long?")],
+        fields=f([
+            Field("UniversalPricingServiceId", "long", in_lookup=True),
+            Field("Name", "string", 150, in_lookup=True, in_list_filter=True),
+            Field("Amount", "decimal", default="0m", validator_min=0),
+            Field("DisplayOrder", "short", default="1", in_lookup=True, validator_min=1),
+        ]),
+        fk_checks=[
+            ("UniversalPricingServiceId", "ExistsUniversalPricingServiceIdAsync", "universal pricing service"),
+        ],
+        search_columns=["Name"],
+    ),
+    EntityConfig(
+        type_prefix="FgsUniversalMatrixAddOn",
+        plural_folder="UniversalMatrixAddOns",
+        route="universalmatrixaddon",
+        controller="UniversalMatrixAddOnController",
+        domain_entity="FgsUniversalMatrixAddOn",
+        table='setup."FgsUniversalMatrixAddOn"',
+        dbset="FgsUniversalMatrixAddOns",
+        display_name="universal matrix add-on",
+        base="setup_tenant",
+        code_field="Name",
+        name_field="Name",
+        has_display_order=True,
+        unique_code=False,
+        unique_composite=("UniversalPricingServiceId", "Name"),
+        use_write_repository=True,
+        extra_list_filters=[("UniversalPricingServiceId", "long?")],
+        extra_lookup_filters=[("UniversalPricingServiceId", "long?")],
+        fields=f([
+            Field("UniversalPricingServiceId", "long", in_lookup=True),
+            Field("Name", "string", 150, in_lookup=True, in_list_filter=True),
+            Field("UnitType", "string", 50),
+            Field("Price", "decimal", default="0m", validator_min=0),
+            Field("DisplayOrder", "short", default="1", in_lookup=True, validator_min=1),
+        ]),
+        fk_checks=[
+            ("UniversalPricingServiceId", "ExistsUniversalPricingServiceIdAsync", "universal pricing service"),
+        ],
+        search_columns=["Name", "UnitType"],
+    ),
+]
+
+for _universal in UNIVERSAL_MATRIX_ENTITIES:
+    _universal.infra_parent_folder = "UniversalPricingMatrix"
+
+for e in ENTITIES + NEW_ENTITIES + UNIVERSAL_MATRIX_ENTITIES:
     e.abstractions_folder = e.abstractions_folder or e.plural_folder
     e.infra_folder = e.infra_folder or e.plural_folder
+
+
+def infra_path(cfg: EntityConfig) -> Path:
+    folder = cfg.infra_folder or cfg.plural_folder
+    parts: list[str] = [INFRA_ENTITIES]
+    if cfg.infra_parent_folder:
+        parts.append(cfg.infra_parent_folder)
+    parts.append(folder)
+    return INFRA.joinpath(*parts)
+
+
+def infra_namespace(cfg: EntityConfig) -> str:
+    folder = cfg.infra_folder or cfg.plural_folder
+    parts = ["Fgs", "Setup", "Infrastructure", INFRA_ENTITIES]
+    if cfg.infra_parent_folder:
+        parts.append(cfg.infra_parent_folder)
+    parts.append(folder)
+    return ".".join(parts)
 
 
 def write(path: Path, content: str) -> None:
@@ -929,7 +1180,8 @@ def iface_name(cfg: EntityConfig) -> str:
 
 
 def write_iface_name(cfg: EntityConfig) -> str:
-    return f"I{cfg.type_prefix}WriteService"
+    suffix = "WriteRepository" if cfg.use_write_repository else "WriteService"
+    return f"I{cfg.type_prefix}{suffix}"
 
 
 def repo_class(cfg: EntityConfig) -> str:
@@ -937,7 +1189,12 @@ def repo_class(cfg: EntityConfig) -> str:
 
 
 def write_class(cfg: EntityConfig) -> str:
-    return f"{cfg.type_prefix}WriteService"
+    suffix = "WriteRepository" if cfg.use_write_repository else "WriteService"
+    return f"{cfg.type_prefix}{suffix}"
+
+
+def write_dependency_name(cfg: EntityConfig) -> str:
+    return "writeRepository" if cfg.use_write_repository else "writeService"
 
 
 def sql_class(cfg: EntityConfig) -> str:
@@ -1114,7 +1371,7 @@ def generate_sql(cfg: EntityConfig) -> None:
     sort_col_check = sort_col or "DisplayOrder"
     content = f"""using Fgs.Foundation.Paging;
 
-namespace Fgs.Setup.Infrastructure.{cfg.infra_folder};
+namespace {infra_namespace(cfg)};
 
 internal static class {sql_class(cfg)}
 {{
@@ -1152,7 +1409,7 @@ internal static class {sql_class(cfg)}
     }}
 }}
 """
-    write(INFRA / cfg.infra_folder / f"{sql_class(cfg)}.cs", content)
+    write(infra_path(cfg) / f"{sql_class(cfg)}.cs", content)
 
 
 def normalize_code_expr(field: Field) -> str:
@@ -1310,7 +1567,7 @@ using Fgs.Setup.Infrastructure.Database;
 using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
-namespace Fgs.Setup.Infrastructure.{cfg.infra_folder};
+namespace {infra_namespace(cfg)};
 
 public sealed class {write_class(cfg)} : {write_iface_name(cfg)}
 {{
@@ -1415,7 +1672,7 @@ public sealed class {write_class(cfg)} : {write_iface_name(cfg)}
             {map_fields});
 }}
 """
-    write(INFRA / cfg.infra_folder / f"{write_class(cfg)}.cs", content)
+    write(infra_path(cfg) / f"{write_class(cfg)}.cs", content)
 
 
 def filter_where(cfg: EntityConfig) -> str:
@@ -1544,14 +1801,8 @@ def exists_impl(cfg: EntityConfig) -> str:
     }}""")
     if cfg.unique_composite:
         method = composite_exists_method(cfg)
-        param_names = ", ".join(f"string {lc(name)}" for name in cfg.unique_composite)
-        param_assigns_parts = []
-        for name in cfg.unique_composite:
-            field_obj = next((f for f in cfg.fields if f.name == name), None)
-            if field_obj and field_obj.uppercase:
-                param_assigns_parts.append(f"{name} = {lc(name)}.Trim().ToUpperInvariant()")
-            else:
-                param_assigns_parts.append(f"{name} = {lc(name)}.Trim()")
+        param_names = composite_exists_params(cfg)
+        param_assigns_parts = [composite_field_assign(name, cfg) for name in cfg.unique_composite]
         param_assigns = ",\n                    ".join(param_assigns_parts)
         where_parts = " AND ".join(f'"{name}" = @{name}' for name in cfg.unique_composite)
         chunks.append(f"""
@@ -1592,10 +1843,15 @@ def exists_impl(cfg: EntityConfig) -> str:
         else:
             where = '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'
             table = cfg.table
-        id_param = "Id = id" if fk_field != "GloResolutionTypeId" else "Id = id"
+        if fk_field == "UniversalPricingServiceCode":
+            sql_params = "new { Code = code.Trim().ToUpperInvariant() }"
+            param_decl = "string code"
+        else:
+            sql_params = "new { TenantId = tenantId, CompanyId = companyId, Id = id }"
+            param_decl = f"{cs} id"
         chunks.append(f"""
     public async Task<bool> {method}(
-        {cs} id,
+        {param_decl},
         CancellationToken cancellationToken = default)
     {{
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
@@ -1611,7 +1867,7 @@ def exists_impl(cfg: EntityConfig) -> str:
         return await connection.ExecuteScalarAsync<bool>(
             new CommandDefinition(
                 sql,
-                new {{ TenantId = tenantId, CompanyId = companyId, Id = id }},
+                {sql_params},
                 cancellationToken: cancellationToken));
     }}""")
     return "".join(chunks)
@@ -1632,7 +1888,7 @@ using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
 using Fgs.Setup.Infrastructure.Common;
 
-namespace Fgs.Setup.Infrastructure.{cfg.infra_folder};
+namespace {infra_namespace(cfg)};
 
 internal sealed class {repo_class(cfg)} : {iface_name(cfg)}
 {{
@@ -1758,7 +2014,7 @@ internal sealed class {repo_class(cfg)} : {iface_name(cfg)}
 {exists_impl(cfg)}
 }}
 """
-    write(INFRA / cfg.infra_folder / f"{repo_class(cfg)}.cs", content)
+    write(infra_path(cfg) / f"{repo_class(cfg)}.cs", content)
 
 
 def row_props(cfg: EntityConfig, kind: str) -> list[str]:
@@ -1814,7 +2070,7 @@ def generate_dapper_rows(cfg: EntityConfig) -> None:
     lookup_args = dto_ctor_args(cfg, "", "lookup")
     content = f"""using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
 
-namespace Fgs.Setup.Infrastructure.{cfg.infra_folder};
+namespace {infra_namespace(cfg)};
 
 internal sealed class {pf}SummaryRow
 {{
@@ -1841,7 +2097,7 @@ internal sealed class {pf}LookupRow
     public {pf}LookupDto ToDto() => new({lookup_args});
 }}
 """
-    write(INFRA / cfg.infra_folder / f"{pf}DapperRows.cs", content)
+    write(infra_path(cfg) / f"{pf}DapperRows.cs", content)
 
 
 def field_validation(field: Field, cfg: EntityConfig, mode: str) -> str:
@@ -1875,6 +2131,22 @@ def field_validation(field: Field, cfg: EntityConfig, mode: str) -> str:
             if mode == "patch"
             else f"        RuleFor({prop}).GreaterThanOrEqualTo((short){field.validator_min});"
         )
+
+    if field.validator_min is not None and field.cs_type == "decimal":
+        if field.validator_exclusive_min:
+            rules.append(f"        RuleFor({prop}).GreaterThan({field.validator_min}m);")
+        else:
+            rules.append(f"        RuleFor({prop}).GreaterThanOrEqualTo({field.validator_min}m);")
+    elif field.validator_min is not None and field.cs_type == "decimal?":
+        if field.validator_exclusive_min:
+            rules.append(f"        RuleFor({prop}).GreaterThan({field.validator_min}m).When(x => x.Dto.{field.name}.HasValue);")
+        else:
+            rules.append(f"        RuleFor({prop}).GreaterThanOrEqualTo({field.validator_min}m).When(x => x.Dto.{field.name}.HasValue);")
+
+    if field.validator_max is not None and field.cs_type == "decimal":
+        rules.append(f"        RuleFor({prop}).LessThanOrEqualTo({field.validator_max}m);")
+    elif field.validator_max is not None and field.cs_type == "decimal?":
+        rules.append(f"        RuleFor({prop}).LessThanOrEqualTo({field.validator_max}m).When(x => x.Dto.{field.name}.HasValue);")
 
     if field.name == cfg.code_field and cfg.unique_code:
         ex = "command.Id" if mode != "create" else "null"
@@ -2022,6 +2294,7 @@ def cache_invalidation_block(cfg: EntityConfig, indent: str = "            ") ->
 def cmd_handler(action: str, cfg: EntityConfig) -> str:
     pf = cfg.type_prefix
     svc = write_iface_name(cfg)
+    dep = write_dependency_name(cfg)
     folder = f"{action}{pf}"
     if action == "Create":
         ok_log = f'logger.LogInformation("Created {cfg.display_name} {{Id}} with code {{{cfg.code_field}}}", result.Id, result.{cfg.code_field});'
@@ -2040,7 +2313,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.{cfg.plural_folder}.Commands.{folder};
 
 public sealed class {action}{pf}CommandHandler(
-    {svc} writeService,
+    {svc} {dep},
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<{action}{pf}CommandHandler> logger)
@@ -2050,7 +2323,7 @@ public sealed class {action}{pf}CommandHandler(
         {action}{pf}Command request,
         CancellationToken cancellationToken)
     {{
-        var result = await writeService.{action}Async({", ".join(["request.Dto"] if action == "Create" else ["request.Id", "request.Dto"] if action in ("Update", "Patch") else ["request.Id"])}, cancellationToken);
+        var result = await {dep}.{action}Async({", ".join(["request.Dto"] if action == "Create" else ["request.Id", "request.Dto"] if action in ("Update", "Patch") else ["request.Id"])}, cancellationToken);
         {ok_log}
 {invalidation}
         return ApiResponse<{pf}DetailDto>.Ok(result{", ApiStatusCodes.Created" if action == "Create" else ""});
@@ -2085,7 +2358,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.{cfg.plural_folder}.Commands.{folder};
 
 public sealed class Delete{pf}CommandHandler(
-    {write_iface_name(cfg)} writeService,
+    {write_iface_name(cfg)} {write_dependency_name(cfg)},
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<Delete{pf}CommandHandler> logger)
@@ -2095,7 +2368,7 @@ public sealed class Delete{pf}CommandHandler(
         Delete{pf}Command request,
         CancellationToken cancellationToken)
     {{
-        var result = await writeService.DeleteAsync(request.Id, cancellationToken);
+        var result = await {write_dependency_name(cfg)}.DeleteAsync(request.Id, cancellationToken);
         logger.LogInformation("Soft-deleted {cfg.display_name} {{Id}}", result.Id);
 {cache_invalidation_block(cfg)}
         return ApiResponse<{pf}DetailDto>.Ok(result);
@@ -2682,7 +2955,7 @@ using Fgs.Setup.Application.Features.{cfg.plural_folder}.Dtos;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Common.Time;
 using Fgs.Setup.Infrastructure.Database;
-using Fgs.Setup.Infrastructure.{cfg.infra_folder};
+using {infra_namespace(cfg)};
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -2916,7 +3189,7 @@ def patch_dependency_injection(entities: list[EntityConfig]) -> None:
     registrations = []
     for cfg in entities:
         imp = f"using Fgs.Setup.Application.Abstractions.{cfg.abstractions_folder};"
-        imp2 = f"using Fgs.Setup.Infrastructure.{cfg.infra_folder};"
+        imp2 = f"using {infra_namespace(cfg)};"
         reg_read = f"services.AddScoped<{iface_name(cfg)}, {repo_class(cfg)}>();"
         reg_write = f"services.AddScoped<{write_iface_name(cfg)}, {write_class(cfg)}>();"
         if imp not in text:
@@ -2929,14 +3202,18 @@ def patch_dependency_injection(entities: list[EntityConfig]) -> None:
             registrations.append(f"        {reg_write}")
 
     if imports:
-        anchor = "using Fgs.Setup.Infrastructure.TitlesOfCourtesy;"
+        anchor = "using Fgs.Setup.Infrastructure.Entities.TitlesOfCourtesy;"
         if anchor in text:
             text = text.replace(anchor, anchor + "\n" + "\n".join(sorted(set(imports))))
 
     if registrations:
-        anchor = "        services.AddScoped<ITitleOfCourtesyWriteService, TitleOfCourtesyWriteService>();"
+        anchor = "        services.AddScoped<IGLBreakWriteService, GLBreakWriteService>();"
         if anchor in text:
             text = text.replace(anchor, anchor + "\n" + "\n".join(registrations))
+        else:
+            anchor2 = "        services.AddScoped<ITitleOfCourtesyWriteService, TitleOfCourtesyWriteService>();"
+            if anchor2 in text:
+                text = text.replace(anchor2, anchor2 + "\n" + "\n".join(registrations))
     path.write_text(text, encoding="utf-8", newline="\n")
     print(f"  Updated {path.relative_to(ROOT)}")
 
@@ -3030,11 +3307,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Generate Setup Service CRUD layers.")
     parser.add_argument("--batch", type=int, choices=[1, 2], default=None, help="Generate batch 1 (9 entities) or batch 2 (21 entities).")
     parser.add_argument("--all", action="store_true", help="Regenerate all catalog entities including existing controllers.")
+    parser.add_argument("--universal", action="store_true", help="Generate Universal Pricing Matrix entities only.")
     args = parser.parse_args()
-    entities = resolve_entities(args.batch, regenerate_all=args.all)
+    if args.universal:
+        entities = UNIVERSAL_MATRIX_ENTITIES
+    else:
+        entities = resolve_entities(args.batch, regenerate_all=args.all)
     for cfg in entities:
         generate_entity(cfg)
-    if args.batch is not None:
+    if args.batch is not None or args.universal:
         patch_audit_helper(entities)
         patch_dependency_injection(entities)
     print(f"\nDone. Generated {len(entities)} entities.")

@@ -857,7 +857,7 @@
                  "description":  "Inventory service scaffold (health) via {{gatewayUrl}}/api/v1/inventory/...",
                  "name":  "FGS InventoryService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "14401797-6381-401d-b8c2-af0bfeff92c0"
+                 "_postman_id":  "2e90167e-b179-4450-b11b-e12acc51cb05"
              },
     "event":  [
                   {
