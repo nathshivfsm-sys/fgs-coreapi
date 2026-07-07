@@ -11,7 +11,6 @@ using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace Fgs.Asset.Tests.AssetTypes;
@@ -28,8 +27,7 @@ public sealed class FgsAssetTypeCommandHandlerTests
         var handler = new CreateFgsAssetTypeCommandHandler(
             CreateWriteService(context),
             new Mock<ICacheService>().Object,
-            CreateTenantAccessor(),
-            NullLogger<CreateFgsAssetTypeCommandHandler>.Instance);
+            CreateTenantAccessor());
         var response = await handler.Handle(
             new CreateFgsAssetTypeCommand(new FgsAssetTypeCreateDto("CODE01", "Test Asset Type", null)),
             CancellationToken.None);
@@ -46,10 +44,10 @@ public sealed class FgsAssetTypeCommandHandlerTests
         var cache = new Mock<ICacheService>();
         var tenantAccessor = CreateTenantAccessor();
         var created = await new CreateFgsAssetTypeCommandHandler(
-            writeService, cache.Object, tenantAccessor, NullLogger<CreateFgsAssetTypeCommandHandler>.Instance)
+            writeService, cache.Object, tenantAccessor)
             .Handle(new CreateFgsAssetTypeCommand(new FgsAssetTypeCreateDto("CODE01", "Test", null)), CancellationToken.None);
         var response = await new PatchFgsAssetTypeCommandHandler(
-            writeService, cache.Object, tenantAccessor, NullLogger<PatchFgsAssetTypeCommandHandler>.Instance)
+            writeService, cache.Object, tenantAccessor)
             .Handle(new PatchFgsAssetTypeCommand(created.Data!.Id, new FgsAssetTypePatchDto(null, null, null, false)), CancellationToken.None);
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();

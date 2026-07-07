@@ -5,15 +5,13 @@ using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using MediatR;
-using Microsoft.Extensions.Logging;
 
 namespace Fgs.Asset.Application.Features.AssetWarranties.Commands.PatchFgsAssetWarranty;
 
 public sealed class PatchFgsAssetWarrantyCommandHandler(
     IFgsAssetWarrantyWriteService writeService,
     ICacheService cache,
-    ITenantContextAccessor tenantContextAccessor,
-    ILogger<PatchFgsAssetWarrantyCommandHandler> logger)
+    ITenantContextAccessor tenantContextAccessor)
     : IRequestHandler<PatchFgsAssetWarrantyCommand, ApiResponse<FgsAssetWarrantyDetailDto>>
 {
     public async Task<ApiResponse<FgsAssetWarrantyDetailDto>> Handle(

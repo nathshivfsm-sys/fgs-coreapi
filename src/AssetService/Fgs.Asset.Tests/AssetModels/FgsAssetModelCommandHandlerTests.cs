@@ -13,7 +13,6 @@ using Fgs.Asset.Infrastructure.Common.Time;
 using Fgs.Asset.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace Fgs.Asset.Tests.AssetModels;
@@ -34,8 +33,7 @@ public sealed class FgsAssetModelCommandHandlerTests
         var handler = new CreateFgsAssetModelCommandHandler(
             writeService,
             cache.Object,
-            tenantAccessor,
-            NullLogger<CreateFgsAssetModelCommandHandler>.Instance);
+            tenantAccessor);
 
         var response = await handler.Handle(
             new CreateFgsAssetModelCommand(new FgsAssetModelCreateDto(1, 1, "58MCA", "Carrier Infinity Model")),
@@ -57,13 +55,11 @@ public sealed class FgsAssetModelCommandHandlerTests
         var createHandler = new CreateFgsAssetModelCommandHandler(
             writeService,
             cache.Object,
-            tenantAccessor,
-            NullLogger<CreateFgsAssetModelCommandHandler>.Instance);
+            tenantAccessor);
         var patchHandler = new PatchFgsAssetModelCommandHandler(
             writeService,
             cache.Object,
-            tenantAccessor,
-            NullLogger<PatchFgsAssetModelCommandHandler>.Instance);
+            tenantAccessor);
 
         var created = await createHandler.Handle(
             new CreateFgsAssetModelCommand(new FgsAssetModelCreateDto(1, 1, "58MCA", "Carrier Infinity Model")),

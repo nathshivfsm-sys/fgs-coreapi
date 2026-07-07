@@ -5,15 +5,13 @@ using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using MediatR;
-using Microsoft.Extensions.Logging;
 
 namespace Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.CreateFgsAssetAttributeOption;
 
 public sealed class CreateFgsAssetAttributeOptionCommandHandler(
     IFgsAssetAttributeOptionWriteService writeService,
     ICacheService cache,
-    ITenantContextAccessor tenantContextAccessor,
-    ILogger<CreateFgsAssetAttributeOptionCommandHandler> logger)
+    ITenantContextAccessor tenantContextAccessor)
     : IRequestHandler<CreateFgsAssetAttributeOptionCommand, ApiResponse<FgsAssetAttributeOptionDetailDto>>
 {
     public async Task<ApiResponse<FgsAssetAttributeOptionDetailDto>> Handle(
