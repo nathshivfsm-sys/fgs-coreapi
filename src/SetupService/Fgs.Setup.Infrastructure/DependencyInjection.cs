@@ -129,14 +129,10 @@ public static class DependencyInjection
 
         services.AddFgsPersistence<FgsSetupDbContext>();
 
-        var auditServiceEnabled = configuration.GetValue("AuditService:Enabled", true);
-        if (auditServiceEnabled)
+        var auditOutboxEnabled = configuration.GetValue("AuditOutbox:Enabled", true);
+        if (auditOutboxEnabled)
         {
-            services.AddFgsRefitClient<IAuditClient>(
-                configuration,
-                "AuditService:BaseUrl",
-                "http://audit-service:5003");
-            services.AddScoped<ICredentialAuditRecorder, RefitCredentialAuditRecorder>();
+            services.AddScoped<ICredentialAuditRecorder, OutboxCredentialAuditRecorder>();
         }
         else
         {

@@ -2,6 +2,7 @@ using Fgs.Contracts.Clients;
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.Credentials.Extensions;
 using Fgs.Messaging.Options;
+using Fgs.Consumer.Application.Features.Audit.Commands.ProcessCredentialAuditRequested;
 using Fgs.Consumer.Application.Features.Notifications.Commands.ProcessCompanySignupInviteEmail;
 using Fgs.Consumer.Application.Features.TenantProvisioning.Commands.ProcessTenantProvisionRequested;
 using Fgs.Consumer.Infrastructure.Messaging;
@@ -38,6 +39,11 @@ public static class DependencyInjection
             "NotificationService:BaseUrl",
             "http://notification-service:5002");
 
+        services.AddFgsInternalServiceRefitClient<IAuditClient>(
+            configuration,
+            "AuditService:BaseUrl",
+            "http://audit-service:5008");
+
         services.AddFgsRabbitMqConsumerFramework(configuration);
         services.AddScoped<IConsumerMessageRouter, MediatRConsumerMessageRouter>();
 
@@ -48,6 +54,10 @@ public static class DependencyInjection
         services.AddConsumerRouting<CompanySignupInviteEmailEvent>(
             IntegrationEventRoutingKeys.CompanySignupInviteEmail,
             (evt, ctx) => new ProcessCompanySignupInviteEmailCommand(evt, ctx));
+
+        services.AddConsumerRouting<CredentialAuditRequestedEvent>(
+            IntegrationEventRoutingKeys.CredentialAuditRequested,
+            (evt, ctx) => new ProcessCredentialAuditRequestedCommand(evt, ctx));
 
         return services;
     }
