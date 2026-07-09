@@ -32,6 +32,7 @@ internal class FgsSetupPricingMatrixConfiguration : IEntityTypeConfiguration<Fgs
         entity.Property(e => e.EffectiveFrom).HasColumnType("date");
         entity.Property(e => e.EffectiveTo).HasColumnType("date");
         entity.Property(e => e.IsMobileVisible).HasDefaultValue(true);
+        entity.Property(e => e.IsDefault).HasDefaultValue(true);
         entity.Property(e => e.PriceAdjustmentTypeId)
             .HasColumnType("smallint")
             .HasComment("Pricing adjustment method. Valid values: 1=Markup Percent, 2=Markup Amount, 3=Multiplier.");

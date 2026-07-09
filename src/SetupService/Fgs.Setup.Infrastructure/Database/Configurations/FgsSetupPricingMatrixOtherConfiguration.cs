@@ -16,8 +16,8 @@ internal class FgsSetupPricingMatrixOtherConfiguration : IEntityTypeConfiguratio
                 t.HasComment(
                     "Stores pricing adjustments for miscellaneous categories such as permits, disposal fees, equipment rentals, trip charges, crane services, and other non-material/non-labor costs.");
                 t.HasCheckConstraint(
-                    "CK_FgsSetupPricingMatrixOther_MarkupPercent",
-                    "\"MarkupPercent\" IS NULL OR \"MarkupPercent\" >= 0");
+                    "CK_FgsSetupPricingMatrixOther_AdjustmentValue",
+                    "\"AdjustmentValue\" IS NULL OR \"AdjustmentValue\" >= 0");
                 t.HasCheckConstraint(
                     "CK_FgsSetupPricingMatrixOther_DiscountPercent",
                     "\"DiscountPercent\" IS NULL OR (\"DiscountPercent\" >= 0 AND \"DiscountPercent\" <= 100)");
@@ -37,9 +37,9 @@ internal class FgsSetupPricingMatrixOtherConfiguration : IEntityTypeConfiguratio
             .HasMaxLength(200)
             .IsRequired()
             .HasComment("User-friendly category name.");
-        entity.Property(e => e.MarkupPercent)
+        entity.Property(e => e.AdjustmentValue)
             .HasPrecision(18, 2)
-            .HasComment("Markup percentage applied to the base cost.");
+            .HasComment("Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = fixed dollar markup, 1.75 = multiplier.");
         entity.Property(e => e.DiscountPercent)
             .HasPrecision(18, 2)
             .HasComment("Optional discount percentage applied after markup.");

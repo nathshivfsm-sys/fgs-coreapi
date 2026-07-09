@@ -18,5 +18,7 @@ public class FgsSetupPricingMatrix : FgsTenantCompanySetupEntityBase<long>
 
     public bool IsMobileVisible { get; set; } = true;
 
+    public bool IsDefault { get; set; } = true;
+
     public PriceAdjustmentType PriceAdjustmentTypeId { get; set; }
 }

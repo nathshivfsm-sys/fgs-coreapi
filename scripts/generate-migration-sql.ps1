@@ -52,8 +52,23 @@ try {
 
     New-Item -ItemType Directory -Force -Path $executeDir, $rollbackDir | Out-Null
 
+    $migrationsDir = Join-Path $RepoRoot "src\$($cfg.Infra)\Database\Migrations"
+    $previousMigration = Get-ChildItem $migrationsDir -Filter "*.cs" |
+        Where-Object { -not $_.Name.EndsWith('.Designer.cs') -and $_.Name -notlike '*ModelSnapshot*' } |
+        Sort-Object Name |
+        Where-Object { $_.BaseName -lt $migrationId } |
+        Select-Object -Last 1
+
     Write-Host "Generating $upSql..."
-    dotnet ef migrations script -i -o $upSql -p $infraProject -s $apiProject
+    if ($previousMigration) {
+        $fromMigration = $previousMigration.BaseName
+        Write-Host "  from $fromMigration to $migrationId"
+        dotnet ef migrations script $fromMigration $migrationId -i -o $upSql -p $infraProject -s $apiProject
+    }
+    else {
+        Write-Host "  from 0 to $migrationId (first migration)"
+        dotnet ef migrations script 0 $migrationId -i -o $upSql -p $infraProject -s $apiProject
+    }
     if ($LASTEXITCODE -ne 0) { throw 'dotnet ef migrations script failed' }
 
     if (-not (Test-Path $downSql)) {
