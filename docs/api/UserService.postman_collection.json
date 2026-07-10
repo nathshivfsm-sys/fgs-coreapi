@@ -750,7 +750,7 @@
                  "description":  "Company onboarding, Entra auth, dashboard, and tenant admin APIs via {{gatewayUrl}}.",
                  "name":  "FGS UserService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "5b539b4e-6254-406d-924a-00ab353dce41"
+                 "_postman_id":  "cd763dff-d093-4312-aa8e-0ecded9f035e"
              },
     "event":  [
                   {

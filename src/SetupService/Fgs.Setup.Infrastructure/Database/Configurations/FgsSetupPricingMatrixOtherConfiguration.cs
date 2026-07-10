@@ -32,7 +32,7 @@ internal class FgsSetupPricingMatrixOtherConfiguration : IEntityTypeConfiguratio
         entity.Property(e => e.CategoryCode)
             .HasMaxLength(50)
             .IsRequired()
-            .HasComment("Unique category code within the pricing matrix.");
+            .HasComment("Billing category type code (FgsBillingCategory.BillingCategoryType) such as NI, OT, or SF.");
         entity.Property(e => e.Name)
             .HasMaxLength(200)
             .IsRequired()

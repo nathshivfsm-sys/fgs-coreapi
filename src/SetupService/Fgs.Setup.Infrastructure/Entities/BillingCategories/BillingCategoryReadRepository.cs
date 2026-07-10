@@ -208,4 +208,34 @@ internal sealed class BillingCategoryReadRepository : IBillingCategoryReadReposi
                 },
                 cancellationToken: cancellationToken));
     }
+
+    public async Task<bool> ExistsByBillingCategoryTypeAsync(
+        string billingCategoryType,
+        bool activeOnly = true,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {BillingCategorySql.Table}
+                WHERE "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "BillingCategoryType" = @BillingCategoryType
+                  {(activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty)}
+            )
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    BillingCategoryType = billingCategoryType.Trim().ToUpperInvariant()
+                },
+                cancellationToken: cancellationToken));
+    }
 }
