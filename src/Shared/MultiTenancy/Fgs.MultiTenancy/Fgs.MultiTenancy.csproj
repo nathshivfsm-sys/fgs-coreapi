@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\..\Kernel\Fgs.Kernel\Fgs.Kernel.csproj" />
-    <ProjectReference Include="..\..\Security\Fgs.Security\Fgs.Security.csproj" />
   </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

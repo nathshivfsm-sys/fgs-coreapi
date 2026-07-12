@@ -1177,6 +1177,31 @@ function New-AuthFlowFolder {
     }
 }
 
+function New-UiLoginFlowFolder {
+    $loginBody = @'
+{
+  "email": "{{signupEmail}}"
+}
+'@
+
+    $startLogin = New-PostmanRequest -Name '1. Start Login' -Method POST -Url '{{gatewayUrl}}/api/v1/login' -UseAuth $false -Body $loginBody
+    $startLogin.request.description = 'POST with active platform user email. Copy data.redirectUrl and open in browser. Callback state is user:{userId}.'
+
+    $loginCallback = New-PostmanRequest -Name '3. Entra Login Callback' -Method GET -Url '{{gatewayUrl}}/api/v1/auth/entra/callback?code={{authCode}}&state=user:{{loginUserId}}' -UseAuth $false
+    $loginCallback.request.description = 'Invitation-free callback. state must be user:{platformUserId}.'
+
+    return @{
+        name = '01 - UI Login Flow'
+        description = 'UI login: validates active user and returns Entra redirect URL (no invitation).'
+        item = @(
+            $startLogin
+            @{ name = '2. Manual - Entra sign-in in browser'; request = @{ method = 'GET'; auth = @{ type = 'noauth' }; url = @{ raw = '(open redirectUrl from step 1)' }; description = 'Sign in with the same email. Copy code from callback; set loginUserId from state if needed.' } }
+            $loginCallback
+            (New-PostmanRequest -Name '4. Get Me' -Method GET -Url '{{gatewayUrl}}/api/v1/auth/me' -UseAuth $true)
+        )
+    }
+}
+
 function New-AttachmentUploadFormBody {
     param(
         [string]$Category = 'general',
@@ -1463,6 +1488,7 @@ function New-Collection {
     $items = @()
     if ($IncludeAuthFlow) {
         $items += New-AuthFlowFolder
+        $items += New-UiLoginFlowFolder
     }
     $items += $Folders
 
@@ -1499,7 +1525,7 @@ function New-Collection {
 }
 
 $serviceConfigs = @(
-    @{ Key = 'UserService'; Path = 'src\UserService\Fgs.User.API\Controllers'; Desc = 'Company onboarding, Entra auth, dashboard, and tenant admin APIs via {{gatewayUrl}}.'; AuthFlow = $true }
+    @{ Key = 'UserService'; Path = 'src\UserService\Fgs.User.API\Controllers'; Desc = 'Company onboarding, UI login, Entra auth, active-user cache, dashboard, and tenant admin APIs via {{gatewayUrl}}.'; AuthFlow = $true }
     @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup catalog APIs via {{gatewayUrl}}/api/v1/{catalog}.'; AuthFlow = $false }
     @{ Key = 'NotificationService'; Path = 'src\NotificationService\Fgs.Notification.API\Controllers'; Desc = 'Notification dispatch via {{gatewayUrl}}/api/v1/notifications/...'; AuthFlow = $false }
     @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 provisioning and attachment management via {{gatewayUrl}}. Upload via multipart/form-data; download/thumbnail stream through the API (no S3 URLs exposed).'; AuthFlow = $false }

@@ -14522,6 +14522,12 @@
                                                                                     "description":  "Optional vIN filter.",
                                                                                     "value":  "",
                                                                                     "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "inventoryLocationId",
+                                                                                    "description":  "Optional inventory location filter. Returns the vehicle linked to this location (0 or 1 result).",
+                                                                                    "value":  "{{inventoryLocationId}}",
+                                                                                    "disabled":  true
                                                                                 }
                                                                             ],
                                                                   "host":  [

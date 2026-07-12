@@ -79,6 +79,11 @@ public static class FgsApiHostExtensions
         {
             app.UseAuthentication();
 
+            if (options.UseActiveUserValidation)
+            {
+                options.PostAuthenticationMiddleware?.Invoke(app);
+            }
+
             if (options.UseTenantResolution && options.UseMultiTenancy)
             {
                 app.UseFgsTenantResolution();

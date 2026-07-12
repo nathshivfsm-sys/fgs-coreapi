@@ -7,6 +7,7 @@ using Fgs.User.Application.Abstractions.Time;
 using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Auth;
+using Fgs.Security.UserAuth;
 using Fgs.User.Application.Features.Signup;
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.Contracts.Clients;
@@ -27,6 +28,7 @@ public sealed class EntraCallbackCommandHandler : IRequestHandler<EntraCallbackC
     private readonly IDateTimeProvider _dateTime;
     private readonly IConfiguration _configuration;
     private readonly IOutboxWriter _outboxWriter;
+    private readonly IUserAuthProfileStore _profileStore;
 
     public EntraCallbackCommandHandler(
         IUnitOfWork unitOfWork,
@@ -34,7 +36,8 @@ public sealed class EntraCallbackCommandHandler : IRequestHandler<EntraCallbackC
         IEmailNormalizer emailNormalizer,
         IDateTimeProvider dateTime,
         IConfiguration configuration,
-        IOutboxWriter outboxWriter)
+        IOutboxWriter outboxWriter,
+        IUserAuthProfileStore profileStore)
     {
         _unitOfWork = unitOfWork;
         _entraService = entraService;
@@ -42,6 +45,7 @@ public sealed class EntraCallbackCommandHandler : IRequestHandler<EntraCallbackC
         _dateTime = dateTime;
         _configuration = configuration;
         _outboxWriter = outboxWriter;
+        _profileStore = profileStore;
     }
 
     public async Task<ApiResponse<EntraCallbackResultDto>> Handle(
@@ -110,6 +114,8 @@ public sealed class EntraCallbackCommandHandler : IRequestHandler<EntraCallbackC
 
                     if (invitation.Status != InvitationStatus.Accepted)
                     {
+                        await _profileStore.InvalidateAsync(user.Id, user.EntraObjectId, ct);
+
                         user.EntraObjectId = entraUser.ObjectId;
                         user.UpdatedOn = _dateTime.UtcNow;
                         userRepo.Update(user);

@@ -6,6 +6,7 @@ using Fgs.Credentials.Http;
 using Fgs.Credentials.Options;
 using Fgs.Foundation.Extensions;
 using Fgs.Security.Extensions;
+using Fgs.Security.UserAuth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -28,7 +29,8 @@ public static class CredentialServiceCollectionExtensions
                     options.ServiceName = serviceName;
                     options.RequiredProviders = requiredProviders;
                 })
-            .AddFgsApiSecurity(configuration);
+            .AddFgsApiSecurity(configuration)
+            .AddFgsUserAuthProfileClient(configuration);
 
     public static IServiceCollection AddFgsCredentialConsumer(
         this IServiceCollection services,
@@ -113,6 +115,20 @@ public static class CredentialServiceCollectionExtensions
             configuration,
             setupBaseUrlKey,
             setupDefaultBaseUrl);
+    }
+
+    public static IServiceCollection AddFgsUserAuthProfileClient(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        string userServiceBaseUrlKey = "UserService:BaseUrl",
+        string userServiceDefaultBaseUrl = "http://user-service:5001")
+    {
+        services.TryAddScoped<IUserAuthProfileSource, RemoteUserAuthProfileSource>();
+
+        return services.AddFgsInternalServiceRefitClient<IUserAuthProfileClient>(
+            configuration,
+            userServiceBaseUrlKey,
+            userServiceDefaultBaseUrl);
     }
 
     public static IServiceCollection AddFgsInternalServiceRefitClient<TClient>(

@@ -1,15 +1,20 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Fgs.Contracts.Auth;
 using Fgs.Security.Abstractions;
+using Fgs.Security.Authorization;
 using Fgs.Security.Constants;
 using Fgs.Security.Services;
+using Fgs.Security.UserAuth;
 using Microsoft.AspNetCore.Http;
 
 namespace Fgs.Security.Services;
 
 public sealed class HttpFgsUserContext(IHttpContextAccessor httpContextAccessor) : IFgsUserContext
 {
-    private ClaimsPrincipal User => httpContextAccessor.HttpContext?.User ?? new ClaimsPrincipal();
+    private HttpContext? HttpContext => httpContextAccessor.HttpContext;
+
+    private ClaimsPrincipal User => HttpContext?.User ?? new ClaimsPrincipal();
 
     public bool IsAuthenticated => User.Identity?.IsAuthenticated == true;
 
@@ -35,15 +40,25 @@ public sealed class HttpFgsUserContext(IHttpContextAccessor httpContextAccessor)
         ?? User.FindFirst("oid")?.Value
         ?? User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value;
 
-    public long? TenantId => FgsRequestAuthContext.ExtractTenantScope(httpContextAccessor.HttpContext).TenantId;
+    public long? TenantId =>
+        GetValidatedScope()?.TenantId
+        ?? FgsRequestAuthContext.ExtractTenantScope(HttpContext).TenantId;
 
-    public long? CompanyId => FgsRequestAuthContext.ExtractTenantScope(httpContextAccessor.HttpContext).CompanyId;
+    public long? CompanyId =>
+        GetValidatedScope()?.CompanyId
+        ?? FgsRequestAuthContext.ExtractTenantScope(HttpContext).CompanyId;
 
     public IReadOnlyList<string> Roles =>
-        User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+        GetCachedProfile()?.Roles ?? [];
 
     public bool IsInRole(string roleCode) =>
         Roles.Contains(roleCode, StringComparer.OrdinalIgnoreCase);
+
+    private ValidatedUserScope? GetValidatedScope() =>
+        HttpContext?.Items[UserAuthHttpContextKeys.ValidatedScope] as ValidatedUserScope;
+
+    private UserAuthProfileDto? GetCachedProfile() =>
+        HttpContext?.Items[UserAuthHttpContextKeys.Profile] as UserAuthProfileDto;
 
     private static string? CombineNames(params string?[] parts)
     {

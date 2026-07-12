@@ -67,6 +67,11 @@ internal sealed class FgsVehicleReadRepository : IFgsVehicleReadRepository
             where.Add("\"VIN\" ILIKE @VIN");
         }
 
+        if (filters.InventoryLocationId.HasValue)
+        {
+            where.Add("\"InventoryLocationId\" = @InventoryLocationId");
+        }
+
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
             where.Add(
@@ -94,6 +99,7 @@ internal sealed class FgsVehicleReadRepository : IFgsVehicleReadRepository
             CompanyId = companyId,
             IsActive = paging.IsActive,
             VIN = string.IsNullOrWhiteSpace(filters.VIN) ? null : $"%{filters.VIN.Trim()}%",
+            InventoryLocationId = filters.InventoryLocationId,
             Search = string.IsNullOrWhiteSpace(paging.Search) ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
             Offset = offset

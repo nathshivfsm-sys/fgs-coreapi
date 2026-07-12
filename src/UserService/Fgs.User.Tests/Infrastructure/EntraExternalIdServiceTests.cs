@@ -21,7 +21,7 @@ public sealed class EntraExternalIdServiceTests
             }),
             new HttpClient());
 
-        var url = service.BuildAuthorizationUrl(invitationId, "https://localhost/callback");
+        var url = service.BuildAuthorizationUrl(invitationId.ToString(), "https://localhost/callback");
 
         url.Should().Contain("client_id=client-id");
         url.Should().Contain($"state={invitationId}");
@@ -43,7 +43,7 @@ public sealed class EntraExternalIdServiceTests
             new HttpClient());
 
         var url = service.BuildAuthorizationUrl(
-            Guid.NewGuid(),
+            Guid.NewGuid().ToString(),
             "https://localhost/callback",
             "admin@test.com");
 
@@ -67,7 +67,7 @@ public sealed class EntraExternalIdServiceTests
             new HttpClient());
 
         var url = service.BuildAuthorizationUrl(
-            Guid.NewGuid(),
+            Guid.NewGuid().ToString(),
             "https://localhost/callback",
             "admin@test.com");
 

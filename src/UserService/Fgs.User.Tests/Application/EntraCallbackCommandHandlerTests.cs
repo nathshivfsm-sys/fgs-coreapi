@@ -3,9 +3,9 @@ using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Infrastructure.Common.Security;
-using Fgs.Messaging.Options;
-using Fgs.User.Infrastructure.Common.Options;
 using Fgs.Messaging.Abstractions;
+using Fgs.Messaging.Options;
+using Fgs.Security.UserAuth;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Features.Auth;
 using Fgs.User.Application.Features.Auth.Commands.EntraCallback;
@@ -284,7 +284,8 @@ public sealed class EntraCallbackCommandHandlerTests
             new EmailNormalizer(),
             new DateTimeProvider(),
             configuration,
-            outboxWriter);
+            outboxWriter,
+            Mock.Of<IUserAuthProfileStore>());
     }
 
     private static Mock<IEntraExternalIdService> CreateEntraMock(string entraEmail)

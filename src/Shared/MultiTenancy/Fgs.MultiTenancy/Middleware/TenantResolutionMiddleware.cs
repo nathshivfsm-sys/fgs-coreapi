@@ -13,7 +13,8 @@ public sealed class TenantResolutionMiddleware
         ITenantResolver tenantResolver,
         ITenantContextAccessor tenantContextAccessor)
     {
-        if (tenantResolver.TryResolve(context, out var tenantContext))
+        if (tenantContextAccessor.Current is null
+            && tenantResolver.TryResolve(context, out var tenantContext))
         {
             tenantContextAccessor.Current = tenantContext;
         }

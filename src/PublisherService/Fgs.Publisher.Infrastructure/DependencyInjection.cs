@@ -32,6 +32,7 @@ public static class DependencyInjection
             typeof(RabbitMqOptions));
 
         services.AddFgsApiSecurity(configuration);
+        services.AddFgsUserAuthProfileClient(configuration);
 
         services.Configure<OutboxSourcesOptions>(configuration.GetSection(OutboxSourcesOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));

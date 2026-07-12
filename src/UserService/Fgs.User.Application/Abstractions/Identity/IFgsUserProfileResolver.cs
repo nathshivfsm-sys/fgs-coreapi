@@ -22,4 +22,6 @@ public sealed record FgsUserProfile(
     string? EntraObjectId,
     long TenantId,
     long CompanyId,
+    bool IsActive,
+    bool IsDeleted,
     IReadOnlyList<string> Roles);

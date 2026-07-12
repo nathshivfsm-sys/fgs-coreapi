@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Fgs.Contracts.Api;
 using Fgs.Security.Abstractions;
-using Fgs.User.Application.Abstractions.Identity;
+using Fgs.Security.UserAuth;
 using Fgs.User.Application.Features.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +10,7 @@ namespace Fgs.User.Application.Features.Auth.Queries.GetAuthMe;
 
 public sealed class GetAuthMeQueryHandler(
     IFgsUserContext userContext,
-    IFgsUserProfileResolver profileResolver,
+    IUserAuthProfileStore profileStore,
     IHttpContextAccessor httpContextAccessor) : IRequestHandler<GetAuthMeQuery, ApiResponse<AuthMeDto>>
 {
     public async Task<ApiResponse<AuthMeDto>> Handle(
@@ -24,22 +24,15 @@ public sealed class GetAuthMeQueryHandler(
                 ApiStatusCodes.Unauthorized);
         }
 
-        FgsUserProfile? profile = null;
-        if (!string.IsNullOrWhiteSpace(userContext.EntraObjectId))
+        if (string.IsNullOrWhiteSpace(userContext.EntraObjectId))
         {
-            profile = await profileResolver.ResolveByEntraObjectIdAsync(
-                userContext.EntraObjectId,
-                cancellationToken);
+            return ApiResponse<AuthMeDto>.Fail(
+                [AuthErrorMessages.UserNotFound],
+                ApiStatusCodes.NotFound);
         }
 
-        if (profile is null && !string.IsNullOrWhiteSpace(userContext.Email))
-        {
-            profile = await profileResolver.ResolveBySignupEmailAsync(
-                userContext.Email.Trim(),
-                cancellationToken);
-        }
-
-        if (profile is null)
+        var profile = await profileStore.GetOrLoadAsync(userContext.EntraObjectId, cancellationToken);
+        if (profile is null || !profile.IsActive || profile.IsDeleted)
         {
             return ApiResponse<AuthMeDto>.Fail(
                 [AuthErrorMessages.UserNotFound],

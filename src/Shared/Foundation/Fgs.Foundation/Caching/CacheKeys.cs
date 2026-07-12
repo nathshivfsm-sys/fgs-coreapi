@@ -45,4 +45,10 @@ public static class CacheKeys
         var json = CacheJsonSerializer.Serialize(value);
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(json)))[..16].ToLowerInvariant();
     }
+
+    public static string UserAuthByEntraObjectId(string entraObjectId) =>
+        $"user:auth:oid:{entraObjectId.ToLowerInvariant()}";
+
+    public static string UserAuthByUserId(Guid userId) =>
+        $"user:auth:id:{userId:D}";
 }

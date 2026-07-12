@@ -10,7 +10,7 @@ public sealed class EntraExternalIdService(IOptions<EntraExternalIdOptions> opti
 {
     private readonly EntraExternalIdOptions _options = options.Value;
 
-    public string BuildAuthorizationUrl(Guid invitationId, string redirectUri, string? loginHint = null)
+    public string BuildAuthorizationUrl(string state, string redirectUri, string? loginHint = null)
     {
         var authorize = string.IsNullOrWhiteSpace(_options.AuthorizeEndpoint)
             ? BuildAuthorizeEndpoint()
@@ -23,7 +23,7 @@ public sealed class EntraExternalIdService(IOptions<EntraExternalIdOptions> opti
             ["redirect_uri"] = redirectUri,
             ["response_mode"] = "query",
             ["scope"] = _options.Scopes,
-            ["state"] = invitationId.ToString(),
+            ["state"] = state,
             ["login_hint"] = loginHint,
             ["p"] = _options.UserFlow
         };

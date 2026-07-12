@@ -29,10 +29,7 @@ public sealed class CredentialAuditController(
         [FromHeader(Name = InternalServiceHeaders.ServiceKey)] string? serviceKey,
         CancellationToken cancellationToken)
     {
-        if (!InternalServiceAuthorization.IsAuthorizedOrUserAuthenticated(
-                serviceKey,
-                distributionOptions.Value,
-                User))
+        if (!InternalServiceAuthorization.IsAuthorized(serviceKey, distributionOptions.Value))
         {
             return StatusCode(
                 StatusCodes.Status401Unauthorized,

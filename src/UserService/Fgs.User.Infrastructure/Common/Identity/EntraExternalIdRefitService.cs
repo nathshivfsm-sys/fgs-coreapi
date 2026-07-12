@@ -13,7 +13,7 @@ public sealed class EntraExternalIdRefitService(
 {
     private readonly EntraExternalIdOptions _options = options.Value;
 
-    public string BuildAuthorizationUrl(Guid invitationId, string redirectUri, string? loginHint = null)
+    public string BuildAuthorizationUrl(string state, string redirectUri, string? loginHint = null)
     {
         var authorize = string.IsNullOrWhiteSpace(_options.AuthorizeEndpoint)
             ? BuildAuthorizeEndpoint()
@@ -26,7 +26,7 @@ public sealed class EntraExternalIdRefitService(
             ["redirect_uri"] = redirectUri,
             ["response_mode"] = "query",
             ["scope"] = _options.Scopes,
-            ["state"] = invitationId.ToString(),
+            ["state"] = state,
             ["login_hint"] = loginHint,
             ["p"] = _options.UserFlow
         };

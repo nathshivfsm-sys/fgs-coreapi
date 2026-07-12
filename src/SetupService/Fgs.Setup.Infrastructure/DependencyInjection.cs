@@ -113,6 +113,7 @@ public static class DependencyInjection
         ConfigurationManager configuration)
     {
         services.AddFgsApiSecurity(configuration);
+        services.AddFgsUserAuthProfileClient(configuration);
 
         services.Configure<CredentialConsumerOptions>(options => options.ServiceName = "fgs-setup-service");
 

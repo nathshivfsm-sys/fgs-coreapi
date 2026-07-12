@@ -23,4 +23,11 @@ public static class AuthErrorMessages
     public const string Unauthenticated = "Authentication is required.";
 
     public const string UserNotFound = "User profile was not found.";
+
+    public const string LoginNotAvailable =
+        "Sign-in is not available for this account. Use the invitation link from your signup email or contact your administrator.";
+
+    public const string UserNotActive = "User account is not active.";
+
+    public const string InvalidLoginOAuthState = "Invalid login OAuth state.";
 }

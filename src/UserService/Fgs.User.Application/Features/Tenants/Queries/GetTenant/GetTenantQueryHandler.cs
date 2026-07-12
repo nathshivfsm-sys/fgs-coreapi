@@ -3,6 +3,8 @@ using Fgs.Contracts.Clients;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy.Constants;
+using Fgs.Security.Abstractions;
+using Fgs.Security.Authorization;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Domain.Entities;
 using MediatR;
@@ -11,11 +13,20 @@ namespace Fgs.User.Application.Features.Tenants.Queries.GetTenant;
 
 public sealed class GetTenantQueryHandler(
     IUserReadRepository<FgsTenant> tenantReadRepository,
-    ICacheService cache)
+    ICacheService cache,
+    IFgsUserContext userContext)
     : IRequestHandler<GetTenantQuery, ApiResponse<TenantDto>>
 {
     public async Task<ApiResponse<TenantDto>> Handle(GetTenantQuery request, CancellationToken cancellationToken)
     {
+        var denied = AuthenticatedUserTenantScopeGuard.DenyCrossTenantAccess<TenantDto>(
+            userContext,
+            request.TenantId);
+        if (denied is not null)
+        {
+            return denied;
+        }
+
         var cacheKey = CacheKeys.Build(
             request.TenantId,
             TenantScopeConstants.PlatformCompanyId,

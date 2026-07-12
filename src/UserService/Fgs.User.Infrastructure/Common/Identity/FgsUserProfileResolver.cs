@@ -94,6 +94,8 @@ public sealed class FgsUserProfileResolver(
             user.EntraObjectId,
             user.TenantId,
             user.CompanyId,
+            user.IsActive,
+            user.IsDeleted,
             roles);
     }
 }

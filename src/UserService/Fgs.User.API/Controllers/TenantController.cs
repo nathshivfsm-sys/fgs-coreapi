@@ -96,7 +96,7 @@ public sealed class TenantController(
         [FromHeader(Name = InternalServiceHeaders.ServiceKey)] string? serviceKey,
         CancellationToken cancellationToken)
     {
-        var unauthorized = UnauthorizedIfNotInternalOrAuthenticated(serviceKey);
+        var unauthorized = UnauthorizedIfNotInternal(serviceKey);
         if (unauthorized is not null)
         {
             return unauthorized;
@@ -118,7 +118,7 @@ public sealed class TenantController(
         [FromHeader(Name = InternalServiceHeaders.ServiceKey)] string? serviceKey,
         CancellationToken cancellationToken)
     {
-        var unauthorized = UnauthorizedIfNotInternalOrAuthenticated(serviceKey);
+        var unauthorized = UnauthorizedIfNotInternal(serviceKey);
         if (unauthorized is not null)
         {
             return unauthorized;
@@ -135,6 +135,18 @@ public sealed class TenantController(
                 serviceKey,
                 distributionOptions.Value,
                 User))
+        {
+            return null;
+        }
+
+        return StatusCode(
+            StatusCodes.Status401Unauthorized,
+            ApiResponse<object>.Fail(["Unauthorized."], ApiStatusCodes.Unauthorized));
+    }
+
+    private IActionResult? UnauthorizedIfNotInternal(string? serviceKey)
+    {
+        if (InternalServiceAuthorization.IsAuthorized(serviceKey, distributionOptions.Value))
         {
             return null;
         }

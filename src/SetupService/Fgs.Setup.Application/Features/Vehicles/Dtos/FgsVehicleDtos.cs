@@ -97,4 +97,5 @@ public sealed record FgsVehiclePatchDto(
     bool? IsActive);
 
 public sealed record FgsVehicleListFilters(
-    string? VIN = null);
+    string? VIN = null,
+    long? InventoryLocationId = null);
