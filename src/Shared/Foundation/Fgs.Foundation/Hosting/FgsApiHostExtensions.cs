@@ -6,6 +6,7 @@ using Fgs.MultiTenancy.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.Foundation.Hosting;
 
@@ -56,6 +57,8 @@ public static class FgsApiHostExtensions
         this WebApplication app,
         FgsApiHostOptions options)
     {
+        ApplyConfiguredHostOptions(app.Services, options);
+
         if (options.UseForwardedHeaders)
         {
             app.UseForwardedHeaders();
@@ -98,5 +101,18 @@ public static class FgsApiHostExtensions
 
         app.MapControllers();
         return app;
+    }
+
+    internal static void ApplyConfiguredHostOptions(IServiceProvider services, FgsApiHostOptions options)
+    {
+        foreach (var configurator in services.GetServices<IConfigureOptions<FgsApiHostOptions>>())
+        {
+            configurator.Configure(options);
+        }
+
+        foreach (var postConfigurator in services.GetServices<IPostConfigureOptions<FgsApiHostOptions>>())
+        {
+            postConfigurator.PostConfigure(Options.DefaultName, options);
+        }
     }
 }

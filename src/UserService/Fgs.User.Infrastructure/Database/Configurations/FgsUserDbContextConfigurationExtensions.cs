@@ -1,5 +1,6 @@
 using Fgs.Kernel.Entities;
 using Fgs.User.Domain.Entities;
+using Fgs.User.Infrastructure.Database.Schemas;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -43,12 +44,63 @@ internal static class FgsUserDbContextConfigurationExtensions
     internal static void ConfigureTenantCompanySetupFk<T>(
         this EntityTypeBuilder<T> entity,
         string constraintName)
-        where T : FgsTenantCompanySetupEntityBase<long>
-    { }
+        where T : class, ITenantCompanyScoped
+    {
+        ((EntityTypeBuilder)entity).ConfigureTenantCompanySetupFk(constraintName);
+    }
+
+    internal static void ConfigureTenantCompanySetupFk(
+        this EntityTypeBuilder entity,
+        string constraintName)
+    {
+        entity.HasOne(typeof(FgsTenantCompanyCache))
+            .WithMany()
+            .HasForeignKey(nameof(ITenantCompanyScoped.TenantId), nameof(ITenantCompanyScoped.CompanyId))
+            .HasConstraintName(constraintName)
+            .OnDelete(DeleteBehavior.Restrict);
+    }
 
     internal static void ConfigureTenantCompanyGuidSetupFk<T>(
         this EntityTypeBuilder<T> entity,
         string constraintName)
-        where T : FgsTenantCompanySetupEntityBase<Guid>
-    { }
+        where T : class, ITenantCompanyScoped
+    {
+        entity.ConfigureTenantCompanySetupFk(constraintName);
+    }
+
+    internal static void ApplyTenantCompanyCacheForeignKeys(ModelBuilder modelBuilder)
+    {
+        var excludedTypes = new HashSet<Type>
+        {
+            typeof(FgsTenantCompanyCache),
+        };
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var clrType = entityType.ClrType;
+            if (clrType is null || excludedTypes.Contains(clrType))
+            {
+                continue;
+            }
+
+            if (!typeof(ITenantCompanyScoped).IsAssignableFrom(clrType))
+            {
+                continue;
+            }
+
+            if (!string.Equals(entityType.GetSchema(), FgsDatabaseSchemas.Identity, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var tableName = entityType.GetTableName();
+            if (string.IsNullOrEmpty(tableName))
+            {
+                continue;
+            }
+
+            modelBuilder.Entity(clrType)
+                .ConfigureTenantCompanySetupFk($"FK_{tableName}_FgsTenantCompanyCache");
+        }
+    }
 }

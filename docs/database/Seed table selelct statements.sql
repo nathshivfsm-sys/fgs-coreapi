@@ -24,6 +24,12 @@ FROM identity."FgsTenantCompanyCache" c
 CROSS JOIN seed_params p
 WHERE c."TenantId" = p.tenant_id AND c."CompanyId" = p.company_id;
 
+SELECT 'identity.FgsRole' AS table_name, r.*
+FROM identity."FgsRole" r
+CROSS JOIN seed_params p
+WHERE r."TenantId" = p.tenant_id AND r."CompanyId" = p.company_id
+ORDER BY r."RoleCode";
+
 SELECT 'billing.FgsTenantCompanyCache' AS table_name, c.*
 FROM billing."FgsTenantCompanyCache" c
 CROSS JOIN seed_params p

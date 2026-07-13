@@ -1973,6 +1973,7 @@ FROM (
         ('TENANT_FgsTenantCompany_asset_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'asset', 'FgsTenantCompanyCache', 10, 'Tenant company cache (asset)', true),
         ('TENANT_FgsTenantCompany_svc_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'svc', 'FgsTenantCompanyCache', 11, 'Tenant company cache (svc)', true),
         ('TENANT_CrmServiceLocation_asset_cache', 'fgs_dev_db', 'crm', 'CrmServiceLocation', 'fgs_dev_db', 'asset', 'FgsServiceLocationCache', 12, 'Service location cache (asset)', true),
+        ('ALL_GloRole', 'fgs_dev_db', 'glo', 'GloRole', 'fgs_dev_db', 'identity', 'FgsRole', 15, 'Tenant assignable roles (identity)', true),
         ('ALL_GloBillingCategory', 'fgs_dev_db', 'glo', 'GloBillingCategory', 'fgs_dev_db', 'setup', 'FgsBillingCategory', 100, 'Billing Category', true),
         ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', 'fgs_dev_db', 'glo', 'GloInventoryCategory', 'fgs_dev_db', 'inventory', 'FgsInventoryCategory', 105, 'Inventory Category', true),
         ('ALL_GloJobTypeCategory', 'fgs_dev_db', 'glo', 'GloJobTypeCategory', 'fgs_dev_db', 'setup', 'FgsJobTypeCategory', 130, 'JobType Categories', true),
@@ -2144,6 +2145,18 @@ INNER JOIN (
         ('TENANT_CrmServiceLocation_asset_cache', 'LocationSequence', 'LocationSequence', NULL, NULL, 5, true, true),
         ('TENANT_CrmServiceLocation_asset_cache', 'LocationNumber', 'LocationNumber', NULL, NULL, 6, true, true),
         ('TENANT_CrmServiceLocation_asset_cache', NULL, 'UpdatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+
+        -- ALL_GloRole -> identity.FgsRole
+        ('ALL_GloRole', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloRole', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloRole', 'RoleCode', 'RoleCode', NULL, NULL, 3, true, true),
+        ('ALL_GloRole', 'Name', 'Name', NULL, NULL, 4, true, true),
+        ('ALL_GloRole', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('ALL_GloRole', NULL, 'IsBuiltIn', 'STATIC', 'true', 6, true, true),
+        ('ALL_GloRole', 'SortOrder', 'DisplayOrder', NULL, NULL, 7, true, true),
+        ('ALL_GloRole', 'IsActive', 'IsActive', NULL, NULL, 8, true, true),
+        ('ALL_GloRole', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 9, true, true),
+        ('ALL_GloRole', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 10, false, true),
 
         -- ALL_GloBillingCategory -> FgsBillingCategory
         ('ALL_GloBillingCategory', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
@@ -2437,6 +2450,60 @@ WHERE existing."SeedTableMappingId" = m."Id"
   AND m."SeedCode" = 'ALL_GloBillingCategory'
   AND existing."TargetColumnName" = 'ShowToFieldTech'
   AND existing."TransformationType" = 'STATIC';
+
+-- Align ALL_GloRole column mappings with identity.FgsRole (IsBuiltIn/DisplayOrder; drop GloRoleId)
+DELETE FROM glo."GloSeedTableColumnMapping" AS existing
+USING glo."GloSeedTableMapping" m
+WHERE existing."SeedTableMappingId" = m."Id"
+  AND m."SeedCode" = 'ALL_GloRole'
+  AND existing."TargetColumnName" = 'GloRoleId';
+
+UPDATE glo."GloSeedTableColumnMapping" AS existing
+SET
+    "SourceColumnName" = NULL,
+    "TransformationType" = 'STATIC',
+    "StaticValue" = 'true',
+    "ColumnOrder" = 6,
+    "IsRequired" = true,
+    "IsActive" = true
+FROM glo."GloSeedTableMapping" m
+WHERE existing."SeedTableMappingId" = m."Id"
+  AND m."SeedCode" = 'ALL_GloRole'
+  AND existing."TargetColumnName" = 'IsBuiltIn';
+
+UPDATE glo."GloSeedTableColumnMapping" AS existing
+SET
+    "SourceColumnName" = 'SortOrder',
+    "TransformationType" = NULL,
+    "StaticValue" = NULL,
+    "ColumnOrder" = 7,
+    "IsRequired" = true,
+    "IsActive" = true
+FROM glo."GloSeedTableMapping" m
+WHERE existing."SeedTableMappingId" = m."Id"
+  AND m."SeedCode" = 'ALL_GloRole'
+  AND existing."TargetColumnName" = 'DisplayOrder';
+
+UPDATE glo."GloSeedTableColumnMapping" AS existing
+SET "ColumnOrder" = 8
+FROM glo."GloSeedTableMapping" m
+WHERE existing."SeedTableMappingId" = m."Id"
+  AND m."SeedCode" = 'ALL_GloRole'
+  AND existing."TargetColumnName" = 'IsActive';
+
+UPDATE glo."GloSeedTableColumnMapping" AS existing
+SET "ColumnOrder" = 9
+FROM glo."GloSeedTableMapping" m
+WHERE existing."SeedTableMappingId" = m."Id"
+  AND m."SeedCode" = 'ALL_GloRole'
+  AND existing."TargetColumnName" = 'CreatedOn';
+
+UPDATE glo."GloSeedTableColumnMapping" AS existing
+SET "ColumnOrder" = 10
+FROM glo."GloSeedTableMapping" m
+WHERE existing."SeedTableMappingId" = m."Id"
+  AND m."SeedCode" = 'ALL_GloRole'
+  AND existing."TargetColumnName" = 'CreatedBy';
 
 SELECT setval(
     pg_get_serial_sequence('glo."GloSeedTableColumnMapping"', 'Id'),

@@ -338,13 +338,26 @@ public sealed class EntraCallbackCommandHandlerTests
             DisplayName = "Admin",
             CreatedOn = DateTimeOffset.UtcNow
         });
+        context.FgsRoles.Add(new FgsRole
+        {
+            TenantId = tenantId,
+            CompanyId = 1,
+            RoleCode = SignupConstants.TenantAdminRoleCode,
+            Name = SignupConstants.TenantAdminRoleName,
+            IsBuiltIn = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        await context.SaveChangesAsync();
+
+        var tenantAdminRole = await context.FgsRoles.SingleAsync();
         context.FgsUserRoles.Add(new FgsUserRole
         {
             UserId = userId,
             TenantId = tenantId,
             CompanyId = 1,
-            GloRoleId = SignupConstants.TenantAdminGloRoleId,
-            CreatedOn = DateTimeOffset.UtcNow
+            FgsRoleId = tenantAdminRole.Id,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = SignupConstants.ProspectActor
         });
         context.FgsInvitations.Add(new FgsInvitation
         {
@@ -412,7 +425,8 @@ public sealed class EntraCallbackCommandHandlerTests
             TenantId = tenantId,
             CompanyId = 1,
             FgsRoleId = 1,
-            CreatedOn = DateTimeOffset.UtcNow
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = SignupConstants.ProspectActor
         });
         context.FgsInvitations.Add(new FgsInvitation
         {

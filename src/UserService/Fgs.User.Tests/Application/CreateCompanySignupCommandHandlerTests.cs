@@ -126,8 +126,12 @@ public sealed class CreateCompanySignupCommandHandlerTests
 
         var userRole = await userContext.FgsUserRoles.SingleAsync();
         userRole.UserId.Should().Be(createdUser.Id);
-        userRole.GloRoleId.Should().Be(SignupConstants.TenantAdminGloRoleId);
-        userRole.FgsRoleId.Should().BeNull();
+        userRole.FgsRoleId.Should().BeGreaterThan(0);
+
+        var tenantAdminRole = await userContext.FgsRoles.SingleAsync();
+        tenantAdminRole.RoleCode.Should().Be(SignupConstants.TenantAdminRoleCode);
+        tenantAdminRole.IsBuiltIn.Should().BeTrue();
+        userRole.FgsRoleId.Should().Be(tenantAdminRole.Id);
 
         var outbox = await userContext.TenantOutboxMessages.SingleAsync();
         outbox.ExchangeName.Should().Be(IntegrationEventExchanges.UserEvents);

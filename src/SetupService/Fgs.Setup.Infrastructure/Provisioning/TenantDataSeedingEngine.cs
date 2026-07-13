@@ -341,7 +341,8 @@ public sealed class TenantDataSeedingEngine(
             TenantSeedSqlBuilder.BuildBusinessTypeFilterClause(
                 sourceMetadata.HasBusinessTypeId,
                 sourceMetadata.BusinessTypeIdIsNullable,
-                hasBusinessTypeFilter));
+                hasBusinessTypeFilter),
+            TenantSeedSqlBuilder.BuildSourceFilterClause(mapping));
 
         var sql = TenantSeedSqlBuilder.BuildInsertSelectSql(
             TenantSeedSqlBuilder.QualifyTable(mapping.TargetSchemaName, mapping.TargetTableName),

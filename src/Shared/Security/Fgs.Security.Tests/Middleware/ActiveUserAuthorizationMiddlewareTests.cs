@@ -18,19 +18,17 @@ public sealed class ActiveUserAuthorizationMiddlewareTests
     {
         var nextCalled = false;
         var tenantAccessor = new TenantContextAccessor();
-        var middleware = CreateMiddleware(
-            _ =>
-            {
-                nextCalled = true;
-                return Task.CompletedTask;
-            },
-            CreateProfileStore(CreateProfile()).Object,
-            tenantAccessor);
+        var profileStore = CreateProfileStore(CreateProfile());
+        var middleware = CreateMiddleware(_ =>
+        {
+            nextCalled = true;
+            return Task.CompletedTask;
+        });
 
         var context = CreateHttpContext(authenticated: true, tenantId: 1, companyId: 1);
         var userContext = CreateUserContext(authenticated: true, entraObjectId: "oid-1");
 
-        await middleware.InvokeAsync(context, userContext);
+        await middleware.InvokeAsync(context, userContext, profileStore.Object, tenantAccessor);
 
         nextCalled.Should().BeTrue();
         context.Response.StatusCode.Should().Be(StatusCodes.Status200OK);
@@ -42,15 +40,17 @@ public sealed class ActiveUserAuthorizationMiddlewareTests
     [Fact]
     public async Task InvokeAsync_WithInactiveProfile_ReturnsForbiddenWithMessage()
     {
-        var middleware = CreateMiddleware(
-            _ => Task.CompletedTask,
-            CreateProfileStore(CreateProfile(isActive: false)).Object,
-            new TenantContextAccessor());
+        var profileStore = CreateProfileStore(CreateProfile(isActive: false));
+        var middleware = CreateMiddleware(_ => Task.CompletedTask);
 
         var context = CreateHttpContext(authenticated: true, tenantId: 1, companyId: 1);
         var userContext = CreateUserContext(authenticated: true, entraObjectId: "oid-1");
 
-        await middleware.InvokeAsync(context, userContext);
+        await middleware.InvokeAsync(
+            context,
+            userContext,
+            profileStore.Object,
+            new TenantContextAccessor());
 
         context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
         var body = await ReadResponseBody(context);
@@ -60,15 +60,17 @@ public sealed class ActiveUserAuthorizationMiddlewareTests
     [Fact]
     public async Task InvokeAsync_WithTenantMismatch_ReturnsForbiddenWithMessage()
     {
-        var middleware = CreateMiddleware(
-            _ => Task.CompletedTask,
-            CreateProfileStore(CreateProfile(tenantId: 1)).Object,
-            new TenantContextAccessor());
+        var profileStore = CreateProfileStore(CreateProfile(tenantId: 1));
+        var middleware = CreateMiddleware(_ => Task.CompletedTask);
 
         var context = CreateHttpContext(authenticated: true, tenantId: 99, companyId: 1);
         var userContext = CreateUserContext(authenticated: true, entraObjectId: "oid-1");
 
-        await middleware.InvokeAsync(context, userContext);
+        await middleware.InvokeAsync(
+            context,
+            userContext,
+            profileStore.Object,
+            new TenantContextAccessor());
 
         context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
         var body = await ReadResponseBody(context);
@@ -80,19 +82,17 @@ public sealed class ActiveUserAuthorizationMiddlewareTests
     {
         var nextCalled = false;
         var tenantAccessor = new TenantContextAccessor();
-        var middleware = CreateMiddleware(
-            _ =>
-            {
-                nextCalled = true;
-                return Task.CompletedTask;
-            },
-            CreateProfileStore(CreateProfile(companyId: 1, roles: ["TENANT_ADMIN"])).Object,
-            tenantAccessor);
+        var profileStore = CreateProfileStore(CreateProfile(companyId: 1, roles: ["TENANT_ADMIN"]));
+        var middleware = CreateMiddleware(_ =>
+        {
+            nextCalled = true;
+            return Task.CompletedTask;
+        });
 
         var context = CreateHttpContext(authenticated: true, tenantId: 1, companyId: 42);
         var userContext = CreateUserContext(authenticated: true, entraObjectId: "oid-1");
 
-        await middleware.InvokeAsync(context, userContext);
+        await middleware.InvokeAsync(context, userContext, profileStore.Object, tenantAccessor);
 
         nextCalled.Should().BeTrue();
         tenantAccessor.Current!.CompanyId.Should().Be(42);
@@ -102,19 +102,20 @@ public sealed class ActiveUserAuthorizationMiddlewareTests
     public async Task InvokeAsync_WithUnauthenticatedRequest_SkipsValidation()
     {
         var nextCalled = false;
-        var middleware = CreateMiddleware(
-            _ =>
-            {
-                nextCalled = true;
-                return Task.CompletedTask;
-            },
-            Mock.Of<IUserAuthProfileStore>(),
-            new TenantContextAccessor());
+        var middleware = CreateMiddleware(_ =>
+        {
+            nextCalled = true;
+            return Task.CompletedTask;
+        });
 
         var context = CreateHttpContext(authenticated: false, allowAnonymous: true);
         var userContext = CreateUserContext(authenticated: false);
 
-        await middleware.InvokeAsync(context, userContext);
+        await middleware.InvokeAsync(
+            context,
+            userContext,
+            Mock.Of<IUserAuthProfileStore>(),
+            new TenantContextAccessor());
 
         nextCalled.Should().BeTrue();
     }
@@ -122,17 +123,19 @@ public sealed class ActiveUserAuthorizationMiddlewareTests
     [Fact]
     public async Task InvokeAsync_WithAuthenticatedAllowAnonymousEndpoint_EnforcesValidation()
     {
-        var middleware = CreateMiddleware(
-            _ => Task.CompletedTask,
-            CreateProfileStore(CreateProfile(tenantId: 1)).Object,
-            new TenantContextAccessor());
+        var profileStore = CreateProfileStore(CreateProfile(tenantId: 1));
+        var middleware = CreateMiddleware(_ => Task.CompletedTask);
 
         var context = CreateHttpContext(authenticated: true, allowAnonymous: true, tenantId: 99, companyId: 1);
         context.Request.Path = "/api/v1/tenant/99";
         context.Request.RouteValues["tenantId"] = "99";
         var userContext = CreateUserContext(authenticated: true, entraObjectId: "oid-1");
 
-        await middleware.InvokeAsync(context, userContext);
+        await middleware.InvokeAsync(
+            context,
+            userContext,
+            profileStore.Object,
+            new TenantContextAccessor());
 
         context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
         var body = await ReadResponseBody(context);
@@ -149,28 +152,26 @@ public sealed class ActiveUserAuthorizationMiddlewareTests
                 nextCalled = true;
                 return Task.CompletedTask;
             },
-            Mock.Of<IUserAuthProfileStore>(),
-            new TenantContextAccessor(),
             internalServiceKey: "secret-key");
 
         var context = CreateHttpContext(authenticated: true);
         context.Request.Headers["X-FGS-Internal-Service-Key"] = "secret-key";
         var userContext = CreateUserContext(authenticated: true, entraObjectId: "oid-1");
 
-        await middleware.InvokeAsync(context, userContext);
+        await middleware.InvokeAsync(
+            context,
+            userContext,
+            Mock.Of<IUserAuthProfileStore>(),
+            new TenantContextAccessor());
 
         nextCalled.Should().BeTrue();
     }
 
     private static ActiveUserAuthorizationMiddleware CreateMiddleware(
         RequestDelegate next,
-        IUserAuthProfileStore profileStore,
-        ITenantContextAccessor tenantContextAccessor,
         string? internalServiceKey = null) =>
         new(
             next,
-            profileStore,
-            tenantContextAccessor,
             Microsoft.Extensions.Options.Options.Create(new TenantScopeOptions()),
             Microsoft.Extensions.Options.Options.Create(new InternalServiceKeyOptions
             {

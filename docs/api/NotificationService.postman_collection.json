@@ -130,7 +130,7 @@
                  "description":  "Notification dispatch via {{gatewayUrl}}/api/v1/notifications/...",
                  "name":  "FGS NotificationService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "fdbf8157-caf2-4b7e-96cb-3d2f7ae6f617"
+                 "_postman_id":  "29a40ef8-895b-46c3-8378-ccbec6b653d5"
              },
     "event":  [
                   {

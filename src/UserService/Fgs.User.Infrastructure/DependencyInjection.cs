@@ -13,6 +13,8 @@ using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Common.Security;
 using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Application.Abstractions.Persistence;
+using Fgs.User.Application.Abstractions.Roles;
+using Fgs.User.Infrastructure.Entities.Roles;
 using Fgs.User.Infrastructure.Database;
 using Fgs.User.Infrastructure.Database.Read;
 using Fgs.User.Infrastructure.Persistence.Queries;
@@ -77,6 +79,8 @@ public static class DependencyInjection
         services.AddScoped<ITenantCompanyDetailsReadQuery, TenantCompanyDetailsReadQuery>();
         services.AddScoped<IUserRoleCodesReadQuery, UserRoleCodesReadQuery>();
         services.AddScoped<IInvitationReadQuery, InvitationReadQuery>();
+        services.AddScoped<IFgsRoleReadRepository, FgsRoleReadRepository>();
+        services.AddScoped<IFgsRoleWriteService, FgsRoleWriteService>();
         services.AddScoped<IOutboxWriter, OutboxWriter>();
         services.AddScoped<IAddressLocaleResolver, AddressLocaleResolver>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();

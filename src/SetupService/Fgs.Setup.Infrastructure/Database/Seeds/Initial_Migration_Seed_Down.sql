@@ -306,6 +306,7 @@ WHERE "SeedTableMappingId" IN (
     FROM glo."GloSeedTableMapping"
     WHERE "SeedCode" IN (
         'ALL_GloBillingCategory',
+        'ALL_GloRole',
         'ALL_GloJobTypeCategory',
         'ALL_GloJobTypeSubCategory',
         'ALL_GloLeadSource',
@@ -340,6 +341,7 @@ WHERE "SeedTableMappingId" IN (
 DELETE FROM glo."GloSeedTableMapping"
 WHERE "SeedCode" IN (
     'ALL_GloBillingCategory',
+    'ALL_GloRole',
     'ALL_GloJobTypeCategory',
     'ALL_GloJobTypeSubCategory',
     'ALL_GloLeadSource',

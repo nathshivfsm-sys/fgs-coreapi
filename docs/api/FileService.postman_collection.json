@@ -590,7 +590,7 @@
                  "description":  "Tenant S3 provisioning and attachment management via {{gatewayUrl}}. Upload via multipart/form-data; download/thumbnail stream through the API (no S3 URLs exposed).",
                  "name":  "FGS FileService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "14094742-5c27-48df-8e0f-003b176ab3be"
+                 "_postman_id":  "d425eda2-4a22-4c3b-831f-3a6895ed76bf"
              },
     "event":  [
                   {

@@ -10,7 +10,7 @@ internal sealed class UserRoleCodesReadQuery(IUserReadConnectionFactory connecti
         SELECT r."RoleCode"
         FROM {EntitySchemaRegistry.QualifyTable("FgsUserRole")} ur
         INNER JOIN {EntitySchemaRegistry.QualifyTable("FgsRole")} r ON r."Id" = ur."FgsRoleId"
-        WHERE ur."UserId" = @userId AND ur."FgsRoleId" IS NOT NULL
+        WHERE ur."UserId" = @userId
         """;
 
     public async Task<IReadOnlyList<string>> GetRoleCodesForUserAsync(

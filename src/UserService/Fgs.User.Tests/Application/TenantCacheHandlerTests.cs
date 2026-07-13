@@ -6,6 +6,7 @@ using Fgs.MultiTenancy.Constants;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Features.Tenants.Commands.UpdateTenantStatus;
 using Fgs.User.Application.Features.Tenants.Queries.GetTenant;
+using Fgs.Security.Abstractions;
 using Fgs.User.Domain.Entities;
 using Moq;
 
@@ -22,7 +23,9 @@ public sealed class TenantCacheHandlerTests
             .ReturnsAsync(tenantDto);
 
         var repository = new Mock<IUserReadRepository<FgsTenant>>();
-        var handler = new GetTenantQueryHandler(repository.Object, cache.Object);
+        var userContext = new Mock<IFgsUserContext>();
+        userContext.SetupGet(c => c.IsAuthenticated).Returns(false);
+        var handler = new GetTenantQueryHandler(repository.Object, cache.Object, userContext.Object);
 
         var response = await handler.Handle(new GetTenantQuery(1), CancellationToken.None);
 

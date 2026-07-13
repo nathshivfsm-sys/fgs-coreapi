@@ -1,4 +1,5 @@
 using Fgs.User.Domain.Entities;
+using Fgs.User.Infrastructure.Database.Configurations;
 using Fgs.User.Infrastructure.Database.Schemas;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
@@ -25,6 +26,17 @@ public class FgsUserDbContext : FgsTenantFilteredDbContext
     public DbSet<FgsUserRole> FgsUserRoles => Set<FgsUserRole>();
     public DbSet<FgsRole> FgsRoles => Set<FgsRole>();
     public DbSet<FgsInvitation> FgsInvitations => Set<FgsInvitation>();
+    public DbSet<FgsPermission> FgsPermissions => Set<FgsPermission>();
+    public DbSet<FgsRolePermission> FgsRolePermissions => Set<FgsRolePermission>();
+    public DbSet<FgsDataAccess> FgsDataAccesses => Set<FgsDataAccess>();
+    public DbSet<FgsDataAccessScope> FgsDataAccessScopes => Set<FgsDataAccessScope>();
+    public DbSet<FgsRoleDataAccess> FgsRoleDataAccesses => Set<FgsRoleDataAccess>();
+    public DbSet<FgsApiEvent> FgsApiEvents => Set<FgsApiEvent>();
+    public DbSet<FgsApiWebhook> FgsApiWebhooks => Set<FgsApiWebhook>();
+    public DbSet<FgsApiWebhookSubscription> FgsApiWebhookSubscriptions => Set<FgsApiWebhookSubscription>();
+    public DbSet<FgsApiClient> FgsApiClients => Set<FgsApiClient>();
+    public DbSet<FgsApiSecret> FgsApiSecrets => Set<FgsApiSecret>();
+    public DbSet<FgsApiRequestLog> FgsApiRequestLogs => Set<FgsApiRequestLog>();
 
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
 
@@ -34,6 +46,7 @@ public class FgsUserDbContext : FgsTenantFilteredDbContext
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsUserDbContext).Assembly);
         EntitySchemaRegistry.ApplySchemas(modelBuilder);
+        FgsUserDbContextConfigurationExtensions.ApplyTenantCompanyCacheForeignKeys(modelBuilder);
         ConfigureAuditActorColumns(modelBuilder);
         ApplyFgsTenantQueryFilters(modelBuilder);
     }

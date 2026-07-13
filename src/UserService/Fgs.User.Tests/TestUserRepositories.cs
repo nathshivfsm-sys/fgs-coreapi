@@ -117,7 +117,7 @@ internal static class TestUserRepositories
                 return await (
                     from userRole in context.FgsUserRoles
                     join role in context.FgsRoles on userRole.FgsRoleId equals role.Id
-                    where userRole.UserId == userId && userRole.FgsRoleId != null
+                    where userRole.UserId == userId
                     select role.RoleCode).ToListAsync(cancellationToken);
             });
 

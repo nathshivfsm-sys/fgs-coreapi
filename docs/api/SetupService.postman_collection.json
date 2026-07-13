@@ -14525,8 +14525,8 @@
                                                                                 },
                                                                                 {
                                                                                     "key":  "inventoryLocationId",
-                                                                                    "description":  "Optional inventory location filter. Returns the vehicle linked to this location (0 or 1 result).",
-                                                                                    "value":  "{{inventoryLocationId}}",
+                                                                                    "description":  "Optional inventoryLocationId filter.",
+                                                                                    "value":  "",
                                                                                     "disabled":  true
                                                                                 }
                                                                             ],
@@ -15612,7 +15612,7 @@
                  "description":  "Platform setup catalog APIs via {{gatewayUrl}}/api/v1/{catalog}.",
                  "name":  "FGS SetupService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "8f369baf-a26f-4be7-b07c-3f4b8ad37c41"
+                 "_postman_id":  "73012eba-08a5-445d-86ec-b538afd30b62"
              },
     "event":  [
                   {

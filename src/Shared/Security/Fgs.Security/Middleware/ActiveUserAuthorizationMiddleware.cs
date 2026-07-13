@@ -10,12 +10,14 @@ namespace Fgs.Security.Middleware;
 
 public sealed class ActiveUserAuthorizationMiddleware(
     RequestDelegate next,
-    IUserAuthProfileStore profileStore,
-    ITenantContextAccessor tenantContextAccessor,
     IOptions<TenantScopeOptions> tenantScopeOptions,
     IOptions<InternalServiceKeyOptions> internalServiceKeyOptions)
 {
-    public async Task InvokeAsync(HttpContext context, IFgsUserContext userContext)
+    public async Task InvokeAsync(
+        HttpContext context,
+        IFgsUserContext userContext,
+        IUserAuthProfileStore profileStore,
+        ITenantContextAccessor tenantContextAccessor)
     {
         if (IsInternalServiceRequest(context)
             || !userContext.IsAuthenticated
