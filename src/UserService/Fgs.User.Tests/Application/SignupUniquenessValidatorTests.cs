@@ -107,13 +107,24 @@ public sealed class SignupUniquenessValidatorTests
             Name = $"Tenant {tenantId}"
         });
 
+        var companyGuid = Guid.NewGuid();
         context.FgsTenantCompanies.Add(new FgsTenantCompany
         {
             TenantId = tenantId,
             CompanyNumber = companyId,
-            CompanyGuid = Guid.NewGuid(),
+            CompanyGuid = companyGuid,
             Code = $"company-{companyId}",
             Name = $"Company {companyId}"
+        });
+        context.FgsTenantCompanyCaches.Add(new FgsTenantCompanyCache
+        {
+            TenantId = tenantId,
+            CompanyId = companyId,
+            CompanyGuid = companyGuid,
+            CompanyCode = $"company-{companyId}",
+            CompanyName = $"Company {companyId}",
+            IsActive = true,
+            UpdatedOn = DateTimeOffset.UtcNow
         });
 
         await context.SaveChangesAsync();

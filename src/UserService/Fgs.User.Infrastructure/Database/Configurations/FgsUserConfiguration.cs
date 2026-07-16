@@ -18,14 +18,5 @@ internal class FgsUserConfiguration : IEntityTypeConfiguration<FgsUser>
         entity.Property(e => e.EntraObjectId).HasMaxLength(100);
         entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
-        entity.HasOne(e => e.Tenant)
-            .WithMany()
-            .HasForeignKey(e => e.TenantId)
-            .OnDelete(DeleteBehavior.Restrict);
-        entity.HasOne(e => e.Company)
-            .WithMany()
-            .HasForeignKey(e => new { e.TenantId, e.CompanyId })
-            .HasPrincipalKey(c => new { c.TenantId, c.CompanyNumber })
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -329,6 +329,16 @@ public sealed class EntraCallbackCommandHandlerTests
             Name = "Company",
             CreatedOn = DateTimeOffset.UtcNow
         });
+        context.FgsTenantCompanyCaches.Add(new FgsTenantCompanyCache
+        {
+            TenantId = tenantId,
+            CompanyId = 1,
+            CompanyGuid = companyId,
+            CompanyCode = "c1",
+            CompanyName = "Company",
+            IsActive = true,
+            UpdatedOn = DateTimeOffset.UtcNow
+        });
         context.FgsUsers.Add(new FgsUser
         {
             Id = userId,
@@ -400,6 +410,16 @@ public sealed class EntraCallbackCommandHandlerTests
             Code = "c1",
             Name = "Company",
             CreatedOn = DateTimeOffset.UtcNow
+        });
+        context.FgsTenantCompanyCaches.Add(new FgsTenantCompanyCache
+        {
+            TenantId = tenantId,
+            CompanyId = 1,
+            CompanyGuid = companyId,
+            CompanyCode = "c1",
+            CompanyName = "Company",
+            IsActive = true,
+            UpdatedOn = DateTimeOffset.UtcNow
         });
         context.FgsUsers.Add(new FgsUser
         {

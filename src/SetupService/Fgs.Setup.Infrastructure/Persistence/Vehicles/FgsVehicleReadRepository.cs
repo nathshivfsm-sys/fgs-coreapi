@@ -140,25 +140,4 @@ internal sealed class FgsVehicleReadRepository : IFgsVehicleReadRepository
 
         return rows.Select(r => r.ToDto()).ToList();
     }
-
-    public async Task<bool> ExistsInventoryLocationIdAsync(
-        long id,
-        CancellationToken cancellationToken = default)
-    {
-        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
-        var sql = """
-            SELECT EXISTS(
-                SELECT 1
-                FROM inventory."FgsInventoryLocation"
-                WHERE "TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE
-            )
-            """;
-
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        return await connection.ExecuteScalarAsync<bool>(
-            new CommandDefinition(
-                sql,
-                new { TenantId = tenantId, CompanyId = companyId, Id = id },
-                cancellationToken: cancellationToken));
-    }
 }

@@ -150,15 +150,26 @@ public sealed class StartLoginCommandHandlerTests
         await context.SaveChangesAsync();
 
         const long companyId = 1;
+        var companyGuid = Guid.NewGuid();
         context.FgsTenantCompanies.Add(new FgsTenantCompany
         {
             TenantId = tenant.Id,
             CompanyNumber = companyId,
-            CompanyGuid = Guid.NewGuid(),
+            CompanyGuid = companyGuid,
             Code = "c1",
             Name = "Company",
             IsActive = true,
             CreatedOn = DateTimeOffset.UtcNow
+        });
+        context.FgsTenantCompanyCaches.Add(new FgsTenantCompanyCache
+        {
+            TenantId = tenant.Id,
+            CompanyId = companyId,
+            CompanyGuid = companyGuid,
+            CompanyCode = "c1",
+            CompanyName = "Company",
+            IsActive = true,
+            UpdatedOn = DateTimeOffset.UtcNow
         });
 
         var userId = Guid.NewGuid();

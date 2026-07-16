@@ -62,11 +62,11 @@ public sealed class StartLoginCommandHandler(
                 ApiStatusCodes.Forbidden);
         }
 
-        var company = await unitOfWork.Repository<FgsTenantCompany>()
+        var companyCache = await unitOfWork.Repository<FgsTenantCompanyCache>()
             .FirstOrDefaultIgnoreFiltersAsync(
-                c => c.TenantId == user.TenantId && c.CompanyNumber == user.CompanyId,
+                c => c.TenantId == user.TenantId && c.CompanyId == user.CompanyId,
                 cancellationToken);
-        if (company is null || !company.IsActive)
+        if (companyCache is null || !companyCache.IsActive)
         {
             return ApiResponse<StartLoginResultDto>.Fail(
                 [AuthErrorMessages.CompanyNotActive],

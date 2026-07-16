@@ -80,6 +80,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
 
         (await userContext.FgsTenants.CountAsync()).Should().Be(1);
         (await userContext.FgsTenantCompanies.CountAsync()).Should().Be(1);
+        (await userContext.FgsTenantCompanyCaches.CountAsync()).Should().Be(1);
         (await userContext.FgsUsers.CountAsync()).Should().Be(1);
         (await userContext.FgsInvitations.CountAsync()).Should().Be(1);
         (await userContext.FgsLocations.CountAsync()).Should().Be(1);
@@ -107,6 +108,14 @@ public sealed class CreateCompanySignupCommandHandlerTests
         company.PhysicalLocationId.Should().Be(tenant.PhysicalLocationId);
         company.BillingLocationId.Should().Be(tenant.PhysicalLocationId);
         company.CreatedBy.Should().Be(SignupConstants.ProspectActor);
+
+        var companyCache = await userContext.FgsTenantCompanyCaches.SingleAsync();
+        companyCache.TenantId.Should().Be(tenant.Id);
+        companyCache.CompanyId.Should().Be(company.CompanyNumber);
+        companyCache.CompanyGuid.Should().Be(company.CompanyGuid);
+        companyCache.CompanyCode.Should().Be(tenant.TenantCode);
+        companyCache.CompanyName.Should().Be(companyName);
+        companyCache.IsActive.Should().BeTrue();
 
         var location = await userContext.FgsLocations.SingleAsync();
         location.AddressLine1.Should().Be(command.Company.Address.AddressLine1);

@@ -99,15 +99,26 @@ public sealed class EntraApiConnectorCommandHandlerTests
         await context.SaveChangesAsync();
 
         var tenantId = tenant.Id;
+        var companyGuid = Guid.NewGuid();
         context.FgsTenantCompanies.Add(new FgsTenantCompany
         {
             TenantId = tenantId,
             CompanyNumber = companyId,
-            CompanyGuid = Guid.NewGuid(),
+            CompanyGuid = companyGuid,
             Code = "c1",
             Name = "Company",
             IsActive = true,
             CreatedOn = DateTimeOffset.UtcNow
+        });
+        context.FgsTenantCompanyCaches.Add(new FgsTenantCompanyCache
+        {
+            TenantId = tenantId,
+            CompanyId = companyId,
+            CompanyGuid = companyGuid,
+            CompanyCode = "c1",
+            CompanyName = "Company",
+            IsActive = true,
+            UpdatedOn = DateTimeOffset.UtcNow
         });
         context.FgsUsers.Add(new FgsUser
         {
