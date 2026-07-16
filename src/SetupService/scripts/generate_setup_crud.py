@@ -14,7 +14,7 @@ APP = ROOT / "Fgs.Setup.Application"
 INFRA = ROOT / "Fgs.Setup.Infrastructure"
 API = ROOT / "Fgs.Setup.API"
 TESTS = ROOT / "Fgs.Setup.Tests"
-INFRA_ENTITIES = "Entities"
+INFRA_PERSISTENCE = "Persistence"
 
 
 @dataclass
@@ -1102,7 +1102,7 @@ for e in ENTITIES + NEW_ENTITIES + UNIVERSAL_MATRIX_ENTITIES:
 
 def infra_path(cfg: EntityConfig) -> Path:
     folder = cfg.infra_folder or cfg.plural_folder
-    parts: list[str] = [INFRA_ENTITIES]
+    parts: list[str] = [INFRA_PERSISTENCE]
     if cfg.infra_parent_folder:
         parts.append(cfg.infra_parent_folder)
     parts.append(folder)
@@ -1111,7 +1111,7 @@ def infra_path(cfg: EntityConfig) -> Path:
 
 def infra_namespace(cfg: EntityConfig) -> str:
     folder = cfg.infra_folder or cfg.plural_folder
-    parts = ["Fgs", "Setup", "Infrastructure", INFRA_ENTITIES]
+    parts = ["Fgs", "Setup", "Infrastructure", INFRA_PERSISTENCE]
     if cfg.infra_parent_folder:
         parts.append(cfg.infra_parent_folder)
     parts.append(folder)
@@ -3202,7 +3202,7 @@ def patch_dependency_injection(entities: list[EntityConfig]) -> None:
             registrations.append(f"        {reg_write}")
 
     if imports:
-        anchor = "using Fgs.Setup.Infrastructure.Entities.TitlesOfCourtesy;"
+        anchor = "using Fgs.Setup.Infrastructure.Persistence.TitlesOfCourtesy;"
         if anchor in text:
             text = text.replace(anchor, anchor + "\n" + "\n".join(sorted(set(imports))))
 
