@@ -78,7 +78,6 @@ public static class DependencyInjection
 
         services.AddFgsUserFacingSecurity(configuration);
         services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));
-        services.AddScoped<IFgsUserRoleResolver, FgsUserRoleResolver>();
         services.AddScoped<IFgsUserProfileResolver, FgsUserProfileResolver>();
         services.Configure<EntraExternalIdOptions>(configuration.GetSection(EntraExternalIdOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
