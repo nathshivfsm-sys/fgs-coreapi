@@ -1,3 +1,4 @@
+using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Domain.Entities;
@@ -83,6 +84,17 @@ internal static class TestUserRepositories
             });
 
         mock
+            .Setup(q => q.HasAcceptedInvitationForUserAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns<Guid, CancellationToken>(async (userId, cancellationToken) =>
+            {
+                return await context.FgsInvitations.AnyAsync(
+                    i => i.UserId == userId && i.Status == InvitationStatus.Accepted,
+                    cancellationToken);
+            });
+
+        mock
             .Setup(q => q.HasPendingInvitationForNormalizedEmailAsync(
                 It.IsAny<string>(),
                 It.IsAny<DateTimeOffset>(),
@@ -98,6 +110,39 @@ internal static class TestUserRepositories
                 return invitations.Any(email => normalizer.Normalize(email) == normalizedEmail);
             });
 
+        return mock.Object;
+    }
+
+    public static IUserAuthorizationReadQuery AuthorizationRead(
+        IReadOnlyList<string>? permissions = null,
+        IReadOnlyList<string>? dataAccess = null)
+    {
+        var mock = new Mock<IUserAuthorizationReadQuery>();
+        mock.Setup(q => q.GetPermissionCodesForUserAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(permissions ?? []);
+        mock.Setup(q => q.GetDataAccessCodesForUserAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(dataAccess ?? []);
+        return mock.Object;
+    }
+
+    public static ILoginAuthorizationProfileBuilder ProfileBuilder(
+        IReadOnlyList<string>? roles = null)
+    {
+        var mock = new Mock<ILoginAuthorizationProfileBuilder>();
+        mock
+            .Setup(b => b.BuildAsync(It.IsAny<FgsUser>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((FgsUser user, CancellationToken _) => new FgsUserProfile(
+                user.Id,
+                user.Email,
+                user.EntraObjectId,
+                user.TenantId,
+                user.CompanyId,
+                user.IsActive,
+                user.IsDeleted,
+                roles ?? ["TENANT_ADMIN"],
+                [],
+                [],
+                []));
         return mock.Object;
     }
 

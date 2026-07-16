@@ -19,7 +19,10 @@ public sealed class GetUserAuthProfileQueryHandlerTests
             1,
             true,
             false,
-            ["TENANT_ADMIN"]);
+            ["TENANT_ADMIN"],
+            [],
+            [],
+            []);
 
         var resolver = new Mock<IFgsUserProfileResolver>();
         resolver

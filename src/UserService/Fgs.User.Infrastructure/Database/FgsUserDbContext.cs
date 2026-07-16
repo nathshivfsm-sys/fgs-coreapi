@@ -31,6 +31,7 @@ public class FgsUserDbContext : FgsTenantFilteredDbContext
     public DbSet<FgsDataAccess> FgsDataAccesses => Set<FgsDataAccess>();
     public DbSet<FgsDataAccessScope> FgsDataAccessScopes => Set<FgsDataAccessScope>();
     public DbSet<FgsRoleDataAccess> FgsRoleDataAccesses => Set<FgsRoleDataAccess>();
+    public DbSet<FgsPublicEndpoint> FgsPublicEndpoints => Set<FgsPublicEndpoint>();
     public DbSet<FgsApiEvent> FgsApiEvents => Set<FgsApiEvent>();
     public DbSet<FgsApiWebhook> FgsApiWebhooks => Set<FgsApiWebhook>();
     public DbSet<FgsApiWebhookSubscription> FgsApiWebhookSubscriptions => Set<FgsApiWebhookSubscription>();

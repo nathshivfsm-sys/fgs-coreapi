@@ -68,5 +68,8 @@ public sealed class UserAuthProfileStoreTests
             1,
             true,
             false,
-            ["TENANT_ADMIN"]);
+            ["TENANT_ADMIN"],
+            [],
+            [],
+            []);
 }

@@ -184,7 +184,10 @@ public sealed class UserAuthorizationEvaluatorTests
             companyId,
             isActive,
             isDeleted,
-            roles ?? [FgsRoleCodes.TenantAdmin]);
+            roles ?? [FgsRoleCodes.TenantAdmin],
+            [],
+            [],
+            []);
 
     private static DefaultHttpContext CreateContext(
         string path = "/api/v1/tenants",

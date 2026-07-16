@@ -1,4 +1,5 @@
 using Fgs.Contracts.Api;
+using Fgs.Contracts.Auth;
 using MediatR;
 
 namespace Fgs.User.Application.Features.Auth.Queries.GetUserAuthProfile;
@@ -14,4 +15,7 @@ public sealed record UserAuthProfileResultDto(
     long CompanyId,
     bool IsActive,
     bool IsDeleted,
-    IReadOnlyList<string> Roles);
+    IReadOnlyList<string> Roles,
+    IReadOnlyList<string> Permissions,
+    IReadOnlyList<string> DataAccess,
+    IReadOnlyList<PublicEndpointAuthDto> PublicEndpoints);

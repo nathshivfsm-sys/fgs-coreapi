@@ -6,6 +6,10 @@ public interface IInvitationReadQuery
         Guid userId,
         CancellationToken cancellationToken = default);
 
+    Task<bool> HasAcceptedInvitationForUserAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default);
+
     Task<bool> HasPendingInvitationForNormalizedEmailAsync(
         string normalizedEmail,
         DateTimeOffset nowUtc,

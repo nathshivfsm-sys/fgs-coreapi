@@ -46,5 +46,8 @@ public sealed class GetUserAuthProfileQueryHandler(
             dto.CompanyId,
             dto.IsActive,
             dto.IsDeleted,
-            dto.Roles);
+            dto.Roles,
+            dto.Permissions,
+            dto.DataAccess,
+            dto.PublicEndpoints);
 }

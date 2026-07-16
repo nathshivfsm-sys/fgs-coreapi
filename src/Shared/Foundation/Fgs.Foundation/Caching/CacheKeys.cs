@@ -51,4 +51,7 @@ public static class CacheKeys
 
     public static string UserAuthByUserId(Guid userId) =>
         $"user:auth:id:{userId:D}";
+
+    public static string LoginPkceByState(string state) =>
+        $"login:pkce:{state}";
 }

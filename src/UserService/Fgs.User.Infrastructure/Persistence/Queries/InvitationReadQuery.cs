@@ -20,6 +20,14 @@ internal sealed class InvitationReadQuery(
               AND "Status" IN (@pendingStatus, @acceptedStatus))
         """;
 
+    private static readonly string AcceptedInvitationSql = $"""
+        SELECT EXISTS(
+            SELECT 1
+            FROM {EntitySchemaRegistry.QualifyTable("FgsInvitation")}
+            WHERE "UserId" = @userId
+              AND "Status" = @acceptedStatus)
+        """;
+
     private static readonly string PendingInvitationsSql = $"""
         SELECT "Email"
         FROM {EntitySchemaRegistry.QualifyTable("FgsInvitation")}
@@ -38,6 +46,21 @@ internal sealed class InvitationReadQuery(
             {
                 userId,
                 pendingStatus = PendingStatus,
+                acceptedStatus = AcceptedStatus
+            });
+    }
+
+    public async Task<bool> HasAcceptedInvitationForUserAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await Dapper.SqlMapper.ExecuteScalarAsync<bool>(
+            connection,
+            AcceptedInvitationSql,
+            new
+            {
+                userId,
                 acceptedStatus = AcceptedStatus
             });
     }

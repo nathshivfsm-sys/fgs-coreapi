@@ -14,5 +14,8 @@ public static class UserAuthProfileMapper
             profile.CompanyId,
             profile.IsActive,
             profile.IsDeleted,
-            profile.Roles);
+            profile.Roles,
+            profile.Permissions,
+            profile.DataAccess,
+            profile.PublicEndpoints);
 }

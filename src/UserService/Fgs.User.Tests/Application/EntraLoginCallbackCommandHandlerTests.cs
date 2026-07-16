@@ -1,17 +1,12 @@
 using Fgs.Security.UserAuth;
 using Fgs.User.Application.Abstractions.Identity;
-using Fgs.User.Application.Abstractions.Persistence;
-using Fgs.User.Application.Abstractions.Security;
-using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Auth;
 using Fgs.User.Application.Features.Auth.Commands.EntraLoginCallback;
-using Fgs.Persistence.Abstractions;
+using Fgs.Persistence.Implementations;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Common.Security;
-using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Infrastructure.Database;
-using Fgs.Persistence.Implementations;
 using Microsoft.Extensions.Configuration;
 using Moq;
 
@@ -120,9 +115,8 @@ public sealed class EntraLoginCallbackCommandHandlerTests
             new EfUnitOfWork<FgsUserDbContext>(context),
             entraMock.Object,
             new EmailNormalizer(),
-            new DateTimeProvider(),
             configuration,
             profileStore ?? Mock.Of<IUserAuthProfileStore>(),
-            TestUserRepositories.RoleCodesRead(context));
+            TestUserRepositories.ProfileBuilder());
     }
 }

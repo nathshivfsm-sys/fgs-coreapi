@@ -11,6 +11,7 @@ internal sealed class UserRoleCodesReadQuery(IUserReadConnectionFactory connecti
         FROM {EntitySchemaRegistry.QualifyTable("FgsUserRole")} ur
         INNER JOIN {EntitySchemaRegistry.QualifyTable("FgsRole")} r ON r."Id" = ur."FgsRoleId"
         WHERE ur."UserId" = @userId
+          AND r."IsActive" = true
         """;
 
     public async Task<IReadOnlyList<string>> GetRoleCodesForUserAsync(

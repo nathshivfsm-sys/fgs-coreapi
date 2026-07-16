@@ -52,7 +52,10 @@ public sealed class InternalUsersController(
             response.Data.CompanyId,
             response.Data.IsActive,
             response.Data.IsDeleted,
-            response.Data.Roles);
+            response.Data.Roles,
+            response.Data.Permissions,
+            response.Data.DataAccess,
+            response.Data.PublicEndpoints);
 
         return Ok(ApiResponse<UserAuthProfileDto>.Ok(dto));
     }

@@ -10,6 +10,8 @@ public static class ConfigurationKeys
         public const string Section = "EntraExternalId";
 
         public const string RedirectUri = $"{Section}:RedirectUri";
+
+        public const string LoginRedirectUri = $"{Section}:LoginRedirectUri";
     }
 
     public static class Application

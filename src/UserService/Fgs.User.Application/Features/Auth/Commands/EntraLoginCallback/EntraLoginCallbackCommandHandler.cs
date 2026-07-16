@@ -3,13 +3,10 @@ using Fgs.Contracts.Auth;
 using Fgs.Persistence.Abstractions;
 using Fgs.Security.UserAuth;
 using Fgs.User.Application.Abstractions.Identity;
-using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Security;
-using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Application.Common;
-using Fgs.User.Application.Features.Auth;
-using Fgs.User.Domain.Entities;
 using Fgs.User.Application.Common.Identity;
+using Fgs.User.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 
@@ -19,10 +16,9 @@ public sealed class EntraLoginCallbackCommandHandler(
     IUnitOfWork unitOfWork,
     IEntraExternalIdService entraService,
     IEmailNormalizer emailNormalizer,
-    IDateTimeProvider dateTime,
     IConfiguration configuration,
     IUserAuthProfileStore profileStore,
-    IUserRoleCodesReadQuery roleCodesReadQuery) : IRequestHandler<EntraLoginCallbackCommand, ApiResponse<EntraLoginCallbackResultDto>>
+    ILoginAuthorizationProfileBuilder profileBuilder) : IRequestHandler<EntraLoginCallbackCommand, ApiResponse<EntraLoginCallbackResultDto>>
 {
     public async Task<ApiResponse<EntraLoginCallbackResultDto>> Handle(
         EntraLoginCallbackCommand request,
@@ -71,24 +67,13 @@ public sealed class EntraLoginCallbackCommandHandler(
         if (string.IsNullOrWhiteSpace(user.EntraObjectId))
         {
             user.EntraObjectId = entraUser.ObjectId;
-            user.UpdatedOn = dateTime.UtcNow;
             userRepo.Update(user);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
         await profileStore.InvalidateAsync(user.Id, user.EntraObjectId, cancellationToken);
 
-        var roles = await roleCodesReadQuery.GetRoleCodesForUserAsync(user.Id, cancellationToken);
-        var profile = new FgsUserProfile(
-            user.Id,
-            user.Email,
-            entraUser.ObjectId,
-            user.TenantId,
-            user.CompanyId,
-            user.IsActive,
-            user.IsDeleted,
-            roles);
-
+        var profile = await profileBuilder.BuildAsync(user, cancellationToken);
         await profileStore.SetAsync(UserAuthProfileMapper.ToDto(profile), cancellationToken);
 
         var dashboardUrl = configuration[ConfigurationKeys.Application.DashboardUrl]

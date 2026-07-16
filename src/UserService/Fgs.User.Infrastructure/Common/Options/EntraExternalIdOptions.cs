@@ -16,11 +16,17 @@ public sealed class EntraExternalIdOptions
     public string Authority { get; set; } = "https://login.microsoftonline.com";
 
     /// <summary>
-    /// Must exactly match the redirect URI registered in Entra and used in both authorize and token requests.
+    /// Must exactly match the redirect URI registered in Entra and used in both authorize and token requests
+    /// for the signup/invite callback (API-hosted).
     /// </summary>
     public string RedirectUri { get; set; } = ApplicationUrlDefaults.EntraCallbackRedirect;
 
-    public string Scopes { get; set; } = "openid profile email";
+    /// <summary>
+    /// SPA-hosted login callback URI used only for returning-user login (Option A).
+    /// </summary>
+    public string LoginRedirectUri { get; set; } = "https://localhost:3000/auth/callback";
+
+    public string Scopes { get; set; } = "openid profile email offline_access";
 
     public string TokenEndpoint { get; set; } = string.Empty;
 

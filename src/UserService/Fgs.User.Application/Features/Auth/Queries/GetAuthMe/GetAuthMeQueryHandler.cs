@@ -61,7 +61,10 @@ public sealed class GetAuthMeQueryHandler(
             profile.EntraObjectId ?? userContext.EntraObjectId,
             tenantId ?? profile.TenantId,
             companyId ?? profile.CompanyId,
-            profile.Roles));
+            profile.Roles,
+            profile.Permissions,
+            profile.DataAccess,
+            profile.PublicEndpoints));
     }
 
     private static long? ResolveScopeId(long? headerValue, ClaimsPrincipal? claims, string claimType)

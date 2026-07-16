@@ -30,4 +30,17 @@ public static class AuthErrorMessages
     public const string UserNotActive = "User account is not active.";
 
     public const string InvalidLoginOAuthState = "Invalid login OAuth state.";
+
+    public const string InvitationNotAccepted =
+        "Sign-in requires an accepted invitation. Use the invitation link from your email.";
+
+    public const string TenantNotActive = "Tenant is not active.";
+
+    public const string CompanyNotActive = "Company is not active.";
+
+    public const string RefreshTokenRequired = "Refresh token is required.";
+
+    public const string RefreshTokenFailed = "Failed to refresh the access token.";
+
+    public const string PkceStateExpired = "Login session expired. Restart sign-in.";
 }

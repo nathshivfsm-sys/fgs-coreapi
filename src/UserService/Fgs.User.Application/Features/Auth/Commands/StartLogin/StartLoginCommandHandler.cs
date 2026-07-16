@@ -1,6 +1,7 @@
 using Fgs.Contracts.Api;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Identity;
+using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Auth;
@@ -14,6 +15,8 @@ public sealed class StartLoginCommandHandler(
     IUnitOfWork unitOfWork,
     IEntraExternalIdService entraService,
     IEmailNormalizer emailNormalizer,
+    IInvitationReadQuery invitationReadQuery,
+    ILoginPkceStore loginPkceStore,
     IConfiguration configuration) : IRequestHandler<StartLoginCommand, ApiResponse<StartLoginResultDto>>
 {
     public async Task<ApiResponse<StartLoginResultDto>> Handle(
@@ -24,9 +27,7 @@ public sealed class StartLoginCommandHandler(
 
         var user = await unitOfWork.Repository<FgsUser>()
             .FirstOrDefaultIgnoreFiltersAsync(
-                u => !u.IsDeleted
-                     && u.IsActive
-                     && u.Email.ToUpper() == normalizedEmail,
+                u => !u.IsDeleted && u.Email.ToUpper() == normalizedEmail,
                 cancellationToken);
 
         if (user is null)
@@ -36,11 +37,58 @@ public sealed class StartLoginCommandHandler(
                 ApiStatusCodes.BadRequest);
         }
 
-        var redirectUri = configuration[ConfigurationKeys.EntraExternalId.RedirectUri]
-            ?? ApplicationUrlDefaults.EntraCallbackRedirect;
+        if (!user.IsActive)
+        {
+            return ApiResponse<StartLoginResultDto>.Fail(
+                [AuthErrorMessages.UserNotActive],
+                ApiStatusCodes.Forbidden);
+        }
+
+        var hasEntraBinding = !string.IsNullOrWhiteSpace(user.EntraObjectId);
+        if (!hasEntraBinding
+            && !await invitationReadQuery.HasAcceptedInvitationForUserAsync(user.Id, cancellationToken))
+        {
+            return ApiResponse<StartLoginResultDto>.Fail(
+                [AuthErrorMessages.InvitationNotAccepted],
+                ApiStatusCodes.Forbidden);
+        }
+
+        var tenant = await unitOfWork.Repository<FgsTenant>()
+            .GetByIdAsync(user.TenantId, cancellationToken);
+        if (tenant is null || !tenant.IsActive)
+        {
+            return ApiResponse<StartLoginResultDto>.Fail(
+                [AuthErrorMessages.TenantNotActive],
+                ApiStatusCodes.Forbidden);
+        }
+
+        var company = await unitOfWork.Repository<FgsTenantCompany>()
+            .FirstOrDefaultIgnoreFiltersAsync(
+                c => c.TenantId == user.TenantId && c.CompanyNumber == user.CompanyId,
+                cancellationToken);
+        if (company is null || !company.IsActive)
+        {
+            return ApiResponse<StartLoginResultDto>.Fail(
+                [AuthErrorMessages.CompanyNotActive],
+                ApiStatusCodes.Forbidden);
+        }
+
+        var redirectUri = configuration[ConfigurationKeys.EntraExternalId.LoginRedirectUri]
+            ?? configuration["EntraExternalId:LoginRedirectUri"]
+            ?? "https://localhost:3000/auth/callback";
 
         var state = $"{OAuthStatePrefixes.UserLogin}{user.Id}";
-        var redirectUrl = entraService.BuildAuthorizationUrl(state, redirectUri, user.Email);
+        var (codeVerifier, codeChallenge) = EntraExternalIdPkce.CreatePair();
+        await loginPkceStore.SaveAsync(
+            state,
+            new LoginPkceState(codeVerifier, redirectUri, user.Id),
+            cancellationToken);
+
+        var redirectUrl = entraService.BuildLoginAuthorizationUrl(
+            state,
+            redirectUri,
+            codeChallenge,
+            user.Email);
 
         return ApiResponse<StartLoginResultDto>.Ok(new StartLoginResultDto(redirectUrl));
     }

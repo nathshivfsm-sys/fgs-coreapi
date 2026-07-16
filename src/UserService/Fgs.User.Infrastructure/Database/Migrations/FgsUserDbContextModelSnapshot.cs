@@ -894,6 +894,88 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsPublicEndpoint", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Unique identifier for the service endpoint.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BaseUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Base URL clients use to access the public endpoint.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company that owns the service endpoint.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that created the service endpoint.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the service endpoint was created.");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly name displayed when multiple environments are available.");
+
+                    b.Property<string>("EndpointType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Type of public endpoint. Supported values are BFF for the application backend and API for third-party integrations.");
+
+                    b.Property<string>("EnvironmentCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Deployment environment of the endpoint. Supported values are PROD, SANDBOX, TRAINING, QA, PREVIEW and DEVELOPMENT.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the endpoint is available for use.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant that owns the service endpoint.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that last modified the service endpoint.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the service endpoint was last modified.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsPublicEndpoint_Tenant_Company");
+
+                    b.HasIndex("TenantId", "CompanyId", "EndpointType", "EnvironmentCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsPublicEndpoint_Tenant_Company_Type_Environment");
+
+                    b.ToTable("FgsPublicEndpoint", "identity", t =>
+                        {
+                            t.HasComment("Stores public endpoints exposed by the platform for each tenant and company. Used during authentication and by client applications to discover the appropriate application or integration endpoint.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRole", b =>
                 {
                     b.Property<long>("Id")
@@ -1801,6 +1883,16 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsPublicEndpoint", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsPublicEndpoint_FgsTenantCompanyCache");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRole", b =>

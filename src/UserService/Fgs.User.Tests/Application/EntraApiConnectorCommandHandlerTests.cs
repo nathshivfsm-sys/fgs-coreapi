@@ -62,10 +62,20 @@ public sealed class EntraApiConnectorCommandHandlerTests
 
     private static EntraApiConnectorCommandHandler CreateHandler(FgsUserDbContext context)
     {
+        var publicEndpoints = new Mock<Fgs.User.Application.Abstractions.PublicEndpoints.IFgsPublicEndpointReadRepository>();
+        publicEndpoints
+            .Setup(r => r.ListActiveForTenantCompanyAsync(
+                It.IsAny<long>(),
+                It.IsAny<long>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         var profileResolver = new FgsUserProfileResolver(
             TestUserRepositories.ReadUsers(context),
             TestUserRepositories.InvitationRead(context),
-            TestUserRepositories.RoleCodesRead(context, ["TENANT_ADMIN"]));
+            TestUserRepositories.RoleCodesRead(context, ["TENANT_ADMIN"]),
+            TestUserRepositories.AuthorizationRead(),
+            publicEndpoints.Object);
 
         return new EntraApiConnectorCommandHandler(profileResolver, new EmailNormalizer());
     }

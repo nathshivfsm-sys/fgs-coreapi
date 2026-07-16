@@ -1,25 +1,24 @@
-using Fgs.User.Infrastructure.Common.Options;
+using Fgs.Contracts.Clients;
 using Fgs.User.Infrastructure.Common.Identity;
-using Fgs.Security.Options;
+using Fgs.User.Infrastructure.Common.Options;
 using Microsoft.Extensions.Options;
+using Moq;
 
 namespace Fgs.User.Tests.Infrastructure;
 
-public sealed class EntraExternalIdServiceTests
+public sealed class EntraExternalIdRefitServiceTests
 {
     [Fact]
     public void BuildAuthorizationUrl_IncludesStateAndClientId()
     {
         var invitationId = Guid.NewGuid();
-        var service = new EntraExternalIdService(
-            Options.Create(new EntraExternalIdOptions
-            {
-                TenantId = "tenant",
-                ClientId = "client-id",
-                Authority = "https://login.microsoftonline.com",
-                Scopes = "openid profile email"
-            }),
-            new HttpClient());
+        var service = CreateService(new EntraExternalIdOptions
+        {
+            TenantId = "tenant",
+            ClientId = "client-id",
+            Authority = "https://login.microsoftonline.com",
+            Scopes = "openid profile email"
+        });
 
         var url = service.BuildAuthorizationUrl(invitationId.ToString(), "https://localhost/callback");
 
@@ -31,16 +30,14 @@ public sealed class EntraExternalIdServiceTests
     [Fact]
     public void BuildAuthorizationUrl_WithCiamTenant_UsesTenantIdPathWithoutUserFlow()
     {
-        var service = new EntraExternalIdService(
-            Options.Create(new EntraExternalIdOptions
-            {
-                TenantId = "tenant-id",
-                ClientId = "client-id",
-                Authority = "https://example.ciamlogin.com",
-                UserFlow = "SignUpSignIn",
-                Scopes = "openid profile email"
-            }),
-            new HttpClient());
+        var service = CreateService(new EntraExternalIdOptions
+        {
+            TenantId = "tenant-id",
+            ClientId = "client-id",
+            Authority = "https://example.ciamlogin.com",
+            UserFlow = "SignUpSignIn",
+            Scopes = "openid profile email"
+        });
 
         var url = service.BuildAuthorizationUrl(
             Guid.NewGuid().ToString(),
@@ -56,15 +53,13 @@ public sealed class EntraExternalIdServiceTests
     [Fact]
     public void BuildAuthorizationUrl_WithDisplayName_IncludesGivenAndFamilyName()
     {
-        var service = new EntraExternalIdService(
-            Options.Create(new EntraExternalIdOptions
-            {
-                TenantId = "tenant",
-                ClientId = "client-id",
-                Authority = "https://login.microsoftonline.com",
-                Scopes = "openid profile email"
-            }),
-            new HttpClient());
+        var service = CreateService(new EntraExternalIdOptions
+        {
+            TenantId = "tenant",
+            ClientId = "client-id",
+            Authority = "https://login.microsoftonline.com",
+            Scopes = "openid profile email"
+        });
 
         var url = service.BuildAuthorizationUrl(
             Guid.NewGuid().ToString(),
@@ -73,4 +68,7 @@ public sealed class EntraExternalIdServiceTests
 
         url.Should().Contain("login_hint=admin%40test.com");
     }
+
+    private static EntraExternalIdRefitService CreateService(EntraExternalIdOptions options) =>
+        new(Options.Create(options), Mock.Of<IEntraOAuthClient>());
 }

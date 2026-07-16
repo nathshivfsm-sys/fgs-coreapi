@@ -200,7 +200,10 @@ public sealed class ActiveUserAuthorizationMiddlewareTests
             companyId,
             isActive,
             false,
-            roles ?? ["TENANT_ADMIN"]);
+            roles ?? ["TENANT_ADMIN"],
+            [],
+            [],
+            []);
 
     private static IFgsUserContext CreateUserContext(bool authenticated, string? entraObjectId = null)
     {
