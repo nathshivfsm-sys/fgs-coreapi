@@ -81,8 +81,11 @@ services:
       Swagger__RoutePrefix: swagger/setup
       UserService__BaseUrl: http://user-service:5001
       FileService__BaseUrl: http://file-service:5005
+      RabbitMq__HostName: rabbitmq
     depends_on:
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     volumes:
       - ../SetupService/Fgs.Setup.API/appsettings.json:/src/src/SetupService/Fgs.Setup.API/appsettings.json:ro
@@ -107,8 +110,11 @@ services:
       Swagger__RoutePrefix: swagger/audit
       CredentialConsumer__ServiceName: fgs-audit-service
       CredentialConsumer__RequiredProviders__0: DATABASE
+      RabbitMq__HostName: rabbitmq
     depends_on:
       <<: *depends-on-setup
+      rabbitmq:
+        condition: service_healthy
     volumes:
       - ../AuditService/Fgs.Audit.API/appsettings.json:/src/src/AuditService/Fgs.Audit.API/appsettings.json:ro
       - ../AuditService/Fgs.Audit.API/appsettings.Development.json:/src/src/AuditService/Fgs.Audit.API/appsettings.Development.json:ro
@@ -246,12 +252,15 @@ services:
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: SENDGRID
       UserService__BaseUrl: http://user-service:5001
+      RabbitMq__HostName: rabbitmq
     depends_on:
       setup-service:
         condition: service_healthy
       audit-service:
         condition: service_healthy
       user-service:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     volumes:
       - ../NotificationService/Fgs.Notification.API/appsettings.json:/src/src/NotificationService/Fgs.Notification.API/appsettings.json:ro
@@ -311,8 +320,6 @@ services:
       CredentialConsumer__ServiceName: fgs-consumer-service
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: RABBITMQ
-      NotificationService__BaseUrl: http://notification-service:5002
-      AuditService__BaseUrl: http://audit-service:5008
       UserService__BaseUrl: http://user-service:5001
       RabbitMq__HostName: rabbitmq
     depends_on:
@@ -323,8 +330,6 @@ services:
       audit-service:
         condition: service_healthy
       user-service:
-        condition: service_healthy
-      notification-service:
         condition: service_healthy
     volumes:
       - ../ConsumerService/Fgs.Consumer.API/appsettings.json:/src/src/ConsumerService/Fgs.Consumer.API/appsettings.json:ro
@@ -360,6 +365,7 @@ services:
         condition: service_healthy
     ports:
       - "8080:80"
+      - "443:443"
       - "8443:443"
     volumes:
       - ./certs:/etc/nginx/certs:ro
