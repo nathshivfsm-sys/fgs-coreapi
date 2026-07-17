@@ -11,7 +11,7 @@ using Fgs.Setup.Application.Features.BillingCategories.Dtos;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Common.Time;
 using Fgs.Setup.Infrastructure.Database;
-using Fgs.Setup.Infrastructure.BillingCategories;
+using Fgs.Setup.Infrastructure.Persistence.BillingCategories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;

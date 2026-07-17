@@ -1,5 +1,7 @@
+using Fgs.Contracts.Auth;
 using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Abstractions.Persistence;
+using Fgs.User.Application.Abstractions.PublicEndpoints;
 using Fgs.User.Domain.Entities;
 
 namespace Fgs.User.Infrastructure.Common.Identity;
@@ -7,7 +9,9 @@ namespace Fgs.User.Infrastructure.Common.Identity;
 public sealed class FgsUserProfileResolver(
     IUserReadRepository<FgsUser> userReadRepository,
     IInvitationReadQuery invitationReadQuery,
-    IUserRoleCodesReadQuery roleCodesReadQuery) : IFgsUserProfileResolver
+    IUserRoleCodesReadQuery roleCodesReadQuery,
+    IUserAuthorizationReadQuery authorizationReadQuery,
+    IFgsPublicEndpointReadRepository publicEndpointReadRepository) : IFgsUserProfileResolver
 {
     public async Task<FgsUserProfile?> ResolveByEntraObjectIdAsync(
         string entraObjectId,
@@ -87,6 +91,12 @@ public sealed class FgsUserProfileResolver(
     private async Task<FgsUserProfile> ToProfileAsync(FgsUser user, CancellationToken cancellationToken)
     {
         var roles = await roleCodesReadQuery.GetRoleCodesForUserAsync(user.Id, cancellationToken);
+        var permissions = await authorizationReadQuery.GetPermissionCodesForUserAsync(user.Id, cancellationToken);
+        var dataAccess = await authorizationReadQuery.GetDataAccessCodesForUserAsync(user.Id, cancellationToken);
+        var endpoints = await publicEndpointReadRepository.ListActiveForTenantCompanyAsync(
+            user.TenantId,
+            user.CompanyId,
+            cancellationToken);
 
         return new FgsUserProfile(
             user.Id,
@@ -94,6 +104,15 @@ public sealed class FgsUserProfileResolver(
             user.EntraObjectId,
             user.TenantId,
             user.CompanyId,
-            roles);
+            user.IsActive,
+            user.IsDeleted,
+            roles,
+            permissions,
+            dataAccess,
+            endpoints.Select(e => new PublicEndpointAuthDto(
+                e.EndpointType,
+                e.EnvironmentCode,
+                e.BaseUrl,
+                e.DisplayName)).ToList());
     }
 }

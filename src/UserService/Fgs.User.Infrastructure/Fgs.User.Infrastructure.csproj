@@ -90,16 +90,4 @@
 
 
 
-  <PropertyGroup>
-
-  </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="Provisioning\**\*.cs" />
-    <Compile Remove="Security\**\*.cs" />
-    <Compile Remove="Storage\**\*.cs" />
-  </ItemGroup>
-
-
-
 </Project>

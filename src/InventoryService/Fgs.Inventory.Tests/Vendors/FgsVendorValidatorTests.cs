@@ -71,9 +71,6 @@ public sealed class FgsVendorValidatorTests
         _readRepository
             .Setup(r => r.ExistsByVendorCodeAsync("VEND01", 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
-        _readRepository
-            .Setup(r => r.ExistsPaymentTermIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
         var validator = new UpdateFgsVendorCommandValidator(_readRepository.Object);
         var updateDto = new FgsVendorUpdateDto(
             "VEND01",

@@ -3,9 +3,9 @@ using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Infrastructure.Common.Security;
-using Fgs.Messaging.Options;
-using Fgs.User.Infrastructure.Common.Options;
 using Fgs.Messaging.Abstractions;
+using Fgs.Messaging.Options;
+using Fgs.Security.UserAuth;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Features.Auth;
 using Fgs.User.Application.Features.Auth.Commands.EntraCallback;
@@ -284,7 +284,8 @@ public sealed class EntraCallbackCommandHandlerTests
             new EmailNormalizer(),
             new DateTimeProvider(),
             configuration,
-            outboxWriter);
+            outboxWriter,
+            Mock.Of<IUserAuthProfileStore>());
     }
 
     private static Mock<IEntraExternalIdService> CreateEntraMock(string entraEmail)
@@ -328,6 +329,16 @@ public sealed class EntraCallbackCommandHandlerTests
             Name = "Company",
             CreatedOn = DateTimeOffset.UtcNow
         });
+        context.FgsTenantCompanyCaches.Add(new FgsTenantCompanyCache
+        {
+            TenantId = tenantId,
+            CompanyId = 1,
+            CompanyGuid = companyId,
+            CompanyCode = "c1",
+            CompanyName = "Company",
+            IsActive = true,
+            UpdatedOn = DateTimeOffset.UtcNow
+        });
         context.FgsUsers.Add(new FgsUser
         {
             Id = userId,
@@ -337,13 +348,26 @@ public sealed class EntraCallbackCommandHandlerTests
             DisplayName = "Admin",
             CreatedOn = DateTimeOffset.UtcNow
         });
+        context.FgsRoles.Add(new FgsRole
+        {
+            TenantId = tenantId,
+            CompanyId = 1,
+            RoleCode = SignupConstants.TenantAdminRoleCode,
+            Name = SignupConstants.TenantAdminRoleName,
+            IsBuiltIn = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        await context.SaveChangesAsync();
+
+        var tenantAdminRole = await context.FgsRoles.SingleAsync();
         context.FgsUserRoles.Add(new FgsUserRole
         {
             UserId = userId,
             TenantId = tenantId,
             CompanyId = 1,
-            GloRoleId = SignupConstants.TenantAdminGloRoleId,
-            CreatedOn = DateTimeOffset.UtcNow
+            FgsRoleId = tenantAdminRole.Id,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = SignupConstants.ProspectActor
         });
         context.FgsInvitations.Add(new FgsInvitation
         {
@@ -387,6 +411,16 @@ public sealed class EntraCallbackCommandHandlerTests
             Name = "Company",
             CreatedOn = DateTimeOffset.UtcNow
         });
+        context.FgsTenantCompanyCaches.Add(new FgsTenantCompanyCache
+        {
+            TenantId = tenantId,
+            CompanyId = 1,
+            CompanyGuid = companyId,
+            CompanyCode = "c1",
+            CompanyName = "Company",
+            IsActive = true,
+            UpdatedOn = DateTimeOffset.UtcNow
+        });
         context.FgsUsers.Add(new FgsUser
         {
             Id = userId,
@@ -411,7 +445,8 @@ public sealed class EntraCallbackCommandHandlerTests
             TenantId = tenantId,
             CompanyId = 1,
             FgsRoleId = 1,
-            CreatedOn = DateTimeOffset.UtcNow
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = SignupConstants.ProspectActor
         });
         context.FgsInvitations.Add(new FgsInvitation
         {

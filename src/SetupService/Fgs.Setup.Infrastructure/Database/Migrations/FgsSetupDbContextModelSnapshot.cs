@@ -2536,6 +2536,11 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
 
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
                     b.Property<bool>("IsLaborRateBySkillLevel")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -2723,6 +2728,9 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.Property<short>("SequenceOrder")
                         .HasColumnType("smallint");
 
+                    b.Property<long?>("TechSkillLevelId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
                         .HasColumnOrder(1);
@@ -2740,6 +2748,8 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasName("UQ_FgsSetupPricingMatrixLaborTier_PricingMatrixLaborId_SequenceOrder");
 
                     b.HasIndex("PricingMatrixLaborId");
+
+                    b.HasIndex("TechSkillLevelId");
 
                     b.HasIndex("TenantId", "CompanyId", "IsActive")
                         .HasDatabaseName("IX_FgsSetupPricingMatrixLaborTier_TenantId_CompanyId_IsActive");
@@ -2846,6 +2856,11 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<decimal?>("AdjustmentValue")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasComment("Value used by the selected pricing adjustment type. Examples: 25 = 25% markup, 150 = fixed dollar markup, 1.75 = multiplier.");
+
                     b.Property<string>("CategoryCode")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -2874,11 +2889,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
-
-                    b.Property<decimal?>("MarkupPercent")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasComment("Markup percentage applied to the base cost.");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -2918,9 +2928,9 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         {
                             t.HasComment("Stores pricing adjustments for miscellaneous categories such as permits, disposal fees, equipment rentals, trip charges, crane services, and other non-material/non-labor costs.");
 
-                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixOther_DiscountPercent", "\"DiscountPercent\" IS NULL OR (\"DiscountPercent\" >= 0 AND \"DiscountPercent\" <= 100)");
+                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixOther_AdjustmentValue", "\"AdjustmentValue\" IS NULL OR \"AdjustmentValue\" >= 0");
 
-                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixOther_MarkupPercent", "\"MarkupPercent\" IS NULL OR \"MarkupPercent\" >= 0");
+                            t.HasCheckConstraint("CK_FgsSetupPricingMatrixOther_DiscountPercent", "\"DiscountPercent\" IS NULL OR (\"DiscountPercent\" >= 0 AND \"DiscountPercent\" <= 100)");
                         });
                 });
 
@@ -4000,6 +4010,554 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.ToTable("FgsTenantCompanyCache", "setup", t =>
                         {
                             t.HasComment("Local cache of tenant company identity information used for CompanyGuid resolution and elimination of cross-schema dependencies.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalMatrixAddOn", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<decimal>("Price")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Company-specific price per add-on pricing unit.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UnitType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Pricing unit for the add-on, such as Flat Rate, Window, or Bed.");
+
+                    b.Property<long>("UniversalPricingServiceId")
+                        .HasColumnType("bigint")
+                        .HasComment("References the company-specific Universal Pricing Service configuration.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "UniversalPricingServiceId")
+                        .HasDatabaseName("IX_FgsUniversalMatrixAddOn_TenantId_CompanyId_UniversalPricingServiceId");
+
+                    b.HasIndex("TenantId", "CompanyId", "UniversalPricingServiceId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsUniversalMatrixAddOn_TenantId_CompanyId_UniversalPricingServiceId_Name");
+
+                    b.ToTable("FgsUniversalMatrixAddOn", "setup", t =>
+                        {
+                            t.HasComment("Stores company-specific optional add-ons available within the Universal Pricing Matrix.");
+
+                            t.HasCheckConstraint("CK_FgsUniversalMatrixAddOn_Price", "\"Price\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalMatrixFrequencyDiscount", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<decimal>("DiscountPercent")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(8, 4)
+                        .HasColumnType("numeric(8,4)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Percentage discount applied based on the selected service frequency.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<long>("UniversalPricingServiceId")
+                        .HasColumnType("bigint")
+                        .HasComment("References the company-specific Universal Pricing Service configuration.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "UniversalPricingServiceId")
+                        .HasDatabaseName("IX_FgsUniversalMatrixFrequencyDiscount_TenantId_CompanyId_UniversalPricingServiceId");
+
+                    b.HasIndex("TenantId", "CompanyId", "UniversalPricingServiceId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsUniversalMatrixFrequencyDiscount_TenantId_CompanyId_UniversalPricingServiceId_Name");
+
+                    b.ToTable("FgsUniversalMatrixFrequencyDiscount", "setup", t =>
+                        {
+                            t.HasComment("Stores company-specific service frequency options and their discount percentages.");
+
+                            t.HasCheckConstraint("CK_FgsUniversalMatrixFrequencyDiscount_DiscountPercent", "\"DiscountPercent\" >= 0 AND \"DiscountPercent\" <= 100");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalMatrixItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("BasePrice")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Base price before tier, size, frequency, fee, add-on, tax, or other pricing adjustments.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("ItemName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UnitType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Pricing unit used by the matrix item, such as Flat Rate, Sqft, Linear Foot, Window, or Bed.");
+
+                    b.Property<long>("UniversalPricingServiceId")
+                        .HasColumnType("bigint")
+                        .HasComment("References the company-specific Universal Pricing Service configuration.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "UniversalPricingServiceId")
+                        .HasDatabaseName("IX_FgsUniversalMatrixItem_TenantId_CompanyId_UniversalPricingServiceId");
+
+                    b.HasIndex("TenantId", "CompanyId", "UniversalPricingServiceId", "ItemName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsUniversalMatrixItem_TenantId_CompanyId_UniversalPricingServiceId_ItemName");
+
+                    b.ToTable("FgsUniversalMatrixItem", "setup", t =>
+                        {
+                            t.HasComment("Stores company-specific Universal Pricing Matrix items and base prices.");
+
+                            t.HasCheckConstraint("CK_FgsUniversalMatrixItem_BasePrice", "\"BasePrice\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalMatrixOneTimeFee", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Fixed amount of the one-time fee.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<long>("UniversalPricingServiceId")
+                        .HasColumnType("bigint")
+                        .HasComment("References the company-specific Universal Pricing Service configuration.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "UniversalPricingServiceId")
+                        .HasDatabaseName("IX_FgsUniversalMatrixOneTimeFee_TenantId_CompanyId_UniversalPricingServiceId");
+
+                    b.HasIndex("TenantId", "CompanyId", "UniversalPricingServiceId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsUniversalMatrixOneTimeFee_TenantId_CompanyId_UniversalPricingServiceId_Name");
+
+                    b.ToTable("FgsUniversalMatrixOneTimeFee", "setup", t =>
+                        {
+                            t.HasComment("Stores company-specific one-time fees used by the Universal Pricing Matrix.");
+
+                            t.HasCheckConstraint("CK_FgsUniversalMatrixOneTimeFee_Amount", "\"Amount\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalMatrixSizeTier", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<decimal>("Multiplier")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(8, 4)
+                        .HasColumnType("numeric(8,4)")
+                        .HasDefaultValue(1.0000m)
+                        .HasComment("Company-specific multiplier applied for this size tier.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<long>("UniversalPricingServiceId")
+                        .HasColumnType("bigint")
+                        .HasComment("References the company-specific Universal Pricing Service configuration.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "UniversalPricingServiceId")
+                        .HasDatabaseName("IX_FgsUniversalMatrixSizeTier_TenantId_CompanyId_UniversalPricingServiceId");
+
+                    b.HasIndex("TenantId", "CompanyId", "UniversalPricingServiceId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsUniversalMatrixSizeTier_TenantId_CompanyId_UniversalPricingServiceId_Name");
+
+                    b.ToTable("FgsUniversalMatrixSizeTier", "setup", t =>
+                        {
+                            t.HasComment("Stores company-specific size tiers and pricing multipliers for an enabled Universal Pricing Service.");
+
+                            t.HasCheckConstraint("CK_FgsUniversalMatrixSizeTier_Multiplier", "\"Multiplier\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalMatrixTier", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<decimal>("Multiplier")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(8, 4)
+                        .HasColumnType("numeric(8,4)")
+                        .HasDefaultValue(1.0000m)
+                        .HasComment("Company-specific multiplier applied for this pricing tier.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<long>("UniversalPricingServiceId")
+                        .HasColumnType("bigint")
+                        .HasComment("References the company-specific Universal Pricing Service configuration.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "UniversalPricingServiceId")
+                        .HasDatabaseName("IX_FgsUniversalMatrixTier_TenantId_CompanyId_UniversalPricingServiceId");
+
+                    b.HasIndex("TenantId", "CompanyId", "UniversalPricingServiceId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsUniversalMatrixTier_TenantId_CompanyId_UniversalPricingServiceId_Name");
+
+                    b.ToTable("FgsUniversalMatrixTier", "setup", t =>
+                        {
+                            t.HasComment("Stores company-specific pricing tiers and pricing multipliers for an enabled Universal Pricing Service.");
+
+                            t.HasCheckConstraint("CK_FgsUniversalMatrixTier_Multiplier", "\"Multiplier\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalPricingService", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the display sequence of the Universal Pricing Service for the company.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the Universal Pricing Service is currently active for the company.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UniversalPricingServiceCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Logical reference to glo.GloUniversalPricingService.ServiceCode. No cross-domain foreign key is enforced.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "Id")
+                        .HasName("AK_FgsUniversalPricingService_TenantId_CompanyId_Id");
+
+                    b.HasIndex("TenantId", "CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "UniversalPricingServiceCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsUniversalPricingService_TenantId_CompanyId_ServiceCode");
+
+                    b.ToTable("FgsUniversalPricingService", "setup", t =>
+                        {
+                            t.HasComment("Defines Universal Pricing Services enabled and configured for a tenant company.");
                         });
                 });
 
@@ -7155,6 +7713,162 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.ToTable("GloUnitOfMeasure", "glo");
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloUniversalMatrixSizeTier", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<decimal>("Multiplier")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(8, 4)
+                        .HasColumnType("numeric(8,4)")
+                        .HasDefaultValue(1.0000m)
+                        .HasComment("Multiplier applied to calculated service pricing for this size tier.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<short>("UniversalPricingServiceId")
+                        .HasColumnType("smallint")
+                        .HasComment("Reference to the global universal pricing service.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UniversalPricingServiceId")
+                        .HasDatabaseName("IX_GloUniversalMatrixSizeTier_UniversalPricingServiceId");
+
+                    b.HasIndex("UniversalPricingServiceId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloUniversalMatrixSizeTier_ServiceId_Name");
+
+                    b.ToTable("GloUniversalMatrixSizeTier", "glo", t =>
+                        {
+                            t.HasComment("Global service size tiers and their default pricing multipliers.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloUniversalMatrixTier", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<decimal>("Multiplier")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(8, 4)
+                        .HasColumnType("numeric(8,4)")
+                        .HasDefaultValue(1.0000m)
+                        .HasComment("Multiplier applied to calculated service pricing for this tier.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<short>("UniversalPricingServiceId")
+                        .HasColumnType("smallint")
+                        .HasComment("Reference to the global universal pricing service.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UniversalPricingServiceId")
+                        .HasDatabaseName("IX_GloUniversalMatrixTier_UniversalPricingServiceId");
+
+                    b.HasIndex("UniversalPricingServiceId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_GloUniversalMatrixTier_ServiceId_Name");
+
+                    b.ToTable("GloUniversalMatrixTier", "glo", t =>
+                        {
+                            t.HasComment("Global service pricing tiers and their default pricing multipliers.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloUniversalPricingService", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasComment("Optional description of the universal pricing service.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-facing service name.");
+
+                    b.Property<string>("ServiceCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Stable system code used to identify the universal pricing service across domains.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("IX_GloUniversalPricingService_Name");
+
+                    b.HasIndex("ServiceCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_GloUniversalPricingService_ServiceCode");
+
+                    b.ToTable("GloUniversalPricingService", "glo", t =>
+                        {
+                            t.HasComment("Global seeded list of services supported by the Universal Pricing Matrix.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloVehicleMaintenanceType", b =>
                 {
                     b.Property<int>("Id")
@@ -7778,6 +8492,12 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_FgsSetupPricingMatrixLaborTier_PricingMatrixLabor");
 
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsSetupTechSkillLevel", null)
+                        .WithMany()
+                        .HasForeignKey("TechSkillLevelId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsSetupPricingMatrixLaborTier_TechSkillLevel");
+
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
@@ -8001,6 +8721,124 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasConstraintName("FK_FgsTagEntityType_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalMatrixAddOn", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUniversalMatrixAddOn_FgsTenantCompanyCache_TenantId_CompanyId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsUniversalPricingService", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId", "UniversalPricingServiceId")
+                        .HasPrincipalKey("TenantId", "CompanyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUniversalMatrixAddOn_FgsUniversalPricingService_TenantId_CompanyId_UniversalPricingServiceId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalMatrixFrequencyDiscount", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUniversalMatrixFrequencyDiscount_FgsTenantCompanyCache_TenantId_CompanyId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsUniversalPricingService", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId", "UniversalPricingServiceId")
+                        .HasPrincipalKey("TenantId", "CompanyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUniversalMatrixFrequencyDiscount_FgsUniversalPricingService_TenantId_CompanyId_UniversalPricingServiceId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalMatrixItem", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUniversalMatrixItem_FgsTenantCompanyCache_TenantId_CompanyId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsUniversalPricingService", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId", "UniversalPricingServiceId")
+                        .HasPrincipalKey("TenantId", "CompanyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUniversalMatrixItem_FgsUniversalPricingService_TenantId_CompanyId_UniversalPricingServiceId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalMatrixOneTimeFee", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUniversalMatrixOneTimeFee_FgsTenantCompanyCache_TenantId_CompanyId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsUniversalPricingService", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId", "UniversalPricingServiceId")
+                        .HasPrincipalKey("TenantId", "CompanyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUniversalMatrixOneTimeFee_FgsUniversalPricingService_TenantId_CompanyId_UniversalPricingServiceId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalMatrixSizeTier", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUniversalMatrixSizeTier_FgsTenantCompanyCache_TenantId_CompanyId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsUniversalPricingService", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId", "UniversalPricingServiceId")
+                        .HasPrincipalKey("TenantId", "CompanyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUniversalMatrixSizeTier_FgsUniversalPricingService_TenantId_CompanyId_UniversalPricingServiceId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalMatrixTier", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUniversalMatrixTier_FgsTenantCompanyCache_TenantId_CompanyId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsUniversalPricingService", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId", "UniversalPricingServiceId")
+                        .HasPrincipalKey("TenantId", "CompanyId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUniversalMatrixTier_FgsUniversalPricingService_TenantId_CompanyId_UniversalPricingServiceId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalPricingService", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUniversalPricingService_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsVehicle", b =>
                 {
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
@@ -8159,6 +8997,26 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_GloTrade_GloBusinessType_BusinessTypeId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloUniversalMatrixSizeTier", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.GloUniversalPricingService", null)
+                        .WithMany()
+                        .HasForeignKey("UniversalPricingServiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_GloUniversalMatrixSizeTier_GloUniversalPricingService_UniversalPricingServiceId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloUniversalMatrixTier", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.GloUniversalPricingService", null)
+                        .WithMany()
+                        .HasForeignKey("UniversalPricingServiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_GloUniversalMatrixTier_GloUniversalPricingService_UniversalPricingServiceId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupGLBreak", b =>

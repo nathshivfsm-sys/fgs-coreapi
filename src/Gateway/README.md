@@ -49,10 +49,12 @@ NGINX listens on `https://localhost:8443` locally.
 
 | Public route | Upstream service | Forwarded path |
 | --- | --- | --- |
-| `/api/v1/auth/{path}` | `user-service:5001` | `/api/v1/auth/{path}` |
+| `/api/v1/auth/{path}` | `user-service:5001` | `/api/v1/auth/{path}` (includes `entra/token`, `refresh`, `me`) |
+| `/api/v1/login/{path}` | `user-service:5001` | `/api/v1/login/{path}` |
 | `/api/v1/invite/{path}` | `user-service:5001` | `/api/v1/invite/{path}` |
 | `/api/v1/signup/{path}` | `user-service:5001` | `/api/v1/signup/{path}` |
 | `/api/v1/dashboard` | `user-service:5001` | `/api/v1/dashboard` |
+| `/api/v1/(role\|permission\|dataaccess\|…\|publicendpoint\|apievent\|…)` | `user-service:5001` | Identity catalog and API management |
 | `/api/v1/users` | `user-service:5001` | `/api/v1/` |
 | `/api/v1/users/{path}` | `user-service:5001` | `/api/v1/{path}` |
 | `/api/v1/notifications` | `notification-service:5002` | `/api/v1/` |
@@ -110,7 +112,8 @@ OAuth and invitation URLs are exposed through the gateway (register the same val
 
 | Setting | Local gateway value |
 | --- | --- |
-| `EntraExternalId:RedirectUri` | `https://localhost:8443/api/v1/auth/entra/callback` |
+| `EntraExternalId:RedirectUri` | `https://localhost:8443/api/v1/auth/entra/callback` (signup/invite API callback) |
+| `EntraExternalId:LoginRedirectUri` | SPA login callback (e.g. `https://localhost:3000/auth/callback`) |
 | `Invitation:InviteBaseUrl` | `https://localhost:8443/api/v1/invite/start` |
 
 Both upstreams use `least_conn`, keepalive connections, passive health checks with `max_fails` and `fail_timeout`, and Docker health checks against each service's `/health` endpoint.

@@ -1,0 +1,46 @@
+using Fgs.User.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+
+namespace Fgs.User.Infrastructure.Database.Configurations;
+
+internal class FgsRoleDataAccessConfiguration : IEntityTypeConfiguration<FgsRoleDataAccess>
+{
+    public void Configure(EntityTypeBuilder<FgsRoleDataAccess> entity)
+    {
+        entity.ToTable(
+            "FgsRoleDataAccess",
+            t => t.HasComment("Assigns one or more data access profiles to security roles within a company."));
+
+        entity.HasKey(e => e.Id);
+        entity.Property(e => e.Id).UseIdentityByDefaultColumn();
+        entity.Property(e => e.CreatedOn).HasColumnType("timestamptz")
+            .HasComment("Date and time the data access profile was assigned to the role.");
+        entity.Property(e => e.CreatedBy)
+            .IsRequired()
+            .HasMaxLength(100)
+            .HasComment("User or system that assigned the data access profile to the role.");
+
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.FgsRoleId, e.FgsDataAccessId })
+            .IsUnique()
+            .HasDatabaseName("IX_FgsRoleDataAccess_TenantId_CompanyId_Role_DataAccess");
+        entity.HasIndex(e => e.FgsRoleId)
+            .HasDatabaseName("IX_FgsRoleDataAccess_FgsRoleId");
+        entity.HasIndex(e => e.FgsDataAccessId)
+            .HasDatabaseName("IX_FgsRoleDataAccess_FgsDataAccessId");
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId })
+            .HasDatabaseName("IX_FgsRoleDataAccess_TenantId_CompanyId");
+
+        entity.HasOne(e => e.FgsRole)
+            .WithMany()
+            .HasForeignKey(e => e.FgsRoleId)
+            .HasConstraintName("FK_FgsRoleDataAccess_FgsRole")
+            .OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne(e => e.FgsDataAccess)
+            .WithMany()
+            .HasForeignKey(e => e.FgsDataAccessId)
+            .HasConstraintName("FK_FgsRoleDataAccess_FgsDataAccess")
+            .OnDelete(DeleteBehavior.Restrict);
+    }
+}

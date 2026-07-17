@@ -55,7 +55,8 @@ internal static class TenantSeedCrossDatabaseCopier
             TenantSeedSqlBuilder.BuildBusinessTypeFilterClause(
                 sourceMetadata.HasBusinessTypeId,
                 sourceMetadata.BusinessTypeIdIsNullable,
-                hasBusinessTypeFilter));
+                hasBusinessTypeFilter),
+            TenantSeedSqlBuilder.BuildSourceFilterClause(mapping));
 
         var selectSql = string.IsNullOrWhiteSpace(whereClause)
             ? $"SELECT {selectColumns} FROM {qualifiedSource}"

@@ -95,7 +95,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddFgsApiSecurity(
         this IServiceCollection services,
         IConfiguration configuration) =>
-        services.AddFgsEntraAuthentication(configuration);
+        services
+            .AddFgsEntraAuthentication(configuration)
+            .AddFgsActiveUserValidation(configuration);
 
     public static IServiceCollection AddFgsWorkerSecurity(
         this IServiceCollection services,

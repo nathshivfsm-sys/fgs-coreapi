@@ -27,7 +27,7 @@ public static class SignupConstants
 
     public const string TenantAdminRoleCode = "TENANT_ADMIN";
 
-    public const short TenantAdminGloRoleId = 7;
+    public const string TenantAdminRoleName = "Tenant Admin";
 
     /// <summary>
     /// Maps FGS varchar audit actors to bigint ids used by Glo tables.

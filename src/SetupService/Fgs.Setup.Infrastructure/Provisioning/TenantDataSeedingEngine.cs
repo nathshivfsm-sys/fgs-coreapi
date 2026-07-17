@@ -152,6 +152,28 @@ public sealed class TenantDataSeedingEngine(
                 ex.Message));
         }
 
+        try
+        {
+            await SeedUniversalMatrixTiersAsync(
+                connectionScope,
+                mappings,
+                tenantId,
+                companyId,
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(
+                ex,
+                "Universal matrix tier seed failed for tenant {TenantId}, company {CompanyId}",
+                tenantId,
+                companyId);
+            tableResults.Add(new TenantSeedTableResult(
+                "FgsUniversalMatrixTier",
+                TenantSeedTableOutcome.Failed,
+                ex.Message));
+        }
+
         var succeeded = tableResults.Count(r => r.Outcome == TenantSeedTableOutcome.Succeeded);
         var skipped = tableResults.Count(r => r.Outcome == TenantSeedTableOutcome.Skipped);
         var failed = tableResults.Count(r => r.Outcome == TenantSeedTableOutcome.Failed);
@@ -319,7 +341,8 @@ public sealed class TenantDataSeedingEngine(
             TenantSeedSqlBuilder.BuildBusinessTypeFilterClause(
                 sourceMetadata.HasBusinessTypeId,
                 sourceMetadata.BusinessTypeIdIsNullable,
-                hasBusinessTypeFilter));
+                hasBusinessTypeFilter),
+            TenantSeedSqlBuilder.BuildSourceFilterClause(mapping));
 
         var sql = TenantSeedSqlBuilder.BuildInsertSelectSql(
             TenantSeedSqlBuilder.QualifyTable(mapping.TargetSchemaName, mapping.TargetTableName),
@@ -344,29 +367,24 @@ public sealed class TenantDataSeedingEngine(
         bool hasBusinessTypeFilter,
         CancellationToken cancellationToken)
     {
-        var referenceMapping = mappings.FirstOrDefault();
-        var sourceSchema = referenceMapping?.SourceSchemaName ?? FgsDatabaseSchemas.Glo;
-        var targetSchema = FgsDatabaseSchemas.Inventory;
-        var sourceDatabaseName = referenceMapping?.SourceDatabaseName;
-        var targetDatabaseName = referenceMapping?.TargetDatabaseName;
-
-        var (sourceConnection, targetConnection) = await connectionScope.GetSourceAndTargetConnectionsAsync(
-            sourceDatabaseName,
-            targetDatabaseName,
+        var connections = await TenantJoinedChildSeedHelper.ResolveConnectionsAsync(
+            connectionScope,
+            mappings,
+            FgsDatabaseSchemas.Inventory,
             cancellationToken);
 
         var validator = new TenantSeedMetadataValidator();
-        var sourceDatabase = connectionScope.ResolveSourceDatabaseName(sourceDatabaseName);
-        var targetDatabase = connectionScope.ResolveTargetDatabaseName(targetDatabaseName);
+        var sourceDatabase = connectionScope.ResolveSourceDatabaseName(connections.SourceDatabaseName);
+        var targetDatabase = connectionScope.ResolveTargetDatabaseName(connections.TargetDatabaseName);
 
         var sourceSubMetadata = await validator.GetTableMetadataAsync(
-            sourceConnection, sourceDatabase, sourceSchema, "GloInventorySubCategory", cancellationToken);
+            connections.SourceConnection, sourceDatabase, connections.SourceSchema, "GloInventorySubCategory", cancellationToken);
         var sourceCategoryMetadata = await validator.GetTableMetadataAsync(
-            sourceConnection, sourceDatabase, sourceSchema, "GloInventoryCategory", cancellationToken);
+            connections.SourceConnection, sourceDatabase, connections.SourceSchema, "GloInventoryCategory", cancellationToken);
         var targetSubMetadata = await validator.GetTableMetadataAsync(
-            targetConnection, targetDatabase, targetSchema, "FgsInventorySubCategory", cancellationToken);
+            connections.TargetConnection, targetDatabase, connections.TargetSchema, "FgsInventorySubCategory", cancellationToken);
         var targetCategoryMetadata = await validator.GetTableMetadataAsync(
-            targetConnection, targetDatabase, targetSchema, "FgsInventoryCategory", cancellationToken);
+            connections.TargetConnection, targetDatabase, connections.TargetSchema, "FgsInventoryCategory", cancellationToken);
 
         if (!sourceSubMetadata.Exists
             || !sourceCategoryMetadata.Exists
@@ -382,14 +400,13 @@ public sealed class TenantDataSeedingEngine(
             return;
         }
 
-        var alreadySeeded = await IsInventorySubCategorySeededAsync(
-            targetConnection,
-            targetSchema,
-            tenantId,
-            companyId,
-            cancellationToken);
-
-        if (alreadySeeded)
+        if (await TenantJoinedChildSeedHelper.IsTenantCompanySeededAsync(
+                connections.TargetConnection,
+                connections.TargetSchema,
+                "FgsInventorySubCategory",
+                tenantId,
+                companyId,
+                cancellationToken))
         {
             logger.LogInformation(
                 "FgsInventorySubCategory already seeded for tenant {TenantId}, company {CompanyId}; skipping",
@@ -408,53 +425,45 @@ public sealed class TenantDataSeedingEngine(
             return;
         }
 
-        await using var transaction = await targetConnection.BeginTransactionAsync(cancellationToken);
-        try
-        {
-            int inserted;
-            if (connectionScope.IsCrossDatabase(sourceDatabaseName, targetDatabaseName))
+        var inserted = await TenantJoinedChildSeedHelper.ExecuteInTargetTransactionAsync(
+            connections.TargetConnection,
+            async (transaction, ct) =>
             {
-                inserted = await SeedInventorySubCategoriesCrossDatabaseAsync(
-                    sourceConnection,
-                    targetConnection,
+                if (connections.IsCrossDatabase)
+                {
+                    return await SeedInventorySubCategoriesCrossDatabaseAsync(
+                        connections.SourceConnection,
+                        connections.TargetConnection,
+                        transaction,
+                        connections.SourceSchema,
+                        connections.TargetSchema,
+                        sourceCategoryMetadata,
+                        tenantId,
+                        companyId,
+                        businessTypeIds,
+                        hasBusinessTypeFilter,
+                        ct);
+                }
+
+                return await SeedInventorySubCategoriesSameDatabaseAsync(
+                    connections.TargetConnection,
                     transaction,
-                    sourceSchema,
-                    targetSchema,
+                    connections.SourceSchema,
+                    connections.TargetSchema,
                     sourceCategoryMetadata,
                     tenantId,
                     companyId,
                     businessTypeIds,
                     hasBusinessTypeFilter,
-                    cancellationToken);
-            }
-            else
-            {
-                inserted = await SeedInventorySubCategoriesSameDatabaseAsync(
-                    targetConnection,
-                    transaction,
-                    sourceSchema,
-                    targetSchema,
-                    sourceCategoryMetadata,
-                    tenantId,
-                    companyId,
-                    businessTypeIds,
-                    hasBusinessTypeFilter,
-                    cancellationToken);
-            }
+                    ct);
+            },
+            cancellationToken);
 
-            await transaction.CommitAsync(cancellationToken);
-
-            logger.LogInformation(
-                "Seeded {RowCount} FgsInventorySubCategory row(s) for tenant {TenantId}, company {CompanyId}",
-                inserted,
-                tenantId,
-                companyId);
-        }
-        catch
-        {
-            await TryRollbackAsync(transaction, cancellationToken);
-            throw;
-        }
+        logger.LogInformation(
+            "Seeded {RowCount} FgsInventorySubCategory row(s) for tenant {TenantId}, company {CompanyId}",
+            inserted,
+            tenantId,
+            companyId);
     }
 
     private static async Task<int> SeedInventorySubCategoriesSameDatabaseAsync(
@@ -672,6 +681,115 @@ public sealed class TenantDataSeedingEngine(
         return inserted;
     }
 
+    private async Task SeedUniversalMatrixTiersAsync(
+        TenantSeedConnectionScope connectionScope,
+        IReadOnlyList<GloSeedTableMapping> mappings,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var connections = await TenantJoinedChildSeedHelper.ResolveConnectionsAsync(
+            connectionScope,
+            mappings,
+            FgsDatabaseSchemas.Setup,
+            cancellationToken);
+
+        var validator = new TenantSeedMetadataValidator();
+        var sourceDatabase = connectionScope.ResolveSourceDatabaseName(connections.SourceDatabaseName);
+        var targetDatabase = connectionScope.ResolveTargetDatabaseName(connections.TargetDatabaseName);
+
+        var sourceTierMetadata = await validator.GetTableMetadataAsync(
+            connections.SourceConnection, sourceDatabase, connections.SourceSchema, "GloUniversalMatrixTier", cancellationToken);
+        var sourceServiceMetadata = await validator.GetTableMetadataAsync(
+            connections.SourceConnection, sourceDatabase, connections.SourceSchema, "GloUniversalPricingService", cancellationToken);
+        var targetTierMetadata = await validator.GetTableMetadataAsync(
+            connections.TargetConnection, targetDatabase, connections.TargetSchema, "FgsUniversalMatrixTier", cancellationToken);
+        var targetSizeTierMetadata = await validator.GetTableMetadataAsync(
+            connections.TargetConnection, targetDatabase, connections.TargetSchema, "FgsUniversalMatrixSizeTier", cancellationToken);
+        var targetServiceMetadata = await validator.GetTableMetadataAsync(
+            connections.TargetConnection, targetDatabase, connections.TargetSchema, "FgsUniversalPricingService", cancellationToken);
+
+        if (!sourceTierMetadata.Exists
+            || !sourceServiceMetadata.Exists
+            || !targetTierMetadata.Exists
+            || !targetSizeTierMetadata.Exists
+            || !targetServiceMetadata.Exists)
+        {
+            logger.LogWarning(
+                "Skipping universal matrix tier seed because required tables are missing (source tier={SourceTier}, source service={SourceService}, target tier={TargetTier}, target size tier={TargetSizeTier}, target service={TargetService})",
+                sourceTierMetadata.Exists,
+                sourceServiceMetadata.Exists,
+                targetTierMetadata.Exists,
+                targetSizeTierMetadata.Exists,
+                targetServiceMetadata.Exists);
+            return;
+        }
+
+        if (await TenantJoinedChildSeedHelper.IsTenantCompanySeededAsync(
+                connections.TargetConnection,
+                connections.TargetSchema,
+                "FgsUniversalMatrixTier",
+                tenantId,
+                companyId,
+                cancellationToken))
+        {
+            logger.LogInformation(
+                "FgsUniversalMatrixTier already seeded for tenant {TenantId}, company {CompanyId}; skipping",
+                tenantId,
+                companyId);
+            return;
+        }
+
+        var (tierInserted, sizeTierInserted) = await TenantJoinedChildSeedHelper.ExecuteInTargetTransactionAsync(
+            connections.TargetConnection,
+            async (transaction, ct) =>
+            {
+                if (connections.IsCrossDatabase)
+                {
+                    return await TenantJoinedChildSeedHelper.SeedUniversalMatrixChildTablesCrossDatabaseAsync(
+                        connections.SourceConnection,
+                        connections.TargetConnection,
+                        transaction,
+                        connections.SourceSchema,
+                        connections.TargetSchema,
+                        tenantId,
+                        companyId,
+                        ct);
+                }
+
+                var tierCount = await TenantJoinedChildSeedHelper.SeedUniversalMatrixChildTableSameDatabaseAsync(
+                    connections.TargetConnection,
+                    transaction,
+                    connections.SourceSchema,
+                    connections.TargetSchema,
+                    "GloUniversalMatrixTier",
+                    "FgsUniversalMatrixTier",
+                    tenantId,
+                    companyId,
+                    ct);
+                var sizeTierCount = await TenantJoinedChildSeedHelper.SeedUniversalMatrixChildTableSameDatabaseAsync(
+                    connections.TargetConnection,
+                    transaction,
+                    connections.SourceSchema,
+                    connections.TargetSchema,
+                    "GloUniversalMatrixSizeTier",
+                    "FgsUniversalMatrixSizeTier",
+                    tenantId,
+                    companyId,
+                    ct);
+
+                return (tierCount, sizeTierCount);
+            },
+            cancellationToken);
+
+        logger.LogInformation(
+            "Seeded {TierCount} FgsUniversalMatrixTier and {SizeTierCount} FgsUniversalMatrixSizeTier row(s) for tenant {TenantId}, company {CompanyId}",
+            tierInserted,
+            sizeTierInserted,
+            tenantId,
+            companyId);
+    }
+
     private void LogTableResult(
         TenantSeedTableResult tableResult,
         string seedCode,
@@ -731,28 +849,6 @@ public sealed class TenantDataSeedingEngine(
         AddParameter(command, SeedTransformationTypes.SqlParameters.TenantId, tenantId);
         var exists = Convert.ToBoolean(await command.ExecuteScalarAsync(cancellationToken) ?? false);
         return exists;
-    }
-
-    private static async Task<bool> IsInventorySubCategorySeededAsync(
-        DbConnection connection,
-        string targetSchema,
-        long tenantId,
-        long companyId,
-        CancellationToken cancellationToken)
-    {
-        var table = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsInventorySubCategory");
-        await using var command = connection.CreateCommand();
-        command.CommandText = $"""
-            SELECT EXISTS(
-                SELECT 1
-                FROM {table}
-                WHERE "TenantId" = @TenantId AND "CompanyId" = @CompanyId
-            )
-            """;
-        AddParameter(command, "TenantId", tenantId);
-        AddParameter(command, "CompanyId", companyId);
-        var result = await command.ExecuteScalarAsync(cancellationToken);
-        return result is true or 1 or 1L;
     }
 
     private static async Task<string> GetCurrentDatabaseNameAsync(

@@ -946,6 +946,48 @@ function Parse-ControllerFile {
 '@
             }
         }
+        if ($fileName -eq 'PricingMatrixController') {
+            if ($methodName -eq 'Create') {
+                $body = Get-PricingMatrixCreateBody -Variant 'FlatLabor'
+            }
+            if ($methodName -eq 'Update') {
+                $body = @'
+{
+  "name": "FLATLABOR",
+  "description": "Flat Labor Pricing Updated",
+  "isDefault": false,
+  "isLaborTierStructure": false,
+  "isLaborRateBySkillLevel": false,
+  "priceAdjustmentTypeId": null,
+  "effectiveFrom": null,
+  "effectiveTo": null,
+  "isMobileVisible": true,
+  "laborLines": [
+    {
+      "laborRateTypeId": 1,
+      "techSkillLevelId": null,
+      "baseRate": 90.00,
+      "overtimeMultiplier": 1.5,
+      "doubleTimeMultiplier": 2.0,
+      "discountPercent": null,
+      "tiers": null
+    }
+  ],
+  "materialTiers": null,
+  "otherItems": null
+}
+'@
+            }
+            if ($methodName -eq 'Patch') {
+                $body = @'
+{
+  "description": "Pricing Matrix Patched",
+  "isDefault": false,
+  "isActive": true
+}
+'@
+            }
+        }
         if ($useAuth) {
             $headers['X-Tenant-Id'] = '{{tenantId}}'
             $headers['X-Company-Id'] = '{{companyId}}'
@@ -1135,6 +1177,31 @@ function New-AuthFlowFolder {
     }
 }
 
+function New-UiLoginFlowFolder {
+    $loginBody = @'
+{
+  "email": "{{signupEmail}}"
+}
+'@
+
+    $startLogin = New-PostmanRequest -Name '1. Start Login' -Method POST -Url '{{gatewayUrl}}/api/v1/login' -UseAuth $false -Body $loginBody
+    $startLogin.request.description = 'POST with active platform user email. Copy data.redirectUrl and open in browser. Callback state is user:{userId}.'
+
+    $loginCallback = New-PostmanRequest -Name '3. Entra Login Callback' -Method GET -Url '{{gatewayUrl}}/api/v1/auth/entra/callback?code={{authCode}}&state=user:{{loginUserId}}' -UseAuth $false
+    $loginCallback.request.description = 'Invitation-free callback. state must be user:{platformUserId}.'
+
+    return @{
+        name = '01 - UI Login Flow'
+        description = 'UI login: validates active user and returns Entra redirect URL (no invitation).'
+        item = @(
+            $startLogin
+            @{ name = '2. Manual - Entra sign-in in browser'; request = @{ method = 'GET'; auth = @{ type = 'noauth' }; url = @{ raw = '(open redirectUrl from step 1)' }; description = 'Sign in with the same email. Copy code from callback; set loginUserId from state if needed.' } }
+            $loginCallback
+            (New-PostmanRequest -Name '4. Get Me' -Method GET -Url '{{gatewayUrl}}/api/v1/auth/me' -UseAuth $true)
+        )
+    }
+}
+
 function New-AttachmentUploadFormBody {
     param(
         [string]$Category = 'general',
@@ -1175,6 +1242,176 @@ function Set-AttachmentUploadRequestBody {
         mode = 'formdata'
         formdata = New-AttachmentUploadFormBody -Category $Category -LogoVariant $LogoVariant -Description $Description
     }
+}
+
+function Get-PricingMatrixCreateBody {
+    param([ValidateSet('FlatLabor', 'LaborTier', 'MaterialTiers', 'OtherItems')][string]$Variant)
+
+    switch ($Variant) {
+        'FlatLabor' {
+            return @'
+{
+  "name": "FLATLABOR",
+  "description": "Flat Labor Pricing",
+  "isDefault": false,
+  "isLaborTierStructure": false,
+  "isLaborRateBySkillLevel": false,
+  "priceAdjustmentTypeId": null,
+  "effectiveFrom": null,
+  "effectiveTo": null,
+  "isMobileVisible": true,
+  "laborLines": [
+    {
+      "laborRateTypeId": 1,
+      "techSkillLevelId": null,
+      "baseRate": 85.00,
+      "overtimeMultiplier": 1.5,
+      "doubleTimeMultiplier": 2.0,
+      "discountPercent": null,
+      "tiers": null
+    }
+  ],
+  "materialTiers": null,
+  "otherItems": null
+}
+'@
+        }
+        'LaborTier' {
+            return @'
+{
+  "name": "LABORTIER",
+  "description": "Tiered Labor Pricing",
+  "isDefault": false,
+  "isLaborTierStructure": true,
+  "isLaborRateBySkillLevel": false,
+  "priceAdjustmentTypeId": null,
+  "effectiveFrom": null,
+  "effectiveTo": null,
+  "isMobileVisible": true,
+  "laborLines": [
+    {
+      "laborRateTypeId": 1,
+      "techSkillLevelId": null,
+      "baseRate": null,
+      "overtimeMultiplier": null,
+      "doubleTimeMultiplier": null,
+      "discountPercent": null,
+      "tiers": [
+        { "sequenceOrder": 1, "durationMinutes": 60, "rate": 95.00, "techSkillLevelId": null },
+        { "sequenceOrder": 2, "durationMinutes": 120, "rate": 85.00, "techSkillLevelId": null }
+      ]
+    }
+  ],
+  "materialTiers": null,
+  "otherItems": null
+}
+'@
+        }
+        'MaterialTiers' {
+            return @'
+{
+  "name": "MATERIAL",
+  "description": "Material Cost-Range Markup",
+  "isDefault": false,
+  "isLaborTierStructure": false,
+  "isLaborRateBySkillLevel": false,
+  "priceAdjustmentTypeId": 1,
+  "effectiveFrom": null,
+  "effectiveTo": null,
+  "isMobileVisible": true,
+  "laborLines": null,
+  "materialTiers": [
+    { "fromCost": 0, "toCost": 100, "adjustmentValue": 25 },
+    { "fromCost": 100.01, "toCost": null, "adjustmentValue": 20 }
+  ],
+  "otherItems": null
+}
+'@
+        }
+        'OtherItems' {
+            return @'
+{
+  "name": "OTHER",
+  "description": "Other Category Markup",
+  "isDefault": false,
+  "isLaborTierStructure": false,
+  "isLaborRateBySkillLevel": false,
+  "priceAdjustmentTypeId": 1,
+  "effectiveFrom": null,
+  "effectiveTo": null,
+  "isMobileVisible": true,
+  "laborLines": null,
+  "materialTiers": null,
+  "otherItems": [
+    { "categoryCode": "NI", "name": "Non-Inventory Markup", "adjustmentValue": 20, "discountPercent": null },
+    { "categoryCode": "OT", "name": "Other Charges Markup", "adjustmentValue": 15, "discountPercent": null }
+  ]
+}
+'@
+        }
+    }
+}
+
+function Add-PricingMatrixEnhancementsToFolder {
+    param($Folder)
+
+    if ($Folder.name -ne 'PricingMatrixController') { return $Folder }
+
+    $Folder.description = 'Pricing matrix aggregate CRUD via {{gatewayUrl}}/api/v1/pricingmatrix. Create variants: flat labor, labor tiers, material cost-range markup, and other category markup (material vs other are mutually exclusive).'
+
+    $createEvent = $null
+    $createTemplate = $null
+    $newItems = @()
+
+    foreach ($item in $Folder.item) {
+        if ($item.name -eq 'Create') {
+            $createTemplate = $item
+            $createEvent = $item.event
+            continue
+        }
+        $newItems += $item
+    }
+
+    if ($null -eq $createTemplate) {
+        $Folder.item = $newItems
+        return $Folder
+    }
+
+    $variants = @(
+        @{ Name = 'CreateFlatLabor'; Variant = 'FlatLabor'; Description = 'Create pricing matrix with flat labor rates only (IsLaborTierStructure=false). Persists FgsSetupPricingMatrixLabor.' }
+        @{ Name = 'CreateLaborTier'; Variant = 'LaborTier'; Description = 'Create pricing matrix with tiered labor (IsLaborTierStructure=true). Persists Labor parent + FgsSetupPricingMatrixLaborTier children.' }
+        @{ Name = 'CreateMaterialTiers'; Variant = 'MaterialTiers'; Description = 'Create pricing matrix with cost-range material markup. Persists FgsSetupPricingMatrixMaterialTier. Requires priceAdjustmentTypeId (1=%, 2=$, 3=multiplier).' }
+        @{ Name = 'CreateOtherItems'; Variant = 'OtherItems'; Description = 'Create pricing matrix with flat category markup. categoryCode must be an active FgsBillingCategory.BillingCategoryType (e.g. NI, OT, SF). Persists FgsSetupPricingMatrixOther. Requires priceAdjustmentTypeId. Mutually exclusive with materialTiers.' }
+    )
+
+    $createRequests = @()
+    foreach ($variant in $variants) {
+        $clone = @{
+            name = $variant.Name
+            request = ($createTemplate.request | ConvertTo-Json -Depth 20 | ConvertFrom-Json)
+            event = $createEvent
+        }
+        $clone.request.description = $variant.Description
+        $clone.request.body.raw = (Get-PricingMatrixCreateBody -Variant $variant.Variant)
+        $createRequests += $clone
+    }
+
+    # Keep Create variants after Lookup and before Update/Patch.
+    $ordered = @()
+    $inserted = $false
+    foreach ($item in $newItems) {
+        if (-not $inserted -and $item.name -in @('Update', 'Patch')) {
+            $ordered += $createRequests
+            $inserted = $true
+        }
+        $ordered += $item
+    }
+    if (-not $inserted) {
+        $ordered += $createRequests
+    }
+
+    $Folder.item = $ordered
+    return $Folder
 }
 
 function Add-AttachmentEnhancementsToFolder {
@@ -1251,6 +1488,7 @@ function New-Collection {
     $items = @()
     if ($IncludeAuthFlow) {
         $items += New-AuthFlowFolder
+        $items += New-UiLoginFlowFolder
     }
     $items += $Folders
 
@@ -1287,7 +1525,7 @@ function New-Collection {
 }
 
 $serviceConfigs = @(
-    @{ Key = 'UserService'; Path = 'src\UserService\Fgs.User.API\Controllers'; Desc = 'Company onboarding, Entra auth, dashboard, and tenant admin APIs via {{gatewayUrl}}.'; AuthFlow = $true }
+    @{ Key = 'UserService'; Path = 'src\UserService\Fgs.User.API\Controllers'; Desc = 'Company onboarding, UI login, Entra auth, active-user cache, dashboard, and tenant admin APIs via {{gatewayUrl}}.'; AuthFlow = $true }
     @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup catalog APIs via {{gatewayUrl}}/api/v1/{catalog}.'; AuthFlow = $false }
     @{ Key = 'NotificationService'; Path = 'src\NotificationService\Fgs.Notification.API\Controllers'; Desc = 'Notification dispatch via {{gatewayUrl}}/api/v1/notifications/...'; AuthFlow = $false }
     @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 provisioning and attachment management via {{gatewayUrl}}. Upload via multipart/form-data; download/thumbnail stream through the API (no S3 URLs exposed).'; AuthFlow = $false }
@@ -1325,6 +1563,9 @@ foreach ($svc in $serviceConfigs) {
         if ($null -ne $folder) {
             if ($svc.Key -eq 'FileService') {
                 $folder = Add-AttachmentEnhancementsToFolder -Folder $folder
+            }
+            if ($svc.Key -eq 'SetupService') {
+                $folder = Add-PricingMatrixEnhancementsToFolder -Folder $folder
             }
             $folders += $folder
         }

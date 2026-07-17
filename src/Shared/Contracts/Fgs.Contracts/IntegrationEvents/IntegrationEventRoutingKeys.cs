@@ -21,6 +21,8 @@ public static class IntegrationEventRoutingKeys
 
     public const string CredentialConfigurationChanged = "setup.CredentialConfigurationChanged";
 
+    public const string CredentialAuditRequested = "audit.credential.requested";
+
     public static string ForEventType(string eventType, string? routingKeyPrefix = null) =>
         eventType switch
         {
@@ -31,6 +33,7 @@ public static class IntegrationEventRoutingKeys
             IntegrationEventTypes.PasswordReset => PasswordReset,
             IntegrationEventTypes.CompanyCreated => CompanyCreated,
             IntegrationEventTypes.CredentialConfigurationChanged => CredentialConfigurationChanged,
+            IntegrationEventTypes.CredentialAuditRequested => CredentialAuditRequested,
             _ => $"{routingKeyPrefix ?? Prefix}{eventType}"
         };
 }

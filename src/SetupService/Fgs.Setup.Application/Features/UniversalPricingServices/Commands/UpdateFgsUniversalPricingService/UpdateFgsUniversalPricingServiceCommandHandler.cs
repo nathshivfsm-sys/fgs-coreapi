@@ -1,0 +1,31 @@
+using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
+using Fgs.MultiTenancy;
+using Fgs.Setup.Application.Abstractions.UniversalPricingServices;
+using Fgs.Setup.Application.Features.UniversalPricingServices.Dtos;
+using MediatR;
+using Microsoft.Extensions.Logging;
+
+namespace Fgs.Setup.Application.Features.UniversalPricingServices.Commands.UpdateFgsUniversalPricingService;
+
+public sealed class UpdateFgsUniversalPricingServiceCommandHandler(
+    IFgsUniversalPricingServiceWriteRepository writeRepository,
+    ICacheService cache,
+    ITenantContextAccessor tenantContextAccessor,
+    ILogger<UpdateFgsUniversalPricingServiceCommandHandler> logger)
+    : IRequestHandler<UpdateFgsUniversalPricingServiceCommand, ApiResponse<FgsUniversalPricingServiceDetailDto>>
+{
+    public async Task<ApiResponse<FgsUniversalPricingServiceDetailDto>> Handle(
+        UpdateFgsUniversalPricingServiceCommand request,
+        CancellationToken cancellationToken)
+    {
+        var result = await writeRepository.UpdateAsync(request.Id, request.Dto, cancellationToken);
+        logger.LogInformation("Updated universal pricing service {Id}", result.Id);
+            var tenantScope = tenantContextAccessor.Current!;
+            await cache.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalpricingservice"),
+                cancellationToken);
+        return ApiResponse<FgsUniversalPricingServiceDetailDto>.Ok(result);
+    }
+}

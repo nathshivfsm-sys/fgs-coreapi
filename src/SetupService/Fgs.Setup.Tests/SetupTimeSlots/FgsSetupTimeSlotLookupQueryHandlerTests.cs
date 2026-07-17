@@ -22,10 +22,11 @@ public sealed class FgsSetupTimeSlotLookupQueryHandlerTests
         cache
             .Setup(c => c.GetOrSetAsync(
                 It.IsAny<string>(),
-                It.IsAny<Func<Task<IReadOnlyList<FgsSetupTimeSlotLookupDto>?>>>(),
+                It.IsAny<Func<Task<IReadOnlyList<FgsSetupTimeSlotLookupDto>>>>(),
                 It.IsAny<TimeSpan?>(),
                 It.IsAny<CancellationToken>()))
-            .Returns((string _, Func<Task<IReadOnlyList<FgsSetupTimeSlotLookupDto>?>> factory, TimeSpan? _, CancellationToken __) => factory());
+            .Returns(async (string _, Func<Task<IReadOnlyList<FgsSetupTimeSlotLookupDto>>> factory, TimeSpan? _, CancellationToken __) =>
+                (IReadOnlyList<FgsSetupTimeSlotLookupDto>?)await factory());
 
         var tenantAccessor = new Mock<ITenantContextAccessor>();
         tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });

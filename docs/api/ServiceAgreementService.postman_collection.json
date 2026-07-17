@@ -63,7 +63,7 @@
                  "description":  "Service agreement scaffold (health) via {{gatewayUrl}}/api/v1/service-agreements/...",
                  "name":  "FGS ServiceAgreementService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "0c2e9034-eaa1-49bd-9c54-0d4a362a8d07"
+                 "_postman_id":  "d6157667-507c-482d-b997-58b446127cc1"
              },
     "event":  [
                   {

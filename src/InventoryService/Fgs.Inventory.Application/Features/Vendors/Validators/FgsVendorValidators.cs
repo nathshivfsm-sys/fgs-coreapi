@@ -42,10 +42,6 @@ public sealed class CreateFgsVendorCommandValidator : AbstractValidator<CreateFg
             .Must(status => status is null || AllowedVendorStatuses.Contains(status))
             .WithMessage("VendorStatus must be ACTIVE, INACTIVE, or ON_HOLD.");
         RuleFor(x => x.Dto.VendorAccountNumber).MaximumLength(100);
-        RuleFor(x => x.Dto.PaymentTermId)
-            .MustAsync(async (command, value, cancellationToken) =>
-                !value.HasValue || await readRepository.ExistsPaymentTermIdAsync(value.Value, cancellationToken))
-            .WithMessage("The specified payment term was not found.");
         RuleFor(x => x.Dto.ContactName).MaximumLength(150);
         RuleFor(x => x.Dto.ContactTitle).MaximumLength(100);
         RuleFor(x => x.Dto.Email).MaximumLength(255);
@@ -103,10 +99,6 @@ public sealed class UpdateFgsVendorCommandValidator : AbstractValidator<UpdateFg
             .Must(status => AllowedVendorStatuses.Contains(status))
             .WithMessage("VendorStatus must be ACTIVE, INACTIVE, or ON_HOLD.");
         RuleFor(x => x.Dto.VendorAccountNumber).MaximumLength(100);
-        RuleFor(x => x.Dto.PaymentTermId)
-            .MustAsync(async (command, value, cancellationToken) =>
-                !value.HasValue || await readRepository.ExistsPaymentTermIdAsync(value.Value, cancellationToken))
-            .WithMessage("The specified payment term was not found.");
         RuleFor(x => x.Dto.ContactName).MaximumLength(150);
         RuleFor(x => x.Dto.ContactTitle).MaximumLength(100);
         RuleFor(x => x.Dto.Email).MaximumLength(255);
@@ -167,11 +159,6 @@ public sealed class PatchFgsVendorCommandValidator : AbstractValidator<PatchFgsV
             .WithMessage("VendorStatus must be ACTIVE, INACTIVE, or ON_HOLD.")
             .When(x => x.Dto.VendorStatus is not null);
         RuleFor(x => x.Dto.VendorAccountNumber).MaximumLength(100).When(x => x.Dto.VendorAccountNumber is not null);
-        RuleFor(x => x.Dto.PaymentTermId)
-            .MustAsync(async (command, value, cancellationToken) =>
-                !value.HasValue || await readRepository.ExistsPaymentTermIdAsync(value.Value, cancellationToken))
-            .WithMessage("The specified payment term was not found.")
-            .When(x => x.Dto.PaymentTermId.HasValue);
         RuleFor(x => x.Dto.ContactName).MaximumLength(150).When(x => x.Dto.ContactName is not null);
         RuleFor(x => x.Dto.ContactTitle).MaximumLength(100).When(x => x.Dto.ContactTitle is not null);
         RuleFor(x => x.Dto.Email).MaximumLength(255).When(x => x.Dto.Email is not null);

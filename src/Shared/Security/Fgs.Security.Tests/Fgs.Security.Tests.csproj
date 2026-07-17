@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Fgs.Security\Fgs.Security.csproj" />
+    <ProjectReference Include="..\..\Foundation\Fgs.Foundation\Fgs.Foundation.csproj" />
     <ProjectReference Include="..\..\MultiTenancy\Fgs.MultiTenancy\Fgs.MultiTenancy.csproj" />
   </ItemGroup>
 

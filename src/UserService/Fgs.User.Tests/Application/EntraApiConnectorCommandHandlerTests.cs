@@ -62,10 +62,20 @@ public sealed class EntraApiConnectorCommandHandlerTests
 
     private static EntraApiConnectorCommandHandler CreateHandler(FgsUserDbContext context)
     {
+        var publicEndpoints = new Mock<Fgs.User.Application.Abstractions.PublicEndpoints.IFgsPublicEndpointReadRepository>();
+        publicEndpoints
+            .Setup(r => r.ListActiveForTenantCompanyAsync(
+                It.IsAny<long>(),
+                It.IsAny<long>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         var profileResolver = new FgsUserProfileResolver(
             TestUserRepositories.ReadUsers(context),
             TestUserRepositories.InvitationRead(context),
-            TestUserRepositories.RoleCodesRead(context, ["TENANT_ADMIN"]));
+            TestUserRepositories.RoleCodesRead(context, ["TENANT_ADMIN"]),
+            TestUserRepositories.AuthorizationRead(),
+            publicEndpoints.Object);
 
         return new EntraApiConnectorCommandHandler(profileResolver, new EmailNormalizer());
     }
@@ -89,15 +99,26 @@ public sealed class EntraApiConnectorCommandHandlerTests
         await context.SaveChangesAsync();
 
         var tenantId = tenant.Id;
+        var companyGuid = Guid.NewGuid();
         context.FgsTenantCompanies.Add(new FgsTenantCompany
         {
             TenantId = tenantId,
             CompanyNumber = companyId,
-            CompanyGuid = Guid.NewGuid(),
+            CompanyGuid = companyGuid,
             Code = "c1",
             Name = "Company",
             IsActive = true,
             CreatedOn = DateTimeOffset.UtcNow
+        });
+        context.FgsTenantCompanyCaches.Add(new FgsTenantCompanyCache
+        {
+            TenantId = tenantId,
+            CompanyId = companyId,
+            CompanyGuid = companyGuid,
+            CompanyCode = "c1",
+            CompanyName = "Company",
+            IsActive = true,
+            UpdatedOn = DateTimeOffset.UtcNow
         });
         context.FgsUsers.Add(new FgsUser
         {

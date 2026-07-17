@@ -2,7 +2,9 @@ using System.Text.Json;
 using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
+using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Auth.Commands.EntraCallback;
+using Fgs.User.Application.Features.Auth.Commands.EntraLoginCallback;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +38,18 @@ public sealed partial class AuthController(IMediator mediator) : FgsApiControlle
         [FromQuery] string state,
         CancellationToken cancellationToken)
     {
+        if (state.StartsWith(OAuthStatePrefixes.UserLogin, StringComparison.Ordinal))
+        {
+            var loginResponse = await Mediator.Send(new EntraLoginCallbackCommand(code, state), cancellationToken);
+            if (!loginResponse.Success || loginResponse.Data is null)
+            {
+                return StatusCode(loginResponse.StatusCode, loginResponse);
+            }
+
+            var loginDestination = $"{loginResponse.Data.RedirectUrl}?token={Uri.EscapeDataString(loginResponse.Data.AccessToken)}";
+            return Content(BuildSignInRedirectHtml(loginDestination), "text/html; charset=utf-8");
+        }
+
         var response = await Mediator.Send(new EntraCallbackCommand(code, state), cancellationToken);
         if (!response.Success || response.Data is null)
         {

@@ -68,7 +68,7 @@ public sealed class PatchBillingCategoryCommandValidator : AbstractValidator<Pat
         RuleFor(x => x.Dto.BillingCategoryType).MaximumLength(2);
         RuleFor(x => x.Dto.BillingCategoryType).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("BillingCategoryType must be uppercase.");
         RuleFor(x => x.Dto).MustAsync(async (command, dto, cancellationToken) =>
-                !await readRepository.ExistsByBillingCategoryTypeAndBillingCategoryNameAsync(dto.BillingCategoryType, dto.BillingCategoryName, command.Id, cancellationToken))
+                !await readRepository.ExistsByBillingCategoryTypeAndBillingCategoryNameAsync(dto.BillingCategoryType!, dto.BillingCategoryName!, command.Id, cancellationToken))
             .WithMessage("A billing category with this combination already exists.");
         RuleFor(x => x.Dto.BillingCategoryName).NotEmpty();
         RuleFor(x => x.Dto.BillingCategoryName).MaximumLength(100);

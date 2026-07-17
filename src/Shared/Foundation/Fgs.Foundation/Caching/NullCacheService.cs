@@ -22,7 +22,7 @@ public sealed class NullCacheService : ICacheService
 
     public async Task<T?> GetOrSetAsync<T>(
         string key,
-        Func<Task<T?>> factory,
+        Func<Task<T>> factory,
         TimeSpan? absoluteExpiration = null,
         CancellationToken cancellationToken = default) where T : class =>
         await factory();

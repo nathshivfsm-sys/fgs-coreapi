@@ -84,24 +84,17 @@ internal static class TenantSeedSqlBuilder
         return $"{tenantColumn} = @{SeedTransformationTypes.SqlParameters.TenantId}";
     }
 
-    public static string? CombineWhereClauses(string? tenantScopeClause, string? businessTypeClause)
+    public static string? BuildSourceFilterClause(GloSeedTableMapping mapping) =>
+        TenantSeedSourceFilters.TryGetFilter(mapping.SeedCode);
+
+    public static string? CombineWhereClauses(params string?[] clauses)
     {
-        if (string.IsNullOrWhiteSpace(tenantScopeClause) && string.IsNullOrWhiteSpace(businessTypeClause))
-        {
-            return null;
-        }
+        var parts = clauses
+            .Where(clause => !string.IsNullOrWhiteSpace(clause))
+            .Select(clause => clause!.Trim())
+            .ToArray();
 
-        if (string.IsNullOrWhiteSpace(tenantScopeClause))
-        {
-            return businessTypeClause;
-        }
-
-        if (string.IsNullOrWhiteSpace(businessTypeClause))
-        {
-            return tenantScopeClause;
-        }
-
-        return $"{tenantScopeClause} AND {businessTypeClause}";
+        return parts.Length == 0 ? null : string.Join(" AND ", parts);
     }
 
     internal static string BuildSelectExpression(GloSeedTableColumnMapping column)

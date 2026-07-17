@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Fgs.Contracts.Clients;
@@ -13,7 +14,77 @@ public sealed class EntraExternalIdRefitService(
 {
     private readonly EntraExternalIdOptions _options = options.Value;
 
-    public string BuildAuthorizationUrl(Guid invitationId, string redirectUri, string? loginHint = null)
+    public string BuildAuthorizationUrl(string state, string redirectUri, string? loginHint = null) =>
+        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge: null);
+
+    public string BuildLoginAuthorizationUrl(
+        string state,
+        string redirectUri,
+        string codeChallenge,
+        string? loginHint = null) =>
+        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge);
+
+    public Task<EntraTokenResult> ExchangeCodeAsync(
+        string code,
+        string redirectUri,
+        CancellationToken cancellationToken = default) =>
+        ExchangeAsync(
+            new Dictionary<string, string>
+            {
+                ["grant_type"] = "authorization_code",
+                ["client_id"] = _options.ClientId,
+                ["client_secret"] = _options.ClientSecret,
+                ["code"] = code,
+                ["redirect_uri"] = redirectUri,
+                ["scope"] = _options.Scopes
+            },
+            cancellationToken);
+
+    public Task<EntraTokenResult> ExchangeLoginCodeAsync(
+        string code,
+        string redirectUri,
+        string codeVerifier,
+        CancellationToken cancellationToken = default) =>
+        ExchangeAsync(
+            new Dictionary<string, string>
+            {
+                ["grant_type"] = "authorization_code",
+                ["client_id"] = _options.ClientId,
+                ["client_secret"] = _options.ClientSecret,
+                ["code"] = code,
+                ["redirect_uri"] = redirectUri,
+                ["code_verifier"] = codeVerifier,
+                ["scope"] = _options.Scopes
+            },
+            cancellationToken);
+
+    public Task<EntraTokenResult> RefreshTokenAsync(
+        string refreshToken,
+        CancellationToken cancellationToken = default) =>
+        ExchangeAsync(
+            new Dictionary<string, string>
+            {
+                ["grant_type"] = "refresh_token",
+                ["client_id"] = _options.ClientId,
+                ["client_secret"] = _options.ClientSecret,
+                ["refresh_token"] = refreshToken,
+                ["scope"] = _options.Scopes
+            },
+            cancellationToken);
+
+    public static (string CodeVerifier, string CodeChallenge) CreatePkcePair()
+    {
+        var bytes = RandomNumberGenerator.GetBytes(32);
+        var verifier = Base64UrlEncode(bytes);
+        var challenge = Base64UrlEncode(SHA256.HashData(Encoding.ASCII.GetBytes(verifier)));
+        return (verifier, challenge);
+    }
+
+    private string BuildAuthorizeUrl(
+        string state,
+        string redirectUri,
+        string? loginHint,
+        string? codeChallenge)
     {
         var authorize = string.IsNullOrWhiteSpace(_options.AuthorizeEndpoint)
             ? BuildAuthorizeEndpoint()
@@ -26,10 +97,16 @@ public sealed class EntraExternalIdRefitService(
             ["redirect_uri"] = redirectUri,
             ["response_mode"] = "query",
             ["scope"] = _options.Scopes,
-            ["state"] = invitationId.ToString(),
+            ["state"] = state,
             ["login_hint"] = loginHint,
             ["p"] = _options.UserFlow
         };
+
+        if (!string.IsNullOrWhiteSpace(codeChallenge))
+        {
+            query["code_challenge"] = codeChallenge;
+            query["code_challenge_method"] = "S256";
+        }
 
         var qs = string.Join("&", query
             .Where(kv => !string.IsNullOrWhiteSpace(kv.Value))
@@ -38,30 +115,29 @@ public sealed class EntraExternalIdRefitService(
         return $"{authorize}?{qs}";
     }
 
-    public async Task<EntraTokenResult> ExchangeCodeAsync(
-        string code,
-        string redirectUri,
-        CancellationToken cancellationToken = default)
+    private async Task<EntraTokenResult> ExchangeAsync(
+        Dictionary<string, string> form,
+        CancellationToken cancellationToken)
     {
-        var response = await entraOAuthClient.ExchangeAuthorizationCodeAsync(
-            new Dictionary<string, string>
-            {
-                ["grant_type"] = "authorization_code",
-                ["client_id"] = _options.ClientId,
-                ["client_secret"] = _options.ClientSecret,
-                ["code"] = code,
-                ["redirect_uri"] = redirectUri,
-                ["scope"] = _options.Scopes
-            },
-            cancellationToken);
+        var response = await entraOAuthClient.ExchangeAuthorizationCodeAsync(form, cancellationToken);
 
         var accessToken = response.Access_token
             ?? throw new InvalidOperationException("access_token missing from Entra response.");
 
-        return ParseUserFromAccessToken(accessToken);
+        var (objectId, email, displayName) = ParseUserFromAccessToken(accessToken);
+
+        return new EntraTokenResult(
+            accessToken,
+            objectId,
+            email,
+            displayName,
+            response.Refresh_token,
+            response.Id_token,
+            response.Expires_in ?? 3600,
+            string.IsNullOrWhiteSpace(response.Token_type) ? "Bearer" : response.Token_type);
     }
 
-    private static EntraTokenResult ParseUserFromAccessToken(string accessToken)
+    private static (string ObjectId, string Email, string? DisplayName) ParseUserFromAccessToken(string accessToken)
     {
         var parts = accessToken.Split('.');
         if (parts.Length < 2)
@@ -88,7 +164,7 @@ public sealed class EntraExternalIdRefitService(
             throw new InvalidOperationException("Required Entra claims (oid, email) were not present.");
         }
 
-        return new EntraTokenResult(accessToken, oid, email, name);
+        return (oid, email, name);
     }
 
     private string BuildAuthorizeEndpoint()
@@ -97,6 +173,9 @@ public sealed class EntraExternalIdRefitService(
         var tenant = _options.TenantId.Trim('/');
         return $"{authority}/{tenant}/oauth2/v2.0/authorize";
     }
+
+    private static string Base64UrlEncode(byte[] input) =>
+        Convert.ToBase64String(input).TrimEnd('=').Replace('+', '-').Replace('/', '_');
 
     private static byte[] Base64UrlDecode(string input)
     {

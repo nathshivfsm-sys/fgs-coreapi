@@ -1,4 +1,3 @@
-using Fgs.Setup.Application.Abstractions.Vehicles;
 using Fgs.Setup.Application.Features.Vehicles.Commands.CreateFgsVehicle;
 using Fgs.Setup.Application.Features.Vehicles.Commands.PatchFgsVehicle;
 using Fgs.Setup.Application.Features.Vehicles.Commands.UpdateFgsVehicle;
@@ -8,11 +7,8 @@ namespace Fgs.Setup.Application.Features.Vehicles.Validators;
 
 public sealed class CreateFgsVehicleCommandValidator : AbstractValidator<CreateFgsVehicleCommand>
 {
-    public CreateFgsVehicleCommandValidator(IFgsVehicleReadRepository readRepository)
+    public CreateFgsVehicleCommandValidator()
     {
-        RuleFor(x => x.Dto.InventoryLocationId).MustAsync(async (command, value, cancellationToken) =>
-                await readRepository.ExistsInventoryLocationIdAsync(value, cancellationToken))
-            .WithMessage("The specified inventory location was not found.");
         RuleFor(x => x.Dto.OwnershipType).NotEmpty();
         RuleFor(x => x.Dto.OwnershipType).MaximumLength(20);
         RuleFor(x => x.Dto.OwnershipCompany).MaximumLength(200);
@@ -25,39 +21,15 @@ public sealed class CreateFgsVehicleCommandValidator : AbstractValidator<CreateF
         RuleFor(x => x.Dto.LicensePlate).MaximumLength(50);
         RuleFor(x => x.Dto.LicensePlateState).MaximumLength(50);
 
-
         RuleFor(x => x.Dto.PurchasedFrom).MaximumLength(200);
-
-        RuleFor(x => x.Dto.InventoryLocationId).MustAsync(async (command, value, cancellationToken) =>
-                await readRepository.ExistsInventoryLocationIdAsync(value, cancellationToken))
-            .WithMessage("The specified inventory location was not found.");
-        RuleFor(x => x.Dto.OwnershipType).NotEmpty();
-        RuleFor(x => x.Dto.OwnershipType).MaximumLength(20);
-        RuleFor(x => x.Dto.OwnershipCompany).MaximumLength(200);
-
-        RuleFor(x => x.Dto.Make).MaximumLength(100);
-        RuleFor(x => x.Dto.Model).MaximumLength(100);
-        RuleFor(x => x.Dto.Color).MaximumLength(50);
-        RuleFor(x => x.Dto.VIN).NotEmpty();
-        RuleFor(x => x.Dto.VIN).MaximumLength(50);
-        RuleFor(x => x.Dto.LicensePlate).MaximumLength(50);
-        RuleFor(x => x.Dto.LicensePlateState).MaximumLength(50);
-
-
-        RuleFor(x => x.Dto.PurchasedFrom).MaximumLength(200);
-
-
     }
 }
 
 public sealed class UpdateFgsVehicleCommandValidator : AbstractValidator<UpdateFgsVehicleCommand>
 {
-    public UpdateFgsVehicleCommandValidator(IFgsVehicleReadRepository readRepository)
+    public UpdateFgsVehicleCommandValidator()
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.InventoryLocationId).MustAsync(async (command, value, cancellationToken) =>
-                await readRepository.ExistsInventoryLocationIdAsync(value, cancellationToken))
-            .WithMessage("The specified inventory location was not found.");
         RuleFor(x => x.Dto.OwnershipType).NotEmpty();
         RuleFor(x => x.Dto.OwnershipType).MaximumLength(20);
         RuleFor(x => x.Dto.OwnershipCompany).MaximumLength(200);
@@ -70,21 +42,15 @@ public sealed class UpdateFgsVehicleCommandValidator : AbstractValidator<UpdateF
         RuleFor(x => x.Dto.LicensePlate).MaximumLength(50);
         RuleFor(x => x.Dto.LicensePlateState).MaximumLength(50);
 
-
         RuleFor(x => x.Dto.PurchasedFrom).MaximumLength(200);
-
-
     }
 }
 
 public sealed class PatchFgsVehicleCommandValidator : AbstractValidator<PatchFgsVehicleCommand>
 {
-    public PatchFgsVehicleCommandValidator(IFgsVehicleReadRepository readRepository)
+    public PatchFgsVehicleCommandValidator()
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.InventoryLocationId).MustAsync(async (command, value, cancellationToken) =>
-                !value.HasValue || await readRepository.ExistsInventoryLocationIdAsync(value.Value, cancellationToken))
-            .WithMessage("The specified warehouse was not found.").When(x => x.Dto.InventoryLocationId.HasValue);
         RuleFor(x => x.Dto.OwnershipType).NotEmpty();
         RuleFor(x => x.Dto.OwnershipType).MaximumLength(20);
         RuleFor(x => x.Dto.OwnershipCompany).MaximumLength(200).When(x => x.Dto.OwnershipCompany is not null);
@@ -97,9 +63,6 @@ public sealed class PatchFgsVehicleCommandValidator : AbstractValidator<PatchFgs
         RuleFor(x => x.Dto.LicensePlate).MaximumLength(50).When(x => x.Dto.LicensePlate is not null);
         RuleFor(x => x.Dto.LicensePlateState).MaximumLength(50).When(x => x.Dto.LicensePlateState is not null);
 
-
         RuleFor(x => x.Dto.PurchasedFrom).MaximumLength(200).When(x => x.Dto.PurchasedFrom is not null);
-
-
     }
 }

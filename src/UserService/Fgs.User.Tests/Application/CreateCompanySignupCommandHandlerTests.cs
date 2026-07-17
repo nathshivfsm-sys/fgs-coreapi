@@ -80,6 +80,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
 
         (await userContext.FgsTenants.CountAsync()).Should().Be(1);
         (await userContext.FgsTenantCompanies.CountAsync()).Should().Be(1);
+        (await userContext.FgsTenantCompanyCaches.CountAsync()).Should().Be(1);
         (await userContext.FgsUsers.CountAsync()).Should().Be(1);
         (await userContext.FgsInvitations.CountAsync()).Should().Be(1);
         (await userContext.FgsLocations.CountAsync()).Should().Be(1);
@@ -108,6 +109,14 @@ public sealed class CreateCompanySignupCommandHandlerTests
         company.BillingLocationId.Should().Be(tenant.PhysicalLocationId);
         company.CreatedBy.Should().Be(SignupConstants.ProspectActor);
 
+        var companyCache = await userContext.FgsTenantCompanyCaches.SingleAsync();
+        companyCache.TenantId.Should().Be(tenant.Id);
+        companyCache.CompanyId.Should().Be(company.CompanyNumber);
+        companyCache.CompanyGuid.Should().Be(company.CompanyGuid);
+        companyCache.CompanyCode.Should().Be(tenant.TenantCode);
+        companyCache.CompanyName.Should().Be(companyName);
+        companyCache.IsActive.Should().BeTrue();
+
         var location = await userContext.FgsLocations.SingleAsync();
         location.AddressLine1.Should().Be(command.Company.Address.AddressLine1);
         location.City.Should().Be(command.Company.Address.City);
@@ -126,8 +135,12 @@ public sealed class CreateCompanySignupCommandHandlerTests
 
         var userRole = await userContext.FgsUserRoles.SingleAsync();
         userRole.UserId.Should().Be(createdUser.Id);
-        userRole.GloRoleId.Should().Be(SignupConstants.TenantAdminGloRoleId);
-        userRole.FgsRoleId.Should().BeNull();
+        userRole.FgsRoleId.Should().BeGreaterThan(0);
+
+        var tenantAdminRole = await userContext.FgsRoles.SingleAsync();
+        tenantAdminRole.RoleCode.Should().Be(SignupConstants.TenantAdminRoleCode);
+        tenantAdminRole.IsBuiltIn.Should().BeTrue();
+        userRole.FgsRoleId.Should().Be(tenantAdminRole.Id);
 
         var outbox = await userContext.TenantOutboxMessages.SingleAsync();
         outbox.ExchangeName.Should().Be(IntegrationEventExchanges.UserEvents);

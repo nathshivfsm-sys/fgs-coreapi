@@ -3,6 +3,7 @@ using Fgs.Contracts.Clients;
 using Fgs.Contracts.CredentialAudit;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Options;
+using Fgs.Persistence.Abstractions;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using MediatR;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +14,7 @@ namespace Fgs.Setup.Application.Features.Credentials.Queries.GetResolvedCredenti
 public sealed class GetResolvedCredentialConfigurationQueryHandler(
     ICredentialConfigurationProvider configurationProvider,
     ICredentialAuditRecorder auditRecorder,
+    IUnitOfWork unitOfWork,
     IOptions<CredentialDistributionOptions> distributionOptions,
     IHostEnvironment environment)
     : IRequestHandler<GetResolvedCredentialConfigurationQuery, ApiResponse<ResolvedCredentialConfigurationDto>>
@@ -27,10 +29,11 @@ public sealed class GetResolvedCredentialConfigurationQueryHandler(
 
         if (!IsInternalServiceAuthorized(request.InternalServiceKey, distributionOptions.Value))
         {
-            RecordAccessAudit(
+            await RecordAccessAuditAsync(
                 requestingService,
                 CredentialAuditActions.SecretAccessDenied,
-                "Internal service key validation failed.");
+                "Internal service key validation failed.",
+                cancellationToken);
             return ApiResponse<ResolvedCredentialConfigurationDto>.Fail(
                 ["Unauthorized."],
                 ApiStatusCodes.Unauthorized);
@@ -38,19 +41,21 @@ public sealed class GetResolvedCredentialConfigurationQueryHandler(
 
         if (configurationProvider.Values.Count == 0)
         {
-            RecordAccessAudit(
+            await RecordAccessAuditAsync(
                 requestingService,
                 CredentialAuditActions.SecretAccessDenied,
-                "Resolved credential configuration is not loaded yet.");
+                "Resolved credential configuration is not loaded yet.",
+                cancellationToken);
             return ApiResponse<ResolvedCredentialConfigurationDto>.Fail(
                 ["Resolved credential configuration is not loaded yet."],
                 503);
         }
 
-        RecordAccessAudit(
+        await RecordAccessAuditAsync(
             requestingService,
             CredentialAuditActions.SecretAccessed,
-            $"Resolved configuration snapshot; EntryCount={configurationProvider.Values.Count}");
+            $"Resolved configuration snapshot; EntryCount={configurationProvider.Values.Count}",
+            cancellationToken);
 
         return ApiResponse<ResolvedCredentialConfigurationDto>.Ok(
             new ResolvedCredentialConfigurationDto(configurationProvider.Values));
@@ -68,11 +73,13 @@ public sealed class GetResolvedCredentialConfigurationQueryHandler(
         return string.Equals(providedKey, options.InternalServiceKey, StringComparison.Ordinal);
     }
 
-    private void RecordAccessAudit(
+    private async Task RecordAccessAuditAsync(
         string requestingService,
         string actionType,
-        string remarks) =>
-        _ = auditRecorder.RecordAsync(
+        string remarks,
+        CancellationToken cancellationToken)
+    {
+        await auditRecorder.RecordAsync(
             new RecordCredentialAuditRequest(
                 TenantId: 0,
                 CompanyId: 0,
@@ -80,5 +87,7 @@ public sealed class GetResolvedCredentialConfigurationQueryHandler(
                 ActionType: actionType,
                 Remarks: $"Service={requestingService}; Environment={environment.EnvironmentName}; {remarks}",
                 CreatedBy: requestingService),
-            CancellationToken.None);
+            cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+    }
 }

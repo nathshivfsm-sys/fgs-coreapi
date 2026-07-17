@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Builder;
 
 namespace Fgs.Foundation.Hosting;
 
@@ -23,4 +24,8 @@ public sealed class FgsApiHostOptions
     public bool UseTenantResolution { get; set; } = true;
 
     public bool UseResponseCompression { get; set; } = true;
+
+    public bool UseActiveUserValidation { get; set; } = true;
+
+    public Action<IApplicationBuilder>? PostAuthenticationMiddleware { get; set; }
 }

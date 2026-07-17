@@ -22,4 +22,9 @@ public sealed record FgsUserProfile(
     string? EntraObjectId,
     long TenantId,
     long CompanyId,
-    IReadOnlyList<string> Roles);
+    bool IsActive,
+    bool IsDeleted,
+    IReadOnlyList<string> Roles,
+    IReadOnlyList<string> Permissions,
+    IReadOnlyList<string> DataAccess,
+    IReadOnlyList<Fgs.Contracts.Auth.PublicEndpointAuthDto> PublicEndpoints);

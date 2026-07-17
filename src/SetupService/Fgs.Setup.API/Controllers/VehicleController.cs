@@ -42,12 +42,13 @@ public sealed class VehicleController(IMediator mediator) : ControllerBase
         [FromQuery] string? search = null,
         [FromQuery] bool? isActive = null,
         [FromQuery] string? vIN = null,
+        [FromQuery] long? inventoryLocationId = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListVehiclesQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new FgsVehicleListFilters(vIN)),
+                new FgsVehicleListFilters(vIN, inventoryLocationId)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);

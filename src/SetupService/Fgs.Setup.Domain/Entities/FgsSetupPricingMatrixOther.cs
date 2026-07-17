@@ -8,7 +8,7 @@ public class FgsSetupPricingMatrixOther : FgsTenantCompanySetupEntityBase<long>
 
     public string Name { get; set; } = null!;
 
-    public decimal? MarkupPercent { get; set; }
+    public decimal? AdjustmentValue { get; set; }
 
     public decimal? DiscountPercent { get; set; }
 }

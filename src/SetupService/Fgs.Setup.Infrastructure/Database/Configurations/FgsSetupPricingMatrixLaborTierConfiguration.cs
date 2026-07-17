@@ -49,6 +49,14 @@ internal class FgsSetupPricingMatrixLaborTierConfiguration : IEntityTypeConfigur
             .HasConstraintName("FK_FgsSetupPricingMatrixLaborTier_PricingMatrixLabor")
             .OnDelete(DeleteBehavior.Cascade);
 
+        entity.HasOne<FgsSetupTechSkillLevel>()
+            .WithMany()
+            .HasForeignKey(e => e.TechSkillLevelId)
+            .HasConstraintName("FK_FgsSetupPricingMatrixLaborTier_TechSkillLevel")
+            .OnDelete(DeleteBehavior.Restrict);
+
+        entity.HasIndex(e => e.TechSkillLevelId);
+
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.PricingMatrixLaborId })
             .HasDatabaseName("IX_FgsSetupPricingMatrixLaborTier_TenantId_CompanyId_PricingMatrixLaborId");
 

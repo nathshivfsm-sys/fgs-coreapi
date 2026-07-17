@@ -57,7 +57,7 @@ public sealed class StartInvitationCommandHandlerTests
         var entraMock = new Mock<IEntraExternalIdService>();
         entraMock
             .Setup(s => s.BuildAuthorizationUrl(
-                invitationId,
+                invitationId.ToString(),
                 It.IsAny<string>(),
                 "a@test.com"))
             .Returns("https://login.example/authorize");
@@ -109,7 +109,7 @@ public sealed class StartInvitationCommandHandlerTests
         var entraMock = new Mock<IEntraExternalIdService>();
         entraMock
             .Setup(s => s.BuildAuthorizationUrl(
-                invitationId,
+                invitationId.ToString(),
                 It.IsAny<string>(),
                 "verified@test.com"))
             .Returns("https://login.example/signin");
@@ -221,7 +221,7 @@ public sealed class StartInvitationCommandHandlerTests
         var entraMock = new Mock<IEntraExternalIdService>();
         entraMock
             .Setup(s => s.BuildAuthorizationUrl(
-                invitationId,
+                invitationId.ToString(),
                 It.IsAny<string>(),
                 "a@test.com"))
             .Returns("https://login.example/authorize");

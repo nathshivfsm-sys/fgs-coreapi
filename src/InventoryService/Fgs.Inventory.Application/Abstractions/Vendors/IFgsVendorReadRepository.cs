@@ -21,8 +21,4 @@ public interface IFgsVendorReadRepository
         string vendorCode,
         long? excludeId = null,
         CancellationToken cancellationToken = default);
-
-    Task<bool> ExistsPaymentTermIdAsync(
-        long? id,
-        CancellationToken cancellationToken = default);
 }

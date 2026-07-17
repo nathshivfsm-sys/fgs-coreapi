@@ -91,13 +91,39 @@ public sealed class TenantQueryFilterTests
 
         if (!await context.FgsTenantCompanies.AnyAsync(c => c.TenantId == tenantId && c.CompanyNumber == companyId))
         {
+            var companyGuid = Guid.NewGuid();
             context.FgsTenantCompanies.Add(new FgsTenantCompany
             {
                 TenantId = tenantId,
                 CompanyNumber = companyId,
-                CompanyGuid = Guid.NewGuid(),
+                CompanyGuid = companyGuid,
                 Code = $"company-{companyId}",
                 Name = $"Company {companyId}"
+            });
+            context.FgsTenantCompanyCaches.Add(new FgsTenantCompanyCache
+            {
+                TenantId = tenantId,
+                CompanyId = companyId,
+                CompanyGuid = companyGuid,
+                CompanyCode = $"company-{companyId}",
+                CompanyName = $"Company {companyId}",
+                IsActive = true,
+                UpdatedOn = DateTimeOffset.UtcNow
+            });
+        }
+        else if (!await context.FgsTenantCompanyCaches.AnyAsync(c => c.TenantId == tenantId && c.CompanyId == companyId))
+        {
+            var company = await context.FgsTenantCompanies
+                .FirstAsync(c => c.TenantId == tenantId && c.CompanyNumber == companyId);
+            context.FgsTenantCompanyCaches.Add(new FgsTenantCompanyCache
+            {
+                TenantId = tenantId,
+                CompanyId = companyId,
+                CompanyGuid = company.CompanyGuid,
+                CompanyCode = company.Code,
+                CompanyName = company.Name,
+                IsActive = company.IsActive,
+                UpdatedOn = DateTimeOffset.UtcNow
             });
         }
 

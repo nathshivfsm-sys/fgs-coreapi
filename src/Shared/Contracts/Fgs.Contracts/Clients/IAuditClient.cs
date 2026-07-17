@@ -3,6 +3,10 @@ using Refit;
 
 namespace Fgs.Contracts.Clients;
 
+/// <summary>
+/// Refit client for the Audit service credential-audit endpoint.
+/// Consumer-only: producer services must enqueue audit events via the outbox pattern.
+/// </summary>
 public interface IAuditClient
 {
     [Post("/api/v1/credential-audit")]

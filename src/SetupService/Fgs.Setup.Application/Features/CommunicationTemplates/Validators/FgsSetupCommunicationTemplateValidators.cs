@@ -69,7 +69,7 @@ public sealed class PatchFgsSetupCommunicationTemplateCommandValidator : Abstrac
         RuleFor(x => x.Dto.CommunicationChannel).NotEmpty();
         RuleFor(x => x.Dto.CommunicationChannel).MaximumLength(25);
         RuleFor(x => x.Dto).MustAsync(async (command, dto, cancellationToken) =>
-                !await readRepository.ExistsByCommunicationChannelAndTemplateTypeAndCodeAsync(dto.CommunicationChannel, dto.TemplateType, dto.Code, command.Id, cancellationToken))
+                !await readRepository.ExistsByCommunicationChannelAndTemplateTypeAndCodeAsync(dto.CommunicationChannel!, dto.TemplateType!, dto.Code!, command.Id, cancellationToken))
             .WithMessage("A communication template with this combination already exists.");
         RuleFor(x => x.Dto.TemplateType).NotEmpty();
         RuleFor(x => x.Dto.Code).NotEmpty();

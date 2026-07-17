@@ -43,7 +43,7 @@ internal class FgsSetupPricingMatrixLaborConfiguration : IEntityTypeConfiguratio
             .HasDefaultValueSql("now()");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
 
-        entity.HasAlternateKey(e => new
+        entity.HasIndex(e => new
         {
             e.TenantId,
             e.CompanyId,
@@ -51,7 +51,8 @@ internal class FgsSetupPricingMatrixLaborConfiguration : IEntityTypeConfiguratio
             e.LaborRateTypeId,
             e.TechSkillLevelId,
         })
-            .HasName("UQ_FgsSetupPricingMatrixLabor");
+            .IsUnique()
+            .HasDatabaseName("UQ_FgsSetupPricingMatrixLabor");
 
         entity.HasOne<FgsSetupPricingMatrix>()
             .WithMany()
@@ -62,6 +63,7 @@ internal class FgsSetupPricingMatrixLaborConfiguration : IEntityTypeConfiguratio
         entity.HasOne<FgsSetupTechSkillLevel>()
             .WithMany()
             .HasForeignKey(e => e.TechSkillLevelId)
+            .IsRequired(false)
             .HasConstraintName("FK_FgsSetupPricingMatrixLabor_TechSkillLevel")
             .OnDelete(DeleteBehavior.Restrict);
 

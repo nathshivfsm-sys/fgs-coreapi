@@ -5,15 +5,13 @@ using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using MediatR;
-using Microsoft.Extensions.Logging;
 
 namespace Fgs.Asset.Application.Features.AssetStatuses.Commands.UpdateFgsAssetStatus;
 
 public sealed class UpdateFgsAssetStatusCommandHandler(
     IFgsAssetStatusWriteService writeService,
     ICacheService cache,
-    ITenantContextAccessor tenantContextAccessor,
-    ILogger<UpdateFgsAssetStatusCommandHandler> logger)
+    ITenantContextAccessor tenantContextAccessor)
     : IRequestHandler<UpdateFgsAssetStatusCommand, ApiResponse<FgsAssetStatusDetailDto>>
 {
     public async Task<ApiResponse<FgsAssetStatusDetailDto>> Handle(

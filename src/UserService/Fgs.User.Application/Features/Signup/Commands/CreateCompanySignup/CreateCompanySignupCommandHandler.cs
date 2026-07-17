@@ -165,6 +165,17 @@ public sealed class CreateCompanySignupCommandHandler
                         CreatedBy = prospectActor
                     };
 
+                    var tenantCompanyCache = new FgsTenantCompanyCache
+                    {
+                        TenantId = tenantId,
+                        CompanyId = companyNumber,
+                        CompanyGuid = companyUid,
+                        CompanyCode = tenantCode,
+                        CompanyName = companyNameTrimmed,
+                        IsActive = true,
+                        UpdatedOn = now
+                    };
+
                     var user = new FgsUser
                     {
                         Id = userId,
@@ -177,13 +188,17 @@ public sealed class CreateCompanySignupCommandHandler
                         CreatedBy = prospectActor
                     };
 
-                    var userRole = new FgsUserRole
+                    var tenantAdminRole = new FgsRole
                     {
-                        UserId = userId,
                         TenantId = tenantId,
                         CompanyId = companyNumber,
-                        GloRoleId = SignupConstants.TenantAdminGloRoleId,
-                        CreatedOn = now
+                        RoleCode = SignupConstants.TenantAdminRoleCode,
+                        Name = SignupConstants.TenantAdminRoleName,
+                        IsBuiltIn = true,
+                        DisplayOrder = 1,
+                        IsActive = true,
+                        CreatedOn = now,
+                        CreatedBy = prospectActor
                     };
 
                     var plainToken = _tokenService.GenerateToken();
@@ -207,7 +222,20 @@ public sealed class CreateCompanySignupCommandHandler
 
                     await _unitOfWork.Repository<FgsLocation>().AddAsync(location, ct);
                     await _unitOfWork.Repository<FgsTenantCompany>().AddAsync(tenantCompany, ct);
+                    await _unitOfWork.Repository<FgsTenantCompanyCache>().AddAsync(tenantCompanyCache, ct);
                     await userRepo.AddAsync(user, ct);
+                    await _unitOfWork.Repository<FgsRole>().AddAsync(tenantAdminRole, ct);
+                    await _unitOfWork.SaveChangesAsync(ct);
+
+                    var userRole = new FgsUserRole
+                    {
+                        UserId = userId,
+                        TenantId = tenantId,
+                        CompanyId = companyNumber,
+                        FgsRoleId = tenantAdminRole.Id,
+                        CreatedOn = now,
+                        CreatedBy = prospectActor
+                    };
                     await _unitOfWork.Repository<FgsUserRole>().AddAsync(userRole, ct);
                     await _unitOfWork.Repository<FgsInvitation>().AddAsync(invitation, ct);
 

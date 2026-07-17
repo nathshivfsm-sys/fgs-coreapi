@@ -22,10 +22,11 @@ public sealed class ResolutionCodeLookupQueryHandlerTests
         cache
             .Setup(c => c.GetOrSetAsync(
                 It.IsAny<string>(),
-                It.IsAny<Func<Task<IReadOnlyList<ResolutionCodeLookupDto>?>>>(),
+                It.IsAny<Func<Task<IReadOnlyList<ResolutionCodeLookupDto>>>>(),
                 It.IsAny<TimeSpan?>(),
                 It.IsAny<CancellationToken>()))
-            .Returns((string _, Func<Task<IReadOnlyList<ResolutionCodeLookupDto>?>> factory, TimeSpan? _, CancellationToken __) => factory());
+            .Returns(async (string _, Func<Task<IReadOnlyList<ResolutionCodeLookupDto>>> factory, TimeSpan? _, CancellationToken __) =>
+                (IReadOnlyList<ResolutionCodeLookupDto>?)await factory());
 
         var tenantAccessor = new Mock<ITenantContextAccessor>();
         tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });

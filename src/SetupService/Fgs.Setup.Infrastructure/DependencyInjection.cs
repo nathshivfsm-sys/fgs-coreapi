@@ -20,10 +20,23 @@ using Fgs.Setup.Infrastructure.Database.Read;
 using Fgs.Setup.Infrastructure.Messaging;
 using Fgs.Setup.Application.Abstractions.Tenants;
 using Fgs.Setup.Infrastructure.Provisioning;
-using Fgs.Setup.Infrastructure.Tenants;
-using Fgs.Setup.Infrastructure.GLBreaks;
-using Fgs.Setup.Infrastructure.TechTrades;
-using Fgs.Setup.Infrastructure.TitlesOfCourtesy;
+using Fgs.Setup.Infrastructure.Persistence.GLBreaks;
+using Fgs.Setup.Infrastructure.Persistence.TechTrades;
+using Fgs.Setup.Infrastructure.Persistence.TitlesOfCourtesy;
+using Fgs.Setup.Application.Abstractions.UniversalMatrixAddOns;
+using Fgs.Setup.Application.Abstractions.UniversalMatrixFrequencyDiscounts;
+using Fgs.Setup.Application.Abstractions.UniversalMatrixItems;
+using Fgs.Setup.Application.Abstractions.UniversalMatrixOneTimeFees;
+using Fgs.Setup.Application.Abstractions.UniversalMatrixSizeTiers;
+using Fgs.Setup.Application.Abstractions.UniversalMatrixTiers;
+using Fgs.Setup.Application.Abstractions.UniversalPricingServices;
+using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixAddOns;
+using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixFrequencyDiscounts;
+using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixItems;
+using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixOneTimeFees;
+using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixSizeTiers;
+using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixTiers;
+using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalPricingServices;
 using Fgs.Setup.Application.Abstractions.CommunicationTemplates;
 using Fgs.Setup.Application.Abstractions.SalesActivityOutcomes;
 using Fgs.Setup.Application.Abstractions.SalesActivityTypes;
@@ -34,6 +47,7 @@ using Fgs.Setup.Application.Abstractions.SetupLaborRateTypes;
 using Fgs.Setup.Application.Abstractions.SetupPaymentMethods;
 using Fgs.Setup.Application.Abstractions.SetupPaymentTerms;
 using Fgs.Setup.Application.Abstractions.SetupPostalCodes;
+using Fgs.Setup.Application.Abstractions.SetupPricingMatrices;
 using Fgs.Setup.Application.Abstractions.SetupTaxAuthorities;
 using Fgs.Setup.Application.Abstractions.SetupTaxes;
 using Fgs.Setup.Application.Abstractions.SetupTechSkillLevels;
@@ -42,24 +56,25 @@ using Fgs.Setup.Application.Abstractions.SetupZones;
 using Fgs.Setup.Application.Abstractions.Tags;
 using Fgs.Setup.Application.Abstractions.VehicleMaintenances;
 using Fgs.Setup.Application.Abstractions.Vehicles;
-using Fgs.Setup.Infrastructure.CommunicationTemplates;
-using Fgs.Setup.Infrastructure.SalesActivityOutcomes;
-using Fgs.Setup.Infrastructure.SalesActivityTypes;
-using Fgs.Setup.Infrastructure.SalesDispositionReasons;
-using Fgs.Setup.Infrastructure.SalesPipelineStatuses;
-using Fgs.Setup.Infrastructure.SetupDescriptions;
-using Fgs.Setup.Infrastructure.SetupLaborRateTypes;
-using Fgs.Setup.Infrastructure.SetupPaymentMethods;
-using Fgs.Setup.Infrastructure.SetupPaymentTerms;
-using Fgs.Setup.Infrastructure.SetupPostalCodes;
-using Fgs.Setup.Infrastructure.SetupTaxAuthorities;
-using Fgs.Setup.Infrastructure.SetupTaxes;
-using Fgs.Setup.Infrastructure.SetupTechSkillLevels;
-using Fgs.Setup.Infrastructure.SetupTimeSlots;
-using Fgs.Setup.Infrastructure.SetupZones;
-using Fgs.Setup.Infrastructure.Tags;
-using Fgs.Setup.Infrastructure.VehicleMaintenances;
-using Fgs.Setup.Infrastructure.Vehicles;
+using Fgs.Setup.Infrastructure.Persistence.CommunicationTemplates;
+using Fgs.Setup.Infrastructure.Persistence.SalesActivityOutcomes;
+using Fgs.Setup.Infrastructure.Persistence.SalesActivityTypes;
+using Fgs.Setup.Infrastructure.Persistence.SalesDispositionReasons;
+using Fgs.Setup.Infrastructure.Persistence.SalesPipelineStatuses;
+using Fgs.Setup.Infrastructure.Persistence.SetupDescriptions;
+using Fgs.Setup.Infrastructure.Persistence.SetupLaborRateTypes;
+using Fgs.Setup.Infrastructure.Persistence.SetupPaymentMethods;
+using Fgs.Setup.Infrastructure.Persistence.SetupPaymentTerms;
+using Fgs.Setup.Infrastructure.Persistence.SetupPostalCodes;
+using Fgs.Setup.Infrastructure.Persistence.SetupPricingMatrices;
+using Fgs.Setup.Infrastructure.Persistence.SetupTaxAuthorities;
+using Fgs.Setup.Infrastructure.Persistence.SetupTaxes;
+using Fgs.Setup.Infrastructure.Persistence.SetupTechSkillLevels;
+using Fgs.Setup.Infrastructure.Persistence.SetupTimeSlots;
+using Fgs.Setup.Infrastructure.Persistence.SetupZones;
+using Fgs.Setup.Infrastructure.Persistence.Tags;
+using Fgs.Setup.Infrastructure.Persistence.VehicleMaintenances;
+using Fgs.Setup.Infrastructure.Persistence.Vehicles;
 using Fgs.Setup.Application.Abstractions.BillingCategories;
 using Fgs.Setup.Application.Abstractions.FgsBusinessTypes;
 using Fgs.Setup.Application.Abstractions.JobTypeCategories;
@@ -69,15 +84,15 @@ using Fgs.Setup.Application.Abstractions.LeadDisqualificationReasons;
 using Fgs.Setup.Application.Abstractions.LeadSources;
 using Fgs.Setup.Application.Abstractions.LeadStatuses;
 using Fgs.Setup.Application.Abstractions.ResolutionCodes;
-using Fgs.Setup.Infrastructure.BillingCategories;
-using Fgs.Setup.Infrastructure.FgsBusinessTypes;
-using Fgs.Setup.Infrastructure.JobTypeCategories;
-using Fgs.Setup.Infrastructure.JobTypeSubCategories;
-using Fgs.Setup.Infrastructure.JobTypes;
-using Fgs.Setup.Infrastructure.LeadDisqualificationReasons;
-using Fgs.Setup.Infrastructure.LeadSources;
-using Fgs.Setup.Infrastructure.LeadStatuses;
-using Fgs.Setup.Infrastructure.ResolutionCodes;
+using Fgs.Setup.Infrastructure.Persistence.BillingCategories;
+using Fgs.Setup.Infrastructure.Persistence.FgsBusinessTypes;
+using Fgs.Setup.Infrastructure.Persistence.JobTypeCategories;
+using Fgs.Setup.Infrastructure.Persistence.JobTypeSubCategories;
+using Fgs.Setup.Infrastructure.Persistence.JobTypes;
+using Fgs.Setup.Infrastructure.Persistence.LeadDisqualificationReasons;
+using Fgs.Setup.Infrastructure.Persistence.LeadSources;
+using Fgs.Setup.Infrastructure.Persistence.LeadStatuses;
+using Fgs.Setup.Infrastructure.Persistence.ResolutionCodes;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Foundation.Extensions;
 using Fgs.Persistence.Extensions;
@@ -87,6 +102,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Fgs.Setup.Infrastructure.Persistence.Tenants;
 
 namespace Fgs.Setup.Infrastructure;
 
@@ -97,6 +113,7 @@ public static class DependencyInjection
         ConfigurationManager configuration)
     {
         services.AddFgsApiSecurity(configuration);
+        services.AddFgsUserAuthProfileClient(configuration);
 
         services.Configure<CredentialConsumerOptions>(options => options.ServiceName = "fgs-setup-service");
 
@@ -115,14 +132,10 @@ public static class DependencyInjection
 
         services.AddFgsPersistence<FgsSetupDbContext>();
 
-        var auditServiceEnabled = configuration.GetValue("AuditService:Enabled", true);
-        if (auditServiceEnabled)
+        var auditOutboxEnabled = configuration.GetValue("AuditOutbox:Enabled", true);
+        if (auditOutboxEnabled)
         {
-            services.AddFgsRefitClient<IAuditClient>(
-                configuration,
-                "AuditService:BaseUrl",
-                "http://audit-service:5003");
-            services.AddScoped<ICredentialAuditRecorder, RefitCredentialAuditRecorder>();
+            services.AddScoped<ICredentialAuditRecorder, OutboxCredentialAuditRecorder>();
         }
         else
         {
@@ -203,6 +216,22 @@ public static class DependencyInjection
         services.AddScoped<IResolutionCodeWriteService, ResolutionCodeWriteService>();
         services.AddScoped<IGLBreakReadRepository, GLBreakReadRepository>();
         services.AddScoped<IGLBreakWriteService, GLBreakWriteService>();
+        services.AddScoped<IFgsSetupPricingMatrixReadRepository, FgsSetupPricingMatrixReadRepository>();
+        services.AddScoped<IFgsSetupPricingMatrixWriteService, FgsSetupPricingMatrixWriteService>();
+        services.AddScoped<IFgsUniversalPricingServiceReadRepository, FgsUniversalPricingServiceReadRepository>();
+        services.AddScoped<IFgsUniversalPricingServiceWriteRepository, FgsUniversalPricingServiceWriteRepository>();
+        services.AddScoped<IFgsUniversalMatrixTierReadRepository, FgsUniversalMatrixTierReadRepository>();
+        services.AddScoped<IFgsUniversalMatrixTierWriteRepository, FgsUniversalMatrixTierWriteRepository>();
+        services.AddScoped<IFgsUniversalMatrixSizeTierReadRepository, FgsUniversalMatrixSizeTierReadRepository>();
+        services.AddScoped<IFgsUniversalMatrixSizeTierWriteRepository, FgsUniversalMatrixSizeTierWriteRepository>();
+        services.AddScoped<IFgsUniversalMatrixItemReadRepository, FgsUniversalMatrixItemReadRepository>();
+        services.AddScoped<IFgsUniversalMatrixItemWriteRepository, FgsUniversalMatrixItemWriteRepository>();
+        services.AddScoped<IFgsUniversalMatrixFrequencyDiscountReadRepository, FgsUniversalMatrixFrequencyDiscountReadRepository>();
+        services.AddScoped<IFgsUniversalMatrixFrequencyDiscountWriteRepository, FgsUniversalMatrixFrequencyDiscountWriteRepository>();
+        services.AddScoped<IFgsUniversalMatrixOneTimeFeeReadRepository, FgsUniversalMatrixOneTimeFeeReadRepository>();
+        services.AddScoped<IFgsUniversalMatrixOneTimeFeeWriteRepository, FgsUniversalMatrixOneTimeFeeWriteRepository>();
+        services.AddScoped<IFgsUniversalMatrixAddOnReadRepository, FgsUniversalMatrixAddOnReadRepository>();
+        services.AddScoped<IFgsUniversalMatrixAddOnWriteRepository, FgsUniversalMatrixAddOnWriteRepository>();
         services.AddSingleton<ITenantSeedDatabaseConnectionFactory>(sp =>
             new TenantSeedDatabaseConnectionFactory(
                 connectionString,

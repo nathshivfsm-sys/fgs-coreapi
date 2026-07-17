@@ -11,7 +11,7 @@ using Fgs.Setup.Application.Features.LeadDisqualificationReasons.Dtos;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Common.Time;
 using Fgs.Setup.Infrastructure.Database;
-using Fgs.Setup.Infrastructure.LeadDisqualificationReasons;
+using Fgs.Setup.Infrastructure.Persistence.LeadDisqualificationReasons;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;

@@ -16,6 +16,8 @@ public static class IntegrationEventTypes
 
     public const string CredentialConfigurationChanged = "CredentialConfigurationChanged";
 
+    public const string CredentialAuditRequested = "CredentialAuditRequested";
+
     public static class AggregateTypes
     {
         public const string Invitation = "Invitation";
@@ -25,5 +27,7 @@ public static class IntegrationEventTypes
         public const string User = "User";
 
         public const string Company = "Company";
+
+        public const string Credential = "Credential";
     }
 }

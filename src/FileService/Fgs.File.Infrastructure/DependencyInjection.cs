@@ -38,6 +38,7 @@ public static class DependencyInjection
             typeof(AwsCredentialsOptions));
 
         services.AddFgsApiSecurity(configuration);
+        services.AddFgsUserAuthProfileClient(configuration);
         services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));
         services.Configure<FileServiceOptions>(configuration.GetSection(FileServiceOptions.SectionName));
         services.Configure<AttachmentValidationOptions>(configuration.GetSection(AttachmentValidationOptions.SectionName));

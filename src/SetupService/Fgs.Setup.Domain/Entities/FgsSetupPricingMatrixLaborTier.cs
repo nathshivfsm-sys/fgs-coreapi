@@ -4,6 +4,8 @@ public class FgsSetupPricingMatrixLaborTier : FgsTenantCompanySetupEntityBase<lo
 {
     public long PricingMatrixLaborId { get; set; }
 
+    public long? TechSkillLevelId { get; set; }
+
     public short SequenceOrder { get; set; }
 
     public int DurationMinutes { get; set; }

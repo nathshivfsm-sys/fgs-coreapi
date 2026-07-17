@@ -65,4 +65,28 @@ public sealed class FgsVehicleQueryHandlerTests
 
         response.Success.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task List_WithInventoryLocationIdFilter_PassesFilterToRepository()
+    {
+        var readRepository = new Mock<IFgsVehicleReadRepository>();
+        readRepository
+            .Setup(r => r.ListAsync(
+                It.IsAny<SetupListQuery>(),
+                It.Is<FgsVehicleListFilters>(f => f.InventoryLocationId == 42),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PagedResult<FgsVehicleSummaryDto>([], 1, 25, 0));
+
+        var handler = new ListVehiclesQueryHandler(readRepository.Object);
+        await handler.Handle(
+            new ListVehiclesQuery(new SetupListQuery(), new FgsVehicleListFilters(InventoryLocationId: 42)),
+            CancellationToken.None);
+
+        readRepository.Verify(
+            r => r.ListAsync(
+                It.IsAny<SetupListQuery>(),
+                It.Is<FgsVehicleListFilters>(f => f.InventoryLocationId == 42),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }

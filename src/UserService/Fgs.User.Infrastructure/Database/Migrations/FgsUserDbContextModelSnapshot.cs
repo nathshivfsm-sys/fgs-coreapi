@@ -22,6 +22,642 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsApiClient", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ApplicationName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Display name of the application registered by the customer.");
+
+                    b.Property<Guid>("ClientId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()")
+                        .HasComment("Public client identifier used by external applications during authentication.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("ContactEmail")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasComment("Email address of the application owner or support contact.");
+
+                    b.Property<string>("ContactName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Primary contact responsible for the application.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the purpose of the application.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the application is permitted to authenticate and access the API.");
+
+                    b.Property<int>("RateLimitPerMinute")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(60)
+                        .HasComment("Maximum number of API requests permitted per minute for this application.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsApiClient_ClientId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsApiClient_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ApplicationName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsApiClient_TenantId_CompanyId_ApplicationName");
+
+                    b.ToTable("FgsApiClient", "identity", t =>
+                        {
+                            t.HasComment("Stores developer applications created by tenant administrators for third-party integrations. Represents an application, not a credential.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsApiEvent", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the API event was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Description of when the event is published.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the display order within the Developer Portal.");
+
+                    b.Property<string>("EventCategory")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Logical category used to organize events, such as WorkOrder, Estimate, Invoice, Customer or Payment.");
+
+                    b.Property<string>("EventCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Unique event identifier exposed through the public API. Example: workorder.completed.");
+
+                    b.Property<short>("EventVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Version number of the public event contract. Used to support backward-compatible changes to webhook payloads and API event schemas.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the event is available for webhook subscriptions.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Display name of the API event.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventCategory")
+                        .HasDatabaseName("IX_FgsApiEvent_EventCategory");
+
+                    b.HasIndex("EventCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsApiEvent_EventCode");
+
+                    b.ToTable("FgsApiEvent", "identity", t =>
+                        {
+                            t.HasComment("Master catalog of public API events that external applications may subscribe to through webhooks.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsApiRequestLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ClientIpAddress")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("IP address from which the API request originated.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("DurationMilliseconds")
+                        .HasColumnType("integer")
+                        .HasComment("Total request processing time in milliseconds.");
+
+                    b.Property<string>("Endpoint")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("API endpoint requested by the client.");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Application-specific error code returned for failed requests.");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Brief error message associated with the failed request.");
+
+                    b.Property<long>("FgsApiClientId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("HttpMethod")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasComment("HTTP method used by the request, such as GET, POST, PUT or DELETE.");
+
+                    b.Property<short>("HttpStatusCode")
+                        .HasColumnType("smallint")
+                        .HasComment("HTTP response status code returned to the client.");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasComment("Unique identifier used to correlate request processing across services.");
+
+                    b.Property<DateTimeOffset>("RequestedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the API request was received.");
+
+                    b.Property<string>("Resource")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Business resource targeted by the API request, such as WorkOrder, Customer, Estimate or Invoice. Used for reporting, analytics, monitoring and rate limiting.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("User-Agent header supplied by the client application.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FgsApiClientId")
+                        .HasDatabaseName("IX_FgsApiRequestLog_FgsApiClientId");
+
+                    b.HasIndex("HttpStatusCode")
+                        .HasDatabaseName("IX_FgsApiRequestLog_HttpStatusCode");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsApiRequestLog_RequestId");
+
+                    b.HasIndex("RequestedOn")
+                        .HasDatabaseName("IX_FgsApiRequestLog_RequestedOn");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsApiRequestLog_TenantId_CompanyId");
+
+                    b.ToTable("FgsApiRequestLog", "identity", t =>
+                        {
+                            t.HasComment("Stores API request metadata for monitoring, troubleshooting, rate limiting and analytics.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsApiSecret", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that created the secret.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the secret was created.");
+
+                    b.Property<DateTimeOffset?>("ExpiresOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the secret expires. NULL indicates the secret does not expire.");
+
+                    b.Property<long>("FgsApiClientId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the secret is currently valid for API authentication.");
+
+                    b.Property<DateTimeOffset?>("LastUsedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the secret was most recently used for successful authentication.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly name used to identify the secret, such as Production, Sandbox or July 2026 Rotation.");
+
+                    b.Property<string>("RevokedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that revoked the secret.");
+
+                    b.Property<DateTimeOffset?>("RevokedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the secret was revoked.");
+
+                    b.Property<string>("SecretHash")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Cryptographic hash of the API secret. The original secret is never stored and cannot be recovered.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FgsApiClientId")
+                        .HasDatabaseName("IX_FgsApiSecret_FgsApiClientId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsApiSecret_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "FgsApiClientId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsApiSecret_TenantId_CompanyId_Client_Name");
+
+                    b.ToTable("FgsApiSecret", "identity", t =>
+                        {
+                            t.HasComment("Stores hashed API secrets associated with API clients. Supports secret rotation, expiration, revocation and auditing.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsApiWebhook", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AuthenticationType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasComment("Authentication method used when invoking the webhook endpoint, such as None, BearerToken, BasicAuthentication or CustomHeader.");
+
+                    b.Property<string>("AuthenticationValue")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Authentication value associated with the selected authentication type.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the purpose of the webhook endpoint.");
+
+                    b.Property<string>("EndpointUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("HTTPS endpoint that receives webhook event notifications.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the webhook endpoint is enabled and eligible to receive events.");
+
+                    b.Property<DateTimeOffset?>("LastSuccessfulDeliveryOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the most recent webhook event was successfully delivered to this endpoint.");
+
+                    b.Property<short>("MaximumRetryCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)5)
+                        .HasComment("Maximum number of retry attempts after a webhook delivery failure.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Display name of the webhook endpoint.");
+
+                    b.Property<string>("Secret")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Shared secret used to sign webhook requests and verify message authenticity.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<short>("TimeoutSeconds")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)30)
+                        .HasComment("Maximum number of seconds to wait for the webhook endpoint to respond before the request is considered failed.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsApiWebhook_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsApiWebhook_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .HasDatabaseName("IX_FgsApiWebhook_Name");
+
+                    b.ToTable("FgsApiWebhook", "identity", t =>
+                        {
+                            t.HasComment("Stores webhook endpoints registered by tenant administrators for receiving API event notifications.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsApiWebhookSubscription", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that created the webhook subscription.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the webhook subscription was created.");
+
+                    b.Property<long>("FgsApiEventId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("FgsApiWebhookId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FgsApiEventId")
+                        .HasDatabaseName("IX_FgsApiWebhookSubscription_FgsApiEventId");
+
+                    b.HasIndex("FgsApiWebhookId")
+                        .HasDatabaseName("IX_FgsApiWebhookSubscription_FgsApiWebhookId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsApiWebhookSubscription_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "FgsApiWebhookId", "FgsApiEventId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsApiWebhookSubscription_TenantId_CompanyId_Webhook_Event");
+
+                    b.ToTable("FgsApiWebhookSubscription", "identity", t =>
+                        {
+                            t.HasComment("Assigns one or more API events to webhook endpoints for event delivery.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsDataAccess", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<string>("DataAccessCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique system identifier for the data access profile.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the purpose of the data access profile.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the display order within the user interface.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the data access profile is available for assignment.");
+
+                    b.Property<bool>("IsBuiltIn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the data access profile was provided by the platform. Built-in profiles cannot be edited but may be cloned.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Display name of the data access profile.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId", "DataAccessCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsDataAccess_TenantId_CompanyId_DataAccessCode");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsBuiltIn")
+                        .HasDatabaseName("IX_FgsDataAccess_TenantId_CompanyId_IsBuiltIn");
+
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .HasDatabaseName("IX_FgsDataAccess_TenantId_CompanyId_Name");
+
+                    b.ToTable("FgsDataAccess", "identity", t =>
+                        {
+                            t.HasComment("Stores reusable data access profiles that define the scope of data a role can access.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsDataAccessScope", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that created the scope rule.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the scope rule was created.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the order in which scope rules are evaluated and displayed.");
+
+                    b.Property<long>("FgsDataAccessId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Operator")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Comparison operator used by the rule, such as ALL, IN, EQUALS, ASSIGNED_TO_CURRENT_USER or MANAGER_OF_CURRENT_USER.");
+
+                    b.Property<string>("ScopeType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Business entity used to restrict data, such as Company, BusinessUnit, Region, Warehouse, Technician or WorkOrder.");
+
+                    b.Property<string>("ScopeValue")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Comparison value used by the rule. NULL when the operator does not require a value.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FgsDataAccessId")
+                        .HasDatabaseName("IX_FgsDataAccessScope_FgsDataAccessId");
+
+                    b.HasIndex("ScopeType")
+                        .HasDatabaseName("IX_FgsDataAccessScope_ScopeType");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsDataAccessScope_TenantId_CompanyId");
+
+                    b.ToTable("FgsDataAccessScope", "identity", t =>
+                        {
+                            t.HasComment("Stores one or more scope rules that define the records included in a Data Access profile.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInvitation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -178,6 +814,168 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.ToTable("FgsLocation", "tenant");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsPermission", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Operation allowed by the permission. Example: View, Create, Edit, Delete, Approve, Dispatch.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the permission was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the purpose of the permission.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the display order of permissions within the user interface.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the permission is available for assignment.");
+
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Functional module that owns the permission. Example: Work Orders, Billing, CRM.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly permission name displayed in the application.");
+
+                    b.Property<string>("PermissionCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Unique system identifier for the permission. Example: WORKORDER.CREATE.");
+
+                    b.Property<string>("Resource")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Business resource protected by the permission. Example: WorkOrder, Invoice, Customer.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Module")
+                        .HasDatabaseName("IX_FgsPermission_Module");
+
+                    b.HasIndex("PermissionCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsPermission_PermissionCode");
+
+                    b.HasIndex("Resource")
+                        .HasDatabaseName("IX_FgsPermission_Resource");
+
+                    b.HasIndex("Module", "Resource")
+                        .HasDatabaseName("IX_FgsPermission_Module_Resource");
+
+                    b.ToTable("FgsPermission", "identity", t =>
+                        {
+                            t.HasComment("Master catalog of all permissions supported by the platform. Permissions are seeded by the application and assigned to security roles.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsPublicEndpoint", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Unique identifier for the service endpoint.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BaseUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Base URL clients use to access the public endpoint.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company that owns the service endpoint.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that created the service endpoint.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the service endpoint was created.");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User-friendly name displayed when multiple environments are available.");
+
+                    b.Property<string>("EndpointType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Type of public endpoint. Supported values are BFF for the application backend and API for third-party integrations.");
+
+                    b.Property<string>("EnvironmentCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Deployment environment of the endpoint. Supported values are PROD, SANDBOX, TRAINING, QA, PREVIEW and DEVELOPMENT.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the endpoint is available for use.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant that owns the service endpoint.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that last modified the service endpoint.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the service endpoint was last modified.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsPublicEndpoint_Tenant_Company");
+
+                    b.HasIndex("TenantId", "CompanyId", "EndpointType", "EnvironmentCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsPublicEndpoint_Tenant_Company_Type_Environment");
+
+                    b.ToTable("FgsPublicEndpoint", "identity", t =>
+                        {
+                            t.HasComment("Stores public endpoints exposed by the platform for each tenant and company. Used during authentication and by client applications to discover the appropriate application or integration endpoint.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRole", b =>
                 {
                     b.Property<long>("Id")
@@ -196,27 +994,47 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the role was created.");
 
                     b.Property<string>("Description")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Optional description explaining the purpose of the role.");
 
-                    b.Property<short?>("GloRoleId")
-                        .HasColumnType("smallint");
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the display order of roles within the user interface.");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the role is available for assignment. Built-in roles should always remain active.");
+
+                    b.Property<bool>("IsBuiltIn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the role is provided by the platform. Built-in roles cannot be edited, deleted, or deactivated but may be cloned.");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Display name shown to administrators and users.");
+
+                    b.Property<long?>("ParentRoleId")
+                        .HasColumnType("bigint")
+                        .HasComment("Original role from which this role was cloned. NULL for built-in roles or roles created from scratch.");
 
                     b.Property<string>("RoleCode")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique system identifier for the role. Used internally by the application and should not be editable after creation.");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
@@ -227,14 +1045,130 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset?>("UpdatedOn")
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the role was last modified.");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId", "CompanyId", "RoleCode")
-                        .IsUnique();
+                    b.HasIndex("ParentRoleId")
+                        .HasDatabaseName("IX_FgsRole_ParentRoleId");
 
-                    b.ToTable("FgsRole", "identity");
+                    b.HasIndex("TenantId", "CompanyId", "IsBuiltIn")
+                        .HasDatabaseName("IX_FgsRole_TenantId_CompanyId_IsBuiltIn");
+
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .HasDatabaseName("IX_FgsRole_TenantId_CompanyId_Name");
+
+                    b.HasIndex("TenantId", "CompanyId", "RoleCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsRole_TenantId_CompanyId_RoleCode");
+
+                    b.ToTable("FgsRole", "identity", t =>
+                        {
+                            t.HasComment("Stores built-in platform roles and company-defined custom roles used by the authorization system.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRoleDataAccess", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that assigned the data access profile to the role.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the data access profile was assigned to the role.");
+
+                    b.Property<long>("FgsDataAccessId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("FgsRoleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FgsDataAccessId")
+                        .HasDatabaseName("IX_FgsRoleDataAccess_FgsDataAccessId");
+
+                    b.HasIndex("FgsRoleId")
+                        .HasDatabaseName("IX_FgsRoleDataAccess_FgsRoleId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsRoleDataAccess_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "FgsRoleId", "FgsDataAccessId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsRoleDataAccess_TenantId_CompanyId_Role_DataAccess");
+
+                    b.ToTable("FgsRoleDataAccess", "identity", t =>
+                        {
+                            t.HasComment("Assigns one or more data access profiles to security roles within a company.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRolePermission", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that assigned the permission to the role.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the permission was assigned to the role.");
+
+                    b.Property<long>("FgsPermissionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("FgsRoleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FgsPermissionId")
+                        .HasDatabaseName("IX_FgsRolePermission_FgsPermissionId");
+
+                    b.HasIndex("FgsRoleId")
+                        .HasDatabaseName("IX_FgsRolePermission_FgsRoleId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsRolePermission_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "FgsRoleId", "FgsPermissionId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsRolePermission_TenantId_CompanyId_Role_Permission");
+
+                    b.ToTable("FgsRolePermission", "identity", t =>
+                        {
+                            t.HasComment("Assigns permissions to security roles within a company.");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenant", b =>
@@ -678,14 +1612,18 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that assigned the role.");
+
                     b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the role assignment was created.");
 
-                    b.Property<long?>("FgsRoleId")
+                    b.Property<long>("FgsRoleId")
                         .HasColumnType("bigint");
-
-                    b.Property<short?>("GloRoleId")
-                        .HasColumnType("smallint");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");
@@ -695,25 +1633,22 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FgsRoleId");
+                    b.HasIndex("FgsRoleId")
+                        .HasDatabaseName("IX_FgsUserRole_FgsRoleId");
 
-                    b.HasIndex("GloRoleId");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_FgsUserRole_UserId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsUserRole_TenantId_CompanyId");
 
-                    b.HasIndex("TenantId", "CompanyId");
-
-                    b.HasIndex("UserId", "FgsRoleId")
+                    b.HasIndex("TenantId", "CompanyId", "UserId", "FgsRoleId")
                         .IsUnique()
-                        .HasFilter("\"FgsRoleId\" IS NOT NULL");
-
-                    b.HasIndex("UserId", "GloRoleId")
-                        .IsUnique()
-                        .HasFilter("\"GloRoleId\" IS NOT NULL");
+                        .HasDatabaseName("IX_FgsUserRole_TenantId_CompanyId_UserId_FgsRoleId");
 
                     b.ToTable("FgsUserRole", "identity", t =>
                         {
-                            t.HasCheckConstraint("CK_FgsUserRole_OnlyOneRole", "(\"GloRoleId\" IS NOT NULL AND \"FgsRoleId\" IS NULL) OR (\"GloRoleId\" IS NULL AND \"FgsRoleId\" IS NOT NULL)");
+                            t.HasComment("Assigns one or more security roles to users within a company.");
                         });
                 });
 
@@ -824,6 +1759,121 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.ToTable("TenantOutboxMessage", "tenant");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsApiClient", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsApiClient_FgsTenantCompanyCache");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsApiRequestLog", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsApiClient", "FgsApiClient")
+                        .WithMany("RequestLogs")
+                        .HasForeignKey("FgsApiClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsApiRequestLog_FgsApiClient");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsApiRequestLog_FgsTenantCompanyCache");
+
+                    b.Navigation("FgsApiClient");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsApiSecret", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsApiClient", "FgsApiClient")
+                        .WithMany("Secrets")
+                        .HasForeignKey("FgsApiClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsApiSecret_FgsApiClient");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsApiSecret_FgsTenantCompanyCache");
+
+                    b.Navigation("FgsApiClient");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsApiWebhook", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsApiWebhook_FgsTenantCompanyCache");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsApiWebhookSubscription", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsApiEvent", "FgsApiEvent")
+                        .WithMany()
+                        .HasForeignKey("FgsApiEventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsApiWebhookSubscription_FgsApiEvent");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsApiWebhook", "FgsApiWebhook")
+                        .WithMany("Subscriptions")
+                        .HasForeignKey("FgsApiWebhookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsApiWebhookSubscription_FgsApiWebhook");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsApiWebhookSubscription_FgsTenantCompanyCache");
+
+                    b.Navigation("FgsApiEvent");
+
+                    b.Navigation("FgsApiWebhook");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsDataAccess", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsDataAccess_FgsTenantCompanyCache");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsDataAccessScope", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsDataAccess", "FgsDataAccess")
+                        .WithMany("Scopes")
+                        .HasForeignKey("FgsDataAccessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsDataAccessScope_FgsDataAccess");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsDataAccessScope_FgsTenantCompanyCache");
+
+                    b.Navigation("FgsDataAccess");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsInvitation", b =>
                 {
                     b.HasOne("Fgs.User.Domain.Entities.FgsUser", "User")
@@ -835,24 +1885,98 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUser", b =>
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsPublicEndpoint", b =>
                 {
-                    b.HasOne("Fgs.User.Domain.Entities.FgsTenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", "Company")
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
-                        .HasPrincipalKey("TenantId", "CompanyNumber")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsPublicEndpoint_FgsTenantCompanyCache");
+                });
 
-                    b.Navigation("Company");
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRole", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsRole", "ParentRole")
+                        .WithMany("ChildRoles")
+                        .HasForeignKey("ParentRoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsRole_ParentRole");
 
-                    b.Navigation("Tenant");
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsRole_FgsTenantCompanyCache");
+
+                    b.Navigation("ParentRole");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRoleDataAccess", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsDataAccess", "FgsDataAccess")
+                        .WithMany()
+                        .HasForeignKey("FgsDataAccessId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsRoleDataAccess_FgsDataAccess");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsRole", "FgsRole")
+                        .WithMany()
+                        .HasForeignKey("FgsRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsRoleDataAccess_FgsRole");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsRoleDataAccess_FgsTenantCompanyCache");
+
+                    b.Navigation("FgsDataAccess");
+
+                    b.Navigation("FgsRole");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRolePermission", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsPermission", "FgsPermission")
+                        .WithMany()
+                        .HasForeignKey("FgsPermissionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsRolePermission_FgsPermission");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsRole", "FgsRole")
+                        .WithMany()
+                        .HasForeignKey("FgsRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsRolePermission_FgsRole");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsRolePermission_FgsTenantCompanyCache");
+
+                    b.Navigation("FgsPermission");
+
+                    b.Navigation("FgsRole");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUser", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUser_FgsTenantCompanyCache");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUserRole", b =>
@@ -860,17 +1984,49 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasOne("Fgs.User.Domain.Entities.FgsRole", "FgsRole")
                         .WithMany()
                         .HasForeignKey("FgsRoleId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUserRole_FgsRole_FgsRoleId");
 
                     b.HasOne("Fgs.User.Domain.Entities.FgsUser", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUserRole_FgsUser_UserId");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUserRole_FgsTenantCompanyCache");
 
                     b.Navigation("FgsRole");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsApiClient", b =>
+                {
+                    b.Navigation("RequestLogs");
+
+                    b.Navigation("Secrets");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsApiWebhook", b =>
+                {
+                    b.Navigation("Subscriptions");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsDataAccess", b =>
+                {
+                    b.Navigation("Scopes");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRole", b =>
+                {
+                    b.Navigation("ChildRoles");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUser", b =>

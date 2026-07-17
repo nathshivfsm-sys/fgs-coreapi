@@ -75,6 +75,21 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsSetupPricingMatrixOther> FgsSetupPricingMatrixOthers => Set<FgsSetupPricingMatrixOther>();
 
+    public DbSet<FgsUniversalPricingService> FgsUniversalPricingServices => Set<FgsUniversalPricingService>();
+
+    public DbSet<FgsUniversalMatrixTier> FgsUniversalMatrixTiers => Set<FgsUniversalMatrixTier>();
+
+    public DbSet<FgsUniversalMatrixSizeTier> FgsUniversalMatrixSizeTiers => Set<FgsUniversalMatrixSizeTier>();
+
+    public DbSet<FgsUniversalMatrixItem> FgsUniversalMatrixItems => Set<FgsUniversalMatrixItem>();
+
+    public DbSet<FgsUniversalMatrixFrequencyDiscount> FgsUniversalMatrixFrequencyDiscounts =>
+        Set<FgsUniversalMatrixFrequencyDiscount>();
+
+    public DbSet<FgsUniversalMatrixOneTimeFee> FgsUniversalMatrixOneTimeFees => Set<FgsUniversalMatrixOneTimeFee>();
+
+    public DbSet<FgsUniversalMatrixAddOn> FgsUniversalMatrixAddOns => Set<FgsUniversalMatrixAddOn>();
+
     public DbSet<FgsSetupGLBreak> FgsSetupGLBreaks => Set<FgsSetupGLBreak>();
 
     public DbSet<FgsSetupGLBreakTrade> FgsSetupGLBreakTrades => Set<FgsSetupGLBreakTrade>();
@@ -185,6 +200,12 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
     public DbSet<FgsJobType> FgsJobTypes => Set<FgsJobType>();
 
     public DbSet<GloUnitOfMeasure> GloUnitOfMeasures => Set<GloUnitOfMeasure>();
+
+    public DbSet<GloUniversalPricingService> GloUniversalPricingServices => Set<GloUniversalPricingService>();
+
+    public DbSet<GloUniversalMatrixTier> GloUniversalMatrixTiers => Set<GloUniversalMatrixTier>();
+
+    public DbSet<GloUniversalMatrixSizeTier> GloUniversalMatrixSizeTiers => Set<GloUniversalMatrixSizeTier>();
 
     public DbSet<GloTag> GloTags => Set<GloTag>();
 

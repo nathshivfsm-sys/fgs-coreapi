@@ -43,7 +43,7 @@ public sealed class StartInvitationCommandHandler(
 
         if (matched.Status == InvitationStatus.Accepted)
         {
-            var loginUrl = entraService.BuildAuthorizationUrl(matched.Id, redirectUri, matched.Email);
+            var loginUrl = entraService.BuildAuthorizationUrl(matched.Id.ToString(), redirectUri, matched.Email);
             return new StartInvitationResult(true, loginUrl, null);
         }
 
@@ -60,7 +60,7 @@ public sealed class StartInvitationCommandHandler(
             return new StartInvitationResult(false, null, InvitationErrorMessages.Expired);
         }
 
-        var authorizeUrl = entraService.BuildAuthorizationUrl(matched.Id, redirectUri, matched.Email);
+        var authorizeUrl = entraService.BuildAuthorizationUrl(matched.Id.ToString(), redirectUri, matched.Email);
         return new StartInvitationResult(true, authorizeUrl, null);
     }
 }

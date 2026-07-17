@@ -90,7 +90,7 @@ public sealed class RedisCacheServiceTests
             .Setup(c => c.GetAsync("key", It.IsAny<CancellationToken>()))
             .ReturnsAsync((byte[]?)null);
 
-        var result = await _sut.GetOrSetAsync("key", () => Task.FromResult<TestDto?>(new TestDto("fresh")));
+        var result = await _sut.GetOrSetAsync("key", () => Task.FromResult(new TestDto("fresh")));
 
         result.Should().BeEquivalentTo(new TestDto("fresh"));
         _distributedCache.Verify(
@@ -109,7 +109,7 @@ public sealed class RedisCacheServiceTests
             .Setup(c => c.GetAsync("key", It.IsAny<CancellationToken>()))
             .ReturnsAsync((byte[]?)null);
 
-        var result = await _sut.GetOrSetAsync("key", () => Task.FromResult<TestDto?>(null));
+        var result = await _sut.GetOrSetAsync("key", () => Task.FromResult<TestDto>(null!));
 
         result.Should().BeNull();
         _distributedCache.Verify(

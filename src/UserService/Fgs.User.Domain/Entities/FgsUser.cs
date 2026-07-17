@@ -21,10 +21,6 @@ public class FgsUser : FgsEntityBase, ITenantCompanyScoped
 
     public bool IsDeleted { get; set; }
 
-    public FgsTenant? Tenant { get; set; }
-
-    public FgsTenantCompany? Company { get; set; }
-
     public ICollection<FgsInvitation> Invitations { get; set; } = new List<FgsInvitation>();
 
     public ICollection<FgsUserRole> UserRoles { get; set; } = new List<FgsUserRole>();
