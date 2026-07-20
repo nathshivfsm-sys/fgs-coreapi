@@ -1,6 +1,8 @@
 using Fgs.Audit.Application.Abstractions;
+using Fgs.Audit.Domain.Enums;
 using Fgs.Audit.Infrastructure.Audit;
 using Fgs.Audit.Infrastructure.Database;
+using Fgs.Audit.Infrastructure.Database.Schemas;
 using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
@@ -29,7 +31,13 @@ public static class DependencyInjection
             options.UseFgsNpgsql(
                 connectionString,
                 "__EFMigrationsHistory",
-                FgsAuditDbContext.MigrationHistorySchema);
+                FgsAuditDbContext.MigrationHistorySchema,
+                npgsql =>
+                {
+                    npgsql.MapEnum<AuditRecordType>("record_type", FgsDatabaseSchemas.Audit, nameTranslator: new Npgsql.NameTranslation.NpgsqlNullNameTranslator());
+                    npgsql.MapEnum<AuditEventSource>("event_source", FgsDatabaseSchemas.Audit, nameTranslator: new Npgsql.NameTranslation.NpgsqlNullNameTranslator());
+                    npgsql.MapEnum<AuditEventDetailType>("event_detail_type", FgsDatabaseSchemas.Audit, nameTranslator: new Npgsql.NameTranslation.NpgsqlNullNameTranslator());
+                });
         });
 
         services.AddFgsPersistence<FgsAuditDbContext>();

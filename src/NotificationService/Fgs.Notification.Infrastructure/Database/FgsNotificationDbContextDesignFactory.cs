@@ -1,5 +1,7 @@
 using Fgs.Credentials;
 using Fgs.MultiTenancy.Persistence;
+using Fgs.Notification.Domain.Enums;
+using Fgs.Notification.Infrastructure.Database.Schemas;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -16,15 +18,23 @@ public sealed class FgsNotificationDbContextDesignFactory : IDesignTimeDbContext
             .AddJsonFile("appsettings.Development.json", optional: true)
             .Build();
 
+        var nullTranslator = new Npgsql.NameTranslation.NpgsqlNullNameTranslator();
         var optionsBuilder = new DbContextOptionsBuilder<FgsNotificationDbContext>();
         optionsBuilder.UseNpgsql(
             ConnectionStringResolver.ResolveRequired(
                 configuration,
                 ConnectionStringNames.FgsNotification,
                 "FGS_NOTIFICATION_DB"),
-            npgsql => npgsql.MigrationsHistoryTable(
-                "__EFMigrationsHistory",
-                FgsNotificationDbContext.MigrationHistorySchema));
+            npgsql =>
+            {
+                npgsql.MigrationsHistoryTable(
+                    "__EFMigrationsHistory",
+                    FgsNotificationDbContext.MigrationHistorySchema);
+                npgsql.MapEnum<NotificationStatus>(
+                    "notification_status", FgsDatabaseSchemas.Notification, nameTranslator: nullTranslator);
+                npgsql.MapEnum<NotificationSourceApplication>(
+                    "source_application", FgsDatabaseSchemas.Notification, nameTranslator: nullTranslator);
+            });
 
         return new FgsNotificationDbContext(optionsBuilder.Options, new DesignTimeTenantContextAccessor());
     }

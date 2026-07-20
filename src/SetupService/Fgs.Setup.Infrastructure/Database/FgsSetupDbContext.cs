@@ -199,6 +199,10 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsJobType> FgsJobTypes => Set<FgsJobType>();
 
+    public DbSet<FgsPriceBook> FgsPriceBooks => Set<FgsPriceBook>();
+
+    public DbSet<FgsPriceBookItem> FgsPriceBookItems => Set<FgsPriceBookItem>();
+
     public DbSet<GloUnitOfMeasure> GloUnitOfMeasures => Set<GloUnitOfMeasure>();
 
     public DbSet<GloUniversalPricingService> GloUniversalPricingServices => Set<GloUniversalPricingService>();

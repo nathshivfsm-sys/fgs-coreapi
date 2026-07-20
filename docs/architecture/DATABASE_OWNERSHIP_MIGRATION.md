@@ -40,6 +40,7 @@ All former monolith `glo.*` reference tables and former `setup.*` tenant configu
 - Credentials: `GloCredential*`, `FgsCredential` → `setup` / `glo`
 - Outbox: `GloOutboxMessage` → `glo`
 - Communication templates: `FgsSetupCommunicationTemplate`, `GloCommunicationTemplate*` → `setup` / `glo`
+- Price book: `FgsPriceBook`, `FgsPriceBookItem` → `setup`
 
 See `Fgs.Setup.Infrastructure/Database/Schemas/EntitySchemaRegistry.cs` for the authoritative entity→schema map.
 
@@ -62,13 +63,21 @@ No cross-schema FKs. `setup.FgsVehicle.InventoryLocationId` references `inventor
 | Entity | Schema |
 |--------|--------|
 | `FgsCredentialAudit` | `audit` |
+| `FgsEvent`, `FgsEventDetail`, `FgsEventAttachment`, `FgsArchiveCatalog` | `audit` |
+
+Postgres enums: `audit.record_type`, `audit.event_source`, `audit.event_detail_type`.
 
 ### NotificationService (`notification`)
 
 | Entity | Schema |
 |--------|--------|
-| `FgsNotificationHistory` | `notification` |
+| `FgsEmailHistory` | `notification` |
+| `FgsSmsHistory` | `notification` |
 | `FgsProcessedIntegrationEvent` | `notification` |
+
+Postgres enums: `notification.notification_status`, `notification.source_application`.
+
+**Removed:** `FgsNotificationHistory` (replaced by channel-specific `FgsEmailHistory` / `FgsSmsHistory`).
 
 **Removed:** duplicate `FgsSetupCommunicationTemplate` table — templates are read from SetupService via Refit.
 
@@ -127,6 +136,7 @@ Generate new migrations with [`scripts/generate-migration-sql.ps1`](../../script
 | Global + glo reference data + seed mappings | SetupService | `Fgs.Setup.Infrastructure/Database/Seeds/Initial_Migration_Seed.sql` |
 | Glo cache tables (provider + resolution types) | SetupService | `Fgs.Setup.Infrastructure/Database/Seeds/Glo_Cache_Tables_Seed.sql` |
 | Glo seed rollback | SetupService | `Fgs.Setup.Infrastructure/Database/Seeds/Initial_Migration_Seed_Down.sql` |
+| Permission catalog (`identity.FgsPermission`) | UserService | `Fgs.User.Infrastructure/Database/Seeds/FgsPermission_Seed.sql` |
 | Inventory reference seed (item types + default location) | InventoryService | `Fgs.Inventory.Infrastructure/Database/Seeds/Initial_Inventory_Reference_Seed.sql` |
 | Inventory reference seed rollback | InventoryService | `Fgs.Inventory.Infrastructure/Database/Seeds/Initial_Inventory_Reference_Seed_Down.sql` |
 

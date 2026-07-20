@@ -12,10 +12,12 @@ using Fgs.Notification.Application.Notifications.Dispatch;
 using Fgs.Notification.Application.Notifications.Queues;
 using Fgs.Notification.Application.Notifications.Templates;
 using Fgs.Notification.Application.Reporting;
+using Fgs.Notification.Domain.Enums;
 using Fgs.Notification.Infrastructure.Audit;
 using Fgs.Notification.Infrastructure.BackgroundJobs;
 using Fgs.Notification.Infrastructure.Configuration;
 using Fgs.Notification.Infrastructure.Database;
+using Fgs.Notification.Infrastructure.Database.Schemas;
 using Fgs.Persistence.Extensions;
 using Fgs.Notification.Infrastructure.Integrations.QuickBooks;
 using Fgs.Notification.Infrastructure.Integrations.SendGrid;
@@ -73,7 +75,18 @@ public static class DependencyInjection
                 ConnectionStringNames.FgsNotification,
                 "FGS_NOTIFICATION_DB",
                 sp.GetService<ICredentialConfigurationProvider>());
-            options.UseFgsNpgsql(connectionString, "__EFMigrationsHistory", FgsNotificationDbContext.MigrationHistorySchema);
+            var nullTranslator = new Npgsql.NameTranslation.NpgsqlNullNameTranslator();
+            options.UseFgsNpgsql(
+                connectionString,
+                "__EFMigrationsHistory",
+                FgsNotificationDbContext.MigrationHistorySchema,
+                npgsql =>
+                {
+                    npgsql.MapEnum<NotificationStatus>(
+                        "notification_status", FgsDatabaseSchemas.Notification, nameTranslator: nullTranslator);
+                    npgsql.MapEnum<NotificationSourceApplication>(
+                        "source_application", FgsDatabaseSchemas.Notification, nameTranslator: nullTranslator);
+                });
         });
 
         services.AddScoped<INotificationHistoryRepository, NotificationHistoryRepository>();
