@@ -23,6 +23,12 @@
     <Project Path="UserService/Fgs.User.API/Fgs.User.API.csproj" />
     <Project Path="UserService/Fgs.User.Tests/Fgs.User.Tests.csproj" />
   </Folder>
+  <Folder Name="/BffService/">
+    <Project Path="BffService/Fgs.Bff.Application/Fgs.Bff.Application.csproj" />
+    <Project Path="BffService/Fgs.Bff.Infrastructure/Fgs.Bff.Infrastructure.csproj" />
+    <Project Path="BffService/Fgs.Bff.API/Fgs.Bff.API.csproj" />
+    <Project Path="BffService/Fgs.Bff.Tests/Fgs.Bff.Tests.csproj" />
+  </Folder>
   <Folder Name="/SetupService/">
     <Project Path="SetupService/Fgs.Setup.Domain/Fgs.Setup.Domain.csproj" />
     <Project Path="SetupService/Fgs.Setup.Application/Fgs.Setup.Application.csproj" />

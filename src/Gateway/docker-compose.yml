@@ -156,6 +156,42 @@ services:
       retries: 5
       start_period: 90s
 
+  # Stateless BFF — scale with: docker compose up --scale bff-service=N
+  bff-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/bff-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/bff
+      CredentialConsumer__ServiceName: fgs-bff-service
+      CredentialConsumer__RequiredProviders__0: ENTRA_EXTERNAL_ID
+      CredentialConsumer__RequiredProviders__1: REDIS
+      UserService__BaseUrl: http://user-service:5001
+      SetupService__BaseUrl: http://setup-service:5004
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+    depends_on:
+      redis:
+        condition: service_healthy
+      <<: *depends-on-setup-and-audit
+      user-service:
+        condition: service_healthy
+    volumes:
+      - ../BffService/Fgs.Bff.API/appsettings.json:/src/src/BffService/Fgs.Bff.API/appsettings.json:ro
+      - ../BffService/Fgs.Bff.API/appsettings.Development.json:/src/src/BffService/Fgs.Bff.API/appsettings.Development.json:ro
+    ports:
+      - "127.0.0.1:5003:5003"
+    expose:
+      - "5003"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5003/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
   file-service:
     <<: *service-network
     build:
@@ -354,6 +390,8 @@ services:
       audit-service:
         condition: service_healthy
       user-service:
+        condition: service_healthy
+      bff-service:
         condition: service_healthy
       notification-service:
         condition: service_healthy

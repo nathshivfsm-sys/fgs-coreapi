@@ -1,0 +1,188 @@
+{
+  "info": {
+    "_postman_id": "a7c3e8f1-4b2d-4e9a-9c1f-bff-signup-001",
+    "name": "BffService",
+    "description": "FGS Backend-for-Frontend (orchestration only).\n\nCompany signup spans User (identity) + Setup (business types).\n\nGateway (Docker): https://localhost:8443\nSwagger: https://localhost:8443/swagger/bff/\nGraphQL: https://localhost:8443/api/v1/bff/graphql\n\nImport with FGS Globals (Local). Prefer gatewayUrl = https://localhost:8443 when using Docker Compose.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "companyName",
+      "value": "Acme Field Services"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Company Signup (BFF orchestrated)",
+      "description": "Run against Docker gateway. Request is AllowAnonymous. Each run generates a unique signupEmail so you can re-send safely.",
+      "item": [
+        {
+          "name": "1. Health",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{bffServiceUrl}}/health",
+              "host": ["{{bffServiceUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Direct container health (port 5003). Requires a published port or use from inside the Docker network. Prefer request 2 against the gateway for end-to-end signup."
+          }
+        },
+        {
+          "name": "2. Company Signup",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const stamp = Date.now();",
+                  "const email = `bff-signup-${stamp}@yopmail.com`;",
+                  "pm.environment.set('signupEmail', email);",
+                  "pm.environment.set('entraUserEmail', email);",
+                  "const companyName = `Acme Field ${stamp}`;",
+                  "pm.collectionVariables.set('companyName', companyName);",
+                  "console.log('signupEmail=', email, 'companyName=', companyName);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201 Created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('ApiResponse envelope succeeded', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.success).to.eql(true);",
+                  "  pm.expect(body.data).to.be.an('object');",
+                  "  pm.expect(body.data.tenantId).to.be.a('number');",
+                  "  pm.expect(body.data.companyNumber).to.eql(1);",
+                  "  pm.expect(body.data.tenantCode).to.be.a('string').and.not.empty;",
+                  "  pm.expect(body.data.inviteUrl).to.include('token=');",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "if (body && body.data) {",
+                  "  pm.environment.set('tenantId', String(body.data.tenantId));",
+                  "  pm.environment.set('companyId', String(body.data.companyNumber));",
+                  "  pm.environment.set('invitationId', String(body.data.invitationId));",
+                  "  const inviteUrl = body.data.inviteUrl || '';",
+                  "  const match = /[?&]token=([^&]+)/.exec(inviteUrl);",
+                  "  if (match) {",
+                  "    pm.environment.set('inviteToken', decodeURIComponent(match[1]));",
+                  "  }",
+                  "  console.log('tenantId=', body.data.tenantId, 'tenantCode=', body.data.tenantCode);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "X-Correlation-Id", "value": "{{$guid}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contact\": {\n    \"name\": \"Admin User\",\n    \"phoneNumber\": \"+15551234567\",\n    \"email\": \"{{signupEmail}}\"\n  },\n  \"company\": {\n    \"name\": \"{{companyName}}\",\n    \"website\": \"https://acme.example.com\",\n    \"companySize\": \"11-50\",\n    \"address\": {\n      \"addressLine1\": \"100 Main St\",\n      \"addressLine2\": null,\n      \"city\": \"Austin\",\n      \"state\": \"TX\",\n      \"postalCode\": \"78701\",\n      \"county\": null,\n      \"country\": \"US\",\n      \"placeId\": null,\n      \"latitude\": 30.2672,\n      \"longitude\": -97.7431\n    }\n  },\n  \"businessTypeIds\": [1]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/v1/bff/signup/company",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "v1", "bff", "signup", "company"]
+            },
+            "description": "BFF orchestration:\n1) FluentValidation on BFF\n2) UserService creates tenant/company/user/invitation + invite outbox\n3) SetupService seeds business types\n4) Returns consolidated CompanySignupResultDto (includes tenantCode)\n\nAllowAnonymous. businessTypeIds must contain at least one GloBusinessType id (typically 1 in local seed)."
+          }
+        },
+        {
+          "name": "3. GraphQL - BFF service info",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { service { name version } }\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/v1/bff/graphql",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "v1", "bff", "graphql"]
+            },
+            "description": "HotChocolate read-aggregation scaffold. Future composite reads land here."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('GraphQL returns service name', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.service.name).to.eql('fgs-bff-service');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SignupController",
+      "description": "Generated-style mirror of the BFF signup controller.",
+      "item": [
+        {
+          "name": "CompanySignup",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contact\": {\n    \"name\": \"Admin User\",\n    \"phoneNumber\": \"+15551234567\",\n    \"email\": \"{{signupEmail}}\"\n  },\n  \"company\": {\n    \"name\": \"Acme Field Services\",\n    \"website\": \"https://acme.example.com\",\n    \"companySize\": \"11-50\",\n    \"address\": {\n      \"addressLine1\": \"100 Main St\",\n      \"city\": \"Austin\",\n      \"state\": \"TX\",\n      \"postalCode\": \"78701\",\n      \"country\": \"US\"\n    }\n  },\n  \"businessTypeIds\": [1]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/v1/bff/signup/company",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "v1", "bff", "signup", "company"]
+            },
+            "description": "Same endpoint as folder 00. Set signupEmail to a unique address before sending if not using the orchestrated folder."
+          }
+        }
+      ]
+    }
+  ]
+}

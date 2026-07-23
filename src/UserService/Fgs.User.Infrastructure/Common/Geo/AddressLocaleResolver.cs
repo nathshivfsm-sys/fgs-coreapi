@@ -1,6 +1,6 @@
 using Fgs.User.Application.Abstractions.Geo;
 using Fgs.User.Application.Features.Signup;
-using Fgs.User.Application.Features.Signup.DTOs;
+using Fgs.Contracts.Signup;
 using Fgs.User.Infrastructure.Common.Options;
 using GeoTimeZone;
 using Microsoft.Extensions.Options;

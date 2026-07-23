@@ -5,12 +5,11 @@ using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.User.Application.Abstractions.Time;
 using Fgs.Contracts.Api;
-using Fgs.Contracts.Clients;
+using Fgs.Contracts.Signup;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy.Constants;
 using Fgs.User.Application.Common;
-using Fgs.User.Application.Features.Signup.DTOs;
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.User.Application.Features.Signup;
 using Fgs.User.Domain.Entities;
@@ -25,7 +24,6 @@ public sealed class CreateCompanySignupCommandHandler
     : IRequestHandler<CreateCompanySignupCommand, ApiResponse<CompanySignupResultDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ISetupClient _setupClient;
     private readonly IInvitationTokenService _tokenService;
     private readonly IOutboxWriter _outboxWriter;
     private readonly IDateTimeProvider _dateTime;
@@ -36,7 +34,6 @@ public sealed class CreateCompanySignupCommandHandler
 
     public CreateCompanySignupCommandHandler(
         IUnitOfWork unitOfWork,
-        ISetupClient setupClient,
         IInvitationTokenService tokenService,
         IOutboxWriter outboxWriter,
         IDateTimeProvider dateTime,
@@ -46,7 +43,6 @@ public sealed class CreateCompanySignupCommandHandler
         ICacheService cache)
     {
         _unitOfWork = unitOfWork;
-        _setupClient = setupClient;
         _tokenService = tokenService;
         _outboxWriter = outboxWriter;
         _dateTime = dateTime;
@@ -63,10 +59,6 @@ public sealed class CreateCompanySignupCommandHandler
         var contact = request.Contact;
         var company = request.Company;
         var tenantRepo = _unitOfWork.Repository<FgsTenant>();
-        var userRepo = _unitOfWork.Repository<FgsUser>();
-        var selectedBusinessTypeIds = request.BusinessTypeIds
-            .Distinct()
-            .ToList();
 
         var uniquenessErrors = await _signupUniquenessValidator.ValidateAsync(request, cancellationToken);
         if (uniquenessErrors.Count > 0)
@@ -223,7 +215,7 @@ public sealed class CreateCompanySignupCommandHandler
                     await _unitOfWork.Repository<FgsLocation>().AddAsync(location, ct);
                     await _unitOfWork.Repository<FgsTenantCompany>().AddAsync(tenantCompany, ct);
                     await _unitOfWork.Repository<FgsTenantCompanyCache>().AddAsync(tenantCompanyCache, ct);
-                    await userRepo.AddAsync(user, ct);
+                    await _unitOfWork.Repository<FgsUser>().AddAsync(user, ct);
                     await _unitOfWork.Repository<FgsRole>().AddAsync(tenantAdminRole, ct);
                     await _unitOfWork.SaveChangesAsync(ct);
 
@@ -248,17 +240,6 @@ public sealed class CreateCompanySignupCommandHandler
                         (int)Math.Ceiling((invitation.ExpiresAtUtc - now).TotalHours));
 
                     await _unitOfWork.SaveChangesAsync(ct);
-
-                    // All selected global business types are copied into setup.FgsBusinessType for this company.
-                    (await _setupClient.AddCompanyBusinessTypesAsync(
-                        tenantId,
-                        tenantCompany.CompanyNumber,
-                        new AddCompanyBusinessTypesRequest(
-                            selectedBusinessTypeIds,
-                            companyUid,
-                            tenantCode,
-                            companyNameTrimmed),
-                        ct)).ThrowIfFailed();
 
                     var outboxPayload = JsonSerializer.Serialize(new CompanySignupInviteEmailEvent(
                         tenantId,
@@ -292,7 +273,8 @@ public sealed class CreateCompanySignupCommandHandler
                         companyUid,
                         userId,
                         invitationId,
-                        inviteUrl);
+                        inviteUrl,
+                        tenantCode);
                 },
                 cancellationToken);
 

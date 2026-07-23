@@ -1,8 +1,6 @@
-namespace Fgs.User.Application.Features.Signup.DTOs;
+namespace Fgs.Contracts.Signup;
 
-/// <summary>
-/// Structured company address mapped to <see cref="Fgs.User.Domain.Entities.FgsLocation"/> columns.
-/// </summary>
+/// <summary>Structured company address for signup onboarding.</summary>
 public sealed record SignupAddressDto(
     string AddressLine1,
     string? AddressLine2,

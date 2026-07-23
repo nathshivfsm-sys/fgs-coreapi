@@ -20,6 +20,7 @@ src/Gateway/
     site.prod.conf
   docker/
     user-service.Dockerfile
+    bff-service.Dockerfile
     notification-service.Dockerfile
     setup-service.Dockerfile
     file-service.Dockerfile
@@ -50,6 +51,7 @@ NGINX listens on `https://localhost:8443` locally.
 | Public route | Upstream service | Forwarded path |
 | --- | --- | --- |
 | `/api/v1/auth/{path}` | `user-service:5001` | `/api/v1/auth/{path}` (includes `entra/token`, `refresh`, `me`) |
+| `/api/v1/bff/{path}` | `bff-service:5003` | BFF orchestration (e.g. `signup/company`, GraphQL) |
 | `/api/v1/login/{path}` | `user-service:5001` | `/api/v1/login/{path}` |
 | `/api/v1/invite/{path}` | `user-service:5001` | `/api/v1/invite/{path}` |
 | `/api/v1/signup/{path}` | `user-service:5001` | `/api/v1/signup/{path}` |

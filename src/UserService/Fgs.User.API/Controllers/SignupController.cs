@@ -2,7 +2,7 @@ using Asp.Versioning;
 using Fgs.Foundation.Api;
 using Fgs.Contracts.Api;
 using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
-using Fgs.User.Application.Features.Signup.DTOs;
+using Fgs.Contracts.Signup;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,10 +22,11 @@ public sealed class SignupController(IMediator mediator) : ControllerBase
     /// Creates a tenant, default company, admin user, physical location, verification invitation, and outbox message in a single transaction.
     /// </summary>
     /// <remarks>
-    /// Request body maps to the onboarding questionnaire: <c>contact</c> (name, phone, email),
-    /// <c>company</c> (name, website, structured <c>address</c>, companySize), and <c>businessTypeIds</c> (one or more industries from <c>GloBusinessType</c>; the first is the primary).
-    /// Tenant code is derived from the company name; timezone and currency are inferred from <c>company.address</c> (override with optional <c>timeZone</c> / <c>defaultCurrency</c>).
-    /// Returns the standard JSON envelope with <c>tenantId</c>, <c>companyNumber</c>, <c>companyGuid</c>, user/invitation ids, and invite URL; email delivery uses the outbox.
+    /// Prefer the BFF endpoint <c>POST /api/v1/bff/signup/company</c> for full onboarding (identity + business-type seeding).
+    /// This User endpoint owns identity only; business types are seeded by the BFF via Setup.
+    /// Request body maps to the onboarding questionnaire: <c>contact</c>, <c>company</c>, and <c>businessTypeIds</c>.
+    /// Returns the standard JSON envelope with <c>tenantId</c>, <c>companyNumber</c>, <c>companyGuid</c>, <c>tenantCode</c>,
+    /// user/invitation ids, and invite URL; email delivery uses the outbox.
     /// </remarks>
     [AllowAnonymous]
     [HttpPost("company")]

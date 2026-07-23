@@ -1,4 +1,4 @@
-namespace Fgs.User.Application.Features.Signup.DTOs;
+namespace Fgs.Contracts.Signup;
 
 /// <summary>
 /// Result of company self-serve signup. <see cref="CompanyNumber"/> is the tenant-scoped company key
@@ -10,4 +10,5 @@ public sealed record CompanySignupResultDto(
     Guid CompanyGuid,
     Guid UserId,
     Guid InvitationId,
-    string InviteUrl);
+    string InviteUrl,
+    string TenantCode);

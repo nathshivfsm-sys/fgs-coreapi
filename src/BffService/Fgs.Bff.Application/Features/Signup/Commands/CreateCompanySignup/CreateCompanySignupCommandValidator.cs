@@ -1,8 +1,7 @@
 using Fgs.Contracts.Signup;
-using Fgs.User.Application.Features.Signup;
 using FluentValidation;
 
-namespace Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
+namespace Fgs.Bff.Application.Features.Signup.Commands.CreateCompanySignup;
 
 public sealed class CreateCompanySignupCommandValidator : AbstractValidator<CreateCompanySignupCommand>
 {
@@ -75,4 +74,10 @@ public sealed class SignupAddressDtoValidator : AbstractValidator<SignupAddressD
         RuleFor(x => x.Country).MaximumLength(100).When(x => !string.IsNullOrWhiteSpace(x.Country));
         RuleFor(x => x.PlaceId).MaximumLength(500).When(x => !string.IsNullOrWhiteSpace(x.PlaceId));
     }
+}
+
+internal static class SignupErrorMessages
+{
+    public const string BusinessTypeIdsRequired = "At least one industry (business type) must be selected.";
+    public const string InvalidPhoneFormat = "Phone number format is invalid.";
 }

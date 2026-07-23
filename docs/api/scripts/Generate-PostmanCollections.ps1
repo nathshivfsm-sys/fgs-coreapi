@@ -1526,6 +1526,7 @@ function New-Collection {
 
 $serviceConfigs = @(
     @{ Key = 'UserService'; Path = 'src\UserService\Fgs.User.API\Controllers'; Desc = 'Company onboarding, UI login, Entra auth, active-user cache, dashboard, and tenant admin APIs via {{gatewayUrl}}.'; AuthFlow = $true }
+    @{ Key = 'BffService'; Path = 'src\BffService\Fgs.Bff.API\Controllers'; Desc = 'BFF orchestration (cross-domain workflows) via {{gatewayUrl}}/api/v1/bff/...'; AuthFlow = $false; SkipGenerate = $true }
     @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup catalog APIs via {{gatewayUrl}}/api/v1/{catalog}.'; AuthFlow = $false }
     @{ Key = 'NotificationService'; Path = 'src\NotificationService\Fgs.Notification.API\Controllers'; Desc = 'Notification dispatch via {{gatewayUrl}}/api/v1/notifications/...'; AuthFlow = $false }
     @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 provisioning and attachment management via {{gatewayUrl}}. Upload via multipart/form-data; download/thumbnail stream through the API (no S3 URLs exposed).'; AuthFlow = $false }
@@ -1550,6 +1551,11 @@ $script:DtoRegistry = Build-DtoRegistry -Root $RepoRoot
 Write-Host "  Loaded $($script:DtoRegistry.Count) DTO types"
 
 foreach ($svc in $serviceConfigs) {
+    if ($svc.SkipGenerate) {
+        Write-Host "Skip $($svc.Key): curated collection (docs/api/$($svc.Key).postman_collection.json)"
+        continue
+    }
+
     $controllerRoot = Join-Path $RepoRoot $svc.Path
     if (-not (Test-Path $controllerRoot)) { Write-Warning "Skip $($svc.Key): $controllerRoot"; continue }
 
