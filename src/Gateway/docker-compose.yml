@@ -357,6 +357,8 @@ services:
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: RABBITMQ
       UserService__BaseUrl: http://user-service:5001
+      # appsettings.Development.json uses localhost:5084 for host-run; override for Docker DNS.
+      NotificationService__BaseUrl: http://notification-service:5002
       RabbitMq__HostName: rabbitmq
     depends_on:
       rabbitmq:
@@ -366,6 +368,8 @@ services:
       audit-service:
         condition: service_healthy
       user-service:
+        condition: service_healthy
+      notification-service:
         condition: service_healthy
     volumes:
       - ../ConsumerService/Fgs.Consumer.API/appsettings.json:/src/src/ConsumerService/Fgs.Consumer.API/appsettings.json:ro

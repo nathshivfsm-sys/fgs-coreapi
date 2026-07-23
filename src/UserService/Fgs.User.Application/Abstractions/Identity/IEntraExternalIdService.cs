@@ -4,8 +4,14 @@ public interface IEntraExternalIdService
 {
     /// <summary>
     /// Builds the authorize URL for signup/invite (API callback redirect URI, no PKCE).
+    /// When <paramref name="forceSignup"/> is true, includes <c>prompt=create</c> so Entra External ID
+    /// opens the account-creation page instead of the default sign-in experience.
     /// </summary>
-    string BuildAuthorizationUrl(string state, string redirectUri, string? loginHint = null);
+    string BuildAuthorizationUrl(
+        string state,
+        string redirectUri,
+        string? loginHint = null,
+        bool forceSignup = false);
 
     /// <summary>
     /// Builds the authorize URL for returning-user login (SPA redirect URI + PKCE S256).

@@ -69,6 +69,48 @@ public sealed class EntraExternalIdRefitServiceTests
         url.Should().Contain("login_hint=admin%40test.com");
     }
 
+    [Fact]
+    public void BuildAuthorizationUrl_WithForceSignup_IncludesPromptCreate()
+    {
+        var service = CreateService(new EntraExternalIdOptions
+        {
+            TenantId = "tenant-id",
+            ClientId = "client-id",
+            Authority = "https://example.ciamlogin.com",
+            UserFlow = "SignUpSignIn",
+            Scopes = "openid profile email"
+        });
+
+        var url = service.BuildAuthorizationUrl(
+            Guid.NewGuid().ToString(),
+            "https://localhost/callback",
+            "admin@test.com",
+            forceSignup: true);
+
+        url.Should().Contain("prompt=create");
+        url.Should().Contain("login_hint=admin%40test.com");
+        url.Should().Contain("p=SignUpSignIn");
+    }
+
+    [Fact]
+    public void BuildAuthorizationUrl_WithoutForceSignup_OmitsPrompt()
+    {
+        var service = CreateService(new EntraExternalIdOptions
+        {
+            TenantId = "tenant",
+            ClientId = "client-id",
+            Authority = "https://login.microsoftonline.com",
+            Scopes = "openid profile email"
+        });
+
+        var url = service.BuildAuthorizationUrl(
+            Guid.NewGuid().ToString(),
+            "https://localhost/callback",
+            "admin@test.com");
+
+        url.Should().NotContain("prompt=");
+    }
+
     private static EntraExternalIdRefitService CreateService(EntraExternalIdOptions options) =>
         new(Options.Create(options), Mock.Of<IEntraOAuthClient>());
 }

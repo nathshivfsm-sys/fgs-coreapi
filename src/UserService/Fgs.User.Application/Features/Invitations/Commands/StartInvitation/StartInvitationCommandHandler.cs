@@ -43,6 +43,7 @@ public sealed class StartInvitationCommandHandler(
 
         if (matched.Status == InvitationStatus.Accepted)
         {
+            // Already verified — send to Entra sign-in (no prompt=create).
             var loginUrl = entraService.BuildAuthorizationUrl(matched.Id.ToString(), redirectUri, matched.Email);
             return new StartInvitationResult(true, loginUrl, null);
         }
@@ -60,7 +61,12 @@ public sealed class StartInvitationCommandHandler(
             return new StartInvitationResult(false, null, InvitationErrorMessages.Expired);
         }
 
-        var authorizeUrl = entraService.BuildAuthorizationUrl(matched.Id.ToString(), redirectUri, matched.Email);
+        // Pending invite — force Entra signup page so new users don't land on sign-in.
+        var authorizeUrl = entraService.BuildAuthorizationUrl(
+            matched.Id.ToString(),
+            redirectUri,
+            matched.Email,
+            forceSignup: true);
         return new StartInvitationResult(true, authorizeUrl, null);
     }
 }

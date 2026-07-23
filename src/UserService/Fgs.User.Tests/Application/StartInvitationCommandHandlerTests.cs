@@ -59,7 +59,8 @@ public sealed class StartInvitationCommandHandlerTests
             .Setup(s => s.BuildAuthorizationUrl(
                 invitationId.ToString(),
                 It.IsAny<string>(),
-                "a@test.com"))
+                "a@test.com",
+                true))
             .Returns("https://login.example/authorize");
 
         var configuration = new ConfigurationBuilder()
@@ -81,6 +82,9 @@ public sealed class StartInvitationCommandHandlerTests
 
         result.Success.Should().BeTrue();
         result.RedirectUrl.Should().StartWith("https://login.example");
+        entraMock.Verify(
+            s => s.BuildAuthorizationUrl(invitationId.ToString(), It.IsAny<string>(), "a@test.com", true),
+            Times.Once);
     }
 
     [Fact]
@@ -111,7 +115,8 @@ public sealed class StartInvitationCommandHandlerTests
             .Setup(s => s.BuildAuthorizationUrl(
                 invitationId.ToString(),
                 It.IsAny<string>(),
-                "verified@test.com"))
+                "verified@test.com",
+                false))
             .Returns("https://login.example/signin");
 
         var configuration = new ConfigurationBuilder()
@@ -132,6 +137,9 @@ public sealed class StartInvitationCommandHandlerTests
 
         result.Success.Should().BeTrue();
         result.RedirectUrl.Should().StartWith("https://login.example/signin");
+        entraMock.Verify(
+            s => s.BuildAuthorizationUrl(invitationId.ToString(), It.IsAny<string>(), "verified@test.com", false),
+            Times.Once);
     }
 
     [Fact]
@@ -223,7 +231,8 @@ public sealed class StartInvitationCommandHandlerTests
             .Setup(s => s.BuildAuthorizationUrl(
                 invitationId.ToString(),
                 It.IsAny<string>(),
-                "a@test.com"))
+                "a@test.com",
+                true))
             .Returns("https://login.example/authorize");
 
         var configuration = new ConfigurationBuilder()
@@ -244,6 +253,9 @@ public sealed class StartInvitationCommandHandlerTests
 
         result.Success.Should().BeTrue();
         result.RedirectUrl.Should().Be("https://login.example/authorize");
+        entraMock.Verify(
+            s => s.BuildAuthorizationUrl(invitationId.ToString(), It.IsAny<string>(), "a@test.com", true),
+            Times.Once);
     }
 
     [Fact]

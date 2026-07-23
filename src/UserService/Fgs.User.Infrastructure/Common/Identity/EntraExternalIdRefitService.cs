@@ -14,15 +14,19 @@ public sealed class EntraExternalIdRefitService(
 {
     private readonly EntraExternalIdOptions _options = options.Value;
 
-    public string BuildAuthorizationUrl(string state, string redirectUri, string? loginHint = null) =>
-        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge: null);
+    public string BuildAuthorizationUrl(
+        string state,
+        string redirectUri,
+        string? loginHint = null,
+        bool forceSignup = false) =>
+        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge: null, forceSignup);
 
     public string BuildLoginAuthorizationUrl(
         string state,
         string redirectUri,
         string codeChallenge,
         string? loginHint = null) =>
-        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge);
+        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge, forceSignup: false);
 
     public Task<EntraTokenResult> ExchangeCodeAsync(
         string code,
@@ -84,7 +88,8 @@ public sealed class EntraExternalIdRefitService(
         string state,
         string redirectUri,
         string? loginHint,
-        string? codeChallenge)
+        string? codeChallenge,
+        bool forceSignup)
     {
         var authorize = string.IsNullOrWhiteSpace(_options.AuthorizeEndpoint)
             ? BuildAuthorizeEndpoint()
@@ -99,7 +104,9 @@ public sealed class EntraExternalIdRefitService(
             ["scope"] = _options.Scopes,
             ["state"] = state,
             ["login_hint"] = loginHint,
-            ["p"] = _options.UserFlow
+            ["p"] = _options.UserFlow,
+            // Entra External ID SignUpSignIn: prompt=create opens signup instead of sign-in.
+            ["prompt"] = forceSignup ? "create" : null
         };
 
         if (!string.IsNullOrWhiteSpace(codeChallenge))

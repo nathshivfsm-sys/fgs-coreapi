@@ -27,8 +27,8 @@ public sealed class InviteController : ControllerBase
     /// <param name="token">Opaque token from the signup invitation email.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
     /// <remarks>
-    /// Returns 302 to Entra on success (including when the invitation was already accepted â€” user is sent to Entra sign-in);
-    /// 400 with error body on invalid or expired token.
+    /// Returns 302 to Entra on success: pending invites open the Entra signup page (<c>prompt=create</c>);
+    /// already-accepted invites open Entra sign-in. Returns 400 with error body on invalid or expired token.
     /// </remarks>
     [HttpGet("start")]
     [ProducesResponseType(StatusCodes.Status302Found)]
