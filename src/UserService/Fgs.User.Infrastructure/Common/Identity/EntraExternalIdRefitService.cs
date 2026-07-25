@@ -18,15 +18,17 @@ public sealed class EntraExternalIdRefitService(
         string state,
         string redirectUri,
         string? loginHint = null,
-        bool forceSignup = false) =>
-        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge: null, forceSignup);
+        bool forceSignup = false,
+        string? userFlow = null) =>
+        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge: null, forceSignup, userFlow);
 
     public string BuildLoginAuthorizationUrl(
         string state,
         string redirectUri,
         string codeChallenge,
-        string? loginHint = null) =>
-        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge, forceSignup: false);
+        string? loginHint = null,
+        string? userFlow = null) =>
+        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge, forceSignup: false, userFlow);
 
     public Task<EntraTokenResult> ExchangeCodeAsync(
         string code,
@@ -89,11 +91,16 @@ public sealed class EntraExternalIdRefitService(
         string redirectUri,
         string? loginHint,
         string? codeChallenge,
-        bool forceSignup)
+        bool forceSignup,
+        string? userFlow)
     {
         var authorize = string.IsNullOrWhiteSpace(_options.AuthorizeEndpoint)
             ? BuildAuthorizeEndpoint()
             : _options.AuthorizeEndpoint;
+
+        var resolvedFlow = !string.IsNullOrWhiteSpace(userFlow)
+            ? userFlow
+            : _options.UserFlow;
 
         var query = new Dictionary<string, string?>
         {
@@ -104,7 +111,7 @@ public sealed class EntraExternalIdRefitService(
             ["scope"] = _options.Scopes,
             ["state"] = state,
             ["login_hint"] = loginHint,
-            ["p"] = _options.UserFlow,
+            ["p"] = resolvedFlow,
             // Entra External ID SignUpSignIn: prompt=create opens signup instead of sign-in.
             ["prompt"] = forceSignup ? "create" : null
         };

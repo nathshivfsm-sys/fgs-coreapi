@@ -1,5 +1,6 @@
 using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Common;
+using Fgs.User.Application.Features.Auth;
 using Fgs.User.Application.Features.Invitations;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Security;
@@ -41,10 +42,19 @@ public sealed class StartInvitationCommandHandler(
         var redirectUri = configuration[ConfigurationKeys.EntraExternalId.RedirectUri]
             ?? ApplicationUrlDefaults.EntraCallbackRedirect;
 
+        var user = await unitOfWork.Repository<FgsUser>()
+            .FirstOrDefaultIgnoreFiltersAsync(u => u.Id == matched.UserId, cancellationToken);
+        var userFlow = ResolveUserFlow(user?.AuthenticationMethod ?? AuthenticationMethod.PasswordOrEmailOtp);
+
         if (matched.Status == InvitationStatus.Accepted)
         {
             // Already verified — send to Entra sign-in (no prompt=create).
-            var loginUrl = entraService.BuildAuthorizationUrl(matched.Id.ToString(), redirectUri, matched.Email);
+            var loginUrl = entraService.BuildAuthorizationUrl(
+                matched.Id.ToString(),
+                redirectUri,
+                matched.Email,
+                forceSignup: false,
+                userFlow: userFlow);
             return new StartInvitationResult(true, loginUrl, null);
         }
 
@@ -66,7 +76,14 @@ public sealed class StartInvitationCommandHandler(
             matched.Id.ToString(),
             redirectUri,
             matched.Email,
-            forceSignup: true);
+            forceSignup: true,
+            userFlow: userFlow);
         return new StartInvitationResult(true, authorizeUrl, null);
     }
+
+    private string ResolveUserFlow(AuthenticationMethod method) =>
+        EntraUserFlowResolver.Resolve(
+            method,
+            configuration[ConfigurationKeys.EntraExternalId.UserFlow],
+            configuration[ConfigurationKeys.EntraExternalId.PasswordUserFlow]);
 }

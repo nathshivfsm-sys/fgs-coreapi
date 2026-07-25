@@ -23,6 +23,10 @@ public sealed class CreateCompanySignupCommandValidator : AbstractValidator<Crea
         RuleFor(x => x.DefaultCurrency)
             .MaximumLength(20)
             .When(x => !string.IsNullOrWhiteSpace(x.DefaultCurrency));
+
+        RuleFor(x => x.AuthenticationMethod)
+            .IsInEnum()
+            .When(x => x.AuthenticationMethod.HasValue);
     }
 }
 

@@ -32,7 +32,8 @@ public sealed class StartLoginCommandHandlerTests
                 $"{OAuthStatePrefixes.UserLogin}{userId}",
                 It.IsAny<string>(),
                 It.IsAny<string>(),
-                "ACTIVE@TEST.COM"))
+                "ACTIVE@TEST.COM",
+                It.IsAny<string?>()))
             .Returns("https://login.example/authorize");
 
         var pkceStore = new Mock<ILoginPkceStore>();
@@ -111,6 +112,42 @@ public sealed class StartLoginCommandHandlerTests
         result.Errors.Should().Contain(AuthErrorMessages.LoginNotAvailable);
     }
 
+    [Fact]
+    public async Task Handle_WithPasswordAuthUser_UsesPasswordUserFlow()
+    {
+        var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        var (_, _, userId) = await SeedActiveTenantCompanyUserAsync(
+            context,
+            "PWD@TEST.COM",
+            entraObjectId: "oid-pwd",
+            authenticationMethod: AuthenticationMethod.Password);
+
+        var entraMock = new Mock<IEntraExternalIdService>();
+        entraMock
+            .Setup(s => s.BuildLoginAuthorizationUrl(
+                $"{OAuthStatePrefixes.UserLogin}{userId}",
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                "PWD@TEST.COM",
+                "Fgs_SignUpSignIn_Pwd"))
+            .Returns("https://login.example/pwd");
+
+        var result = await CreateHandler(context, entraMock.Object).Handle(
+            new StartLoginCommand("pwd@test.com"),
+            CancellationToken.None);
+
+        result.Success.Should().BeTrue();
+        result.Data!.RedirectUrl.Should().Be("https://login.example/pwd");
+        entraMock.Verify(
+            s => s.BuildLoginAuthorizationUrl(
+                $"{OAuthStatePrefixes.UserLogin}{userId}",
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                "PWD@TEST.COM",
+                "Fgs_SignUpSignIn_Pwd"),
+            Times.Once);
+    }
+
     private static StartLoginCommandHandler CreateHandler(
         FgsUserDbContext context,
         IEntraExternalIdService? entraService = null,
@@ -119,7 +156,9 @@ public sealed class StartLoginCommandHandlerTests
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                [ConfigurationKeys.EntraExternalId.LoginRedirectUri] = "https://localhost:3000/auth/callback"
+                [ConfigurationKeys.EntraExternalId.LoginRedirectUri] = "https://localhost:3000/auth/callback",
+                [ConfigurationKeys.EntraExternalId.UserFlow] = "Fgs_SignUpSignIn",
+                [ConfigurationKeys.EntraExternalId.PasswordUserFlow] = "Fgs_SignUpSignIn_Pwd"
             })
             .Build();
 
@@ -136,7 +175,8 @@ public sealed class StartLoginCommandHandlerTests
         FgsUserDbContext context,
         string email,
         string? entraObjectId,
-        bool isActive = true)
+        bool isActive = true,
+        AuthenticationMethod authenticationMethod = AuthenticationMethod.PasswordOrEmailOtp)
     {
         var tenant = new FgsTenant
         {
@@ -181,6 +221,7 @@ public sealed class StartLoginCommandHandlerTests
             Email = email,
             DisplayName = "User",
             EntraObjectId = entraObjectId,
+            AuthenticationMethod = authenticationMethod,
             IsActive = isActive,
             CreatedOn = DateTimeOffset.UtcNow
         });

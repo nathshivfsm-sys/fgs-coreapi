@@ -1,4 +1,5 @@
 using Fgs.User.Domain.Entities;
+using Fgs.User.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,6 +17,10 @@ internal class FgsUserConfiguration : IEntityTypeConfiguration<FgsUser>
         entity.Property(e => e.Email).HasMaxLength(300);
         entity.Property(e => e.DisplayName).HasMaxLength(200);
         entity.Property(e => e.EntraObjectId).HasMaxLength(100);
+        entity.Property(e => e.AuthenticationMethod)
+            .HasConversion<short>()
+            .IsRequired()
+            .HasDefaultValue(AuthenticationMethod.PasswordOrEmailOtp);
         entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
     }

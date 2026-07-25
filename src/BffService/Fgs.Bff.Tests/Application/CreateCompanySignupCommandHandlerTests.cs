@@ -49,6 +49,13 @@ public sealed class CreateCompanySignupCommandHandlerTests
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(ApiStatusCodes.Created);
         response.Data.Should().BeEquivalentTo(identity);
+        userClient.Verify(
+            c => c.CreateCompanySignupAsync(
+                It.Is<CompanySignupRequest>(r =>
+                    r.AuthenticationMethod == AuthenticationMethod.Password
+                    && r.BusinessTypeIds.SequenceEqual(new[] { 1, 2 })),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -120,5 +127,6 @@ public sealed class CreateCompanySignupCommandHandlerTests
                 "https://acme.example.com",
                 new SignupAddressDto("1 Main", null, "Austin", "TX", "78701", Country: "US"),
                 "11-50"),
-            BusinessTypeIds: [1, 2]);
+            BusinessTypeIds: [1, 2],
+            AuthenticationMethod: AuthenticationMethod.Password);
 }

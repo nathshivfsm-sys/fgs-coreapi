@@ -1,8 +1,11 @@
 using System.Net;
+using System.Net.Http;
+using System.Text;
 using FluentValidation;
 using FluentValidation.Results;
 using Fgs.Foundation.Constants;
 using Fgs.Foundation.Middleware;
+using Refit;
 
 namespace Fgs.Foundation.Tests.Middleware;
 
@@ -67,5 +70,30 @@ public sealed class ExceptionMappingRulesTests
 
         statusCode.Should().Be(HttpStatusCode.InternalServerError);
         errors.Should().ContainSingle(ApiErrorMessages.UnexpectedError);
+    }
+
+    [Fact]
+    public async Task Map_ApiExceptionWithApiResponseBody_ReturnsDownstreamStatusAndErrors()
+    {
+        var apiException = await CreateApiExceptionAsync(
+            HttpStatusCode.Conflict,
+            """{"Success":false,"StatusCode":409,"Data":null,"Errors":["This email address is already associated with an account or pending invitation."]}""");
+
+        var (statusCode, errors) = ExceptionMappingRules.Map(apiException);
+
+        statusCode.Should().Be(HttpStatusCode.Conflict);
+        errors.Should().ContainSingle(
+            "This email address is already associated with an account or pending invitation.");
+    }
+
+    private static async Task<ApiException> CreateApiExceptionAsync(HttpStatusCode statusCode, string content)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/v1/signup/company");
+        var response = new HttpResponseMessage(statusCode)
+        {
+            Content = new StringContent(content, Encoding.UTF8, "application/json")
+        };
+
+        return await ApiException.Create(request, HttpMethod.Post, response, new RefitSettings());
     }
 }

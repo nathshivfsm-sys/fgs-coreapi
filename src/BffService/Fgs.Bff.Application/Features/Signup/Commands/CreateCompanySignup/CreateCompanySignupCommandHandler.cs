@@ -24,7 +24,8 @@ public sealed class CreateCompanySignupCommandHandler(
             request.Company,
             request.BusinessTypeIds,
             request.TimeZone,
-            request.DefaultCurrency);
+            request.DefaultCurrency,
+            request.AuthenticationMethod);
 
         var identityResponse = await userSignupClient.CreateCompanySignupAsync(
             identityRequest,

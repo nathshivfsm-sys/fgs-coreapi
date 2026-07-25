@@ -1,3 +1,5 @@
+using Fgs.User.Domain.Enums;
+
 namespace Fgs.User.Domain.Entities;
 
 /// <summary>
@@ -16,6 +18,11 @@ public class FgsUser : FgsEntityBase, ITenantCompanyScoped
     public string DisplayName { get; set; } = null!;
 
     public string? EntraObjectId { get; set; }
+
+    /// <summary>
+    /// Preferred authentication method (1=Password … 5=PasswordWithMfa). Default PasswordOrEmailOtp.
+    /// </summary>
+    public AuthenticationMethod AuthenticationMethod { get; set; } = AuthenticationMethod.PasswordOrEmailOtp;
 
     public bool IsActive { get; set; } = true;
 

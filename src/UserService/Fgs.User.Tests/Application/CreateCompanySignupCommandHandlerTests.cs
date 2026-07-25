@@ -23,6 +23,8 @@ using Fgs.Persistence.Implementations;
 using Fgs.User.Infrastructure.Database;
 using Fgs.User.Infrastructure.Messaging;
 using Microsoft.EntityFrameworkCore;
+using ContractAuthenticationMethod = Fgs.Contracts.Signup.AuthenticationMethod;
+using DomainAuthenticationMethod = Fgs.User.Domain.Enums.AuthenticationMethod;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -108,6 +110,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
         var createdUser = await userContext.FgsUsers.SingleAsync();
         createdUser.Email.Should().Be(command.Contact.Email);
         createdUser.DisplayName.Should().Be(command.Contact.Name);
+        createdUser.AuthenticationMethod.Should().Be(DomainAuthenticationMethod.PasswordOrEmailOtp);
 
         var invitation = await userContext.FgsInvitations.SingleAsync();
         invitation.Status.Should().Be(InvitationStatus.Pending);
@@ -124,6 +127,22 @@ public sealed class CreateCompanySignupCommandHandlerTests
         evt.Name.Should().Be(command.Contact.Name);
         evt.InviteLink.Should().Contain("token=");
         evt.ExpirationHours.Should().Be("168");
+    }
+
+    [Fact]
+    public async Task Handle_WithPasswordAuthenticationMethod_PersistsOnUser()
+    {
+        var (handler, userContext, _) = await CreateHandlerAsync();
+        var command = ValidCommand() with
+        {
+            AuthenticationMethod = ContractAuthenticationMethod.Password
+        };
+
+        var response = await handler.Handle(command, CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        var createdUser = await userContext.FgsUsers.SingleAsync();
+        createdUser.AuthenticationMethod.Should().Be(DomainAuthenticationMethod.Password);
     }
 
     [Fact]

@@ -203,6 +203,7 @@ BEGIN
         "Email" character varying(300) NOT NULL,
         "DisplayName" character varying(200) NOT NULL,
         "EntraObjectId" character varying(100),
+        "AuthenticationMethod" smallint NOT NULL DEFAULT 3,
         "IsActive" boolean NOT NULL,
         "IsDeleted" boolean NOT NULL,
         "CreatedOn" timestamptz NOT NULL,
@@ -210,6 +211,7 @@ BEGIN
         "UpdatedOn" timestamptz,
         "UpdatedBy" character varying(100),
         CONSTRAINT "PK_FgsUser" PRIMARY KEY ("Id"),
+        CONSTRAINT "CK_FgsUser_AuthenticationMethod" CHECK ("AuthenticationMethod" IN (1, 2, 3, 4, 5)),
         CONSTRAINT "FK_FgsUser_FgsTenantCompany_TenantId_CompanyId" FOREIGN KEY ("TenantId", "CompanyId") REFERENCES tenant."FgsTenantCompany" ("TenantId", "CompanyNumber") ON DELETE RESTRICT,
         CONSTRAINT "FK_FgsUser_FgsTenant_TenantId" FOREIGN KEY ("TenantId") REFERENCES tenant."FgsTenant" ("Id") ON DELETE RESTRICT
     );

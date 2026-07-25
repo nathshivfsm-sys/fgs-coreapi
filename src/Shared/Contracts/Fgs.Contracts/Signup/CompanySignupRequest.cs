@@ -8,4 +8,5 @@ public sealed record CompanySignupRequest(
     SignupCompanyDto Company,
     IReadOnlyList<int> BusinessTypeIds,
     string? TimeZone = null,
-    string? DefaultCurrency = null);
+    string? DefaultCurrency = null,
+    AuthenticationMethod? AuthenticationMethod = null);

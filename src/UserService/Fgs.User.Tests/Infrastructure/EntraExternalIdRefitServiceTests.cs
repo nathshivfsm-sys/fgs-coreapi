@@ -111,6 +111,54 @@ public sealed class EntraExternalIdRefitServiceTests
         url.Should().NotContain("prompt=");
     }
 
+    [Fact]
+    public void BuildAuthorizationUrl_WithUserFlowOverride_UsesOverrideForP()
+    {
+        var service = CreateService(new EntraExternalIdOptions
+        {
+            TenantId = "tenant",
+            ClientId = "client-id",
+            Authority = "https://example.ciamlogin.com",
+            UserFlow = "Fgs_SignUpSignIn",
+            PasswordUserFlow = "Fgs_SignUpSignIn_Pwd",
+            Scopes = "openid profile email"
+        });
+
+        var url = service.BuildAuthorizationUrl(
+            Guid.NewGuid().ToString(),
+            "https://localhost/callback",
+            "admin@test.com",
+            forceSignup: true,
+            userFlow: "Fgs_SignUpSignIn_Pwd");
+
+        url.Should().Contain("p=Fgs_SignUpSignIn_Pwd");
+        url.Should().Contain("prompt=create");
+    }
+
+    [Fact]
+    public void BuildLoginAuthorizationUrl_WithUserFlowOverride_UsesOverrideForP()
+    {
+        var service = CreateService(new EntraExternalIdOptions
+        {
+            TenantId = "tenant",
+            ClientId = "client-id",
+            Authority = "https://example.ciamlogin.com",
+            UserFlow = "Fgs_SignUpSignIn",
+            Scopes = "openid profile email"
+        });
+
+        var url = service.BuildLoginAuthorizationUrl(
+            Guid.NewGuid().ToString(),
+            "https://localhost:3000/auth/callback",
+            "challenge",
+            "admin@test.com",
+            userFlow: "Fgs_SignUpSignIn_Pwd");
+
+        url.Should().Contain("p=Fgs_SignUpSignIn_Pwd");
+        url.Should().Contain("code_challenge=challenge");
+        url.Should().NotContain("prompt=");
+    }
+
     private static EntraExternalIdRefitService CreateService(EntraExternalIdOptions options) =>
         new(Options.Create(options), Mock.Of<IEntraOAuthClient>());
 }

@@ -1550,6 +1550,11 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<short>("AuthenticationMethod")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)3);
+
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint");
 
@@ -1598,7 +1603,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .IsUnique()
                         .HasFilter("\"IsDeleted\" = false");
 
-                    b.ToTable("FgsUser", "identity");
+                    b.ToTable("FgsUser", "identity", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsUser_AuthenticationMethod", "\"AuthenticationMethod\" IN (1, 2, 3, 4, 5)");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUserRole", b =>

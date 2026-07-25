@@ -86,6 +86,7 @@ FROM (
                 {"key":"RedirectUri","label":"Redirect URI","type":"text","required":true},
                 {"key":"Scopes","label":"Scopes","type":"text","required":true},
                 {"key":"UserFlow","label":"User Flow","type":"text","required":false},
+                {"key":"PasswordUserFlow","label":"Password User Flow","type":"text","required":false},
                 {"key":"AuthorizeEndpoint","label":"Authorize Endpoint","type":"text","required":false},
                 {"key":"TokenEndpoint","label":"Token Endpoint","type":"text","required":false}
             ]',
@@ -244,6 +245,7 @@ FROM (
                 {"key":"RedirectUri","label":"Redirect URI","type":"text","required":true},
                 {"key":"Scopes","label":"Scopes","type":"text","required":true},
                 {"key":"UserFlow","label":"User Flow","type":"text","required":false},
+                {"key":"PasswordUserFlow","label":"Password User Flow","type":"text","required":false},
                 {"key":"AuthorizeEndpoint","label":"Authorize Endpoint","type":"text","required":false},
                 {"key":"TokenEndpoint","label":"Token Endpoint","type":"text","required":false}
             ]',

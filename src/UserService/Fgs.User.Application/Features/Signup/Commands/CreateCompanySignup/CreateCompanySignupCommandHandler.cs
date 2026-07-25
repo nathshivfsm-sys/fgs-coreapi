@@ -17,6 +17,8 @@ using Fgs.User.Domain.Enums;
 using Fgs.User.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Configuration;
+using ContractAuthenticationMethod = Fgs.Contracts.Signup.AuthenticationMethod;
+using DomainAuthenticationMethod = Fgs.User.Domain.Enums.AuthenticationMethod;
 
 namespace Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 
@@ -175,6 +177,7 @@ public sealed class CreateCompanySignupCommandHandler
                         CompanyId = companyNumber,
                         Email = emailTrimmed,
                         DisplayName = contact.Name.Trim(),
+                        AuthenticationMethod = MapAuthenticationMethod(request.AuthenticationMethod),
                         IsActive = true,
                         CreatedOn = now,
                         CreatedBy = prospectActor
@@ -316,4 +319,10 @@ public sealed class CreateCompanySignupCommandHandler
 
         return null;
     }
+
+    private static DomainAuthenticationMethod MapAuthenticationMethod(
+        ContractAuthenticationMethod? authenticationMethod) =>
+        authenticationMethod is null
+            ? DomainAuthenticationMethod.PasswordOrEmailOtp
+            : (DomainAuthenticationMethod)(short)authenticationMethod.Value;
 }

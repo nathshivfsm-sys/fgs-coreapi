@@ -644,7 +644,8 @@ function Parse-ControllerFile {
     "companySize": "11-50",
     "address": { "addressLine1": "100 Main St", "city": "Austin", "state": "TX", "postalCode": "78701", "country": "US" }
   },
-  "businessTypeIds": [1]
+  "businessTypeIds": [1],
+  "authenticationMethod": 2
 }
 '@
         }
@@ -1108,7 +1109,8 @@ function New-AuthFlowFolder {
     "companySize": "11-50",
     "address": { "addressLine1": "100 Main St", "city": "Austin", "state": "TX", "postalCode": "78701", "country": "US" }
   },
-  "businessTypeIds": [1]
+  "businessTypeIds": [1],
+  "authenticationMethod": 2
 }
 '@
 

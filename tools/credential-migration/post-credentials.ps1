@@ -177,7 +177,7 @@ $payloads = @(
         scope          = "global"
         providerCode   = "ENTRA_EXTERNAL_ID"
         credentialName = "platform-entra"
-        payload        = '{"TenantId":"f9417a96-cb71-4919-8332-7087f1ad0455","ClientId":"3c788340-59a5-4864-b1b4-4f9adeffcb37","ClientSecret":"6O68Q~ryTEIP6I_cHvXzLdh0~gArxSebXxNXMdiw","Authority":"https://fsdemoapp.ciamlogin.com","RedirectUri":"https://localhost:8443/api/v1/auth/entra/callback","Scopes":"openid profile email offline_access","UserFlow":"Fgs_SignUpSignIn","AuthorizeEndpoint":"","TokenEndpoint":""}'
+        payload        = '{"TenantId":"f9417a96-cb71-4919-8332-7087f1ad0455","ClientId":"3c788340-59a5-4864-b1b4-4f9adeffcb37","ClientSecret":"6O68Q~ryTEIP6I_cHvXzLdh0~gArxSebXxNXMdiw","Authority":"https://fsdemoapp.ciamlogin.com","RedirectUri":"https://localhost:8443/api/v1/auth/entra/callback","Scopes":"openid profile email offline_access","UserFlow":"Fgs_SignUpSignIn","PasswordUserFlow":"Fgs_SignUpSignIn_Pwd","AuthorizeEndpoint":"","TokenEndpoint":""}'
     },
     @{
         scope          = "global"
