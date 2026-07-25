@@ -5,6 +5,7 @@ using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Configuration;
 using Fgs.Credentials.Extensions;
 using Fgs.Credentials.Options;
+using Fgs.Credentials.Redis;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Application.Common.Options;
 using Fgs.Setup.Infrastructure.Common.Options;
@@ -17,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace Fgs.Setup.Infrastructure;
@@ -54,6 +56,7 @@ public static class CredentialServiceCollectionExtensions
         configurationBuilder.AddFgsCredentialApplicationConfiguration(credentialConfigurationHolder);
 
         services.AddSingleton<CredentialOptionsChangeNotifier>();
+        services.TryAddSingleton<ICredentialSnapshotRedisCache, CredentialSnapshotRedisCache>();
         services.AddSingleton<ICredentialConfigurationProvider, SetupCredentialConfigurationProvider>();
         services.AddScoped<CredentialConfigurationLoader>();
 

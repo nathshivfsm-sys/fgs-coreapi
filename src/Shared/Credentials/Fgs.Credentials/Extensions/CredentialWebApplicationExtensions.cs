@@ -9,7 +9,7 @@ public static class CredentialWebApplicationExtensions
         this WebApplicationBuilder builder,
         CancellationToken cancellationToken = default)
     {
-        using var serviceProvider = builder.Services.BuildServiceProvider();
+        await using var serviceProvider = builder.Services.BuildServiceProvider();
         await serviceProvider
             .GetRequiredService<RemoteCredentialConfigurationLoader>()
             .LoadAsync(cancellationToken);

@@ -4,6 +4,7 @@ using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Configuration;
 using Fgs.Credentials.Http;
 using Fgs.Credentials.Options;
+using Fgs.Credentials.Redis;
 using Fgs.Foundation.Extensions;
 using Fgs.Security.Extensions;
 using Fgs.Security.UserAuth;
@@ -94,6 +95,8 @@ public static class CredentialServiceCollectionExtensions
         services.AddSingleton<CredentialOptionsChangeNotifier>();
         services.AddSingleton<RemoteCredentialConfigurationLoader>();
         services.AddSingleton<ICredentialConfigurationProvider, CredentialConfigurationProvider>();
+        services.TryAddSingleton<ICredentialSnapshotRedisCache, CredentialSnapshotRedisCache>();
+        services.AddHostedService<CredentialSnapshotReloadHostedService>();
 
         configurationBuilder.Add(new CredentialApplicationConfigurationSource(holder));
 

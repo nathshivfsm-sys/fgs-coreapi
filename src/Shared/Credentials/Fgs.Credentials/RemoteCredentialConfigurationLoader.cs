@@ -63,15 +63,15 @@ public sealed class RemoteCredentialConfigurationLoader
                             : "Failed to load resolved credentials from Setup Service.");
                 }
 
-                var filtered = CredentialConfigurationFilter.Filter(
+                var count = CredentialSnapshotApplier.Apply(
+                    _holder,
+                    _changeNotifier,
                     response.Data.Values,
                     _consumerOptions.Value.RequiredProviders);
 
-                _holder.ReplaceValues(filtered);
-                _changeNotifier.NotifyChange();
                 _logger.LogInformation(
                     "Loaded {Count} credential configuration entries from Setup Service.",
-                    filtered.Count);
+                    count);
                 return;
             }
             catch (Exception ex) when (attempt < maxAttempts)

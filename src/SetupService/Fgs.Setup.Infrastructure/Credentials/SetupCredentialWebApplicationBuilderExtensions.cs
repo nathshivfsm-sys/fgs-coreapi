@@ -1,3 +1,4 @@
+using Fgs.Credentials.Abstractions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,10 +10,9 @@ public static class SetupCredentialWebApplicationBuilderExtensions
         this WebApplicationBuilder builder,
         CancellationToken cancellationToken = default)
     {
-        using var serviceProvider = builder.Services.BuildServiceProvider();
-        using var scope = serviceProvider.CreateScope();
-        await scope.ServiceProvider
-            .GetRequiredService<CredentialConfigurationLoader>()
+        await using var serviceProvider = builder.Services.BuildServiceProvider();
+        await serviceProvider
+            .GetRequiredService<ICredentialConfigurationProvider>()
             .ReloadAsync(cancellationToken);
         return builder;
     }
