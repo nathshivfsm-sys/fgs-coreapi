@@ -33,7 +33,7 @@ public static class DependencyInjection
             options =>
             {
                 options.ServiceName = "fgs-file-service";
-                options.RequiredProviders = ["DATABASE", "AWS"];
+                options.RequiredProviders = ["DATABASE", "AWS", "ENTRA_EXTERNAL_ID"];
             },
             typeof(AwsCredentialsOptions));
 

@@ -8,6 +8,7 @@ public sealed class EntraUserFlowResolverTests
     [Theory]
     [InlineData(AuthenticationMethod.Password)]
     [InlineData(AuthenticationMethod.PasswordWithMfa)]
+    [InlineData(AuthenticationMethod.PasswordOrEmailOtp)]
     public void Resolve_PasswordMethods_UsesPasswordUserFlow(AuthenticationMethod method)
     {
         var flow = EntraUserFlowResolver.Resolve(
@@ -20,7 +21,6 @@ public sealed class EntraUserFlowResolverTests
 
     [Theory]
     [InlineData(AuthenticationMethod.EmailOtp)]
-    [InlineData(AuthenticationMethod.PasswordOrEmailOtp)]
     [InlineData(AuthenticationMethod.EntraIdOnly)]
     public void Resolve_NonPasswordMethods_UsesUserFlow(AuthenticationMethod method)
     {

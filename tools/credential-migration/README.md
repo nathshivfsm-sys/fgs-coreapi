@@ -13,7 +13,7 @@ Migrate secrets from legacy `appsettings.json` values into Setup Service `GloCre
 | Script | Purpose |
 |--------|---------|
 | [`seed-provider-types.sql`](seed-provider-types.sql) | Idempotent `GloCredentialProviderType` INSERT/UPDATE + cache sync |
-| [`post-credentials.ps1`](post-credentials.ps1) | POST all global credentials; `-UpdateDatabaseOnly` PUTs RDS strings; `-UpdateAwsOnly` PUTs AWS keys + `KmsKeyArn` for consumers; `-UpdateRedisOnly` PUTs shared Redis cache settings |
+| [`post-credentials.ps1`](post-credentials.ps1) | Upserts all global credentials (POST if missing, PUT if present). `-UpdateDatabaseOnly` / `-UpdateAwsOnly` / `-UpdateRedisOnly` upsert a single provider. |
 
 ```powershell
 # Seed provider types (requires psql or Docker)

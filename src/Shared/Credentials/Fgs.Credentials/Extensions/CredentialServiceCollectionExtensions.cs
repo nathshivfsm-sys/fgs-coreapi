@@ -28,7 +28,11 @@ public static class CredentialServiceCollectionExtensions
                 options =>
                 {
                     options.ServiceName = serviceName;
-                    options.RequiredProviders = requiredProviders;
+                    // JWT bearer is registered via AddFgsApiSecurity for all standard API hosts.
+                    options.RequiredProviders = requiredProviders
+                        .Append("ENTRA_EXTERNAL_ID")
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToArray();
                 })
             .AddFgsApiSecurity(configuration)
             .AddFgsUserAuthProfileClient(configuration);

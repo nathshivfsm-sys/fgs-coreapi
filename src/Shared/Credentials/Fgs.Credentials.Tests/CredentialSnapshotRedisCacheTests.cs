@@ -59,6 +59,31 @@ public sealed class CredentialSnapshotApplierTests
         holder.Values.Should().ContainKey("Global:REDIS:ConnectionString");
         holder.Values.Should().NotContainKey("Global:SENDGRID:ApiKey");
     }
+
+    [Fact]
+    public void Apply_AlwaysRetainsEntraKeysEvenWhenNotRequired()
+    {
+        var holder = new CredentialConfigurationHolder();
+        var notifier = new CredentialOptionsChangeNotifier();
+
+        var count = CredentialSnapshotApplier.Apply(
+            holder,
+            notifier,
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Global:DATABASE:FgsUser"] = "Host=db",
+                ["Global:ENTRA_EXTERNAL_ID:ClientId"] = "client-id",
+                ["Global:ENTRA_EXTERNAL_ID:PasswordUserFlow"] = "Fgs_SignUpSignIn_Pwd",
+                ["Global:SENDGRID:ApiKey"] = "sg-key"
+            },
+            ["DATABASE"]);
+
+        count.Should().Be(3);
+        holder.Values.Should().ContainKey("Global:DATABASE:FgsUser");
+        holder.Values.Should().ContainKey("Global:ENTRA_EXTERNAL_ID:ClientId");
+        holder.Values.Should().ContainKey("Global:ENTRA_EXTERNAL_ID:PasswordUserFlow");
+        holder.Values.Should().NotContainKey("Global:SENDGRID:ApiKey");
+    }
 }
 
 public sealed class CredentialSnapshotRedisCacheTests

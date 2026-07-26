@@ -71,7 +71,11 @@ FROM (
             'Amazon Web Services',
             '[
                 {"key":"AccessKeyId","label":"Access Key ID","type":"text","required":true},
-                {"key":"SecretAccessKey","label":"Secret Access Key","type":"password","required":true,"sensitive":true}
+                {"key":"SecretAccessKey","label":"Secret Access Key","type":"password","required":true,"sensitive":true},
+                {"key":"KmsKeyArn","label":"KMS Key ARN","type":"text","required":false},
+                {"key":"Region","label":"AWS Region","type":"text","required":false},
+                {"key":"BucketNamePrefix","label":"S3 Bucket Name Prefix","type":"text","required":false},
+                {"key":"ApplicationSlug","label":"Application Slug","type":"text","required":false}
             ]',
             TRUE
         ),
@@ -87,6 +91,7 @@ FROM (
                 {"key":"Scopes","label":"Scopes","type":"text","required":true},
                 {"key":"UserFlow","label":"User Flow","type":"text","required":false},
                 {"key":"PasswordUserFlow","label":"Password User Flow","type":"text","required":false},
+                {"key":"LoginRedirectUri","label":"Login Redirect URI","type":"text","required":false},
                 {"key":"AuthorizeEndpoint","label":"Authorize Endpoint","type":"text","required":false},
                 {"key":"TokenEndpoint","label":"Token Endpoint","type":"text","required":false}
             ]',
@@ -230,7 +235,11 @@ FROM (
             'Amazon Web Services',
             '[
                 {"key":"AccessKeyId","label":"Access Key ID","type":"text","required":true},
-                {"key":"SecretAccessKey","label":"Secret Access Key","type":"password","required":true,"sensitive":true}
+                {"key":"SecretAccessKey","label":"Secret Access Key","type":"password","required":true,"sensitive":true},
+                {"key":"KmsKeyArn","label":"KMS Key ARN","type":"text","required":false},
+                {"key":"Region","label":"AWS Region","type":"text","required":false},
+                {"key":"BucketNamePrefix","label":"S3 Bucket Name Prefix","type":"text","required":false},
+                {"key":"ApplicationSlug","label":"Application Slug","type":"text","required":false}
             ]',
             TRUE
         ),
@@ -246,6 +255,7 @@ FROM (
                 {"key":"Scopes","label":"Scopes","type":"text","required":true},
                 {"key":"UserFlow","label":"User Flow","type":"text","required":false},
                 {"key":"PasswordUserFlow","label":"Password User Flow","type":"text","required":false},
+                {"key":"LoginRedirectUri","label":"Login Redirect URI","type":"text","required":false},
                 {"key":"AuthorizeEndpoint","label":"Authorize Endpoint","type":"text","required":false},
                 {"key":"TokenEndpoint","label":"Token Endpoint","type":"text","required":false}
             ]',

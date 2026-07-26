@@ -27,7 +27,7 @@ public static class DependencyInjection
             options =>
             {
                 options.ServiceName = "fgs-publisher-service";
-                options.RequiredProviders = ["DATABASE", "RABBITMQ"];
+                options.RequiredProviders = ["DATABASE", "RABBITMQ", "ENTRA_EXTERNAL_ID"];
             },
             typeof(RabbitMqOptions));
 

@@ -15,11 +15,11 @@ internal static class CredentialSnapshotApplier
             CredentialConfigurationFilter.Filter(values, requiredProviders),
             StringComparer.OrdinalIgnoreCase);
 
-        // Keep Redis connection keys so snapshot pub/sub reload works even when REDIS
-        // is not listed in RequiredProviders for the service.
+        // Always keep Redis (snapshot pub/sub) and Entra (JWT bearer) even when not listed
+        // in RequiredProviders — most API hosts register AddFgsApiSecurity.
         foreach (var (key, value) in values)
         {
-            if (key.StartsWith("Global:REDIS:", StringComparison.OrdinalIgnoreCase))
+            if (IsPlatformAuthOrDistributionKey(key))
             {
                 filtered[key] = value;
             }
@@ -29,4 +29,8 @@ internal static class CredentialSnapshotApplier
         changeNotifier.NotifyChange();
         return filtered.Count;
     }
+
+    private static bool IsPlatformAuthOrDistributionKey(string key) =>
+        key.StartsWith("Global:REDIS:", StringComparison.OrdinalIgnoreCase)
+        || key.StartsWith("Global:ENTRA_EXTERNAL_ID:", StringComparison.OrdinalIgnoreCase);
 }

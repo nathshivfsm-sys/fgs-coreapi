@@ -79,13 +79,14 @@ public sealed class StartInvitationCommandHandlerTests
 
         result.Success.Should().BeTrue();
         result.RedirectUrl.Should().StartWith("https://login.example");
+        // Default AuthenticationMethod is PasswordOrEmailOtp → password user flow.
         entraMock.Verify(
             s => s.BuildAuthorizationUrl(
                 invitationId.ToString(),
                 It.IsAny<string>(),
                 "a@test.com",
                 true,
-                "Fgs_SignUpSignIn"),
+                "Fgs_SignUpSignIn_Pwd"),
             Times.Once);
     }
 
