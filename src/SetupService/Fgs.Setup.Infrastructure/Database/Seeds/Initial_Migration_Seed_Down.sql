@@ -156,38 +156,6 @@ WHERE "SkillCode" IN (
     'ELECTRICALHELPER'
 );
 
-DELETE FROM glo."GloJobTypeCategory"
-WHERE ("BusinessTypeId", "Code") IN (
-    SELECT bt."Id", v."Code"
-    FROM (
-        VALUES
-            ('HVAC',       'AC'),
-            ('HVAC',       'FURNACE'),
-            ('HVAC',       'THERMOSTAT'),
-            ('PLUMBING',   'TOILET'),
-            ('PLUMBING',   'FAUCET'),
-            ('PLUMBING',   'WATERHEATER'),
-            ('ELECTRICAL', 'PANEL'),
-            ('ELECTRICAL', 'LIGHTING'),
-            ('ELECTRICAL', 'OUTLET')
-    ) AS v("BusinessTypeCode", "Code")
-    INNER JOIN glo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
-);
-
-DELETE FROM glo."GloJobTypeSubCategory"
-WHERE "Code" IN (
-    'INSTALL',
-    'REPAIR',
-    'SERVICE',
-    'REPLACE',
-    'INSPECT',
-    'MAINTENANCE',
-    'TROUBLESHOOT',
-    'CLEANING',
-    'TUNEUP',
-    'UPGRADE'
-);
-
 DELETE FROM glo."GloTrade"
 WHERE "TradeCode" IN (
     'PESTCONTROL',
@@ -307,8 +275,6 @@ WHERE "SeedTableMappingId" IN (
     WHERE "SeedCode" IN (
         'ALL_GloBillingCategory',
         'ALL_GloRole',
-        'ALL_GloJobTypeCategory',
-        'ALL_GloJobTypeSubCategory',
         'ALL_GloLeadSource',
         'ALL_GloEstimateFlavor',
         'ALL_GloEstimateStatus',
@@ -342,8 +308,6 @@ DELETE FROM glo."GloSeedTableMapping"
 WHERE "SeedCode" IN (
     'ALL_GloBillingCategory',
     'ALL_GloRole',
-    'ALL_GloJobTypeCategory',
-    'ALL_GloJobTypeSubCategory',
     'ALL_GloLeadSource',
     'ALL_GloEstimateFlavor',
     'ALL_GloEstimateStatus',

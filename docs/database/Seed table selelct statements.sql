@@ -88,15 +88,7 @@ FROM setup."FgsBillingCategory" t
 CROSS JOIN seed_params p
 WHERE t."TenantId" = p.tenant_id AND t."CompanyId" = p.company_id;
 
-SELECT 'setup.FgsJobTypeCategory' AS table_name, t.*
-FROM setup."FgsJobTypeCategory" t
-CROSS JOIN seed_params p
-WHERE t."TenantId" = p.tenant_id AND t."CompanyId" = p.company_id;
-
-SELECT 'setup.FgsJobTypeSubCategory' AS table_name, t.*
-FROM setup."FgsJobTypeSubCategory" t
-CROSS JOIN seed_params p
-WHERE t."TenantId" = p.tenant_id AND t."CompanyId" = p.company_id;
+-- FgsJobTypeCategory / FgsJobTypeSubCategory: tenant-managed; no longer seeded from glo.
 
 SELECT 'setup.FgsLeadSource' AS table_name, t.*
 FROM setup."FgsLeadSource" t

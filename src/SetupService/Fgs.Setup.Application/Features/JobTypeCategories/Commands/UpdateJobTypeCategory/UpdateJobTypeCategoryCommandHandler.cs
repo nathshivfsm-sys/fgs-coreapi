@@ -22,8 +22,8 @@ public sealed class UpdateJobTypeCategoryCommandHandler(
     {
         var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
         logger.LogInformation("Updated job type category {Id}", result.Id);
-        var tenantScope = tenantContextAccessor.Current!;
-        await cache.RemoveByPrefixAsync(
+            var tenantScope = tenantContextAccessor.Current!;
+            await cache.RemoveByPrefixAsync(
                 CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtypecategory"),
                 cancellationToken);
         return ApiResponse<JobTypeCategoryDetailDto>.Ok(result);

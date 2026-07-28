@@ -1,29 +1,20 @@
+using Fgs.Setup.Domain.Enums;
+
 namespace Fgs.Setup.Domain.Entities;
 
 /// <summary>
-/// Tenant- and company-scoped job/service type used for dispatching, scheduling, and field operations.
+/// Defines reusable Job Types that represent the type of work performed.
+/// A Job Type serves as the header for one or more Job Type Categories and their associated tasks.
 /// </summary>
 public class FgsJobType : FgsTenantCompanySetupEntityBase<long>
 {
-    public long JobTypeCategoryId { get; set; }
-
-    public long? JobTypeSubCategoryId { get; set; }
-
     public string JobTypeCode { get; set; } = null!;
 
-    public string TaskName { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
-    public string? Description { get; set; }
-
-    public string UsedFor { get; set; } = null!;
-
-    public string? Trade { get; set; }
-
-    public int? EstimatedDurationMinutes { get; set; }
+    public JobTypeUsedFor UsedFor { get; set; }
 
     public string? BusinessUnit { get; set; }
-
-    public short Priority { get; set; } = 5;
 
     public string? BackgroundColor { get; set; }
 
@@ -35,7 +26,5 @@ public class FgsJobType : FgsTenantCompanySetupEntityBase<long>
 
     public short DisplayOrder { get; set; } = 1;
 
-    public FgsJobTypeCategory? JobTypeCategory { get; set; }
-
-    public FgsJobTypeSubCategory? JobTypeSubCategory { get; set; }
+    public ICollection<FgsJobTypeCategory> JobTypeCategories { get; set; } = new List<FgsJobTypeCategory>();
 }

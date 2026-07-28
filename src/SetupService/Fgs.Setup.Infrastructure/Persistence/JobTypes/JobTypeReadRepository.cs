@@ -1,11 +1,11 @@
 using Dapper;
 using Fgs.Foundation.Paging;
-using Fgs.Setup.Infrastructure.Common;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.Persistence;
 using Fgs.Setup.Application.Abstractions.JobTypes;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.JobTypes.Dtos;
+using Fgs.Setup.Infrastructure.Common;
 
 namespace Fgs.Setup.Infrastructure.Persistence.JobTypes;
 
@@ -66,15 +66,19 @@ internal sealed class JobTypeReadRepository : IJobTypeReadRepository
         {
             where.Add("\"JobTypeCode\" = @JobTypeCode");
         }
-        if (!string.IsNullOrWhiteSpace(filters.TaskName))
+        if (!string.IsNullOrWhiteSpace(filters.Name))
         {
-            where.Add("\"TaskName\" ILIKE @TaskName");
+            where.Add("\"Name\" ILIKE @Name");
+        }
+        if (filters.UsedFor.HasValue)
+        {
+            where.Add("\"UsedFor\" = @UsedFor");
         }
 
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
             where.Add(
-                "(\"JobTypeCode\" ILIKE @Search OR \"TaskName\" ILIKE @Search OR \"Description\" ILIKE @Search)");
+                "(\"JobTypeCode\" ILIKE @Search OR \"Name\" ILIKE @Search)");
         }
 
         var whereClause = string.Join(" AND ", where);
@@ -98,7 +102,8 @@ internal sealed class JobTypeReadRepository : IJobTypeReadRepository
             CompanyId = companyId,
             IsActive = paging.IsActive,
             JobTypeCode = filters.JobTypeCode?.Trim().ToUpperInvariant(),
-            TaskName = string.IsNullOrWhiteSpace(filters.TaskName) ? null : $"%{filters.TaskName.Trim()}%",
+            Name = string.IsNullOrWhiteSpace(filters.Name) ? null : $"%{filters.Name.Trim()}%",
+            UsedFor = filters.UsedFor,
             Search = string.IsNullOrWhiteSpace(paging.Search) ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
             Offset = offset
@@ -130,7 +135,7 @@ internal sealed class JobTypeReadRepository : IJobTypeReadRepository
             WHERE "TenantId" = @TenantId
               AND "CompanyId" = @CompanyId
               {activeFilter}
-            ORDER BY "DisplayOrder" ASC NULLS LAST, "TaskName" ASC
+            ORDER BY "DisplayOrder" ASC NULLS LAST, "Name" ASC
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -170,16 +175,21 @@ internal sealed class JobTypeReadRepository : IJobTypeReadRepository
                 },
                 cancellationToken: cancellationToken));
     }
-    public async Task<bool> ExistsJobTypeCategoryIdAsync(
-        long id,
+    public async Task<bool> ExistsByNameAsync(
+        string name,
+        long? excludeId = null,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $"""
             SELECT EXISTS(
                 SELECT 1
-                FROM setup."FgsJobTypeCategory"
-                WHERE "TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE
+                FROM {JobTypeSql.Table}
+                WHERE "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
+                  AND LOWER("Name") = LOWER(@Name)
+                  {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )
             """;
 
@@ -187,27 +197,13 @@ internal sealed class JobTypeReadRepository : IJobTypeReadRepository
         return await connection.ExecuteScalarAsync<bool>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, CompanyId = companyId, Id = id },
-                cancellationToken: cancellationToken));
-    }
-    public async Task<bool> ExistsJobTypeSubCategoryIdAsync(
-        long? id,
-        CancellationToken cancellationToken = default)
-    {
-        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
-        var sql = $"""
-            SELECT EXISTS(
-                SELECT 1
-                FROM setup."FgsJobTypeSubCategory"
-                WHERE "TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE
-            )
-            """;
-
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        return await connection.ExecuteScalarAsync<bool>(
-            new CommandDefinition(
-                sql,
-                new { TenantId = tenantId, CompanyId = companyId, Id = id },
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    Name = name.Trim(),
+                    ExcludeId = excludeId
+                },
                 cancellationToken: cancellationToken));
     }
 }

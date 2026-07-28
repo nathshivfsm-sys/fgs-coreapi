@@ -38,7 +38,7 @@ public sealed class JobTypeCategoryCommandHandlerTests
             NullLogger<CreateJobTypeCategoryCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateJobTypeCategoryCommand(new JobTypeCategoryCreateDto("TEST", "Name", "Description value", 1)),
+            new CreateJobTypeCategoryCommand(new JobTypeCategoryCreateDto(1, 1, 1)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -70,7 +70,7 @@ public sealed class JobTypeCategoryCommandHandlerTests
             NullLogger<DeleteJobTypeCategoryCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateJobTypeCategoryCommand(new JobTypeCategoryCreateDto("TEST", "Name", "Description value", 1)),
+            new CreateJobTypeCategoryCommand(new JobTypeCategoryCreateDto(1, 1, 1)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 

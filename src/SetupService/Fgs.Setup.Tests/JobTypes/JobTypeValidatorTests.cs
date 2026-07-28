@@ -16,7 +16,7 @@ public sealed class JobTypeValidatorTests
     public async Task CreateValidator_WhenJobTypeCodeMissing_HasValidationError()
     {
         var validator = new CreateJobTypeCommandValidator(_readRepository.Object);
-        var command = new CreateJobTypeCommand(new JobTypeCreateDto(1, null, "", "TaskName", "Description value", "UsedFor", "Trade", 60, "BusinessUnit", 5, "BackgroundColor", "TextColor", true, true, 1));
+        var command = new CreateJobTypeCommand(new JobTypeCreateDto("", "Name", 5, "BusinessUnit", "BackgroundColor", "TextColor", true, true, 1));
 
         var result = await validator.ValidateAsync(command);
 
@@ -28,7 +28,7 @@ public sealed class JobTypeValidatorTests
     public async Task CreateValidator_WhenJobTypeCodeNotUppercase_HasValidationError()
     {
         var validator = new CreateJobTypeCommandValidator(_readRepository.Object);
-        var args = new JobTypeCreateDto(1, null, "TEST", "TaskName", "Description value", "UsedFor", "Trade", 60, "BusinessUnit", 5, "BackgroundColor", "TextColor", true, true, 1);
+        var args = new JobTypeCreateDto("TEST", "Name", 5, "BusinessUnit", "BackgroundColor", "TextColor", true, true, 1);
         var command = new CreateJobTypeCommand(args with { JobTypeCode = "test" });
 
         var result = await validator.ValidateAsync(command);
@@ -45,13 +45,10 @@ public sealed class JobTypeValidatorTests
             .Setup(r => r.ExistsByJobTypeCodeAsync("TEST", 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         _readRepository
-            .Setup(r => r.ExistsJobTypeCategoryIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-        _readRepository
-            .Setup(r => r.ExistsJobTypeSubCategoryIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+            .Setup(r => r.ExistsByNameAsync(It.IsAny<string>(), 5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         var validator = new UpdateJobTypeCommandValidator(_readRepository.Object);
-        var command = new UpdateJobTypeCommand(5, new JobTypeUpdateDto(1, null, "TEST", "TaskName", "Description value", "UsedFor", "Trade", 60, "BusinessUnit", 5, "BackgroundColor", "TextColor", true, true, 1));
+        var command = new UpdateJobTypeCommand(5, new JobTypeUpdateDto("TEST", "Name", 1, "BusinessUnit", "BackgroundColor", "TextColor", true, true, 1));
 
         var result = await validator.ValidateAsync(command);
 

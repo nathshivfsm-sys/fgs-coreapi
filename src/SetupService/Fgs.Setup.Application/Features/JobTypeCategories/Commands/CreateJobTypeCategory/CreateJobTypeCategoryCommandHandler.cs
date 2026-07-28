@@ -21,9 +21,9 @@ public sealed class CreateJobTypeCategoryCommandHandler(
         CancellationToken cancellationToken)
     {
         var result = await writeService.CreateAsync(request.Dto, cancellationToken);
-        logger.LogInformation("Created job type category {Id} with code {CategoryCode}", result.Id, result.CategoryCode);
-        var tenantScope = tenantContextAccessor.Current!;
-        await cache.RemoveByPrefixAsync(
+        logger.LogInformation("Created job type category {Id} with code {JobTypeId}", result.Id, result.JobTypeId);
+            var tenantScope = tenantContextAccessor.Current!;
+            await cache.RemoveByPrefixAsync(
                 CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtypecategory"),
                 cancellationToken);
         return ApiResponse<JobTypeCategoryDetailDto>.Ok(result, ApiStatusCodes.Created);

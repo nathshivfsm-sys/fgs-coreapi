@@ -1,7 +1,7 @@
 using Fgs.Contracts.Api;
-using Fgs.Foundation.Paging;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
+using Fgs.Foundation.Paging;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.JobTypes;
 using Fgs.Setup.Application.Common.SetupCrud;
@@ -22,37 +22,37 @@ public sealed class ListActiveJobTypesQueryHandler(
     {
         var tenantScope = tenantContextAccessor.Current!;
         var segment = CacheKeys.ListActiveSegment(
-        request.Page,
-        request.PageSize,
-        request.SortBy,
-        request.SortDirection.ToString(),
-        request.Search,
-        CacheKeys.Fingerprint(request.Filters));
+            request.Page,
+            request.PageSize,
+            request.SortBy,
+            request.SortDirection.ToString(),
+            request.Search,
+            CacheKeys.Fingerprint(request.Filters));
 
         var cacheKey = CacheKeys.Build(
-        tenantScope.TenantId,
-        tenantScope.CompanyId,
-        "jobtype",
-        segment);
+            tenantScope.TenantId,
+            tenantScope.CompanyId,
+            "jobtype",
+            segment);
 
         var cached = await cache.GetOrSetAsync(
-        cacheKey,
-        async () =>
-        {
-            var query = new SetupListQuery(
-                request.Page,
-                request.PageSize,
-                request.SortBy,
-                request.SortDirection,
-                request.Search,
-                IsActive: true);
+            cacheKey,
+            async () =>
+            {
+                var query = new SetupListQuery(
+                    request.Page,
+                    request.PageSize,
+                    request.SortBy,
+                    request.SortDirection,
+                    request.Search,
+                    IsActive: true);
 
-            return await readRepository.ListAsync(
-                query,
-                request.Filters ?? new JobTypeListFilters(),
-                cancellationToken);
-        },
-        cancellationToken: cancellationToken);
+                return await readRepository.ListAsync(
+                    query,
+                    request.Filters ?? new JobTypeListFilters(),
+                    cancellationToken);
+            },
+            cancellationToken: cancellationToken);
 
         return ApiResponse<PagedResult<JobTypeSummaryDto>>.Ok(cached!);
     }

@@ -191,11 +191,11 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<GloJobTypeCategory> GloJobTypeCategories => Set<GloJobTypeCategory>();
 
-    public DbSet<GloJobTypeSubCategory> GloJobTypeSubCategories => Set<GloJobTypeSubCategory>();
+    public DbSet<FgsJobCategory> FgsJobCategories => Set<FgsJobCategory>();
 
     public DbSet<FgsJobTypeCategory> FgsJobTypeCategories => Set<FgsJobTypeCategory>();
 
-    public DbSet<FgsJobTypeSubCategory> FgsJobTypeSubCategories => Set<FgsJobTypeSubCategory>();
+    public DbSet<FgsJobTypeTask> FgsJobTypeTasks => Set<FgsJobTypeTask>();
 
     public DbSet<FgsJobType> FgsJobTypes => Set<FgsJobType>();
 

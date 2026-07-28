@@ -13,39 +13,20 @@ public sealed class JobTypeCategoryValidatorTests
     private readonly Mock<IJobTypeCategoryReadRepository> _readRepository = new();
 
     [Fact]
-    public async Task CreateValidator_WhenCategoryCodeMissing_HasValidationError()
-    {
-        var validator = new CreateJobTypeCategoryCommandValidator(_readRepository.Object);
-        var command = new CreateJobTypeCategoryCommand(new JobTypeCategoryCreateDto("", "Name", "Description value", 1));
-
-        var result = await validator.ValidateAsync(command);
-
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "Dto.CategoryCode");
-    }
-
-    [Fact]
-    public async Task CreateValidator_WhenCategoryCodeNotUppercase_HasValidationError()
-    {
-        var validator = new CreateJobTypeCategoryCommandValidator(_readRepository.Object);
-        var args = new JobTypeCategoryCreateDto("TEST", "Name", "Description value", 1);
-        var command = new CreateJobTypeCategoryCommand(args with { CategoryCode = "test" });
-
-        var result = await validator.ValidateAsync(command);
-
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "Dto.CategoryCode");
-    }
-
-    [Fact]
     public async Task UpdateValidator_WhenDuplicateCodeExcludesCurrentId_Passes()
     {
 
         _readRepository
-            .Setup(r => r.ExistsByCategoryCodeAsync("TEST", 5, It.IsAny<CancellationToken>()))
+            .Setup(r => r.ExistsByJobTypeIdAndJobCategoryIdAsync(It.IsAny<long>(), It.IsAny<long>(), 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
+        _readRepository
+            .Setup(r => r.ExistsJobTypeIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        _readRepository
+            .Setup(r => r.ExistsJobCategoryIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         var validator = new UpdateJobTypeCategoryCommandValidator(_readRepository.Object);
-        var command = new UpdateJobTypeCategoryCommand(5, new JobTypeCategoryUpdateDto("TEST", "Name", "Description value", 1));
+        var command = new UpdateJobTypeCategoryCommand(5, new JobTypeCategoryUpdateDto(1, 1, 1));
 
         var result = await validator.ValidateAsync(command);
 

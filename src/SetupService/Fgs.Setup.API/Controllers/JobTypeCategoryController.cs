@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fgs.Setup.API.Controllers;
 
 /// <summary>
-/// Tenant-scoped job type category catalog management.
+/// Tenant-scoped job type to job category junction management.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("jobtypecategory")]
@@ -41,14 +41,14 @@ public sealed class JobTypeCategoryController(IMediator mediator) : ControllerBa
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
         [FromQuery] bool? isActive = null,
-        [FromQuery] string? categoryCode = null,
-        [FromQuery] string? name = null,
+        [FromQuery] long? jobTypeId = null,
+        [FromQuery] long? jobCategoryId = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListJobTypeCategoriesQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new JobTypeCategoryListFilters(categoryCode, name)),
+                new JobTypeCategoryListFilters(jobTypeId, jobCategoryId)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);
@@ -58,9 +58,10 @@ public sealed class JobTypeCategoryController(IMediator mediator) : ControllerBa
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<JobTypeCategoryLookupDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Lookup(
         [FromQuery] bool activeOnly = true,
+        [FromQuery] long? jobTypeId = null,
         CancellationToken cancellationToken = default)
     {
-        var response = await mediator.Send(new LookupJobTypeCategoriesQuery(activeOnly), cancellationToken);
+        var response = await mediator.Send(new LookupJobTypeCategoriesQuery(activeOnly, jobTypeId), cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
