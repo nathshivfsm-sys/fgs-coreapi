@@ -4,12 +4,16 @@ using Fgs.Credentials.Extensions;
 using Fgs.Inventory.Application.Abstractions.InventoryLocations;
 using Fgs.Inventory.Application.Abstractions.Persistence;
 using Fgs.Inventory.Application.Abstractions.Time;
+using Fgs.Inventory.Application.Abstractions.TruckStockTemplateItems;
+using Fgs.Inventory.Application.Abstractions.TruckStockTemplates;
 using Fgs.Inventory.Application.Abstractions.Vendors;
 using Fgs.Inventory.Infrastructure.Common;
 using Fgs.Inventory.Infrastructure.Common.Time;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Inventory.Infrastructure.Database.Read;
 using Fgs.Inventory.Infrastructure.InventoryLocations;
+using Fgs.Inventory.Infrastructure.TruckStockTemplateItems;
+using Fgs.Inventory.Infrastructure.TruckStockTemplates;
 using Fgs.Inventory.Infrastructure.Vendors;
 using Fgs.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +52,10 @@ public static class DependencyInjection
         services.AddScoped<IFgsInventoryLocationWriteService, FgsInventoryLocationWriteService>();
         services.AddScoped<IFgsVendorReadRepository, FgsVendorReadRepository>();
         services.AddScoped<IFgsVendorWriteService, FgsVendorWriteService>();
+        services.AddScoped<IFgsTruckStockTemplateReadRepository, FgsTruckStockTemplateReadRepository>();
+        services.AddScoped<IFgsTruckStockTemplateWriteService, FgsTruckStockTemplateWriteService>();
+        services.AddScoped<IFgsTruckStockTemplateItemReadRepository, FgsTruckStockTemplateItemReadRepository>();
+        services.AddScoped<IFgsTruckStockTemplateItemWriteService, FgsTruckStockTemplateItemWriteService>();
 
         return services;
     }

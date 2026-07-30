@@ -39,6 +39,10 @@ public sealed class FgsInventoryDbContext(DbContextOptions<FgsInventoryDbContext
 
     public DbSet<FgsPurchaseOrderDetail> FgsPurchaseOrderDetails => Set<FgsPurchaseOrderDetail>();
 
+    public DbSet<FgsTruckStockTemplate> FgsTruckStockTemplates => Set<FgsTruckStockTemplate>();
+
+    public DbSet<FgsTruckStockTemplateItem> FgsTruckStockTemplateItems => Set<FgsTruckStockTemplateItem>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(FgsDatabaseSchemas.Inventory);

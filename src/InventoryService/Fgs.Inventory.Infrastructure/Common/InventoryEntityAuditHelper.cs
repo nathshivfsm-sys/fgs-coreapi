@@ -1,3 +1,4 @@
+using Fgs.Inventory.Domain.Entities;
 using Fgs.Kernel.Entities;
 using Fgs.MultiTenancy;
 using Fgs.Security.Abstractions;
@@ -38,6 +39,26 @@ public sealed class InventoryEntityAuditHelper
     }
 
     public void StampForUpdate(FgsTenantCompanySetupEntityBase<long> entity)
+    {
+        entity.UpdatedOn = _dateTimeProvider.UtcNow;
+        entity.UpdatedBy = ResolveActor();
+    }
+
+    public void StampForCreate(FgsTruckStockTemplateItem entity)
+    {
+        var now = _dateTimeProvider.UtcNow;
+        var actor = ResolveActor();
+        var (tenantId, companyId) = ResolveTenantCompany();
+
+        entity.CreatedOn = now;
+        entity.CreatedBy = actor;
+        entity.UpdatedOn = now;
+        entity.UpdatedBy = actor;
+        entity.TenantId = tenantId;
+        entity.CompanyId = companyId;
+    }
+
+    public void StampForUpdate(FgsTruckStockTemplateItem entity)
     {
         entity.UpdatedOn = _dateTimeProvider.UtcNow;
         entity.UpdatedBy = ResolveActor();
