@@ -12555,7 +12555,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"fgsSetupZoneId\": null,\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"beginTime\": \"08:00:00\",\n  \"endTime\": \"17:00:00\",\n  \"markTechArrivedLateAfter\": \"08:00:00\",\n  \"markWorkOrderDelayedCompletionAfter\": \"17:00:00\",\n  \"isMobileVisible\": true,\n  \"isCustomerPortalVisible\": true\n}",
+                                                                   "raw":  "{\n  \"fgsSetupZoneId\": null,\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"beginTime\": \"08:00:00\",\n  \"endTime\": \"17:00:00\",\n  \"markTechArrivedLateAfter\": \"08:00:00\",\n  \"markWorkOrderDelayedCompletionAfter\": \"17:00:00\",\n  \"isMobileVisible\": true,\n  \"isCustomerPortalVisible\": true,\n  \"includeInCapacityPlanning\": false,\n  \"showToExternalSystem\": false\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -12630,7 +12630,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"fgsSetupZoneId\": null,\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"beginTime\": \"08:00:00\",\n  \"endTime\": \"17:00:00\",\n  \"markTechArrivedLateAfter\": \"08:00:00\",\n  \"markWorkOrderDelayedCompletionAfter\": \"17:00:00\",\n  \"isMobileVisible\": true,\n  \"isCustomerPortalVisible\": true\n}",
+                                                                   "raw":  "{\n  \"fgsSetupZoneId\": null,\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"beginTime\": \"08:00:00\",\n  \"endTime\": \"17:00:00\",\n  \"markTechArrivedLateAfter\": \"08:00:00\",\n  \"markWorkOrderDelayedCompletionAfter\": \"17:00:00\",\n  \"isMobileVisible\": true,\n  \"isCustomerPortalVisible\": true,\n  \"includeInCapacityPlanning\": false,\n  \"showToExternalSystem\": false\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"

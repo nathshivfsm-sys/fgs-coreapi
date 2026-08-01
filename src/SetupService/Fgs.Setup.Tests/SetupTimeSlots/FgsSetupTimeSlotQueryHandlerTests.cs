@@ -16,7 +16,7 @@ public sealed class FgsSetupTimeSlotQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsSetupTimeSlotDetailDto(1, null, "TEST", "Name value", TimeSpan.FromHours(8), TimeSpan.FromHours(17), null, null, true, true, true);
+        var detail = new FgsSetupTimeSlotDetailDto(1, null, "TEST", "Name value", TimeSpan.FromHours(8), TimeSpan.FromHours(17), null, null, true, true, false, false, true);
 
         var readRepository = new Mock<IFgsSetupTimeSlotReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);

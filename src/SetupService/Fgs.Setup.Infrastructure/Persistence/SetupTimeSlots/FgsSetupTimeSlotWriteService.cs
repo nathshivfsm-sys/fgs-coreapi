@@ -39,7 +39,9 @@ public sealed class FgsSetupTimeSlotWriteService : IFgsSetupTimeSlotWriteService
             MarkTechArrivedLateAfter = dto.MarkTechArrivedLateAfter,
             MarkWorkOrderDelayedCompletionAfter = dto.MarkWorkOrderDelayedCompletionAfter,
             IsMobileVisible = dto.IsMobileVisible,
-            IsCustomerPortalVisible = dto.IsCustomerPortalVisible
+            IsCustomerPortalVisible = dto.IsCustomerPortalVisible,
+            IncludeInCapacityPlanning = dto.IncludeInCapacityPlanning,
+            ShowToExternalSystem = dto.ShowToExternalSystem
         };
 
         _auditHelper.StampForCreate(entity);
@@ -66,6 +68,8 @@ public sealed class FgsSetupTimeSlotWriteService : IFgsSetupTimeSlotWriteService
         entity.MarkWorkOrderDelayedCompletionAfter = dto.MarkWorkOrderDelayedCompletionAfter;
         entity.IsMobileVisible = dto.IsMobileVisible;
         entity.IsCustomerPortalVisible = dto.IsCustomerPortalVisible;
+        entity.IncludeInCapacityPlanning = dto.IncludeInCapacityPlanning;
+        entity.ShowToExternalSystem = dto.ShowToExternalSystem;
 
         _auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
@@ -116,6 +120,14 @@ public sealed class FgsSetupTimeSlotWriteService : IFgsSetupTimeSlotWriteService
         if (dto.IsCustomerPortalVisible.HasValue)
         {
             entity.IsCustomerPortalVisible = dto.IsCustomerPortalVisible.Value;
+        }
+        if (dto.IncludeInCapacityPlanning.HasValue)
+        {
+            entity.IncludeInCapacityPlanning = dto.IncludeInCapacityPlanning.Value;
+        }
+        if (dto.ShowToExternalSystem.HasValue)
+        {
+            entity.ShowToExternalSystem = dto.ShowToExternalSystem.Value;
         }
 
         if (dto.IsActive.HasValue)
@@ -178,5 +190,7 @@ public sealed class FgsSetupTimeSlotWriteService : IFgsSetupTimeSlotWriteService
             entity.MarkWorkOrderDelayedCompletionAfter,
             entity.IsMobileVisible,
             entity.IsCustomerPortalVisible,
+            entity.IncludeInCapacityPlanning,
+            entity.ShowToExternalSystem,
             entity.IsActive);
 }

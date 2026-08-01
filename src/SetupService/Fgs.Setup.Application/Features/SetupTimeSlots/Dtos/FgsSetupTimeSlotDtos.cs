@@ -11,6 +11,8 @@ public sealed record FgsSetupTimeSlotSummaryDto(
     TimeSpan? MarkWorkOrderDelayedCompletionAfter,
     bool IsMobileVisible,
     bool IsCustomerPortalVisible,
+    bool IncludeInCapacityPlanning,
+    bool ShowToExternalSystem,
     bool IsActive);
 
 public sealed record FgsSetupTimeSlotDetailDto(
@@ -24,6 +26,8 @@ public sealed record FgsSetupTimeSlotDetailDto(
     TimeSpan? MarkWorkOrderDelayedCompletionAfter,
     bool IsMobileVisible,
     bool IsCustomerPortalVisible,
+    bool IncludeInCapacityPlanning,
+    bool ShowToExternalSystem,
     bool IsActive);
 
 public sealed record FgsSetupTimeSlotLookupDto(
@@ -40,7 +44,9 @@ public sealed record FgsSetupTimeSlotCreateDto(
     TimeSpan? MarkTechArrivedLateAfter,
     TimeSpan? MarkWorkOrderDelayedCompletionAfter,
     bool IsMobileVisible,
-    bool IsCustomerPortalVisible);
+    bool IsCustomerPortalVisible,
+    bool IncludeInCapacityPlanning = false,
+    bool ShowToExternalSystem = false);
 
 public sealed record FgsSetupTimeSlotUpdateDto(
     long? FgsSetupZoneId,
@@ -51,7 +57,9 @@ public sealed record FgsSetupTimeSlotUpdateDto(
     TimeSpan? MarkTechArrivedLateAfter,
     TimeSpan? MarkWorkOrderDelayedCompletionAfter,
     bool IsMobileVisible,
-    bool IsCustomerPortalVisible);
+    bool IsCustomerPortalVisible,
+    bool IncludeInCapacityPlanning = false,
+    bool ShowToExternalSystem = false);
 
 public sealed record FgsSetupTimeSlotPatchDto(
     long? FgsSetupZoneId,
@@ -63,6 +71,8 @@ public sealed record FgsSetupTimeSlotPatchDto(
     TimeSpan? MarkWorkOrderDelayedCompletionAfter,
     bool? IsMobileVisible,
     bool? IsCustomerPortalVisible,
+    bool? IncludeInCapacityPlanning,
+    bool? ShowToExternalSystem,
     bool? IsActive);
 
 public sealed record FgsSetupTimeSlotListFilters(
