@@ -11,7 +11,7 @@ var hostOptions = builder.AddFgsApiHost(options =>
     options.ServiceName = "fgs-notification-service";
     options.SwaggerTitle = "FGS Notification Service";
     options.SwaggerDescription =
-        "Shared platform capabilities: notifications (email/SMS/push), integrations, audit, background jobs, and reporting foundations.";
+        "Shared platform capability: notifications (email/SMS/push) dispatch, templates, providers, and delivery history.";
     options.XmlCommentsAssembly = typeof(Program).Assembly;
     options.UseAuthenticationPipeline = false;
     options.UseMultiTenancy = true;

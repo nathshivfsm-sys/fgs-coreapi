@@ -229,46 +229,43 @@ function New-PostmanRequest {
 function Get-GatewayExternalPath {
     param([string]$ServiceKey, [string]$RouteTemplate)
 
-    # Setup catalog routes are exposed at /api/v1/{catalog} (no /setup prefix).
-    if ($ServiceKey -eq 'SetupService' -and $RouteTemplate -ne 'health') {
-        return "/api/v1/$RouteTemplate"
-    }
-
-    # Credential audits and tenant bucket routes use direct gateway paths.
-    if ($ServiceKey -eq 'AuditService' -and $RouteTemplate -eq 'credential-audits') {
-        return '/api/v1/credential-audits'
-    }
-    if ($ServiceKey -eq 'FileService' -and $RouteTemplate -eq 'tenants') {
-        return '/api/v1/tenants'
-    }
-    if ($ServiceKey -eq 'FileService' -and $RouteTemplate -eq 'attachments') {
-        return '/api/v1/attachments'
-    }
-
-    # Notification nginx rewrite: /api/v1/notifications/* -> /api/v1/*
-    if ($ServiceKey -eq 'NotificationService' -and $RouteTemplate -eq 'notifications') {
-        return '/api/v1/notifications/notifications'
-    }
-
-    $gatewayPrefix = @{
-        'NotificationService' = 'notifications'
+    # Most live APIs are mounted at /api/v1/{controllerRoute} with no service prefix.
+    # Only worker/scaffold services (and BFF) keep a service segment in the public path.
+    $prefixedServices = @{
+        'BffService' = 'bff'
         'CrmService' = 'crm'
         'SchedulingService' = 'scheduling'
         'BillingService' = 'billing'
-        'InventoryService' = 'inventory'
         'ReportingService' = 'reporting'
         'IntegrationService' = 'integration'
-        'AssetService' = 'asset'
         'ServiceAgreementService' = 'service-agreements'
         'CommunicationService' = 'communication'
         'PublisherService' = 'publisher'
         'ConsumerService' = 'consumer'
-        'AuditService' = 'audit'
-        'SetupService' = 'setup'
     }
 
-    if ($gatewayPrefix.ContainsKey($ServiceKey)) {
-        return "/api/v1/$($gatewayPrefix[$ServiceKey])/$RouteTemplate"
+    # Health endpoints for services that otherwise publish at root still use a service prefix when one exists historically.
+    if ($RouteTemplate -eq 'health' -and $ServiceKey -eq 'SetupService') {
+        return '/api/v1/setup/health'
+    }
+    if ($RouteTemplate -eq 'health' -and $ServiceKey -eq 'AuditService') {
+        return '/api/v1/audit/health'
+    }
+    if ($RouteTemplate -eq 'health' -and $ServiceKey -eq 'FileService') {
+        return '/api/v1/file/health'
+    }
+    if ($RouteTemplate -eq 'health' -and $ServiceKey -eq 'InventoryService') {
+        return '/api/v1/inventory/health'
+    }
+    if ($RouteTemplate -eq 'health' -and $ServiceKey -eq 'AssetService') {
+        return '/api/v1/asset/health'
+    }
+    if ($RouteTemplate -eq 'health' -and $ServiceKey -eq 'NotificationService') {
+        return '/api/v1/notification/health'
+    }
+
+    if ($prefixedServices.ContainsKey($ServiceKey)) {
+        return "/api/v1/$($prefixedServices[$ServiceKey])/$RouteTemplate"
     }
 
     return "/api/v1/$RouteTemplate"
@@ -318,7 +315,7 @@ function Get-SampleJsonValue {
         return 'null'
     }
 
-    if ($nullable -and $PropertyName -match 'Id$|SyncToken|ExternalSystemId|IconFileId|AddressId|LogoFileId|JobTypeSubCategoryId|NextSalesPipelineStatusId|PaymentTermId|FgsSetupZoneId|FgsSetupTaxId|FgsSetupTechTradeId|TenantId|CompanyId') {
+    if ($nullable -and $PropertyName -match 'Id$|SyncToken|ExternalSystemId|IconFileId|AddressId|LogoFileId|NextSalesPipelineStatusId|PaymentTermId|FgsSetupZoneId|FgsSetupTaxId|FgsSetupTechTradeId|TenantId|CompanyId') {
         if ($PropertyName -eq 'TenantId') { return 'null' }
         if ($PropertyName -eq 'CompanyId') { return 'null' }
         if ($PropertyName -match 'WarehouseId|VehicleId|FgsSetupTaxId|FgsSetupTaxAuthorityId|JobTypeCategoryId') { return '{{recordId}}' }
@@ -341,6 +338,7 @@ function Get-SampleJsonValue {
             if ($PropertyName -match 'Year') { return '2024' }
             if ($PropertyName -match 'Priority') { return '5' }
             if ($PropertyName -match 'DisplayOrder|SortOrder') { return '1' }
+            if ($PropertyName -eq 'UsedFor') { return '1' }
             return '1'
         }
         'int' {
@@ -369,10 +367,20 @@ function Get-SampleJsonValue {
             if ($PropertyName -match 'Email') { return '"office@example.com"' }
             if ($PropertyName -match 'Phone|Mobile') { return '"+15551234567"' }
             if ($PropertyName -match 'Website|Url') { return '"https://example.com"' }
+            if ($PropertyName -eq 'InventoryLocationType') { return '"WAREHOUSE"' }
+            if ($PropertyName -eq 'VendorType') { return '"VENDOR"' }
+            if ($PropertyName -eq 'VendorStatus') { return '"ACTIVE"' }
+            if ($PropertyName -eq 'OwnershipType') { return '"Owned"' }
+            if ($PropertyName -eq 'InputType') { return '"TEXT"' }
+            if ($PropertyName -eq 'CommunicationChannel') { return '"Email"' }
+            if ($PropertyName -eq 'TemplateType') { return '"Transactional"' }
+            if ($PropertyName -eq 'BillingCategoryType') { return '"NI"' }
+            if ($PropertyName -eq 'WarrantyType') { return '"OEM"' }
+            if ($PropertyName -eq 'UsedFor') { return '1' }
             if ($PropertyName -match 'VIN') { return '"1HGBH41JXMN109186"' }
             if ($PropertyName -match 'PostalCode') { return '"78701"' }
-            if ($PropertyName -match 'BackgroundColor|TextColor') { return '"#FFFFFF"' }
-            if ($PropertyName -match 'Body|Subject|Description|Notes|ShortNote|TaskName|LegalName|ServiceProvider|InvoiceNumber|PurchasedFrom|OwnershipCompany|BusinessUnit|Trade|UsedFor|DueDateMethod|VendorType|WarehouseType|OwnershipType|CommunicationChannel|TemplateType|BillingCategoryName|BillingCategoryType') {
+            if ($PropertyName -match 'BackgroundColor|TextColor') { return '"#3366FF"' }
+            if ($PropertyName -match 'Body|Subject|Description|Notes|ShortNote|TaskName|LegalName|ServiceProvider|InvoiceNumber|PurchasedFrom|OwnershipCompany|BusinessUnit|Trade|DueDateMethod|WarehouseType|BillingCategoryName') {
                 return (Get-StringSampleValue $PropertyName)
             }
             if ($PropertyName -match 'Code|Type$|Category') {
@@ -394,8 +402,11 @@ function Get-CodeSampleValue {
         CategoryCode = 'GEN'
         SubCategoryCode = 'SUB'
         JobTypeCode = 'SVC'
-        TaxCode = 'TX'
+        TaxCode = 'COMBINED'
         VendorCode = 'VND01'
+        InventoryLocationCode = 'WH-AUSTIN'
+        AttributeCode = 'SERIAL'
+        WarrantyType = 'OEM'
         WarehouseCode = 'WH01'
         PostalCode = '78701'
         StatusCode = 'NEW'
@@ -652,7 +663,7 @@ function Parse-ControllerFile {
         if ($methodName -eq 'EntraConnector') {
             $body = '{ "email": "{{signupEmail}}", "objectId": null }'
         }
-        if ($fileName -eq 'TenantsController' -and $methodName -eq 'UpdateDetails') {
+        if ($fileName -eq 'TenantController' -and $methodName -eq 'UpdateDetails') {
             $body = @'
 {
   "tenant": {
@@ -692,13 +703,13 @@ function Parse-ControllerFile {
 }
 '@
         }
-        if ($fileName -eq 'TenantsController' -and $methodName -eq 'UpdateStatus') {
+        if ($fileName -eq 'TenantController' -and $methodName -eq 'UpdateStatus') {
             $body = '{ "fgsTenantStatusId": 3 }'
         }
-        if ($fileName -eq 'TenantsController' -and $methodName -eq 'UpdateStorageBucket') {
+        if ($fileName -eq 'TenantController' -and $methodName -eq 'UpdateStorageBucket') {
             $body = '{ "storageBucketName": "fgs-dev-tenant-{{tenantId}}-demo" }'
         }
-        if ($fileName -eq 'BusinessTypesController' -and $methodName -eq 'AddCompanyBusinessTypes') {
+        if ($fileName -eq 'TenantCompanyBusinessTypeController' -and $methodName -eq 'AddCompanyBusinessTypes') {
             $body = @'
 {
   "businessTypeIds": [1],
@@ -711,7 +722,7 @@ function Parse-ControllerFile {
             $headers['X-Tenant-Id'] = '{{tenantId}}'
             $headers['X-Company-Id'] = '{{companyId}}'
         }
-        if ($fileName -eq 'CredentialsController') {
+        if ($fileName -eq 'CredentialController') {
             if ($methodName -eq 'List') {
                 $query = @{ scope = 'Global'; activeOnly = 'true' }
             }
@@ -761,7 +772,7 @@ function Parse-ControllerFile {
 }
 '@
         }
-        if ($fileName -eq 'AttachmentsController') {
+        if ($fileName -eq 'AttachmentController') {
             if ($methodName -eq 'Upload') {
                 $body = $null
             }
@@ -794,7 +805,7 @@ function Parse-ControllerFile {
 }
 '@
         }
-        if ($fileName -eq 'NotificationsController' -and $methodName -eq 'Dispatch') {
+        if ($fileName -eq 'NotificationController' -and $methodName -eq 'Dispatch') {
             $body = @'
 {
   "tenantId": 4,
@@ -805,12 +816,12 @@ function Parse-ControllerFile {
   "correlationId": "postman-test-001",
   "tokens": {
     "CompanyName": "Plumbing Ltd",
-    "InviteUrl": "https://localhost:8443/api/v1/invite/start?token=sample"
+    "InviteUrl": "https://developer.fsm.com/api/v1/invite/start?token=sample"
   }
 }
 '@
         }
-        if ($fileName -eq 'CredentialAuditsController' -and $methodName -eq 'Record') {
+        if ($fileName -eq 'CredentialAuditController' -and $methodName -eq 'Record') {
             $body = @'
 {
   "tenantId": 4,
@@ -840,7 +851,7 @@ function Parse-ControllerFile {
             $headers['X-Tenant-Id'] = '{{tenantId}}'
             $headers['X-Company-Id'] = '{{companyId}}'
         }
-        if ($fileName -eq 'GLBreaksController') {
+        if ($fileName -eq 'GLBreakController') {
             if ($methodName -eq 'Lookup') {
                 $query = @{ activeOnly = 'true' }
             }
@@ -898,15 +909,7 @@ function Parse-ControllerFile {
   "externalSystemId": null,
   "syncToken": null,
   "showTaxDetail": true,
-  "description": "State + county",
-  "taxDetails": [
-    {
-      "fgsSetupTaxAuthorityId": {{recordId}},
-      "effectiveFromDate": "2026-01-01",
-      "effectiveToDate": null,
-      "isExternalSystemRecord": false
-    }
-  ]
+  "description": "State + county combined tax"
 }
 '@
             }
@@ -919,15 +922,7 @@ function Parse-ControllerFile {
   "externalSystemId": null,
   "syncToken": null,
   "showTaxDetail": true,
-  "description": "State + county",
-  "taxDetails": [
-    {
-      "fgsSetupTaxAuthorityId": {{recordId}},
-      "effectiveFromDate": "2026-01-01",
-      "effectiveToDate": null,
-      "isExternalSystemRecord": false
-    }
-  ]
+  "description": "State + county combined tax"
 }
 '@
             }
@@ -935,14 +930,8 @@ function Parse-ControllerFile {
                 $body = @'
 {
   "name": "Combined Tax Updated",
-  "taxDetails": [
-    {
-      "fgsSetupTaxAuthorityId": {{recordId}},
-      "effectiveFromDate": "2026-01-01",
-      "effectiveToDate": null,
-      "isExternalSystemRecord": false
-    }
-  ]
+  "description": "Patched description",
+  "isActive": true
 }
 '@
             }
@@ -1029,7 +1018,7 @@ function Parse-ControllerFile {
                 }
             })
         }
-        if ($fileName -eq 'GLBreaksController' -and $methodName -eq 'Create') {
+        if ($fileName -eq 'GLBreakController' -and $methodName -eq 'Create') {
             $req['event'] = @(@{
                 listen = 'test'
                 script = @{
@@ -1057,7 +1046,7 @@ function Parse-ControllerFile {
                 }
             })
         }
-        if ($fileName -eq 'CredentialsController' -and $methodName -eq 'Create') {
+        if ($fileName -eq 'CredentialController' -and $methodName -eq 'Create') {
             $req['event'] = @(@{
                 listen = 'test'
                 script = @{
@@ -1071,7 +1060,7 @@ function Parse-ControllerFile {
                 }
             })
         }
-        if ($fileName -eq 'AttachmentsController' -and $methodName -eq 'Upload') {
+        if ($fileName -eq 'AttachmentController' -and $methodName -eq 'Upload') {
             $req['event'] = @(@{
                 listen = 'test'
                 script = @{
@@ -1247,7 +1236,7 @@ function Set-AttachmentUploadRequestBody {
 }
 
 function Get-PricingMatrixCreateBody {
-    param([ValidateSet('FlatLabor', 'LaborTier', 'MaterialTiers', 'OtherItems')][string]$Variant)
+    param([ValidateSet('FlatLabor', 'FlatLaborBySkill', 'LaborTier', 'MaterialTiers', 'OtherItems')][string]$Variant)
 
     switch ($Variant) {
         'FlatLabor' {
@@ -1267,6 +1256,43 @@ function Get-PricingMatrixCreateBody {
       "laborRateTypeId": 1,
       "techSkillLevelId": null,
       "baseRate": 85.00,
+      "overtimeMultiplier": 1.5,
+      "doubleTimeMultiplier": 2.0,
+      "discountPercent": null,
+      "tiers": null
+    }
+  ],
+  "materialTiers": null,
+  "otherItems": null
+}
+'@
+        }
+        'FlatLaborBySkill' {
+            return @'
+{
+  "name": "FLATSKILL",
+  "description": "Flat Labor by Skill Level",
+  "isDefault": false,
+  "isLaborTierStructure": false,
+  "isLaborRateBySkillLevel": true,
+  "priceAdjustmentTypeId": null,
+  "effectiveFrom": null,
+  "effectiveTo": null,
+  "isMobileVisible": true,
+  "laborLines": [
+    {
+      "laborRateTypeId": 1,
+      "techSkillLevelId": 1,
+      "baseRate": 95.00,
+      "overtimeMultiplier": 1.5,
+      "doubleTimeMultiplier": 2.0,
+      "discountPercent": null,
+      "tiers": null
+    },
+    {
+      "laborRateTypeId": 1,
+      "techSkillLevelId": 2,
+      "baseRate": 110.00,
       "overtimeMultiplier": 1.5,
       "doubleTimeMultiplier": 2.0,
       "discountPercent": null,
@@ -1354,19 +1380,20 @@ function Get-PricingMatrixCreateBody {
     }
 }
 
-function Add-PricingMatrixEnhancementsToFolder {
-    param($Folder)
+function Expand-CreateRequestScenarios {
+    param(
+        $Folder,
+        [string]$CreateItemName = 'Create',
+        [array]$Scenarios
+    )
 
-    if ($Folder.name -ne 'PricingMatrixController') { return $Folder }
+    if ($null -eq $Scenarios -or $Scenarios.Count -eq 0) { return $Folder }
 
-    $Folder.description = 'Pricing matrix aggregate CRUD via {{gatewayUrl}}/api/v1/pricingmatrix. Create variants: flat labor, labor tiers, material cost-range markup, and other category markup (material vs other are mutually exclusive).'
-
-    $createEvent = $null
     $createTemplate = $null
+    $createEvent = $null
     $newItems = @()
-
     foreach ($item in $Folder.item) {
-        if ($item.name -eq 'Create') {
+        if ($item.name -eq $CreateItemName) {
             $createTemplate = $item
             $createEvent = $item.event
             continue
@@ -1379,30 +1406,53 @@ function Add-PricingMatrixEnhancementsToFolder {
         return $Folder
     }
 
-    $variants = @(
-        @{ Name = 'CreateFlatLabor'; Variant = 'FlatLabor'; Description = 'Create pricing matrix with flat labor rates only (IsLaborTierStructure=false). Persists FgsSetupPricingMatrixLabor.' }
-        @{ Name = 'CreateLaborTier'; Variant = 'LaborTier'; Description = 'Create pricing matrix with tiered labor (IsLaborTierStructure=true). Persists Labor parent + FgsSetupPricingMatrixLaborTier children.' }
-        @{ Name = 'CreateMaterialTiers'; Variant = 'MaterialTiers'; Description = 'Create pricing matrix with cost-range material markup. Persists FgsSetupPricingMatrixMaterialTier. Requires priceAdjustmentTypeId (1=%, 2=$, 3=multiplier).' }
-        @{ Name = 'CreateOtherItems'; Variant = 'OtherItems'; Description = 'Create pricing matrix with flat category markup. categoryCode must be an active FgsBillingCategory.BillingCategoryType (e.g. NI, OT, SF). Persists FgsSetupPricingMatrixOther. Requires priceAdjustmentTypeId. Mutually exclusive with materialTiers.' }
-    )
-
     $createRequests = @()
-    foreach ($variant in $variants) {
+    foreach ($scenario in $Scenarios) {
         $clone = @{
-            name = $variant.Name
-            request = ($createTemplate.request | ConvertTo-Json -Depth 20 | ConvertFrom-Json)
+            name = $scenario.Name
+            request = ($createTemplate.request | ConvertTo-Json -Depth 30 | ConvertFrom-Json)
             event = $createEvent
         }
-        $clone.request.description = $variant.Description
-        $clone.request.body.raw = (Get-PricingMatrixCreateBody -Variant $variant.Variant)
+        if ($scenario.Description) {
+            $clone.request.description = $scenario.Description
+        }
+        if ($scenario.ContainsKey('Body') -and $null -ne $scenario.Body) {
+            if (-not $clone.request.body) {
+                $clone.request.body = @{ mode = 'raw'; raw = ''; options = @{ raw = @{ language = 'json' } } }
+            }
+            $clone.request.body.mode = 'raw'
+            $clone.request.body.raw = $scenario.Body
+            $clone.request.body.options = @{ raw = @{ language = 'json' } }
+            $hasContentType = $false
+            foreach ($h in @($clone.request.header)) {
+                if ($h.key -eq 'Content-Type') { $hasContentType = $true; break }
+            }
+            if (-not $hasContentType) {
+                $clone.request.header += @{ key = 'Content-Type'; value = 'application/json'; type = 'text' }
+            }
+        }
+        if ($scenario.ContainsKey('Query') -and $null -ne $scenario.Query) {
+            $clone.request.url.query = @($scenario.Query)
+            $baseRaw = ($clone.request.url.raw -split '\?')[0]
+            $qParts = @()
+            foreach ($q in $scenario.Query) {
+                if ($q.disabled) { continue }
+                $qParts += ('{0}={1}' -f $q.key, $q.value)
+            }
+            if ($qParts.Count -gt 0) {
+                $clone.request.url.raw = "$baseRaw?" + ($qParts -join '&')
+            }
+            else {
+                $clone.request.url.raw = $baseRaw
+            }
+        }
         $createRequests += $clone
     }
 
-    # Keep Create variants after Lookup and before Update/Patch.
     $ordered = @()
     $inserted = $false
     foreach ($item in $newItems) {
-        if (-not $inserted -and $item.name -in @('Update', 'Patch')) {
+        if (-not $inserted -and $item.name -in @('Update', 'Patch', 'Delete')) {
             $ordered += $createRequests
             $inserted = $true
         }
@@ -1416,18 +1466,503 @@ function Add-PricingMatrixEnhancementsToFolder {
     return $Folder
 }
 
+function Add-PricingMatrixEnhancementsToFolder {
+    param($Folder)
+
+    if ($Folder.name -ne 'PricingMatrixController') { return $Folder }
+
+    $Folder.description = 'Pricing matrix aggregate CRUD via {{gatewayUrl}}/api/v1/pricingmatrix. Separate Create requests cover each valid structure.'
+
+    $variants = @(
+        @{ Name = 'Create - Flat Labor'; Variant = 'FlatLabor'; Description = 'Flat labor rates (isLaborTierStructure=false, isLaborRateBySkillLevel=false). Requires laborRateTypeId + baseRate.' }
+        @{ Name = 'Create - Flat Labor By Skill'; Variant = 'FlatLaborBySkill'; Description = 'Flat labor rates by skill level (isLaborRateBySkillLevel=true). Each labor line needs techSkillLevelId.' }
+        @{ Name = 'Create - Labor Tiers'; Variant = 'LaborTier'; Description = 'Tiered labor (isLaborTierStructure=true). Persists labor parent + tier children.' }
+        @{ Name = 'Create - Material Tiers'; Variant = 'MaterialTiers'; Description = 'Cost-range material markup. Requires priceAdjustmentTypeId (1=%, 2=$, 3=multiplier). Mutually exclusive with otherItems.' }
+        @{ Name = 'Create - Other Items'; Variant = 'OtherItems'; Description = 'Category markup. categoryCode must be an active billing category type (NI, OT, SF, ...). Mutually exclusive with materialTiers.' }
+    )
+
+    $scenarios = @()
+    foreach ($v in $variants) {
+        $scenarios += @{
+            Name = $v.Name
+            Description = $v.Description
+            Body = (Get-PricingMatrixCreateBody -Variant $v.Variant)
+        }
+    }
+
+    return Expand-CreateRequestScenarios -Folder $Folder -Scenarios $scenarios
+}
+
+function Get-InventoryLocationCreateBody {
+    param([string]$Type)
+
+    $code = switch ($Type) {
+        'WAREHOUSE' { 'WH-MAIN' }
+        'TRUCK' { 'TRK-01' }
+        'TRAILER' { 'TRL-01' }
+        'JOBSITE' { 'JOB-01' }
+        'CONSIGNMENT' { 'CON-01' }
+        'VENDOR' { 'VND-LOC' }
+        default { 'LOC-01' }
+    }
+    $name = switch ($Type) {
+        'WAREHOUSE' { 'Main Warehouse' }
+        'TRUCK' { 'Service Truck 01' }
+        'TRAILER' { 'Parts Trailer 01' }
+        'JOBSITE' { 'Jobsite Staging' }
+        'CONSIGNMENT' { 'Vendor Consignment' }
+        'VENDOR' { 'Vendor Stock Location' }
+        default { 'Inventory Location' }
+    }
+
+    return @"
+{
+  "inventoryLocationCode": "$code",
+  "name": "$name",
+  "inventoryLocationType": "$Type",
+  "parentInventoryLocationId": null,
+  "description": "$name for Postman scenario",
+  "address1": "100 Main St",
+  "address2": null,
+  "city": "Austin",
+  "stateProvince": "TX",
+  "postalCode": "78701",
+  "country": "US",
+  "contactName": "Warehouse Desk",
+  "phoneNumber": "+15551234567",
+  "email": "warehouse@example.com",
+  "isDefault": false
+}
+"@
+}
+
+function Get-VendorCreateBody {
+    param([string]$VendorType, [string]$VendorStatus = 'ACTIVE')
+
+    $code = if ($VendorType -eq 'SUBCONTRACTOR') { 'SUB01' } else { 'VND01' }
+    $name = if ($VendorType -eq 'SUBCONTRACTOR') { 'Acme Subcontractor' } else { 'Acme Supply Co' }
+
+    return @"
+{
+  "vendorCode": "$code",
+  "name": "$name",
+  "legalName": "$name LLC",
+  "vendorType": "$VendorType",
+  "vendorStatus": "$VendorStatus",
+  "vendorAccountNumber": "ACCT-1001",
+  "paymentTermId": null,
+  "contactName": "Purchasing Desk",
+  "contactTitle": "Buyer",
+  "email": "purchasing@example.com",
+  "purchaseOrderEmail": "po@example.com",
+  "phoneNumber": "+15551234567",
+  "mobileNumber": "+15557654321",
+  "faxNumber": null,
+  "website": "https://vendor.example.com",
+  "address1": "200 Supply Rd",
+  "address2": null,
+  "city": "Austin",
+  "stateProvince": "TX",
+  "postalCode": "78702",
+  "country": "US",
+  "taxIdNumber": "12-3456789",
+  "licenseNumber": null,
+  "insurancePolicyNumber": null,
+  "notes": "Postman $VendorType scenario",
+  "is1099Eligible": false
+}
+"@
+}
+
+function Add-InventoryEnhancementsToFolder {
+    param($Folder)
+
+    if ($Folder.name -eq 'InventoryLocationController') {
+        $Folder.description = 'Inventory locations via {{gatewayUrl}}/api/v1/inventory-location. Create scenarios cover each valid inventoryLocationType.'
+        $types = @('WAREHOUSE', 'TRUCK', 'TRAILER', 'JOBSITE', 'CONSIGNMENT', 'VENDOR')
+        $scenarios = @()
+        foreach ($t in $types) {
+            $scenarios += @{
+                Name = "Create - $t"
+                Description = "Create inventory location with inventoryLocationType=$t (code must be uppercase)."
+                Body = (Get-InventoryLocationCreateBody -Type $t)
+            }
+        }
+        return Expand-CreateRequestScenarios -Folder $Folder -Scenarios $scenarios
+    }
+
+    if ($Folder.name -eq 'VendorController') {
+        $Folder.description = 'Vendors via {{gatewayUrl}}/api/v1/vendor. Create scenarios cover vendorType and vendorStatus combinations.'
+        $scenarios = @(
+            @{ Name = 'Create - Vendor Active'; Description = 'vendorType=VENDOR, vendorStatus=ACTIVE'; Body = (Get-VendorCreateBody -VendorType 'VENDOR' -VendorStatus 'ACTIVE') }
+            @{ Name = 'Create - Vendor On Hold'; Description = 'vendorType=VENDOR, vendorStatus=ON_HOLD'; Body = (Get-VendorCreateBody -VendorType 'VENDOR' -VendorStatus 'ON_HOLD') }
+            @{ Name = 'Create - Subcontractor Active'; Description = 'vendorType=SUBCONTRACTOR, vendorStatus=ACTIVE'; Body = (Get-VendorCreateBody -VendorType 'SUBCONTRACTOR' -VendorStatus 'ACTIVE') }
+            @{ Name = 'Create - Subcontractor Inactive'; Description = 'vendorType=SUBCONTRACTOR, vendorStatus=INACTIVE'; Body = (Get-VendorCreateBody -VendorType 'SUBCONTRACTOR' -VendorStatus 'INACTIVE') }
+        )
+        return Expand-CreateRequestScenarios -Folder $Folder -Scenarios $scenarios
+    }
+
+    return $Folder
+}
+
+function Get-VehicleCreateBody {
+    param([string]$OwnershipType)
+
+    $company = if ($OwnershipType -eq 'Owned') { $null } else { '"Fleet Lease Partners"' }
+    $companyJson = if ($null -eq $company) { 'null' } else { $company }
+
+    return @"
+{
+  "inventoryLocationId": {{recordId}},
+  "ownershipType": "$OwnershipType",
+  "ownershipCompany": $companyJson,
+  "year": 2024,
+  "make": "Ford",
+  "model": "Transit",
+  "color": "White",
+  "vin": "1FTBW2CM5PKA12345",
+  "licensePlate": "FGS-100",
+  "licensePlateState": "TX",
+  "purchaseDate": "2024-03-15",
+  "purchasePrice": 42000.00,
+  "purchasedFrom": "Austin Ford",
+  "isPurchasedNew": true,
+  "notes": "Postman $OwnershipType vehicle"
+}
+"@
+}
+
+function Get-JobTypeCreateBody {
+    param([int]$UsedFor, [string]$Label)
+
+    $code = switch ($UsedFor) {
+        1 { 'SVC' }
+        2 { 'MNT' }
+        3 { 'WAR' }
+        4 { 'INS' }
+        default { 'JOB' }
+    }
+
+    return @"
+{
+  "jobTypeCode": "$code",
+  "name": "$Label",
+  "usedFor": $UsedFor,
+  "businessUnit": "Field Services",
+  "backgroundColor": "#3366FF",
+  "textColor": "#FFFFFF",
+  "showToFieldTech": true,
+  "showOnCustomerPortal": true,
+  "displayOrder": $UsedFor
+}
+"@
+}
+
+function Get-CommunicationTemplateCreateBody {
+    param([string]$Channel)
+
+    $code = switch ($Channel) {
+        'Email' { 'INVITE' }
+        'SMS' { 'INVITE_SMS' }
+        'PushNotification' { 'JOB_ALERT' }
+        'SystemNotification' { 'SYSTEM_INFO' }
+        default { 'TMPL' }
+    }
+    $subject = if ($Channel -eq 'Email') { '"You are invited to {{CompanyName}}"' } else { 'null' }
+    $body = switch ($Channel) {
+        'Email' { '"Hello, use {{InviteUrl}} to join {{CompanyName}}."' }
+        'SMS' { '"{{CompanyName}} invite: {{InviteUrl}}"' }
+        'PushNotification' { '"New job assigned for {{CompanyName}}."' }
+        default { '"System notice for {{CompanyName}}."' }
+    }
+
+    return @"
+{
+  "communicationChannel": "$Channel",
+  "templateType": "Transactional",
+  "code": "$code",
+  "name": "$Channel $code template",
+  "subject": $subject,
+  "body": $body,
+  "isMobileVisible": true
+}
+"@
+}
+
+function Get-CredentialCreateBody {
+    param([ValidateSet('Global', 'Tenant')][string]$Scope)
+
+    if ($Scope -eq 'Global') {
+        return @'
+{
+  "scope": 1,
+  "providerCode": "DATABASE",
+  "credentialName": "PlatformDatabaseConnections",
+  "payload": "{\"FgsUser\":\"Host=localhost;Port=5432;Database=fgs_dev_db;Username=postgres;Password=secret\"}",
+  "description": "Platform database connection strings (Global)",
+  "tenantId": null,
+  "companyId": null
+}
+'@
+    }
+
+    return @'
+{
+  "scope": 2,
+  "providerCode": "DATABASE",
+  "credentialName": "TenantDatabaseConnections",
+  "payload": "{\"FgsTenant\":\"Host=localhost;Port=5432;Database=fgs_tenant_db;Username=postgres;Password=secret\"}",
+  "description": "Tenant-scoped database connections",
+  "tenantId": {{tenantId}},
+  "companyId": {{companyId}}
+}
+'@
+}
+
+function Get-AssetAttributeCreateBody {
+    param([string]$InputType)
+
+    $code = ($InputType.Substring(0, [Math]::Min(8, $InputType.Length))).ToUpperInvariant()
+    $text = 'null'
+    $integer = 'null'
+    $decimal = 'null'
+    $date = 'null'
+    $boolean = 'null'
+    switch ($InputType) {
+        'TEXT' { $text = '"Sample text"' }
+        'TEXTAREA' { $text = '"Longer sample text"' }
+        'INTEGER' { $integer = '10' }
+        'DECIMAL' { $decimal = '12.50' }
+        'DATE' { $date = '"2026-06-21"' }
+        'BOOLEAN' { $boolean = 'true' }
+        'DROPDOWN' { $text = 'null' }
+    }
+
+    return @"
+{
+  "assetTypeId": {{recordId}},
+  "attributeCode": "ATTR_$code",
+  "attributeName": "$InputType Attribute",
+  "inputType": "$InputType",
+  "defaultOptionId": null,
+  "defaultValueText": $text,
+  "defaultValueInteger": $integer,
+  "defaultValueDecimal": $decimal,
+  "defaultValueDate": $date,
+  "defaultValueBoolean": $boolean,
+  "isRequired": false,
+  "isSearchable": true,
+  "displayOrder": 1
+}
+"@
+}
+
+function Add-SetupScenarioEnhancementsToFolder {
+    param($Folder)
+
+    switch ($Folder.name) {
+        'PricingMatrixController' {
+            return Add-PricingMatrixEnhancementsToFolder -Folder $Folder
+        }
+        'CredentialController' {
+            $Folder.description = 'Credential admin via {{gatewayUrl}}/api/v1/credential. Create covers Global vs Tenant scope; Rotate covers Full vs KmsReEncrypt.'
+            $Folder = Expand-CreateRequestScenarios -Folder $Folder -Scenarios @(
+                @{ Name = 'Create - Global Scope'; Description = 'scope=1 (Global). tenantId/companyId must be null.'; Body = (Get-CredentialCreateBody -Scope 'Global') }
+                @{ Name = 'Create - Tenant Scope'; Description = 'scope=2 (Tenant). Requires tenantId + companyId.'; Body = (Get-CredentialCreateBody -Scope 'Tenant') }
+            )
+            $rotateScenarios = @(
+                @{ Name = 'Rotate - Full'; Description = 'rotationMode=1 (Full). Query scope=Global.'; Body = '{ "rotationMode": 1 }'; Query = @(@{ key = 'scope'; value = 'Global'; description = 'CredentialScope: Global or Tenant' }) }
+                @{ Name = 'Rotate - Kms ReEncrypt'; Description = 'rotationMode=2 (KmsReEncrypt). Query scope=Global.'; Body = '{ "rotationMode": 2 }'; Query = @(@{ key = 'scope'; value = 'Global'; description = 'CredentialScope: Global or Tenant' }) }
+            )
+            return Expand-CreateRequestScenarios -Folder $Folder -CreateItemName 'Rotate' -Scenarios $rotateScenarios
+        }
+        'VehicleController' {
+            $Folder.description = 'Vehicles via {{gatewayUrl}}/api/v1/vehicle. Create scenarios for Owned, Leased, and Rented. Set recordId to an inventory location id first.'
+            return Expand-CreateRequestScenarios -Folder $Folder -Scenarios @(
+                @{ Name = 'Create - Owned'; Description = 'ownershipType=Owned'; Body = (Get-VehicleCreateBody -OwnershipType 'Owned') }
+                @{ Name = 'Create - Leased'; Description = 'ownershipType=Leased'; Body = (Get-VehicleCreateBody -OwnershipType 'Leased') }
+                @{ Name = 'Create - Rented'; Description = 'ownershipType=Rented'; Body = (Get-VehicleCreateBody -OwnershipType 'Rented') }
+            )
+        }
+        'JobTypeController' {
+            $Folder.description = 'Job types via {{gatewayUrl}}/api/v1/jobtype. Create scenarios for UsedFor 1=Service, 2=Maintenance, 3=Warranty, 4=Installation.'
+            return Expand-CreateRequestScenarios -Folder $Folder -Scenarios @(
+                @{ Name = 'Create - Service'; Description = 'usedFor=1 (Service)'; Body = (Get-JobTypeCreateBody -UsedFor 1 -Label 'Service Call') }
+                @{ Name = 'Create - Maintenance'; Description = 'usedFor=2 (Maintenance)'; Body = (Get-JobTypeCreateBody -UsedFor 2 -Label 'Preventive Maintenance') }
+                @{ Name = 'Create - Warranty'; Description = 'usedFor=3 (Warranty)'; Body = (Get-JobTypeCreateBody -UsedFor 3 -Label 'Warranty Repair') }
+                @{ Name = 'Create - Installation'; Description = 'usedFor=4 (Installation)'; Body = (Get-JobTypeCreateBody -UsedFor 4 -Label 'New Installation') }
+            )
+        }
+        'CommunicationTemplateController' {
+            $Folder.description = 'Communication templates via {{gatewayUrl}}/api/v1/communication-template. Create scenarios per communicationChannel.'
+            return Expand-CreateRequestScenarios -Folder $Folder -Scenarios @(
+                @{ Name = 'Create - Email'; Description = 'communicationChannel=Email'; Body = (Get-CommunicationTemplateCreateBody -Channel 'Email') }
+                @{ Name = 'Create - SMS'; Description = 'communicationChannel=SMS'; Body = (Get-CommunicationTemplateCreateBody -Channel 'SMS') }
+                @{ Name = 'Create - Push Notification'; Description = 'communicationChannel=PushNotification'; Body = (Get-CommunicationTemplateCreateBody -Channel 'PushNotification') }
+                @{ Name = 'Create - System Notification'; Description = 'communicationChannel=SystemNotification'; Body = (Get-CommunicationTemplateCreateBody -Channel 'SystemNotification') }
+            )
+        }
+        'BillingCategoryController' {
+            $Folder.description = 'Billing categories via {{gatewayUrl}}/api/v1/billingcategory. Create scenarios for common 2-char billingCategoryType values.'
+            $scenarios = @()
+            foreach ($pair in @(
+                @{ Type = 'NI'; Name = 'Non Inventory' }
+                @{ Type = 'OT'; Name = 'Other Charges' }
+                @{ Type = 'SF'; Name = 'Service Fee' }
+                @{ Type = 'LB'; Name = 'Labor' }
+                @{ Type = 'TX'; Name = 'Tax' }
+            )) {
+                $scenarios += @{
+                    Name = "Create - $($pair.Type)"
+                    Description = "billingCategoryType=$($pair.Type) (2-char uppercase)"
+                    Body = @"
+{
+  "billingCategoryType": "$($pair.Type)",
+  "billingCategoryName": "$($pair.Name)",
+  "description": "$($pair.Name) billing category",
+  "displayOrder": 1,
+  "isSystemDefined": false,
+  "showToFieldTech": true,
+  "allowToPick": true
+}
+"@
+                }
+            }
+            return Expand-CreateRequestScenarios -Folder $Folder -Scenarios $scenarios
+        }
+        'SalesPipelineStatusController' {
+            $Folder.description = 'Sales pipeline statuses. Create scenarios for lead-only vs opportunity-only applicability.'
+            return Expand-CreateRequestScenarios -Folder $Folder -Scenarios @(
+                @{
+                    Name = 'Create - Lead Pipeline'
+                    Description = 'appliesToLead=true, appliesToOpportunity=false'
+                    Body = @'
+{
+  "statusCode": "LEAD_NEW",
+  "statusName": "New Lead",
+  "description": "Newly captured lead",
+  "displayOrder": 1,
+  "isSystem": false,
+  "appliesToLead": true,
+  "appliesToOpportunity": false,
+  "isTerminal": false,
+  "allowManualSelection": true
+}
+'@
+                }
+                @{
+                    Name = 'Create - Opportunity Pipeline'
+                    Description = 'appliesToLead=false, appliesToOpportunity=true'
+                    Body = @'
+{
+  "statusCode": "OPP_QUAL",
+  "statusName": "Qualified Opportunity",
+  "description": "Qualified sales opportunity",
+  "displayOrder": 1,
+  "isSystem": false,
+  "appliesToLead": false,
+  "appliesToOpportunity": true,
+  "isTerminal": false,
+  "allowManualSelection": true
+}
+'@
+                }
+            )
+        }
+        default { return $Folder }
+    }
+}
+
+function Add-AssetScenarioEnhancementsToFolder {
+    param($Folder)
+
+    if ($Folder.name -ne 'AssetAttributeController') { return $Folder }
+
+    $Folder.description = 'Asset attributes via {{gatewayUrl}}/api/v1/assetattribute. Create scenarios cover each valid inputType. Set recordId to an assetTypeId first. For DROPDOWN, create options next.'
+    $types = @('TEXT', 'TEXTAREA', 'INTEGER', 'DECIMAL', 'DATE', 'BOOLEAN', 'DROPDOWN')
+    $scenarios = @()
+    foreach ($t in $types) {
+        $scenarios += @{
+            Name = "Create - $t"
+            Description = "inputType=$t"
+            Body = (Get-AssetAttributeCreateBody -InputType $t)
+        }
+    }
+    return Expand-CreateRequestScenarios -Folder $Folder -Scenarios $scenarios
+}
+
+function Add-NotificationScenarioEnhancementsToFolder {
+    param($Folder)
+
+    if ($Folder.name -ne 'NotificationController') { return $Folder }
+
+    $Folder.description = 'Notification dispatch via {{gatewayUrl}}/api/v1/notification/dispatch. Separate requests per channel scenario.'
+    $scenarios = @(
+        @{
+            Name = 'Dispatch - Email Invite'
+            Description = 'channel=Email, templateCode=INVITE'
+            Body = @'
+{
+  "tenantId": {{tenantId}},
+  "companyId": {{companyId}},
+  "channel": "Email",
+  "templateCode": "INVITE",
+  "recipient": "{{entraUserEmail}}",
+  "correlationId": "postman-email-001",
+  "tokens": {
+    "CompanyName": "Plumbing Ltd",
+    "InviteUrl": "https://developer.fsm.com/api/v1/invite/start?token=sample"
+  }
+}
+'@
+        }
+        @{
+            Name = 'Dispatch - SMS Invite'
+            Description = 'channel=SMS, templateCode=INVITE_SMS'
+            Body = @'
+{
+  "tenantId": {{tenantId}},
+  "companyId": {{companyId}},
+  "channel": "SMS",
+  "templateCode": "INVITE_SMS",
+  "recipient": "+15551234567",
+  "correlationId": "postman-sms-001",
+  "tokens": {
+    "CompanyName": "Plumbing Ltd",
+    "InviteUrl": "https://developer.fsm.com/api/v1/invite/start?token=sample"
+  }
+}
+'@
+        }
+    )
+    return Expand-CreateRequestScenarios -Folder $Folder -CreateItemName 'Dispatch' -Scenarios $scenarios
+}
+
 function Add-AttachmentEnhancementsToFolder {
     param($Folder)
 
-    if ($Folder.name -ne 'AttachmentsController') { return $Folder }
+    if ($Folder.name -ne 'AttachmentController') { return $Folder }
 
-    $Folder.description = 'Attachment management via {{gatewayUrl}}: multipart upload, metadata, streaming download/thumbnail, list/filter, and soft delete. S3 is never exposed to clients.'
+    $Folder.description = 'Attachment management via {{gatewayUrl}}/api/v1/attachment. Upload scenarios: general file + each logoVariant.'
 
     $newItems = @()
     foreach ($item in $Folder.item) {
         if ($item.name -eq 'Upload') {
-            $item.request.description = 'Upload a file via multipart/form-data. Body tab: form-data - select a local file for the file field. Saves attachmentId to the environment.'
+            $item.name = 'Upload - General'
+            $item.request.description = 'Upload a general file via multipart/form-data. Select a local file for the file field.'
             Set-AttachmentUploadRequestBody -RequestItem $item -Category 'general' -Description 'General attachment upload'
+            $newItems += $item
+            foreach ($variant in @('full', 'compact', 'icon', 'favicon')) {
+                $logoUpload = @{
+                    name = "Upload - Company Logo ($variant)"
+                    request = ($item.request | ConvertTo-Json -Depth 30 | ConvertFrom-Json)
+                    event = $item.event
+                }
+                $logoUpload.request.description = "Upload company logo (category=logo, logoVariant=$variant)."
+                Set-AttachmentUploadRequestBody -RequestItem $logoUpload -Category 'logo' -LogoVariant $variant -Description "Company logo ($variant)"
+                $newItems += $logoUpload
+            }
+            continue
         }
         if ($item.name -eq 'Download') {
             $item.request.description = 'Stream/download attachment bytes (supports Range requests for video/audio).'
@@ -1445,29 +1980,7 @@ function Add-AttachmentEnhancementsToFolder {
                 @{ key = 'X-Company-Id'; value = '{{companyId}}'; type = 'text' }
             )
         }
-        if ($item.name -eq 'GetMetadata') {
-            $item.request.description = 'Get attachment metadata including application download/thumbnail URLs (no S3 URLs).'
-        }
-        if ($item.name -eq 'List') {
-            $item.request.description = 'Paginated attachment list with dynamic filters and sorting.'
-        }
-        if ($item.name -eq 'Delete') {
-            $item.request.description = 'Soft delete attachment (sets IsActive=false).'
-        }
-        if ($item.name -eq 'BulkDeleteByEntity') {
-            $item.request.description = 'Bulk soft delete attachments for an entity (optional category filter).'
-        }
         $newItems += $item
-        if ($item.name -eq 'Upload') {
-            $logoUpload = @{
-                name = 'UploadCompanyLogo'
-                request = ($item.request | ConvertTo-Json -Depth 20 | ConvertFrom-Json)
-                event = $item.event
-            }
-            $logoUpload.request.description = 'Upload a company logo via multipart/form-data (category=logo, logoVariant=full|compact|icon|favicon). Generates variant and supersedes prior logo rows.'
-            Set-AttachmentUploadRequestBody -RequestItem $logoUpload -Category 'logo' -LogoVariant 'full' -Description 'Company logo upload'
-            $newItems += $logoUpload
-        }
     }
 
     $Folder.item = $newItems
@@ -1529,18 +2042,18 @@ function New-Collection {
 $serviceConfigs = @(
     @{ Key = 'UserService'; Path = 'src\UserService\Fgs.User.API\Controllers'; Desc = 'Company onboarding, UI login, Entra auth, active-user cache, dashboard, and tenant admin APIs via {{gatewayUrl}}.'; AuthFlow = $true }
     @{ Key = 'BffService'; Path = 'src\BffService\Fgs.Bff.API\Controllers'; Desc = 'BFF orchestration (cross-domain workflows) via {{gatewayUrl}}/api/v1/bff/...'; AuthFlow = $false; SkipGenerate = $true }
-    @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup catalog APIs via {{gatewayUrl}}/api/v1/{catalog}.'; AuthFlow = $false }
-    @{ Key = 'NotificationService'; Path = 'src\NotificationService\Fgs.Notification.API\Controllers'; Desc = 'Notification dispatch via {{gatewayUrl}}/api/v1/notifications/...'; AuthFlow = $false }
-    @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 provisioning and attachment management via {{gatewayUrl}}. Upload via multipart/form-data; download/thumbnail stream through the API (no S3 URLs exposed).'; AuthFlow = $false }
-    @{ Key = 'AuditService'; Path = 'src\AuditService\Fgs.Audit.API\Controllers'; Desc = 'Credential audit trail via {{gatewayUrl}}.'; AuthFlow = $false }
+    @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup catalog APIs via {{gatewayUrl}}/api/v1/{catalog}. Multi-scenario Create requests for pricing matrix, credentials, vehicles, job types, communication templates, and billing categories.'; AuthFlow = $false }
+    @{ Key = 'NotificationService'; Path = 'src\NotificationService\Fgs.Notification.API\Controllers'; Desc = 'Notification dispatch via {{gatewayUrl}}/api/v1/notification/...'; AuthFlow = $false }
+    @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 provisioning and attachment management via {{gatewayUrl}}/api/v1/attachment and /api/v1/tenant/{id}/bucket. Upload scenarios include general + logo variants.'; AuthFlow = $false }
+    @{ Key = 'AuditService'; Path = 'src\AuditService\Fgs.Audit.API\Controllers'; Desc = 'Credential audit trail via {{gatewayUrl}}/api/v1/credential-audit.'; AuthFlow = $false }
     @{ Key = 'PublisherService'; Path = 'src\PublisherService\Fgs.Publisher.API\Controllers'; Desc = 'Outbox publisher worker API via {{gatewayUrl}}/api/v1/publisher/...'; AuthFlow = $false }
     @{ Key = 'ConsumerService'; Path = 'src\ConsumerService\Fgs.Consumer.API\Controllers'; Desc = 'Message consumer worker API via {{gatewayUrl}}/api/v1/consumer/...'; AuthFlow = $false }
-    @{ Key = 'AssetService'; Path = 'src\AssetService\Fgs.Asset.API\Controllers'; Desc = 'Asset service scaffold (health) via {{gatewayUrl}}/api/v1/asset/...'; AuthFlow = $false }
+    @{ Key = 'AssetService'; Path = 'src\AssetService\Fgs.Asset.API\Controllers'; Desc = 'Asset catalog APIs via {{gatewayUrl}}/api/v1/{asset*}. Attribute Create scenarios cover each inputType.'; AuthFlow = $false }
     @{ Key = 'BillingService'; Path = 'src\BillingService\Fgs.Billing.API\Controllers'; Desc = 'Billing service scaffold (health) via {{gatewayUrl}}/api/v1/billing/...'; AuthFlow = $false }
     @{ Key = 'CommunicationService'; Path = 'src\CommunicationService\Fgs.Communication.API\Controllers'; Desc = 'Communication service scaffold (health) via {{gatewayUrl}}/api/v1/communication/...'; AuthFlow = $false }
     @{ Key = 'CrmService'; Path = 'src\CrmService\Fgs.Crm.API\Controllers'; Desc = 'CRM service scaffold (health) via {{gatewayUrl}}/api/v1/crm/...'; AuthFlow = $false }
     @{ Key = 'IntegrationService'; Path = 'src\IntegrationService\Fgs.Integration.API\Controllers'; Desc = 'Integration service scaffold (health) via {{gatewayUrl}}/api/v1/integration/...'; AuthFlow = $false }
-    @{ Key = 'InventoryService'; Path = 'src\InventoryService\Fgs.Inventory.API\Controllers'; Desc = 'Inventory service scaffold (health) via {{gatewayUrl}}/api/v1/inventory/...'; AuthFlow = $false }
+    @{ Key = 'InventoryService'; Path = 'src\InventoryService\Fgs.Inventory.API\Controllers'; Desc = 'Inventory locations, vendors, and truck-stock templates via {{gatewayUrl}}/api/v1/{inventory-location|vendor|truck-stock-template}. Create scenarios cover each location/vendor type.'; AuthFlow = $false }
     @{ Key = 'ReportingService'; Path = 'src\ReportingService\Fgs.Reporting.API\Controllers'; Desc = 'Reporting service scaffold (health) via {{gatewayUrl}}/api/v1/reporting/...'; AuthFlow = $false }
     @{ Key = 'SchedulingService'; Path = 'src\SchedulingService\Fgs.Scheduling.API\Controllers'; Desc = 'Scheduling service scaffold (health) via {{gatewayUrl}}/api/v1/scheduling/...'; AuthFlow = $false }
     @{ Key = 'ServiceAgreementService'; Path = 'src\ServiceAgreementService\Fgs.ServiceAgreement.API\Controllers'; Desc = 'Service agreement scaffold (health) via {{gatewayUrl}}/api/v1/service-agreements/...'; AuthFlow = $false }
@@ -1573,7 +2086,16 @@ foreach ($svc in $serviceConfigs) {
                 $folder = Add-AttachmentEnhancementsToFolder -Folder $folder
             }
             if ($svc.Key -eq 'SetupService') {
-                $folder = Add-PricingMatrixEnhancementsToFolder -Folder $folder
+                $folder = Add-SetupScenarioEnhancementsToFolder -Folder $folder
+            }
+            if ($svc.Key -eq 'InventoryService') {
+                $folder = Add-InventoryEnhancementsToFolder -Folder $folder
+            }
+            if ($svc.Key -eq 'AssetService') {
+                $folder = Add-AssetScenarioEnhancementsToFolder -Folder $folder
+            }
+            if ($svc.Key -eq 'NotificationService') {
+                $folder = Add-NotificationScenarioEnhancementsToFolder -Folder $folder
             }
             $folders += $folder
         }

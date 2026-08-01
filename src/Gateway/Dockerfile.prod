@@ -1,0 +1,23 @@
+# Production gateway image.
+# Build from repo root:
+#   docker build -f src/Gateway/Dockerfile.prod -t fgs-gateway:prod src/Gateway
+#
+# TLS: mount production certs at /etc/nginx/certs/tls.crt and tls.key.
+# server_name is developer.fsm.com (see conf.d/site.prod.conf).
+
+FROM nginx:stable-alpine
+
+RUN apk add --no-cache curl \
+    && mkdir -p /var/cache/nginx/api /var/log/nginx /etc/nginx/certs \
+    && rm -f /etc/nginx/conf.d/default.conf
+
+COPY nginx.prod.conf /etc/nginx/nginx.conf
+COPY conf.d/site.prod.conf /etc/nginx/conf.d/site.conf
+COPY conf.d/includes/ /etc/nginx/conf.d/includes/
+COPY proxy_params.conf /etc/nginx/proxy_params.conf
+COPY cache_params.conf /etc/nginx/cache_params.conf
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -fsS http://localhost/nginx-health || exit 1
+
+EXPOSE 80 443

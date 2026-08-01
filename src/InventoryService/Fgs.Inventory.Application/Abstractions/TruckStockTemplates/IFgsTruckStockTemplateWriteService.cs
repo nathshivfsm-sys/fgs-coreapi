@@ -9,6 +9,4 @@ public interface IFgsTruckStockTemplateWriteService
     Task<FgsTruckStockTemplateDetailDto> UpdateAsync(long id, FgsTruckStockTemplateUpdateDto dto, CancellationToken cancellationToken = default);
 
     Task<FgsTruckStockTemplateDetailDto> PatchAsync(long id, FgsTruckStockTemplatePatchDto dto, CancellationToken cancellationToken = default);
-
-    Task<FgsTruckStockTemplateDetailDto> DeleteAsync(long id, CancellationToken cancellationToken = default);
 }

@@ -4,7 +4,6 @@ using Fgs.MultiTenancy;
 using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
 using Fgs.Inventory.Application.Features.TruckStockTemplates.Commands.CreateFgsTruckStockTemplate;
-using Fgs.Inventory.Application.Features.TruckStockTemplates.Commands.DeleteFgsTruckStockTemplate;
 using Fgs.Inventory.Application.Features.TruckStockTemplates.Dtos;
 using Fgs.Inventory.Application.Features.TruckStockTemplateItems.Commands.CreateFgsTruckStockTemplateItem;
 using Fgs.Inventory.Application.Features.TruckStockTemplateItems.Commands.DeleteFgsTruckStockTemplateItem;
@@ -55,37 +54,6 @@ public sealed class FgsTruckStockTemplateCommandHandlerTests
                 CacheKeys.EntityPrefix(TenantId, CompanyId, "truck-stock-template"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
-    }
-
-    [Fact]
-    public async Task DeleteHandler_SoftDeletes()
-    {
-        await using var context = await CreateContextAsync();
-        var writeService = CreateTemplateWriteService(context);
-        var cache = new Mock<ICacheService>();
-        var tenantAccessor = CreateTenantContextAccessor();
-        var createHandler = new CreateFgsTruckStockTemplateCommandHandler(
-            writeService,
-            cache.Object,
-            tenantAccessor,
-            NullLogger<CreateFgsTruckStockTemplateCommandHandler>.Instance);
-        var deleteHandler = new DeleteFgsTruckStockTemplateCommandHandler(
-            writeService,
-            cache.Object,
-            tenantAccessor,
-            NullLogger<DeleteFgsTruckStockTemplateCommandHandler>.Instance);
-
-        var created = await createHandler.Handle(
-            new CreateFgsTruckStockTemplateCommand(SampleCreateDto()),
-            CancellationToken.None);
-        created.Success.Should().BeTrue();
-
-        var response = await deleteHandler.Handle(
-            new DeleteFgsTruckStockTemplateCommand(created.Data!.Id),
-            CancellationToken.None);
-
-        response.Success.Should().BeTrue();
-        response.Data!.IsActive.Should().BeFalse();
     }
 
     [Fact]

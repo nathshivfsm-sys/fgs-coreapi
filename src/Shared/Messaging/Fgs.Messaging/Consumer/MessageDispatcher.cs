@@ -1,6 +1,3 @@
-using System.Text;
-using System.Text.Json;
-using Fgs.Messaging.Serialization;
 using Microsoft.Extensions.Logging;
 
 namespace Fgs.Messaging.Consumer;
@@ -10,8 +7,6 @@ public sealed class MessageDispatcher(
     IConsumerIdempotencyStore idempotency,
     ILogger<MessageDispatcher> logger)
 {
-    private static readonly JsonSerializerOptions JsonOptions = IntegrationEventJsonSerializerOptions.Create();
-
     public async Task DispatchAsync(
         string routingKey,
         ReadOnlyMemory<byte> body,
@@ -45,15 +40,5 @@ public sealed class MessageDispatcher(
             context.RetryCount);
 
         await router.RouteAsync(routingKey, body, context, cancellationToken);
-    }
-
-    internal static string GetBodyText(ReadOnlyMemory<byte> body) =>
-        Encoding.UTF8.GetString(body.Span);
-
-    internal static object DeserializeBody(Type messageType, ReadOnlyMemory<byte> body)
-    {
-        var json = GetBodyText(body);
-        return JsonSerializer.Deserialize(json, messageType, JsonOptions)
-            ?? throw new InvalidOperationException($"Failed to deserialize message body to {messageType.Name}.");
     }
 }

@@ -63,7 +63,7 @@
                  "description":  "Scheduling service scaffold (health) via {{gatewayUrl}}/api/v1/scheduling/...",
                  "name":  "FGS SchedulingService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "19355e2f-f525-423f-8022-2a9a9c155464"
+                 "_postman_id":  "55e9add5-12e2-4e9b-be5c-88df8ea9804a"
              },
     "event":  [
                   {

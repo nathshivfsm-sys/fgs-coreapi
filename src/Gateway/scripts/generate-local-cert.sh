@@ -28,14 +28,15 @@ ST = Local
 L = Local
 O = FGS
 OU = Local Development
-CN = localhost
+CN = developer.fsm.com
 
 [req_ext]
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = localhost
-DNS.2 = nginx
+DNS.1 = developer.fsm.com
+DNS.2 = localhost
+DNS.3 = nginx
 IP.1 = 127.0.0.1
 IP.2 = ::1
 EOF

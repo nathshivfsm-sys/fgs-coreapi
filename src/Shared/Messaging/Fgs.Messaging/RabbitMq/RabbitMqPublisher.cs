@@ -12,7 +12,7 @@ namespace Fgs.Messaging.RabbitMq;
 
 public sealed class RabbitMqPublisher(
     IOptions<RabbitMqOptions> options,
-    ILogger<RabbitMqPublisher> logger) : IRabbitMqPublisher, IMessagePublisher, IAsyncDisposable
+    ILogger<RabbitMqPublisher> logger) : IRabbitMqPublisher, IAsyncDisposable
 {
     private readonly RabbitMqOptions _options = options.Value;
     private IConnection? _connection;

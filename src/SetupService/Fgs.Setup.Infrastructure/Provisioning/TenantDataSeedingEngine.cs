@@ -96,6 +96,24 @@ public sealed class TenantDataSeedingEngine(
                 continue;
             }
 
+            if (columns.Any(c =>
+                    string.Equals(
+                        c.TransformationType,
+                        SeedTransformationTypes.JoinedParent,
+                        StringComparison.OrdinalIgnoreCase)))
+            {
+                logger.LogInformation(
+                    "Seed mapping {SeedCode} uses JOINED_PARENT; skipping flat seed (handled by joined-child soft path)",
+                    mapping.SeedCode);
+                tableResults.Add(new TenantSeedTableResult(
+                    mapping.SeedCode,
+                    TenantSeedTableOutcome.Skipped,
+                    string.Format(
+                        SeedTransformationTypes.ErrorMessages.JoinedParentHandledBySoftPathFormat,
+                        mapping.SeedCode)));
+                continue;
+            }
+
             TenantSeedTableResult tableResult;
             try
             {

@@ -13,7 +13,6 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<RabbitMqPublisher>();
         services.AddSingleton<IRabbitMqPublisher>(sp => sp.GetRequiredService<RabbitMqPublisher>());
-        services.AddSingleton<IMessagePublisher>(sp => sp.GetRequiredService<RabbitMqPublisher>());
         return services;
     }
 

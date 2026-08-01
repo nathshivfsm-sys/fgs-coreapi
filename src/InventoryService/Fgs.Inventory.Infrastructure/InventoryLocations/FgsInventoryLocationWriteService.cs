@@ -166,21 +166,6 @@ public sealed class FgsInventoryLocationWriteService : IFgsInventoryLocationWrit
         return MapToDetail(entity);
     }
 
-    public async Task<FgsInventoryLocationDetailDto> DeleteAsync(long id, CancellationToken cancellationToken = default)
-    {
-        var entity = await FindEntityAsync(id, cancellationToken)
-            ?? throw new KeyNotFoundException($"Inventory location '{id}' was not found.");
-
-        if (entity.IsActive)
-        {
-            entity.IsActive = false;
-            _auditHelper.StampForUpdate(entity);
-            await SaveChangesAsync(cancellationToken);
-        }
-
-        return MapToDetail(entity);
-    }
-
     private async Task<FgsInventoryLocation?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
         await _context.FgsInventoryLocations.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 

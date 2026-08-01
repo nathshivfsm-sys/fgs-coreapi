@@ -2412,6 +2412,30 @@ WHERE existing."SeedTableMappingId" = m."Id"
   AND m."SeedCode" = 'ALL_GloRole'
   AND existing."TargetColumnName" = 'CreatedBy';
 
+-- Retire obsolete JobType catalog seeds (hierarchy redesign) and JOINED_PARENT
+-- mappings that are handled only by TenantDataSeedingEngine soft paths.
+DELETE FROM glo."GloSeedTableColumnMapping"
+WHERE "SeedTableMappingId" IN (
+    SELECT "Id"
+    FROM glo."GloSeedTableMapping"
+    WHERE "SeedCode" IN (
+        'ALL_GloJobTypeCategory',
+        'ALL_GloJobTypeSubCategory',
+        'GLO_INVENTORY_SUBCATEGORY_TO_FGS_INVENTORY_SUBCATEGORY',
+        'ALL_GloUniversalMatrixTier',
+        'ALL_GloUniversalMatrixSizeTier'
+    )
+);
+
+DELETE FROM glo."GloSeedTableMapping"
+WHERE "SeedCode" IN (
+    'ALL_GloJobTypeCategory',
+    'ALL_GloJobTypeSubCategory',
+    'GLO_INVENTORY_SUBCATEGORY_TO_FGS_INVENTORY_SUBCATEGORY',
+    'ALL_GloUniversalMatrixTier',
+    'ALL_GloUniversalMatrixSizeTier'
+);
+
 SELECT setval(
     pg_get_serial_sequence('glo."GloSeedTableColumnMapping"', 'Id'),
     COALESCE((SELECT MAX("Id") FROM glo."GloSeedTableColumnMapping"), 1),

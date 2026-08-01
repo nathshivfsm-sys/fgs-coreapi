@@ -94,21 +94,6 @@ public sealed class FgsTruckStockTemplateWriteService : IFgsTruckStockTemplateWr
         return MapToDetail(entity);
     }
 
-    public async Task<FgsTruckStockTemplateDetailDto> DeleteAsync(long id, CancellationToken cancellationToken = default)
-    {
-        var entity = await FindEntityAsync(id, cancellationToken)
-            ?? throw new KeyNotFoundException($"Truck stock template '{id}' was not found.");
-
-        if (entity.IsActive)
-        {
-            entity.IsActive = false;
-            _auditHelper.StampForUpdate(entity);
-            await SaveChangesAsync(cancellationToken);
-        }
-
-        return MapToDetail(entity);
-    }
-
     private async Task<FgsTruckStockTemplate?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
         await _context.FgsTruckStockTemplates.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 

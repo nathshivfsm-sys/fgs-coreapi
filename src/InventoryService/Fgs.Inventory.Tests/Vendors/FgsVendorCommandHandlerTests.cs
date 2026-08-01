@@ -4,7 +4,6 @@ using Fgs.MultiTenancy;
 using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
 using Fgs.Inventory.Application.Features.Vendors.Commands.CreateFgsVendor;
-using Fgs.Inventory.Application.Features.Vendors.Commands.DeleteFgsVendor;
 using Fgs.Inventory.Application.Features.Vendors.Dtos;
 using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Infrastructure.Common;
@@ -77,37 +76,6 @@ public sealed class FgsVendorCommandHandlerTests
                 CacheKeys.EntityPrefix(TenantId, CompanyId, "vendor"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
-    }
-
-    [Fact]
-    public async Task DeleteHandler_SoftDeletes()
-    {
-        await using var context = await CreateContextAsync();
-        var writeService = CreateWriteService(context);
-        var cache = new Mock<ICacheService>();
-        var tenantAccessor = CreateTenantContextAccessor();
-        var createHandler = new CreateFgsVendorCommandHandler(
-            writeService,
-            cache.Object,
-            tenantAccessor,
-            NullLogger<CreateFgsVendorCommandHandler>.Instance);
-        var deleteHandler = new DeleteFgsVendorCommandHandler(
-            writeService,
-            cache.Object,
-            tenantAccessor,
-            NullLogger<DeleteFgsVendorCommandHandler>.Instance);
-
-        var created = await createHandler.Handle(
-            new CreateFgsVendorCommand(SampleCreateDto()),
-            CancellationToken.None);
-        created.Success.Should().BeTrue();
-
-        var response = await deleteHandler.Handle(
-            new DeleteFgsVendorCommand(created.Data!.Id),
-            CancellationToken.None);
-
-        response.Success.Should().BeTrue();
-        response.Data!.IsActive.Should().BeFalse();
     }
 
     private static ITenantContextAccessor CreateTenantContextAccessor() =>

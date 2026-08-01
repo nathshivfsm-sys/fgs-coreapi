@@ -53,7 +53,7 @@
                               ]
                  },
                  {
-                     "description":  "InventoryLocationController - inventory-location",
+                     "description":  "Inventory locations via {{gatewayUrl}}/api/v1/inventory-location. Create scenarios cover each valid inventoryLocationType.",
                      "name":  "InventoryLocationController",
                      "item":  [
                                   {
@@ -64,11 +64,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-location/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory-location/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "inventory",
                                                                                "inventory-location",
                                                                                "{{recordId}}"
                                                                            ]
@@ -158,11 +157,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-location",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory-location",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "inventory",
                                                                                "inventory-location"
                                                                            ]
                                                               },
@@ -212,11 +210,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-location/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory-location/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "inventory",
                                                                                "inventory-location",
                                                                                "lookup"
                                                                            ]
@@ -257,15 +254,14 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-location",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory-location",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "inventory",
                                                                                "inventory-location"
                                                                            ]
                                                               },
-                                                      "description":  "Create",
+                                                      "description":  "Create inventory location with inventoryLocationType=WAREHOUSE (code must be uppercase).",
                                                       "method":  "POST",
                                                       "header":  [
                                                                      {
@@ -290,7 +286,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"inventoryLocationCode\": \"INVENT\",\n  \"name\": \"Sample Name\",\n  \"inventoryLocationType\": \"CODE\",\n  \"parentInventoryLocationId\": null,\n  \"description\": \"Sample description\",\n  \"address1\": null,\n  \"address2\": null,\n  \"city\": null,\n  \"stateProvince\": \"1HGBH41JXMN109186\",\n  \"postalCode\": \"78701\",\n  \"country\": null,\n  \"contactName\": \"Sample Name\",\n  \"phoneNumber\": \"+15551234567\",\n  \"email\": \"office@example.com\",\n  \"isDefault\": false\n}",
+                                                                   "raw":  "{\r\n  \"inventoryLocationCode\": \"WH-MAIN\",\r\n  \"name\": \"Main Warehouse\",\r\n  \"inventoryLocationType\": \"WAREHOUSE\",\r\n  \"parentInventoryLocationId\": null,\r\n  \"description\": \"Main Warehouse for Postman scenario\",\r\n  \"address1\": \"100 Main St\",\r\n  \"address2\": null,\r\n  \"city\": \"Austin\",\r\n  \"stateProvince\": \"TX\",\r\n  \"postalCode\": \"78701\",\r\n  \"country\": \"US\",\r\n  \"contactName\": \"Warehouse Desk\",\r\n  \"phoneNumber\": \"+15551234567\",\r\n  \"email\": \"warehouse@example.com\",\r\n  \"isDefault\": false\r\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -309,7 +305,372 @@
                                                                    "type":  "bearer"
                                                                }
                                                   },
-                                      "name":  "Create",
+                                      "name":  "Create - WAREHOUSE",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory-location",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventory-location"
+                                                                           ]
+                                                              },
+                                                      "description":  "Create inventory location with inventoryLocationType=TRUCK (code must be uppercase).",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"inventoryLocationCode\": \"TRK-01\",\r\n  \"name\": \"Service Truck 01\",\r\n  \"inventoryLocationType\": \"TRUCK\",\r\n  \"parentInventoryLocationId\": null,\r\n  \"description\": \"Service Truck 01 for Postman scenario\",\r\n  \"address1\": \"100 Main St\",\r\n  \"address2\": null,\r\n  \"city\": \"Austin\",\r\n  \"stateProvince\": \"TX\",\r\n  \"postalCode\": \"78701\",\r\n  \"country\": \"US\",\r\n  \"contactName\": \"Warehouse Desk\",\r\n  \"phoneNumber\": \"+15551234567\",\r\n  \"email\": \"warehouse@example.com\",\r\n  \"isDefault\": false\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create - TRUCK",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory-location",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventory-location"
+                                                                           ]
+                                                              },
+                                                      "description":  "Create inventory location with inventoryLocationType=TRAILER (code must be uppercase).",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"inventoryLocationCode\": \"TRL-01\",\r\n  \"name\": \"Parts Trailer 01\",\r\n  \"inventoryLocationType\": \"TRAILER\",\r\n  \"parentInventoryLocationId\": null,\r\n  \"description\": \"Parts Trailer 01 for Postman scenario\",\r\n  \"address1\": \"100 Main St\",\r\n  \"address2\": null,\r\n  \"city\": \"Austin\",\r\n  \"stateProvince\": \"TX\",\r\n  \"postalCode\": \"78701\",\r\n  \"country\": \"US\",\r\n  \"contactName\": \"Warehouse Desk\",\r\n  \"phoneNumber\": \"+15551234567\",\r\n  \"email\": \"warehouse@example.com\",\r\n  \"isDefault\": false\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create - TRAILER",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory-location",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventory-location"
+                                                                           ]
+                                                              },
+                                                      "description":  "Create inventory location with inventoryLocationType=JOBSITE (code must be uppercase).",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"inventoryLocationCode\": \"JOB-01\",\r\n  \"name\": \"Jobsite Staging\",\r\n  \"inventoryLocationType\": \"JOBSITE\",\r\n  \"parentInventoryLocationId\": null,\r\n  \"description\": \"Jobsite Staging for Postman scenario\",\r\n  \"address1\": \"100 Main St\",\r\n  \"address2\": null,\r\n  \"city\": \"Austin\",\r\n  \"stateProvince\": \"TX\",\r\n  \"postalCode\": \"78701\",\r\n  \"country\": \"US\",\r\n  \"contactName\": \"Warehouse Desk\",\r\n  \"phoneNumber\": \"+15551234567\",\r\n  \"email\": \"warehouse@example.com\",\r\n  \"isDefault\": false\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create - JOBSITE",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory-location",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventory-location"
+                                                                           ]
+                                                              },
+                                                      "description":  "Create inventory location with inventoryLocationType=CONSIGNMENT (code must be uppercase).",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"inventoryLocationCode\": \"CON-01\",\r\n  \"name\": \"Vendor Consignment\",\r\n  \"inventoryLocationType\": \"CONSIGNMENT\",\r\n  \"parentInventoryLocationId\": null,\r\n  \"description\": \"Vendor Consignment for Postman scenario\",\r\n  \"address1\": \"100 Main St\",\r\n  \"address2\": null,\r\n  \"city\": \"Austin\",\r\n  \"stateProvince\": \"TX\",\r\n  \"postalCode\": \"78701\",\r\n  \"country\": \"US\",\r\n  \"contactName\": \"Warehouse Desk\",\r\n  \"phoneNumber\": \"+15551234567\",\r\n  \"email\": \"warehouse@example.com\",\r\n  \"isDefault\": false\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create - CONSIGNMENT",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory-location",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventory-location"
+                                                                           ]
+                                                              },
+                                                      "description":  "Create inventory location with inventoryLocationType=VENDOR (code must be uppercase).",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"inventoryLocationCode\": \"VND-LOC\",\r\n  \"name\": \"Vendor Stock Location\",\r\n  \"inventoryLocationType\": \"VENDOR\",\r\n  \"parentInventoryLocationId\": null,\r\n  \"description\": \"Vendor Stock Location for Postman scenario\",\r\n  \"address1\": \"100 Main St\",\r\n  \"address2\": null,\r\n  \"city\": \"Austin\",\r\n  \"stateProvince\": \"TX\",\r\n  \"postalCode\": \"78701\",\r\n  \"country\": \"US\",\r\n  \"contactName\": \"Warehouse Desk\",\r\n  \"phoneNumber\": \"+15551234567\",\r\n  \"email\": \"warehouse@example.com\",\r\n  \"isDefault\": false\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create - VENDOR",
                                       "event":  [
                                                     {
                                                         "script":  {
@@ -332,11 +693,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-location/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory-location/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "inventory",
                                                                                "inventory-location",
                                                                                "{{recordId}}"
                                                                            ]
@@ -366,7 +726,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"inventoryLocationCode\": \"INVENT\",\n  \"name\": \"Sample Name\",\n  \"inventoryLocationType\": \"CODE\",\n  \"parentInventoryLocationId\": null,\n  \"description\": \"Sample description\",\n  \"address1\": null,\n  \"address2\": null,\n  \"city\": null,\n  \"stateProvince\": \"1HGBH41JXMN109186\",\n  \"postalCode\": \"78701\",\n  \"country\": null,\n  \"contactName\": \"Sample Name\",\n  \"phoneNumber\": \"+15551234567\",\n  \"email\": \"office@example.com\",\n  \"isDefault\": false\n}",
+                                                                   "raw":  "{\n  \"inventoryLocationCode\": \"WH-AUSTIN\",\n  \"name\": \"Sample Name\",\n  \"inventoryLocationType\": \"WAREHOUSE\",\n  \"parentInventoryLocationId\": null,\n  \"description\": \"Sample description\",\n  \"address1\": null,\n  \"address2\": null,\n  \"city\": null,\n  \"stateProvince\": \"1HGBH41JXMN109186\",\n  \"postalCode\": \"78701\",\n  \"country\": null,\n  \"contactName\": \"Sample Name\",\n  \"phoneNumber\": \"+15551234567\",\n  \"email\": \"office@example.com\",\n  \"isDefault\": false\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -393,11 +753,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/inventory-location/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory-location/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "inventory",
                                                                                "inventory-location",
                                                                                "{{recordId}}"
                                                                            ]
@@ -450,7 +809,726 @@
                               ]
                  },
                  {
-                     "description":  "VendorController - vendor",
+                     "description":  "TruckStockTemplateController - truck-stock-template",
+                     "name":  "TruckStockTemplateController",
+                     "item":  [
+                                  {
+                                      "name":  "GetById",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/truck-stock-template/{{recordId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "truck-stock-template",
+                                                                               "{{recordId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetById",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "List",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "page",
+                                                                                    "description":  "Page number (1-based). Default: 1.",
+                                                                                    "value":  "{{page}}"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "pageSize",
+                                                                                    "description":  "Items per page (1-100). Default: 25.",
+                                                                                    "value":  "{{pageSize}}"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortBy",
+                                                                                    "description":  "Property to sort by (entity-specific). Optional.",
+                                                                                    "value":  "{{sortBy}}",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortDirection",
+                                                                                    "description":  "Sort direction: Asc or Desc. Default: Asc.",
+                                                                                    "value":  "{{sortDirection}}",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "search",
+                                                                                    "description":  "Free-text search across searchable fields. Optional.",
+                                                                                    "value":  "{{search}}",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "isActive",
+                                                                                    "description":  "Filter by active records. Default: true.",
+                                                                                    "value":  "true"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "templateCode",
+                                                                                    "description":  "Optional templateCode filter.",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "name",
+                                                                                    "description":  "Optional name filter.",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/truck-stock-template",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "truck-stock-template"
+                                                                           ]
+                                                              },
+                                                      "description":  "List",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Lookup",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "activeOnly",
+                                                                                    "description":  "Optional activeOnly filter.",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/truck-stock-template/lookup",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "truck-stock-template",
+                                                                               "lookup"
+                                                                           ]
+                                                              },
+                                                      "description":  "Lookup",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/truck-stock-template",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "truck-stock-template"
+                                                                           ]
+                                                              },
+                                                      "description":  "Create",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"templateCode\": \"TEMPLA\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\"\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "Update",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/truck-stock-template/{{recordId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "truck-stock-template",
+                                                                               "{{recordId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Update",
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"templateCode\": \"TEMPLA\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\"\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Patch",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/truck-stock-template/{{recordId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "truck-stock-template",
+                                                                               "{{recordId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Patch",
+                                                      "method":  "PATCH",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"name\": \"Updated sample\",\n  \"description\": \"Updated sample\",\n  \"isActive\": true\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "ListItems",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/truck-stock-template/{{templateId}}/items",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "truck-stock-template",
+                                                                               "{{templateId}}",
+                                                                               "items"
+                                                                           ]
+                                                              },
+                                                      "description":  "ListItems",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "GetItemById",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/truck-stock-template/{{templateId}}/items/{{itemId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "truck-stock-template",
+                                                                               "{{templateId}}",
+                                                                               "items",
+                                                                               "{{itemId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetItemById",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CreateItem",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/truck-stock-template/{{templateId}}/items",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "truck-stock-template",
+                                                                               "{{templateId}}",
+                                                                               "items"
+                                                                           ]
+                                                              },
+                                                      "description":  "CreateItem",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"inventoryItemId\": {{recordId}},\n  \"targetQuantity\": 0.00,\n  \"minimumQuantity\": 0.00,\n  \"displayOrder\": 1\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "UpdateItem",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/truck-stock-template/{{templateId}}/items/{{itemId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "truck-stock-template",
+                                                                               "{{templateId}}",
+                                                                               "items",
+                                                                               "{{itemId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "UpdateItem",
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"inventoryItemId\": {{recordId}},\n  \"targetQuantity\": 0.00,\n  \"minimumQuantity\": 0.00,\n  \"displayOrder\": 1\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "PatchItem",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/truck-stock-template/{{templateId}}/items/{{itemId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "truck-stock-template",
+                                                                               "{{templateId}}",
+                                                                               "items",
+                                                                               "{{itemId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "PatchItem",
+                                                      "method":  "PATCH",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"displayOrder\": null\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "DeleteItem",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/truck-stock-template/{{templateId}}/items/{{itemId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "truck-stock-template",
+                                                                               "{{templateId}}",
+                                                                               "items",
+                                                                               "{{itemId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "DeleteItem",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "description":  "Vendors via {{gatewayUrl}}/api/v1/vendor. Create scenarios cover vendorType and vendorStatus combinations.",
                      "name":  "VendorController",
                      "item":  [
                                   {
@@ -461,11 +1539,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendor/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vendor/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "inventory",
                                                                                "vendor",
                                                                                "{{recordId}}"
                                                                            ]
@@ -555,11 +1632,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendor",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vendor",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "inventory",
                                                                                "vendor"
                                                                            ]
                                                               },
@@ -609,11 +1685,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendor/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vendor/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "inventory",
                                                                                "vendor",
                                                                                "lookup"
                                                                            ]
@@ -654,15 +1729,14 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendor",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vendor",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "inventory",
                                                                                "vendor"
                                                                            ]
                                                               },
-                                                      "description":  "Create",
+                                                      "description":  "vendorType=VENDOR, vendorStatus=ACTIVE",
                                                       "method":  "POST",
                                                       "header":  [
                                                                      {
@@ -687,7 +1761,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"vendorCode\": \"VND01\",\n  \"name\": \"Sample Name\",\n  \"legalName\": \"sample\",\n  \"vendorType\": \"VENDOR\",\n  \"vendorStatus\": null,\n  \"vendorAccountNumber\": null,\n  \"paymentTermId\": null,\n  \"contactName\": \"Sample Name\",\n  \"contactTitle\": null,\n  \"email\": \"office@example.com\",\n  \"purchaseOrderEmail\": \"office@example.com\",\n  \"phoneNumber\": \"+15551234567\",\n  \"mobileNumber\": \"+15551234567\",\n  \"faxNumber\": null,\n  \"website\": \"https://example.com\",\n  \"address1\": null,\n  \"address2\": null,\n  \"city\": null,\n  \"stateProvince\": \"1HGBH41JXMN109186\",\n  \"postalCode\": \"78701\",\n  \"country\": null,\n  \"taxIdNumber\": null,\n  \"licenseNumber\": null,\n  \"insurancePolicyNumber\": null,\n  \"notes\": \"Sample notes\",\n  \"is1099Eligible\": false\n}",
+                                                                   "raw":  "{\r\n  \"vendorCode\": \"VND01\",\r\n  \"name\": \"Acme Supply Co\",\r\n  \"legalName\": \"Acme Supply Co LLC\",\r\n  \"vendorType\": \"VENDOR\",\r\n  \"vendorStatus\": \"ACTIVE\",\r\n  \"vendorAccountNumber\": \"ACCT-1001\",\r\n  \"paymentTermId\": null,\r\n  \"contactName\": \"Purchasing Desk\",\r\n  \"contactTitle\": \"Buyer\",\r\n  \"email\": \"purchasing@example.com\",\r\n  \"purchaseOrderEmail\": \"po@example.com\",\r\n  \"phoneNumber\": \"+15551234567\",\r\n  \"mobileNumber\": \"+15557654321\",\r\n  \"faxNumber\": null,\r\n  \"website\": \"https://vendor.example.com\",\r\n  \"address1\": \"200 Supply Rd\",\r\n  \"address2\": null,\r\n  \"city\": \"Austin\",\r\n  \"stateProvince\": \"TX\",\r\n  \"postalCode\": \"78702\",\r\n  \"country\": \"US\",\r\n  \"taxIdNumber\": \"12-3456789\",\r\n  \"licenseNumber\": null,\r\n  \"insurancePolicyNumber\": null,\r\n  \"notes\": \"Postman VENDOR scenario\",\r\n  \"is1099Eligible\": false\r\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -706,7 +1780,226 @@
                                                                    "type":  "bearer"
                                                                }
                                                   },
-                                      "name":  "Create",
+                                      "name":  "Create - Vendor Active",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vendor",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "vendor"
+                                                                           ]
+                                                              },
+                                                      "description":  "vendorType=VENDOR, vendorStatus=ON_HOLD",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"vendorCode\": \"VND01\",\r\n  \"name\": \"Acme Supply Co\",\r\n  \"legalName\": \"Acme Supply Co LLC\",\r\n  \"vendorType\": \"VENDOR\",\r\n  \"vendorStatus\": \"ON_HOLD\",\r\n  \"vendorAccountNumber\": \"ACCT-1001\",\r\n  \"paymentTermId\": null,\r\n  \"contactName\": \"Purchasing Desk\",\r\n  \"contactTitle\": \"Buyer\",\r\n  \"email\": \"purchasing@example.com\",\r\n  \"purchaseOrderEmail\": \"po@example.com\",\r\n  \"phoneNumber\": \"+15551234567\",\r\n  \"mobileNumber\": \"+15557654321\",\r\n  \"faxNumber\": null,\r\n  \"website\": \"https://vendor.example.com\",\r\n  \"address1\": \"200 Supply Rd\",\r\n  \"address2\": null,\r\n  \"city\": \"Austin\",\r\n  \"stateProvince\": \"TX\",\r\n  \"postalCode\": \"78702\",\r\n  \"country\": \"US\",\r\n  \"taxIdNumber\": \"12-3456789\",\r\n  \"licenseNumber\": null,\r\n  \"insurancePolicyNumber\": null,\r\n  \"notes\": \"Postman VENDOR scenario\",\r\n  \"is1099Eligible\": false\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create - Vendor On Hold",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vendor",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "vendor"
+                                                                           ]
+                                                              },
+                                                      "description":  "vendorType=SUBCONTRACTOR, vendorStatus=ACTIVE",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"vendorCode\": \"SUB01\",\r\n  \"name\": \"Acme Subcontractor\",\r\n  \"legalName\": \"Acme Subcontractor LLC\",\r\n  \"vendorType\": \"SUBCONTRACTOR\",\r\n  \"vendorStatus\": \"ACTIVE\",\r\n  \"vendorAccountNumber\": \"ACCT-1001\",\r\n  \"paymentTermId\": null,\r\n  \"contactName\": \"Purchasing Desk\",\r\n  \"contactTitle\": \"Buyer\",\r\n  \"email\": \"purchasing@example.com\",\r\n  \"purchaseOrderEmail\": \"po@example.com\",\r\n  \"phoneNumber\": \"+15551234567\",\r\n  \"mobileNumber\": \"+15557654321\",\r\n  \"faxNumber\": null,\r\n  \"website\": \"https://vendor.example.com\",\r\n  \"address1\": \"200 Supply Rd\",\r\n  \"address2\": null,\r\n  \"city\": \"Austin\",\r\n  \"stateProvince\": \"TX\",\r\n  \"postalCode\": \"78702\",\r\n  \"country\": \"US\",\r\n  \"taxIdNumber\": \"12-3456789\",\r\n  \"licenseNumber\": null,\r\n  \"insurancePolicyNumber\": null,\r\n  \"notes\": \"Postman SUBCONTRACTOR scenario\",\r\n  \"is1099Eligible\": false\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create - Subcontractor Active",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vendor",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "vendor"
+                                                                           ]
+                                                              },
+                                                      "description":  "vendorType=SUBCONTRACTOR, vendorStatus=INACTIVE",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"vendorCode\": \"SUB01\",\r\n  \"name\": \"Acme Subcontractor\",\r\n  \"legalName\": \"Acme Subcontractor LLC\",\r\n  \"vendorType\": \"SUBCONTRACTOR\",\r\n  \"vendorStatus\": \"INACTIVE\",\r\n  \"vendorAccountNumber\": \"ACCT-1001\",\r\n  \"paymentTermId\": null,\r\n  \"contactName\": \"Purchasing Desk\",\r\n  \"contactTitle\": \"Buyer\",\r\n  \"email\": \"purchasing@example.com\",\r\n  \"purchaseOrderEmail\": \"po@example.com\",\r\n  \"phoneNumber\": \"+15551234567\",\r\n  \"mobileNumber\": \"+15557654321\",\r\n  \"faxNumber\": null,\r\n  \"website\": \"https://vendor.example.com\",\r\n  \"address1\": \"200 Supply Rd\",\r\n  \"address2\": null,\r\n  \"city\": \"Austin\",\r\n  \"stateProvince\": \"TX\",\r\n  \"postalCode\": \"78702\",\r\n  \"country\": \"US\",\r\n  \"taxIdNumber\": \"12-3456789\",\r\n  \"licenseNumber\": null,\r\n  \"insurancePolicyNumber\": null,\r\n  \"notes\": \"Postman SUBCONTRACTOR scenario\",\r\n  \"is1099Eligible\": false\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create - Subcontractor Inactive",
                                       "event":  [
                                                     {
                                                         "script":  {
@@ -729,11 +2022,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendor/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vendor/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "inventory",
                                                                                "vendor",
                                                                                "{{recordId}}"
                                                                            ]
@@ -763,7 +2055,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"vendorCode\": \"VND01\",\n  \"name\": \"Sample Name\",\n  \"legalName\": \"sample\",\n  \"vendorType\": \"VENDOR\",\n  \"vendorStatus\": \"sample\",\n  \"vendorAccountNumber\": null,\n  \"paymentTermId\": null,\n  \"contactName\": \"Sample Name\",\n  \"contactTitle\": null,\n  \"email\": \"office@example.com\",\n  \"purchaseOrderEmail\": \"office@example.com\",\n  \"phoneNumber\": \"+15551234567\",\n  \"mobileNumber\": \"+15551234567\",\n  \"faxNumber\": null,\n  \"website\": \"https://example.com\",\n  \"address1\": null,\n  \"address2\": null,\n  \"city\": null,\n  \"stateProvince\": \"1HGBH41JXMN109186\",\n  \"postalCode\": \"78701\",\n  \"country\": null,\n  \"taxIdNumber\": null,\n  \"licenseNumber\": null,\n  \"insurancePolicyNumber\": null,\n  \"notes\": \"Sample notes\",\n  \"is1099Eligible\": false\n}",
+                                                                   "raw":  "{\n  \"vendorCode\": \"VND01\",\n  \"name\": \"Sample Name\",\n  \"legalName\": \"sample\",\n  \"vendorType\": \"VENDOR\",\n  \"vendorStatus\": \"ACTIVE\",\n  \"vendorAccountNumber\": null,\n  \"paymentTermId\": null,\n  \"contactName\": \"Sample Name\",\n  \"contactTitle\": null,\n  \"email\": \"office@example.com\",\n  \"purchaseOrderEmail\": \"office@example.com\",\n  \"phoneNumber\": \"+15551234567\",\n  \"mobileNumber\": \"+15551234567\",\n  \"faxNumber\": null,\n  \"website\": \"https://example.com\",\n  \"address1\": null,\n  \"address2\": null,\n  \"city\": null,\n  \"stateProvince\": \"1HGBH41JXMN109186\",\n  \"postalCode\": \"78701\",\n  \"country\": null,\n  \"taxIdNumber\": null,\n  \"licenseNumber\": null,\n  \"insurancePolicyNumber\": null,\n  \"notes\": \"Sample notes\",\n  \"is1099Eligible\": false\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -790,11 +2082,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventory/vendor/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/vendor/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "inventory",
                                                                                "vendor",
                                                                                "{{recordId}}"
                                                                            ]
@@ -854,10 +2145,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Inventory service scaffold (health) via {{gatewayUrl}}/api/v1/inventory/...",
+                 "description":  "Inventory locations, vendors, and truck-stock templates via {{gatewayUrl}}/api/v1/{inventory-location|vendor|truck-stock-template}. Create scenarios cover each location/vendor type.",
                  "name":  "FGS InventoryService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "003326e3-3d0a-400a-b17e-cd14452fe848"
+                 "_postman_id":  "516a13bb-f3db-49fa-bfe4-60865cefc0b6"
              },
     "event":  [
                   {

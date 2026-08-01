@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "a7c3e8f1-4b2d-4e9a-9c1f-bff-signup-001",
     "name": "BffService",
-    "description": "FGS Backend-for-Frontend (orchestration only).\n\nCompany signup spans User (identity) + Setup (business types).\n\nGateway (Docker): https://localhost:8443\nSwagger: https://localhost:8443/swagger/bff/\nGraphQL: https://localhost:8443/api/v1/bff/graphql\n\nImport with FGS Globals (Local). Prefer gatewayUrl = https://localhost:8443 when using Docker Compose.",
+    "description": "FGS Backend-for-Frontend (orchestration only).\n\nCompany signup spans User (identity) + Setup (business types).\n\nGateway (Docker): https://developer.fsm.com\nSwagger: https://developer.fsm.com/swagger/bff/\nGraphQL: https://developer.fsm.com/api/v1/bff/graphql\n\nImport with FGS Globals (Local). Prefer gatewayUrl = https://developer.fsm.com when using Docker Compose.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

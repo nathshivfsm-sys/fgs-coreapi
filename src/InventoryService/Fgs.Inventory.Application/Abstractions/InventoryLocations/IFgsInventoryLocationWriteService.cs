@@ -17,6 +17,4 @@ public interface IFgsInventoryLocationWriteService
         long id,
         FgsInventoryLocationPatchDto dto,
         CancellationToken cancellationToken = default);
-
-    Task<FgsInventoryLocationDetailDto> DeleteAsync(long id, CancellationToken cancellationToken = default);
 }

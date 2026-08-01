@@ -4,7 +4,7 @@ Configure the `Fgs_SignUpSignIn` user flow so Entra embeds `tenant_id` and `comp
 
 ## Prerequisites
 
-- UserService deployed and reachable at the gateway URL (e.g. `https://localhost:8443`).
+- UserService deployed and reachable at the gateway URL (e.g. `https://developer.fsm.com`).
 - Company signup creates `FgsUser` records with the admin email before Entra sign-up.
 
 ## Steps (Entra portal)

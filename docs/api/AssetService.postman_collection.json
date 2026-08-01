@@ -1,7 +1,7 @@
 ﻿{
     "item":  [
                  {
-                     "description":  "AssetAttributeController - assetattribute",
+                     "description":  "Asset attributes via {{gatewayUrl}}/api/v1/assetattribute. Create scenarios cover each valid inputType. Set recordId to an assetTypeId first. For DROPDOWN, create options next.",
                      "name":  "AssetAttributeController",
                      "item":  [
                                   {
@@ -12,11 +12,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetattribute/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetattribute",
                                                                                "{{recordId}}"
                                                                            ]
@@ -112,11 +111,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetattribute",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetattribute"
                                                                            ]
                                                               },
@@ -166,11 +164,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetattribute/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetattribute",
                                                                                "lookup"
                                                                            ]
@@ -211,15 +208,14 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetattribute",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetattribute"
                                                                            ]
                                                               },
-                                                      "description":  "Create",
+                                                      "description":  "inputType=TEXT",
                                                       "method":  "POST",
                                                       "header":  [
                                                                      {
@@ -244,7 +240,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetTypeId\": {{recordId}},\n  \"attributeCode\": \"ATTRIB\",\n  \"attributeName\": \"Sample Name\",\n  \"inputType\": \"CODE\",\n  \"defaultOptionId\": null,\n  \"defaultValueText\": null,\n  \"defaultValueInteger\": 1,\n  \"defaultValueDecimal\": 0.00,\n  \"defaultValueDate\": \"2026-06-21\",\n  \"defaultValueBoolean\": true,\n  \"isRequired\": true,\n  \"isSearchable\": true,\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\r\n  \"assetTypeId\": {{recordId}},\r\n  \"attributeCode\": \"ATTR_TEXT\",\r\n  \"attributeName\": \"TEXT Attribute\",\r\n  \"inputType\": \"TEXT\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": \"Sample text\",\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -263,7 +259,445 @@
                                                                    "type":  "bearer"
                                                                }
                                                   },
-                                      "name":  "Create",
+                                      "name":  "Create - TEXT",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "assetattribute"
+                                                                           ]
+                                                              },
+                                                      "description":  "inputType=TEXTAREA",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"assetTypeId\": {{recordId}},\r\n  \"attributeCode\": \"ATTR_TEXTAREA\",\r\n  \"attributeName\": \"TEXTAREA Attribute\",\r\n  \"inputType\": \"TEXTAREA\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": \"Longer sample text\",\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create - TEXTAREA",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "assetattribute"
+                                                                           ]
+                                                              },
+                                                      "description":  "inputType=INTEGER",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"assetTypeId\": {{recordId}},\r\n  \"attributeCode\": \"ATTR_INTEGER\",\r\n  \"attributeName\": \"INTEGER Attribute\",\r\n  \"inputType\": \"INTEGER\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": 10,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create - INTEGER",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "assetattribute"
+                                                                           ]
+                                                              },
+                                                      "description":  "inputType=DECIMAL",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"assetTypeId\": {{recordId}},\r\n  \"attributeCode\": \"ATTR_DECIMAL\",\r\n  \"attributeName\": \"DECIMAL Attribute\",\r\n  \"inputType\": \"DECIMAL\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": 12.50,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create - DECIMAL",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "assetattribute"
+                                                                           ]
+                                                              },
+                                                      "description":  "inputType=DATE",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"assetTypeId\": {{recordId}},\r\n  \"attributeCode\": \"ATTR_DATE\",\r\n  \"attributeName\": \"DATE Attribute\",\r\n  \"inputType\": \"DATE\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": \"2026-06-21\",\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create - DATE",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "assetattribute"
+                                                                           ]
+                                                              },
+                                                      "description":  "inputType=BOOLEAN",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"assetTypeId\": {{recordId}},\r\n  \"attributeCode\": \"ATTR_BOOLEAN\",\r\n  \"attributeName\": \"BOOLEAN Attribute\",\r\n  \"inputType\": \"BOOLEAN\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": true,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create - BOOLEAN",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "assetattribute"
+                                                                           ]
+                                                              },
+                                                      "description":  "inputType=DROPDOWN",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\r\n  \"assetTypeId\": {{recordId}},\r\n  \"attributeCode\": \"ATTR_DROPDOWN\",\r\n  \"attributeName\": \"DROPDOWN Attribute\",\r\n  \"inputType\": \"DROPDOWN\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create - DROPDOWN",
                                       "event":  [
                                                     {
                                                         "script":  {
@@ -286,11 +720,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetattribute/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetattribute",
                                                                                "{{recordId}}"
                                                                            ]
@@ -320,7 +753,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetTypeId\": {{recordId}},\n  \"attributeCode\": \"ATTRIB\",\n  \"attributeName\": \"Sample Name\",\n  \"inputType\": \"CODE\",\n  \"defaultOptionId\": null,\n  \"defaultValueText\": null,\n  \"defaultValueInteger\": 1,\n  \"defaultValueDecimal\": 0.00,\n  \"defaultValueDate\": \"2026-06-21\",\n  \"defaultValueBoolean\": true,\n  \"isRequired\": true,\n  \"isSearchable\": true,\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"assetTypeId\": {{recordId}},\n  \"attributeCode\": \"SERIAL\",\n  \"attributeName\": \"Sample Name\",\n  \"inputType\": \"TEXT\",\n  \"defaultOptionId\": null,\n  \"defaultValueText\": null,\n  \"defaultValueInteger\": 1,\n  \"defaultValueDecimal\": 0.00,\n  \"defaultValueDate\": \"2026-06-21\",\n  \"defaultValueBoolean\": true,\n  \"isRequired\": true,\n  \"isSearchable\": true,\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -347,11 +780,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetattribute/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetattribute",
                                                                                "{{recordId}}"
                                                                            ]
@@ -415,11 +847,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetattributeoption/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributeoption/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetattributeoption",
                                                                                "{{recordId}}"
                                                                            ]
@@ -515,11 +946,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetattributeoption",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributeoption",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetattributeoption"
                                                                            ]
                                                               },
@@ -569,11 +999,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetattributeoption/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributeoption/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetattributeoption",
                                                                                "lookup"
                                                                            ]
@@ -614,11 +1043,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetattributeoption",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributeoption",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetattributeoption"
                                                                            ]
                                                               },
@@ -689,11 +1117,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetattributeoption/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributeoption/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetattributeoption",
                                                                                "{{recordId}}"
                                                                            ]
@@ -750,11 +1177,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetattributeoption/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributeoption/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetattributeoption",
                                                                                "{{recordId}}"
                                                                            ]
@@ -818,11 +1244,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/asset/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "asset",
                                                                                "{{recordId}}"
                                                                            ]
@@ -918,11 +1343,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/asset",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "asset"
                                                                            ]
                                                               },
@@ -972,11 +1396,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/asset/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "asset",
                                                                                "lookup"
                                                                            ]
@@ -1017,11 +1440,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/asset",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "asset"
                                                                            ]
                                                               },
@@ -1092,11 +1514,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/asset/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "asset",
                                                                                "{{recordId}}"
                                                                            ]
@@ -1153,11 +1574,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/asset/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "asset",
                                                                                "{{recordId}}"
                                                                            ]
@@ -1221,11 +1641,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetmanufacturer/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmanufacturer/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetmanufacturer",
                                                                                "{{recordId}}"
                                                                            ]
@@ -1315,11 +1734,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetmanufacturer",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmanufacturer",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetmanufacturer"
                                                                            ]
                                                               },
@@ -1369,11 +1787,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetmanufacturer/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmanufacturer/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetmanufacturer",
                                                                                "lookup"
                                                                            ]
@@ -1414,11 +1831,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetmanufacturer",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmanufacturer",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetmanufacturer"
                                                                            ]
                                                               },
@@ -1489,11 +1905,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetmanufacturer/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmanufacturer/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetmanufacturer",
                                                                                "{{recordId}}"
                                                                            ]
@@ -1550,11 +1965,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetmanufacturer/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmanufacturer/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetmanufacturer",
                                                                                "{{recordId}}"
                                                                            ]
@@ -1618,11 +2032,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetmodel/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmodel/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetmodel",
                                                                                "{{recordId}}"
                                                                            ]
@@ -1718,11 +2131,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetmodel",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmodel",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetmodel"
                                                                            ]
                                                               },
@@ -1772,11 +2184,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetmodel/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmodel/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetmodel",
                                                                                "lookup"
                                                                            ]
@@ -1817,11 +2228,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetmodel",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmodel",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetmodel"
                                                                            ]
                                                               },
@@ -1892,11 +2302,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetmodel/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmodel/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetmodel",
                                                                                "{{recordId}}"
                                                                            ]
@@ -1953,11 +2362,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetmodel/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmodel/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetmodel",
                                                                                "{{recordId}}"
                                                                            ]
@@ -2021,11 +2429,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetstatus/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetstatus/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetstatus",
                                                                                "{{recordId}}"
                                                                            ]
@@ -2115,11 +2522,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetstatus",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetstatus",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetstatus"
                                                                            ]
                                                               },
@@ -2169,11 +2575,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetstatus/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetstatus/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetstatus",
                                                                                "lookup"
                                                                            ]
@@ -2214,11 +2619,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetstatus",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetstatus",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetstatus"
                                                                            ]
                                                               },
@@ -2289,11 +2693,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetstatus/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetstatus/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetstatus",
                                                                                "{{recordId}}"
                                                                            ]
@@ -2350,11 +2753,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetstatus/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetstatus/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetstatus",
                                                                                "{{recordId}}"
                                                                            ]
@@ -2418,11 +2820,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assettype/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assettype/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assettype",
                                                                                "{{recordId}}"
                                                                            ]
@@ -2512,11 +2913,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assettype",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assettype",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assettype"
                                                                            ]
                                                               },
@@ -2566,11 +2966,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assettype/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assettype/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assettype",
                                                                                "lookup"
                                                                            ]
@@ -2611,11 +3010,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assettype",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assettype",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assettype"
                                                                            ]
                                                               },
@@ -2686,11 +3084,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assettype/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assettype/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assettype",
                                                                                "{{recordId}}"
                                                                            ]
@@ -2747,11 +3144,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assettype/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assettype/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assettype",
                                                                                "{{recordId}}"
                                                                            ]
@@ -2815,11 +3211,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetwarranty/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetwarranty/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetwarranty",
                                                                                "{{recordId}}"
                                                                            ]
@@ -2909,11 +3304,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetwarranty",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetwarranty",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetwarranty"
                                                                            ]
                                                               },
@@ -2955,11 +3349,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetwarranty/lookup",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetwarranty/lookup",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetwarranty",
                                                                                "lookup"
                                                                            ]
@@ -3000,11 +3393,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetwarranty",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetwarranty",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetwarranty"
                                                                            ]
                                                               },
@@ -3033,7 +3425,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetId\": {{recordId}},\n  \"warrantyType\": \"CODE\",\n  \"warrantyProvider\": null,\n  \"warrantyNumber\": null,\n  \"registrationNumber\": null,\n  \"startDate\": \"2026-06-21\",\n  \"endDate\": \"2026-06-21\",\n  \"coverageDescription\": \"sample\"\n}",
+                                                                   "raw":  "{\n  \"assetId\": {{recordId}},\n  \"warrantyType\": \"OEM\",\n  \"warrantyProvider\": null,\n  \"warrantyNumber\": null,\n  \"registrationNumber\": null,\n  \"startDate\": \"2026-06-21\",\n  \"endDate\": \"2026-06-21\",\n  \"coverageDescription\": \"sample\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3075,11 +3467,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetwarranty/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetwarranty/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetwarranty",
                                                                                "{{recordId}}"
                                                                            ]
@@ -3109,7 +3500,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetId\": {{recordId}},\n  \"warrantyType\": \"CODE\",\n  \"warrantyProvider\": null,\n  \"warrantyNumber\": null,\n  \"registrationNumber\": null,\n  \"startDate\": \"2026-06-21\",\n  \"endDate\": \"2026-06-21\",\n  \"coverageDescription\": \"sample\"\n}",
+                                                                   "raw":  "{\n  \"assetId\": {{recordId}},\n  \"warrantyType\": \"OEM\",\n  \"warrantyProvider\": null,\n  \"warrantyNumber\": null,\n  \"registrationNumber\": null,\n  \"startDate\": \"2026-06-21\",\n  \"endDate\": \"2026-06-21\",\n  \"coverageDescription\": \"sample\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3136,11 +3527,10 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/assetwarranty/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetwarranty/{{recordId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "asset",
                                                                                "assetwarranty",
                                                                                "{{recordId}}"
                                                                            ]
@@ -3252,10 +3642,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Asset service scaffold (health) via {{gatewayUrl}}/api/v1/asset/...",
+                 "description":  "Asset catalog APIs via {{gatewayUrl}}/api/v1/{asset*}. Attribute Create scenarios cover each inputType.",
                  "name":  "FGS AssetService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "0399e8d9-1cc0-489b-b7dd-89f0da3d5808"
+                 "_postman_id":  "14e894a8-3ec5-4d45-8c6c-5063c94c8145"
              },
     "event":  [
                   {
