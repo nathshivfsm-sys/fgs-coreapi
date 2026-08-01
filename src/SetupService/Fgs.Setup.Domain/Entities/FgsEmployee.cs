@@ -43,7 +43,7 @@ public class FgsEmployee : ITenantCompanyScoped
 
     public string? OfficePhone { get; set; }
 
-    public long? AddressId { get; set; }
+    public Guid? AddressId { get; set; }
 
     public long? ProfilePhotoFileId { get; set; }
 

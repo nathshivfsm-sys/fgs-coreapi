@@ -2174,6 +2174,403 @@
                               ]
                  },
                  {
+                     "description":  "EmployeeController - employee",
+                     "name":  "EmployeeController",
+                     "item":  [
+                                  {
+                                      "name":  "GetById",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/employee/{{recordId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "employee",
+                                                                               "{{recordId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetById",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "List",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "page",
+                                                                                    "description":  "Page number (1-based). Default: 1.",
+                                                                                    "value":  "{{page}}"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "pageSize",
+                                                                                    "description":  "Items per page (1-100). Default: 25.",
+                                                                                    "value":  "{{pageSize}}"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortBy",
+                                                                                    "description":  "Property to sort by (entity-specific). Optional.",
+                                                                                    "value":  "{{sortBy}}",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortDirection",
+                                                                                    "description":  "Sort direction: Asc or Desc. Default: Asc.",
+                                                                                    "value":  "{{sortDirection}}",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "search",
+                                                                                    "description":  "Free-text search across searchable fields. Optional.",
+                                                                                    "value":  "{{search}}",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "isActive",
+                                                                                    "description":  "Filter by active records. Default: true.",
+                                                                                    "value":  "true"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "employeeNumber",
+                                                                                    "description":  "Optional employeeNumber filter.",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "employeeTypeId",
+                                                                                    "description":  "Optional employeeTypeId filter.",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "statusId",
+                                                                                    "description":  "Optional statusId filter.",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/employee",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "employee"
+                                                                           ]
+                                                              },
+                                                      "description":  "List",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Lookup",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "activeOnly",
+                                                                                    "description":  "Optional activeOnly filter.",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/employee/lookup",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "employee",
+                                                                               "lookup"
+                                                                           ]
+                                                              },
+                                                      "description":  "Lookup",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/employee",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "employee"
+                                                                           ]
+                                                              },
+                                                      "description":  "Create",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"userId\": null,\n  \"employeeNumber\": \"sample\",\n  \"employeeTypeId\": 1,\n  \"displayName\": \"Sample Display Name\",\n  \"legalFirstName\": \"Sample Name\",\n  \"legalMiddleName\": \"Sample Name\",\n  \"legalLastName\": \"Sample Name\",\n  \"birthDate\": \"2026-06-21\",\n  \"hireDate\": \"2026-06-21\",\n  \"terminationDate\": \"2026-06-21\",\n  \"statusId\": 1,\n  \"personalEmail\": \"office@example.com\",\n  \"officeEmail\": \"office@example.com\",\n  \"personalPhone\": \"+15551234567\",\n  \"officePhone\": \"+15551234567\",\n  \"address\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Apt 2\",\n    \"addressLine3\": null,\n    \"addressLine4\": null,\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": null,\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": null,\n    \"latitude\": null,\n    \"longitude\": null,\n    \"placeId\": null\n  },\n  \"profilePhotoFileId\": null,\n  \"regularRate\": 0.00,\n  \"overtimeRate\": 0.00,\n  \"doubleTimeRate\": 0.00,\n  \"laborBurdenTypeId\": null,\n  \"laborBurdenValue\": 0.00,\n  \"isPurchaser\": true,\n  \"notes\": \"Sample notes\"\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "Update",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/employee/{{recordId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "employee",
+                                                                               "{{recordId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Update",
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"userId\": null,\n  \"employeeNumber\": \"sample\",\n  \"employeeTypeId\": 1,\n  \"displayName\": \"Sample Display Name\",\n  \"legalFirstName\": \"Sample Name\",\n  \"legalMiddleName\": \"Sample Name\",\n  \"legalLastName\": \"Sample Name\",\n  \"birthDate\": \"2026-06-21\",\n  \"hireDate\": \"2026-06-21\",\n  \"terminationDate\": \"2026-06-21\",\n  \"statusId\": 1,\n  \"personalEmail\": \"office@example.com\",\n  \"officeEmail\": \"office@example.com\",\n  \"personalPhone\": \"+15551234567\",\n  \"officePhone\": \"+15551234567\",\n  \"address\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Apt 2\",\n    \"addressLine3\": null,\n    \"addressLine4\": null,\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": null,\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": null,\n    \"latitude\": null,\n    \"longitude\": null,\n    \"placeId\": null\n  },\n  \"profilePhotoFileId\": null,\n  \"regularRate\": 0.00,\n  \"overtimeRate\": 0.00,\n  \"doubleTimeRate\": 0.00,\n  \"laborBurdenTypeId\": null,\n  \"laborBurdenValue\": 0.00,\n  \"isPurchaser\": true,\n  \"notes\": \"Sample notes\"\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Patch",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/employee/{{recordId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "employee",
+                                                                               "{{recordId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Patch",
+                                                      "method":  "PATCH",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"displayName\": \"Updated sample\",\n  \"legalFirstName\": \"Updated sample\",\n  \"legalMiddleName\": \"Updated sample\",\n  \"legalLastName\": \"Updated sample\"\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
                      "description":  "GLBreakController - glbreak",
                      "name":  "GLBreakController",
                      "item":  [
@@ -2419,7 +2816,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"code\": \"PLUMB\",\r\n  \"name\": \"Plumbing Division\",\r\n  \"breakLabel\": \"Plumbing Services\",\r\n  \"breakLevel\": 1,\r\n  \"logoFileId\": null,\r\n  \"address\": {\r\n    \"addressLine1\": \"456 Oak Ave\",\r\n    \"city\": \"Austin\",\r\n    \"state\": \"TX\",\r\n    \"country\": \"US\",\r\n    \"postalCode\": \"78701\"\r\n  },\r\n  \"tradeCodes\": [\"PLUMB\"]\r\n}",
+                                                                   "raw":  "{\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"breakLabel\": null,\n  \"breakLevel\": 1,\n  \"logoFileId\": null,\n  \"address\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Apt 2\",\n    \"addressLine3\": null,\n    \"addressLine4\": null,\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": null,\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": null,\n    \"latitude\": null,\n    \"longitude\": null,\n    \"placeId\": null\n  },\n  \"tradeCodes\": [\"PLUMB\"]\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2494,7 +2891,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"code\": \"PLUMB\",\r\n  \"name\": \"Plumbing Division Updated\",\r\n  \"breakLabel\": \"Plumbing Services\",\r\n  \"breakLevel\": 1,\r\n  \"logoFileId\": null,\r\n  \"address\": {\r\n    \"addressLine1\": \"456 Oak Ave\",\r\n    \"city\": \"Austin\",\r\n    \"state\": \"TX\",\r\n    \"country\": \"US\",\r\n    \"postalCode\": \"78701\"\r\n  },\r\n  \"tradeCodes\": [\"PLUMB\"]\r\n}",
+                                                                   "raw":  "{\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"breakLabel\": null,\n  \"breakLevel\": 1,\n  \"logoFileId\": null,\n  \"address\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Apt 2\",\n    \"addressLine3\": null,\n    \"addressLine4\": null,\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": null,\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": null,\n    \"latitude\": null,\n    \"longitude\": null,\n    \"placeId\": null\n  },\n  \"tradeCodes\": [\"PLUMB\"]\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2554,7 +2951,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{ \"name\": \"Plumbing Division Updated\", \"breakLabel\": \"Residential Plumbing\" }",
+                                                                   "raw":  "{\n  \"name\": \"Updated sample\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -12555,7 +12952,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"fgsSetupZoneId\": null,\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"beginTime\": \"08:00:00\",\n  \"endTime\": \"17:00:00\",\n  \"markTechArrivedLateAfter\": \"08:00:00\",\n  \"markWorkOrderDelayedCompletionAfter\": \"17:00:00\",\n  \"isMobileVisible\": true,\n  \"isCustomerPortalVisible\": true,\n  \"includeInCapacityPlanning\": false,\n  \"showToExternalSystem\": false\n}",
+                                                                   "raw":  "{\n  \"fgsSetupZoneId\": null,\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"beginTime\": \"08:00:00\",\n  \"endTime\": \"17:00:00\",\n  \"markTechArrivedLateAfter\": \"08:00:00\",\n  \"markWorkOrderDelayedCompletionAfter\": \"17:00:00\",\n  \"isMobileVisible\": true,\n  \"isCustomerPortalVisible\": true,\n  \"includeInCapacityPlanning\": true,\n  \"showToExternalSystem\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -12630,7 +13027,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"fgsSetupZoneId\": null,\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"beginTime\": \"08:00:00\",\n  \"endTime\": \"17:00:00\",\n  \"markTechArrivedLateAfter\": \"08:00:00\",\n  \"markWorkOrderDelayedCompletionAfter\": \"17:00:00\",\n  \"isMobileVisible\": true,\n  \"isCustomerPortalVisible\": true,\n  \"includeInCapacityPlanning\": false,\n  \"showToExternalSystem\": false\n}",
+                                                                   "raw":  "{\n  \"fgsSetupZoneId\": null,\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"beginTime\": \"08:00:00\",\n  \"endTime\": \"17:00:00\",\n  \"markTechArrivedLateAfter\": \"08:00:00\",\n  \"markWorkOrderDelayedCompletionAfter\": \"17:00:00\",\n  \"isMobileVisible\": true,\n  \"isCustomerPortalVisible\": true,\n  \"includeInCapacityPlanning\": true,\n  \"showToExternalSystem\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -17200,7 +17597,7 @@
                  "description":  "Platform setup catalog APIs via {{gatewayUrl}}/api/v1/{catalog}. Multi-scenario Create requests for pricing matrix, credentials, vehicles, job types, communication templates, and billing categories.",
                  "name":  "FGS SetupService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "403f6de7-c431-472d-b947-4885de705790"
+                 "_postman_id":  "99f066b9-4f2d-4233-b1cd-c4bc8336b9bc"
              },
     "event":  [
                   {

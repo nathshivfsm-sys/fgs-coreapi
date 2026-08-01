@@ -726,7 +726,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"inventoryLocationCode\": \"WH-AUSTIN\",\n  \"name\": \"Sample Name\",\n  \"inventoryLocationType\": \"WAREHOUSE\",\n  \"parentInventoryLocationId\": null,\n  \"description\": \"Sample description\",\n  \"address1\": null,\n  \"address2\": null,\n  \"city\": null,\n  \"stateProvince\": \"1HGBH41JXMN109186\",\n  \"postalCode\": \"78701\",\n  \"country\": null,\n  \"contactName\": \"Sample Name\",\n  \"phoneNumber\": \"+15551234567\",\n  \"email\": \"office@example.com\",\n  \"isDefault\": false\n}",
+                                                                   "raw":  "{\n  \"inventoryLocationCode\": \"WH-AUSTIN\",\n  \"name\": \"Sample Name\",\n  \"inventoryLocationType\": \"WAREHOUSE\",\n  \"parentInventoryLocationId\": null,\n  \"description\": \"Sample description\",\n  \"address1\": null,\n  \"address2\": null,\n  \"city\": \"Austin\",\n  \"stateProvince\": \"1HGBH41JXMN109186\",\n  \"postalCode\": \"78701\",\n  \"country\": \"US\",\n  \"contactName\": \"Sample Name\",\n  \"phoneNumber\": \"+15551234567\",\n  \"email\": \"office@example.com\",\n  \"isDefault\": false\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2055,7 +2055,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"vendorCode\": \"VND01\",\n  \"name\": \"Sample Name\",\n  \"legalName\": \"sample\",\n  \"vendorType\": \"VENDOR\",\n  \"vendorStatus\": \"ACTIVE\",\n  \"vendorAccountNumber\": null,\n  \"paymentTermId\": null,\n  \"contactName\": \"Sample Name\",\n  \"contactTitle\": null,\n  \"email\": \"office@example.com\",\n  \"purchaseOrderEmail\": \"office@example.com\",\n  \"phoneNumber\": \"+15551234567\",\n  \"mobileNumber\": \"+15551234567\",\n  \"faxNumber\": null,\n  \"website\": \"https://example.com\",\n  \"address1\": null,\n  \"address2\": null,\n  \"city\": null,\n  \"stateProvince\": \"1HGBH41JXMN109186\",\n  \"postalCode\": \"78701\",\n  \"country\": null,\n  \"taxIdNumber\": null,\n  \"licenseNumber\": null,\n  \"insurancePolicyNumber\": null,\n  \"notes\": \"Sample notes\",\n  \"is1099Eligible\": false\n}",
+                                                                   "raw":  "{\n  \"vendorCode\": \"VND01\",\n  \"name\": \"Sample Name\",\n  \"legalName\": \"sample\",\n  \"vendorType\": \"VENDOR\",\n  \"vendorStatus\": \"ACTIVE\",\n  \"vendorAccountNumber\": null,\n  \"paymentTermId\": null,\n  \"contactName\": \"Sample Name\",\n  \"contactTitle\": null,\n  \"email\": \"office@example.com\",\n  \"purchaseOrderEmail\": \"office@example.com\",\n  \"phoneNumber\": \"+15551234567\",\n  \"mobileNumber\": \"+15551234567\",\n  \"faxNumber\": null,\n  \"website\": \"https://example.com\",\n  \"address1\": null,\n  \"address2\": null,\n  \"city\": \"Austin\",\n  \"stateProvince\": \"1HGBH41JXMN109186\",\n  \"postalCode\": \"78701\",\n  \"country\": \"US\",\n  \"taxIdNumber\": null,\n  \"licenseNumber\": null,\n  \"insurancePolicyNumber\": null,\n  \"notes\": \"Sample notes\",\n  \"is1099Eligible\": false\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2148,7 +2148,7 @@
                  "description":  "Inventory locations, vendors, and truck-stock templates via {{gatewayUrl}}/api/v1/{inventory-location|vendor|truck-stock-template}. Create scenarios cover each location/vendor type.",
                  "name":  "FGS InventoryService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "516a13bb-f3db-49fa-bfe4-60865cefc0b6"
+                 "_postman_id":  "ca9188b4-480d-4878-b1bf-e7a702083caf"
              },
     "event":  [
                   {

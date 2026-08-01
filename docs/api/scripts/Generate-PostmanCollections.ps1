@@ -289,12 +289,28 @@ function Get-SampleJsonValue {
     param(
         [string]$PropertyName,
         [string]$CsType,
-        [bool]$IsPatch = $false
+        [bool]$IsPatch = $false,
+        [hashtable]$Registry = $null,
+        [int]$IndentLevel = 0
     )
 
     $nullable = $CsType.EndsWith('?')
     $baseType = $CsType.TrimEnd('?')
     $camel = ConvertTo-CamelCase $PropertyName
+
+    if ($Registry -and $Registry.ContainsKey($baseType)) {
+        $nested = Get-DtoSampleBody -DtoType $baseType -Registry $Registry -MethodName 'Create' -IndentLevel $IndentLevel
+        if ($nested) { return $nested }
+    }
+
+    if ($baseType -match '^(IReadOnlyList|IEnumerable|ICollection|List|IList)<(?<item>.+)>$') {
+        $itemType = $Matches.item.Trim()
+        if ($itemType -eq 'string') {
+            if ($PropertyName -match 'TradeCode') { return '["PLUMB"]' }
+            return '["sample"]'
+        }
+        return '[]'
+    }
 
     if ($IsPatch) {
         if ($PropertyName -eq 'IsActive') { return 'true' }
@@ -350,6 +366,7 @@ function Get-SampleJsonValue {
             return '1'
         }
         'decimal' {
+            if ($PropertyName -match 'Latitude|Longitude') { return 'null' }
             if ($PropertyName -match 'Percent|TaxPercent') { return '8.25' }
             if ($PropertyName -match 'Price|Cost') { return '100.00' }
             return '0.00'
@@ -378,6 +395,14 @@ function Get-SampleJsonValue {
             if ($PropertyName -eq 'WarrantyType') { return '"OEM"' }
             if ($PropertyName -eq 'UsedFor') { return '1' }
             if ($PropertyName -match 'VIN') { return '"1HGBH41JXMN109186"' }
+            if ($PropertyName -eq 'AddressLine1') { return '"100 Main St"' }
+            if ($PropertyName -eq 'AddressLine2') { return '"Apt 2"' }
+            if ($PropertyName -match '^AddressLine[34]$') { return 'null' }
+            if ($PropertyName -eq 'City') { return '"Austin"' }
+            if ($PropertyName -eq 'State') { return '"TX"' }
+            if ($PropertyName -eq 'County') { return 'null' }
+            if ($PropertyName -eq 'Country') { return '"US"' }
+            if ($PropertyName -eq 'FormattedAddress' -or $PropertyName -eq 'PlaceId') { return 'null' }
             if ($PropertyName -match 'PostalCode') { return '"78701"' }
             if ($PropertyName -match 'BackgroundColor|TextColor') { return '"#3366FF"' }
             if ($PropertyName -match 'Body|Subject|Description|Notes|ShortNote|TaskName|LegalName|ServiceProvider|InvoiceNumber|PurchasedFrom|OwnershipCompany|BusinessUnit|Trade|DueDateMethod|WarehouseType|BillingCategoryName') {
@@ -486,7 +511,7 @@ function Build-DtoRegistry {
 
     $registry = @{}
     $dtoFiles = Get-ChildItem -Path (Join-Path $Root 'src') -Filter '*Dtos.cs' -Recurse -ErrorAction SilentlyContinue |
-        Where-Object { $_.FullName -match 'Application\\Features' }
+        Where-Object { $_.FullName -match 'Application[\\/](Features|Common)[\\/]' }
 
     foreach ($file in $dtoFiles) {
         $content = Get-Content -Raw -Path $file.FullName
@@ -499,10 +524,10 @@ function Build-DtoRegistry {
             foreach ($line in ($m.Groups[2].Value -split ',')) {
                 $line = $line.Trim()
                 if ([string]::IsNullOrWhiteSpace($line)) { continue }
-                if ($line -match '^(?<type>[\w\?\.]+)\s+(?<name>\w+)(?:\s*=\s*[^,]+)?$') {
+                if ($line -match '^(?<type>(?:[\w\.]+(?:\s*<\s*[^>]+>\s*)?)\??)\s+(?<name>\w+)(?:\s*=\s*.+)?$') {
                     $props += [pscustomobject]@{
                         Name = $Matches.name
-                        CsType = $Matches.type
+                        CsType = ($Matches.type -replace '\s+', '')
                     }
                 }
             }
@@ -519,7 +544,8 @@ function Get-DtoSampleBody {
     param(
         [string]$DtoType,
         [hashtable]$Registry,
-        [string]$MethodName
+        [string]$MethodName,
+        [int]$IndentLevel = 0
     )
 
     if (-not $Registry.ContainsKey($DtoType)) { return $null }
@@ -541,13 +567,15 @@ function Get-DtoSampleBody {
         $props = $selected | Select-Object -Unique -Property Name, CsType
     }
 
+    $pad = '  ' * ($IndentLevel + 1)
+    $closePad = '  ' * $IndentLevel
     $lines = @()
     foreach ($p in $props) {
-        $value = Get-SampleJsonValue -PropertyName $p.Name -CsType $p.CsType -IsPatch:$isPatch
-        $lines += ('  "{0}": {1}' -f (ConvertTo-CamelCase $p.Name), $value)
+        $value = Get-SampleJsonValue -PropertyName $p.Name -CsType $p.CsType -IsPatch:$isPatch -Registry $Registry -IndentLevel ($IndentLevel + 1)
+        $lines += ('{0}"{1}": {2}' -f $pad, (ConvertTo-CamelCase $p.Name), $value)
     }
 
-    return "{`n" + ($lines -join ",`n") + "`n}"
+    return "{`n" + ($lines -join ",`n") + "`n$closePad}"
 }
 
 function Get-FromBodyDtoType {
@@ -854,47 +882,6 @@ function Parse-ControllerFile {
         if ($fileName -eq 'GLBreakController') {
             if ($methodName -eq 'Lookup') {
                 $query = @{ activeOnly = 'true' }
-            }
-            if ($methodName -eq 'Create') {
-                $body = @'
-{
-  "code": "PLUMB",
-  "name": "Plumbing Division",
-  "breakLabel": "Plumbing Services",
-  "breakLevel": 1,
-  "logoFileId": null,
-  "address": {
-    "addressLine1": "456 Oak Ave",
-    "city": "Austin",
-    "state": "TX",
-    "country": "US",
-    "postalCode": "78701"
-  },
-  "tradeCodes": ["PLUMB"]
-}
-'@
-            }
-            if ($methodName -eq 'Update') {
-                $body = @'
-{
-  "code": "PLUMB",
-  "name": "Plumbing Division Updated",
-  "breakLabel": "Plumbing Services",
-  "breakLevel": 1,
-  "logoFileId": null,
-  "address": {
-    "addressLine1": "456 Oak Ave",
-    "city": "Austin",
-    "state": "TX",
-    "country": "US",
-    "postalCode": "78701"
-  },
-  "tradeCodes": ["PLUMB"]
-}
-'@
-            }
-            if ($methodName -eq 'Patch') {
-                $body = '{ "name": "Plumbing Division Updated", "breakLabel": "Residential Plumbing" }'
             }
             $headers['X-Tenant-Id'] = '{{tenantId}}'
             $headers['X-Company-Id'] = '{{companyId}}'

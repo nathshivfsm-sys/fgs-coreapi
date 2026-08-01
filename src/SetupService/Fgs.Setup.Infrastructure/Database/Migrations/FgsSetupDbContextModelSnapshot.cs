@@ -427,9 +427,9 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("AddressId")
-                        .HasColumnType("bigint")
-                        .HasComment("Reference to the employee mailing or home address record. No FK by design.");
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uuid")
+                        .HasComment("Optional reference to the employee mailing or home address in FgsLocation. No FK by design.");
 
                     b.Property<DateOnly?>("BirthDate")
                         .HasColumnType("date")

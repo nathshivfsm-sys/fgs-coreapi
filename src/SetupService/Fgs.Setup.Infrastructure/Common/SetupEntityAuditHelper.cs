@@ -261,6 +261,26 @@ public sealed class SetupEntityAuditHelper
         entity.UpdatedBy = ResolveActor();
     }
 
+    public void StampForCreate(FgsEmployee entity)
+    {
+        var now = _dateTimeProvider.UtcNow.UtcDateTime;
+        var actorId = ResolveNumericActor();
+        var (tenantId, companyId) = ResolveTenantCompany();
+
+        entity.CreatedOn = now;
+        entity.CreatedBy = actorId;
+        entity.UpdatedOn = now;
+        entity.UpdatedBy = actorId;
+        entity.TenantId = tenantId;
+        entity.CompanyId = companyId;
+    }
+
+    public void StampForUpdate(FgsEmployee entity)
+    {
+        entity.UpdatedOn = _dateTimeProvider.UtcNow.UtcDateTime;
+        entity.UpdatedBy = ResolveNumericActor();
+    }
+
     public void StampForCreate(FgsSetupCommunicationTemplate entity, long? tenantId, long? companyId)
     {
         var now = _dateTimeProvider.UtcNow;
@@ -282,6 +302,12 @@ public sealed class SetupEntityAuditHelper
     }
 
     private string ResolveActor() => _userContext.ResolveAuditActor();
+
+    /// <summary>
+    /// Employee audit columns store numeric actor ids. Until identity exposes a long user key,
+    /// fall back to 0 (system) when only a Guid user id is available.
+    /// </summary>
+    private static long ResolveNumericActor() => 0;
 
     private (long TenantId, long CompanyId) ResolveTenantCompany()
     {

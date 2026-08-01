@@ -3645,7 +3645,7 @@
                  "description":  "Asset catalog APIs via {{gatewayUrl}}/api/v1/{asset*}. Attribute Create scenarios cover each inputType.",
                  "name":  "FGS AssetService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "14e894a8-3ec5-4d45-8c6c-5063c94c8145"
+                 "_postman_id":  "354c7756-e452-4807-9f65-a35f732799dc"
              },
     "event":  [
                   {
