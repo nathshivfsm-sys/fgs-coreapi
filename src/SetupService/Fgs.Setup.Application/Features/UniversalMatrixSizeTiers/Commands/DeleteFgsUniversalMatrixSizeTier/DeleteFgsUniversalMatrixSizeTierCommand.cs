@@ -1,8 +1,0 @@
-using Fgs.Contracts.Api;
-using Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Dtos;
-using MediatR;
-
-namespace Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Commands.DeleteFgsUniversalMatrixSizeTier;
-
-public sealed record DeleteFgsUniversalMatrixSizeTierCommand(long Id)
-    : IRequest<ApiResponse<FgsUniversalMatrixSizeTierDetailDto>>;

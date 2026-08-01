@@ -23,19 +23,7 @@ using Fgs.Setup.Infrastructure.Provisioning;
 using Fgs.Setup.Infrastructure.Persistence.GLBreaks;
 using Fgs.Setup.Infrastructure.Persistence.TechTrades;
 using Fgs.Setup.Infrastructure.Persistence.TitlesOfCourtesy;
-using Fgs.Setup.Application.Abstractions.UniversalMatrixAddOns;
-using Fgs.Setup.Application.Abstractions.UniversalMatrixFrequencyDiscounts;
-using Fgs.Setup.Application.Abstractions.UniversalMatrixItems;
-using Fgs.Setup.Application.Abstractions.UniversalMatrixOneTimeFees;
-using Fgs.Setup.Application.Abstractions.UniversalMatrixSizeTiers;
-using Fgs.Setup.Application.Abstractions.UniversalMatrixTiers;
 using Fgs.Setup.Application.Abstractions.UniversalPricingServices;
-using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixAddOns;
-using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixFrequencyDiscounts;
-using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixItems;
-using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixOneTimeFees;
-using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixSizeTiers;
-using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixTiers;
 using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalPricingServices;
 using Fgs.Setup.Application.Abstractions.CommunicationTemplates;
 using Fgs.Setup.Application.Abstractions.SalesActivityOutcomes;
@@ -227,19 +215,7 @@ public static class DependencyInjection
         services.AddScoped<IFgsSetupPricingMatrixReadRepository, FgsSetupPricingMatrixReadRepository>();
         services.AddScoped<IFgsSetupPricingMatrixWriteService, FgsSetupPricingMatrixWriteService>();
         services.AddScoped<IFgsUniversalPricingServiceReadRepository, FgsUniversalPricingServiceReadRepository>();
-        services.AddScoped<IFgsUniversalPricingServiceWriteRepository, FgsUniversalPricingServiceWriteRepository>();
-        services.AddScoped<IFgsUniversalMatrixTierReadRepository, FgsUniversalMatrixTierReadRepository>();
-        services.AddScoped<IFgsUniversalMatrixTierWriteRepository, FgsUniversalMatrixTierWriteRepository>();
-        services.AddScoped<IFgsUniversalMatrixSizeTierReadRepository, FgsUniversalMatrixSizeTierReadRepository>();
-        services.AddScoped<IFgsUniversalMatrixSizeTierWriteRepository, FgsUniversalMatrixSizeTierWriteRepository>();
-        services.AddScoped<IFgsUniversalMatrixItemReadRepository, FgsUniversalMatrixItemReadRepository>();
-        services.AddScoped<IFgsUniversalMatrixItemWriteRepository, FgsUniversalMatrixItemWriteRepository>();
-        services.AddScoped<IFgsUniversalMatrixFrequencyDiscountReadRepository, FgsUniversalMatrixFrequencyDiscountReadRepository>();
-        services.AddScoped<IFgsUniversalMatrixFrequencyDiscountWriteRepository, FgsUniversalMatrixFrequencyDiscountWriteRepository>();
-        services.AddScoped<IFgsUniversalMatrixOneTimeFeeReadRepository, FgsUniversalMatrixOneTimeFeeReadRepository>();
-        services.AddScoped<IFgsUniversalMatrixOneTimeFeeWriteRepository, FgsUniversalMatrixOneTimeFeeWriteRepository>();
-        services.AddScoped<IFgsUniversalMatrixAddOnReadRepository, FgsUniversalMatrixAddOnReadRepository>();
-        services.AddScoped<IFgsUniversalMatrixAddOnWriteRepository, FgsUniversalMatrixAddOnWriteRepository>();
+        services.AddScoped<IFgsUniversalPricingServiceWriteService, FgsUniversalPricingServiceWriteService>();
         services.AddSingleton<ITenantSeedDatabaseConnectionFactory>(sp =>
             new TenantSeedDatabaseConnectionFactory(
                 connectionString,

@@ -2148,7 +2148,7 @@
                  "description":  "Inventory locations, vendors, and truck-stock templates via {{gatewayUrl}}/api/v1/{inventory-location|vendor|truck-stock-template}. Create scenarios cover each location/vendor type.",
                  "name":  "FGS InventoryService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "ca9188b4-480d-4878-b1bf-e7a702083caf"
+                 "_postman_id":  "eee6e67b-d830-4e94-8de0-9c5364fb6ddb"
              },
     "event":  [
                   {

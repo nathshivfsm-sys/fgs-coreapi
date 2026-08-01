@@ -191,7 +191,7 @@
                  "description":  "Notification dispatch via {{gatewayUrl}}/api/v1/notification/...",
                  "name":  "FGS NotificationService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "e22b3eeb-0aea-46b2-b28e-09a844b8a425"
+                 "_postman_id":  "43c67fc1-040c-4100-b5be-4cf8f541a653"
              },
     "event":  [
                   {

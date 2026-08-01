@@ -2,7 +2,7 @@ using Fgs.Setup.Application.Features.UniversalPricingServices.Dtos;
 
 namespace Fgs.Setup.Application.Abstractions.UniversalPricingServices;
 
-public interface IFgsUniversalPricingServiceWriteRepository
+public interface IFgsUniversalPricingServiceWriteService
 {
     Task<FgsUniversalPricingServiceDetailDto> CreateAsync(FgsUniversalPricingServiceCreateDto dto, CancellationToken cancellationToken = default);
 

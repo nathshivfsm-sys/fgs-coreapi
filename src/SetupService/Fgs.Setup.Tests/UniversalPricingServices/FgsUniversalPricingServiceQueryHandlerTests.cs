@@ -16,7 +16,10 @@ public sealed class FgsUniversalPricingServiceQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsUniversalPricingServiceDetailDto(1, "TEST", 5, true);
+        var detail = new FgsUniversalPricingServiceDetailDto(
+            1, "TEST", 5, true,
+            [new FgsUniversalMatrixTierDetailDto(10, "Standard", 1.0m, 1, true)],
+            [], [], [], [], []);
 
         var readRepository = new Mock<IFgsUniversalPricingServiceReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
@@ -30,6 +33,7 @@ public sealed class FgsUniversalPricingServiceQueryHandlerTests
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(ApiStatusCodes.Ok);
+        response.Data!.Tiers.Should().HaveCount(1);
         readRepository.Verify(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()), Times.Once);
     }
 

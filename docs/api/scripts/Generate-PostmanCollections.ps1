@@ -309,6 +309,10 @@ function Get-SampleJsonValue {
             if ($PropertyName -match 'TradeCode') { return '["PLUMB"]' }
             return '["sample"]'
         }
+        if ($Registry -and $Registry.ContainsKey($itemType)) {
+            $nested = Get-DtoSampleBody -DtoType $itemType -Registry $Registry -MethodName 'Create' -IndentLevel 0
+            if ($nested) { return "[$nested]" }
+        }
         return '[]'
     }
 
@@ -367,8 +371,9 @@ function Get-SampleJsonValue {
         }
         'decimal' {
             if ($PropertyName -match 'Latitude|Longitude') { return 'null' }
+            if ($PropertyName -match 'Multiplier') { return '1.00' }
             if ($PropertyName -match 'Percent|TaxPercent') { return '8.25' }
-            if ($PropertyName -match 'Price|Cost') { return '100.00' }
+            if ($PropertyName -match 'Price|Cost|Amount') { return '100.00' }
             return '0.00'
         }
         'double' { return '0.0' }

@@ -25,7 +25,9 @@ internal sealed class FgsUniversalPricingServiceReadRepository : IFgsUniversalPr
     public async Task<FgsUniversalPricingServiceDetailDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
-        var sql = $"""
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        var headerSql = $"""
             SELECT {FgsUniversalPricingServiceSql.SelectDetailColumns}
             FROM {FgsUniversalPricingServiceSql.Table}
             WHERE "Id" = @Id
@@ -33,11 +35,111 @@ internal sealed class FgsUniversalPricingServiceReadRepository : IFgsUniversalPr
               AND "CompanyId" = @CompanyId
             """;
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        var row = await connection.QueryFirstOrDefaultAsync<FgsUniversalPricingServiceDetailRow>(
-            new CommandDefinition(sql, new { Id = id, TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
+        var header = await connection.QueryFirstOrDefaultAsync<FgsUniversalPricingServiceHeaderRow>(
+            new CommandDefinition(headerSql, new { Id = id, TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
 
-        return row?.ToDto();
+        if (header is null)
+        {
+            return null;
+        }
+
+        var parameters = new { UniversalPricingServiceId = id, TenantId = tenantId, CompanyId = companyId };
+
+        var tiers = (await connection.QueryAsync<FgsUniversalMatrixTierRow>(
+            new CommandDefinition(
+                $"""
+                SELECT {FgsUniversalPricingServiceSql.SelectTierColumns}
+                FROM {FgsUniversalPricingServiceSql.TierTable}
+                WHERE "UniversalPricingServiceId" = @UniversalPricingServiceId
+                  AND "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
+                ORDER BY "DisplayOrder" ASC, "Name" ASC
+                """,
+                parameters,
+                cancellationToken: cancellationToken))).Select(r => r.ToDto()).ToList();
+
+        var sizeTiers = (await connection.QueryAsync<FgsUniversalMatrixSizeTierRow>(
+            new CommandDefinition(
+                $"""
+                SELECT {FgsUniversalPricingServiceSql.SelectSizeTierColumns}
+                FROM {FgsUniversalPricingServiceSql.SizeTierTable}
+                WHERE "UniversalPricingServiceId" = @UniversalPricingServiceId
+                  AND "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
+                ORDER BY "DisplayOrder" ASC, "Name" ASC
+                """,
+                parameters,
+                cancellationToken: cancellationToken))).Select(r => r.ToDto()).ToList();
+
+        var items = (await connection.QueryAsync<FgsUniversalMatrixItemRow>(
+            new CommandDefinition(
+                $"""
+                SELECT {FgsUniversalPricingServiceSql.SelectItemColumns}
+                FROM {FgsUniversalPricingServiceSql.ItemTable}
+                WHERE "UniversalPricingServiceId" = @UniversalPricingServiceId
+                  AND "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
+                ORDER BY "DisplayOrder" ASC, "ItemName" ASC
+                """,
+                parameters,
+                cancellationToken: cancellationToken))).Select(r => r.ToDto()).ToList();
+
+        var frequencyDiscounts = (await connection.QueryAsync<FgsUniversalMatrixFrequencyDiscountRow>(
+            new CommandDefinition(
+                $"""
+                SELECT {FgsUniversalPricingServiceSql.SelectFrequencyDiscountColumns}
+                FROM {FgsUniversalPricingServiceSql.FrequencyDiscountTable}
+                WHERE "UniversalPricingServiceId" = @UniversalPricingServiceId
+                  AND "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
+                ORDER BY "DisplayOrder" ASC, "Name" ASC
+                """,
+                parameters,
+                cancellationToken: cancellationToken))).Select(r => r.ToDto()).ToList();
+
+        var oneTimeFees = (await connection.QueryAsync<FgsUniversalMatrixOneTimeFeeRow>(
+            new CommandDefinition(
+                $"""
+                SELECT {FgsUniversalPricingServiceSql.SelectOneTimeFeeColumns}
+                FROM {FgsUniversalPricingServiceSql.OneTimeFeeTable}
+                WHERE "UniversalPricingServiceId" = @UniversalPricingServiceId
+                  AND "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
+                ORDER BY "DisplayOrder" ASC, "Name" ASC
+                """,
+                parameters,
+                cancellationToken: cancellationToken))).Select(r => r.ToDto()).ToList();
+
+        var addOns = (await connection.QueryAsync<FgsUniversalMatrixAddOnRow>(
+            new CommandDefinition(
+                $"""
+                SELECT {FgsUniversalPricingServiceSql.SelectAddOnColumns}
+                FROM {FgsUniversalPricingServiceSql.AddOnTable}
+                WHERE "UniversalPricingServiceId" = @UniversalPricingServiceId
+                  AND "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
+                ORDER BY "DisplayOrder" ASC, "Name" ASC
+                """,
+                parameters,
+                cancellationToken: cancellationToken))).Select(r => r.ToDto()).ToList();
+
+        return new FgsUniversalPricingServiceDetailDto(
+            header.Id,
+            header.UniversalPricingServiceCode,
+            header.DisplayOrder,
+            header.IsActive,
+            tiers,
+            sizeTiers,
+            items,
+            frequencyDiscounts,
+            oneTimeFees,
+            addOns);
     }
 
     public async Task<PagedResult<FgsUniversalPricingServiceSummaryDto>> ListAsync(
@@ -69,8 +171,7 @@ internal sealed class FgsUniversalPricingServiceReadRepository : IFgsUniversalPr
 
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
-            where.Add(
-                "(\"UniversalPricingServiceCode\" ILIKE @Search)");
+            where.Add("(\"UniversalPricingServiceCode\" ILIKE @Search)");
         }
 
         var whereClause = string.Join(" AND ", where);
@@ -165,12 +266,12 @@ internal sealed class FgsUniversalPricingServiceReadRepository : IFgsUniversalPr
                 },
                 cancellationToken: cancellationToken));
     }
+
     public async Task<bool> ExistsGloUniversalPricingServiceCodeAsync(
         string code,
         CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
-        var sql = $"""
+        var sql = """
             SELECT EXISTS(
                 SELECT 1
                 FROM glo."GloUniversalPricingService"
