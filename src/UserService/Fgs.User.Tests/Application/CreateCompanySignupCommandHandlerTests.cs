@@ -4,6 +4,7 @@ using Fgs.User.Infrastructure.Common.Options;
 using System.Linq.Expressions;
 using System.Text.Json;
 using Fgs.User.Application.Abstractions.Geo;
+using Fgs.User.Application.Abstractions.Invitations;
 using Fgs.Messaging.Abstractions;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Security;
@@ -13,6 +14,7 @@ using Fgs.Contracts.Signup;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Signup;
+using Fgs.User.Application.Invitations;
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 using Fgs.User.Domain.Entities;
@@ -163,10 +165,8 @@ public sealed class CreateCompanySignupCommandHandlerTests
 
         var handler = new CreateCompanySignupCommandHandler(
             unitOfWorkMock.Object,
-            new InvitationTokenService(),
-            Mock.Of<IOutboxWriter>(),
+            Mock.Of<IUserInvitationIssuer>(),
             new DateTimeProvider(),
-            new ConfigurationBuilder().Build(),
             Mock.Of<IAddressLocaleResolver>(),
             signupUniquenessValidatorMock.Object,
             Mock.Of<ICacheService>());
@@ -233,12 +233,17 @@ public sealed class CreateCompanySignupCommandHandlerTests
             dateTime,
             TestUserRepositories.InvitationRead(userContext));
 
-        return new CreateCompanySignupCommandHandler(
+        IUserInvitationIssuer invitationIssuer = new UserInvitationIssuer(
             unitOfWork,
             new InvitationTokenService(),
             outboxWriter,
             dateTime,
-            configuration,
+            configuration);
+
+        return new CreateCompanySignupCommandHandler(
+            unitOfWork,
+            invitationIssuer,
+            dateTime,
             localeResolver,
             signupUniquenessValidator,
             Mock.Of<ICacheService>());

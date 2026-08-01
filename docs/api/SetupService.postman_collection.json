@@ -15215,7 +15215,7 @@
                  "description":  "Platform setup catalog APIs via {{gatewayUrl}}/api/v1/{catalog}. Multi-scenario Create requests for pricing matrix, credentials, vehicles, job types, communication templates, and billing categories.",
                  "name":  "FGS SetupService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "3635602f-3ae6-455c-b447-fa36a13d4681"
+                 "_postman_id":  "e9792049-90c2-4714-b26c-16a90959e5e2"
              },
     "event":  [
                   {

@@ -1,3 +1,4 @@
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.Notification.Domain.Notifications;
 using Fgs.Notification.Application.Notifications.Channels;
 using Fgs.Notification.Application.Notifications.Channels.Models;
@@ -61,9 +62,9 @@ public sealed class NotificationDispatcherTests
                 tenantId,
                 CompanyId: null,
                 NotificationChannel.Email,
-                "USER_INVITED",
+                CommunicationTemplateCodes.UserInvitation,
                 "user@example.com",
-                new Dictionary<string, string> { ["DisplayName"] = "Test" },
+                new Dictionary<string, string> { ["UserName"] = "Test" },
                 "corr-1",
                 "msg-id-1"));
 

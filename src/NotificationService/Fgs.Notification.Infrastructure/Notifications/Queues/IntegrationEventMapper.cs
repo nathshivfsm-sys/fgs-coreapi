@@ -61,7 +61,7 @@ public sealed class IntegrationEventMapper(IOptions<NotificationOptions> notific
             messageId);
     }
 
-    private static NotificationDispatchRequest MapUserInvited(
+    private NotificationDispatchRequest MapUserInvited(
         string payload,
         string? correlationId,
         string messageId)
@@ -69,15 +69,15 @@ public sealed class IntegrationEventMapper(IOptions<NotificationOptions> notific
         var evt = JsonSerializer.Deserialize<UserInvitedEvent>(payload, JsonOptions)!;
         return new NotificationDispatchRequest(
             evt.TenantId,
-            CompanyId: null,
+            evt.CompanyId > 0 ? evt.CompanyId : null,
             NotificationChannel.Email,
-            "USER_INVITED",
+            CommunicationTemplateCodes.UserInvitation,
             evt.Email,
             new Dictionary<string, string>
             {
-                ["DisplayName"] = evt.DisplayName,
-                ["InviteUrl"] = evt.InviteUrl,
-                ["Email"] = evt.Email
+                ["UserName"] = FirstNonEmpty(evt.DisplayName),
+                ["CompanyName"] = FirstNonEmpty(evt.CompanyName, _notification.CompanyName),
+                ["ActivationLink"] = FirstNonEmpty(evt.InviteUrl)
             },
             correlationId,
             messageId);

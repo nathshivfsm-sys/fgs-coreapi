@@ -96,6 +96,37 @@ public sealed class IntegrationEventMapperTests
     }
 
     [Fact]
+    public void Map_UserInvited_BuildsUserInvitationEmailDispatchRequest()
+    {
+        const long tenantId = 5001;
+        const long companyId = 42;
+        var payload = JsonSerializer.Serialize(new UserInvitedEvent(
+            tenantId,
+            companyId,
+            Guid.NewGuid(),
+            "invite@example.com",
+            "Jane Doe",
+            "https://example.com/invite?token=abc",
+            "Acme Plumbing"));
+
+        var request = _mapper.Map(
+            IntegrationEventRoutingKeys.UserInvited,
+            payload,
+            "corr",
+            "mid");
+
+        request.Should().NotBeNull();
+        request!.TenantId.Should().Be(tenantId);
+        request.CompanyId.Should().Be(companyId);
+        request.Channel.Should().Be(NotificationChannel.Email);
+        request.Recipient.Should().Be("invite@example.com");
+        request.TemplateCode.Should().Be(CommunicationTemplateCodes.UserInvitation);
+        request.TemplateData["UserName"].Should().Be("Jane Doe");
+        request.TemplateData["CompanyName"].Should().Be("Acme Plumbing");
+        request.TemplateData["ActivationLink"].Should().Be("https://example.com/invite?token=abc");
+    }
+
+    [Fact]
     public void Map_CompanySignupInviteEmail_AcceptsLegacyGuidCompanyId()
     {
         const string payload =
