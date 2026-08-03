@@ -12,12 +12,12 @@ internal static class FgsInventoryItemSql
         "Id", "InventoryItemTypeId", "InventoryCategoryId", "InventorySubCategoryId",
         "ItemCode", "Name", "Description", "PurchaseDescription", "SalesDescription",
         "ManufacturerPartNumber", "ManufacturerName", "Sku", "UPCCode", "UnitOfMeasure",
-        "TracksInventory", "UnitCost", "StandardUnitCost", "SalesPrice", "DefaultTaxable", "IsActive"
+        "TracksInventory", "IsSerialized", "UnitCost", "StandardUnitCost", "SalesPrice", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
         "Id", "ItemCode", "Name", "InventoryItemTypeId", "InventoryCategoryId", "InventorySubCategoryId",
-        "TracksInventory", "UnitCost", "SalesPrice", "IsActive"
+        "TracksInventory", "IsSerialized", "UnitCost", "SalesPrice", "IsActive"
         """;
 
     public const string SelectLookupColumns = """

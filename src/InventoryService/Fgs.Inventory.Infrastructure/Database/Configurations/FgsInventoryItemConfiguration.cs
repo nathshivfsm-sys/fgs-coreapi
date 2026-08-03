@@ -31,10 +31,12 @@ internal sealed class FgsInventoryItemConfiguration : IEntityTypeConfiguration<F
         entity.Property(e => e.UPCCode).HasMaxLength(100);
         entity.Property(e => e.UnitOfMeasure).HasMaxLength(50);
         entity.Property(e => e.TracksInventory).HasDefaultValue(false);
+        entity.Property(e => e.IsSerialized)
+            .HasDefaultValue(false)
+            .HasComment("Indicates whether individual serial numbers are tracked for this inventory item.");
         entity.Property(e => e.UnitCost).HasColumnType("numeric(18,2)").HasDefaultValue(0m);
         entity.Property(e => e.StandardUnitCost).HasColumnType("numeric(18,2)").HasDefaultValue(0m);
         entity.Property(e => e.SalesPrice).HasColumnType("numeric(18,2)").HasDefaultValue(0m);
-        entity.Property(e => e.DefaultTaxable).HasDefaultValue(true);
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Name })
             .HasDatabaseName("IX_FgsInventoryItem_TenantId_CompanyId_Name");

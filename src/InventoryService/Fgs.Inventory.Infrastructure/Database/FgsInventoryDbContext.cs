@@ -1,4 +1,5 @@
 using Fgs.Inventory.Domain.Entities;
+using Fgs.Inventory.Domain.Enums;
 using Fgs.Inventory.Infrastructure.Database.Configurations;
 using Fgs.Inventory.Infrastructure.Database.Schemas;
 using Microsoft.EntityFrameworkCore;
@@ -43,8 +44,15 @@ public sealed class FgsInventoryDbContext(DbContextOptions<FgsInventoryDbContext
 
     public DbSet<FgsTruckStockTemplateItem> FgsTruckStockTemplateItems => Set<FgsTruckStockTemplateItem>();
 
+    public DbSet<FgsInventorySerial> FgsInventorySerials => Set<FgsInventorySerial>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresEnum<FgsInventorySerialStatus>(
+            FgsDatabaseSchemas.Inventory,
+            "FgsInventorySerialStatus",
+            nameTranslator: new Npgsql.NameTranslation.NpgsqlNullNameTranslator());
+
         modelBuilder.HasDefaultSchema(FgsDatabaseSchemas.Inventory);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsInventoryDbContext).Assembly);
         FgsInventoryDbContextConfigurationExtensions.ApplyTenantCompanyCacheForeignKeys(modelBuilder);

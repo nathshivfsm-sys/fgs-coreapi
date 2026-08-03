@@ -36,6 +36,7 @@ public sealed class FgsInventoryTransactionWriteService : IFgsInventoryTransacti
         {
             TransactionNumber = dto.TransactionNumber.Trim(),
             InventoryItemId = dto.InventoryItemId,
+            SerialNumber = TrimOrNull(dto.SerialNumber),
             TransactionType = dto.TransactionType.Trim().ToUpperInvariant(),
             Quantity = dto.Quantity,
             FromInventoryLocationId = dto.FromInventoryLocationId,
@@ -78,6 +79,7 @@ public sealed class FgsInventoryTransactionWriteService : IFgsInventoryTransacti
             entity.Id,
             entity.TransactionNumber,
             entity.InventoryItemId,
+            entity.SerialNumber,
             entity.TransactionType,
             entity.Quantity,
             entity.FromInventoryLocationId,

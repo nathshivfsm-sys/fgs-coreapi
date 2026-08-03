@@ -201,12 +201,22 @@ public sealed class CreateCompanySignupCommandHandler
                         CreatedBy = prospectActor
                     };
 
+                    var serviceAccountsSetup = new FgsTenantServiceAccountsSetup
+                    {
+                        TenantId = tenantId,
+                        CompanyId = companyNumber,
+                        IsActive = true,
+                        CreatedOn = now,
+                        CreatedBy = prospectActor
+                    };
+
                     await _unitOfWork.Repository<FgsLocation>().AddAsync(location, ct);
                     await _unitOfWork.Repository<FgsTenantCompany>().AddAsync(tenantCompany, ct);
                     await _unitOfWork.Repository<FgsTenantCompanyCache>().AddAsync(tenantCompanyCache, ct);
                     await _unitOfWork.Repository<FgsUser>().AddAsync(user, ct);
                     await _unitOfWork.Repository<FgsRole>().AddAsync(tenantAdminRole, ct);
                     await _unitOfWork.Repository<FgsTenantServiceSetup>().AddAsync(serviceSetup, ct);
+                    await _unitOfWork.Repository<FgsTenantServiceAccountsSetup>().AddAsync(serviceAccountsSetup, ct);
                     await _unitOfWork.SaveChangesAsync(ct);
 
                     var userRole = new FgsUserRole

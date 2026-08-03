@@ -17,6 +17,9 @@ public class FgsInventoryTransaction : FgsEntityBase, ITenantCompanyScoped
 
     public long InventoryItemId { get; set; }
 
+    /// <summary>Serial number of the inventory item involved in the transaction. Null for non-serialized inventory items.</summary>
+    public string? SerialNumber { get; set; }
+
     public string TransactionType { get; set; } = null!;
 
     public decimal Quantity { get; set; }

@@ -217,10 +217,10 @@ public sealed class FgsInventoryItemWriteService : IFgsInventoryItemWriteService
             UPCCode = TrimOrNull(dto.UPCCode),
             UnitOfMeasure = TrimOrNull(dto.UnitOfMeasure),
             TracksInventory = dto.TracksInventory,
+            IsSerialized = dto.IsSerialized,
             UnitCost = dto.UnitCost,
             StandardUnitCost = dto.StandardUnitCost,
-            SalesPrice = dto.SalesPrice,
-            DefaultTaxable = dto.DefaultTaxable
+            SalesPrice = dto.SalesPrice
         };
 
     private static void ApplyUpdate(FgsInventoryItem entity, FgsInventoryItemUpdateDto dto)
@@ -239,10 +239,10 @@ public sealed class FgsInventoryItemWriteService : IFgsInventoryItemWriteService
         entity.UPCCode = TrimOrNull(dto.UPCCode);
         entity.UnitOfMeasure = TrimOrNull(dto.UnitOfMeasure);
         entity.TracksInventory = dto.TracksInventory;
+        entity.IsSerialized = dto.IsSerialized;
         entity.UnitCost = dto.UnitCost;
         entity.StandardUnitCost = dto.StandardUnitCost;
         entity.SalesPrice = dto.SalesPrice;
-        entity.DefaultTaxable = dto.DefaultTaxable;
     }
 
     private static void ApplyPatch(FgsInventoryItem entity, FgsInventoryItemPatchDto dto)
@@ -261,10 +261,10 @@ public sealed class FgsInventoryItemWriteService : IFgsInventoryItemWriteService
         if (dto.UPCCode is not null) entity.UPCCode = TrimOrNull(dto.UPCCode);
         if (dto.UnitOfMeasure is not null) entity.UnitOfMeasure = TrimOrNull(dto.UnitOfMeasure);
         if (dto.TracksInventory.HasValue) entity.TracksInventory = dto.TracksInventory.Value;
+        if (dto.IsSerialized.HasValue) entity.IsSerialized = dto.IsSerialized.Value;
         if (dto.UnitCost.HasValue) entity.UnitCost = dto.UnitCost.Value;
         if (dto.StandardUnitCost.HasValue) entity.StandardUnitCost = dto.StandardUnitCost.Value;
         if (dto.SalesPrice.HasValue) entity.SalesPrice = dto.SalesPrice.Value;
-        if (dto.DefaultTaxable.HasValue) entity.DefaultTaxable = dto.DefaultTaxable.Value;
         if (dto.IsActive.HasValue) entity.IsActive = dto.IsActive.Value;
     }
 
@@ -290,10 +290,10 @@ public sealed class FgsInventoryItemWriteService : IFgsInventoryItemWriteService
             entity.UPCCode,
             entity.UnitOfMeasure,
             entity.TracksInventory,
+            entity.IsSerialized,
             entity.UnitCost,
             entity.StandardUnitCost,
             entity.SalesPrice,
-            entity.DefaultTaxable,
             entity.IsActive,
             entity.Alternates
                 .OrderBy(a => a.PriorityOrder)

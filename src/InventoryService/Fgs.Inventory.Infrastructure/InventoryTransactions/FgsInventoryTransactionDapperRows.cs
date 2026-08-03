@@ -7,6 +7,7 @@ internal sealed class FgsInventoryTransactionSummaryRow
     public long Id { get; set; }
     public string TransactionNumber { get; set; } = null!;
     public long InventoryItemId { get; set; }
+    public string? SerialNumber { get; set; }
     public string TransactionType { get; set; } = null!;
     public decimal Quantity { get; set; }
     public long? FromInventoryLocationId { get; set; }
@@ -26,6 +27,7 @@ internal sealed class FgsInventoryTransactionSummaryRow
             Id,
             TransactionNumber,
             InventoryItemId,
+            SerialNumber,
             TransactionType,
             Quantity,
             FromInventoryLocationId,
@@ -46,6 +48,7 @@ internal sealed class FgsInventoryTransactionDetailRow
     public long Id { get; set; }
     public string TransactionNumber { get; set; } = null!;
     public long InventoryItemId { get; set; }
+    public string? SerialNumber { get; set; }
     public string TransactionType { get; set; } = null!;
     public decimal Quantity { get; set; }
     public long? FromInventoryLocationId { get; set; }
@@ -65,6 +68,7 @@ internal sealed class FgsInventoryTransactionDetailRow
             Id,
             TransactionNumber,
             InventoryItemId,
+            SerialNumber,
             TransactionType,
             Quantity,
             FromInventoryLocationId,

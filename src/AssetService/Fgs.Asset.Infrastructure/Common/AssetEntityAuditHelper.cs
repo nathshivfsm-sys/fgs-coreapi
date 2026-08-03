@@ -47,6 +47,9 @@ public sealed class AssetEntityAuditHelper
     public void StampForCreate(FgsAssetWarranty entity) => StampEntity(entity);
     public void StampForUpdate(FgsAssetWarranty entity) => StampUpdate(entity);
 
+    public void StampForCreate(FgsAssetAttributeValue entity) => StampEntity(entity);
+    public void StampForUpdate(FgsAssetAttributeValue entity) => StampUpdate(entity);
+
     private void StampActiveEntity(FgsAssetType entity)
     {
         StampEntity(entity);
@@ -133,6 +136,10 @@ public sealed class AssetEntityAuditHelper
             case FgsAssetWarranty warranty:
                 warranty.TenantId = tenantId;
                 warranty.CompanyId = companyId;
+                break;
+            case FgsAssetAttributeValue attributeValue:
+                attributeValue.TenantId = tenantId;
+                attributeValue.CompanyId = companyId;
                 break;
         }
     }

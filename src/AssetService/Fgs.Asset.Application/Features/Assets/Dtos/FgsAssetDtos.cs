@@ -5,6 +5,7 @@ public sealed record FgsAssetSummaryDto(
     Guid AssetGuid,
     string AssetNumber,
     long? ServiceLocationId,
+    string? UnitNumber,
     long? AssetTypeId,
     long? AssetManufacturerId,
     long? AssetModelId,
@@ -18,6 +19,7 @@ public sealed record FgsAssetSummaryDto(
     DateOnly? InstallDate,
     long? InstalledWorkOrderId,
     bool IsInstalledByCompany,
+    bool IsOurInstallation,
     long AssetStatusId,
     bool IsActive);
 
@@ -26,6 +28,7 @@ public sealed record FgsAssetDetailDto(
     Guid AssetGuid,
     string AssetNumber,
     long? ServiceLocationId,
+    string? UnitNumber,
     long? AssetTypeId,
     long? AssetManufacturerId,
     long? AssetModelId,
@@ -39,6 +42,7 @@ public sealed record FgsAssetDetailDto(
     DateOnly? InstallDate,
     long? InstalledWorkOrderId,
     bool IsInstalledByCompany,
+    bool IsOurInstallation,
     long AssetStatusId,
     bool IsActive);
 
@@ -47,6 +51,7 @@ public sealed record FgsAssetLookupDto(long Id, string AssetNumber, string? Cust
 public sealed record FgsAssetCreateDto(
     string AssetNumber,
     long? ServiceLocationId,
+    string? UnitNumber,
     long? AssetTypeId,
     long? AssetManufacturerId,
     long? AssetModelId,
@@ -60,11 +65,13 @@ public sealed record FgsAssetCreateDto(
     DateOnly? InstallDate,
     long? InstalledWorkOrderId,
     bool IsInstalledByCompany,
+    bool IsOurInstallation,
     long AssetStatusId);
 
 public sealed record FgsAssetUpdateDto(
     string AssetNumber,
     long? ServiceLocationId,
+    string? UnitNumber,
     long? AssetTypeId,
     long? AssetManufacturerId,
     long? AssetModelId,
@@ -78,11 +85,13 @@ public sealed record FgsAssetUpdateDto(
     DateOnly? InstallDate,
     long? InstalledWorkOrderId,
     bool IsInstalledByCompany,
+    bool IsOurInstallation,
     long AssetStatusId);
 
 public sealed record FgsAssetPatchDto(
     string? AssetNumber,
     long? ServiceLocationId,
+    string? UnitNumber,
     long? AssetTypeId,
     long? AssetManufacturerId,
     long? AssetModelId,
@@ -96,6 +105,7 @@ public sealed record FgsAssetPatchDto(
     DateOnly? InstallDate,
     long? InstalledWorkOrderId,
     bool? IsInstalledByCompany,
+    bool? IsOurInstallation,
     long? AssetStatusId,
     bool? IsActive);
 

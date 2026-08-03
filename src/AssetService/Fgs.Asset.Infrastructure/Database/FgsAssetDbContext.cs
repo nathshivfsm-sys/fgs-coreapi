@@ -20,6 +20,7 @@ public sealed class FgsAssetDbContext(DbContextOptions<FgsAssetDbContext> option
     public DbSet<FgsAssetWarranty> FgsAssetWarranties => Set<FgsAssetWarranty>();
     public DbSet<FgsAssetAttribute> FgsAssetAttributes => Set<FgsAssetAttribute>();
     public DbSet<FgsAssetAttributeOption> FgsAssetAttributeOptions => Set<FgsAssetAttributeOption>();
+    public DbSet<FgsAssetAttributeValue> FgsAssetAttributeValues => Set<FgsAssetAttributeValue>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

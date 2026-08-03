@@ -11,6 +11,7 @@ internal sealed class FgsInventoryItemSummaryRow
     public long? InventoryCategoryId { get; set; }
     public long? InventorySubCategoryId { get; set; }
     public bool TracksInventory { get; set; }
+    public bool IsSerialized { get; set; }
     public decimal UnitCost { get; set; }
     public decimal SalesPrice { get; set; }
     public bool IsActive { get; set; }
@@ -24,6 +25,7 @@ internal sealed class FgsInventoryItemSummaryRow
             InventoryCategoryId,
             InventorySubCategoryId,
             TracksInventory,
+            IsSerialized,
             UnitCost,
             SalesPrice,
             IsActive);
@@ -46,10 +48,10 @@ internal sealed class FgsInventoryItemDetailRow
     public string? UPCCode { get; set; }
     public string? UnitOfMeasure { get; set; }
     public bool TracksInventory { get; set; }
+    public bool IsSerialized { get; set; }
     public decimal UnitCost { get; set; }
     public decimal StandardUnitCost { get; set; }
     public decimal SalesPrice { get; set; }
-    public bool DefaultTaxable { get; set; }
     public bool IsActive { get; set; }
 
     public FgsInventoryItemDetailDto ToDto(
@@ -71,10 +73,10 @@ internal sealed class FgsInventoryItemDetailRow
             UPCCode,
             UnitOfMeasure,
             TracksInventory,
+            IsSerialized,
             UnitCost,
             StandardUnitCost,
             SalesPrice,
-            DefaultTaxable,
             IsActive,
             alternates,
             dependencies);

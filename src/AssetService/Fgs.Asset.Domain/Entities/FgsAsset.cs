@@ -10,6 +10,7 @@ public class FgsAsset : FgsEntityBase, ITenantCompanyScoped
     public Guid AssetGuid { get; set; }
     public string AssetNumber { get; set; } = null!;
     public long? ServiceLocationId { get; set; }
+    public string? UnitNumber { get; set; }
     public long? AssetTypeId { get; set; }
     public long? AssetManufacturerId { get; set; }
     public long? AssetModelId { get; set; }
@@ -23,6 +24,7 @@ public class FgsAsset : FgsEntityBase, ITenantCompanyScoped
     public DateOnly? InstallDate { get; set; }
     public long? InstalledWorkOrderId { get; set; }
     public bool IsInstalledByCompany { get; set; }
+    public bool IsOurInstallation { get; set; }
     public long AssetStatusId { get; set; }
     public bool IsActive { get; set; } = true;
 }

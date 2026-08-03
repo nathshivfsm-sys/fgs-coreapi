@@ -5,6 +5,7 @@ using Fgs.Inventory.Application.Abstractions.InventoryCategories;
 using Fgs.Inventory.Application.Abstractions.InventoryItems;
 using Fgs.Inventory.Application.Abstractions.InventoryItemTypes;
 using Fgs.Inventory.Application.Abstractions.InventoryLocations;
+using Fgs.Inventory.Application.Abstractions.InventorySerials;
 using Fgs.Inventory.Application.Abstractions.InventoryStocks;
 using Fgs.Inventory.Application.Abstractions.InventorySubCategories;
 using Fgs.Inventory.Application.Abstractions.InventoryTransactions;
@@ -14,14 +15,17 @@ using Fgs.Inventory.Application.Abstractions.PurchaseOrders;
 using Fgs.Inventory.Application.Abstractions.TruckStockTemplates;
 using Fgs.Inventory.Application.Abstractions.VendorInventoryItems;
 using Fgs.Inventory.Application.Abstractions.Vendors;
+using Fgs.Inventory.Domain.Enums;
 using Fgs.Inventory.Infrastructure.Common;
 using Fgs.Inventory.Infrastructure.Common.Time;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Inventory.Infrastructure.Database.Read;
+using Fgs.Inventory.Infrastructure.Database.Schemas;
 using Fgs.Inventory.Infrastructure.InventoryCategories;
 using Fgs.Inventory.Infrastructure.InventoryItems;
 using Fgs.Inventory.Infrastructure.InventoryItemTypes;
 using Fgs.Inventory.Infrastructure.InventoryLocations;
+using Fgs.Inventory.Infrastructure.InventorySerials;
 using Fgs.Inventory.Infrastructure.InventoryStocks;
 using Fgs.Inventory.Infrastructure.InventorySubCategories;
 using Fgs.Inventory.Infrastructure.InventoryTransactions;
@@ -54,7 +58,11 @@ public static class DependencyInjection
             options.UseFgsNpgsql(
                 connectionString,
                 "__EFMigrationsHistory",
-                FgsInventoryDbContext.MigrationHistorySchema);
+                FgsInventoryDbContext.MigrationHistorySchema,
+                npgsql => npgsql.MapEnum<FgsInventorySerialStatus>(
+                    "FgsInventorySerialStatus",
+                    FgsDatabaseSchemas.Inventory,
+                    nameTranslator: new Npgsql.NameTranslation.NpgsqlNullNameTranslator()));
         });
 
         services.AddFgsPersistence<FgsInventoryDbContext>();
@@ -84,6 +92,8 @@ public static class DependencyInjection
         services.AddScoped<IFgsInventoryStockWriteService, FgsInventoryStockWriteService>();
         services.AddScoped<IFgsInventoryTransactionReadRepository, FgsInventoryTransactionReadRepository>();
         services.AddScoped<IFgsInventoryTransactionWriteService, FgsInventoryTransactionWriteService>();
+        services.AddScoped<IFgsInventorySerialReadRepository, FgsInventorySerialReadRepository>();
+        services.AddScoped<IFgsInventorySerialWriteService, FgsInventorySerialWriteService>();
 
         return services;
     }

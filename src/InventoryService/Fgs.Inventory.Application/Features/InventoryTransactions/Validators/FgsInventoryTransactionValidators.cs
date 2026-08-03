@@ -44,6 +44,7 @@ public sealed class CreateFgsInventoryTransactionCommandValidator : AbstractVali
             RuleFor(x => x.Dto.Quantity).NotEqual(0);
             RuleFor(x => x.Dto.UnitCost).GreaterThanOrEqualTo(0);
             RuleFor(x => x.Dto.ReferenceType).MaximumLength(30);
+            RuleFor(x => x.Dto.SerialNumber).MaximumLength(200);
         });
     }
 }

@@ -1,5 +1,6 @@
 using Fgs.Asset.Application.Abstractions.AssetAttributeOptions;
 using Fgs.Asset.Application.Abstractions.AssetAttributes;
+using Fgs.Asset.Application.Abstractions.AssetAttributeValues;
 using Fgs.Asset.Application.Abstractions.AssetManufacturers;
 using Fgs.Asset.Application.Abstractions.AssetModels;
 using Fgs.Asset.Application.Abstractions.Assets;
@@ -10,6 +11,7 @@ using Fgs.Asset.Application.Abstractions.Persistence;
 using Fgs.Asset.Application.Abstractions.Time;
 using Fgs.Asset.Infrastructure.AssetAttributeOptions;
 using Fgs.Asset.Infrastructure.AssetAttributes;
+using Fgs.Asset.Infrastructure.AssetAttributeValues;
 using Fgs.Asset.Infrastructure.AssetManufacturers;
 using Fgs.Asset.Infrastructure.AssetModels;
 using Fgs.Asset.Infrastructure.Assets;
@@ -61,6 +63,8 @@ public static class DependencyInjection
         services.AddScoped<IFgsAssetWriteService, FgsAssetWriteService>();
         services.AddScoped<IFgsAssetWarrantyReadRepository, FgsAssetWarrantyReadRepository>();
         services.AddScoped<IFgsAssetWarrantyWriteService, FgsAssetWarrantyWriteService>();
+        services.AddScoped<IFgsAssetAttributeValueReadRepository, FgsAssetAttributeValueReadRepository>();
+        services.AddScoped<IFgsAssetAttributeValueWriteService, FgsAssetAttributeValueWriteService>();
         return services;
     }
 }

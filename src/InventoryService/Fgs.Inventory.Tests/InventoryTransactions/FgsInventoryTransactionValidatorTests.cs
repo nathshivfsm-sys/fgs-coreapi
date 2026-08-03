@@ -15,6 +15,7 @@ public sealed class FgsInventoryTransactionValidatorTests
         new(
             "TXN-001",
             10,
+            null,
             InventoryTransactionTypes.PurchaseReceipt,
             5m,
             null,

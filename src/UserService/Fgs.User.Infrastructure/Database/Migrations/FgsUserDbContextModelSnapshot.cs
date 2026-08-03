@@ -1423,6 +1423,82 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenantServiceAccountsSetup", b =>
+                {
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<long?>("AccountsPayableAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("General ledger account used to record amounts owed to vendors and suppliers.");
+
+                    b.Property<long?>("AccountsReceivableAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("General ledger account used to record customer accounts receivable.");
+
+                    b.Property<long?>("BankAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("Default bank account used for customer payments, deposits, and cash transactions.");
+
+                    b.Property<long?>("COGSAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("Cost of Goods Sold account used when inventory is consumed or sold.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<long?>("DiscountAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("General ledger account used to record customer discounts and promotional adjustments.");
+
+                    b.Property<long?>("InventoryAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("Asset account used to record the value of inventory on hand.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<long?>("ProcessingFeeAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("Expense account used to record merchant, credit card, and payment processing fees.");
+
+                    b.Property<long?>("RevenueAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("Default revenue or income account used when posting invoices and completed work orders.");
+
+                    b.Property<long?>("SalesTaxPayableAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("Liability account used to record collected sales taxes owed to tax authorities.");
+
+                    b.Property<long?>("UndepositedFundsAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("Holding account used for customer payments received but not yet deposited into a bank account.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("TenantId", "CompanyId");
+
+                    b.ToTable("FgsTenantServiceAccountsSetup", "tenant");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenantServiceSetup", b =>
                 {
                     b.Property<long>("TenantId")
@@ -1605,10 +1681,9 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId", "CompanyId");
-
-                    b.HasIndex("TenantId", "Email")
+                    b.HasIndex("TenantId", "CompanyId", "Email")
                         .IsUnique()
+                        .HasDatabaseName("IX_FgsUser_TenantId_CompanyId_Email")
                         .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("FgsUser", "identity", t =>
@@ -1983,6 +2058,17 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Navigation("FgsPermission");
 
                     b.Navigation("FgsRole");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenantServiceAccountsSetup", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsTenantServiceAccountsSetup_TenantCompany");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUser", b =>

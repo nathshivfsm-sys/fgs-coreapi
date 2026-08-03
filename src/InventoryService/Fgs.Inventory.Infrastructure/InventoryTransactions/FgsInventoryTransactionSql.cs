@@ -9,7 +9,7 @@ internal static class FgsInventoryTransactionSql
     public const string InventoryItemTable = "inventory.\"FgsInventoryItem\"";
 
     public const string SelectDetailColumns = """
-        "Id", "TransactionNumber", "InventoryItemId", "TransactionType", "Quantity", "FromInventoryLocationId",
+        "Id", "TransactionNumber", "InventoryItemId", "SerialNumber", "TransactionType", "Quantity", "FromInventoryLocationId",
         "ToInventoryLocationId", "UnitCost", "TransactionDate", "ReferenceType", "ReferenceId", "Notes",
         "CreatedOn", "CreatedBy", "UpdatedOn", "UpdatedBy"
         """;
@@ -18,7 +18,7 @@ internal static class FgsInventoryTransactionSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "TransactionNumber", "InventoryItemId", "TransactionType", "Quantity", "FromInventoryLocationId",
+        "Id", "TransactionNumber", "InventoryItemId", "SerialNumber", "TransactionType", "Quantity", "FromInventoryLocationId",
         "ToInventoryLocationId", "UnitCost", "TransactionDate", "ReferenceType", "ReferenceId", "CreatedOn"
     };
 

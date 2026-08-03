@@ -4,6 +4,7 @@ public sealed record FgsInventoryTransactionSummaryDto(
     long Id,
     string TransactionNumber,
     long InventoryItemId,
+    string? SerialNumber,
     string TransactionType,
     decimal Quantity,
     long? FromInventoryLocationId,
@@ -22,6 +23,7 @@ public sealed record FgsInventoryTransactionDetailDto(
     long Id,
     string TransactionNumber,
     long InventoryItemId,
+    string? SerialNumber,
     string TransactionType,
     decimal Quantity,
     long? FromInventoryLocationId,
@@ -39,6 +41,7 @@ public sealed record FgsInventoryTransactionDetailDto(
 public sealed record FgsInventoryTransactionCreateDto(
     string TransactionNumber,
     long InventoryItemId,
+    string? SerialNumber,
     string TransactionType,
     decimal Quantity,
     long? FromInventoryLocationId,
