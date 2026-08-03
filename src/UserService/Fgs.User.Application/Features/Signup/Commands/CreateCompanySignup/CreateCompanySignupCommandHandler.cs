@@ -9,6 +9,7 @@ using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy.Constants;
 using Fgs.User.Application.Features.Signup;
 using Fgs.User.Domain.Entities;
+using Fgs.User.Domain.Enums;
 using Fgs.User.Domain.Exceptions;
 using MediatR;
 using ContractAuthenticationMethod = Fgs.Contracts.Signup.AuthenticationMethod;
@@ -165,6 +166,7 @@ public sealed class CreateCompanySignupCommandHandler
                         CompanyId = companyNumber,
                         Email = emailTrimmed,
                         DisplayName = contact.Name.Trim(),
+                        PhoneNumber = phoneStored,
                         AuthenticationMethod = MapAuthenticationMethod(request.AuthenticationMethod),
                         IsActive = true,
                         CreatedOn = now,
@@ -184,11 +186,27 @@ public sealed class CreateCompanySignupCommandHandler
                         CreatedBy = prospectActor
                     };
 
+                    var serviceSetup = new FgsTenantServiceSetup
+                    {
+                        TenantId = tenantId,
+                        CompanyId = companyNumber,
+                        TimeCardOptionId = TimeCardOption.None,
+                        BillHoursFromDispatchOrArrive = "ARRIVE",
+                        BillToStartNumber = 100,
+                        POStartNumber = 100,
+                        QuoteStartNumber = 100,
+                        WorkOrderStartNumber = 100,
+                        IsActive = true,
+                        CreatedOn = now,
+                        CreatedBy = prospectActor
+                    };
+
                     await _unitOfWork.Repository<FgsLocation>().AddAsync(location, ct);
                     await _unitOfWork.Repository<FgsTenantCompany>().AddAsync(tenantCompany, ct);
                     await _unitOfWork.Repository<FgsTenantCompanyCache>().AddAsync(tenantCompanyCache, ct);
                     await _unitOfWork.Repository<FgsUser>().AddAsync(user, ct);
                     await _unitOfWork.Repository<FgsRole>().AddAsync(tenantAdminRole, ct);
+                    await _unitOfWork.Repository<FgsTenantServiceSetup>().AddAsync(serviceSetup, ct);
                     await _unitOfWork.SaveChangesAsync(ct);
 
                     var userRole = new FgsUserRole

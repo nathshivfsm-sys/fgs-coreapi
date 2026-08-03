@@ -43,12 +43,6 @@ internal sealed class FgsPurchaseOrderDetailConfiguration : IEntityTypeConfigura
         entity.HasAlternateKey(e => new { e.TenantId, e.CompanyId, e.PurchaseOrderId, e.LineNumber })
             .HasName("UQ_FgsPurchaseOrderDetail_TenantId_CompanyId_PurchaseOrderId_LineNumber");
 
-        entity.HasOne<FgsPurchaseOrder>()
-            .WithMany()
-            .HasForeignKey(e => e.PurchaseOrderId)
-            .HasConstraintName("FK_FgsPurchaseOrderDetail_FgsPurchaseOrder")
-            .OnDelete(DeleteBehavior.Restrict);
-
         entity.HasOne<FgsInventoryItem>()
             .WithMany()
             .HasForeignKey(e => e.ItemId)

@@ -184,32 +184,6 @@ SELECT setval(
     COALESCE((SELECT MAX("Id") FROM glo."GloAccountingIntegrationType"), 1),
     true);
 
--- GloTimeCardOption
-INSERT INTO glo."GloTimeCardOption"
-(
-    "Code",
-    "Name"
-)
-SELECT
-    v."Code",
-    v."Name"
-FROM (
-    VALUES
-        ('NONE',                   'No formal technician time tracking workflow'),
-        ('DISPATCHARRIVECOMPLETE', 'Tracks dispatch, arrival, and completion timestamps'),
-        ('CHECKINCHECKOUT',        'Technician manually checks in and checks out')
-) AS v("Code", "Name")
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM glo."GloTimeCardOption" t
-    WHERE t."Code" = v."Code"
-);
-
-SELECT setval(
-    pg_get_serial_sequence('glo."GloTimeCardOption"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM glo."GloTimeCardOption"), 1),
-    true);
-
 -- GloBusinessType (explicit Id: sequential 1..n; OTHER last)
 INSERT INTO glo."GloBusinessType"
 (

@@ -24,7 +24,7 @@ public sealed class CreateFgsInventoryLocationCommandHandler(
         logger.LogInformation("Created inventory location {Id} with code {InventoryLocationCode}", result.Id, result.InventoryLocationCode);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "inventory-location"),
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "inventorylocation"),
             cancellationToken);
         return ApiResponse<FgsInventoryLocationDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

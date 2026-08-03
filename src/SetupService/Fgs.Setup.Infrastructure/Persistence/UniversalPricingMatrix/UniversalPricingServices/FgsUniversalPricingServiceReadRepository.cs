@@ -266,24 +266,4 @@ internal sealed class FgsUniversalPricingServiceReadRepository : IFgsUniversalPr
                 },
                 cancellationToken: cancellationToken));
     }
-
-    public async Task<bool> ExistsGloUniversalPricingServiceCodeAsync(
-        string code,
-        CancellationToken cancellationToken = default)
-    {
-        var sql = """
-            SELECT EXISTS(
-                SELECT 1
-                FROM glo."GloUniversalPricingService"
-                WHERE "ServiceCode" = UPPER(@Code)
-            )
-            """;
-
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        return await connection.ExecuteScalarAsync<bool>(
-            new CommandDefinition(
-                sql,
-                new { Code = code.Trim().ToUpperInvariant() },
-                cancellationToken: cancellationToken));
-    }
 }

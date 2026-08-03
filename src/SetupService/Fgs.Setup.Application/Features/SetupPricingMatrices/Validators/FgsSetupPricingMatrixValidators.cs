@@ -82,10 +82,19 @@ internal static class FgsSetupPricingMatrixValidationRules
             .When(x => HasOtherItems(dtoSelector(x).OtherItems));
 
         validator.RuleFor(x => dtoSelector(x))
-            .MustAsync(async (command, dto, cancellationToken) =>
-                await ValidateOtherItemsAsync(dto, billingCategoryReadRepository, cancellationToken))
-            .WithMessage("Other item validation failed.")
-            .When(x => HasOtherItems(dtoSelector(x).OtherItems));
+            .CustomAsync(async (dto, context, cancellationToken) =>
+            {
+                if (!HasOtherItems(dto.OtherItems))
+                {
+                    return;
+                }
+
+                var error = await ValidateOtherItemsAsync(dto, billingCategoryReadRepository, cancellationToken);
+                if (error is not null)
+                {
+                    context.AddFailure(error);
+                }
+            });
 
         validator.RuleFor(x => dtoSelector(x).OtherItems)
             .Must(items => items!.Select(i => i.CategoryCode.Trim().ToUpperInvariant()).Distinct().Count() == items!.Count)
@@ -93,13 +102,18 @@ internal static class FgsSetupPricingMatrixValidationRules
             .When(x => HasOtherItems(dtoSelector(x).OtherItems));
 
         validator.RuleFor(x => dtoSelector(x))
-            .MustAsync(async (command, dto, cancellationToken) =>
-                await ValidateLaborLinesAsync(
+            .CustomAsync(async (dto, context, cancellationToken) =>
+            {
+                var error = await ValidateLaborLinesAsync(
                     dto,
                     laborRateTypeReadRepository,
                     techSkillLevelReadRepository,
-                    cancellationToken))
-            .WithMessage("Labor line validation failed.");
+                    cancellationToken);
+                if (error is not null)
+                {
+                    context.AddFailure(error);
+                }
+            });
     }
 
     private static bool HasMaterialTiers(IReadOnlyList<FgsSetupPricingMatrixMaterialTierDto>? materialTiers) =>
@@ -111,63 +125,76 @@ internal static class FgsSetupPricingMatrixValidationRules
     private static bool HasMarkup(FgsSetupPricingMatrixWriteDto dto) =>
         HasMaterialTiers(dto.MaterialTiers) || HasOtherItems(dto.OtherItems);
 
-    private static async Task<bool> ValidateLaborLinesAsync(
+    private static async Task<string?> ValidateLaborLinesAsync(
         FgsSetupPricingMatrixWriteDto dto,
         IFgsSetupLaborRateTypeReadRepository laborRateTypeReadRepository,
         IFgsSetupTechSkillLevelReadRepository techSkillLevelReadRepository,
         CancellationToken cancellationToken)
     {
+        var lineIndex = 0;
         foreach (var line in dto.LaborLines ?? [])
         {
+            var lineLabel = $"LaborLines[{lineIndex}]";
+            lineIndex++;
+
             if (await laborRateTypeReadRepository.GetByIdAsync(line.LaborRateTypeId, cancellationToken) is null)
             {
-                return false;
+                return $"{lineLabel}.LaborRateTypeId '{line.LaborRateTypeId}' was not found. Call GET /api/v1/laborratetype/lookup and use a real id.";
             }
 
             if (!dto.IsLaborRateBySkillLevel && line.TechSkillLevelId.HasValue)
             {
-                return false;
+                return $"{lineLabel}.TechSkillLevelId must be null when IsLaborRateBySkillLevel is false.";
             }
 
             if (dto.IsLaborRateBySkillLevel && !line.TechSkillLevelId.HasValue)
             {
-                return false;
+                return $"{lineLabel}.TechSkillLevelId is required when IsLaborRateBySkillLevel is true.";
             }
 
             if (line.TechSkillLevelId.HasValue &&
                 await techSkillLevelReadRepository.GetByIdAsync(line.TechSkillLevelId.Value, cancellationToken) is null)
             {
-                return false;
+                return $"{lineLabel}.TechSkillLevelId '{line.TechSkillLevelId.Value}' was not found.";
             }
 
             if (dto.IsLaborTierStructure)
             {
                 if (line.Tiers is not { Count: > 0 })
                 {
-                    return false;
+                    return $"{lineLabel}.Tiers is required when IsLaborTierStructure is true.";
                 }
 
                 if (line.Tiers.Select(t => t.SequenceOrder).Distinct().Count() != line.Tiers.Count)
                 {
-                    return false;
+                    return $"{lineLabel}.Tiers contains duplicate SequenceOrder values.";
                 }
 
+                var tierIndex = 0;
                 foreach (var tier in line.Tiers)
                 {
-                    if (tier.DurationMinutes <= 0 || tier.Rate < 0)
+                    var tierLabel = $"{lineLabel}.Tiers[{tierIndex}]";
+                    tierIndex++;
+
+                    if (tier.DurationMinutes <= 0)
                     {
-                        return false;
+                        return $"{tierLabel}.DurationMinutes must be greater than 0.";
+                    }
+
+                    if (tier.Rate < 0)
+                    {
+                        return $"{tierLabel}.Rate must be greater than or equal to 0.";
                     }
 
                     if (!dto.IsLaborRateBySkillLevel && tier.TechSkillLevelId.HasValue)
                     {
-                        return false;
+                        return $"{tierLabel}.TechSkillLevelId must be null when IsLaborRateBySkillLevel is false.";
                     }
 
                     if (tier.TechSkillLevelId.HasValue &&
                         await techSkillLevelReadRepository.GetByIdAsync(tier.TechSkillLevelId.Value, cancellationToken) is null)
                     {
-                        return false;
+                        return $"{tierLabel}.TechSkillLevelId '{tier.TechSkillLevelId.Value}' was not found.";
                     }
                 }
             }
@@ -175,39 +202,45 @@ internal static class FgsSetupPricingMatrixValidationRules
             {
                 if (line.Tiers is { Count: > 0 })
                 {
-                    return false;
+                    return $"{lineLabel}.Tiers must be null or empty when IsLaborTierStructure is false.";
                 }
 
-                if (line.BaseRate is null or < 0)
+                if (line.BaseRate is null)
                 {
-                    return false;
+                    return $"{lineLabel}.BaseRate is required when IsLaborTierStructure is false.";
+                }
+
+                if (line.BaseRate < 0)
+                {
+                    return $"{lineLabel}.BaseRate must be greater than or equal to 0.";
                 }
 
                 if (line.OvertimeMultiplier is < 1)
                 {
-                    return false;
+                    return $"{lineLabel}.OvertimeMultiplier must be greater than or equal to 1 when provided.";
                 }
 
                 if (line.DoubleTimeMultiplier is < 1)
                 {
-                    return false;
+                    return $"{lineLabel}.DoubleTimeMultiplier must be greater than or equal to 1 when provided.";
                 }
 
                 if (line.DiscountPercent is < 0 or > 100)
                 {
-                    return false;
+                    return $"{lineLabel}.DiscountPercent must be between 0 and 100 when provided.";
                 }
             }
         }
 
-        return true;
+        return null;
     }
 
-    private static async Task<bool> ValidateOtherItemsAsync(
+    private static async Task<string?> ValidateOtherItemsAsync(
         FgsSetupPricingMatrixWriteDto dto,
         IBillingCategoryReadRepository billingCategoryReadRepository,
         CancellationToken cancellationToken)
     {
+        var itemIndex = 0;
         foreach (var item in dto.OtherItems ?? [])
         {
             if (!await billingCategoryReadRepository.ExistsByBillingCategoryTypeAsync(
@@ -215,11 +248,13 @@ internal static class FgsSetupPricingMatrixValidationRules
                     activeOnly: true,
                     cancellationToken))
             {
-                return false;
+                return $"OtherItems[{itemIndex}].CategoryCode '{item.CategoryCode}' was not found or is inactive.";
             }
+
+            itemIndex++;
         }
 
-        return true;
+        return null;
     }
 }
 
@@ -231,25 +266,33 @@ public sealed class CreateFgsSetupPricingMatrixCommandValidator : AbstractValida
         IFgsSetupTechSkillLevelReadRepository techSkillLevelReadRepository,
         IBillingCategoryReadRepository billingCategoryReadRepository)
     {
-        FgsSetupPricingMatrixValidationRules.ApplyWriteRules(
-            this,
-            command => new FgsSetupPricingMatrixWriteDto(
-                command.Dto.Name,
-                command.Dto.Description,
-                command.Dto.IsDefault,
-                command.Dto.IsLaborTierStructure,
-                command.Dto.IsLaborRateBySkillLevel,
-                command.Dto.PriceAdjustmentTypeId,
-                command.Dto.EffectiveFrom,
-                command.Dto.EffectiveTo,
-                command.Dto.IsMobileVisible,
-                command.Dto.LaborLines,
-                command.Dto.MaterialTiers,
-                command.Dto.OtherItems),
-            readRepository,
-            laborRateTypeReadRepository,
-            techSkillLevelReadRepository,
-            billingCategoryReadRepository);
+        RuleFor(x => x.Dto)
+            .NotNull()
+            .WithMessage(
+                "Request body is required. Ensure the JSON is valid (unresolved Postman variables produce invalid JSON).");
+
+        When(x => x.Dto is not null, () =>
+        {
+            FgsSetupPricingMatrixValidationRules.ApplyWriteRules(
+                this,
+                command => new FgsSetupPricingMatrixWriteDto(
+                    command.Dto.Name,
+                    command.Dto.Description,
+                    command.Dto.IsDefault,
+                    command.Dto.IsLaborTierStructure,
+                    command.Dto.IsLaborRateBySkillLevel,
+                    command.Dto.PriceAdjustmentTypeId,
+                    command.Dto.EffectiveFrom,
+                    command.Dto.EffectiveTo,
+                    command.Dto.IsMobileVisible,
+                    command.Dto.LaborLines,
+                    command.Dto.MaterialTiers,
+                    command.Dto.OtherItems),
+                readRepository,
+                laborRateTypeReadRepository,
+                techSkillLevelReadRepository,
+                billingCategoryReadRepository);
+        });
     }
 }
 
@@ -262,27 +305,34 @@ public sealed class UpdateFgsSetupPricingMatrixCommandValidator : AbstractValida
         IBillingCategoryReadRepository billingCategoryReadRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
+        RuleFor(x => x.Dto)
+            .NotNull()
+            .WithMessage(
+                "Request body is required. Ensure the JSON is valid (unresolved Postman variables produce invalid JSON).");
 
-        FgsSetupPricingMatrixValidationRules.ApplyWriteRules(
-            this,
-            command => new FgsSetupPricingMatrixWriteDto(
-                command.Dto.Name,
-                command.Dto.Description,
-                command.Dto.IsDefault,
-                command.Dto.IsLaborTierStructure,
-                command.Dto.IsLaborRateBySkillLevel,
-                command.Dto.PriceAdjustmentTypeId,
-                command.Dto.EffectiveFrom,
-                command.Dto.EffectiveTo,
-                command.Dto.IsMobileVisible,
-                command.Dto.LaborLines,
-                command.Dto.MaterialTiers,
-                command.Dto.OtherItems),
-            readRepository,
-            laborRateTypeReadRepository,
-            techSkillLevelReadRepository,
-            billingCategoryReadRepository,
-            command => command.Id);
+        When(x => x.Dto is not null, () =>
+        {
+            FgsSetupPricingMatrixValidationRules.ApplyWriteRules(
+                this,
+                command => new FgsSetupPricingMatrixWriteDto(
+                    command.Dto.Name,
+                    command.Dto.Description,
+                    command.Dto.IsDefault,
+                    command.Dto.IsLaborTierStructure,
+                    command.Dto.IsLaborRateBySkillLevel,
+                    command.Dto.PriceAdjustmentTypeId,
+                    command.Dto.EffectiveFrom,
+                    command.Dto.EffectiveTo,
+                    command.Dto.IsMobileVisible,
+                    command.Dto.LaborLines,
+                    command.Dto.MaterialTiers,
+                    command.Dto.OtherItems),
+                readRepository,
+                laborRateTypeReadRepository,
+                techSkillLevelReadRepository,
+                billingCategoryReadRepository,
+                command => command.Id);
+        });
     }
 }
 
@@ -291,26 +341,33 @@ public sealed class PatchFgsSetupPricingMatrixCommandValidator : AbstractValidat
     public PatchFgsSetupPricingMatrixCommandValidator(IFgsSetupPricingMatrixReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
+        RuleFor(x => x.Dto)
+            .NotNull()
+            .WithMessage(
+                "Request body is required. Ensure the JSON is valid (unresolved Postman variables produce invalid JSON).");
 
-        RuleFor(x => x.Dto.Name)
-            .NotEmpty()
-            .MaximumLength(50)
-            .When(x => x.Dto.Name is not null);
-        RuleFor(x => x.Dto.Name)
-            .Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal))
-            .When(x => x.Dto.Name is not null)
-            .WithMessage("Name (code) must be uppercase.");
-        RuleFor(x => x.Dto.Description)
-            .NotEmpty()
-            .MaximumLength(200)
-            .When(x => x.Dto.Description is not null);
-        RuleFor(x => x.Dto.PriceAdjustmentTypeId)
-            .InclusiveBetween((short)1, (short)3)
-            .When(x => x.Dto.PriceAdjustmentTypeId.HasValue);
-        RuleFor(x => x)
-            .MustAsync(async (command, cancellationToken) =>
-                command.Dto.Name is null ||
-                !await readRepository.ExistsByCodeAsync(command.Dto.Name, command.Id, cancellationToken))
-            .WithMessage("A pricing matrix with this code already exists.");
+        When(x => x.Dto is not null, () =>
+        {
+            RuleFor(x => x.Dto.Name)
+                .NotEmpty()
+                .MaximumLength(50)
+                .When(x => x.Dto.Name is not null);
+            RuleFor(x => x.Dto.Name)
+                .Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal))
+                .When(x => x.Dto.Name is not null)
+                .WithMessage("Name (code) must be uppercase.");
+            RuleFor(x => x.Dto.Description)
+                .NotEmpty()
+                .MaximumLength(200)
+                .When(x => x.Dto.Description is not null);
+            RuleFor(x => x.Dto.PriceAdjustmentTypeId)
+                .InclusiveBetween((short)1, (short)3)
+                .When(x => x.Dto.PriceAdjustmentTypeId.HasValue);
+            RuleFor(x => x)
+                .MustAsync(async (command, cancellationToken) =>
+                    command.Dto.Name is null ||
+                    !await readRepository.ExistsByCodeAsync(command.Dto.Name, command.Id, cancellationToken))
+                .WithMessage("A pricing matrix with this code already exists.");
+        });
     }
 }

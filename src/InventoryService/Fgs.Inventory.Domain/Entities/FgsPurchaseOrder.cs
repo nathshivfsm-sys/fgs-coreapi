@@ -75,4 +75,6 @@ public class FgsPurchaseOrder : FgsEntityBase, ITenantCompanyScoped
     public string? VendorNotes { get; set; }
 
     public string? InternalNotes { get; set; }
+
+    public ICollection<FgsPurchaseOrderDetail> Details { get; set; } = new List<FgsPurchaseOrderDetail>();
 }

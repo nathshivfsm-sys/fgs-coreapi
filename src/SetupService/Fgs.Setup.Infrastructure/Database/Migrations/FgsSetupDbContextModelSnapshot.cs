@@ -2774,9 +2774,21 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Primary city or municipality associated with the postal code.");
+
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
                         .HasColumnOrder(2);
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasComment("ISO 3166-1 alpha-2 country code associated with the postal code (for example, US, CA, MX).");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
@@ -2798,9 +2810,22 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("StateProvinceCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasComment("State, province, or territory code associated with the postal code (for example, TX, ON, BC).");
+
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
                         .HasColumnOrder(1);
+
+                    b.Property<decimal>("TripChargeAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Default trip charge applied when providing service to this postal code. Used by dispatching, estimating, and pricing calculations.");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
@@ -2876,7 +2901,8 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.Property<bool>("IsLaborTierStructure")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether labor pricing in this pricing matrix is based on labor tiers. When false, standard labor pricing rules are applied. When true, labor charges are calculated using the configured labor tier structure.");
 
                     b.Property<bool>("IsMobileVisible")
                         .ValueGeneratedOnAdd()
@@ -7788,33 +7814,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasDatabaseName("UX_GloTag_TagCode");
 
                     b.ToTable("GloTag", "glo");
-                });
-
-            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloTimeCardOption", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasAlternateKey("Code")
-                        .HasName("UQ_GloTimeCardOption_Code");
-
-                    b.ToTable("GloTimeCardOption", "glo", t =>
-                        {
-                            t.HasCheckConstraint("CK_GloTimeCardOption_Code_Upper", "\"Code\" = UPPER(\"Code\")");
-                        });
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloTitleOfCourtesy", b =>

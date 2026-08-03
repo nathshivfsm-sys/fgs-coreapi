@@ -33,12 +33,6 @@ internal sealed class FgsInventoryItemAlternateConfiguration : IEntityTypeConfig
 
         entity.HasOne<FgsInventoryItem>()
             .WithMany()
-            .HasForeignKey(e => e.InventoryItemId)
-            .HasConstraintName("FK_FgsInventoryItemAlternate_FgsInventoryItem_InventoryItemId")
-            .OnDelete(DeleteBehavior.Restrict);
-
-        entity.HasOne<FgsInventoryItem>()
-            .WithMany()
             .HasForeignKey(e => e.AlternateInventoryItemId)
             .HasConstraintName("FK_FgsInventoryItemAlternate_FgsInventoryItem_AlternateInventoryItemId")
             .OnDelete(DeleteBehavior.Restrict);

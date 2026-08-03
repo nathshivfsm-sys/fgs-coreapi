@@ -17,6 +17,11 @@ public class FgsUser : FgsEntityBase, ITenantCompanyScoped
 
     public string DisplayName { get; set; } = null!;
 
+    /// <summary>
+    /// Primary phone for SMS notifications and SMS MFA OTP verification.
+    /// </summary>
+    public string? PhoneNumber { get; set; }
+
     public string? EntraObjectId { get; set; }
 
     /// <summary>

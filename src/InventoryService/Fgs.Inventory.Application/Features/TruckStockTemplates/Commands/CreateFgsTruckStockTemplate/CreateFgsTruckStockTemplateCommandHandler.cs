@@ -24,7 +24,7 @@ public sealed class CreateFgsTruckStockTemplateCommandHandler(
         logger.LogInformation("Created truck stock template {Id} with code {TemplateCode}", result.Id, result.TemplateCode);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "truck-stock-template"),
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "truckstocktemplate"),
             cancellationToken);
         return ApiResponse<FgsTruckStockTemplateDetailDto>.Ok(result, ApiStatusCodes.Created);
     }

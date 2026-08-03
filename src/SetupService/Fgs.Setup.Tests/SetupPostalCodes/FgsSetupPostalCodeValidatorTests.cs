@@ -16,7 +16,8 @@ public sealed class FgsSetupPostalCodeValidatorTests
     public async Task CreateValidator_WhenPostalCodeMissing_HasValidationError()
     {
         var validator = new CreateFgsSetupPostalCodeCommandValidator(_readRepository.Object);
-        var command = new CreateFgsSetupPostalCodeCommand(new FgsSetupPostalCodeCreateDto("", null, null));
+        var command = new CreateFgsSetupPostalCodeCommand(new FgsSetupPostalCodeCreateDto(
+            "", "US", "TX", "Austin", 0m, null, null));
 
         var result = await validator.ValidateAsync(command);
 
@@ -38,7 +39,8 @@ public sealed class FgsSetupPostalCodeValidatorTests
             .Setup(r => r.ExistsTaxIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         var validator = new UpdateFgsSetupPostalCodeCommandValidator(_readRepository.Object);
-        var command = new UpdateFgsSetupPostalCodeCommand(5, new FgsSetupPostalCodeUpdateDto("PostalCode value", null, null));
+        var command = new UpdateFgsSetupPostalCodeCommand(5, new FgsSetupPostalCodeUpdateDto(
+            "PostalCode value", "US", "TX", "Austin", 0m, null, null));
 
         var result = await validator.ValidateAsync(command);
 

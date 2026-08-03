@@ -192,13 +192,6 @@ WHERE "Code" IN (
     'OTHER'
 );
 
-DELETE FROM glo."GloTimeCardOption"
-WHERE "Code" IN (
-    'NONE',
-    'DISPATCHARRIVECOMPLETE',
-    'CHECKINCHECKOUT'
-);
-
 DELETE FROM glo."GloAccountingIntegrationType"
 WHERE "Code" IN (
     'NONE',

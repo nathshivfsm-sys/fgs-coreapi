@@ -18,29 +18,99 @@ internal static class ExceptionMappingRules
         {
             ValidationException validation => (
                 HttpStatusCode.BadRequest,
-                validation.Errors.Select(e => e.ErrorMessage).ToArray()),
+                validation.Errors
+                    .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage)
+                        ? $"{e.PropertyName} is invalid."
+                        : e.ErrorMessage)
+                    .ToArray()),
             KeyNotFoundException notFound => (
                 HttpStatusCode.NotFound,
-                [notFound.Message]),
+                [ResolveMessage(notFound)]),
             InvalidOperationException invalidOperation => (
                 invalidOperation.Message.Contains("not found", StringComparison.OrdinalIgnoreCase)
                     ? HttpStatusCode.NotFound
                     : HttpStatusCode.Conflict,
-                [invalidOperation.Message]),
+                [ResolveMessage(invalidOperation)]),
             ArgumentException argument => (
                 HttpStatusCode.BadRequest,
-                [argument.Message]),
+                [ResolveMessage(argument)]),
             FormatException format => (
                 HttpStatusCode.BadRequest,
-                [format.Message]),
-            UnauthorizedAccessException => (
+                [ResolveMessage(format)]),
+            UnauthorizedAccessException unauthorized => (
                 HttpStatusCode.Unauthorized,
-                [ApiErrorMessages.Unauthorized]),
+                [ResolveMessage(unauthorized, ApiErrorMessages.Unauthorized)]),
             ApiException apiException => MapApiException(apiException),
             _ => (
-                HttpStatusCode.InternalServerError,
-                [ApiErrorMessages.UnexpectedError])
+                MapUnknownStatus(exception),
+                [GetDetailedMessage(exception)])
         };
+
+    private static HttpStatusCode MapUnknownStatus(Exception exception)
+    {
+        // EF Core / Npgsql type names without taking a package dependency.
+        var typeName = exception.GetType().FullName ?? exception.GetType().Name;
+        if (typeName.Contains("DbUpdateException", StringComparison.Ordinal)
+            || typeName.Contains("PostgresException", StringComparison.Ordinal)
+            || typeName.Contains("NpgsqlException", StringComparison.Ordinal))
+        {
+            return HttpStatusCode.Conflict;
+        }
+
+        return HttpStatusCode.InternalServerError;
+    }
+
+    private static string ResolveMessage(Exception exception, string? fallback = null)
+    {
+        if (!string.IsNullOrWhiteSpace(exception.Message))
+        {
+            return exception.Message;
+        }
+
+        return GetDetailedMessage(exception, fallback);
+    }
+
+    private static string GetDetailedMessage(Exception exception, string? fallback = null)
+    {
+        var current = exception;
+        while (current.InnerException is not null)
+        {
+            // Keep descriptive wrapper messages (e.g. FluentValidation) instead of a bare NRE.
+            if (IsGenericNullReferenceMessage(current.InnerException)
+                && !string.IsNullOrWhiteSpace(current.Message)
+                && !IsGenericNullReferenceMessage(current))
+            {
+                break;
+            }
+
+            current = current.InnerException;
+        }
+
+        if (!string.IsNullOrWhiteSpace(current.Message))
+        {
+            return current.Message;
+        }
+
+        if (!string.IsNullOrWhiteSpace(exception.Message))
+        {
+            return exception.Message;
+        }
+
+        if (!string.IsNullOrWhiteSpace(fallback))
+        {
+            return fallback;
+        }
+
+        return $"{exception.GetType().Name}: {ApiErrorMessages.UnexpectedError}";
+    }
+
+    private static bool IsGenericNullReferenceMessage(Exception exception) =>
+        exception is NullReferenceException
+        && (string.IsNullOrWhiteSpace(exception.Message)
+            || string.Equals(
+                exception.Message,
+                "Object reference not set to an instance of an object.",
+                StringComparison.Ordinal));
 
     private static (HttpStatusCode StatusCode, IReadOnlyList<string> Errors) MapApiException(
         ApiException apiException)
@@ -63,7 +133,7 @@ internal static class ExceptionMappingRules
             }
             catch (JsonException)
             {
-                // Fall through to HTTP status / generic message.
+                // Fall through to HTTP status / detailed message.
             }
         }
 
@@ -73,8 +143,9 @@ internal static class ExceptionMappingRules
             return (apiException.StatusCode, [apiException.Content.Trim()]);
         }
 
+        var message = GetDetailedMessage(apiException);
         return apiException.StatusCode is >= HttpStatusCode.BadRequest and < HttpStatusCode.InternalServerError
-            ? (apiException.StatusCode, [apiException.Message])
-            : (HttpStatusCode.InternalServerError, [ApiErrorMessages.UnexpectedError]);
+            ? (apiException.StatusCode, [message])
+            : (HttpStatusCode.InternalServerError, [message]);
     }
 }

@@ -37,6 +37,7 @@ public sealed class FgsTruckStockTemplateWriteService : IFgsTruckStockTemplateWr
 
         _auditHelper.StampForCreate(entity);
         await _context.FgsTruckStockTemplates.AddAsync(entity, cancellationToken);
+        await SyncItemsAsync(entity, dto.Items ?? [], cancellationToken);
         await SaveChangesAsync(cancellationToken);
 
         return MapToDetail(entity);
@@ -47,7 +48,7 @@ public sealed class FgsTruckStockTemplateWriteService : IFgsTruckStockTemplateWr
         FgsTruckStockTemplateUpdateDto dto,
         CancellationToken cancellationToken = default)
     {
-        var entity = await FindEntityAsync(id, cancellationToken)
+        var entity = await FindEntityAsync(id, includeItems: true, cancellationToken)
             ?? throw new KeyNotFoundException($"Truck stock template '{id}' was not found.");
 
         entity.TemplateCode = NormalizeCode(dto.TemplateCode);
@@ -55,6 +56,7 @@ public sealed class FgsTruckStockTemplateWriteService : IFgsTruckStockTemplateWr
         entity.Description = TrimOrNull(dto.Description);
 
         _auditHelper.StampForUpdate(entity);
+        await SyncItemsAsync(entity, dto.Items ?? [], cancellationToken);
         await SaveChangesAsync(cancellationToken);
 
         return MapToDetail(entity);
@@ -65,7 +67,7 @@ public sealed class FgsTruckStockTemplateWriteService : IFgsTruckStockTemplateWr
         FgsTruckStockTemplatePatchDto dto,
         CancellationToken cancellationToken = default)
     {
-        var entity = await FindEntityAsync(id, cancellationToken)
+        var entity = await FindEntityAsync(id, includeItems: dto.Items is not null, cancellationToken)
             ?? throw new KeyNotFoundException($"Truck stock template '{id}' was not found.");
 
         if (dto.TemplateCode is not null)
@@ -89,13 +91,64 @@ public sealed class FgsTruckStockTemplateWriteService : IFgsTruckStockTemplateWr
         }
 
         _auditHelper.StampForUpdate(entity);
+
+        if (dto.Items is not null)
+        {
+            await SyncItemsAsync(entity, dto.Items, cancellationToken);
+        }
+
         await SaveChangesAsync(cancellationToken);
+
+        if (dto.Items is null)
+        {
+            await _context.Entry(entity).Collection(e => e.Items).LoadAsync(cancellationToken);
+        }
 
         return MapToDetail(entity);
     }
 
-    private async Task<FgsTruckStockTemplate?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsTruckStockTemplates.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+    private async Task SyncItemsAsync(
+        FgsTruckStockTemplate template,
+        IReadOnlyList<FgsTruckStockTemplateItemDto> items,
+        CancellationToken cancellationToken)
+    {
+        if (!_context.Entry(template).Collection(t => t.Items).IsLoaded
+            && template.Id != 0)
+        {
+            await _context.Entry(template).Collection(t => t.Items).LoadAsync(cancellationToken);
+        }
+
+        InventoryChildCollectionSync.Sync(
+            _context,
+            template.Items,
+            items,
+            dto => dto.Id,
+            _ => new FgsTruckStockTemplateItem { TruckStockTemplateId = template.Id },
+            (entity, dto, _) =>
+            {
+                entity.InventoryItemId = dto.InventoryItemId;
+                entity.TargetQuantity = dto.TargetQuantity;
+                entity.MinimumQuantity = dto.MinimumQuantity;
+                entity.DisplayOrder = dto.DisplayOrder;
+            },
+            _auditHelper.StampForCreate,
+            _auditHelper.StampForUpdate,
+            $"Truck stock template item '{{0}}' was not found on template '{template.Id}'.");
+    }
+
+    private async Task<FgsTruckStockTemplate?> FindEntityAsync(
+        long id,
+        bool includeItems,
+        CancellationToken cancellationToken)
+    {
+        IQueryable<FgsTruckStockTemplate> query = _context.FgsTruckStockTemplates;
+        if (includeItems)
+        {
+            query = query.Include(e => e.Items);
+        }
+
+        return await query.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+    }
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -105,7 +158,18 @@ public sealed class FgsTruckStockTemplateWriteService : IFgsTruckStockTemplateWr
         }
         catch (DbUpdateException ex) when (IsUniqueViolation(ex))
         {
-            throw new InvalidOperationException("A truck stock template with the same code already exists.", ex);
+            var message = ex.InnerException?.Message ?? string.Empty;
+            if (message.Contains("InventoryItemId", StringComparison.OrdinalIgnoreCase)
+                || message.Contains("FgsTruckStockTemplateItem", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    "This inventory item is already on the truck stock template.",
+                    ex);
+            }
+
+            throw new InvalidOperationException(
+                "A truck stock template with the same code already exists.",
+                ex);
         }
     }
 
@@ -120,5 +184,20 @@ public sealed class FgsTruckStockTemplateWriteService : IFgsTruckStockTemplateWr
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
     private static FgsTruckStockTemplateDetailDto MapToDetail(FgsTruckStockTemplate entity) =>
-        new(entity.Id, entity.TemplateCode, entity.Name, entity.Description, entity.IsActive);
+        new(
+            entity.Id,
+            entity.TemplateCode,
+            entity.Name,
+            entity.Description,
+            entity.IsActive,
+            entity.Items
+                .OrderBy(i => i.DisplayOrder)
+                .ThenBy(i => i.Id)
+                .Select(i => new FgsTruckStockTemplateItemDetailDto(
+                    i.Id,
+                    i.InventoryItemId,
+                    i.TargetQuantity,
+                    i.MinimumQuantity,
+                    i.DisplayOrder))
+                .ToList());
 }

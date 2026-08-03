@@ -1,3 +1,5 @@
+using Fgs.User.Domain.Enums;
+
 namespace Fgs.User.Domain.Entities;
 
 /// <summary>
@@ -9,7 +11,7 @@ public class FgsTenantServiceSetup : FgsEntityBase, ITenantCompanyScoped
 
     public long CompanyId { get; set; }
 
-    public int GloTimeCardOptionId { get; set; }
+    public TimeCardOption TimeCardOptionId { get; set; } = TimeCardOption.None;
 
     public int? AccountingIntegrationTypeId { get; set; }
 

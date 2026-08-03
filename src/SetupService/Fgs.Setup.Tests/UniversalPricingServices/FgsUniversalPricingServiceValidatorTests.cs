@@ -37,14 +37,35 @@ public sealed class FgsUniversalPricingServiceValidatorTests
     }
 
     [Fact]
+    public async Task CreateValidator_WhenCustomUniqueCode_PassesWithoutGlobalCatalog()
+    {
+        _readRepository
+            .Setup(r => r.ExistsByUniversalPricingServiceCodeAsync("DIAGFEE", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        var validator = new CreateFgsUniversalPricingServiceCommandValidator(_readRepository.Object);
+        var command = new CreateFgsUniversalPricingServiceCommand(
+            new FgsUniversalPricingServiceCreateDto(
+                "DIAGFEE",
+                1,
+                Tiers: [new FgsUniversalMatrixTierItemDto(null, "Diagnostic Fee", 1.00m, 1)],
+                SizeTiers: [new FgsUniversalMatrixSizeTierItemDto(null, "Diagnostic Fee", 1.00m, 1)],
+                Items: [new FgsUniversalMatrixItemItemDto(null, "Diagnostic Fee", "Diagnostic Fee", 100.00m, 1)],
+                FrequencyDiscounts: [new FgsUniversalMatrixFrequencyDiscountItemDto(null, "Diagnostic Fee", 8.25m, 1)],
+                OneTimeFees: [new FgsUniversalMatrixOneTimeFeeItemDto(null, "Diagnostic Fee", 100.00m, 1)],
+                AddOns: [new FgsUniversalMatrixAddOnItemDto(null, "Diagnostic Fee", "Diagnostic Fee", 100.00m, 1)]));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task CreateValidator_WhenNestedTierMissingName_HasValidationError()
     {
         _readRepository
             .Setup(r => r.ExistsByUniversalPricingServiceCodeAsync(It.IsAny<string>(), null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
-        _readRepository
-            .Setup(r => r.ExistsGloUniversalPricingServiceCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
 
         var validator = new CreateFgsUniversalPricingServiceCommandValidator(_readRepository.Object);
         var command = new CreateFgsUniversalPricingServiceCommand(
@@ -65,9 +86,6 @@ public sealed class FgsUniversalPricingServiceValidatorTests
         _readRepository
             .Setup(r => r.ExistsByUniversalPricingServiceCodeAsync(It.IsAny<string>(), null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
-        _readRepository
-            .Setup(r => r.ExistsGloUniversalPricingServiceCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
 
         var validator = new CreateFgsUniversalPricingServiceCommandValidator(_readRepository.Object);
         var command = new CreateFgsUniversalPricingServiceCommand(
@@ -92,9 +110,6 @@ public sealed class FgsUniversalPricingServiceValidatorTests
         _readRepository
             .Setup(r => r.ExistsByUniversalPricingServiceCodeAsync("TEST", 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
-        _readRepository
-            .Setup(r => r.ExistsGloUniversalPricingServiceCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
         var validator = new UpdateFgsUniversalPricingServiceCommandValidator(_readRepository.Object);
         var command = new UpdateFgsUniversalPricingServiceCommand(5, new FgsUniversalPricingServiceUpdateDto("TEST", 5));
 

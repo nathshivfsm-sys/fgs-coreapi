@@ -81,7 +81,6 @@ internal static class EntitySchemaRegistry
         [typeof(GloSkill)] = FgsDatabaseSchemas.Glo,
         [typeof(GloStateProvince)] = FgsDatabaseSchemas.Glo,
         [typeof(GloTag)] = FgsDatabaseSchemas.Glo,
-        [typeof(GloTimeCardOption)] = FgsDatabaseSchemas.Glo,
         [typeof(GloTitleOfCourtesy)] = FgsDatabaseSchemas.Glo,
         [typeof(GloTrade)] = FgsDatabaseSchemas.Glo,
         [typeof(GloUnitOfMeasure)] = FgsDatabaseSchemas.Glo,

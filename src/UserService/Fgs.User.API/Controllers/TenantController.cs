@@ -141,7 +141,9 @@ public sealed class TenantController(
 
         return StatusCode(
             StatusCodes.Status401Unauthorized,
-            ApiResponse<object>.Fail(["Unauthorized."], ApiStatusCodes.Unauthorized));
+            ApiResponse<object>.Fail(
+                ["Authentication required. Provide a valid JWT or internal service key."],
+                ApiStatusCodes.Unauthorized));
     }
 
     private IActionResult? UnauthorizedIfNotInternal(string? serviceKey)
@@ -153,6 +155,8 @@ public sealed class TenantController(
 
         return StatusCode(
             StatusCodes.Status401Unauthorized,
-            ApiResponse<object>.Fail(["Unauthorized."], ApiStatusCodes.Unauthorized));
+            ApiResponse<object>.Fail(
+                ["Internal service key is missing or invalid."],
+                ApiStatusCodes.Unauthorized));
     }
 }

@@ -64,12 +64,48 @@ public sealed class ExceptionMappingRulesTests
     }
 
     [Fact]
-    public void Map_UnknownException_ReturnsInternalServerErrorWithGenericMessage()
+    public void Map_UnauthorizedAccessException_ReturnsExactMessage()
+    {
+        var (statusCode, errors) = ExceptionMappingRules.Map(
+            new UnauthorizedAccessException("Internal service key is missing or invalid."));
+
+        statusCode.Should().Be(HttpStatusCode.Unauthorized);
+        errors.Should().ContainSingle("Internal service key is missing or invalid.");
+    }
+
+    [Fact]
+    public void Map_UnknownException_ReturnsInternalServerErrorWithExceptionMessage()
     {
         var (statusCode, errors) = ExceptionMappingRules.Map(new Exception("database exploded"));
 
         statusCode.Should().Be(HttpStatusCode.InternalServerError);
-        errors.Should().ContainSingle(ApiErrorMessages.UnexpectedError);
+        errors.Should().ContainSingle("database exploded");
+    }
+
+    [Fact]
+    public void Map_WrappedException_ReturnsInnermostMessage()
+    {
+        var inner = new InvalidOperationException("relation \"asset.FgsAsset\" does not exist");
+        var outer = new Exception("An error occurred while saving the entity changes.", inner);
+
+        var (statusCode, errors) = ExceptionMappingRules.Map(outer);
+
+        statusCode.Should().Be(HttpStatusCode.InternalServerError);
+        errors.Should().ContainSingle("relation \"asset.FgsAsset\" does not exist");
+    }
+
+    [Fact]
+    public void Map_FluentValidationNullReferenceWrapper_ReturnsOuterMessage()
+    {
+        var inner = new NullReferenceException("Object reference not set to an instance of an object.");
+        var outer = new NullReferenceException(
+            "NullReferenceException occurred when executing rule for x => x.Dto.ItemCode. If this property can be null you should add a null check using a When condition",
+            inner);
+
+        var (statusCode, errors) = ExceptionMappingRules.Map(outer);
+
+        statusCode.Should().Be(HttpStatusCode.InternalServerError);
+        errors.Should().ContainSingle(outer.Message);
     }
 
     [Fact]

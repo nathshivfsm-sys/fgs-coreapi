@@ -18,7 +18,7 @@ public sealed class FgsUserValidatorTests
     {
         var validator = CreateInviteValidator();
         var result = await validator.ValidateAsync(
-            new InviteFgsUserCommand(new FgsUserInviteDto("Jane", "", 1)));
+            new InviteFgsUserCommand(new FgsUserInviteDto("Jane", "", null, 1)));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName.Contains("Email"));
@@ -36,7 +36,7 @@ public sealed class FgsUserValidatorTests
             .ReturnsAsync((FgsRoleDetailDto?)null);
 
         var invitationRead = new Mock<IInvitationReadQuery>();
-        invitationRead.Setup(r => r.HasPendingInvitationForNormalizedEmailAsync(
+        invitationRead.Setup(r => r.HasPendingInvitationForNormalizedEmailInCurrentTenantCompanyAsync(
                 It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
@@ -54,10 +54,47 @@ public sealed class FgsUserValidatorTests
             dateTime.Object);
 
         var result = await validator.ValidateAsync(
-            new InviteFgsUserCommand(new FgsUserInviteDto("Jane", "jane@example.com", 99)));
+            new InviteFgsUserCommand(new FgsUserInviteDto("Jane", "jane@example.com", null, 99)));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.ErrorMessage.Contains("role", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task InviteValidator_WhenEmailExistsForTenantCompany_HasValidationError()
+    {
+        var userRead = new Mock<IFgsUserReadRepository>();
+        userRead.Setup(r => r.ExistsByEmailAsync("jane@example.com", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var roleRead = new Mock<IFgsRoleReadRepository>();
+        roleRead.Setup(r => r.GetByIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FgsRoleDetailDto(1, "TECH", "Technician", null, null, false, 1, true));
+
+        var invitationRead = new Mock<IInvitationReadQuery>();
+        invitationRead.Setup(r => r.HasPendingInvitationForNormalizedEmailInCurrentTenantCompanyAsync(
+                It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        var emailNormalizer = new Mock<IEmailNormalizer>();
+        emailNormalizer.Setup(e => e.Normalize(It.IsAny<string>())).Returns<string>(s => s.Trim().ToLowerInvariant());
+
+        var dateTime = new Mock<IDateTimeProvider>();
+        dateTime.SetupGet(d => d.UtcNow).Returns(DateTimeOffset.UtcNow);
+
+        var validator = new InviteFgsUserCommandValidator(
+            userRead.Object,
+            roleRead.Object,
+            invitationRead.Object,
+            emailNormalizer.Object,
+            dateTime.Object);
+
+        var result = await validator.ValidateAsync(
+            new InviteFgsUserCommand(new FgsUserInviteDto("Jane", "jane@example.com", null, 1)));
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e =>
+            e.ErrorMessage == "A user with this email already exists for this tenant and company.");
     }
 
     private static InviteFgsUserCommandValidator CreateInviteValidator()
@@ -71,7 +108,7 @@ public sealed class FgsUserValidatorTests
             .ReturnsAsync(new FgsRoleDetailDto(1, "TECH", "Technician", null, null, false, 1, true));
 
         var invitationRead = new Mock<IInvitationReadQuery>();
-        invitationRead.Setup(r => r.HasPendingInvitationForNormalizedEmailAsync(
+        invitationRead.Setup(r => r.HasPendingInvitationForNormalizedEmailInCurrentTenantCompanyAsync(
                 It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 

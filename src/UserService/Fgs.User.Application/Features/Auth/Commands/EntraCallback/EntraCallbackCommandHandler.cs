@@ -67,10 +67,10 @@ public sealed class EntraCallbackCommandHandler : IRequestHandler<EntraCallbackC
         {
             entraUser = await _entraService.ExchangeCodeAsync(request.Code, redirectUri, cancellationToken);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             return ApiResponse<EntraCallbackResultDto>.Fail(
-                [AuthErrorMessages.EntraCodeExchangeFailed],
+                [$"{AuthErrorMessages.EntraCodeExchangeFailed} {ex.Message}"],
                 ApiStatusCodes.Unauthorized);
         }
 
@@ -135,10 +135,10 @@ public sealed class EntraCallbackCommandHandler : IRequestHandler<EntraCallbackC
 
             return ApiResponse<EntraCallbackResultDto>.Ok(result);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             return ApiResponse<EntraCallbackResultDto>.Fail(
-                [AuthErrorMessages.FinalizeOnboardingFailed],
+                [$"{AuthErrorMessages.FinalizeOnboardingFailed} {ex.Message}"],
                 ApiStatusCodes.InternalServerError);
         }
     }

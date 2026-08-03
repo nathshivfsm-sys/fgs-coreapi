@@ -5,6 +5,8 @@ namespace Fgs.Inventory.Infrastructure.TruckStockTemplates;
 internal static class FgsTruckStockTemplateSql
 {
     public const string Table = "inventory.\"FgsTruckStockTemplate\"";
+    public const string ItemTable = "inventory.\"FgsTruckStockTemplateItem\"";
+    public const string InventoryItemTable = "inventory.\"FgsInventoryItem\"";
 
     public const string SelectDetailColumns = """
         "Id", "TemplateCode", "Name", "Description", "IsActive"
@@ -14,6 +16,10 @@ internal static class FgsTruckStockTemplateSql
 
     public const string SelectLookupColumns = """
         "Id", "TemplateCode", "Name"
+        """;
+
+    public const string SelectItemColumns = """
+        "Id", "InventoryItemId", "TargetQuantity", "MinimumQuantity", "DisplayOrder"
         """;
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)

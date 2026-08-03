@@ -15,7 +15,7 @@ namespace Fgs.Setup.API.Controllers;
 /// </summary>
 [AllowAnonymous]
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("tenant/{tenantId:long}/companies/{companyId:long}/business-type")]
+[FgsVersionedRoute("tenant/{tenantId:long}/companies/{companyId:long}/businesstype")]
 [Produces("application/json")]
 public sealed class TenantCompanyBusinessTypeController(IMediator mediator) : ControllerBase
 {

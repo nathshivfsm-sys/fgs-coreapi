@@ -53,7 +53,7 @@ public sealed class InviteFgsUserCommandHandlerTests
             NullLogger<InviteFgsUserCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new InviteFgsUserCommand(new FgsUserInviteDto("Jane Doe", "jane@example.com", roleId)),
+            new InviteFgsUserCommand(new FgsUserInviteDto("Jane Doe", "jane@example.com", null, roleId)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -89,14 +89,14 @@ public sealed class InviteFgsUserCommandHandlerTests
             writeService,
             NullLogger<InviteFgsUserCommandHandler>.Instance);
         var created = await inviteHandler.Handle(
-            new InviteFgsUserCommand(new FgsUserInviteDto("Jane Doe", "jane@example.com", roleId)),
+            new InviteFgsUserCommand(new FgsUserInviteDto("Jane Doe", "jane@example.com", null, roleId)),
             CancellationToken.None);
 
         var updateHandler = new UpdateFgsUserCommandHandler(
             writeService,
             NullLogger<UpdateFgsUserCommandHandler>.Instance);
         var updated = await updateHandler.Handle(
-            new UpdateFgsUserCommand(created.Data!.Id, new FgsUserUpdateDto("Jane Updated", otherRoleId, true)),
+            new UpdateFgsUserCommand(created.Data!.Id, new FgsUserUpdateDto("Jane Updated", null, otherRoleId, true)),
             CancellationToken.None);
 
         updated.Success.Should().BeTrue();
@@ -119,7 +119,7 @@ public sealed class InviteFgsUserCommandHandlerTests
             writeService,
             NullLogger<InviteFgsUserCommandHandler>.Instance);
         var created = await inviteHandler.Handle(
-            new InviteFgsUserCommand(new FgsUserInviteDto("Jane Doe", "jane@example.com", roleId)),
+            new InviteFgsUserCommand(new FgsUserInviteDto("Jane Doe", "jane@example.com", null, roleId)),
             CancellationToken.None);
 
         var firstInviteId = (await context.FgsInvitations.SingleAsync()).Id;
@@ -281,6 +281,7 @@ public sealed class InviteFgsUserCommandHandlerTests
                 user.Id,
                 user.DisplayName,
                 user.Email,
+                user.PhoneNumber,
                 role?.FgsRoleId,
                 role?.Name,
                 invitation,

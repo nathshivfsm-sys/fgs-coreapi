@@ -31,20 +31,43 @@ function Test-RequiresAuth {
     return $true
 }
 
+function Get-EntityIdVarName {
+    param([string]$ControllerName)
+
+    $entity = $ControllerName -replace 'Controller$', ''
+    switch ($entity) {
+        'GLBreak' { return 'glBreakId' }
+        'Attachment' { return 'attachmentId' }
+        'TenantStorage' { return 'tenantId' }
+        default { return ((ConvertTo-CamelCase $entity) + 'Id') }
+    }
+}
+
+function Format-PostmanIdVar {
+    param([string]$VarName)
+    return ('{{' + $VarName + '}}')
+}
+
 function Get-PostmanVarName {
-    param([string]$ParamName)
+    param(
+        [string]$ParamName,
+        [string]$EntityIdVar = 'recordId'
+    )
     switch ($ParamName) {
-        'id' { 'recordId' }
+        'id' { $EntityIdVar }
         default { $ParamName }
     }
 }
 
 function Convert-RouteToPostmanPath {
-    param([string]$Template)
+    param(
+        [string]$Template,
+        [string]$EntityIdVar = 'recordId'
+    )
     if ([string]::IsNullOrWhiteSpace($Template)) { return '' }
     return [regex]::Replace($Template, '\{(\w+)(?::(?:long|guid))?\}', {
         param($m)
-        $varName = Get-PostmanVarName $m.Groups[1].Value
+        $varName = Get-PostmanVarName -ParamName $m.Groups[1].Value -EntityIdVar $EntityIdVar
         '{' + '{' + $varName + '}' + '}'
     })
 }
@@ -238,7 +261,7 @@ function Get-GatewayExternalPath {
         'BillingService' = 'billing'
         'ReportingService' = 'reporting'
         'IntegrationService' = 'integration'
-        'ServiceAgreementService' = 'service-agreements'
+        'ServiceAgreementService' = 'serviceagreements'
         'CommunicationService' = 'communication'
         'PublisherService' = 'publisher'
         'ConsumerService' = 'consumer'
@@ -285,21 +308,262 @@ function ConvertTo-CamelCase {
     return ($Name.Substring(0, 1).ToLowerInvariant() + $Name.Substring(1))
 }
 
+function Convert-PascalToTitle {
+    param([string]$Name)
+    if ([string]::IsNullOrWhiteSpace($Name)) { return $Name }
+    $spaced = [regex]::Replace($Name, '([a-z0-9])([A-Z])', '$1 $2')
+    $spaced = [regex]::Replace($spaced, '([A-Z]+)([A-Z][a-z])', '$1 $2')
+    return $spaced.Trim()
+}
+
+function Get-EntityStemFromController {
+    param([string]$ControllerName)
+    return ($ControllerName -replace 'Controller$', '')
+}
+
+function Get-EntitySampleProfile {
+    param([string]$EntityStem)
+
+    $profiles = @{
+        BusinessType = @{ Code = 'PLUMB'; Name = 'Plumbing'; Description = 'Residential and commercial plumbing services' }
+        BillingCategory = @{ Code = 'NI'; Name = 'Non Inventory'; Description = 'Non-inventory billing category' }
+        JobCategory = @{ Code = 'REPAIR'; Name = 'Repair'; Description = 'General repair work category' }
+        JobType = @{ Code = 'SVC'; Name = 'Service Call'; Description = 'Standard service call job type' }
+        JobTypeCategory = @{ Code = 'SVC-REPAIR'; Name = 'Service Repair'; Description = 'Links service job types to repair categories' }
+        JobTypeTask = @{ Code = 'DIAG'; Name = 'Diagnose Issue'; Description = 'Initial diagnosis task for the job type' }
+        LaborRateType = @{ Code = 'STD'; Name = 'Standard Labor'; Description = 'Standard technician labor rate type' }
+        LeadDisqualificationReason = @{ Code = 'NOBUDGET'; Name = 'No Budget'; Description = 'Lead has insufficient budget' }
+        LeadSource = @{ Code = 'WEB'; Name = 'Website'; Description = 'Lead originated from company website' }
+        LeadStatus = @{ Code = 'NEW'; Name = 'New Lead'; Description = 'Newly captured lead status' }
+        CommunicationTemplate = @{ Code = 'INVITE'; Name = 'Invite Email'; Description = 'Company invitation email template' }
+        Credential = @{ Code = 'DATABASE'; Name = 'Platform Database Connections'; Description = 'Platform database connection strings' }
+        Employee = @{ Code = 'EMP001'; Name = 'Alex Rivera'; Description = 'Field technician employee profile' }
+        GLBreak = @{ Code = 'LABOR'; Name = 'Labor GL'; Description = 'General ledger break for labor charges' }
+        PaymentMethod = @{ Code = 'CHECK'; Name = 'Check'; Description = 'Payment by check' }
+        PaymentTerm = @{ Code = 'NET30'; Name = 'Net 30'; Description = 'Payment due in 30 days' }
+        PostalCode = @{ Code = '78701'; Name = 'Austin Downtown'; Description = 'Austin TX postal coverage' }
+        PricingMatrix = @{ Code = 'FLATLABOR'; Name = 'Flat Labor'; Description = 'Flat labor pricing matrix' }
+        ResolutionCode = @{ Code = 'FIXED'; Name = 'Issue Resolved'; Description = 'Work completed and issue fixed' }
+        SalesActivityOutcome = @{ Code = 'WON'; Name = 'Won'; Description = 'Sales activity resulted in a win' }
+        SalesActivityType = @{ Code = 'CALL'; Name = 'Phone Call'; Description = 'Outbound sales phone call' }
+        SalesDispositionReason = @{ Code = 'NOBUDGET'; Name = 'No Budget'; Description = 'Opportunity closed due to budget' }
+        SalesPipelineStatus = @{ Code = 'LEAD_NEW'; Name = 'New Lead'; Description = 'Newly captured lead pipeline status' }
+        SetupDescription = @{ Code = 'NOTES'; Name = 'Work Notes'; Description = 'Standard work notes description type' }
+        Tag = @{ Code = 'VIP'; Name = 'VIP Customer'; Description = 'High-priority customer tag' }
+        Tax = @{ Code = 'COMBINED'; Name = 'Combined Tax'; Description = 'State and county combined tax' }
+        TaxAuthority = @{ Code = 'TXSTATE'; Name = 'Texas State'; Description = 'Texas state tax authority' }
+        TechSkillLevel = @{ Code = 'JOURNEY'; Name = 'Journeyman'; Description = 'Journeyman technician skill level' }
+        TechTrade = @{ Code = 'HVAC'; Name = 'HVAC Services'; Description = 'Heating and cooling trade' }
+        Timeslot = @{ Code = 'AM'; Name = 'Morning'; Description = 'Morning appointment timeslot' }
+        TitleOfCourtesy = @{ Code = 'MR'; Name = 'Mr.'; Description = 'Courtesy title Mr.' }
+        UniversalPricingService = @{ Code = 'DIAGFEE'; Name = 'Diagnostic Fee'; Description = 'Standard diagnostic service fee' }
+        Vehicle = @{ Code = 'TRK-01'; Name = 'Service Truck 01'; Description = 'Primary service vehicle' }
+        VehicleMaintenance = @{ Code = 'OIL'; Name = 'Oil Change'; Description = 'Scheduled oil change maintenance' }
+        Zone = @{ Code = 'NORTH'; Name = 'North Zone'; Description = 'Northern service coverage zone' }
+        ApiClient = @{ Code = 'FSINT'; Name = 'Field Service Integration'; Description = 'API client for field service integrations' }
+        ApiEvent = @{ Code = 'WO_CREATED'; Name = 'Work Order Created'; Description = 'Fired when a work order is created' }
+        ApiSecret = @{ Code = 'PRIMARY'; Name = 'Primary Secret'; Description = 'Primary API client secret' }
+        ApiWebhook = @{ Code = 'WO_HOOK'; Name = 'Work Order Webhook'; Description = 'Webhook for work order events' }
+        ApiWebhookSubscription = @{ Code = 'WO_SUB'; Name = 'Work Order Subscription'; Description = 'Subscription to work order created events' }
+        DataAccess = @{ Code = 'OWN_COMP'; Name = 'Own Company'; Description = 'Restrict access to the user company' }
+        DataAccessScope = @{ Code = 'COMPANY'; Name = 'Company Scope'; Description = 'Company-level data access scope' }
+        Permission = @{ Code = 'USER_VIEW'; Name = 'View Users'; Description = 'Allows viewing user records' }
+        PublicEndpoint = @{ Code = 'LOCAL'; Name = 'Local API Gateway'; Description = 'Local development public endpoint' }
+        Role = @{ Code = 'ADMIN'; Name = 'Administrator'; Description = 'Full administrative access role' }
+        RoleDataAccess = @{ Code = 'ADMIN_OWN'; Name = 'Admin Own Company'; Description = 'Administrator own-company data access' }
+        RolePermission = @{ Code = 'ADMIN_USER_VIEW'; Name = 'Admin View Users'; Description = 'Administrator permission to view users' }
+        User = @{ Code = 'OFFICE'; Name = 'Office User'; Description = 'Office staff user account' }
+        UserRole = @{ Code = 'OFFICE_ADMIN'; Name = 'Office Administrator'; Description = 'Assigns administrator role to a user' }
+        ServiceSetup = @{ Code = 'DEFAULT'; Name = 'Default Service Setup'; Description = 'Tenant service configuration defaults' }
+        Asset = @{ Code = 'ASSET01'; Name = 'Primary Asset'; Description = 'Customer installed asset' }
+        AssetAttribute = @{ Code = 'SERIAL'; Name = 'Serial Number'; Description = 'Asset serial number attribute' }
+        AssetAttributeOption = @{ Code = 'OPTION1'; Name = 'Option 1'; Description = 'Dropdown option for asset attribute' }
+        AssetManufacturer = @{ Code = 'CARRIER'; Name = 'Carrier'; Description = 'HVAC equipment manufacturer' }
+        AssetModel = @{ Code = '24ACC'; Name = '24ACC Comfort'; Description = 'Residential comfort series model' }
+        AssetStatus = @{ Code = 'ACTIVE'; Name = 'Active'; Description = 'Asset is installed and active' }
+        AssetType = @{ Code = 'HVAC'; Name = 'HVAC Unit'; Description = 'Heating and cooling asset type' }
+        AssetWarranty = @{ Code = 'OEM'; Name = 'OEM Warranty'; Description = 'Original manufacturer warranty' }
+        InventoryLocation = @{ Code = 'WH-MAIN'; Name = 'Main Warehouse'; Description = 'Primary parts warehouse' }
+        Vendor = @{ Code = 'VND01'; Name = 'Acme Supply Co'; Description = 'Primary parts vendor' }
+        TruckStockTemplate = @{ Code = 'STDTRK'; Name = 'Standard Truck Stock'; Description = 'Default truck stock template' }
+        Attachment = @{ Code = 'GENERAL'; Name = 'General Attachment'; Description = 'General file attachment' }
+    }
+
+    if ($profiles.ContainsKey($EntityStem)) {
+        return $profiles[$EntityStem]
+    }
+
+    $title = Convert-PascalToTitle $EntityStem
+    $code = ($EntityStem -creplace '[a-z]', '').ToUpperInvariant()
+    if ([string]::IsNullOrWhiteSpace($code) -or $code.Length -lt 2) {
+        $code = $EntityStem.ToUpperInvariant()
+        if ($code.Length -gt 8) { $code = $code.Substring(0, 8) }
+    }
+    return @{
+        Code = $code
+        Name = $title
+        Description = "$title used in field service operations"
+    }
+}
+
+function Format-JsonString {
+    param([string]$Value)
+    return ('"' + ($Value -replace '\\', '\\' -replace '"', '\"') + '"')
+}
+
+function Get-PropertySampleOverride {
+    param(
+        [string]$PropertyName,
+        [string]$EntityStem,
+        [hashtable]$Profile
+    )
+
+    # Value '__null__' means JSON null; otherwise a string literal.
+    $propertyOverrides = @{
+        ApplicationName = 'Field Service Integration'
+        ContactName = 'Ops Admin'
+        ContactEmail = 'ops@example.com'
+        ContactTitle = 'Buyer'
+        Module = 'Users'
+        Resource = 'User'
+        Action = 'View'
+        Operator = 'Equals'
+        ScopeType = 'Company'
+        ScopeValue = 'OWN'
+        AuthenticationType = 'None'
+        AuthenticationValue = '__null__'
+        EndpointType = 'API'
+        EnvironmentCode = 'LOCAL'
+        EventCode = 'WO_CREATED'
+        EventCategory = 'WorkOrder'
+        EndpointUrl = 'https://hooks.example.com/fgs/workorders'
+        BaseUrl = 'https://developer.fsm.com'
+        PermissionCode = 'USER_VIEW'
+        RoleCode = 'ADMIN'
+        DataAccessCode = 'OWN_COMP'
+        TradeCode = 'HVAC'
+        CountryCode = 'US'
+        StateProvinceCode = 'TX'
+        StateProvince = 'TX'
+        BillHoursFromDispatchOrArrive = 'Dispatch'
+        InvoiceNumberPrefix = 'INV'
+        QuoteNumberPrefix = 'QTE'
+        PONumberPrefix = 'PO'
+        WorkOrderNumberPrefix = 'WO'
+        InvoiceBatchNumberFormat = 'INV-{YYYY}-{####}'
+        Make = 'Ford'
+        Model = 'Transit'
+        Color = 'White'
+        LicensePlate = 'FGS-100'
+        LicensePlateState = 'TX'
+        PurchasedFrom = 'Austin Ford'
+        OwnershipCompany = 'Fleet Lease Partners'
+        BusinessUnit = 'Field Services'
+        ServiceProvider = 'Acme Field Services'
+        LegalName = "$($Profile.Name) LLC"
+        VendorAccountNumber = 'ACCT-1001'
+        TaxIdNumber = '12-3456789'
+        FirstName = 'Alex'
+        LastName = 'Rivera'
+        MiddleName = '__null__'
+        Subject = "You are invited to {{CompanyName}}"
+        ShortNote = 'Follow up with customer'
+        Notes = "$($Profile.Name) notes"
+        TaskName = $Profile.Name
+        BillingCategoryName = $Profile.Name
+        BillingCategoryType = 'NI'
+        InventoryLocationType = 'WAREHOUSE'
+        VendorType = 'VENDOR'
+        VendorStatus = 'ACTIVE'
+        OwnershipType = 'Owned'
+        InputType = 'TEXT'
+        CommunicationChannel = 'Email'
+        TemplateType = 'Transactional'
+        WarrantyType = 'OEM'
+        DueDateMethod = 'NetDays'
+        WarehouseType = 'Warehouse'
+        AttributeCode = 'SERIAL'
+        AttributeName = 'Serial Number'
+        OptionCode = 'OPTION1'
+        OptionName = 'Option 1'
+        StatusCode = $Profile.Code
+        StatusName = $Profile.Name
+        OutcomeCode = $Profile.Code
+        OutcomeName = $Profile.Name
+        ActivityTypeCode = $Profile.Code
+        ActivityTypeName = $Profile.Name
+        DispositionReasonCode = $Profile.Code
+        DispositionReasonName = $Profile.Name
+        SourceCode = $Profile.Code
+        SourceName = $Profile.Name
+        ReasonCode = $Profile.Code
+        ReasonName = $Profile.Name
+        ResolutionCode = $Profile.Code
+        ResolutionName = $Profile.Name
+        DescriptionTypeCode = $Profile.Code
+        SubCategoryCode = 'SUB'
+        JobTypeCode = 'SVC'
+        TaxCode = 'COMBINED'
+        VendorCode = 'VND01'
+        VendorName = 'Acme Supply Co'
+        InventoryLocationCode = 'WH-MAIN'
+        WarehouseCode = 'WH01'
+        RegionCode = 'TX'
+        TagCode = 'VIP'
+        PostalCode = '78701'
+        DisplayName = $Profile.Name
+        Secret = '__null__'
+        EmployeeNumber = 'EMP001'
+        LegalFirstName = 'Alex'
+        LegalMiddleName = '__null__'
+        LegalLastName = 'Rivera'
+        TemplateCode = 'STDTRK'
+        BreakLabel = 'Labor'
+    }
+
+    if ($EntityStem -eq 'SetupDescription' -and $PropertyName -eq 'Body') {
+        return 'Customer reported intermittent cooling. Inspected and cleaned condensate drain.'
+    }
+    if ($EntityStem -eq 'CommunicationTemplate' -and $PropertyName -eq 'Body') {
+        return 'Hello, use {{InviteUrl}} to join {{CompanyName}}.'
+    }
+
+    if ($propertyOverrides.ContainsKey($PropertyName)) {
+        return $propertyOverrides[$PropertyName]
+    }
+
+    switch -Regex ($PropertyName) {
+        '^(Code|.*Code)$' {
+            if ($PropertyName -eq 'Code' -or $PropertyName -eq ($EntityStem + 'Code')) { return $Profile.Code }
+            $propStem = $PropertyName -replace 'Code$', ''
+            if ($EntityStem -match ($propStem + '$')) { return $Profile.Code }
+            return $Profile.Code
+        }
+        '^(Name|DisplayName|StatusName|OutcomeName|ActivityTypeName|DispositionReasonName|SourceName|ReasonName|ResolutionName|TaskName|BillingCategoryName|VendorName|AttributeName|OptionName)$' {
+            return $Profile.Name
+        }
+        '^Description$' { return $Profile.Description }
+    }
+
+    return $null
+}
+
 function Get-SampleJsonValue {
     param(
         [string]$PropertyName,
         [string]$CsType,
         [bool]$IsPatch = $false,
         [hashtable]$Registry = $null,
-        [int]$IndentLevel = 0
+        [int]$IndentLevel = 0,
+        [string]$EntityStem = 'Record'
     )
 
     $nullable = $CsType.EndsWith('?')
     $baseType = $CsType.TrimEnd('?')
-    $camel = ConvertTo-CamelCase $PropertyName
+    $profile = Get-EntitySampleProfile $EntityStem
 
     if ($Registry -and $Registry.ContainsKey($baseType)) {
-        $nested = Get-DtoSampleBody -DtoType $baseType -Registry $Registry -MethodName 'Create' -IndentLevel $IndentLevel
+        $nested = Get-DtoSampleBody -DtoType $baseType -Registry $Registry -MethodName 'Create' -IndentLevel $IndentLevel -EntityStem $EntityStem
         if ($nested) { return $nested }
     }
 
@@ -307,10 +571,10 @@ function Get-SampleJsonValue {
         $itemType = $Matches.item.Trim()
         if ($itemType -eq 'string') {
             if ($PropertyName -match 'TradeCode') { return '["PLUMB"]' }
-            return '["sample"]'
+            return ('["{0}"]' -f $profile.Code)
         }
         if ($Registry -and $Registry.ContainsKey($itemType)) {
-            $nested = Get-DtoSampleBody -DtoType $itemType -Registry $Registry -MethodName 'Create' -IndentLevel 0
+            $nested = Get-DtoSampleBody -DtoType $itemType -Registry $Registry -MethodName 'Create' -IndentLevel 0 -EntityStem $EntityStem
             if ($nested) { return "[$nested]" }
         }
         return '[]'
@@ -321,10 +585,7 @@ function Get-SampleJsonValue {
         if ($baseType -eq 'bool') { return 'null' }
         if ($baseType -in @('string', 'String')) {
             if ($PropertyName -match 'Name|DisplayName|TaskName|Subject|Body|Description|Notes|ShortNote') {
-                return '"Updated sample"'
-            }
-            if ($PropertyName -match 'Code|Type|Category|Channel|VIN|PostalCode|VendorCode|WarehouseCode|TaxCode|RegionCode|TagCode|StatusCode|OutcomeCode|ActivityTypeCode|DispositionReasonCode|SourceCode|ReasonCode|JobTypeCode|CategoryCode|SubCategoryCode|BillingCategoryType|DescriptionTypeCode|ResolutionCode|DueDateMethod|UsedFor|OwnershipType|VendorType|WarehouseType|CommunicationChannel|TemplateType') {
-                return 'null'
+                return (Format-JsonString ("Updated {0}" -f $profile.Name))
             }
             return 'null'
         }
@@ -338,15 +599,20 @@ function Get-SampleJsonValue {
     if ($nullable -and $PropertyName -match 'Id$|SyncToken|ExternalSystemId|IconFileId|AddressId|LogoFileId|NextSalesPipelineStatusId|PaymentTermId|FgsSetupZoneId|FgsSetupTaxId|FgsSetupTechTradeId|TenantId|CompanyId') {
         if ($PropertyName -eq 'TenantId') { return 'null' }
         if ($PropertyName -eq 'CompanyId') { return 'null' }
-        if ($PropertyName -match 'WarehouseId|VehicleId|FgsSetupTaxId|FgsSetupTaxAuthorityId|JobTypeCategoryId') { return '{{recordId}}' }
+        if ($PropertyName -match 'WarehouseId|VehicleId|FgsSetupTaxId|FgsSetupTaxAuthorityId|JobTypeCategoryId') {
+            return (Format-PostmanIdVar (ConvertTo-CamelCase $PropertyName))
+        }
         return 'null'
     }
+
+    # Domain enums serialized as numbers
+    if ($baseType -eq 'TimeCardOption' -or $PropertyName -eq 'TimeCardOptionId') { return '2' }
 
     switch ($baseType) {
         'bool' {
             switch -Regex ($PropertyName) {
                 '^IsActive$' { return 'true' }
-                '^IsSystem$|^IsSystemDefined$|^IsSystemGenerated$|^Is1099Eligible$|^IsExternalSystemRecord$' { return 'false' }
+                '^IsSystem$|^IsSystemDefined$|^IsSystemGenerated$|^Is1099Eligible$|^IsExternalSystemRecord$|^IsPurchaser$' { return 'false' }
                 '^IsCompleted$' { return 'true' }
                 '^IsDefault$' { return 'false' }
                 '^Show|^Allow|^IsMobileVisible$|^IsCustomerPortalVisible$|^ShowToFieldTech$|^ShowOnCustomerPortal$|^AllowToPick$|^AllowManualSelection$|^AppliesToLead$|^AppliesToOpportunity$' { return 'true' }
@@ -359,156 +625,80 @@ function Get-SampleJsonValue {
             if ($PropertyName -match 'Priority') { return '5' }
             if ($PropertyName -match 'DisplayOrder|SortOrder') { return '1' }
             if ($PropertyName -eq 'UsedFor') { return '1' }
+            if ($PropertyName -match 'TimeoutSeconds') { return '30' }
+            if ($PropertyName -match 'MaximumRetryCount') { return '3' }
+            if ($PropertyName -match 'EventVersion') { return '1' }
+            if ($PropertyName -match 'RateLimitPerMinute') { return '60' }
             return '1'
         }
         'int' {
             if ($PropertyName -match 'Minutes|Mileage|NumberOfDays|VehicleMaintenanceTypeId|GloResolutionTypeId') { return '1' }
+            if ($PropertyName -match 'WorkLocationRadiusForAutoArrive') { return '100' }
+            if ($PropertyName -match 'RateLimitPerMinute') { return '60' }
             return '1'
         }
         'long' {
-            if ($PropertyName -match 'Id$') { return '{{recordId}}' }
+            if ($PropertyName -match 'Id$') { return (Format-PostmanIdVar (ConvertTo-CamelCase $PropertyName)) }
+            if ($PropertyName -match 'StartNumber$') { return '1000' }
             return '1'
         }
         'decimal' {
             if ($PropertyName -match 'Latitude|Longitude') { return 'null' }
             if ($PropertyName -match 'Multiplier') { return '1.00' }
             if ($PropertyName -match 'Percent|TaxPercent') { return '8.25' }
-            if ($PropertyName -match 'Price|Cost|Amount') { return '100.00' }
+            if ($PropertyName -match 'TripChargeAmount') { return '75.00' }
+            if ($PropertyName -match 'RegularRate|OvertimeRate|DoubleTimeRate') { return '45.00' }
+            if ($nullable -and $PropertyName -match 'LaborBurdenValue') { return 'null' }
+            if ($PropertyName -match 'Price|Cost|Amount|PurchasePrice|BaseRate') { return '100.00' }
+            if ($PropertyName -match 'TargetQuantity') { return '5.00' }
+            if ($PropertyName -match 'MinimumQuantity') { return '1.00' }
+            if ($nullable) { return 'null' }
             return '0.00'
         }
         'double' { return '0.0' }
         'float' { return '0.0' }
-        'DateOnly' { return '"2026-06-21"' }
+        'DateOnly' {
+            if ($nullable) {
+                if ($PropertyName -match 'Hire|Birth|Purchase|Install|Manufacture') { return '"2024-03-15"' }
+                return 'null'
+            }
+            return '"2026-06-21"'
+        }
         'TimeSpan' {
-            if ($PropertyName -match 'Begin|Start|Arrived') { return '"08:00:00"' }
-            if ($PropertyName -match 'End|Delayed|Completion') { return '"17:00:00"' }
+            if ($PropertyName -match 'Begin|Start|Arrived|OTStart|DTStart') { return '"08:00:00"' }
+            if ($PropertyName -match 'End|Delayed|Completion|OTEnd|DTEnd') { return '"17:00:00"' }
             return '"09:00:00"'
         }
         'Guid' { return '"11111111-1111-1111-1111-111111111111"' }
         default {
+            if ($PropertyName -eq 'ContactEmail') { return '"ops@example.com"' }
             if ($PropertyName -match 'Email') { return '"office@example.com"' }
             if ($PropertyName -match 'Phone|Mobile') { return '"+15551234567"' }
-            if ($PropertyName -match 'Website|Url') { return '"https://example.com"' }
-            if ($PropertyName -eq 'InventoryLocationType') { return '"WAREHOUSE"' }
-            if ($PropertyName -eq 'VendorType') { return '"VENDOR"' }
-            if ($PropertyName -eq 'VendorStatus') { return '"ACTIVE"' }
-            if ($PropertyName -eq 'OwnershipType') { return '"Owned"' }
-            if ($PropertyName -eq 'InputType') { return '"TEXT"' }
-            if ($PropertyName -eq 'CommunicationChannel') { return '"Email"' }
-            if ($PropertyName -eq 'TemplateType') { return '"Transactional"' }
-            if ($PropertyName -eq 'BillingCategoryType') { return '"NI"' }
-            if ($PropertyName -eq 'WarrantyType') { return '"OEM"' }
+            if ($PropertyName -eq 'EndpointUrl') { return '"https://hooks.example.com/fgs/workorders"' }
+            if ($PropertyName -eq 'BaseUrl') { return '"https://developer.fsm.com"' }
+            if ($PropertyName -match 'Website|Url') { return '"https://acme.example.com"' }
             if ($PropertyName -eq 'UsedFor') { return '1' }
-            if ($PropertyName -match 'VIN') { return '"1HGBH41JXMN109186"' }
-            if ($PropertyName -eq 'AddressLine1') { return '"100 Main St"' }
-            if ($PropertyName -eq 'AddressLine2') { return '"Apt 2"' }
+            if ($PropertyName -eq 'VIN' -or $PropertyName -eq 'Vin') { return '"1FTBW2CM5PKA12345"' }
+            if ($PropertyName -eq 'AddressLine1' -or $PropertyName -eq 'Address1') { return '"100 Main St"' }
+            if ($PropertyName -eq 'AddressLine2' -or $PropertyName -eq 'Address2') { return '"Suite 200"' }
             if ($PropertyName -match '^AddressLine[34]$') { return 'null' }
             if ($PropertyName -eq 'City') { return '"Austin"' }
             if ($PropertyName -eq 'State') { return '"TX"' }
             if ($PropertyName -eq 'County') { return 'null' }
             if ($PropertyName -eq 'Country') { return '"US"' }
             if ($PropertyName -eq 'FormattedAddress' -or $PropertyName -eq 'PlaceId') { return 'null' }
-            if ($PropertyName -match 'PostalCode') { return '"78701"' }
-            if ($PropertyName -match 'BackgroundColor|TextColor') { return '"#3366FF"' }
-            if ($PropertyName -match 'Body|Subject|Description|Notes|ShortNote|TaskName|LegalName|ServiceProvider|InvoiceNumber|PurchasedFrom|OwnershipCompany|BusinessUnit|Trade|DueDateMethod|WarehouseType|BillingCategoryName') {
-                return (Get-StringSampleValue $PropertyName)
+            if ($PropertyName -match 'BackgroundColor') { return '"#3366FF"' }
+            if ($PropertyName -match 'TextColor') { return '"#FFFFFF"' }
+
+            $override = Get-PropertySampleOverride -PropertyName $PropertyName -EntityStem $EntityStem -Profile $profile
+            if ($null -eq $override) {
+                if ($nullable) { return 'null' }
+                return (Format-JsonString $profile.Name)
             }
-            if ($PropertyName -match 'Code|Type$|Category') {
-                return (Get-CodeSampleValue $PropertyName)
-            }
-            if ($PropertyName -match 'Name|DisplayName') {
-                return (Get-NameSampleValue $PropertyName)
-            }
-            if ($nullable) { return 'null' }
-            return '"sample"'
+            if ($override -eq '__null__') { return 'null' }
+            return (Format-JsonString ([string]$override))
         }
     }
-}
-
-function Get-CodeSampleValue {
-    param([string]$PropertyName)
-    $map = @{
-        Code = 'SAMPLE'
-        CategoryCode = 'GEN'
-        SubCategoryCode = 'SUB'
-        JobTypeCode = 'SVC'
-        TaxCode = 'COMBINED'
-        VendorCode = 'VND01'
-        InventoryLocationCode = 'WH-AUSTIN'
-        AttributeCode = 'SERIAL'
-        WarrantyType = 'OEM'
-        WarehouseCode = 'WH01'
-        PostalCode = '78701'
-        StatusCode = 'NEW'
-        OutcomeCode = 'WON'
-        ActivityTypeCode = 'CALL'
-        DispositionReasonCode = 'NOBUDGET'
-        SourceCode = 'WEB'
-        ReasonCode = 'OTHER'
-        ResolutionCode = 'FIXED'
-        DescriptionTypeCode = 'NOTES'
-        BillingCategoryType = 'IN'
-        CommunicationChannel = 'Email'
-        TemplateType = 'Email'
-        DueDateMethod = 'NetDays'
-        UsedFor = 'Service'
-        OwnershipType = 'Owned'
-        VendorType = 'VENDOR'
-        WarehouseType = 'Warehouse'
-        RegionCode = 'TX'
-        TagCode = 'TAG01'
-    }
-    foreach ($key in $map.Keys) {
-        if ($PropertyName -eq $key) { return ('"' + $map[$key] + '"') }
-    }
-    if ($PropertyName -match 'Code$') {
-        $stem = ($PropertyName -replace 'Code$','').ToUpperInvariant()
-        if ($stem.Length -gt 6) { $stem = $stem.Substring(0, 6) }
-        return ('"' + $stem + '"')
-    }
-    return '"CODE"'
-}
-
-function Get-NameSampleValue {
-    param([string]$PropertyName)
-    $map = @{
-        Name = 'Sample Name'
-        DisplayName = 'Sample Display Name'
-        TaskName = 'Sample Service Call'
-        StatusName = 'New Lead'
-        OutcomeName = 'Qualified'
-        ActivityTypeName = 'Phone Call'
-        DispositionReasonName = 'No Budget'
-        SourceName = 'Website'
-        ReasonName = 'Other'
-        ResolutionName = 'Issue Resolved'
-        BillingCategoryName = 'Service Invoice'
-        VendorName = 'Sample Vendor'
-        LegalName = 'Sample Vendor LLC'
-    }
-    foreach ($key in $map.Keys) {
-        if ($PropertyName -eq $key) { return ('"' + $map[$key] + '"') }
-    }
-    if ($PropertyName -match 'Name$') { return '"Sample Name"' }
-    return '"Sample"'
-}
-
-function Get-StringSampleValue {
-    param([string]$PropertyName)
-    if ($PropertyName -eq 'Body') { return '"Hello {{CompanyName}}, this is a sample template body."' }
-    if ($PropertyName -eq 'Subject') { return '"Sample subject line"' }
-    if ($PropertyName -eq 'Description') { return '"Sample description"' }
-    if ($PropertyName -eq 'Notes') { return '"Sample notes"' }
-    if ($PropertyName -eq 'ShortNote') { return '"Note"' }
-    if ($PropertyName -eq 'BillingCategoryType') { return '"IN"' }
-    if ($PropertyName -eq 'CommunicationChannel') { return '"Email"' }
-    if ($PropertyName -eq 'TemplateType') { return '"Email"' }
-    if ($PropertyName -eq 'DueDateMethod') { return '"NetDays"' }
-    if ($PropertyName -eq 'UsedFor') { return '"Service"' }
-    if ($PropertyName -eq 'OwnershipType') { return '"Owned"' }
-    if ($PropertyName -eq 'VendorType') { return '"VENDOR"' }
-    if ($PropertyName -eq 'WarehouseType') { return '"Warehouse"' }
-    return '"sample"'
 }
 
 function Build-DtoRegistry {
@@ -550,7 +740,8 @@ function Get-DtoSampleBody {
         [string]$DtoType,
         [hashtable]$Registry,
         [string]$MethodName,
-        [int]$IndentLevel = 0
+        [int]$IndentLevel = 0,
+        [string]$EntityStem = 'Record'
     )
 
     if (-not $Registry.ContainsKey($DtoType)) { return $null }
@@ -576,7 +767,7 @@ function Get-DtoSampleBody {
     $closePad = '  ' * $IndentLevel
     $lines = @()
     foreach ($p in $props) {
-        $value = Get-SampleJsonValue -PropertyName $p.Name -CsType $p.CsType -IsPatch:$isPatch -Registry $Registry -IndentLevel ($IndentLevel + 1)
+        $value = Get-SampleJsonValue -PropertyName $p.Name -CsType $p.CsType -IsPatch:$isPatch -Registry $Registry -IndentLevel ($IndentLevel + 1) -EntityStem $EntityStem
         $lines += ('{0}"{1}": {2}' -f $pad, (ConvertTo-CamelCase $p.Name), $value)
     }
 
@@ -624,6 +815,7 @@ function Parse-ControllerFile {
     $routeTemplate = Get-RouteTemplate $routeMatch.Groups[1].Value $fileName
     $classHeader = ($content -split 'public\s+(?:sealed\s+)?(?:partial\s+)?class')[0]
     $baseUrl = Get-ServiceBaseUrl $ServiceKey $routeTemplate
+    $entityIdVar = Get-EntityIdVarName $fileName
 
     $controllerDescription = "$fileName - $routeTemplate"
 
@@ -643,10 +835,10 @@ function Parse-ControllerFile {
         }
 
         $useAuth = Test-RequiresAuth $classHeader $block
-        $pathSuffix = Convert-RouteToPostmanPath $routeSuffix
+        $pathSuffix = Convert-RouteToPostmanPath -Template $routeSuffix -EntityIdVar $entityIdVar
         if ($routeSuffix -match '^~?/') {
             $absolutePath = ($routeSuffix -replace '^~/','/') -replace 'v\{version:apiVersion\}','v1'
-            $absolutePath = Convert-RouteToPostmanPath $absolutePath.TrimStart('/')
+            $absolutePath = Convert-RouteToPostmanPath -Template $absolutePath.TrimStart('/') -EntityIdVar $entityIdVar
             $serviceHost = if ($baseUrl -match '^(\{\{[^}]+\}\})') { $Matches[1] } else { '{{gatewayUrl}}' }
             $fullPath = Join-UrlPath $serviceHost $absolutePath
         }
@@ -666,7 +858,7 @@ function Parse-ControllerFile {
         if ($methodName -eq 'Lookup') {
             $queryItems = @(Get-ListFilterQueryItemsFromBlock $signatureBlock)
         }
-        if ($methodName -eq 'GetActive' -and $routeTemplate -eq 'communication-templates') {
+        if ($methodName -eq 'GetActive' -and $routeTemplate -eq 'communicationtemplates') {
             $query = @{ tenantId = '{{tenantId}}'; companyId = '{{companyId}}'; templateType = 'Email'; code = 'INVITE' }
             $headers['X-Internal-Service-Key'] = '{{internalServiceKey}}'
             $useAuth = $false
@@ -849,7 +1041,7 @@ function Parse-ControllerFile {
   "correlationId": "postman-test-001",
   "tokens": {
     "CompanyName": "Plumbing Ltd",
-    "InviteUrl": "https://developer.fsm.com/api/v1/invite/start?token=sample"
+    "InviteUrl": "https://developer.fsm.com/api/v1/invite/start?token={{inviteToken}}"
   }
 }
 '@
@@ -861,10 +1053,10 @@ function Parse-ControllerFile {
   "companyId": 1,
   "credentialId": "11111111-1111-1111-1111-111111111111",
   "actionType": "READ",
-  "remarks": "Postman audit test",
+  "remarks": "Credential read during configuration resolve",
   "oldVersionNo": null,
   "newVersionNo": 1,
-  "createdBy": "postman"
+  "createdBy": "setup-service"
 }
 '@
         }
@@ -985,7 +1177,8 @@ function Parse-ControllerFile {
         if ($httpAttr -in @('Post','Put','Patch') -and ($body -eq '{}' -or [string]::IsNullOrWhiteSpace($body)) -and $null -ne $DtoRegistry) {
             $dtoType = Get-FromBodyDtoType -Content $content -StartIndex $m.Index -MethodName $methodName
             if ($dtoType) {
-                $generatedBody = Get-DtoSampleBody -DtoType $dtoType -Registry $DtoRegistry -MethodName $methodName
+                $entityStem = Get-EntityStemFromController $fileName
+                $generatedBody = Get-DtoSampleBody -DtoType $dtoType -Registry $DtoRegistry -MethodName $methodName -EntityStem $entityStem
                 if ($generatedBody) { $body = $generatedBody }
             }
         }
@@ -996,59 +1189,18 @@ function Parse-ControllerFile {
         }
         $description = if ($docSummary) { $docSummary } else { $methodName }
         $req = New-PostmanRequest -Name $displayName -Method $verb -Url $fullPath -UseAuth $useAuth -Description $description -Query $query -QueryItems $queryItems -Body $body -Headers $headers
-        if ($fileName -eq 'TechTradeController' -and $methodName -eq 'Create') {
+        $createIdScript = @(
+            'const body = pm.response.json();',
+            'if (body.success && body.data && body.data.id) {',
+            ('  pm.environment.set("{0}", String(body.data.id));' -f $entityIdVar),
+            '}'
+        )
+        if ($methodName -eq 'Create' -and $httpAttr -eq 'Post') {
             $req['event'] = @(@{
                 listen = 'test'
                 script = @{
                     type = 'text/javascript'
-                    exec = @(
-                        'const body = pm.response.json();',
-                        'if (body.success && body.data && body.data.id) {',
-                        '  pm.environment.set("recordId", String(body.data.id));',
-                        '}'
-                    )
-                }
-            })
-        }
-        if ($fileName -eq 'GLBreakController' -and $methodName -eq 'Create') {
-            $req['event'] = @(@{
-                listen = 'test'
-                script = @{
-                    type = 'text/javascript'
-                    exec = @(
-                        'const body = pm.response.json();',
-                        'if (body.success && body.data && body.data.id) {',
-                        '  pm.environment.set("recordId", String(body.data.id));',
-                        '}'
-                    )
-                }
-            })
-        }
-        if ($methodName -eq 'Create' -and $httpAttr -eq 'Post' -and -not $req.ContainsKey('event')) {
-            $req['event'] = @(@{
-                listen = 'test'
-                script = @{
-                    type = 'text/javascript'
-                    exec = @(
-                        'const body = pm.response.json();',
-                        'if (body.success && body.data && body.data.id) {',
-                        '  pm.environment.set("recordId", String(body.data.id));',
-                        '}'
-                    )
-                }
-            })
-        }
-        if ($fileName -eq 'CredentialController' -and $methodName -eq 'Create') {
-            $req['event'] = @(@{
-                listen = 'test'
-                script = @{
-                    type = 'text/javascript'
-                    exec = @(
-                        'const body = pm.response.json();',
-                        'if (body.success && body.data && body.data.id) {',
-                        '  pm.environment.set("recordId", String(body.data.id));',
-                        '}'
-                    )
+                    exec = $createIdScript
                 }
             })
         }
@@ -1062,7 +1214,6 @@ function Parse-ControllerFile {
                         'if (body.success && body.data && body.data.attachmentId) {',
                         '  pm.environment.set("attachmentId", String(body.data.attachmentId));',
                         '  pm.environment.set("fileId", String(body.data.attachmentId));',
-                        '  pm.environment.set("recordId", String(body.data.attachmentId));',
                         '}'
                     )
                 }
@@ -1513,7 +1664,7 @@ function Get-InventoryLocationCreateBody {
   "name": "$name",
   "inventoryLocationType": "$Type",
   "parentInventoryLocationId": null,
-  "description": "$name for Postman scenario",
+  "description": "$name inventory location",
   "address1": "100 Main St",
   "address2": null,
   "city": "Austin",
@@ -1560,7 +1711,7 @@ function Get-VendorCreateBody {
   "taxIdNumber": "12-3456789",
   "licenseNumber": null,
   "insurancePolicyNumber": null,
-  "notes": "Postman $VendorType scenario",
+  "notes": "$name vendor record",
   "is1099Eligible": false
 }
 "@
@@ -1570,7 +1721,7 @@ function Add-InventoryEnhancementsToFolder {
     param($Folder)
 
     if ($Folder.name -eq 'InventoryLocationController') {
-        $Folder.description = 'Inventory locations via {{gatewayUrl}}/api/v1/inventory-location. Create scenarios cover each valid inventoryLocationType.'
+        $Folder.description = 'Inventory locations via {{gatewayUrl}}/api/v1/inventorylocation. Create scenarios cover each valid inventoryLocationType.'
         $types = @('WAREHOUSE', 'TRUCK', 'TRAILER', 'JOBSITE', 'CONSIGNMENT', 'VENDOR')
         $scenarios = @()
         foreach ($t in $types) {
@@ -1605,7 +1756,7 @@ function Get-VehicleCreateBody {
 
     return @"
 {
-  "inventoryLocationId": {{recordId}},
+  "inventoryLocationId": {{inventoryLocationId}},
   "ownershipType": "$OwnershipType",
   "ownershipCompany": $companyJson,
   "year": 2024,
@@ -1619,7 +1770,7 @@ function Get-VehicleCreateBody {
   "purchasePrice": 42000.00,
   "purchasedFrom": "Austin Ford",
   "isPurchasedNew": true,
-  "notes": "Postman $OwnershipType vehicle"
+  "notes": "$OwnershipType service vehicle"
 }
 "@
 }
@@ -1721,8 +1872,8 @@ function Get-AssetAttributeCreateBody {
     $date = 'null'
     $boolean = 'null'
     switch ($InputType) {
-        'TEXT' { $text = '"Sample text"' }
-        'TEXTAREA' { $text = '"Longer sample text"' }
+        'TEXT' { $text = '"Serial number"' }
+        'TEXTAREA' { $text = '"Installed on rooftop unit"' }
         'INTEGER' { $integer = '10' }
         'DECIMAL' { $decimal = '12.50' }
         'DATE' { $date = '"2026-06-21"' }
@@ -1732,7 +1883,7 @@ function Get-AssetAttributeCreateBody {
 
     return @"
 {
-  "assetTypeId": {{recordId}},
+  "assetTypeId": {{assetTypeId}},
   "attributeCode": "ATTR_$code",
   "attributeName": "$InputType Attribute",
   "inputType": "$InputType",
@@ -1769,7 +1920,7 @@ function Add-SetupScenarioEnhancementsToFolder {
             return Expand-CreateRequestScenarios -Folder $Folder -CreateItemName 'Rotate' -Scenarios $rotateScenarios
         }
         'VehicleController' {
-            $Folder.description = 'Vehicles via {{gatewayUrl}}/api/v1/vehicle. Create scenarios for Owned, Leased, and Rented. Set recordId to an inventory location id first.'
+            $Folder.description = 'Vehicles via {{gatewayUrl}}/api/v1/vehicle. Create scenarios for Owned, Leased, and Rented. Set inventoryLocationId first (from InventoryLocation Create).'
             return Expand-CreateRequestScenarios -Folder $Folder -Scenarios @(
                 @{ Name = 'Create - Owned'; Description = 'ownershipType=Owned'; Body = (Get-VehicleCreateBody -OwnershipType 'Owned') }
                 @{ Name = 'Create - Leased'; Description = 'ownershipType=Leased'; Body = (Get-VehicleCreateBody -OwnershipType 'Leased') }
@@ -1786,7 +1937,7 @@ function Add-SetupScenarioEnhancementsToFolder {
             )
         }
         'CommunicationTemplateController' {
-            $Folder.description = 'Communication templates via {{gatewayUrl}}/api/v1/communication-template. Create scenarios per communicationChannel.'
+            $Folder.description = 'Communication templates via {{gatewayUrl}}/api/v1/communicationtemplate. Create scenarios per communicationChannel.'
             return Expand-CreateRequestScenarios -Folder $Folder -Scenarios @(
                 @{ Name = 'Create - Email'; Description = 'communicationChannel=Email'; Body = (Get-CommunicationTemplateCreateBody -Channel 'Email') }
                 @{ Name = 'Create - SMS'; Description = 'communicationChannel=SMS'; Body = (Get-CommunicationTemplateCreateBody -Channel 'SMS') }
@@ -1870,7 +2021,7 @@ function Add-AssetScenarioEnhancementsToFolder {
 
     if ($Folder.name -ne 'AssetAttributeController') { return $Folder }
 
-    $Folder.description = 'Asset attributes via {{gatewayUrl}}/api/v1/assetattribute. Create scenarios cover each valid inputType. Set recordId to an assetTypeId first. For DROPDOWN, create options next.'
+    $Folder.description = 'Asset attributes via {{gatewayUrl}}/api/v1/assetattribute. Create scenarios cover each valid inputType. Set assetTypeId first (from AssetType Create). For DROPDOWN, create options next.'
     $types = @('TEXT', 'TEXTAREA', 'INTEGER', 'DECIMAL', 'DATE', 'BOOLEAN', 'DROPDOWN')
     $scenarios = @()
     foreach ($t in $types) {
@@ -1903,7 +2054,7 @@ function Add-NotificationScenarioEnhancementsToFolder {
   "correlationId": "postman-email-001",
   "tokens": {
     "CompanyName": "Plumbing Ltd",
-    "InviteUrl": "https://developer.fsm.com/api/v1/invite/start?token=sample"
+    "InviteUrl": "https://developer.fsm.com/api/v1/invite/start?token={{inviteToken}}"
   }
 }
 '@
@@ -1921,7 +2072,7 @@ function Add-NotificationScenarioEnhancementsToFolder {
   "correlationId": "postman-sms-001",
   "tokens": {
     "CompanyName": "Plumbing Ltd",
-    "InviteUrl": "https://developer.fsm.com/api/v1/invite/start?token=sample"
+    "InviteUrl": "https://developer.fsm.com/api/v1/invite/start?token={{inviteToken}}"
   }
 }
 '@
@@ -2037,18 +2188,9 @@ $serviceConfigs = @(
     @{ Key = 'SetupService'; Path = 'src\SetupService\Fgs.Setup.API\Controllers'; Desc = 'Platform setup catalog APIs via {{gatewayUrl}}/api/v1/{catalog}. Multi-scenario Create requests for pricing matrix, credentials, vehicles, job types, communication templates, and billing categories.'; AuthFlow = $false }
     @{ Key = 'NotificationService'; Path = 'src\NotificationService\Fgs.Notification.API\Controllers'; Desc = 'Notification dispatch via {{gatewayUrl}}/api/v1/notification/...'; AuthFlow = $false }
     @{ Key = 'FileService'; Path = 'src\FileService\Fgs.File.API\Controllers'; Desc = 'Tenant S3 provisioning and attachment management via {{gatewayUrl}}/api/v1/attachment and /api/v1/tenant/{id}/bucket. Upload scenarios include general + logo variants.'; AuthFlow = $false }
-    @{ Key = 'AuditService'; Path = 'src\AuditService\Fgs.Audit.API\Controllers'; Desc = 'Credential audit trail via {{gatewayUrl}}/api/v1/credential-audit.'; AuthFlow = $false }
-    @{ Key = 'PublisherService'; Path = 'src\PublisherService\Fgs.Publisher.API\Controllers'; Desc = 'Outbox publisher worker API via {{gatewayUrl}}/api/v1/publisher/...'; AuthFlow = $false }
-    @{ Key = 'ConsumerService'; Path = 'src\ConsumerService\Fgs.Consumer.API\Controllers'; Desc = 'Message consumer worker API via {{gatewayUrl}}/api/v1/consumer/...'; AuthFlow = $false }
+    @{ Key = 'AuditService'; Path = 'src\AuditService\Fgs.Audit.API\Controllers'; Desc = 'Credential audit trail via {{gatewayUrl}}/api/v1/credentialaudit.'; AuthFlow = $false }
     @{ Key = 'AssetService'; Path = 'src\AssetService\Fgs.Asset.API\Controllers'; Desc = 'Asset catalog APIs via {{gatewayUrl}}/api/v1/{asset*}. Attribute Create scenarios cover each inputType.'; AuthFlow = $false }
-    @{ Key = 'BillingService'; Path = 'src\BillingService\Fgs.Billing.API\Controllers'; Desc = 'Billing service scaffold (health) via {{gatewayUrl}}/api/v1/billing/...'; AuthFlow = $false }
-    @{ Key = 'CommunicationService'; Path = 'src\CommunicationService\Fgs.Communication.API\Controllers'; Desc = 'Communication service scaffold (health) via {{gatewayUrl}}/api/v1/communication/...'; AuthFlow = $false }
-    @{ Key = 'CrmService'; Path = 'src\CrmService\Fgs.Crm.API\Controllers'; Desc = 'CRM service scaffold (health) via {{gatewayUrl}}/api/v1/crm/...'; AuthFlow = $false }
-    @{ Key = 'IntegrationService'; Path = 'src\IntegrationService\Fgs.Integration.API\Controllers'; Desc = 'Integration service scaffold (health) via {{gatewayUrl}}/api/v1/integration/...'; AuthFlow = $false }
-    @{ Key = 'InventoryService'; Path = 'src\InventoryService\Fgs.Inventory.API\Controllers'; Desc = 'Inventory locations, vendors, and truck-stock templates via {{gatewayUrl}}/api/v1/{inventory-location|vendor|truck-stock-template}. Create scenarios cover each location/vendor type.'; AuthFlow = $false }
-    @{ Key = 'ReportingService'; Path = 'src\ReportingService\Fgs.Reporting.API\Controllers'; Desc = 'Reporting service scaffold (health) via {{gatewayUrl}}/api/v1/reporting/...'; AuthFlow = $false }
-    @{ Key = 'SchedulingService'; Path = 'src\SchedulingService\Fgs.Scheduling.API\Controllers'; Desc = 'Scheduling service scaffold (health) via {{gatewayUrl}}/api/v1/scheduling/...'; AuthFlow = $false }
-    @{ Key = 'ServiceAgreementService'; Path = 'src\ServiceAgreementService\Fgs.ServiceAgreement.API\Controllers'; Desc = 'Service agreement scaffold (health) via {{gatewayUrl}}/api/v1/service-agreements/...'; AuthFlow = $false }
+    @{ Key = 'InventoryService'; Path = 'src\InventoryService\Fgs.Inventory.API\Controllers'; Desc = 'Inventory catalog and purchasing APIs via {{gatewayUrl}}/api/v1/{inventory-*|vendor|vendorinventoryitem|purchaseorder|truckstocktemplate}. Aggregates: inventoryitem (alternates/dependencies), purchaseorder (details), truckstocktemplate (items).'; AuthFlow = $false }
 )
 
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
@@ -2067,7 +2209,7 @@ foreach ($svc in $serviceConfigs) {
     if (-not (Test-Path $controllerRoot)) { Write-Warning "Skip $($svc.Key): $controllerRoot"; continue }
 
     $files = Get-ChildItem -Path $controllerRoot -Filter '*Controller.cs' -Recurse |
-        Where-Object { $_.Name -notmatch '^AuthController\..+\.cs$' } |
+        Where-Object { $_.Name -notmatch '^AuthController\..+\.cs$' -and $_.Name -ne 'HealthController.cs' } |
         Sort-Object FullName
     $folders = @()
 
@@ -2093,13 +2235,42 @@ foreach ($svc in $serviceConfigs) {
         }
     }
 
-    if ($folders.Count -eq 0) { continue }
+    $outFile = Join-Path $OutputDir "$($svc.Key).postman_collection.json"
+    if ($folders.Count -eq 0) {
+        if (Test-Path $outFile) {
+            Remove-Item -Path $outFile -Force
+            Write-Host "Removed empty collection $outFile"
+        }
+        else {
+            Write-Host "Skip $($svc.Key): no non-health controllers"
+        }
+        continue
+    }
 
     $includeAuth = ($svc.Key -eq 'UserService')
     $collection = New-Collection -ServiceName $svc.Key -Description $svc.Desc -Folders $folders -IncludeAuthFlow:$includeAuth
-    $outFile = Join-Path $OutputDir "$($svc.Key).postman_collection.json"
     $collection | ConvertTo-Json -Depth 100 | Set-Content -Path $outFile -Encoding UTF8
-    Write-Host "Generated $outFile ($($files.Count) controllers)"
+    Write-Host "Generated $outFile ($($folders.Count) controllers)"
+}
+
+# Remove stale health-only / empty collections no longer generated.
+$staleCollections = @(
+    'PublisherService'
+    'ConsumerService'
+    'BillingService'
+    'CommunicationService'
+    'CrmService'
+    'IntegrationService'
+    'ReportingService'
+    'SchedulingService'
+    'ServiceAgreementService'
+)
+foreach ($name in $staleCollections) {
+    $stalePath = Join-Path $OutputDir "$name.postman_collection.json"
+    if (Test-Path $stalePath) {
+        Remove-Item -Path $stalePath -Force
+        Write-Host "Removed stale collection $stalePath"
+    }
 }
 
 Write-Host "Done. Import FGS-Globals.postman_environment.json and select it in Postman."

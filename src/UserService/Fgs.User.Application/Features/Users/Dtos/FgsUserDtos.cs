@@ -4,6 +4,7 @@ public sealed record FgsUserSummaryDto(
     Guid Id,
     string DisplayName,
     string Email,
+    string? PhoneNumber,
     long? RoleId,
     string? RoleName,
     string? InvitationStatus,
@@ -13,6 +14,7 @@ public sealed record FgsUserDetailDto(
     Guid Id,
     string DisplayName,
     string Email,
+    string? PhoneNumber,
     long? RoleId,
     string? RoleName,
     string? InvitationStatus,
@@ -22,15 +24,18 @@ public sealed record FgsUserDetailDto(
 public sealed record FgsUserInviteDto(
     string DisplayName,
     string Email,
+    string? PhoneNumber,
     long RoleId);
 
 public sealed record FgsUserUpdateDto(
     string DisplayName,
+    string? PhoneNumber,
     long RoleId,
     bool IsActive);
 
 public sealed record FgsUserPatchDto(
     string? DisplayName,
+    string? PhoneNumber,
     long? RoleId,
     bool? IsActive);
 

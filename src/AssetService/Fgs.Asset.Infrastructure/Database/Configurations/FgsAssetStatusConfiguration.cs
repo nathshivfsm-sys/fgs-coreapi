@@ -10,7 +10,7 @@ internal sealed class FgsAssetStatusConfiguration : IEntityTypeConfiguration<Fgs
     public void Configure(EntityTypeBuilder<FgsAssetStatus> entity)
     {
         entity.ToTable(
-            "assetstatus",
+            "FgsAssetStatus",
             t =>
             {
                 t.HasComment("Stores lifecycle status values used to classify service assets.");

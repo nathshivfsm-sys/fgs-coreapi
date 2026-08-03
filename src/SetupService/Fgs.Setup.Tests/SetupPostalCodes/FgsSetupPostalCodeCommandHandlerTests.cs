@@ -38,7 +38,8 @@ public sealed class FgsSetupPostalCodeCommandHandlerTests
             NullLogger<CreateFgsSetupPostalCodeCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateFgsSetupPostalCodeCommand(new FgsSetupPostalCodeCreateDto("PostalCode value", null, null)),
+            new CreateFgsSetupPostalCodeCommand(new FgsSetupPostalCodeCreateDto(
+                "PostalCode value", "US", "TX", "Austin", 0m, null, null)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -70,7 +71,8 @@ public sealed class FgsSetupPostalCodeCommandHandlerTests
             NullLogger<DeleteFgsSetupPostalCodeCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateFgsSetupPostalCodeCommand(new FgsSetupPostalCodeCreateDto("PostalCode value", null, null)),
+            new CreateFgsSetupPostalCodeCommand(new FgsSetupPostalCodeCreateDto(
+                "PostalCode value", "US", "TX", "Austin", 0m, null, null)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 

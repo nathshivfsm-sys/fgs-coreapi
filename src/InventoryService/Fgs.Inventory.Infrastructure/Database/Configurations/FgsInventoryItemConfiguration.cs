@@ -62,5 +62,17 @@ internal sealed class FgsInventoryItemConfiguration : IEntityTypeConfiguration<F
             .HasForeignKey(e => e.InventorySubCategoryId)
             .HasConstraintName("FK_FgsInventoryItem_FgsInventorySubCategory")
             .OnDelete(DeleteBehavior.Restrict);
+
+        entity.HasMany(e => e.Alternates)
+            .WithOne(e => e.InventoryItem)
+            .HasForeignKey(e => e.InventoryItemId)
+            .HasConstraintName("FK_FgsInventoryItemAlternate_FgsInventoryItem_InventoryItemId")
+            .OnDelete(DeleteBehavior.Restrict);
+
+        entity.HasMany(e => e.Dependencies)
+            .WithOne(e => e.InventoryItem)
+            .HasForeignKey(e => e.InventoryItemId)
+            .HasConstraintName("FK_FgsInventoryItemDependency_FgsInventoryItem_InventoryItemId")
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -24,7 +24,8 @@ internal sealed class FgsAssetConfiguration : IEntityTypeConfiguration<Domain.En
         entity.Property(e => e.AssetGuid).HasComment("Globally unique asset identifier used by integrations and external systems.");
         entity.Property(e => e.AssetNumber).HasMaxLength(100).IsRequired()
             .HasComment("User-visible asset number within the tenant company.");
-        entity.Property(e => e.ServiceLocationId).HasComment("Service location where the asset is installed.");
+        entity.Property(e => e.ServiceLocationId).IsRequired(false)
+            .HasComment("Optional service location where the asset is installed.");
         entity.Property(e => e.AssetTypeId).HasComment("Optional catalog asset type reference.");
         entity.Property(e => e.AssetManufacturerId).HasComment("Optional catalog manufacturer reference.");
         entity.Property(e => e.AssetModelId).HasComment("Optional catalog model reference.");

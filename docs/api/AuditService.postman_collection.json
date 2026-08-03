@@ -1,7 +1,7 @@
-﻿{
+{
     "item":  [
                  {
-                     "description":  "CredentialAuditController - credential-audit",
+                     "description":  "CredentialAuditController - credentialaudit",
                      "name":  "CredentialAuditController",
                      "item":  [
                                   {
@@ -11,11 +11,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/credential-audit",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/credentialaudit",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "credential-audit"
+                                                                               "credentialaudit"
                                                                            ]
                                                               },
                                                       "description":  "Record",
@@ -33,7 +33,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"tenantId\": 4,\r\n  \"companyId\": 1,\r\n  \"credentialId\": \"11111111-1111-1111-1111-111111111111\",\r\n  \"actionType\": \"READ\",\r\n  \"remarks\": \"Postman audit test\",\r\n  \"oldVersionNo\": null,\r\n  \"newVersionNo\": 1,\r\n  \"createdBy\": \"postman\"\r\n}",
+                                                                   "raw":  "{\r\n  \"tenantId\": 4,\r\n  \"companyId\": 1,\r\n  \"credentialId\": \"11111111-1111-1111-1111-111111111111\",\r\n  \"actionType\": \"READ\",\r\n  \"remarks\": \"Credential read during configuration resolve\",\r\n  \"oldVersionNo\": null,\r\n  \"newVersionNo\": 1,\r\n  \"createdBy\": \"setup-service\"\r\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -47,58 +47,6 @@
                                                   }
                                   }
                               ]
-                 },
-                 {
-                     "description":  "HealthController - health",
-                     "name":  "HealthController",
-                     "item":  [
-                                  {
-                                      "name":  "Get",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/audit/health",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "audit",
-                                                                               "health"
-                                                                           ]
-                                                              },
-                                                      "description":  "Get",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  }
-                              ]
                  }
              ],
     "variable":  [
@@ -108,10 +56,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Credential audit trail via {{gatewayUrl}}/api/v1/credential-audit.",
+                 "description":  "Credential audit trail via {{gatewayUrl}}/api/v1/credentialaudit.",
                  "name":  "FGS AuditService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "33fc7c90-2a02-4971-ac14-045691a4ac1f"
+                 "_postman_id":  "c3efa54d-8529-492c-99d3-828a124521ef"
              },
     "event":  [
                   {

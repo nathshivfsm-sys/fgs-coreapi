@@ -88,6 +88,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
         (await userContext.FgsUsers.CountAsync()).Should().Be(1);
         (await userContext.FgsInvitations.CountAsync()).Should().Be(1);
         (await userContext.FgsLocations.CountAsync()).Should().Be(1);
+        (await userContext.FgsTenantServiceSetups.CountAsync()).Should().Be(1);
         (await userContext.TenantOutboxMessages.CountAsync()).Should().Be(1);
 
         var tenant = await userContext.FgsTenants.SingleAsync();

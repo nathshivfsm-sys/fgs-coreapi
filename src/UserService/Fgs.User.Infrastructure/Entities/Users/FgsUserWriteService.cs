@@ -44,6 +44,7 @@ public sealed class FgsUserWriteService(
             CompanyId = companyId,
             Email = dto.Email.Trim(),
             DisplayName = dto.DisplayName.Trim(),
+            PhoneNumber = TrimOrNull(dto.PhoneNumber),
             AuthenticationMethod = AuthenticationMethod.PasswordOrEmailOtp,
             IsActive = true,
             CreatedOn = now,
@@ -51,7 +52,16 @@ public sealed class FgsUserWriteService(
         };
 
         await context.FgsUsers.AddAsync(entity, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+        {
+            throw new InvalidOperationException(
+                "A user with this email already exists for this tenant and company.",
+                ex);
+        }
 
         await userRoleWriteService.CreateAsync(new FgsUserRoleCreateDto(userId, dto.RoleId), cancellationToken);
 
@@ -81,6 +91,7 @@ public sealed class FgsUserWriteService(
             ?? throw new KeyNotFoundException($"User '{id}' was not found.");
 
         entity.DisplayName = dto.DisplayName.Trim();
+        entity.PhoneNumber = TrimOrNull(dto.PhoneNumber);
         entity.IsActive = dto.IsActive;
         StampForUpdate(entity);
 
@@ -101,6 +112,11 @@ public sealed class FgsUserWriteService(
         if (dto.DisplayName is not null)
         {
             entity.DisplayName = dto.DisplayName.Trim();
+        }
+
+        if (dto.PhoneNumber is not null)
+        {
+            entity.PhoneNumber = TrimOrNull(dto.PhoneNumber);
         }
 
         if (dto.IsActive.HasValue)
@@ -205,4 +221,12 @@ public sealed class FgsUserWriteService(
         ?? userContext.DisplayName
         ?? userContext.UserId?.ToString()
         ?? "system";
+
+    private static string? TrimOrNull(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private static bool IsUniqueViolation(DbUpdateException exception) =>
+        exception.InnerException?.Message.Contains("IX_FgsUser_TenantId_CompanyId_Email", StringComparison.Ordinal) == true
+        || exception.InnerException?.Message.Contains("IX_FgsUser_TenantId_Email", StringComparison.Ordinal) == true
+        || exception.InnerException?.Message.Contains("23505", StringComparison.Ordinal) == true;
 }

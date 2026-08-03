@@ -22,7 +22,7 @@ public sealed class GetFgsTruckStockTemplateByIdQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "truck-stock-template",
+            "truckstocktemplate",
             request.Id.ToString());
 
         var cached = await cache.GetAsync<FgsTruckStockTemplateDetailDto>(cacheKey, cancellationToken);

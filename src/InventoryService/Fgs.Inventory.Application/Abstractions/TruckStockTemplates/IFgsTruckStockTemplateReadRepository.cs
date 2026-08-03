@@ -23,4 +23,6 @@ public interface IFgsTruckStockTemplateReadRepository
         CancellationToken cancellationToken = default);
 
     Task<bool> ExistsAsync(long id, bool activeOnly = true, CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsInventoryItemAsync(long inventoryItemId, CancellationToken cancellationToken = default);
 }

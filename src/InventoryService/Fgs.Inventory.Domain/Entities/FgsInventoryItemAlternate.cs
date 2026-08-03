@@ -22,4 +22,6 @@ public class FgsInventoryItemAlternate : FgsEntityBase, ITenantCompanyScoped
     public string? Notes { get; set; }
 
     public bool IsActive { get; set; } = true;
+
+    public FgsInventoryItem? InventoryItem { get; set; }
 }

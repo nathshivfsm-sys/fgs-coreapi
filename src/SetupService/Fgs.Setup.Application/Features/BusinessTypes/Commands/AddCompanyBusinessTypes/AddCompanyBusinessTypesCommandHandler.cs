@@ -20,7 +20,9 @@ public sealed class AddCompanyBusinessTypesCommandHandler(
                 request.InternalServiceKey,
                 distributionOptions.Value))
         {
-            return ApiResponse<object>.Fail(["Unauthorized."], ApiStatusCodes.Unauthorized);
+            return ApiResponse<object>.Fail(
+                ["Internal service key is missing or invalid."],
+                ApiStatusCodes.Unauthorized);
         }
 
         try

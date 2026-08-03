@@ -11,5 +11,5 @@ public interface IFgsAssetReadRepository {
     Task<bool> ExistsAssetManufacturerIdAsync(long? assetManufacturerId, CancellationToken cancellationToken = default);
     Task<bool> ExistsAssetModelIdAsync(long? assetModelId, CancellationToken cancellationToken = default);
     Task<bool> ExistsAssetStatusIdAsync(long assetStatusId, CancellationToken cancellationToken = default);
-    Task<bool> ExistsServiceLocationIdAsync(long serviceLocationId, CancellationToken cancellationToken = default);
+    Task<bool> ExistsServiceLocationIdAsync(long? serviceLocationId, CancellationToken cancellationToken = default);
 }

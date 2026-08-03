@@ -57,10 +57,10 @@ public sealed class ExchangeLoginCodeCommandHandler(
                 pkceState.CodeVerifier,
                 cancellationToken);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             return ApiResponse<LoginProfileDto>.Fail(
-                [AuthErrorMessages.EntraCodeExchangeFailed],
+                [$"{AuthErrorMessages.EntraCodeExchangeFailed} {ex.Message}"],
                 ApiStatusCodes.Unauthorized);
         }
 

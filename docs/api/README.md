@@ -16,7 +16,7 @@ This creates `FGS-Postman-Import.zip` (all collections + environment) and opens 
 
 1. Open Postman desktop → **Import**
 2. Drag the folder `docs/api` or file `docs/api/FGS-Postman-Import.zip`
-3. Select all 17 items → **Import**
+3. Select all items → **Import**
 4. Choose environment **FGS Globals (Local)** in the top-right dropdown
 
 ## Quick start
@@ -31,23 +31,18 @@ This creates `FGS-Postman-Import.zip` (all collections + environment) and opens 
 
 ## Collections
 
-All request URLs use `{{gatewayUrl}}` (`https://developer.fsm.com`). Per-service URL variables in the environment are kept for direct debugging only.
+All request URLs use `{{gatewayUrl}}` (`https://developer.fsm.com`). Per-service URL variables in the environment are kept for direct debugging only. Health-only scaffold services are omitted.
 
 | Collection | Gateway path prefix |
 |------------|---------------------|
 | [UserService](UserService.postman_collection.json) | `/api/v1/auth`, `/api/v1/invite`, `/api/v1/signup`, `/api/v1/dashboard`, `/api/v1/tenants` |
-| [SetupService](SetupService.postman_collection.json) | `/api/v1/{catalog}` (billingcategories, credentials, techtrades, tenant-provisioning, etc.) |
+| [SetupService](SetupService.postman_collection.json) | `/api/v1/{catalog}` (billingcategories, credentials, techtrades, tenantprovisioning, etc.) |
 | [NotificationService](NotificationService.postman_collection.json) | `/api/v1/notification/...` |
 | [FileService](FileService.postman_collection.json) | `/api/v1/tenant/{tenantId}/bucket`, `/api/v1/attachment` |
-| [AuditService](AuditService.postman_collection.json) | `/api/v1/credential-audit`, `/api/v1/audit/health` |
+| [AuditService](AuditService.postman_collection.json) | `/api/v1/credentialaudit` |
 | [FGS Entra Token (Existing User)](FGS-Entra-Token.postman_collection.json) | Entra sign-in + refresh token flow (use with FGS Globals env) |
-| [PublisherService](PublisherService.postman_collection.json) | `/api/v1/publisher/...` |
-| [ConsumerService](ConsumerService.postman_collection.json) | `/api/v1/consumer/...` |
-| [InventoryService](InventoryService.postman_collection.json) | `/api/v1/inventory-location`, `/api/v1/vendor`, `/api/v1/truck-stock-template` |
+| [InventoryService](InventoryService.postman_collection.json) | `/api/v1/inventorylocation`, `/api/v1/vendor`, `/api/v1/truckstocktemplate` |
 | [AssetService](AssetService.postman_collection.json) | `/api/v1/assettype`, `/api/v1/asset`, `/api/v1/assetattribute`, … |
-| Scaffold services (health) | `/api/v1/{service}/health` (crm, billing, scheduling, etc.) |
-
-Scaffold collections: Billing, Communication, Crm, Integration, Reporting, Scheduling, ServiceAgreement.
 
 ## Entra token for existing users
 

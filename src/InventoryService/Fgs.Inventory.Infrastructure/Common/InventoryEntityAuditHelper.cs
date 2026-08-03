@@ -1,3 +1,4 @@
+using System.Reflection;
 using Fgs.Inventory.Domain.Entities;
 using Fgs.Kernel.Entities;
 using Fgs.MultiTenancy;
@@ -44,24 +45,47 @@ public sealed class InventoryEntityAuditHelper
         entity.UpdatedBy = ResolveActor();
     }
 
-    public void StampForCreate(FgsTruckStockTemplateItem entity)
+    public void StampForCreate(FgsEntityBase entity, ITenantCompanyScoped scoped)
     {
         var now = _dateTimeProvider.UtcNow;
         var actor = ResolveActor();
-        var (tenantId, companyId) = ResolveTenantCompany();
 
         entity.CreatedOn = now;
         entity.CreatedBy = actor;
         entity.UpdatedOn = now;
         entity.UpdatedBy = actor;
-        entity.TenantId = tenantId;
-        entity.CompanyId = companyId;
+
+        if (entity is ITenantCompanyScoped)
+        {
+            var (tenantId, companyId) = scoped.TenantId > 0 && scoped.CompanyId > 0
+                ? (scoped.TenantId, scoped.CompanyId)
+                : ResolveTenantCompany();
+
+            SetTenantCompany(entity, tenantId, companyId);
+        }
     }
 
-    public void StampForUpdate(FgsTruckStockTemplateItem entity)
+    public void StampForUpdate(FgsEntityBase entity)
     {
         entity.UpdatedOn = _dateTimeProvider.UtcNow;
         entity.UpdatedBy = ResolveActor();
+    }
+
+    public void StampForCreate(FgsTruckStockTemplateItem entity) =>
+        StampForCreate(entity, entity);
+
+    public void StampForUpdate(FgsTruckStockTemplateItem entity) =>
+        StampForUpdate((FgsEntityBase)entity);
+
+    public void StampStockUpdated(FgsInventoryStock stock) =>
+        stock.UpdatedOn = _dateTimeProvider.UtcNow;
+
+    public void StampForCreateStock(FgsInventoryStock stock)
+    {
+        var (tenantId, companyId) = ResolveTenantCompany();
+        stock.TenantId = tenantId;
+        stock.CompanyId = companyId;
+        stock.UpdatedOn = _dateTimeProvider.UtcNow;
     }
 
     private string ResolveActor() => _userContext.ResolveAuditActor();
@@ -79,5 +103,14 @@ public sealed class InventoryEntityAuditHelper
         }
 
         throw new InvalidOperationException("Tenant context is required.");
+    }
+
+    private static void SetTenantCompany(FgsEntityBase entity, long tenantId, long companyId)
+    {
+        var type = entity.GetType();
+        type.GetProperty(nameof(ITenantCompanyScoped.TenantId), BindingFlags.Public | BindingFlags.Instance)
+            ?.SetValue(entity, tenantId);
+        type.GetProperty(nameof(ITenantCompanyScoped.CompanyId), BindingFlags.Public | BindingFlags.Instance)
+            ?.SetValue(entity, companyId);
     }
 }

@@ -3,13 +3,10 @@ using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.Paging;
 using Fgs.MultiTenancy;
 using Fgs.Inventory.Application.Abstractions.TruckStockTemplates;
-using Fgs.Inventory.Application.Abstractions.TruckStockTemplateItems;
 using Fgs.Inventory.Application.Common.InventoryCrud;
 using Fgs.Inventory.Application.Features.TruckStockTemplates.Dtos;
 using Fgs.Inventory.Application.Features.TruckStockTemplates.Queries.GetFgsTruckStockTemplateById;
 using Fgs.Inventory.Application.Features.TruckStockTemplates.Queries.ListTruckStockTemplates;
-using Fgs.Inventory.Application.Features.TruckStockTemplateItems.Dtos;
-using Fgs.Inventory.Application.Features.TruckStockTemplateItems.Queries.GetFgsTruckStockTemplateItemById;
 using Moq;
 
 namespace Fgs.Inventory.Tests.TruckStockTemplates;
@@ -19,7 +16,13 @@ public sealed class FgsTruckStockTemplateQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsTruckStockTemplateDetailDto(1, "TRUCK-STD", "Standard Truck", null, true);
+        var detail = new FgsTruckStockTemplateDetailDto(
+            1,
+            "TRUCK-STD",
+            "Standard Truck",
+            null,
+            true,
+            [new FgsTruckStockTemplateItemDetailDto(9, 100, 5m, 1m, 1)]);
 
         var readRepository = new Mock<IFgsTruckStockTemplateReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
@@ -36,6 +39,7 @@ public sealed class FgsTruckStockTemplateQueryHandlerTests
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(ApiStatusCodes.Ok);
+        response.Data!.Items.Should().HaveCount(1);
     }
 
     [Fact]
@@ -77,22 +81,5 @@ public sealed class FgsTruckStockTemplateQueryHandlerTests
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task GetItemById_WhenTemplateMismatch_ReturnsNotFound()
-    {
-        var readRepository = new Mock<IFgsTruckStockTemplateItemReadRepository>();
-        readRepository
-            .Setup(r => r.GetByIdAsync(1, 5, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((FgsTruckStockTemplateItemDetailDto?)null);
-
-        var handler = new GetFgsTruckStockTemplateItemByIdQueryHandler(readRepository.Object);
-        var response = await handler.Handle(
-            new GetFgsTruckStockTemplateItemByIdQuery(1, 5),
-            CancellationToken.None);
-
-        response.Success.Should().BeFalse();
-        response.StatusCode.Should().Be(ApiStatusCodes.NotFound);
     }
 }

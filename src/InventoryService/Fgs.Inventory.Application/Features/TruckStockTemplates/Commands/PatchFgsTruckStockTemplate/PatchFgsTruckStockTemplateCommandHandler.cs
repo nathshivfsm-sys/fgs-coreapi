@@ -24,7 +24,7 @@ public sealed class PatchFgsTruckStockTemplateCommandHandler(
         logger.LogInformation("Patched truck stock template {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "truck-stock-template"),
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "truckstocktemplate"),
             cancellationToken);
         return ApiResponse<FgsTruckStockTemplateDetailDto>.Ok(result);
     }

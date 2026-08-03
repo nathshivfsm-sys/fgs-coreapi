@@ -84,7 +84,6 @@ FK_EXISTS_TABLES: dict[str, tuple[str, str]] = {
     "VehicleMaintenanceTypeId": ('glo."GloVehicleMaintenanceType"', '"Id" = @Id AND "IsActive" = TRUE'),
     "NextSalesPipelineStatusId": ('setup."FgsSalesPipelineStatus"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
     "UniversalPricingServiceId": ('setup."FgsUniversalPricingService"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
-    "UniversalPricingServiceCode": ('glo."GloUniversalPricingService"', '"ServiceCode" = UPPER(@Code)'),
 }
 
 
@@ -937,9 +936,6 @@ UNIVERSAL_MATRIX_ENTITIES: list[EntityConfig] = [
             Field("UniversalPricingServiceCode", "string", 50, uppercase=True, in_lookup=True, in_list_filter=True),
             Field("DisplayOrder", "short", default="1", in_lookup=True, validator_min=1),
         ]),
-        fk_checks=[
-            ("UniversalPricingServiceCode", "ExistsGloUniversalPricingServiceCodeAsync", "universal pricing service"),
-        ],
         search_columns=["UniversalPricingServiceCode"],
     ),
     EntityConfig(

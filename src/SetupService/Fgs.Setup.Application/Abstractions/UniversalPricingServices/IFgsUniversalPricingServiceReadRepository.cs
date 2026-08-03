@@ -21,7 +21,4 @@ public interface IFgsUniversalPricingServiceReadRepository
         string universalPricingServiceCode,
         long? excludeId = null,
         CancellationToken cancellationToken = default);
-    Task<bool> ExistsGloUniversalPricingServiceCodeAsync(
-        string id,
-        CancellationToken cancellationToken = default);
 }

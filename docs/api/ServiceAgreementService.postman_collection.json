@@ -1,4 +1,4 @@
-﻿{
+{
     "item":  [
                  {
                      "description":  "HealthController - health",
@@ -12,11 +12,11 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/service-agreements/health",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/serviceagreements/health",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "service-agreements",
+                                                                               "serviceagreements",
                                                                                "health"
                                                                            ]
                                                               },
@@ -60,7 +60,7 @@
                      }
                  ],
     "info":  {
-                 "description":  "Service agreement scaffold (health) via {{gatewayUrl}}/api/v1/service-agreements/...",
+                 "description":  "Service agreement scaffold (health) via {{gatewayUrl}}/api/v1/serviceagreements/...",
                  "name":  "FGS ServiceAgreementService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
                  "_postman_id":  "5c16cfb1-ef09-4818-91ec-11e81f39d96e"

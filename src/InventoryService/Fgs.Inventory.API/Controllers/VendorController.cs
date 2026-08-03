@@ -20,6 +20,7 @@ namespace Fgs.Inventory.API.Controllers;
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("vendor")]
+[ApiController]
 [Produces("application/json")]
 public sealed class VendorController(IMediator mediator) : ControllerBase
 {

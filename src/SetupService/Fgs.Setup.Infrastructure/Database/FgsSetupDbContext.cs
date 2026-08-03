@@ -136,8 +136,6 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
     public DbSet<GloCommunicationTemplateToken> GloCommunicationTemplateTokens =>
         Set<GloCommunicationTemplateToken>();
 
-    public DbSet<GloTimeCardOption> GloTimeCardOptions => Set<GloTimeCardOption>();
-
     public DbSet<GloPaymentMethodType> GloPaymentMethodTypes => Set<GloPaymentMethodType>();
 
     public DbSet<GloCountry> GloCountries => Set<GloCountry>();

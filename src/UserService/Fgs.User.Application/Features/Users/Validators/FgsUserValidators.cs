@@ -22,15 +22,16 @@ public sealed class InviteFgsUserCommandValidator : AbstractValidator<InviteFgsU
     {
         RuleFor(x => x.Dto.DisplayName).NotEmpty().MaximumLength(200);
         RuleFor(x => x.Dto.Email).NotEmpty().MaximumLength(300).EmailAddress();
+        RuleFor(x => x.Dto.PhoneNumber).MaximumLength(20);
         RuleFor(x => x.Dto.Email).MustAsync(async (_, email, cancellationToken) =>
                 !await userReadRepository.ExistsByEmailAsync(email, null, cancellationToken))
-            .WithMessage("A user with this email already exists.");
+            .WithMessage("A user with this email already exists for this tenant and company.");
         RuleFor(x => x.Dto.Email).MustAsync(async (_, email, cancellationToken) =>
-                !await invitationReadQuery.HasPendingInvitationForNormalizedEmailAsync(
+                !await invitationReadQuery.HasPendingInvitationForNormalizedEmailInCurrentTenantCompanyAsync(
                     emailNormalizer.Normalize(email),
                     dateTime.UtcNow,
                     cancellationToken))
-            .WithMessage("A pending invitation already exists for this email.");
+            .WithMessage("A pending invitation already exists for this email in this tenant and company.");
         RuleFor(x => x.Dto.RoleId).GreaterThan(0);
         RuleFor(x => x.Dto.RoleId).MustAsync(async (_, roleId, cancellationToken) =>
                 await roleReadRepository.GetByIdAsync(roleId, cancellationToken) is not null)
@@ -44,6 +45,7 @@ public sealed class UpdateFgsUserCommandValidator : AbstractValidator<UpdateFgsU
     {
         RuleFor(x => x.Id).NotEmpty();
         RuleFor(x => x.Dto.DisplayName).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Dto.PhoneNumber).MaximumLength(20);
         RuleFor(x => x.Dto.RoleId).GreaterThan(0);
         RuleFor(x => x.Dto.RoleId).MustAsync(async (_, roleId, cancellationToken) =>
                 await roleReadRepository.GetByIdAsync(roleId, cancellationToken) is not null)
@@ -57,6 +59,7 @@ public sealed class PatchFgsUserCommandValidator : AbstractValidator<PatchFgsUse
     {
         RuleFor(x => x.Id).NotEmpty();
         RuleFor(x => x.Dto.DisplayName).NotEmpty().MaximumLength(200).When(x => x.Dto.DisplayName is not null);
+        RuleFor(x => x.Dto.PhoneNumber).MaximumLength(20).When(x => x.Dto.PhoneNumber is not null);
         RuleFor(x => x.Dto.RoleId).GreaterThan(0).When(x => x.Dto.RoleId.HasValue);
         RuleFor(x => x.Dto.RoleId).MustAsync(async (_, roleId, cancellationToken) =>
                 await roleReadRepository.GetByIdAsync(roleId!.Value, cancellationToken) is not null)

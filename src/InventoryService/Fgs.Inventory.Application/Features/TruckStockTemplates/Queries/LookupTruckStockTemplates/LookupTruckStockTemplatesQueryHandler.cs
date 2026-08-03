@@ -22,7 +22,7 @@ public sealed class LookupTruckStockTemplatesQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "truck-stock-template",
+            "truckstocktemplate",
             CacheKeys.LookupSegment(request.ActiveOnly));
 
         var result = await cache.GetOrSetAsync(

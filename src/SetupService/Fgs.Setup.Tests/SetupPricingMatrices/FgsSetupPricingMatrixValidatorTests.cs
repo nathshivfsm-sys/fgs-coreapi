@@ -84,7 +84,7 @@ public sealed class FgsSetupPricingMatrixValidatorTests
         var result = await validator.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("Labor line validation failed"));
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("TechSkillLevelId is required"));
     }
 
     [Fact]
@@ -110,7 +110,7 @@ public sealed class FgsSetupPricingMatrixValidatorTests
         var result = await validator.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("Labor line validation failed"));
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("Tiers must be null or empty"));
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public sealed class FgsSetupPricingMatrixValidatorTests
         var result = await validator.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("Labor line validation failed"));
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("Tiers is required"));
     }
 
     [Fact]
@@ -148,7 +148,29 @@ public sealed class FgsSetupPricingMatrixValidatorTests
         var result = await validator.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("Labor line validation failed"));
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("TechSkillLevelId must be null"));
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenLaborRateTypeMissing_HasValidationError()
+    {
+        _laborRateTypeReadRepository
+            .Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((FgsSetupLaborRateTypeDetailDto?)null);
+
+        var validator = CreateValidator();
+        var command = new CreateFgsSetupPricingMatrixCommand(
+            BuildCreateDto(
+                laborLines:
+                [
+                    new FgsSetupPricingMatrixLaborLineDto(
+                        null, 1, null, 85m, 1.5m, 2.0m, null, null)
+                ]));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("LaborRateTypeId '1' was not found"));
     }
 
     [Fact]
@@ -167,7 +189,7 @@ public sealed class FgsSetupPricingMatrixValidatorTests
         var result = await validator.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("Other item validation failed"));
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("CategoryCode 'XX' was not found"));
     }
 
     [Fact]

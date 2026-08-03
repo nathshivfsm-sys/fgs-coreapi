@@ -30,14 +30,31 @@ internal sealed class FgsTruckStockTemplateReadRepository : IFgsTruckStockTempla
             FROM {FgsTruckStockTemplateSql.Table}
             WHERE "Id" = @Id
               AND "TenantId" = @TenantId
+              AND "CompanyId" = @CompanyId;
+
+            SELECT {FgsTruckStockTemplateSql.SelectItemColumns}
+            FROM {FgsTruckStockTemplateSql.ItemTable}
+            WHERE "TruckStockTemplateId" = @Id
+              AND "TenantId" = @TenantId
               AND "CompanyId" = @CompanyId
+            ORDER BY "DisplayOrder" ASC, "Id" ASC;
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        var row = await connection.QueryFirstOrDefaultAsync<FgsTruckStockTemplateDetailRow>(
+        await using var multi = await connection.QueryMultipleAsync(
             new CommandDefinition(sql, new { Id = id, TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
 
-        return row?.ToDto();
+        var row = await multi.ReadFirstOrDefaultAsync<FgsTruckStockTemplateDetailRow>();
+        if (row is null)
+        {
+            return null;
+        }
+
+        var items = (await multi.ReadAsync<FgsTruckStockTemplateItemRow>())
+            .Select(i => i.ToDto())
+            .ToList();
+
+        return row.ToDto(items);
     }
 
     public async Task<PagedResult<FgsTruckStockTemplateSummaryDto>> ListAsync(
@@ -191,6 +208,28 @@ internal sealed class FgsTruckStockTemplateReadRepository : IFgsTruckStockTempla
             new CommandDefinition(
                 sql,
                 new { Id = id, TenantId = tenantId, CompanyId = companyId },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task<bool> ExistsInventoryItemAsync(long inventoryItemId, CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = InventoryTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {FgsTruckStockTemplateSql.InventoryItemTable}
+                WHERE "Id" = @InventoryItemId
+                  AND "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
+            )
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new { InventoryItemId = inventoryItemId, TenantId = tenantId, CompanyId = companyId },
                 cancellationToken: cancellationToken));
     }
 }

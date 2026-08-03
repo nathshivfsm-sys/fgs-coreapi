@@ -35,7 +35,7 @@ public sealed class GetResolvedCredentialConfigurationQueryHandler(
                 "Internal service key validation failed.",
                 cancellationToken);
             return ApiResponse<ResolvedCredentialConfigurationDto>.Fail(
-                ["Unauthorized."],
+                ["Internal service key validation failed."],
                 ApiStatusCodes.Unauthorized);
         }
 

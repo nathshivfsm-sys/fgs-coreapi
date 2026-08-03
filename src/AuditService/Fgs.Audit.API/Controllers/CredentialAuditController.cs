@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 namespace Fgs.Audit.API.Controllers;
 
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("credential-audit")]
+[FgsVersionedRoute("credentialaudit")]
 public sealed class CredentialAuditController(
     IMediator mediator,
     IOptions<CredentialDistributionOptions> distributionOptions) : FgsApiControllerBase(mediator)
@@ -33,7 +33,9 @@ public sealed class CredentialAuditController(
         {
             return StatusCode(
                 StatusCodes.Status401Unauthorized,
-                ApiResponse<object>.Fail(["Unauthorized."], ApiStatusCodes.Unauthorized));
+                ApiResponse<object>.Fail(
+                    ["Internal service key is missing or invalid."],
+                    ApiStatusCodes.Unauthorized));
         }
 
         return CreatedFromApiResponse(

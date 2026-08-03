@@ -19,7 +19,8 @@ namespace Fgs.Inventory.API.Controllers;
 /// Tenant-scoped inventory location catalog management.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("inventory-location")]
+[FgsVersionedRoute("inventorylocation")]
+[ApiController]
 [Produces("application/json")]
 public sealed class InventoryLocationController(IMediator mediator) : ControllerBase
 {

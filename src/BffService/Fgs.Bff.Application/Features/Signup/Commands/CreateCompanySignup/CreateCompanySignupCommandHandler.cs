@@ -89,6 +89,7 @@ public sealed class CreateCompanySignupCommandHandler(
             return ApiResponse<CompanySignupResultDto>.Fail(
                 [
                     "Business type seeding failed after identity was created.",
+                    ex.Message,
                     $"Identity was created (tenantId={identity.TenantId}, companyNumber={identity.CompanyNumber}). Retry business-type seeding or contact support."
                 ],
                 ApiStatusCodes.InternalServerError);

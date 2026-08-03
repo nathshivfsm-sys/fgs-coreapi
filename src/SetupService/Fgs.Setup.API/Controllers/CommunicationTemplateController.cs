@@ -26,7 +26,7 @@ namespace Fgs.Setup.API.Controllers;
 /// Global and tenant-scoped communication template catalog management.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("communication-template")]
+[FgsVersionedRoute("communicationtemplate")]
 [Produces("application/json")]
 public sealed class CommunicationTemplateController(
     IMediator mediator,
@@ -56,7 +56,9 @@ public sealed class CommunicationTemplateController(
         {
             return StatusCode(
                 StatusCodes.Status401Unauthorized,
-                ApiResponse<object>.Fail(["Unauthorized."], ApiStatusCodes.Unauthorized));
+                ApiResponse<object>.Fail(
+                    ["Authentication required. Provide a valid JWT or internal service key."],
+                    ApiStatusCodes.Unauthorized));
         }
 
         return FromApiResponse(await Mediator.Send(

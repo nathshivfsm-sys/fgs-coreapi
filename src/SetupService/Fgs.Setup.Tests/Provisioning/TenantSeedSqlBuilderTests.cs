@@ -53,6 +53,35 @@ public sealed class TenantSeedSqlBuilderTests
         sql.Should().Contain("FROM \"glo\".\"GloRole\"");
         sql.Should().Contain("WHERE \"IsAssignable\" = true AND \"IsActive\" = true");
         sql.Should().Contain("INSERT INTO \"identity\".\"FgsRole\"");
+        sql.Should().Contain("ON CONFLICT DO NOTHING");
+    }
+
+    [Fact]
+    public void BuildInsertSelectSql_AlwaysUsesOnConflictDoNothing()
+    {
+        var columns = new List<GloSeedTableColumnMapping>
+        {
+            new()
+            {
+                TargetColumnName = "TenantId",
+                TransformationType = "TENANT_ID",
+                ColumnOrder = 1
+            },
+            new()
+            {
+                SourceColumnName = "TagCode",
+                TargetColumnName = "TagCode",
+                ColumnOrder = 2
+            }
+        };
+
+        var sql = TenantSeedSqlBuilder.BuildInsertSelectSql(
+            TenantSeedSqlBuilder.QualifyTable("setup", "FgsTag"),
+            TenantSeedSqlBuilder.QualifyTable("glo", "GloTag"),
+            columns,
+            additionalWhereClause: null);
+
+        sql.TrimEnd().Should().EndWith("ON CONFLICT DO NOTHING");
     }
 
     [Fact]

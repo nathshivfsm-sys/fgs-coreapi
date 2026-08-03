@@ -1472,9 +1472,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<bool>("EnableRulesManagement")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("GloTimeCardOptionId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("InvoiceBatchNumberFormat")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -1512,6 +1509,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<bool>("SourceCodeRequiredOnWorkOrder")
                         .HasColumnType("boolean");
 
+                    b.Property<short>("TimeCardOptionId")
+                        .HasColumnType("smallint")
+                        .HasComment("Determines the technician time tracking workflow. Valid values: 1 = No formal technician time tracking workflow, 2 = Technician manually checks in and checks out, 3 = Tracks dispatch, arrival, and completion timestamps, 4 = Tracks dispatch, arrival, completion, and documentation time timestamps.");
+
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -1539,6 +1540,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                             t.HasCheckConstraint("CK_FgsTenantServiceSetup_DTRange", "\"DTStartTime\" IS NULL OR \"DTEndTime\" IS NULL OR \"DTEndTime\" > \"DTStartTime\"");
 
                             t.HasCheckConstraint("CK_FgsTenantServiceSetup_OTRange", "\"OTStartTime\" IS NULL OR \"OTEndTime\" IS NULL OR \"OTEndTime\" > \"OTStartTime\"");
+
+                            t.HasCheckConstraint("CK_FgsTenantServiceSetup_TimeCardOptionId", "\"TimeCardOptionId\" IN (1, 2, 3, 4)");
 
                             t.HasCheckConstraint("CK_FgsTenantServiceSetup_WorkLocationRadius", "\"WorkLocationRadiusForAutoArrive\" IS NULL OR \"WorkLocationRadiusForAutoArrive\" >= 0");
                         });
@@ -1584,6 +1587,11 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Primary phone number used for SMS notifications and one-time password (OTP) verification when multi-factor authentication (MFA) using SMS is enabled.");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");

@@ -70,7 +70,7 @@ internal sealed class FgsSetupPostalCodeReadRepository : IFgsSetupPostalCodeRead
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
             where.Add(
-                "(\"PostalCode\" ILIKE @Search)");
+                "(\"PostalCode\" ILIKE @Search OR \"City\" ILIKE @Search OR \"CountryCode\" ILIKE @Search OR \"StateProvinceCode\" ILIKE @Search)");
         }
 
         var whereClause = string.Join(" AND ", where);

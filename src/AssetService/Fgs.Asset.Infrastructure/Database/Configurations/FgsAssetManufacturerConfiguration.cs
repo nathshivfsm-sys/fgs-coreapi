@@ -10,7 +10,7 @@ internal sealed class FgsAssetManufacturerConfiguration : IEntityTypeConfigurati
     public void Configure(EntityTypeBuilder<FgsAssetManufacturer> entity)
     {
         entity.ToTable(
-            "assetmanufacturer",
+            "FgsAssetManufacturer",
             t =>
             {
                 t.HasComment("Stores equipment manufacturers available for asset management.");

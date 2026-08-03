@@ -171,4 +171,27 @@ internal sealed class FgsVendorReadRepository : IFgsVendorReadRepository
                 },
                 cancellationToken: cancellationToken));
     }
+
+    public async Task<bool> ExistsAsync(long id, bool activeOnly = true, CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = InventoryTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var activeFilter = activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty;
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {FgsVendorSql.Table}
+                WHERE "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "Id" = @Id
+                  {activeFilter}
+            )
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, CompanyId = companyId, Id = id },
+                cancellationToken: cancellationToken));
+    }
 }

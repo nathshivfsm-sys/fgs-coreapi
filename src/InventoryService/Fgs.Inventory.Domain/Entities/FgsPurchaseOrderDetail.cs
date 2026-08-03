@@ -40,4 +40,6 @@ public class FgsPurchaseOrderDetail : FgsEntityBase, ITenantCompanyScoped
     public DateTimeOffset? ExpectedDeliveryDate { get; set; }
 
     public string? Notes { get; set; }
+
+    public FgsPurchaseOrder? PurchaseOrder { get; set; }
 }

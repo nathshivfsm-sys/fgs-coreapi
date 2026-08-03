@@ -9,7 +9,7 @@ public class FgsAsset : FgsEntityBase, ITenantCompanyScoped
     public long CompanyId { get; set; }
     public Guid AssetGuid { get; set; }
     public string AssetNumber { get; set; } = null!;
-    public long ServiceLocationId { get; set; }
+    public long? ServiceLocationId { get; set; }
     public long? AssetTypeId { get; set; }
     public long? AssetManufacturerId { get; set; }
     public long? AssetModelId { get; set; }
