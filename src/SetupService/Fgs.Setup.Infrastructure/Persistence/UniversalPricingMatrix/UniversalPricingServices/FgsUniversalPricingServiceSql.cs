@@ -5,12 +5,6 @@ namespace Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalP
 internal static class FgsUniversalPricingServiceSql
 {
     public const string Table = "setup.\"FgsUniversalPricingService\"";
-    public const string TierTable = "setup.\"FgsUniversalMatrixTier\"";
-    public const string SizeTierTable = "setup.\"FgsUniversalMatrixSizeTier\"";
-    public const string ItemTable = "setup.\"FgsUniversalMatrixItem\"";
-    public const string FrequencyDiscountTable = "setup.\"FgsUniversalMatrixFrequencyDiscount\"";
-    public const string OneTimeFeeTable = "setup.\"FgsUniversalMatrixOneTimeFee\"";
-    public const string AddOnTable = "setup.\"FgsUniversalMatrixAddOn\"";
 
     public const string SelectDetailColumns = """
         "Id", "UniversalPricingServiceCode", "DisplayOrder", "IsActive"
@@ -22,30 +16,6 @@ internal static class FgsUniversalPricingServiceSql
 
     public const string SelectLookupColumns = """
         "Id", "UniversalPricingServiceCode", "DisplayOrder"
-        """;
-
-    public const string SelectTierColumns = """
-        "Id", "Name", "Multiplier", "DisplayOrder", "IsActive"
-        """;
-
-    public const string SelectSizeTierColumns = """
-        "Id", "Name", "Multiplier", "DisplayOrder", "IsActive"
-        """;
-
-    public const string SelectItemColumns = """
-        "Id", "ItemName", "UnitType", "BasePrice", "DisplayOrder", "IsActive"
-        """;
-
-    public const string SelectFrequencyDiscountColumns = """
-        "Id", "Name", "DiscountPercent", "DisplayOrder", "IsActive"
-        """;
-
-    public const string SelectOneTimeFeeColumns = """
-        "Id", "Name", "Amount", "DisplayOrder", "IsActive"
-        """;
-
-    public const string SelectAddOnColumns = """
-        "Id", "Name", "UnitType", "Price", "DisplayOrder", "IsActive"
         """;
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)

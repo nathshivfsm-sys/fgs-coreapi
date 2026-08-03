@@ -26,7 +26,7 @@ public sealed class FgsUniversalPricingServiceCommandHandlerTests
     private const long CompanyId = 20;
 
     [Fact]
-    public async Task CreateHandler_CreatesActiveRecordWithNestedChildren()
+    public async Task CreateHandler_CreatesActiveHeaderOnly()
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
@@ -40,21 +40,15 @@ public sealed class FgsUniversalPricingServiceCommandHandlerTests
 
         var response = await handler.Handle(
             new CreateFgsUniversalPricingServiceCommand(
-                new FgsUniversalPricingServiceCreateDto(
-                    "TEST",
-                    5,
-                    Tiers: [new FgsUniversalMatrixTierItemDto(null, "Standard", 1.0m, 1)],
-                    Items: [new FgsUniversalMatrixItemItemDto(null, "Filter", "EA", 10m, 1)],
-                    AddOns: [new FgsUniversalMatrixAddOnItemDto(null, "Warranty", "EA", 25m, 1)])),
+                new FgsUniversalPricingServiceCreateDto("TEST", 5)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
         response.Data!.IsActive.Should().BeTrue();
-        response.Data.Tiers.Should().HaveCount(1);
-        response.Data.Tiers[0].Name.Should().Be("Standard");
-        response.Data.Items.Should().HaveCount(1);
-        response.Data.AddOns.Should().HaveCount(1);
+        response.Data.UniversalPricingServiceCode.Should().Be("TEST");
+        response.Data.DisplayOrder.Should().Be(5);
+        (await context.FgsUniversalMatrixTiers.CountAsync()).Should().Be(0);
         cache.Verify(
             c => c.RemoveByPrefixAsync(
                 CacheKeys.EntityPrefix(TenantId, CompanyId, "universalpricingservice"),
@@ -63,7 +57,7 @@ public sealed class FgsUniversalPricingServiceCommandHandlerTests
     }
 
     [Fact]
-    public async Task UpdateHandler_UpsertsById_AndSoftDeactivatesOmittedChildren()
+    public async Task UpdateHandler_UpdatesHeaderOnly()
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
@@ -78,45 +72,22 @@ public sealed class FgsUniversalPricingServiceCommandHandlerTests
 
         var created = await createHandler.Handle(
             new CreateFgsUniversalPricingServiceCommand(
-                new FgsUniversalPricingServiceCreateDto(
-                    "TEST",
-                    5,
-                    Tiers:
-                    [
-                        new FgsUniversalMatrixTierItemDto(null, "Keep", 1.0m, 1),
-                        new FgsUniversalMatrixTierItemDto(null, "Drop", 1.5m, 2)
-                    ])),
+                new FgsUniversalPricingServiceCreateDto("TEST", 5)),
             CancellationToken.None);
-
-        var keepId = created.Data!.Tiers.Single(t => t.Name == "Keep").Id;
 
         var updated = await updateHandler.Handle(
             new UpdateFgsUniversalPricingServiceCommand(
-                created.Data.Id,
-                new FgsUniversalPricingServiceUpdateDto(
-                    "TEST",
-                    5,
-                    Tiers:
-                    [
-                        new FgsUniversalMatrixTierItemDto(keepId, "Keep Updated", 1.25m, 1),
-                        new FgsUniversalMatrixTierItemDto(null, "New Tier", 2.0m, 2)
-                    ])),
+                created.Data!.Id,
+                new FgsUniversalPricingServiceUpdateDto("TEST2", 9)),
             CancellationToken.None);
 
         updated.Success.Should().BeTrue();
-        updated.Data!.Tiers.Should().HaveCount(2);
-        updated.Data.Tiers.Should().Contain(t => t.Id == keepId && t.Name == "Keep Updated" && t.Multiplier == 1.25m);
-        updated.Data.Tiers.Should().Contain(t => t.Name == "New Tier");
-        updated.Data.Tiers.Should().NotContain(t => t.Name == "Drop");
-
-        var dropped = await context.FgsUniversalMatrixTiers
-            .AsNoTracking()
-            .SingleAsync(t => t.Name == "Drop");
-        dropped.IsActive.Should().BeFalse();
+        updated.Data!.UniversalPricingServiceCode.Should().Be("TEST2");
+        updated.Data.DisplayOrder.Should().Be(9);
     }
 
     [Fact]
-    public async Task PatchHandler_DoesNotAlterChildren()
+    public async Task PatchHandler_UpdatesDisplayOrder()
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
@@ -131,10 +102,7 @@ public sealed class FgsUniversalPricingServiceCommandHandlerTests
 
         var created = await createHandler.Handle(
             new CreateFgsUniversalPricingServiceCommand(
-                new FgsUniversalPricingServiceCreateDto(
-                    "TEST",
-                    5,
-                    Tiers: [new FgsUniversalMatrixTierItemDto(null, "Standard", 1.0m, 1)])),
+                new FgsUniversalPricingServiceCreateDto("TEST", 5)),
             CancellationToken.None);
 
         var patched = await patchHandler.Handle(
@@ -145,8 +113,7 @@ public sealed class FgsUniversalPricingServiceCommandHandlerTests
 
         patched.Success.Should().BeTrue();
         patched.Data!.DisplayOrder.Should().Be(9);
-        patched.Data.Tiers.Should().HaveCount(1);
-        patched.Data.Tiers[0].Name.Should().Be("Standard");
+        patched.Data.UniversalPricingServiceCode.Should().Be("TEST");
     }
 
     [Fact]

@@ -357,6 +357,12 @@ function Get-EntitySampleProfile {
         Timeslot = @{ Code = 'AM'; Name = 'Morning'; Description = 'Morning appointment timeslot' }
         TitleOfCourtesy = @{ Code = 'MR'; Name = 'Mr.'; Description = 'Courtesy title Mr.' }
         UniversalPricingService = @{ Code = 'DIAGFEE'; Name = 'Diagnostic Fee'; Description = 'Standard diagnostic service fee' }
+        UniversalMatrixTier = @{ Code = 'STD'; Name = 'Standard'; Description = 'Standard pricing tier multiplier' }
+        UniversalMatrixSizeTier = @{ Code = 'MED'; Name = 'Medium'; Description = 'Medium size tier multiplier' }
+        UniversalMatrixItem = @{ Code = 'FILTER'; Name = 'Air Filter'; Description = 'Base priced matrix item' }
+        UniversalMatrixFrequencyDiscount = @{ Code = 'MONTHLY'; Name = 'Monthly'; Description = 'Monthly frequency discount' }
+        UniversalMatrixOneTimeFee = @{ Code = 'SETUP'; Name = 'Setup Fee'; Description = 'One-time setup fee' }
+        UniversalMatrixAddOn = @{ Code = 'WARRANTY'; Name = 'Extended Warranty'; Description = 'Optional add-on price' }
         Vehicle = @{ Code = 'TRK-01'; Name = 'Service Truck 01'; Description = 'Primary service vehicle' }
         VehicleMaintenance = @{ Code = 'OIL'; Name = 'Oil Change'; Description = 'Scheduled oil change maintenance' }
         Zone = @{ Code = 'NORTH'; Name = 'North Zone'; Description = 'Northern service coverage zone' }
