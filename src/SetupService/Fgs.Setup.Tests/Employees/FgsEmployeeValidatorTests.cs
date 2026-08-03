@@ -12,6 +12,21 @@ namespace Fgs.Setup.Tests.Employees;
 public sealed class FgsEmployeeValidatorTests
 {
     [Fact]
+    public async Task CreateValidator_WhenDtoNull_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new CreateFgsEmployeeCommand(null!);
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Dto");
+        result.Errors.Should().NotContain(e =>
+            e.ErrorMessage.Contains("NullReferenceException", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CreateValidator_WhenEmployeeNumberMissing_HasValidationError()
     {
         var readRepository = new Mock<IFgsEmployeeReadRepository>();

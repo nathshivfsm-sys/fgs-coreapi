@@ -13,7 +13,7 @@ public sealed record FgsEmployeeAddressDetailDto(
 
 public sealed record FgsEmployeeSummaryDto(
     long Id,
-    long? UserId,
+    Guid? UserId,
     string EmployeeNumber,
     short EmployeeTypeId,
     string DisplayName,
@@ -39,7 +39,7 @@ public sealed record FgsEmployeeSummaryDto(
 
 public sealed record FgsEmployeeDetailDto(
     long Id,
-    long? UserId,
+    Guid? UserId,
     string EmployeeNumber,
     short EmployeeTypeId,
     string DisplayName,
@@ -70,7 +70,7 @@ public sealed record FgsEmployeeLookupDto(
     string DisplayName);
 
 public sealed record FgsEmployeeCreateDto(
-    long? UserId,
+    Guid? UserId,
     string EmployeeNumber,
     short EmployeeTypeId,
     string DisplayName,
@@ -96,7 +96,7 @@ public sealed record FgsEmployeeCreateDto(
     string? Notes = null);
 
 public sealed record FgsEmployeeUpdateDto(
-    long? UserId,
+    Guid? UserId,
     string EmployeeNumber,
     short EmployeeTypeId,
     string DisplayName,
@@ -122,7 +122,7 @@ public sealed record FgsEmployeeUpdateDto(
     string? Notes);
 
 public sealed record FgsEmployeePatchDto(
-    long? UserId,
+    Guid? UserId,
     string? EmployeeNumber,
     short? EmployeeTypeId,
     string? DisplayName,

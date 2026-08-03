@@ -13,7 +13,7 @@ public class FgsEmployee : ITenantCompanyScoped
 
     public long CompanyId { get; set; }
 
-    public long? UserId { get; set; }
+    public Guid? UserId { get; set; }
 
     public string EmployeeNumber { get; set; } = null!;
 

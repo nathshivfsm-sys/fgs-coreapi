@@ -5,7 +5,7 @@ namespace Fgs.Setup.Infrastructure.Persistence.Employees;
 internal sealed class FgsEmployeeSummaryRow
 {
     public long Id { get; set; }
-    public long? UserId { get; set; }
+    public Guid? UserId { get; set; }
     public string EmployeeNumber { get; set; } = null!;
     public short EmployeeTypeId { get; set; }
     public string DisplayName { get; set; } = null!;
@@ -60,7 +60,7 @@ internal sealed class FgsEmployeeSummaryRow
 internal sealed class FgsEmployeeDetailRow
 {
     public long Id { get; set; }
-    public long? UserId { get; set; }
+    public Guid? UserId { get; set; }
     public string EmployeeNumber { get; set; } = null!;
     public short EmployeeTypeId { get; set; }
     public string DisplayName { get; set; } = null!;

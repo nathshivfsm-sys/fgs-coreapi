@@ -263,7 +263,7 @@ public sealed class SetupEntityAuditHelper
 
     public void StampForCreate(FgsEmployee entity)
     {
-        var now = _dateTimeProvider.UtcNow.UtcDateTime;
+        var now = _dateTimeProvider.UtcNow.DateTime;
         var actorId = ResolveNumericActor();
         var (tenantId, companyId) = ResolveTenantCompany();
 
@@ -277,7 +277,7 @@ public sealed class SetupEntityAuditHelper
 
     public void StampForUpdate(FgsEmployee entity)
     {
-        entity.UpdatedOn = _dateTimeProvider.UtcNow.UtcDateTime;
+        entity.UpdatedOn = _dateTimeProvider.UtcNow.DateTime;
         entity.UpdatedBy = ResolveNumericActor();
     }
 

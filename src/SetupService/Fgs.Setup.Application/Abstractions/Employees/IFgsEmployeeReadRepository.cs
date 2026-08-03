@@ -23,7 +23,7 @@ public interface IFgsEmployeeReadRepository
         CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByUserIdAsync(
-        long userId,
+        Guid userId,
         long? excludeId = null,
         CancellationToken cancellationToken = default);
 }

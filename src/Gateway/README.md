@@ -86,7 +86,7 @@ Windows: `C:\Windows\System32\drivers\etc\hosts`. Linux/macOS: `/etc/hosts`. Reg
 | `/api/v1/tenant/{id}/bucket` | `file-service:5005` | Bucket provisioning |
 | `/api/v1/tenant/*` (other) | `user-service:5001` | Tenant CRUD |
 | `/api/v1/attachment/*` | `file-service:5005` | Attachments |
-| `/api/v1/credential-audit/*` | `audit-service:5008` | Credential audit writes |
+| `/api/v1/credentialaudit/*` | `audit-service:5008` | Credential audit writes |
 | `/api/v1/(inventory-location\|truck-stock-template\|vendor)/*` | `inventory-service:5012` | Inventory catalog |
 | `/api/v1/(assettype\|…\|assetwarranty)/*` | `asset-service:5015` | Asset catalog |
 | `/api/v1/(billingcategory\|…\|zone)/*` | `setup-service:5004` | Setup catalog (includes universal pricing matrix) |

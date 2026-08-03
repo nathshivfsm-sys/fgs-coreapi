@@ -19,6 +19,7 @@ namespace Fgs.Setup.API.Controllers;
 /// Tenant-scoped employee management.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
+[ApiController]
 [FgsVersionedRoute("employee")]
 [Produces("application/json")]
 public sealed class EmployeeController(IMediator mediator) : ControllerBase

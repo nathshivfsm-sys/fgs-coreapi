@@ -193,7 +193,7 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
     }
 
     public async Task<bool> ExistsByUserIdAsync(
-        long userId,
+        Guid userId,
         long? excludeId = null,
         CancellationToken cancellationToken = default)
     {
