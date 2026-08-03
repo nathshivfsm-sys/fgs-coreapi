@@ -343,6 +343,10 @@ function Get-EntitySampleProfile {
         PaymentTerm = @{ Code = 'NET30'; Name = 'Net 30'; Description = 'Payment due in 30 days' }
         PostalCode = @{ Code = '78701'; Name = 'Austin Downtown'; Description = 'Austin TX postal coverage' }
         PricingMatrix = @{ Code = 'FLATLABOR'; Name = 'Flat Labor'; Description = 'Flat labor pricing matrix' }
+        PricingMatrixLabor = @{ Code = 'LABOR'; Name = 'Standard Labor Line'; Description = 'Labor rate line for pricing matrix' }
+        PricingMatrixLaborTier = @{ Code = 'TIER1'; Name = 'First Hour Tier'; Description = 'Labor duration tier for tiered pricing' }
+        PricingMatrixMaterialTier = @{ Code = 'MAT0'; Name = 'Material Tier 0'; Description = 'Material cost adjustment tier' }
+        PricingMatrixOther = @{ Code = 'NI'; Name = 'Non-Inventory'; Description = 'Other pricing matrix category item' }
         ResolutionCode = @{ Code = 'FIXED'; Name = 'Issue Resolved'; Description = 'Work completed and issue fixed' }
         SalesActivityOutcome = @{ Code = 'WON'; Name = 'Won'; Description = 'Sales activity resulted in a win' }
         SalesActivityType = @{ Code = 'CALL'; Name = 'Phone Call'; Description = 'Outbound sales phone call' }
@@ -1141,20 +1145,7 @@ function Parse-ControllerFile {
   "priceAdjustmentTypeId": null,
   "effectiveFrom": null,
   "effectiveTo": null,
-  "isMobileVisible": true,
-  "laborLines": [
-    {
-      "laborRateTypeId": 1,
-      "techSkillLevelId": null,
-      "baseRate": 90.00,
-      "overtimeMultiplier": 1.5,
-      "doubleTimeMultiplier": 2.0,
-      "discountPercent": null,
-      "tiers": null
-    }
-  ],
-  "materialTiers": null,
-  "otherItems": null
+  "isMobileVisible": true
 }
 '@
             }
@@ -1385,7 +1376,7 @@ function Set-AttachmentUploadRequestBody {
 }
 
 function Get-PricingMatrixCreateBody {
-    param([ValidateSet('FlatLabor', 'FlatLaborBySkill', 'LaborTier', 'MaterialTiers', 'OtherItems')][string]$Variant)
+    param([ValidateSet('FlatLabor', 'FlatLaborBySkill', 'LaborTiers', 'MaterialTiers', 'OtherItems')][string]$Variant)
 
     switch ($Variant) {
         'FlatLabor' {
@@ -1399,20 +1390,7 @@ function Get-PricingMatrixCreateBody {
   "priceAdjustmentTypeId": null,
   "effectiveFrom": null,
   "effectiveTo": null,
-  "isMobileVisible": true,
-  "laborLines": [
-    {
-      "laborRateTypeId": 1,
-      "techSkillLevelId": null,
-      "baseRate": 85.00,
-      "overtimeMultiplier": 1.5,
-      "doubleTimeMultiplier": 2.0,
-      "discountPercent": null,
-      "tiers": null
-    }
-  ],
-  "materialTiers": null,
-  "otherItems": null
+  "isMobileVisible": true
 }
 '@
         }
@@ -1427,33 +1405,11 @@ function Get-PricingMatrixCreateBody {
   "priceAdjustmentTypeId": null,
   "effectiveFrom": null,
   "effectiveTo": null,
-  "isMobileVisible": true,
-  "laborLines": [
-    {
-      "laborRateTypeId": 1,
-      "techSkillLevelId": 1,
-      "baseRate": 95.00,
-      "overtimeMultiplier": 1.5,
-      "doubleTimeMultiplier": 2.0,
-      "discountPercent": null,
-      "tiers": null
-    },
-    {
-      "laborRateTypeId": 1,
-      "techSkillLevelId": 2,
-      "baseRate": 110.00,
-      "overtimeMultiplier": 1.5,
-      "doubleTimeMultiplier": 2.0,
-      "discountPercent": null,
-      "tiers": null
-    }
-  ],
-  "materialTiers": null,
-  "otherItems": null
+  "isMobileVisible": true
 }
 '@
         }
-        'LaborTier' {
+        'LaborTiers' {
             return @'
 {
   "name": "LABORTIER",
@@ -1464,23 +1420,7 @@ function Get-PricingMatrixCreateBody {
   "priceAdjustmentTypeId": null,
   "effectiveFrom": null,
   "effectiveTo": null,
-  "isMobileVisible": true,
-  "laborLines": [
-    {
-      "laborRateTypeId": 1,
-      "techSkillLevelId": null,
-      "baseRate": null,
-      "overtimeMultiplier": null,
-      "doubleTimeMultiplier": null,
-      "discountPercent": null,
-      "tiers": [
-        { "sequenceOrder": 1, "durationMinutes": 60, "rate": 95.00, "techSkillLevelId": null },
-        { "sequenceOrder": 2, "durationMinutes": 120, "rate": 85.00, "techSkillLevelId": null }
-      ]
-    }
-  ],
-  "materialTiers": null,
-  "otherItems": null
+  "isMobileVisible": true
 }
 '@
         }
@@ -1495,13 +1435,7 @@ function Get-PricingMatrixCreateBody {
   "priceAdjustmentTypeId": 1,
   "effectiveFrom": null,
   "effectiveTo": null,
-  "isMobileVisible": true,
-  "laborLines": null,
-  "materialTiers": [
-    { "fromCost": 0, "toCost": 100, "adjustmentValue": 25 },
-    { "fromCost": 100.01, "toCost": null, "adjustmentValue": 20 }
-  ],
-  "otherItems": null
+  "isMobileVisible": true
 }
 '@
         }
@@ -1516,13 +1450,7 @@ function Get-PricingMatrixCreateBody {
   "priceAdjustmentTypeId": 1,
   "effectiveFrom": null,
   "effectiveTo": null,
-  "isMobileVisible": true,
-  "laborLines": null,
-  "materialTiers": null,
-  "otherItems": [
-    { "categoryCode": "NI", "name": "Non-Inventory Markup", "adjustmentValue": 20, "discountPercent": null },
-    { "categoryCode": "OT", "name": "Other Charges Markup", "adjustmentValue": 15, "discountPercent": null }
-  ]
+  "isMobileVisible": true
 }
 '@
         }
@@ -1620,14 +1548,14 @@ function Add-PricingMatrixEnhancementsToFolder {
 
     if ($Folder.name -ne 'PricingMatrixController') { return $Folder }
 
-    $Folder.description = 'Pricing matrix aggregate CRUD via {{gatewayUrl}}/api/v1/pricingmatrix. Separate Create requests cover each valid structure.'
+    $Folder.description = 'Pricing matrix header CRUD via {{gatewayUrl}}/api/v1/pricingmatrix. Children use separate controllers: pricingmatrixlabor, pricingmatrixlabortier, pricingmatrixmaterialtier, pricingmatrixother.'
 
     $variants = @(
-        @{ Name = 'Create - Flat Labor'; Variant = 'FlatLabor'; Description = 'Flat labor rates (isLaborTierStructure=false, isLaborRateBySkillLevel=false). Requires laborRateTypeId + baseRate.' }
-        @{ Name = 'Create - Flat Labor By Skill'; Variant = 'FlatLaborBySkill'; Description = 'Flat labor rates by skill level (isLaborRateBySkillLevel=true). Each labor line needs techSkillLevelId.' }
-        @{ Name = 'Create - Labor Tiers'; Variant = 'LaborTier'; Description = 'Tiered labor (isLaborTierStructure=true). Persists labor parent + tier children.' }
-        @{ Name = 'Create - Material Tiers'; Variant = 'MaterialTiers'; Description = 'Cost-range material markup. Requires priceAdjustmentTypeId (1=%, 2=$, 3=multiplier). Mutually exclusive with otherItems.' }
-        @{ Name = 'Create - Other Items'; Variant = 'OtherItems'; Description = 'Category markup. categoryCode must be an active billing category type (NI, OT, SF, ...). Mutually exclusive with materialTiers.' }
+        @{ Name = 'Create - Flat Labor Header'; Variant = 'FlatLabor'; Description = 'Header only (isLaborTierStructure=false). Add labor lines via PricingMatrixLaborController.' }
+        @{ Name = 'Create - Flat Labor By Skill Header'; Variant = 'FlatLaborBySkill'; Description = 'Header only (isLaborRateBySkillLevel=true). Add skill-level labor lines via PricingMatrixLaborController.' }
+        @{ Name = 'Create - Labor Tiers Header'; Variant = 'LaborTiers'; Description = 'Header only (isLaborTierStructure=true). Add labor lines then tiers via PricingMatrixLaborController / PricingMatrixLaborTierController.' }
+        @{ Name = 'Create - Material Markup Header'; Variant = 'MaterialTiers'; Description = 'Header only with priceAdjustmentTypeId. Add tiers via PricingMatrixMaterialTierController (mutually exclusive with Other).' }
+        @{ Name = 'Create - Other Markup Header'; Variant = 'OtherItems'; Description = 'Header only with priceAdjustmentTypeId. Add items via PricingMatrixOtherController (mutually exclusive with MaterialTiers).' }
     )
 
     $scenarios = @()

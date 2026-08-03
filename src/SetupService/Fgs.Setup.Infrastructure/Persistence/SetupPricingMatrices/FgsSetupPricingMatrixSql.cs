@@ -6,14 +6,6 @@ internal static class FgsSetupPricingMatrixSql
 {
     public const string Table = "setup.\"FgsSetupPricingMatrix\"";
 
-    public const string LaborTable = "setup.\"FgsSetupPricingMatrixLabor\"";
-
-    public const string LaborTierTable = "setup.\"FgsSetupPricingMatrixLaborTier\"";
-
-    public const string MaterialTierTable = "setup.\"FgsSetupPricingMatrixMaterialTier\"";
-
-    public const string OtherTable = "setup.\"FgsSetupPricingMatrixOther\"";
-
     public const string SelectHeaderColumns = """
         pm."Id", pm."Code", pm."Name", pm."IsDefault", pm."IsLaborTierStructure", pm."IsLaborRateBySkillLevel",
         pm."PriceAdjustmentTypeId", pm."EffectiveFrom", pm."EffectiveTo", pm."IsMobileVisible", pm."IsActive"
@@ -25,22 +17,8 @@ internal static class FgsSetupPricingMatrixSql
         pm."Id", pm."Code", pm."Name", pm."IsDefault"
         """;
 
-    public const string SelectLaborColumns = """
-        l."Id", l."PricingMatrixId", l."LaborRateTypeId", l."TechSkillLevelId", l."BaseRate",
-        l."OvertimeMultiplier", l."DoubleTimeMultiplier", l."DiscountPercent", l."IsActive"
-        """;
-
-    public const string SelectLaborTierColumns = """
-        lt."Id", lt."PricingMatrixLaborId", lt."SequenceOrder", lt."DurationMinutes", lt."Rate",
-        lt."TechSkillLevelId", lt."IsActive"
-        """;
-
-    public const string SelectMaterialTierColumns = """
-        mt."Id", mt."PricingMatrixId", mt."FromCost", mt."ToCost", mt."AdjustmentValue", mt."IsActive"
-        """;
-
-    public const string SelectOtherColumns = """
-        o."Id", o."PricingMatrixId", o."CategoryCode", o."Name", o."AdjustmentValue", o."DiscountPercent", o."IsActive"
+    public const string SelectFlagsColumns = """
+        pm."Id", pm."IsLaborTierStructure", pm."IsLaborRateBySkillLevel", pm."PriceAdjustmentTypeId", pm."IsActive"
         """;
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)

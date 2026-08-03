@@ -8,6 +8,8 @@ public interface IFgsSetupPricingMatrixReadRepository
 {
     Task<FgsSetupPricingMatrixDetailDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
+    Task<FgsSetupPricingMatrixFlagsDto?> GetFlagsByIdAsync(long id, CancellationToken cancellationToken = default);
+
     Task<PagedResult<FgsSetupPricingMatrixSummaryDto>> ListAsync(
         SetupListQuery query,
         FgsSetupPricingMatrixListFilters filters,
@@ -16,6 +18,8 @@ public interface IFgsSetupPricingMatrixReadRepository
     Task<IReadOnlyList<FgsSetupPricingMatrixLookupDto>> LookupAsync(
         bool activeOnly = true,
         CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsByIdAsync(long id, CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByCodeAsync(
         string code,
