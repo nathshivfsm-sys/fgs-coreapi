@@ -34,7 +34,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         FgsEmployeeCreateDto dto,
         CancellationToken cancellationToken = default)
     {
-        var (overtimeRate, doubleTimeRate) = ResolveRates(dto.RegularRate, dto.OvertimeRate, dto.DoubleTimeRate);
+        var (overtimeRate, doubleTimeRate) = ResolveRates(dto.RegularRate, overtimeRate: null, doubleTimeRate: null);
 
         var entity = new FgsEmployee
         {

@@ -49,11 +49,11 @@ public sealed class UserController(IMediator mediator) : FgsApiControllerBase(me
             cancellationToken));
 
     [HttpPost]
-    [ProducesResponseType(typeof(ApiResponse<FgsUserDetailDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<FgsUserDetailDto>>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Invite(
-        [FromBody] FgsUserInviteDto request,
+        [FromBody] IReadOnlyList<FgsUserInviteDto> request,
         CancellationToken cancellationToken) =>
         CreatedFromApiResponse(await Mediator.Send(new InviteFgsUserCommand(request), cancellationToken));
 

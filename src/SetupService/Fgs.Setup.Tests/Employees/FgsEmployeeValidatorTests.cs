@@ -70,6 +70,20 @@ public sealed class FgsEmployeeValidatorTests
     }
 
     [Fact]
+    public async Task CreateValidator_WhenEmployeeNumberHasSpecialCharacters_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new CreateFgsEmployeeCommand(CreateDto(employeeNumber: "EMP@001"));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e =>
+            e.ErrorMessage.Contains("special characters", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task UpdateValidator_WhenValidDto_Passes()
     {
         var readRepository = new Mock<IFgsEmployeeReadRepository>();
@@ -133,8 +147,6 @@ public sealed class FgsEmployeeValidatorTests
             Address: CreateAddress(addressLine1),
             ProfilePhotoFileId: null,
             RegularRate: 40m,
-            OvertimeRate: null,
-            DoubleTimeRate: null,
             LaborBurdenTypeId: LaborBurdenTypeIds.Percentage,
             LaborBurdenValue: 25m,
             IsPurchaser: false,

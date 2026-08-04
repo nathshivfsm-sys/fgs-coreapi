@@ -20,22 +20,40 @@ public sealed class InviteFgsUserCommandValidator : AbstractValidator<InviteFgsU
         IEmailNormalizer emailNormalizer,
         IDateTimeProvider dateTime)
     {
-        RuleFor(x => x.Dto.DisplayName).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.Dto.Email).NotEmpty().MaximumLength(300).EmailAddress();
-        RuleFor(x => x.Dto.PhoneNumber).MaximumLength(20);
-        RuleFor(x => x.Dto.Email).MustAsync(async (_, email, cancellationToken) =>
-                !await userReadRepository.ExistsByEmailAsync(email, null, cancellationToken))
-            .WithMessage("A user with this email already exists for this tenant and company.");
-        RuleFor(x => x.Dto.Email).MustAsync(async (_, email, cancellationToken) =>
-                !await invitationReadQuery.HasPendingInvitationForNormalizedEmailInCurrentTenantCompanyAsync(
-                    emailNormalizer.Normalize(email),
-                    dateTime.UtcNow,
-                    cancellationToken))
-            .WithMessage("A pending invitation already exists for this email in this tenant and company.");
-        RuleFor(x => x.Dto.RoleId).GreaterThan(0);
-        RuleFor(x => x.Dto.RoleId).MustAsync(async (_, roleId, cancellationToken) =>
-                await roleReadRepository.GetByIdAsync(roleId, cancellationToken) is not null)
-            .WithMessage("The specified role was not found.");
+        RuleFor(x => x.Invites).NotEmpty().WithMessage("At least one invite is required.");
+
+        RuleFor(x => x.Invites)
+            .Must(invites =>
+            {
+                var emails = invites
+                    .Select(i => i.Email?.Trim().ToLowerInvariant())
+                    .Where(e => !string.IsNullOrWhiteSpace(e))
+                    .ToList();
+                return emails.Count == emails.Distinct().Count();
+            })
+            .WithMessage("Duplicate email addresses are not allowed in the same invite request.")
+            .When(x => x.Invites is { Count: > 0 });
+
+        RuleForEach(x => x.Invites).ChildRules(invite =>
+        {
+            invite.RuleFor(x => x.DisplayName).NotEmpty().MaximumLength(200);
+            invite.RuleFor(x => x.Email).NotEmpty().MaximumLength(300).EmailAddress();
+            invite.RuleFor(x => x.PhoneNumber).MaximumLength(20);
+            invite.RuleFor(x => x.AuthenticationMethod).IsInEnum();
+            invite.RuleFor(x => x.Email).MustAsync(async (_, email, cancellationToken) =>
+                    !await userReadRepository.ExistsByEmailAsync(email, null, cancellationToken))
+                .WithMessage("A user with this email already exists for this tenant and company.");
+            invite.RuleFor(x => x.Email).MustAsync(async (_, email, cancellationToken) =>
+                    !await invitationReadQuery.HasPendingInvitationForNormalizedEmailInCurrentTenantCompanyAsync(
+                        emailNormalizer.Normalize(email),
+                        dateTime.UtcNow,
+                        cancellationToken))
+                .WithMessage("A pending invitation already exists for this email in this tenant and company.");
+            invite.RuleFor(x => x.RoleId).GreaterThan(0);
+            invite.RuleFor(x => x.RoleId).MustAsync(async (_, roleId, cancellationToken) =>
+                    await roleReadRepository.GetByIdAsync(roleId, cancellationToken) is not null)
+                .WithMessage("The specified role was not found.");
+        });
     }
 }
 

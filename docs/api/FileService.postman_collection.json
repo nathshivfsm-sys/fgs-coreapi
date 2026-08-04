@@ -103,7 +103,6 @@
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.attachmentId) {",
                                                                                     "  pm.environment.set(\"attachmentId\", String(body.data.attachmentId));",
                                                                                     "  pm.environment.set(\"fileId\", String(body.data.attachmentId));",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.attachmentId));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -216,7 +215,6 @@
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.attachmentId) {",
                                                                                     "  pm.environment.set(\"attachmentId\", String(body.data.attachmentId));",
                                                                                     "  pm.environment.set(\"fileId\", String(body.data.attachmentId));",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.attachmentId));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -329,7 +327,6 @@
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.attachmentId) {",
                                                                                     "  pm.environment.set(\"attachmentId\", String(body.data.attachmentId));",
                                                                                     "  pm.environment.set(\"fileId\", String(body.data.attachmentId));",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.attachmentId));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -442,7 +439,6 @@
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.attachmentId) {",
                                                                                     "  pm.environment.set(\"attachmentId\", String(body.data.attachmentId));",
                                                                                     "  pm.environment.set(\"fileId\", String(body.data.attachmentId));",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.attachmentId));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -555,7 +551,6 @@
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.attachmentId) {",
                                                                                     "  pm.environment.set(\"attachmentId\", String(body.data.attachmentId));",
                                                                                     "  pm.environment.set(\"fileId\", String(body.data.attachmentId));",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.attachmentId));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -980,105 +975,6 @@
                               ]
                  },
                  {
-                     "description":  "HealthController - health",
-                     "name":  "HealthController",
-                     "item":  [
-                                  {
-                                      "name":  "Get",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/file/health",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "file",
-                                                                               "health"
-                                                                           ]
-                                                              },
-                                                      "description":  "Get",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  },
-                                  {
-                                      "name":  "AuthCheck",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/file/health/auth-check",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "file",
-                                                                               "health",
-                                                                               "auth-check"
-                                                                           ]
-                                                              },
-                                                      "description":  "Development helper: validates the Bearer token and returns the validation error, if any.",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  }
-                              ]
-                 },
-                 {
                      "description":  "TenantStorageController - tenant",
                      "name":  "TenantStorageController",
                      "item":  [
@@ -1113,7 +1009,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"tenantId\": 4,\r\n  \"existingBucketName\": null,\r\n  \"companyNumbers\": [1]\r\n}",
+                                                                   "raw":  "{\n  \"tenantId\": 4,\n  \"existingBucketName\": null,\n  \"companyNumbers\": [1]\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1139,7 +1035,7 @@
                  "description":  "Tenant S3 provisioning and attachment management via {{gatewayUrl}}/api/v1/attachment and /api/v1/tenant/{id}/bucket. Upload scenarios include general + logo variants.",
                  "name":  "FGS FileService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "4d0115bd-a650-4af4-8c14-16b2ab71e584"
+                 "_postman_id":  "8104a2e7-24d4-4f9d-8ca1-63eac415e0b4"
              },
     "event":  [
                   {

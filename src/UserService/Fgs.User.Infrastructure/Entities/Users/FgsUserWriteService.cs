@@ -25,61 +25,79 @@ public sealed class FgsUserWriteService(
     IFgsUserRoleWriteService userRoleWriteService,
     IUserInvitationIssuer invitationIssuer) : IFgsUserWriteService
 {
-    public async Task<FgsUserDetailDto> InviteAsync(
-        FgsUserInviteDto dto,
+    public Task<IReadOnlyList<FgsUserDetailDto>> InviteAsync(
+        IReadOnlyList<FgsUserInviteDto> invites,
         CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
-        _ = await roleReadRepository.GetByIdAsync(dto.RoleId, cancellationToken)
-            ?? throw new KeyNotFoundException($"Role '{dto.RoleId}' was not found.");
-
-        var now = DateTimeOffset.UtcNow;
-        var actor = ResolveActor();
-        var userId = Guid.NewGuid();
-
-        var entity = new FgsUser
+        ArgumentNullException.ThrowIfNull(invites);
+        if (invites.Count == 0)
         {
-            Id = userId,
-            TenantId = tenantId,
-            CompanyId = companyId,
-            Email = dto.Email.Trim(),
-            DisplayName = dto.DisplayName.Trim(),
-            PhoneNumber = TrimOrNull(dto.PhoneNumber),
-            AuthenticationMethod = AuthenticationMethod.PasswordOrEmailOtp,
-            IsActive = true,
-            CreatedOn = now,
-            CreatedBy = actor
-        };
-
-        await context.FgsUsers.AddAsync(entity, cancellationToken);
-        try
-        {
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateException ex) when (IsUniqueViolation(ex))
-        {
-            throw new InvalidOperationException(
-                "A user with this email already exists for this tenant and company.",
-                ex);
+            throw new ArgumentException("At least one invite is required.", nameof(invites));
         }
 
-        await userRoleWriteService.CreateAsync(new FgsUserRoleCreateDto(userId, dto.RoleId), cancellationToken);
+        return unitOfWork.ExecuteInTransactionAsync(
+            async ct =>
+            {
+                var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+                var now = DateTimeOffset.UtcNow;
+                var actor = ResolveActor();
+                var companyName = await ResolveCompanyNameAsync(companyId, ct);
+                var results = new List<FgsUserDetailDto>(invites.Count);
 
-        await invitationIssuer.IssueAsync(
-            new IssueInvitationRequest(
-                userId,
-                tenantId,
-                companyId,
-                entity.Email,
-                entity.DisplayName,
-                InvitationEmailKind.UserInvited,
-                CreatedBy: actor,
-                UtcNow: now,
-                CompanyName: await ResolveCompanyNameAsync(companyId, cancellationToken)),
+                foreach (var dto in invites)
+                {
+                    _ = await roleReadRepository.GetByIdAsync(dto.RoleId, ct)
+                        ?? throw new KeyNotFoundException($"Role '{dto.RoleId}' was not found.");
+
+                    var userId = Guid.NewGuid();
+                    var entity = new FgsUser
+                    {
+                        Id = userId,
+                        TenantId = tenantId,
+                        CompanyId = companyId,
+                        Email = dto.Email.Trim(),
+                        DisplayName = dto.DisplayName.Trim(),
+                        PhoneNumber = TrimOrNull(dto.PhoneNumber),
+                        AuthenticationMethod = dto.AuthenticationMethod,
+                        IsActive = true,
+                        CreatedOn = now,
+                        CreatedBy = actor
+                    };
+
+                    await context.FgsUsers.AddAsync(entity, ct);
+                    try
+                    {
+                        await unitOfWork.SaveChangesAsync(ct);
+                    }
+                    catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+                    {
+                        throw new InvalidOperationException(
+                            "A user with this email already exists for this tenant and company.",
+                            ex);
+                    }
+
+                    await userRoleWriteService.CreateAsync(new FgsUserRoleCreateDto(userId, dto.RoleId), ct);
+
+                    await invitationIssuer.IssueAsync(
+                        new IssueInvitationRequest(
+                            userId,
+                            tenantId,
+                            companyId,
+                            entity.Email,
+                            entity.DisplayName,
+                            InvitationEmailKind.UserInvited,
+                            CreatedBy: actor,
+                            UtcNow: now,
+                            CompanyName: companyName),
+                        ct);
+                    await unitOfWork.SaveChangesAsync(ct);
+
+                    results.Add((await readRepository.GetByIdAsync(userId, ct))!);
+                }
+
+                return (IReadOnlyList<FgsUserDetailDto>)results;
+            },
             cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return (await readRepository.GetByIdAsync(userId, cancellationToken))!;
     }
 
     public async Task<FgsUserDetailDto> UpdateAsync(

@@ -19,6 +19,10 @@ public sealed class CreateFgsEmployeeCommandValidator : AbstractValidator<Create
         When(x => x.Dto is not null, () =>
         {
             RuleFor(x => x.Dto.EmployeeNumber).NotEmpty().MaximumLength(50);
+            RuleFor(x => x.Dto.EmployeeNumber)
+                .Matches(@"^[A-Za-z0-9_-]+$")
+                .When(x => !string.IsNullOrWhiteSpace(x.Dto.EmployeeNumber))
+                .WithMessage("Employee number cannot contain special characters.");
             RuleFor(x => x.Dto.EmployeeNumber).MustAsync(async (_, employeeNumber, cancellationToken) =>
                     string.IsNullOrWhiteSpace(employeeNumber)
                     || !await readRepository.ExistsByEmployeeNumberAsync(employeeNumber, null, cancellationToken))
@@ -51,8 +55,6 @@ public sealed class CreateFgsEmployeeCommandValidator : AbstractValidator<Create
                 .WithMessage("LaborBurdenTypeId must be Percentage (1) or Amount (2).");
 
             RuleFor(x => x.Dto.RegularRate).GreaterThanOrEqualTo(0).When(x => x.Dto.RegularRate.HasValue);
-            RuleFor(x => x.Dto.OvertimeRate).GreaterThanOrEqualTo(0).When(x => x.Dto.OvertimeRate.HasValue);
-            RuleFor(x => x.Dto.DoubleTimeRate).GreaterThanOrEqualTo(0).When(x => x.Dto.DoubleTimeRate.HasValue);
             RuleFor(x => x.Dto.LaborBurdenValue).GreaterThanOrEqualTo(0).When(x => x.Dto.LaborBurdenValue.HasValue);
 
             RuleFor(x => x.Dto.UserId)
@@ -80,6 +82,10 @@ public sealed class UpdateFgsEmployeeCommandValidator : AbstractValidator<Update
         When(x => x.Dto is not null, () =>
         {
             RuleFor(x => x.Dto.EmployeeNumber).NotEmpty().MaximumLength(50);
+            RuleFor(x => x.Dto.EmployeeNumber)
+                .Matches(@"^[A-Za-z0-9_-]+$")
+                .When(x => !string.IsNullOrWhiteSpace(x.Dto.EmployeeNumber))
+                .WithMessage("Employee number cannot contain special characters.");
             RuleFor(x => x.Dto.EmployeeNumber).MustAsync(async (command, employeeNumber, cancellationToken) =>
                     string.IsNullOrWhiteSpace(employeeNumber)
                     || !await readRepository.ExistsByEmployeeNumberAsync(employeeNumber, command.Id, cancellationToken))
@@ -141,6 +147,10 @@ public sealed class PatchFgsEmployeeCommandValidator : AbstractValidator<PatchFg
         When(x => x.Dto is not null, () =>
         {
             RuleFor(x => x.Dto.EmployeeNumber).NotEmpty().MaximumLength(50).When(x => x.Dto.EmployeeNumber is not null);
+            RuleFor(x => x.Dto.EmployeeNumber)
+                .Matches(@"^[A-Za-z0-9_-]+$")
+                .When(x => !string.IsNullOrWhiteSpace(x.Dto.EmployeeNumber))
+                .WithMessage("Employee number cannot contain special characters.");
             RuleFor(x => x.Dto.EmployeeNumber).MustAsync(async (command, employeeNumber, cancellationToken) =>
                     employeeNumber is null
                     || string.IsNullOrWhiteSpace(employeeNumber)

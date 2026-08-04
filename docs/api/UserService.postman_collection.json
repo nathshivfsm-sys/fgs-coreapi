@@ -34,7 +34,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"contact\": { \"name\": \"Admin User\", \"phoneNumber\": \"+15551234567\", \"email\": \"{{signupEmail}}\" },\r\n  \"company\": {\r\n    \"name\": \"Acme Field Services\",\r\n    \"website\": \"https://acme.example.com\",\r\n    \"companySize\": \"11-50\",\r\n    \"address\": { \"addressLine1\": \"100 Main St\", \"city\": \"Austin\", \"state\": \"TX\", \"postalCode\": \"78701\", \"country\": \"US\" }\r\n  },\r\n  \"businessTypeIds\": [1],\r\n  \"authenticationMethod\": 2\r\n}",
+                                                                   "raw":  "{\n  \"contact\": { \"name\": \"Admin User\", \"phoneNumber\": \"+15551234567\", \"email\": \"{{signupEmail}}\" },\n  \"company\": {\n    \"name\": \"Acme Field Services\",\n    \"website\": \"https://acme.example.com\",\n    \"companySize\": \"11-50\",\n    \"address\": { \"addressLine1\": \"100 Main St\", \"city\": \"Austin\", \"state\": \"TX\", \"postalCode\": \"78701\", \"country\": \"US\" }\n  },\n  \"businessTypeIds\": [1],\n  \"authenticationMethod\": 2\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -237,7 +237,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"email\": \"{{signupEmail}}\"\r\n}",
+                                                                   "raw":  "{\n  \"email\": \"{{signupEmail}}\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -355,12 +355,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiclient/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiclient/{{apiClientId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "apiclient",
-                                                                               "{{recordId}}"
+                                                                               "{{apiClientId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -577,7 +577,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"applicationName\": \"Sample Name\",\n  \"description\": \"Sample description\",\n  \"contactName\": \"Sample Name\",\n  \"contactEmail\": \"office@example.com\",\n  \"rateLimitPerMinute\": 1\n}",
+                                                                   "raw":  "{\n  \"applicationName\": \"Field Service Integration\",\n  \"description\": \"API client for field service integrations\",\n  \"contactName\": \"Ops Admin\",\n  \"contactEmail\": \"ops@example.com\",\n  \"rateLimitPerMinute\": 60\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -603,7 +603,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"apiClientId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -619,12 +619,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiclient/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiclient/{{apiClientId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "apiclient",
-                                                                               "{{recordId}}"
+                                                                               "{{apiClientId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -652,7 +652,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"applicationName\": \"Sample Name\",\n  \"description\": \"Sample description\",\n  \"contactName\": \"Sample Name\",\n  \"contactEmail\": \"office@example.com\",\n  \"rateLimitPerMinute\": 1\n}",
+                                                                   "raw":  "{\n  \"applicationName\": \"Field Service Integration\",\n  \"description\": \"API client for field service integrations\",\n  \"contactName\": \"Ops Admin\",\n  \"contactEmail\": \"ops@example.com\",\n  \"rateLimitPerMinute\": 60\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -679,12 +679,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiclient/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiclient/{{apiClientId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "apiclient",
-                                                                               "{{recordId}}"
+                                                                               "{{apiClientId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -712,7 +712,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"applicationName\": \"Updated sample\",\n  \"description\": \"Updated sample\",\n  \"contactName\": \"Updated sample\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"applicationName\": \"Updated Field Service Integration\",\n  \"description\": \"Updated Field Service Integration\",\n  \"contactName\": \"Updated Field Service Integration\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -746,12 +746,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/apievent/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/apievent/{{apiEventId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "apievent",
-                                                                               "{{recordId}}"
+                                                                               "{{apiEventId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -974,7 +974,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"eventCode\": \"EVENT\",\n  \"eventCategory\": \"CODE\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\",\n  \"eventVersion\": 1,\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"eventCode\": \"WO_CREATED\",\n  \"eventCategory\": \"WorkOrder\",\n  \"name\": \"Work Order Created\",\n  \"description\": \"Fired when a work order is created\",\n  \"eventVersion\": 1,\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1000,7 +1000,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"apiEventId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1016,12 +1016,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/apievent/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/apievent/{{apiEventId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "apievent",
-                                                                               "{{recordId}}"
+                                                                               "{{apiEventId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -1049,7 +1049,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"eventCode\": \"EVENT\",\n  \"eventCategory\": \"CODE\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\",\n  \"eventVersion\": 1,\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"eventCode\": \"WO_CREATED\",\n  \"eventCategory\": \"WorkOrder\",\n  \"name\": \"Work Order Created\",\n  \"description\": \"Fired when a work order is created\",\n  \"eventVersion\": 1,\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1076,12 +1076,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/apievent/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/apievent/{{apiEventId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "apievent",
-                                                                               "{{recordId}}"
+                                                                               "{{apiEventId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -1109,7 +1109,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated sample\",\n  \"description\": \"Updated sample\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Updated Work Order Created\",\n  \"description\": \"Updated Work Order Created\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1143,12 +1143,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/apisecret/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/apisecret/{{apiSecretId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "apisecret",
-                                                                               "{{recordId}}"
+                                                                               "{{apiSecretId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -1305,7 +1305,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"fgsApiClientId\": {{recordId}},\n  \"name\": \"Sample Name\",\n  \"expiresOn\": null\n}",
+                                                                   "raw":  "{\n  \"fgsApiClientId\": {{fgsApiClientId}},\n  \"name\": \"Primary Secret\",\n  \"expiresOn\": null\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1331,7 +1331,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"apiSecretId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1347,12 +1347,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/apisecret/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/apisecret/{{apiSecretId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "apisecret",
-                                                                               "{{recordId}}"
+                                                                               "{{apiSecretId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -1380,7 +1380,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated sample\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Updated Primary Secret\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1407,12 +1407,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/apisecret/{{recordId}}/revoke",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/apisecret/{{apiSecretId}}/revoke",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "apisecret",
-                                                                               "{{recordId}}",
+                                                                               "{{apiSecretId}}",
                                                                                "revoke"
                                                                            ]
                                                               },
@@ -1475,12 +1475,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiwebhook/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiwebhook/{{apiWebhookId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "apiwebhook",
-                                                                               "{{recordId}}"
+                                                                               "{{apiWebhookId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -1697,7 +1697,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\",\n  \"endpointUrl\": \"https://example.com\",\n  \"authenticationType\": \"CODE\",\n  \"authenticationValue\": null,\n  \"secret\": null,\n  \"timeoutSeconds\": 1,\n  \"maximumRetryCount\": 1\n}",
+                                                                   "raw":  "{\n  \"name\": \"Work Order Webhook\",\n  \"description\": \"Webhook for work order events\",\n  \"endpointUrl\": \"https://hooks.example.com/fgs/workorders\",\n  \"authenticationType\": \"None\",\n  \"authenticationValue\": null,\n  \"secret\": null,\n  \"timeoutSeconds\": 30,\n  \"maximumRetryCount\": 3\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1723,7 +1723,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"apiWebhookId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1739,12 +1739,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiwebhook/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiwebhook/{{apiWebhookId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "apiwebhook",
-                                                                               "{{recordId}}"
+                                                                               "{{apiWebhookId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -1772,7 +1772,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\",\n  \"endpointUrl\": \"https://example.com\",\n  \"authenticationType\": \"CODE\",\n  \"authenticationValue\": null,\n  \"secret\": null,\n  \"timeoutSeconds\": 1,\n  \"maximumRetryCount\": 1\n}",
+                                                                   "raw":  "{\n  \"name\": \"Work Order Webhook\",\n  \"description\": \"Webhook for work order events\",\n  \"endpointUrl\": \"https://hooks.example.com/fgs/workorders\",\n  \"authenticationType\": \"None\",\n  \"authenticationValue\": null,\n  \"secret\": null,\n  \"timeoutSeconds\": 30,\n  \"maximumRetryCount\": 3\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1799,12 +1799,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiwebhook/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiwebhook/{{apiWebhookId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "apiwebhook",
-                                                                               "{{recordId}}"
+                                                                               "{{apiWebhookId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -1832,7 +1832,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated sample\",\n  \"description\": \"Updated sample\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Updated Work Order Webhook\",\n  \"description\": \"Updated Work Order Webhook\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1866,12 +1866,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiwebhooksubscription/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiwebhooksubscription/{{apiWebhookSubscriptionId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "apiwebhooksubscription",
-                                                                               "{{recordId}}"
+                                                                               "{{apiWebhookSubscriptionId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -2034,7 +2034,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"fgsApiWebhookId\": {{recordId}},\n  \"fgsApiEventId\": {{recordId}}\n}",
+                                                                   "raw":  "{\n  \"fgsApiWebhookId\": {{fgsApiWebhookId}},\n  \"fgsApiEventId\": {{fgsApiEventId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2060,7 +2060,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"apiWebhookSubscriptionId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -2077,12 +2077,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiwebhooksubscription/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/apiwebhooksubscription/{{apiWebhookSubscriptionId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "apiwebhooksubscription",
-                                                                               "{{recordId}}"
+                                                                               "{{apiWebhookSubscriptionId}}"
                                                                            ]
                                                               },
                                                       "description":  "Delete",
@@ -2395,12 +2395,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/dataaccess/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/dataaccess/{{dataAccessId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "dataaccess",
-                                                                               "{{recordId}}"
+                                                                               "{{dataAccessId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -2623,7 +2623,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"dataAccessCode\": \"DATAAC\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\",\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"dataAccessCode\": \"OWN_COMP\",\n  \"name\": \"Own Company\",\n  \"description\": \"Restrict access to the user company\",\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2649,7 +2649,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"dataAccessId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -2665,12 +2665,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/dataaccess/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/dataaccess/{{dataAccessId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "dataaccess",
-                                                                               "{{recordId}}"
+                                                                               "{{dataAccessId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -2698,7 +2698,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"dataAccessCode\": \"DATAAC\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\",\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"dataAccessCode\": \"OWN_COMP\",\n  \"name\": \"Own Company\",\n  \"description\": \"Restrict access to the user company\",\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2725,12 +2725,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/dataaccess/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/dataaccess/{{dataAccessId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "dataaccess",
-                                                                               "{{recordId}}"
+                                                                               "{{dataAccessId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -2758,7 +2758,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated sample\",\n  \"description\": \"Updated sample\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Updated Own Company\",\n  \"description\": \"Updated Own Company\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2792,12 +2792,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/dataaccessscope/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/dataaccessscope/{{dataAccessScopeId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "dataaccessscope",
-                                                                               "{{recordId}}"
+                                                                               "{{dataAccessScopeId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -2960,7 +2960,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"fgsDataAccessId\": {{recordId}},\n  \"scopeType\": \"CODE\",\n  \"operator\": \"sample\",\n  \"scopeValue\": null,\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"fgsDataAccessId\": {{fgsDataAccessId}},\n  \"scopeType\": \"Company\",\n  \"operator\": \"Equals\",\n  \"scopeValue\": \"OWN\",\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2986,7 +2986,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"dataAccessScopeId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3002,12 +3002,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/dataaccessscope/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/dataaccessscope/{{dataAccessScopeId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "dataaccessscope",
-                                                                               "{{recordId}}"
+                                                                               "{{dataAccessScopeId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -3035,7 +3035,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"scopeType\": \"CODE\",\n  \"operator\": \"sample\",\n  \"scopeValue\": null,\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"scopeType\": \"Company\",\n  \"operator\": \"Equals\",\n  \"scopeValue\": \"OWN\",\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3062,12 +3062,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/dataaccessscope/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/dataaccessscope/{{dataAccessScopeId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "dataaccessscope",
-                                                                               "{{recordId}}"
+                                                                               "{{dataAccessScopeId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -3249,12 +3249,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/permission/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/permission/{{permissionId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "permission",
-                                                                               "{{recordId}}"
+                                                                               "{{permissionId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -3483,7 +3483,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"permissionCode\": \"PERMIS\",\n  \"module\": \"sample\",\n  \"resource\": \"sample\",\n  \"action\": \"sample\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\",\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"permissionCode\": \"USER_VIEW\",\n  \"module\": \"Users\",\n  \"resource\": \"User\",\n  \"action\": \"View\",\n  \"name\": \"View Users\",\n  \"description\": \"Allows viewing user records\",\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3509,7 +3509,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"permissionId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3525,12 +3525,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/permission/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/permission/{{permissionId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "permission",
-                                                                               "{{recordId}}"
+                                                                               "{{permissionId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -3558,7 +3558,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"permissionCode\": \"PERMIS\",\n  \"module\": \"sample\",\n  \"resource\": \"sample\",\n  \"action\": \"sample\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\",\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"permissionCode\": \"USER_VIEW\",\n  \"module\": \"Users\",\n  \"resource\": \"User\",\n  \"action\": \"View\",\n  \"name\": \"View Users\",\n  \"description\": \"Allows viewing user records\",\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3585,12 +3585,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/permission/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/permission/{{permissionId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "permission",
-                                                                               "{{recordId}}"
+                                                                               "{{permissionId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -3618,7 +3618,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated sample\",\n  \"description\": \"Updated sample\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Updated View Users\",\n  \"description\": \"Updated View Users\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3652,12 +3652,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/publicendpoint/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/publicendpoint/{{publicEndpointId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "publicendpoint",
-                                                                               "{{recordId}}"
+                                                                               "{{publicEndpointId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -3874,7 +3874,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"endpointType\": \"CODE\",\n  \"environmentCode\": \"ENVIRO\",\n  \"baseUrl\": \"https://example.com\",\n  \"displayName\": \"Sample Display Name\"\n}",
+                                                                   "raw":  "{\n  \"endpointType\": \"API\",\n  \"environmentCode\": \"LOCAL\",\n  \"baseUrl\": \"https://developer.fsm.com\",\n  \"displayName\": \"Local API Gateway\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3900,7 +3900,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"publicEndpointId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3916,12 +3916,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/publicendpoint/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/publicendpoint/{{publicEndpointId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "publicendpoint",
-                                                                               "{{recordId}}"
+                                                                               "{{publicEndpointId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -3949,7 +3949,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"endpointType\": \"CODE\",\n  \"environmentCode\": \"ENVIRO\",\n  \"baseUrl\": \"https://example.com\",\n  \"displayName\": \"Sample Display Name\"\n}",
+                                                                   "raw":  "{\n  \"endpointType\": \"API\",\n  \"environmentCode\": \"LOCAL\",\n  \"baseUrl\": \"https://developer.fsm.com\",\n  \"displayName\": \"Local API Gateway\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3976,12 +3976,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/publicendpoint/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/publicendpoint/{{publicEndpointId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "publicendpoint",
-                                                                               "{{recordId}}"
+                                                                               "{{publicEndpointId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -4009,7 +4009,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"displayName\": \"Updated sample\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"displayName\": \"Updated Local API Gateway\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4043,12 +4043,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/role/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/role/{{roleId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "role",
-                                                                               "{{recordId}}"
+                                                                               "{{roleId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -4271,7 +4271,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"roleCode\": \"ROLE\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\",\n  \"parentRoleId\": null,\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"roleCode\": \"ADMIN\",\n  \"name\": \"Administrator\",\n  \"description\": \"Full administrative access role\",\n  \"parentRoleId\": null,\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4297,7 +4297,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"roleId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4313,12 +4313,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/role/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/role/{{roleId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "role",
-                                                                               "{{recordId}}"
+                                                                               "{{roleId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -4346,7 +4346,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"roleCode\": \"ROLE\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\",\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"roleCode\": \"ADMIN\",\n  \"name\": \"Administrator\",\n  \"description\": \"Full administrative access role\",\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4373,12 +4373,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/role/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/role/{{roleId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "role",
-                                                                               "{{recordId}}"
+                                                                               "{{roleId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -4406,7 +4406,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated sample\",\n  \"description\": \"Updated sample\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Updated Administrator\",\n  \"description\": \"Updated Administrator\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4440,12 +4440,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/roledataaccess/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/roledataaccess/{{roleDataAccessId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "roledataaccess",
-                                                                               "{{recordId}}"
+                                                                               "{{roleDataAccessId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -4608,7 +4608,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"fgsRoleId\": {{recordId}},\n  \"fgsDataAccessId\": {{recordId}}\n}",
+                                                                   "raw":  "{\n  \"fgsRoleId\": {{fgsRoleId}},\n  \"fgsDataAccessId\": {{fgsDataAccessId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4634,7 +4634,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"roleDataAccessId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4651,12 +4651,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/roledataaccess/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/roledataaccess/{{roleDataAccessId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "roledataaccess",
-                                                                               "{{recordId}}"
+                                                                               "{{roleDataAccessId}}"
                                                                            ]
                                                               },
                                                       "description":  "Delete",
@@ -4703,12 +4703,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/rolepermission/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/rolepermission/{{rolePermissionId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "rolepermission",
-                                                                               "{{recordId}}"
+                                                                               "{{rolePermissionId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -4871,7 +4871,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"fgsRoleId\": {{recordId}},\n  \"fgsPermissionId\": {{recordId}}\n}",
+                                                                   "raw":  "{\n  \"fgsRoleId\": {{fgsRoleId}},\n  \"fgsPermissionId\": {{fgsPermissionId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4897,7 +4897,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"rolePermissionId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4914,12 +4914,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/rolepermission/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/rolepermission/{{rolePermissionId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "rolepermission",
-                                                                               "{{recordId}}"
+                                                                               "{{rolePermissionId}}"
                                                                            ]
                                                               },
                                                       "description":  "Delete",
@@ -4940,6 +4940,344 @@
                                                                          "value":  "{{companyId}}"
                                                                      }
                                                                  ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "description":  "ServiceAccountsSetupController - serviceaccountssetup",
+                     "name":  "ServiceAccountsSetupController",
+                     "item":  [
+                                  {
+                                      "name":  "Get",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/serviceaccountssetup",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "serviceaccountssetup"
+                                                                           ]
+                                                              },
+                                                      "description":  "Get",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Update",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/serviceaccountssetup",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "serviceaccountssetup"
+                                                                           ]
+                                                              },
+                                                      "description":  "Update",
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"bankAccountId\": null,\n  \"accountsReceivableAccountId\": null,\n  \"revenueAccountId\": null,\n  \"discountAccountId\": null,\n  \"salesTaxPayableAccountId\": null,\n  \"inventoryAccountId\": null,\n  \"cOGSAccountId\": null,\n  \"undepositedFundsAccountId\": null,\n  \"processingFeeAccountId\": null,\n  \"accountsPayableAccountId\": null,\n  \"isActive\": true\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Patch",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/serviceaccountssetup",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "serviceaccountssetup"
+                                                                           ]
+                                                              },
+                                                      "description":  "Patch",
+                                                      "method":  "PATCH",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"isActive\": true\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "description":  "ServiceSetupController - servicesetup",
+                     "name":  "ServiceSetupController",
+                     "item":  [
+                                  {
+                                      "name":  "Get",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/servicesetup",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "servicesetup"
+                                                                           ]
+                                                              },
+                                                      "description":  "Get",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Update",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/servicesetup",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "servicesetup"
+                                                                           ]
+                                                              },
+                                                      "description":  "Update",
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"timeCardOptionId\": 2,\n  \"accountingIntegrationTypeId\": null,\n  \"useExternalTaxCalculationProvider\": true,\n  \"enableCallBookingWidget\": true,\n  \"enablePaymentWidget\": true,\n  \"enableCustomerPortal\": true,\n  \"enableRulesManagement\": true,\n  \"enableAutoArrive\": true,\n  \"workLocationRadiusForAutoArrive\": 100,\n  \"oTStartTime\": \"08:00:00\",\n  \"oTEndTime\": \"17:00:00\",\n  \"dTStartTime\": \"08:00:00\",\n  \"dTEndTime\": \"17:00:00\",\n  \"billHoursFromDispatchOrArrive\": \"Dispatch\",\n  \"sourceCodeRequiredOnWorkOrder\": true,\n  \"sourceCodeRequiredOnServiceLocation\": true,\n  \"billToStartNumber\": 1000,\n  \"pOStartNumber\": 1000,\n  \"quoteStartNumber\": 1000,\n  \"workOrderStartNumber\": 1000,\n  \"invoiceNumberPrefix\": \"INV\",\n  \"quoteNumberPrefix\": \"QTE\",\n  \"pONumberPrefix\": \"PO\",\n  \"workOrderNumberPrefix\": \"WO\",\n  \"invoiceBatchNumberFormat\": \"INV-{YYYY}-{####}\",\n  \"isActive\": true\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Patch",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/servicesetup",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "servicesetup"
+                                                                           ]
+                                                              },
+                                                      "description":  "Patch",
+                                                      "method":  "PATCH",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"isActive\": true\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
                                                       "auth":  {
                                                                    "bearer":  [
                                                                                   {
@@ -4988,7 +5326,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"contact\": { \"name\": \"Admin User\", \"phoneNumber\": \"+15551234567\", \"email\": \"{{signupEmail}}\" },\r\n  \"company\": {\r\n    \"name\": \"Acme Field Services\",\r\n    \"website\": \"https://acme.example.com\",\r\n    \"companySize\": \"11-50\",\r\n    \"address\": { \"addressLine1\": \"100 Main St\", \"city\": \"Austin\", \"state\": \"TX\", \"postalCode\": \"78701\", \"country\": \"US\" }\r\n  },\r\n  \"businessTypeIds\": [1],\r\n  \"authenticationMethod\": 2\r\n}",
+                                                                   "raw":  "{\n  \"contact\": { \"name\": \"Admin User\", \"phoneNumber\": \"+15551234567\", \"email\": \"{{signupEmail}}\" },\n  \"company\": {\n    \"name\": \"Acme Field Services\",\n    \"website\": \"https://acme.example.com\",\n    \"companySize\": \"11-50\",\n    \"address\": { \"addressLine1\": \"100 Main St\", \"city\": \"Austin\", \"state\": \"TX\", \"postalCode\": \"78701\", \"country\": \"US\" }\n  },\n  \"businessTypeIds\": [1],\n  \"authenticationMethod\": 2\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -5158,7 +5496,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"tenant\": {\r\n    \"name\": \"Plumbing Ltd\",\r\n    \"legalName\": \"Plumbing Ltd LLC\",\r\n    \"email\": \"admin@plumbing.example.com\",\r\n    \"phoneNumber\": \"+15551234567\",\r\n    \"website\": \"https://plumbing.example.com\",\r\n    \"timeZone\": \"America/Chicago\",\r\n    \"defaultCurrency\": \"USD\",\r\n    \"defaultLanguageId\": null\r\n  },\r\n  \"company\": {\r\n    \"name\": \"Plumbing Ltd\",\r\n    \"legalName\": \"Plumbing Ltd LLC\",\r\n    \"email\": \"office@plumbing.example.com\",\r\n    \"phoneNumber\": \"+15559876543\",\r\n    \"website\": \"https://plumbing.example.com\",\r\n    \"taxId\": \"12-3456789\",\r\n    \"companySize\": \"11-50\",\r\n    \"businessTypeId\": 1,\r\n    \"physicalAddress\": {\r\n      \"addressLine1\": \"100 Main St\",\r\n      \"city\": \"Dallas\",\r\n      \"state\": \"TX\",\r\n      \"postalCode\": \"75201\",\r\n      \"country\": \"US\"\r\n    },\r\n    \"billingAddress\": {\r\n      \"addressLine1\": \"100 Main St\",\r\n      \"city\": \"Dallas\",\r\n      \"state\": \"TX\",\r\n      \"postalCode\": \"75201\",\r\n      \"country\": \"US\"\r\n    }\r\n  }\r\n}",
+                                                                   "raw":  "{\n  \"tenant\": {\n    \"name\": \"Plumbing Ltd\",\n    \"legalName\": \"Plumbing Ltd LLC\",\n    \"email\": \"admin@plumbing.example.com\",\n    \"phoneNumber\": \"+15551234567\",\n    \"website\": \"https://plumbing.example.com\",\n    \"timeZone\": \"America/Chicago\",\n    \"defaultCurrency\": \"USD\",\n    \"defaultLanguageId\": null\n  },\n  \"company\": {\n    \"name\": \"Plumbing Ltd\",\n    \"legalName\": \"Plumbing Ltd LLC\",\n    \"email\": \"office@plumbing.example.com\",\n    \"phoneNumber\": \"+15559876543\",\n    \"website\": \"https://plumbing.example.com\",\n    \"taxId\": \"12-3456789\",\n    \"companySize\": \"11-50\",\n    \"businessTypeId\": 1,\n    \"physicalAddress\": {\n      \"addressLine1\": \"100 Main St\",\n      \"city\": \"Dallas\",\n      \"state\": \"TX\",\n      \"postalCode\": \"75201\",\n      \"country\": \"US\"\n    },\n    \"billingAddress\": {\n      \"addressLine1\": \"100 Main St\",\n      \"city\": \"Dallas\",\n      \"state\": \"TX\",\n      \"postalCode\": \"75201\",\n      \"country\": \"US\"\n    }\n  }\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -5280,12 +5618,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/user/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/user/{{userId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "user",
-                                                                               "{{recordId}}"
+                                                                               "{{userId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -5455,7 +5793,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"displayName\": \"Sample Display Name\",\n  \"email\": \"office@example.com\",\n  \"roleId\": {{recordId}}\n}",
+                                                                   "raw":  "[\n  {\n    \"displayName\": \"Office User\",\n    \"email\": \"office@example.com\",\n    \"phoneNumber\": \"+15551234567\",\n    \"roleId\": {{roleId}},\n    \"authenticationMethod\": 3\n  }\n]",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -5482,12 +5820,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/user/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/user/{{userId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "user",
-                                                                               "{{recordId}}"
+                                                                               "{{userId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -5515,7 +5853,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"displayName\": \"Sample Display Name\",\n  \"roleId\": {{recordId}},\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"displayName\": \"Office User\",\n  \"phoneNumber\": \"+15551234567\",\n  \"roleId\": {{roleId}},\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -5542,12 +5880,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/user/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/user/{{userId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "user",
-                                                                               "{{recordId}}"
+                                                                               "{{userId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -5575,7 +5913,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"displayName\": \"Updated sample\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"displayName\": \"Updated Office User\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -5602,12 +5940,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/user/{{recordId}}/resendinvite",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/user/{{userId}}/resendinvite",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "user",
-                                                                               "{{recordId}}",
+                                                                               "{{userId}}",
                                                                                "resendinvite"
                                                                            ]
                                                               },
@@ -5670,12 +6008,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/userrole/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/userrole/{{userRoleId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "userrole",
-                                                                               "{{recordId}}"
+                                                                               "{{userRoleId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -5838,7 +6176,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"userId\": \"11111111-1111-1111-1111-111111111111\",\n  \"fgsRoleId\": {{recordId}}\n}",
+                                                                   "raw":  "{\n  \"userId\": \"11111111-1111-1111-1111-111111111111\",\n  \"fgsRoleId\": {{fgsRoleId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -5864,7 +6202,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"userRoleId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -5881,12 +6219,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/userrole/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/userrole/{{userRoleId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "userrole",
-                                                                               "{{recordId}}"
+                                                                               "{{userRoleId}}"
                                                                            ]
                                                               },
                                                       "description":  "Delete",
@@ -5932,7 +6270,7 @@
                  "description":  "Company onboarding, UI login, Entra auth, active-user cache, dashboard, and tenant admin APIs via {{gatewayUrl}}.",
                  "name":  "FGS UserService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "ef91a858-5c59-47e5-8673-bbdf17008aaf"
+                 "_postman_id":  "dbf883a8-f5b8-4ffb-9d72-f2c8d6668eb3"
              },
     "event":  [
                   {

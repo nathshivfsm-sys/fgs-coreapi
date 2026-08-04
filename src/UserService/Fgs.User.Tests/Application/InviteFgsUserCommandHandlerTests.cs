@@ -53,19 +53,23 @@ public sealed class InviteFgsUserCommandHandlerTests
             NullLogger<InviteFgsUserCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new InviteFgsUserCommand(new FgsUserInviteDto("Jane Doe", "jane@example.com", null, roleId)),
+            new InviteFgsUserCommand([new FgsUserInviteDto("Jane Doe", "jane@example.com", null, roleId)]),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
-        response.Data!.Email.Should().Be("jane@example.com");
-        response.Data.DisplayName.Should().Be("Jane Doe");
-        response.Data.RoleId.Should().Be(roleId);
+        response.Data.Should().HaveCount(1);
+        response.Data![0].Email.Should().Be("jane@example.com");
+        response.Data[0].DisplayName.Should().Be("Jane Doe");
+        response.Data[0].RoleId.Should().Be(roleId);
 
         (await context.FgsUsers.CountAsync()).Should().Be(1);
         (await context.FgsUserRoles.CountAsync()).Should().Be(1);
         (await context.FgsInvitations.CountAsync()).Should().Be(1);
         (await context.TenantOutboxMessages.CountAsync()).Should().Be(1);
+
+        var user = await context.FgsUsers.SingleAsync();
+        user.AuthenticationMethod.Should().Be(AuthenticationMethod.PasswordOrEmailOtp);
 
         var outbox = await context.TenantOutboxMessages.SingleAsync();
         outbox.RoutingKey.Should().Be(IntegrationEventRoutingKeys.UserInvited);
@@ -75,6 +79,37 @@ public sealed class InviteFgsUserCommandHandlerTests
         evt.InviteUrl.Should().Contain("token=");
         evt.CompanyName.Should().Be("Acme Plumbing");
         evt.DisplayName.Should().Be("Jane Doe");
+    }
+
+    [Fact]
+    public async Task InviteHandler_Batch_CreatesMultipleUsersAndAppliesAuthenticationMethod()
+    {
+        await using var context = await CreateContextAsync();
+        var roleId = await SeedRoleAsync(context);
+        var (writeService, _) = CreateWriteService(context, roleId);
+
+        var handler = new InviteFgsUserCommandHandler(
+            writeService,
+            NullLogger<InviteFgsUserCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new InviteFgsUserCommand(
+            [
+                new FgsUserInviteDto("Jane Doe", "jane@example.com", null, roleId, AuthenticationMethod.Password),
+                new FgsUserInviteDto("John Doe", "john@example.com", null, roleId, AuthenticationMethod.EmailOtp)
+            ]),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data.Should().HaveCount(2);
+        (await context.FgsUsers.CountAsync()).Should().Be(2);
+        (await context.FgsInvitations.CountAsync()).Should().Be(2);
+        (await context.TenantOutboxMessages.CountAsync()).Should().Be(2);
+
+        var jane = await context.FgsUsers.SingleAsync(u => u.Email == "jane@example.com");
+        jane.AuthenticationMethod.Should().Be(AuthenticationMethod.Password);
+        var john = await context.FgsUsers.SingleAsync(u => u.Email == "john@example.com");
+        john.AuthenticationMethod.Should().Be(AuthenticationMethod.EmailOtp);
     }
 
     [Fact]
@@ -89,14 +124,14 @@ public sealed class InviteFgsUserCommandHandlerTests
             writeService,
             NullLogger<InviteFgsUserCommandHandler>.Instance);
         var created = await inviteHandler.Handle(
-            new InviteFgsUserCommand(new FgsUserInviteDto("Jane Doe", "jane@example.com", null, roleId)),
+            new InviteFgsUserCommand([new FgsUserInviteDto("Jane Doe", "jane@example.com", null, roleId)]),
             CancellationToken.None);
 
         var updateHandler = new UpdateFgsUserCommandHandler(
             writeService,
             NullLogger<UpdateFgsUserCommandHandler>.Instance);
         var updated = await updateHandler.Handle(
-            new UpdateFgsUserCommand(created.Data!.Id, new FgsUserUpdateDto("Jane Updated", null, otherRoleId, true)),
+            new UpdateFgsUserCommand(created.Data![0].Id, new FgsUserUpdateDto("Jane Updated", null, otherRoleId, true)),
             CancellationToken.None);
 
         updated.Success.Should().BeTrue();
@@ -104,7 +139,7 @@ public sealed class InviteFgsUserCommandHandlerTests
         updated.Data.RoleId.Should().Be(otherRoleId);
         (await context.FgsUserRoles.CountAsync()).Should().Be(1);
 
-        var detail = await readRepository.GetByIdAsync(created.Data.Id);
+        var detail = await readRepository.GetByIdAsync(created.Data[0].Id);
         detail!.RoleName.Should().Be("Dispatcher");
     }
 
@@ -119,7 +154,7 @@ public sealed class InviteFgsUserCommandHandlerTests
             writeService,
             NullLogger<InviteFgsUserCommandHandler>.Instance);
         var created = await inviteHandler.Handle(
-            new InviteFgsUserCommand(new FgsUserInviteDto("Jane Doe", "jane@example.com", null, roleId)),
+            new InviteFgsUserCommand([new FgsUserInviteDto("Jane Doe", "jane@example.com", null, roleId)]),
             CancellationToken.None);
 
         var firstInviteId = (await context.FgsInvitations.SingleAsync()).Id;
@@ -128,7 +163,7 @@ public sealed class InviteFgsUserCommandHandlerTests
             writeService,
             NullLogger<ResendFgsUserInviteCommandHandler>.Instance);
         var resent = await resendHandler.Handle(
-            new ResendFgsUserInviteCommand(created.Data!.Id),
+            new ResendFgsUserInviteCommand(created.Data![0].Id),
             CancellationToken.None);
 
         resent.Success.Should().BeTrue();

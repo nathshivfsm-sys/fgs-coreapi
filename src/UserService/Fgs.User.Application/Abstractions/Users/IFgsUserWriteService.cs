@@ -4,7 +4,9 @@ namespace Fgs.User.Application.Abstractions.Users;
 
 public interface IFgsUserWriteService
 {
-    Task<FgsUserDetailDto> InviteAsync(FgsUserInviteDto dto, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<FgsUserDetailDto>> InviteAsync(
+        IReadOnlyList<FgsUserInviteDto> invites,
+        CancellationToken cancellationToken = default);
 
     Task<FgsUserDetailDto> UpdateAsync(Guid id, FgsUserUpdateDto dto, CancellationToken cancellationToken = default);
 

@@ -126,8 +126,6 @@ public sealed class FgsEmployeeCommandHandlerTests
                 null),
             ProfilePhotoFileId: null,
             RegularRate: regularRate,
-            OvertimeRate: null,
-            DoubleTimeRate: null,
             LaborBurdenTypeId: LaborBurdenTypeIds.Percentage,
             LaborBurdenValue: 25m,
             IsPurchaser: false,

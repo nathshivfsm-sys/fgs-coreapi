@@ -1,3 +1,5 @@
+using Fgs.User.Domain.Enums;
+
 namespace Fgs.User.Application.Features.Users.Dtos;
 
 public sealed record FgsUserSummaryDto(
@@ -25,7 +27,8 @@ public sealed record FgsUserInviteDto(
     string DisplayName,
     string Email,
     string? PhoneNumber,
-    long RoleId);
+    long RoleId,
+    AuthenticationMethod AuthenticationMethod = AuthenticationMethod.PasswordOrEmailOtp);
 
 public sealed record FgsUserUpdateDto(
     string DisplayName,

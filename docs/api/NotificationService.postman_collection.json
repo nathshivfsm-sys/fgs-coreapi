@@ -1,58 +1,6 @@
 ﻿{
     "item":  [
                  {
-                     "description":  "HealthController - health",
-                     "name":  "HealthController",
-                     "item":  [
-                                  {
-                                      "name":  "Get",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/notification/health",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "notification",
-                                                                               "health"
-                                                                           ]
-                                                              },
-                                                      "description":  "Get",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  }
-                              ]
-                 },
-                 {
                      "description":  "Notification dispatch via {{gatewayUrl}}/api/v1/notification/dispatch. Separate requests per channel scenario.",
                      "name":  "NotificationController",
                      "item":  [
@@ -95,7 +43,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"tenantId\": {{tenantId}},\r\n  \"companyId\": {{companyId}},\r\n  \"channel\": \"Email\",\r\n  \"templateCode\": \"INVITE\",\r\n  \"recipient\": \"{{entraUserEmail}}\",\r\n  \"correlationId\": \"postman-email-001\",\r\n  \"tokens\": {\r\n    \"CompanyName\": \"Plumbing Ltd\",\r\n    \"InviteUrl\": \"https://developer.fsm.com/api/v1/invite/start?token=sample\"\r\n  }\r\n}",
+                                                                   "raw":  "{\n  \"tenantId\": {{tenantId}},\n  \"companyId\": {{companyId}},\n  \"channel\": \"Email\",\n  \"templateCode\": \"INVITE\",\n  \"recipient\": \"{{entraUserEmail}}\",\n  \"correlationId\": \"postman-email-001\",\n  \"tokens\": {\n    \"CompanyName\": \"Plumbing Ltd\",\n    \"InviteUrl\": \"https://developer.fsm.com/api/v1/invite/start?token={{inviteToken}}\"\n  }\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -156,7 +104,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"tenantId\": {{tenantId}},\r\n  \"companyId\": {{companyId}},\r\n  \"channel\": \"SMS\",\r\n  \"templateCode\": \"INVITE_SMS\",\r\n  \"recipient\": \"+15551234567\",\r\n  \"correlationId\": \"postman-sms-001\",\r\n  \"tokens\": {\r\n    \"CompanyName\": \"Plumbing Ltd\",\r\n    \"InviteUrl\": \"https://developer.fsm.com/api/v1/invite/start?token=sample\"\r\n  }\r\n}",
+                                                                   "raw":  "{\n  \"tenantId\": {{tenantId}},\n  \"companyId\": {{companyId}},\n  \"channel\": \"SMS\",\n  \"templateCode\": \"INVITE_SMS\",\n  \"recipient\": \"+15551234567\",\n  \"correlationId\": \"postman-sms-001\",\n  \"tokens\": {\n    \"CompanyName\": \"Plumbing Ltd\",\n    \"InviteUrl\": \"https://developer.fsm.com/api/v1/invite/start?token={{inviteToken}}\"\n  }\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -191,7 +139,7 @@
                  "description":  "Notification dispatch via {{gatewayUrl}}/api/v1/notification/...",
                  "name":  "FGS NotificationService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "6a5b5ae1-da9a-48e4-b5d5-d36ed2d1875f"
+                 "_postman_id":  "ff6ed747-ad49-438a-969a-9439dc203f18"
              },
     "event":  [
                   {

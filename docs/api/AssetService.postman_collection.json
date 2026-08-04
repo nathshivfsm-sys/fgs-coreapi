@@ -1,7 +1,7 @@
 ﻿{
     "item":  [
                  {
-                     "description":  "Asset attributes via {{gatewayUrl}}/api/v1/assetattribute. Create scenarios cover each valid inputType. Set recordId to an assetTypeId first. For DROPDOWN, create options next.",
+                     "description":  "Asset attributes via {{gatewayUrl}}/api/v1/assetattribute. Create scenarios cover each valid inputType. Set assetTypeId first (from AssetType Create). For DROPDOWN, create options next.",
                      "name":  "AssetAttributeController",
                      "item":  [
                                   {
@@ -12,12 +12,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute/{{assetAttributeId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetattribute",
-                                                                               "{{recordId}}"
+                                                                               "{{assetAttributeId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -240,7 +240,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"assetTypeId\": {{recordId}},\r\n  \"attributeCode\": \"ATTR_TEXT\",\r\n  \"attributeName\": \"TEXT Attribute\",\r\n  \"inputType\": \"TEXT\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": \"Sample text\",\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"attributeCode\": \"ATTR_TEXT\",\n  \"attributeName\": \"TEXT Attribute\",\n  \"inputType\": \"TEXT\",\n  \"defaultOptionId\": null,\n  \"defaultValueText\": \"Serial number\",\n  \"defaultValueInteger\": null,\n  \"defaultValueDecimal\": null,\n  \"defaultValueDate\": null,\n  \"defaultValueBoolean\": null,\n  \"isRequired\": false,\n  \"isSearchable\": true,\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -266,7 +266,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"assetAttributeId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -313,7 +313,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"assetTypeId\": {{recordId}},\r\n  \"attributeCode\": \"ATTR_TEXTAREA\",\r\n  \"attributeName\": \"TEXTAREA Attribute\",\r\n  \"inputType\": \"TEXTAREA\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": \"Longer sample text\",\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"attributeCode\": \"ATTR_TEXTAREA\",\n  \"attributeName\": \"TEXTAREA Attribute\",\n  \"inputType\": \"TEXTAREA\",\n  \"defaultOptionId\": null,\n  \"defaultValueText\": \"Installed on rooftop unit\",\n  \"defaultValueInteger\": null,\n  \"defaultValueDecimal\": null,\n  \"defaultValueDate\": null,\n  \"defaultValueBoolean\": null,\n  \"isRequired\": false,\n  \"isSearchable\": true,\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -339,7 +339,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"assetAttributeId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -386,7 +386,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"assetTypeId\": {{recordId}},\r\n  \"attributeCode\": \"ATTR_INTEGER\",\r\n  \"attributeName\": \"INTEGER Attribute\",\r\n  \"inputType\": \"INTEGER\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": 10,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"attributeCode\": \"ATTR_INTEGER\",\n  \"attributeName\": \"INTEGER Attribute\",\n  \"inputType\": \"INTEGER\",\n  \"defaultOptionId\": null,\n  \"defaultValueText\": null,\n  \"defaultValueInteger\": 10,\n  \"defaultValueDecimal\": null,\n  \"defaultValueDate\": null,\n  \"defaultValueBoolean\": null,\n  \"isRequired\": false,\n  \"isSearchable\": true,\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -412,7 +412,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"assetAttributeId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -459,7 +459,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"assetTypeId\": {{recordId}},\r\n  \"attributeCode\": \"ATTR_DECIMAL\",\r\n  \"attributeName\": \"DECIMAL Attribute\",\r\n  \"inputType\": \"DECIMAL\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": 12.50,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"attributeCode\": \"ATTR_DECIMAL\",\n  \"attributeName\": \"DECIMAL Attribute\",\n  \"inputType\": \"DECIMAL\",\n  \"defaultOptionId\": null,\n  \"defaultValueText\": null,\n  \"defaultValueInteger\": null,\n  \"defaultValueDecimal\": 12.50,\n  \"defaultValueDate\": null,\n  \"defaultValueBoolean\": null,\n  \"isRequired\": false,\n  \"isSearchable\": true,\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -485,7 +485,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"assetAttributeId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -532,7 +532,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"assetTypeId\": {{recordId}},\r\n  \"attributeCode\": \"ATTR_DATE\",\r\n  \"attributeName\": \"DATE Attribute\",\r\n  \"inputType\": \"DATE\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": \"2026-06-21\",\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"attributeCode\": \"ATTR_DATE\",\n  \"attributeName\": \"DATE Attribute\",\n  \"inputType\": \"DATE\",\n  \"defaultOptionId\": null,\n  \"defaultValueText\": null,\n  \"defaultValueInteger\": null,\n  \"defaultValueDecimal\": null,\n  \"defaultValueDate\": \"2026-06-21\",\n  \"defaultValueBoolean\": null,\n  \"isRequired\": false,\n  \"isSearchable\": true,\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -558,7 +558,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"assetAttributeId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -605,7 +605,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"assetTypeId\": {{recordId}},\r\n  \"attributeCode\": \"ATTR_BOOLEAN\",\r\n  \"attributeName\": \"BOOLEAN Attribute\",\r\n  \"inputType\": \"BOOLEAN\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": true,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"attributeCode\": \"ATTR_BOOLEAN\",\n  \"attributeName\": \"BOOLEAN Attribute\",\n  \"inputType\": \"BOOLEAN\",\n  \"defaultOptionId\": null,\n  \"defaultValueText\": null,\n  \"defaultValueInteger\": null,\n  \"defaultValueDecimal\": null,\n  \"defaultValueDate\": null,\n  \"defaultValueBoolean\": true,\n  \"isRequired\": false,\n  \"isSearchable\": true,\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -631,7 +631,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"assetAttributeId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -678,7 +678,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"assetTypeId\": {{recordId}},\r\n  \"attributeCode\": \"ATTR_DROPDOWN\",\r\n  \"attributeName\": \"DROPDOWN Attribute\",\r\n  \"inputType\": \"DROPDOWN\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"attributeCode\": \"ATTR_DROPDOWN\",\n  \"attributeName\": \"DROPDOWN Attribute\",\n  \"inputType\": \"DROPDOWN\",\n  \"defaultOptionId\": null,\n  \"defaultValueText\": null,\n  \"defaultValueInteger\": null,\n  \"defaultValueDecimal\": null,\n  \"defaultValueDate\": null,\n  \"defaultValueBoolean\": null,\n  \"isRequired\": false,\n  \"isSearchable\": true,\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -704,7 +704,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"assetAttributeId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -720,12 +720,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute/{{assetAttributeId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetattribute",
-                                                                               "{{recordId}}"
+                                                                               "{{assetAttributeId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -753,7 +753,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetTypeId\": {{recordId}},\n  \"attributeCode\": \"SERIAL\",\n  \"attributeName\": \"Sample Name\",\n  \"inputType\": \"TEXT\",\n  \"defaultOptionId\": null,\n  \"defaultValueText\": null,\n  \"defaultValueInteger\": 1,\n  \"defaultValueDecimal\": 0.00,\n  \"defaultValueDate\": \"2026-06-21\",\n  \"defaultValueBoolean\": true,\n  \"isRequired\": true,\n  \"isSearchable\": true,\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"attributeCode\": \"SERIAL\",\n  \"attributeName\": \"Serial Number\",\n  \"inputType\": \"TEXT\",\n  \"defaultOptionId\": null,\n  \"defaultValueText\": null,\n  \"defaultValueInteger\": 1,\n  \"defaultValueDecimal\": null,\n  \"defaultValueDate\": null,\n  \"defaultValueBoolean\": true,\n  \"isRequired\": true,\n  \"isSearchable\": true,\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -780,12 +780,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattribute/{{assetAttributeId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetattribute",
-                                                                               "{{recordId}}"
+                                                                               "{{assetAttributeId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -813,7 +813,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"attributeName\": \"Updated sample\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"attributeName\": \"Updated Serial Number\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -847,12 +847,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributeoption/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributeoption/{{assetAttributeOptionId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetattributeoption",
-                                                                               "{{recordId}}"
+                                                                               "{{assetAttributeOptionId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -1075,7 +1075,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetAttributeId\": {{recordId}},\n  \"optionCode\": \"OPTION\",\n  \"optionName\": \"Sample Name\",\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"assetAttributeId\": {{assetAttributeId}},\n  \"optionCode\": \"OPTION1\",\n  \"optionName\": \"Option 1\",\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1101,7 +1101,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"assetAttributeOptionId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1117,12 +1117,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributeoption/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributeoption/{{assetAttributeOptionId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetattributeoption",
-                                                                               "{{recordId}}"
+                                                                               "{{assetAttributeOptionId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -1150,7 +1150,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetAttributeId\": {{recordId}},\n  \"optionCode\": \"OPTION\",\n  \"optionName\": \"Sample Name\",\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"assetAttributeId\": {{assetAttributeId}},\n  \"optionCode\": \"OPTION1\",\n  \"optionName\": \"Option 1\",\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1177,12 +1177,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributeoption/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributeoption/{{assetAttributeOptionId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetattributeoption",
-                                                                               "{{recordId}}"
+                                                                               "{{assetAttributeOptionId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -1210,7 +1210,390 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"optionName\": \"Updated sample\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"optionName\": \"Updated Option 1\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "description":  "AssetAttributeValueController - assetattributevalue",
+                     "name":  "AssetAttributeValueController",
+                     "item":  [
+                                  {
+                                      "name":  "GetById",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributevalue/{{assetAttributeValueId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "assetattributevalue",
+                                                                               "{{assetAttributeValueId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetById",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "List",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "page",
+                                                                                    "description":  "Page number (1-based). Default: 1.",
+                                                                                    "value":  "{{page}}"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "pageSize",
+                                                                                    "description":  "Items per page (1-100). Default: 25.",
+                                                                                    "value":  "{{pageSize}}"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortBy",
+                                                                                    "description":  "Property to sort by (entity-specific). Optional.",
+                                                                                    "value":  "{{sortBy}}",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortDirection",
+                                                                                    "description":  "Sort direction: Asc or Desc. Default: Asc.",
+                                                                                    "value":  "{{sortDirection}}",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "search",
+                                                                                    "description":  "Free-text search across searchable fields. Optional.",
+                                                                                    "value":  "{{search}}",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "isActive",
+                                                                                    "description":  "Filter by active records. Default: true.",
+                                                                                    "value":  "true"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "assetId",
+                                                                                    "description":  "Optional assetId filter.",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "assetAttributeId",
+                                                                                    "description":  "Optional assetAttributeId filter.",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributevalue",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "assetattributevalue"
+                                                                           ]
+                                                              },
+                                                      "description":  "List",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Lookup",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributevalue/lookup",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "assetattributevalue",
+                                                                               "lookup"
+                                                                           ]
+                                                              },
+                                                      "description":  "Lookup",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributevalue",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "assetattributevalue"
+                                                                           ]
+                                                              },
+                                                      "description":  "Create",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"assetId\": {{assetId}},\n  \"assetAttributeId\": {{assetAttributeId}},\n  \"optionId\": null,\n  \"valueText\": null,\n  \"valueInteger\": 1,\n  \"valueDecimal\": null,\n  \"valueDate\": null,\n  \"valueBoolean\": true\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"assetAttributeValueId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "Update",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributevalue/{{assetAttributeValueId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "assetattributevalue",
+                                                                               "{{assetAttributeValueId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Update",
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"assetId\": {{assetId}},\n  \"assetAttributeId\": {{assetAttributeId}},\n  \"optionId\": null,\n  \"valueText\": null,\n  \"valueInteger\": 1,\n  \"valueDecimal\": null,\n  \"valueDate\": null,\n  \"valueBoolean\": true\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Patch",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetattributevalue/{{assetAttributeValueId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "assetattributevalue",
+                                                                               "{{assetAttributeValueId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Patch",
+                                                      "method":  "PATCH",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"assetId\": null,\n  \"assetAttributeId\": null\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1244,12 +1627,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/{{assetId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "asset",
-                                                                               "{{recordId}}"
+                                                                               "{{assetId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -1329,8 +1712,8 @@
                                                                                 },
                                                                                 {
                                                                                     "key":  "serviceLocationId",
-                                                                                    "description":  "Optional serviceLocationId filter.",
-                                                                                    "value":  "",
+                                                                                    "description":  "Optional service location filter (crm service location id).",
+                                                                                    "value":  "{{serviceLocationId}}",
                                                                                     "disabled":  true
                                                                                 },
                                                                                 {
@@ -1472,7 +1855,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetNumber\": \"sample\",\n  \"serviceLocationId\": {{recordId}},\n  \"assetTypeId\": null,\n  \"assetManufacturerId\": null,\n  \"assetModelId\": null,\n  \"assetDescription\": \"sample\",\n  \"customerAssetNumber\": null,\n  \"customerAssetName\": \"Sample Name\",\n  \"manufacturerName\": \"Sample Name\",\n  \"modelNumber\": null,\n  \"serialNumber\": null,\n  \"manufactureDate\": \"2026-06-21\",\n  \"installDate\": \"2026-06-21\",\n  \"installedWorkOrderId\": null,\n  \"isInstalledByCompany\": true,\n  \"assetStatusId\": {{recordId}}\n}",
+                                                                   "raw":  "{\n  \"assetNumber\": \"Primary Asset\",\n  \"serviceLocationId\": null,\n  \"unitNumber\": null,\n  \"assetTypeId\": null,\n  \"assetManufacturerId\": null,\n  \"assetModelId\": null,\n  \"assetDescription\": null,\n  \"customerAssetNumber\": null,\n  \"customerAssetName\": null,\n  \"manufacturerName\": null,\n  \"modelNumber\": null,\n  \"serialNumber\": null,\n  \"manufactureDate\": \"2024-03-15\",\n  \"installDate\": \"2024-03-15\",\n  \"installedWorkOrderId\": null,\n  \"isInstalledByCompany\": true,\n  \"isOurInstallation\": true,\n  \"assetStatusId\": {{assetStatusId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1498,7 +1881,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"assetId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1514,12 +1897,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/{{assetId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "asset",
-                                                                               "{{recordId}}"
+                                                                               "{{assetId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -1547,7 +1930,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetNumber\": \"sample\",\n  \"serviceLocationId\": {{recordId}},\n  \"assetTypeId\": null,\n  \"assetManufacturerId\": null,\n  \"assetModelId\": null,\n  \"assetDescription\": \"sample\",\n  \"customerAssetNumber\": null,\n  \"customerAssetName\": \"Sample Name\",\n  \"manufacturerName\": \"Sample Name\",\n  \"modelNumber\": null,\n  \"serialNumber\": null,\n  \"manufactureDate\": \"2026-06-21\",\n  \"installDate\": \"2026-06-21\",\n  \"installedWorkOrderId\": null,\n  \"isInstalledByCompany\": true,\n  \"assetStatusId\": {{recordId}}\n}",
+                                                                   "raw":  "{\n  \"assetNumber\": \"Primary Asset\",\n  \"serviceLocationId\": null,\n  \"unitNumber\": null,\n  \"assetTypeId\": null,\n  \"assetManufacturerId\": null,\n  \"assetModelId\": null,\n  \"assetDescription\": null,\n  \"customerAssetNumber\": null,\n  \"customerAssetName\": null,\n  \"manufacturerName\": null,\n  \"modelNumber\": null,\n  \"serialNumber\": null,\n  \"manufactureDate\": \"2024-03-15\",\n  \"installDate\": \"2024-03-15\",\n  \"installedWorkOrderId\": null,\n  \"isInstalledByCompany\": true,\n  \"isOurInstallation\": true,\n  \"assetStatusId\": {{assetStatusId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1574,12 +1957,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/{{assetId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "asset",
-                                                                               "{{recordId}}"
+                                                                               "{{assetId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -1607,7 +1990,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetDescription\": \"Updated sample\",\n  \"customerAssetName\": \"Updated sample\",\n  \"manufacturerName\": \"Updated sample\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"assetDescription\": \"Updated Primary Asset\",\n  \"customerAssetName\": \"Updated Primary Asset\",\n  \"manufacturerName\": \"Updated Primary Asset\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1641,12 +2024,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmanufacturer/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmanufacturer/{{assetManufacturerId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetmanufacturer",
-                                                                               "{{recordId}}"
+                                                                               "{{assetManufacturerId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -1863,7 +2246,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\"\n}",
+                                                                   "raw":  "{\n  \"code\": \"CARRIER\",\n  \"name\": \"Carrier\",\n  \"description\": \"HVAC equipment manufacturer\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1889,7 +2272,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"assetManufacturerId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1905,12 +2288,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmanufacturer/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmanufacturer/{{assetManufacturerId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetmanufacturer",
-                                                                               "{{recordId}}"
+                                                                               "{{assetManufacturerId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -1938,7 +2321,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\"\n}",
+                                                                   "raw":  "{\n  \"code\": \"CARRIER\",\n  \"name\": \"Carrier\",\n  \"description\": \"HVAC equipment manufacturer\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1965,12 +2348,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmanufacturer/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmanufacturer/{{assetManufacturerId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetmanufacturer",
-                                                                               "{{recordId}}"
+                                                                               "{{assetManufacturerId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -1998,7 +2381,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated sample\",\n  \"description\": \"Updated sample\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Updated Carrier\",\n  \"description\": \"Updated Carrier\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2032,12 +2415,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmodel/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmodel/{{assetModelId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetmodel",
-                                                                               "{{recordId}}"
+                                                                               "{{assetModelId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -2260,7 +2643,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetTypeId\": {{recordId}},\n  \"assetManufacturerId\": {{recordId}},\n  \"modelNumber\": \"sample\",\n  \"modelDescription\": \"sample\"\n}",
+                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"assetManufacturerId\": {{assetManufacturerId}},\n  \"modelNumber\": \"24ACC Comfort\",\n  \"modelDescription\": \"24ACC Comfort\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2286,7 +2669,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"assetModelId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -2302,12 +2685,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmodel/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmodel/{{assetModelId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetmodel",
-                                                                               "{{recordId}}"
+                                                                               "{{assetModelId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -2335,7 +2718,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetTypeId\": {{recordId}},\n  \"assetManufacturerId\": {{recordId}},\n  \"modelNumber\": \"sample\",\n  \"modelDescription\": \"sample\"\n}",
+                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"assetManufacturerId\": {{assetManufacturerId}},\n  \"modelNumber\": \"24ACC Comfort\",\n  \"modelDescription\": \"24ACC Comfort\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2362,12 +2745,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmodel/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetmodel/{{assetModelId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetmodel",
-                                                                               "{{recordId}}"
+                                                                               "{{assetModelId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -2395,7 +2778,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"modelDescription\": \"Updated sample\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"modelDescription\": \"Updated 24ACC Comfort\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2429,12 +2812,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetstatus/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetstatus/{{assetStatusId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetstatus",
-                                                                               "{{recordId}}"
+                                                                               "{{assetStatusId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -2651,7 +3034,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\"\n}",
+                                                                   "raw":  "{\n  \"code\": \"ACTIVE\",\n  \"name\": \"Active\",\n  \"description\": \"Asset is installed and active\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2677,7 +3060,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"assetStatusId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -2693,12 +3076,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetstatus/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetstatus/{{assetStatusId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetstatus",
-                                                                               "{{recordId}}"
+                                                                               "{{assetStatusId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -2726,7 +3109,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\"\n}",
+                                                                   "raw":  "{\n  \"code\": \"ACTIVE\",\n  \"name\": \"Active\",\n  \"description\": \"Asset is installed and active\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2753,12 +3136,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetstatus/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetstatus/{{assetStatusId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetstatus",
-                                                                               "{{recordId}}"
+                                                                               "{{assetStatusId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -2786,7 +3169,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated sample\",\n  \"description\": \"Updated sample\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Updated Active\",\n  \"description\": \"Updated Active\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2820,12 +3203,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assettype/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assettype/{{assetTypeId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assettype",
-                                                                               "{{recordId}}"
+                                                                               "{{assetTypeId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -3042,7 +3425,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\"\n}",
+                                                                   "raw":  "{\n  \"code\": \"HVAC\",\n  \"name\": \"HVAC Unit\",\n  \"description\": \"Heating and cooling asset type\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3068,7 +3451,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"assetTypeId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3084,12 +3467,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assettype/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assettype/{{assetTypeId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assettype",
-                                                                               "{{recordId}}"
+                                                                               "{{assetTypeId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -3117,7 +3500,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"code\": \"SAMPLE\",\n  \"name\": \"Sample Name\",\n  \"description\": \"Sample description\"\n}",
+                                                                   "raw":  "{\n  \"code\": \"HVAC\",\n  \"name\": \"HVAC Unit\",\n  \"description\": \"Heating and cooling asset type\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3144,12 +3527,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assettype/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assettype/{{assetTypeId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assettype",
-                                                                               "{{recordId}}"
+                                                                               "{{assetTypeId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -3177,7 +3560,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated sample\",\n  \"description\": \"Updated sample\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Updated HVAC Unit\",\n  \"description\": \"Updated HVAC Unit\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3211,12 +3594,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetwarranty/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetwarranty/{{assetWarrantyId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetwarranty",
-                                                                               "{{recordId}}"
+                                                                               "{{assetWarrantyId}}"
                                                                            ]
                                                               },
                                                       "description":  "GetById",
@@ -3425,7 +3808,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetId\": {{recordId}},\n  \"warrantyType\": \"OEM\",\n  \"warrantyProvider\": null,\n  \"warrantyNumber\": null,\n  \"registrationNumber\": null,\n  \"startDate\": \"2026-06-21\",\n  \"endDate\": \"2026-06-21\",\n  \"coverageDescription\": \"sample\"\n}",
+                                                                   "raw":  "{\n  \"assetId\": {{assetId}},\n  \"warrantyType\": \"OEM\",\n  \"warrantyProvider\": null,\n  \"warrantyNumber\": null,\n  \"registrationNumber\": null,\n  \"startDate\": \"2026-06-21\",\n  \"endDate\": \"2026-06-21\",\n  \"coverageDescription\": null\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3451,7 +3834,7 @@
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
                                                                                     "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"recordId\", String(body.data.id));",
+                                                                                    "  pm.environment.set(\"assetWarrantyId\", String(body.data.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3467,12 +3850,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetwarranty/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetwarranty/{{assetWarrantyId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetwarranty",
-                                                                               "{{recordId}}"
+                                                                               "{{assetWarrantyId}}"
                                                                            ]
                                                               },
                                                       "description":  "Update",
@@ -3500,7 +3883,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetId\": {{recordId}},\n  \"warrantyType\": \"OEM\",\n  \"warrantyProvider\": null,\n  \"warrantyNumber\": null,\n  \"registrationNumber\": null,\n  \"startDate\": \"2026-06-21\",\n  \"endDate\": \"2026-06-21\",\n  \"coverageDescription\": \"sample\"\n}",
+                                                                   "raw":  "{\n  \"assetId\": {{assetId}},\n  \"warrantyType\": \"OEM\",\n  \"warrantyProvider\": null,\n  \"warrantyNumber\": null,\n  \"registrationNumber\": null,\n  \"startDate\": \"2026-06-21\",\n  \"endDate\": \"2026-06-21\",\n  \"coverageDescription\": null\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3527,12 +3910,12 @@
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetwarranty/{{recordId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/assetwarranty/{{assetWarrantyId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "assetwarranty",
-                                                                               "{{recordId}}"
+                                                                               "{{assetWarrantyId}}"
                                                                            ]
                                                               },
                                                       "description":  "Patch",
@@ -3560,7 +3943,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"coverageDescription\": \"Updated sample\"\n}",
+                                                                   "raw":  "{\n  \"coverageDescription\": \"Updated OEM Warranty\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3568,58 +3951,6 @@
                                                                                },
                                                                    "mode":  "raw"
                                                                },
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  }
-                              ]
-                 },
-                 {
-                     "description":  "HealthController - health",
-                     "name":  "HealthController",
-                     "item":  [
-                                  {
-                                      "name":  "Get",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/asset/health",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "asset",
-                                                                               "health"
-                                                                           ]
-                                                              },
-                                                      "description":  "Get",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
                                                       "auth":  {
                                                                    "bearer":  [
                                                                                   {
@@ -3645,7 +3976,7 @@
                  "description":  "Asset catalog APIs via {{gatewayUrl}}/api/v1/{asset*}. Attribute Create scenarios cover each inputType.",
                  "name":  "FGS AssetService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "c2c22892-dbe0-453f-a96d-c398ca4f1b5d"
+                 "_postman_id":  "800bbacb-22f0-4927-b43b-b966c2707a4d"
              },
     "event":  [
                   {

@@ -144,10 +144,17 @@ function Get-ListFilterQueryItemsFromBlock {
     foreach ($m in $matches) {
         $name = $m.Groups[1].Value
         if ($skip.ContainsKey($name)) { continue }
+        $camel = ConvertTo-CamelCase $name
+        $value = ''
+        $description = "Optional $name filter."
+        if ($camel -eq 'serviceLocationId') {
+            $value = '{{serviceLocationId}}'
+            $description = 'Optional service location filter (crm service location id).'
+        }
         $items += @{
-            key = (ConvertTo-CamelCase $name)
-            value = ''
-            description = "Optional $name filter."
+            key = $camel
+            value = $value
+            description = $description
             disabled = $true
         }
     }
@@ -617,6 +624,7 @@ function Get-SampleJsonValue {
 
     # Domain enums serialized as numbers
     if ($baseType -eq 'TimeCardOption' -or $PropertyName -eq 'TimeCardOptionId') { return '2' }
+    if ($baseType -eq 'AuthenticationMethod' -or $PropertyName -eq 'AuthenticationMethod') { return '3' }
 
     switch ($baseType) {
         'bool' {
@@ -794,8 +802,12 @@ function Get-FromBodyDtoType {
     $length = [Math]::Min(1200, $Content.Length - $StartIndex)
     if ($length -le 0) { return $null }
     $snippet = $Content.Substring($StartIndex, $length)
-    if ($snippet -match '(?s)public\s+(?:async\s+)?(?:Task<[^>]+>|IActionResult|ActionResult(?:<[^>]+>)?)\s+' + [regex]::Escape($MethodName) + '\s*\(.*?\[FromBody\]\s+(\w+)') {
-        return $Matches[1]
+    $methodPattern = '(?s)public\s+(?:async\s+)?(?:Task<[^>]+>|IActionResult|ActionResult(?:<[^>]+>)?)\s+' + [regex]::Escape($MethodName) + '\s*\(.*?\[FromBody\]\s+'
+    if ($snippet -match ($methodPattern + 'IReadOnlyList\s*<\s*(\w+)\s*>')) {
+        return @{ DtoType = $Matches[1]; IsList = $true }
+    }
+    if ($snippet -match ($methodPattern + '(\w+)')) {
+        return @{ DtoType = $Matches[1]; IsList = $false }
     }
     return $null
 }
@@ -1172,11 +1184,19 @@ function Parse-ControllerFile {
         }
 
         if ($httpAttr -in @('Post','Put','Patch') -and ($body -eq '{}' -or [string]::IsNullOrWhiteSpace($body)) -and $null -ne $DtoRegistry) {
-            $dtoType = Get-FromBodyDtoType -Content $content -StartIndex $m.Index -MethodName $methodName
-            if ($dtoType) {
+            $dtoInfo = Get-FromBodyDtoType -Content $content -StartIndex $m.Index -MethodName $methodName
+            if ($dtoInfo) {
                 $entityStem = Get-EntityStemFromController $fileName
-                $generatedBody = Get-DtoSampleBody -DtoType $dtoType -Registry $DtoRegistry -MethodName $methodName -EntityStem $entityStem
-                if ($generatedBody) { $body = $generatedBody }
+                $generatedBody = Get-DtoSampleBody -DtoType $dtoInfo.DtoType -Registry $DtoRegistry -MethodName $methodName -EntityStem $entityStem
+                if ($generatedBody) {
+                    if ($dtoInfo.IsList) {
+                        $indented = ($generatedBody -split "`n" | ForEach-Object { "  $_" }) -join "`n"
+                        $body = "[`n$indented`n]"
+                    }
+                    else {
+                        $body = $generatedBody
+                    }
+                }
             }
         }
 

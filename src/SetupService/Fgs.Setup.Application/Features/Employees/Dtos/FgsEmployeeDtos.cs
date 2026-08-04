@@ -88,8 +88,6 @@ public sealed record FgsEmployeeCreateDto(
     LocationWriteDto Address,
     long? ProfilePhotoFileId,
     decimal? RegularRate,
-    decimal? OvertimeRate,
-    decimal? DoubleTimeRate,
     short? LaborBurdenTypeId,
     decimal? LaborBurdenValue,
     bool IsPurchaser = false,

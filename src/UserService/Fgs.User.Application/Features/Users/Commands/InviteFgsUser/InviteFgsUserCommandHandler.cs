@@ -9,14 +9,14 @@ namespace Fgs.User.Application.Features.Users.Commands.InviteFgsUser;
 public sealed class InviteFgsUserCommandHandler(
     IFgsUserWriteService writeService,
     ILogger<InviteFgsUserCommandHandler> logger)
-    : IRequestHandler<InviteFgsUserCommand, ApiResponse<FgsUserDetailDto>>
+    : IRequestHandler<InviteFgsUserCommand, ApiResponse<IReadOnlyList<FgsUserDetailDto>>>
 {
-    public async Task<ApiResponse<FgsUserDetailDto>> Handle(
+    public async Task<ApiResponse<IReadOnlyList<FgsUserDetailDto>>> Handle(
         InviteFgsUserCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await writeService.InviteAsync(request.Dto, cancellationToken);
-        logger.LogInformation("Invited user {UserId} with email {Email}", result.Id, result.Email);
-        return ApiResponse<FgsUserDetailDto>.Ok(result, ApiStatusCodes.Created);
+        var results = await writeService.InviteAsync(request.Invites, cancellationToken);
+        logger.LogInformation("Invited {Count} user(s)", results.Count);
+        return ApiResponse<IReadOnlyList<FgsUserDetailDto>>.Ok(results, ApiStatusCodes.Created);
     }
 }

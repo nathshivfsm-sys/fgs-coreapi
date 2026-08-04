@@ -2413,7 +2413,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"userId\": null,\n  \"employeeNumber\": \"EMP001\",\n  \"employeeTypeId\": 1,\n  \"displayName\": \"Alex Rivera\",\n  \"legalFirstName\": \"Alex\",\n  \"legalMiddleName\": null,\n  \"legalLastName\": \"Rivera\",\n  \"birthDate\": \"2024-03-15\",\n  \"hireDate\": \"2024-03-15\",\n  \"terminationDate\": null,\n  \"statusId\": 1,\n  \"personalEmail\": \"office@example.com\",\n  \"officeEmail\": \"office@example.com\",\n  \"personalPhone\": \"+15551234567\",\n  \"officePhone\": \"+15551234567\",\n  \"address\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": null,\n    \"addressLine4\": null,\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": null,\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": null,\n    \"latitude\": null,\n    \"longitude\": null,\n    \"placeId\": null\n  },\n  \"profilePhotoFileId\": null,\n  \"regularRate\": 45.00,\n  \"overtimeRate\": 45.00,\n  \"doubleTimeRate\": 45.00,\n  \"laborBurdenTypeId\": null,\n  \"laborBurdenValue\": null,\n  \"isPurchaser\": false,\n  \"notes\": \"Alex Rivera notes\"\n}",
+                                                                   "raw":  "{\n  \"userId\": null,\n  \"employeeNumber\": \"EMP001\",\n  \"employeeTypeId\": 1,\n  \"displayName\": \"Alex Rivera\",\n  \"legalFirstName\": \"Alex\",\n  \"legalMiddleName\": null,\n  \"legalLastName\": \"Rivera\",\n  \"birthDate\": \"2024-03-15\",\n  \"hireDate\": \"2024-03-15\",\n  \"terminationDate\": null,\n  \"statusId\": 1,\n  \"personalEmail\": \"office@example.com\",\n  \"officeEmail\": \"office@example.com\",\n  \"personalPhone\": \"+15551234567\",\n  \"officePhone\": \"+15551234567\",\n  \"address\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": null,\n    \"addressLine4\": null,\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": null,\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": null,\n    \"latitude\": null,\n    \"longitude\": null,\n    \"placeId\": null\n  },\n  \"profilePhotoFileId\": null,\n  \"regularRate\": 45.00,\n  \"laborBurdenTypeId\": null,\n  \"laborBurdenValue\": null,\n  \"isPurchaser\": false,\n  \"notes\": \"Alex Rivera notes\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -18889,7 +18889,7 @@
                  "description":  "Platform setup catalog APIs via {{gatewayUrl}}/api/v1/{catalog}. Multi-scenario Create requests for pricing matrix, credentials, vehicles, job types, communication templates, and billing categories.",
                  "name":  "FGS SetupService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "1b57ec98-d382-42ca-969d-4e6e522e3f7b"
+                 "_postman_id":  "d4605e95-b92d-48ff-a7ed-cc8f16d39f88"
              },
     "event":  [
                   {
