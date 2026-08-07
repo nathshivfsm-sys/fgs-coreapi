@@ -11,6 +11,8 @@ using Fgs.Setup.Application.Features.JobTypeCategories.Queries.ListJobTypeCatego
 using Fgs.Setup.Application.Features.JobTypeCategories.Queries.LookupJobTypeCategories;
 using Fgs.Setup.Application.Features.JobTypeCategories.Dtos;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
@@ -65,6 +67,7 @@ public sealed class JobTypeCategoryController(IMediator mediator) : ControllerBa
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<JobTypeCategoryDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -77,6 +80,7 @@ public sealed class JobTypeCategoryController(IMediator mediator) : ControllerBa
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<JobTypeCategoryDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -90,6 +94,7 @@ public sealed class JobTypeCategoryController(IMediator mediator) : ControllerBa
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<JobTypeCategoryDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

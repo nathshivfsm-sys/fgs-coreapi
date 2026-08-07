@@ -27,7 +27,11 @@ public sealed class AwsCredentialsOptions
         set => ApplicationSlug = value;
     }
 
-    public string DefaultVaultProvider { get; set; } = "AWS";
+    /// <summary>
+    /// Selects the optional external secret vault. Default <c>Database</c> keeps credentials in DB + KMS.
+    /// Set to <c>AwsSecretsManager</c> only when intentionally enabling Secrets Manager (Setup owns vault wiring).
+    /// </summary>
+    public string DefaultVaultProvider { get; set; } = "Database";
 
     public int CacheTtlSeconds { get; set; } = 300;
 

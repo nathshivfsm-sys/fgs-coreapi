@@ -11,6 +11,8 @@ using Fgs.Inventory.Application.Features.TruckStockTemplates.Queries.GetFgsTruck
 using Fgs.Inventory.Application.Features.TruckStockTemplates.Queries.ListTruckStockTemplates;
 using Fgs.Inventory.Application.Features.TruckStockTemplates.Queries.LookupTruckStockTemplates;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Inventory.API.Controllers;
@@ -65,6 +67,7 @@ public sealed class TruckStockTemplateController(IMediator mediator) : Controlle
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.InventoryItemCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsTruckStockTemplateDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -77,6 +80,7 @@ public sealed class TruckStockTemplateController(IMediator mediator) : Controlle
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.InventoryItemEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsTruckStockTemplateDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -90,6 +94,7 @@ public sealed class TruckStockTemplateController(IMediator mediator) : Controlle
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.InventoryItemEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsTruckStockTemplateDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

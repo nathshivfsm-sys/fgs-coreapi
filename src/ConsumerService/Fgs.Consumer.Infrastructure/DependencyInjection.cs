@@ -34,7 +34,7 @@ public static class DependencyInjection
 
         services.AddFgsSetupClient(configuration);
 
-        services.AddFgsRefitClient<INotificationDispatchClient>(
+        services.AddFgsInternalServiceRefitClient<INotificationDispatchClient>(
             configuration,
             "NotificationService:BaseUrl",
             "http://notification-service:5002");

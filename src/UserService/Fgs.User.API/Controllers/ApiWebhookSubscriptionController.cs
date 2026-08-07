@@ -9,6 +9,8 @@ using Fgs.User.Application.Features.ApiWebhookSubscriptions.Dtos;
 using Fgs.User.Application.Features.ApiWebhookSubscriptions.Queries.GetFgsApiWebhookSubscriptionById;
 using Fgs.User.Application.Features.ApiWebhookSubscriptions.Queries.ListFgsApiWebhookSubscriptions;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -43,6 +45,7 @@ public sealed class ApiWebhookSubscriptionController(IMediator mediator) : FgsAp
                 new FgsApiWebhookSubscriptionListFilters(fgsApiWebhookId, fgsApiEventId)),
             cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsApiWebhookSubscriptionDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -53,6 +56,7 @@ public sealed class ApiWebhookSubscriptionController(IMediator mediator) : FgsAp
         CreatedFromApiResponse(
             await Mediator.Send(new CreateFgsApiWebhookSubscriptionCommand(request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserDelete)]
     [HttpDelete("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

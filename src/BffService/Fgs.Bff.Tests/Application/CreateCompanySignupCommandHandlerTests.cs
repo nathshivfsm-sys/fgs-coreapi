@@ -26,6 +26,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
             .Setup(c => c.CreateCompanySignupAsync(It.IsAny<CompanySignupRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ApiResponse<CompanySignupResultDto>.Ok(identity, ApiStatusCodes.Created));
 
+        var tenantClient = new Mock<IUserTenantClient>();
         var setupClient = new Mock<ISetupClient>();
         setupClient
             .Setup(c => c.AddCompanyBusinessTypesAsync(
@@ -41,6 +42,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
 
         var handler = new CreateCompanySignupCommandHandler(
             userClient.Object,
+            tenantClient.Object,
             setupClient.Object,
             NullLogger<CreateCompanySignupCommandHandler>.Instance);
 
@@ -56,6 +58,9 @@ public sealed class CreateCompanySignupCommandHandlerTests
                     && r.BusinessTypeIds.SequenceEqual(new[] { 1, 2 })),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+        tenantClient.Verify(
+            c => c.UpdateStatusAsync(It.IsAny<long>(), It.IsAny<UpdateTenantStatusRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -68,9 +73,11 @@ public sealed class CreateCompanySignupCommandHandlerTests
                 ["email already used"],
                 ApiStatusCodes.Conflict));
 
+        var tenantClient = new Mock<IUserTenantClient>();
         var setupClient = new Mock<ISetupClient>();
         var handler = new CreateCompanySignupCommandHandler(
             userClient.Object,
+            tenantClient.Object,
             setupClient.Object,
             NullLogger<CreateCompanySignupCommandHandler>.Instance);
 
@@ -88,7 +95,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WhenSetupFails_ReturnsErrorWithIdentityContext()
+    public async Task Handle_WhenSetupFails_MarksTenantProvisioningFailed()
     {
         var identity = new CompanySignupResultDto(
             7, 1, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "https://x/invite", "TENANT");
@@ -97,6 +104,14 @@ public sealed class CreateCompanySignupCommandHandlerTests
         userClient
             .Setup(c => c.CreateCompanySignupAsync(It.IsAny<CompanySignupRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ApiResponse<CompanySignupResultDto>.Ok(identity, ApiStatusCodes.Created));
+
+        var tenantClient = new Mock<IUserTenantClient>();
+        tenantClient
+            .Setup(c => c.UpdateStatusAsync(
+                7,
+                It.Is<UpdateTenantStatusRequest>(r => r.FgsTenantStatusId == TenantStatusIds.ProvisioningFailed),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponse<object>.Ok(new object()));
 
         var setupClient = new Mock<ISetupClient>();
         setupClient
@@ -109,6 +124,7 @@ public sealed class CreateCompanySignupCommandHandlerTests
 
         var handler = new CreateCompanySignupCommandHandler(
             userClient.Object,
+            tenantClient.Object,
             setupClient.Object,
             NullLogger<CreateCompanySignupCommandHandler>.Instance);
 
@@ -117,6 +133,12 @@ public sealed class CreateCompanySignupCommandHandlerTests
         response.Success.Should().BeFalse();
         response.StatusCode.Should().Be(ApiStatusCodes.BadRequest);
         response.Errors.Should().Contain(e => e.Contains("tenantId=7", StringComparison.Ordinal));
+        tenantClient.Verify(
+            c => c.UpdateStatusAsync(
+                7,
+                It.Is<UpdateTenantStatusRequest>(r => r.FgsTenantStatusId == TenantStatusIds.ProvisioningFailed),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     private static CreateCompanySignupCommand ValidCommand() =>

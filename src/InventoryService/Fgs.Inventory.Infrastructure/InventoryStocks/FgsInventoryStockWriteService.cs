@@ -1,8 +1,12 @@
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.Inventory.Application.Abstractions.InventoryStocks;
+using Fgs.Inventory.Application.Abstractions.Time;
 using Fgs.Inventory.Application.Features.InventoryStocks.Dtos;
 using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Infrastructure.Common;
 using Fgs.Inventory.Infrastructure.Database;
+using Fgs.Messaging.Abstractions;
+using Fgs.Messaging.Outbox;
 using Fgs.Persistence.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,15 +17,21 @@ public sealed class FgsInventoryStockWriteService : IFgsInventoryStockWriteServi
     private readonly FgsInventoryDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly InventoryEntityAuditHelper _auditHelper;
+    private readonly IOutboxWriter _outboxWriter;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
     public FgsInventoryStockWriteService(
         FgsInventoryDbContext context,
         IUnitOfWork unitOfWork,
-        InventoryEntityAuditHelper auditHelper)
+        InventoryEntityAuditHelper auditHelper,
+        IOutboxWriter outboxWriter,
+        IDateTimeProvider dateTimeProvider)
     {
         _context = context;
         _unitOfWork = unitOfWork;
         _auditHelper = auditHelper;
+        _outboxWriter = outboxWriter;
+        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task<FgsInventoryStockDetailDto> CreateAsync(
@@ -31,6 +41,9 @@ public sealed class FgsInventoryStockWriteService : IFgsInventoryStockWriteServi
         var entity = MapCreate(dto);
         _auditHelper.StampForCreateStock(entity);
         await _context.FgsInventoryStocks.AddAsync(entity, cancellationToken);
+        // Identity Id is assigned on insert; enqueue after so aggregate/payload Ids are correct.
+        await SaveChangesAsync(cancellationToken);
+        await EnqueueStockChangedAsync(entity, "Created", cancellationToken);
         await SaveChangesAsync(cancellationToken);
         return MapToDetail(entity);
     }
@@ -45,6 +58,7 @@ public sealed class FgsInventoryStockWriteService : IFgsInventoryStockWriteServi
 
         ApplyMutableFields(entity, dto);
         _auditHelper.StampStockUpdated(entity);
+        await EnqueueStockChangedAsync(entity, "Updated", cancellationToken);
         await SaveChangesAsync(cancellationToken);
         return MapToDetail(entity);
     }
@@ -98,8 +112,33 @@ public sealed class FgsInventoryStockWriteService : IFgsInventoryStockWriteServi
         }
 
         _auditHelper.StampStockUpdated(entity);
+        await EnqueueStockChangedAsync(entity, "Patched", cancellationToken);
         await SaveChangesAsync(cancellationToken);
         return MapToDetail(entity);
+    }
+
+    private Task EnqueueStockChangedAsync(
+        FgsInventoryStock entity,
+        string changeKind,
+        CancellationToken cancellationToken)
+    {
+        var evt = new InventoryStockChangedEvent(
+            entity.TenantId,
+            entity.CompanyId,
+            entity.Id,
+            entity.InventoryItemId,
+            entity.QuantityOnHand,
+            entity.QuantityCommitted,
+            entity.QuantityAvailable,
+            entity.AverageCost,
+            entity.LastCost,
+            _dateTimeProvider.UtcNow,
+            changeKind);
+
+        return _outboxWriter.EnqueueInventoryStockChangedAsync(
+            evt,
+            correlationId: Guid.NewGuid(),
+            cancellationToken);
     }
 
     private async Task<FgsInventoryStock?> FindEntityAsync(long id, CancellationToken cancellationToken) =>

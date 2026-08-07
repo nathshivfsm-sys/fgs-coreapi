@@ -8,6 +8,8 @@ using Fgs.Inventory.Application.Features.InventoryTransactions.Dtos;
 using Fgs.Inventory.Application.Features.InventoryTransactions.Queries.GetFgsInventoryTransactionById;
 using Fgs.Inventory.Application.Features.InventoryTransactions.Queries.ListInventoryTransactions;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Inventory.API.Controllers;
@@ -51,6 +53,7 @@ public sealed class InventoryTransactionController(IMediator mediator) : Control
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.InventoryItemCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsInventoryTransactionDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

@@ -11,6 +11,8 @@ using Fgs.User.Application.Features.Permissions.Queries.GetFgsPermissionById;
 using Fgs.User.Application.Features.Permissions.Queries.ListFgsPermissions;
 using Fgs.User.Application.Features.Permissions.Queries.LookupFgsPermissions;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -56,6 +58,7 @@ public sealed class PermissionController(IMediator mediator) : FgsApiControllerB
         CancellationToken cancellationToken = default) =>
         FromApiResponse(await Mediator.Send(new LookupFgsPermissionsQuery(activeOnly), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsPermissionDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -65,6 +68,7 @@ public sealed class PermissionController(IMediator mediator) : FgsApiControllerB
         CancellationToken cancellationToken) =>
         CreatedFromApiResponse(await Mediator.Send(new CreateFgsPermissionCommand(request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsPermissionDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -75,6 +79,7 @@ public sealed class PermissionController(IMediator mediator) : FgsApiControllerB
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new UpdateFgsPermissionCommand(id, request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsPermissionDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

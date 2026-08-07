@@ -11,7 +11,9 @@ using Fgs.Inventory.Infrastructure.Common.Time;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Inventory.Infrastructure.InventoryLocations;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
@@ -100,7 +102,7 @@ public sealed class FgsInventoryLocationCommandHandlerTests
             .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options;
 
-        var context = new FgsInventoryDbContext(options);
+        var context = new FgsInventoryDbContext(options, new DesignTimeTenantContextAccessor());
         await context.Database.EnsureCreatedAsync();
         return context;
     }

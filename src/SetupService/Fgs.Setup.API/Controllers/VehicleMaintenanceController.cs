@@ -11,6 +11,8 @@ using Fgs.Setup.Application.Features.VehicleMaintenances.Queries.ListVehicleMain
 using Fgs.Setup.Application.Features.VehicleMaintenances.Queries.LookupVehicleMaintenances;
 using Fgs.Setup.Application.Features.VehicleMaintenances.Dtos;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
@@ -64,6 +66,7 @@ public sealed class VehicleMaintenanceController(IMediator mediator) : Controlle
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsVehicleMaintenanceDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -76,6 +79,7 @@ public sealed class VehicleMaintenanceController(IMediator mediator) : Controlle
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsVehicleMaintenanceDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -89,6 +93,7 @@ public sealed class VehicleMaintenanceController(IMediator mediator) : Controlle
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsVehicleMaintenanceDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

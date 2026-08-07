@@ -192,4 +192,45 @@ internal sealed class FgsRoleReadRepository(
                 new { TenantId = tenantId, CompanyId = companyId, RoleId = roleId },
                 cancellationToken: cancellationToken));
     }
+
+    public async Task<bool> HasOtherActiveUserWithRoleCodeAsync(
+        string roleCode,
+        Guid? excludeUserId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        const string sql = """
+            SELECT EXISTS(
+                SELECT 1
+                FROM identity."FgsUserRole" ur
+                INNER JOIN identity."FgsRole" r
+                    ON r."Id" = ur."FgsRoleId"
+                   AND r."TenantId" = ur."TenantId"
+                   AND r."CompanyId" = ur."CompanyId"
+                INNER JOIN identity."FgsUser" u
+                    ON u."Id" = ur."UserId"
+                   AND u."TenantId" = ur."TenantId"
+                   AND u."CompanyId" = ur."CompanyId"
+                WHERE ur."TenantId" = @TenantId
+                  AND ur."CompanyId" = @CompanyId
+                  AND r."RoleCode" = @RoleCode
+                  AND u."IsDeleted" = FALSE
+                  AND u."IsActive" = TRUE
+                  AND (@ExcludeUserId IS NULL OR ur."UserId" <> @ExcludeUserId)
+            )
+            """;
+
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    RoleCode = roleCode.Trim().ToUpperInvariant(),
+                    ExcludeUserId = excludeUserId
+                },
+                cancellationToken: cancellationToken));
+    }
 }

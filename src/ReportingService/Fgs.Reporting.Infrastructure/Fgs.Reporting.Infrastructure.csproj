@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Fgs.Reporting.Application\Fgs.Reporting.Application.csproj" />
     <ProjectReference Include="..\Fgs.Reporting.Domain\Fgs.Reporting.Domain.csproj" />
+    <ProjectReference Include="..\..\Shared\Persistence\Fgs.Persistence\Fgs.Persistence.csproj" />
     <ProjectReference Include="..\..\Shared\Security\Fgs.Security\Fgs.Security.csproj" />
     <ProjectReference Include="..\..\Shared\Credentials\Fgs.Credentials\Fgs.Credentials.csproj" />
   </ItemGroup>

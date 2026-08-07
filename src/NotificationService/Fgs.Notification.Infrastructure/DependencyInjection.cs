@@ -47,9 +47,14 @@ public static class DependencyInjection
             typeof(SendGridOptions));
 
         services.Configure<SendGridOptions>(configuration.GetSection(SendGridOptions.SectionName));
+        services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
+        services.Configure<TwilioOptions>(configuration.GetSection(TwilioOptions.SectionName));
+        services.Configure<FirebaseOptions>(configuration.GetSection(FirebaseOptions.SectionName));
         services.Configure<TenantProviderOptions>(configuration.GetSection(TenantProviderOptions.SectionName));
         services.Configure<NotificationFeatureFlagsOptions>(configuration.GetSection(NotificationFeatureFlagsOptions.SectionName));
         services.Configure<NotificationOptions>(configuration.GetSection(NotificationOptions.SectionName));
+
+        services.AddHttpClient(nameof(TwilioSmsProvider));
 
         services.AddDbContext<FgsNotificationDbContext>((sp, options) =>
         {
@@ -71,6 +76,8 @@ public static class DependencyInjection
                         "source_application", FgsDatabaseSchemas.Notification, nameTranslator: nullTranslator);
                 });
         });
+
+        services.AddFgsDbContextReadyCheck<FgsNotificationDbContext>();
 
         services.AddScoped<INotificationHistoryRepository, NotificationHistoryRepository>();
         services.AddScoped<IIdempotencyStore, IdempotencyStore>();

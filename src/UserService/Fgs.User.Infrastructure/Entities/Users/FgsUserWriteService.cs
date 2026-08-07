@@ -25,7 +25,7 @@ public sealed class FgsUserWriteService(
     IFgsUserRoleWriteService userRoleWriteService,
     IUserInvitationIssuer invitationIssuer) : IFgsUserWriteService
 {
-    public Task<IReadOnlyList<FgsUserDetailDto>> InviteAsync(
+    public async Task<IReadOnlyList<FgsUserDetailDto>> InviteAsync(
         IReadOnlyList<FgsUserInviteDto> invites,
         CancellationToken cancellationToken = default)
     {
@@ -35,14 +35,17 @@ public sealed class FgsUserWriteService(
             throw new ArgumentException("At least one invite is required.", nameof(invites));
         }
 
-        return unitOfWork.ExecuteInTransactionAsync(
+        // Persist inside the transaction, then load details after commit.
+        // Dapper reads use a separate connection and cannot see uncommitted EF rows,
+        // which previously produced 201 responses with data: [null].
+        var createdIds = await unitOfWork.ExecuteInTransactionAsync(
             async ct =>
             {
                 var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
                 var now = DateTimeOffset.UtcNow;
                 var actor = ResolveActor();
                 var companyName = await ResolveCompanyNameAsync(companyId, ct);
-                var results = new List<FgsUserDetailDto>(invites.Count);
+                var ids = new List<Guid>(invites.Count);
 
                 foreach (var dto in invites)
                 {
@@ -92,12 +95,22 @@ public sealed class FgsUserWriteService(
                         ct);
                     await unitOfWork.SaveChangesAsync(ct);
 
-                    results.Add((await readRepository.GetByIdAsync(userId, ct))!);
+                    ids.Add(userId);
                 }
 
-                return (IReadOnlyList<FgsUserDetailDto>)results;
+                return ids;
             },
             cancellationToken);
+
+        var results = new List<FgsUserDetailDto>(createdIds.Count);
+        foreach (var userId in createdIds)
+        {
+            var detail = await readRepository.GetByIdAsync(userId, cancellationToken)
+                ?? throw new InvalidOperationException($"User '{userId}' was created but could not be loaded.");
+            results.Add(detail);
+        }
+
+        return results;
     }
 
     public async Task<FgsUserDetailDto> UpdateAsync(
@@ -116,7 +129,7 @@ public sealed class FgsUserWriteService(
         await ReplaceRoleAsync(entity.Id, dto.RoleId, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return (await readRepository.GetByIdAsync(entity.Id, cancellationToken))!;
+        return await RequireDetailAsync(entity.Id, cancellationToken);
     }
 
     public async Task<FgsUserDetailDto> PatchAsync(
@@ -150,7 +163,7 @@ public sealed class FgsUserWriteService(
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return (await readRepository.GetByIdAsync(entity.Id, cancellationToken))!;
+        return await RequireDetailAsync(entity.Id, cancellationToken);
     }
 
     public async Task<FgsUserDetailDto> ResendInviteAsync(
@@ -185,8 +198,12 @@ public sealed class FgsUserWriteService(
             cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return (await readRepository.GetByIdAsync(entity.Id, cancellationToken))!;
+        return await RequireDetailAsync(entity.Id, cancellationToken);
     }
+
+    private async Task<FgsUserDetailDto> RequireDetailAsync(Guid userId, CancellationToken cancellationToken) =>
+        await readRepository.GetByIdAsync(userId, cancellationToken)
+        ?? throw new InvalidOperationException($"User '{userId}' could not be loaded after save.");
 
     private async Task<string> ResolveCompanyNameAsync(long companyId, CancellationToken cancellationToken)
     {

@@ -7,12 +7,27 @@ public static class InternalServiceAuthorization
 {
     public static bool IsAuthorized(string? providedKey, CredentialDistributionOptions options)
     {
-        if (string.IsNullOrWhiteSpace(options.InternalServiceKey))
+        if (string.IsNullOrWhiteSpace(providedKey))
         {
             return false;
         }
 
-        return string.Equals(providedKey, options.InternalServiceKey, StringComparison.Ordinal);
+        if (!string.IsNullOrWhiteSpace(options.InternalServiceKey)
+            && string.Equals(providedKey, options.InternalServiceKey, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        foreach (var key in options.AdditionalInternalServiceKeys)
+        {
+            if (!string.IsNullOrWhiteSpace(key)
+                && string.Equals(providedKey, key, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static bool IsAuthorizedOrUserAuthenticated(

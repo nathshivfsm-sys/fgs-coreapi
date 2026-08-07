@@ -1,0 +1,15 @@
+using Fgs.Foundation.Paging;
+
+namespace Fgs.Crm.Application.Common.CrmCrud;
+
+public sealed record CrmListQuery(
+    int Page = 1,
+    int PageSize = 25,
+    string? SortBy = null,
+    SortDirection SortDirection = SortDirection.Asc,
+    string? Search = null,
+    bool? IsActive = true)
+{
+    public PagedQuery ToPagedQuery() =>
+        new(Page, PageSize, SortBy, SortDirection, Search, IsActive);
+}

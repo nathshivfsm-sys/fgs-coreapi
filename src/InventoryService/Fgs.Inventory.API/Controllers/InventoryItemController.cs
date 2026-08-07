@@ -11,6 +11,8 @@ using Fgs.Inventory.Application.Features.InventoryItems.Queries.GetFgsInventoryI
 using Fgs.Inventory.Application.Features.InventoryItems.Queries.ListInventoryItems;
 using Fgs.Inventory.Application.Features.InventoryItems.Queries.LookupInventoryItems;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Inventory.API.Controllers;
@@ -66,6 +68,7 @@ public sealed class InventoryItemController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.InventoryItemCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsInventoryItemDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -78,6 +81,7 @@ public sealed class InventoryItemController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.InventoryItemEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsInventoryItemDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -91,6 +95,7 @@ public sealed class InventoryItemController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.InventoryItemEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsInventoryItemDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

@@ -12,7 +12,9 @@ using Fgs.Asset.Infrastructure.Common;
 using Fgs.Asset.Infrastructure.Common.Time;
 using Fgs.Asset.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Fgs.MultiTenancy.Persistence;
 using Moq;
 
 namespace Fgs.Asset.Tests.AssetModels;
@@ -119,7 +121,7 @@ public sealed class FgsAssetModelCommandHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options;
-        var context = new FgsAssetDbContext(options);
+        var context = new FgsAssetDbContext(options, new DesignTimeTenantContextAccessor());
         await context.Database.EnsureCreatedAsync();
         return context;
     }

@@ -10,7 +10,7 @@ public static class DependencyInjection
         this IServiceCollection services,
         ConfigurationManager configuration)
     {
-        services.AddFgsStandardInfrastructure(configuration, "fgs-communication-service", "DATABASE");
+        services.AddFgsStandardInfrastructure(configuration, "fgs-communication-service");
         return services;
     }
 }

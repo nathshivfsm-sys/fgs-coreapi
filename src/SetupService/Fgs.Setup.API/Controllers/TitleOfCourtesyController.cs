@@ -12,6 +12,8 @@ using Fgs.Setup.Application.Features.TitlesOfCourtesy.Queries.ListTitlesOfCourte
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Queries.LookupTitlesOfCourtesy;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
@@ -66,6 +68,7 @@ public sealed class TitleOfCourtesyController(IMediator mediator) : ControllerBa
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<TitleOfCourtesyDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -78,6 +81,7 @@ public sealed class TitleOfCourtesyController(IMediator mediator) : ControllerBa
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<TitleOfCourtesyDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -91,6 +95,7 @@ public sealed class TitleOfCourtesyController(IMediator mediator) : ControllerBa
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<TitleOfCourtesyDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

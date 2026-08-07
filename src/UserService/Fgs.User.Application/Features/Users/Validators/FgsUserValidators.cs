@@ -1,3 +1,4 @@
+using Fgs.Security.Constants;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Roles;
 using Fgs.User.Application.Abstractions.Security;
@@ -34,6 +35,30 @@ public sealed class InviteFgsUserCommandValidator : AbstractValidator<InviteFgsU
             .WithMessage("Duplicate email addresses are not allowed in the same invite request.")
             .When(x => x.Invites is { Count: > 0 });
 
+        RuleFor(x => x.Invites)
+            .MustAsync(async (invites, cancellationToken) =>
+            {
+                var tenantAdminInviteCount = 0;
+                foreach (var invite in invites)
+                {
+                    if (invite.RoleId <= 0)
+                    {
+                        continue;
+                    }
+
+                    var role = await roleReadRepository.GetByIdAsync(invite.RoleId, cancellationToken);
+                    if (role is not null
+                        && string.Equals(role.RoleCode, FgsRoleCodes.TenantAdmin, StringComparison.OrdinalIgnoreCase))
+                    {
+                        tenantAdminInviteCount++;
+                    }
+                }
+
+                return tenantAdminInviteCount <= 1;
+            })
+            .WithMessage("Only one tenant admin invite is allowed in a single request.")
+            .When(x => x.Invites is { Count: > 0 });
+
         RuleForEach(x => x.Invites).ChildRules(invite =>
         {
             invite.RuleFor(x => x.DisplayName).NotEmpty().MaximumLength(200);
@@ -53,6 +78,21 @@ public sealed class InviteFgsUserCommandValidator : AbstractValidator<InviteFgsU
             invite.RuleFor(x => x.RoleId).MustAsync(async (_, roleId, cancellationToken) =>
                     await roleReadRepository.GetByIdAsync(roleId, cancellationToken) is not null)
                 .WithMessage("The specified role was not found.");
+            invite.RuleFor(x => x.RoleId).MustAsync(async (_, roleId, cancellationToken) =>
+                {
+                    var role = await roleReadRepository.GetByIdAsync(roleId, cancellationToken);
+                    if (role is null
+                        || !string.Equals(role.RoleCode, FgsRoleCodes.TenantAdmin, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+
+                    return !await roleReadRepository.HasOtherActiveUserWithRoleCodeAsync(
+                        FgsRoleCodes.TenantAdmin,
+                        excludeUserId: null,
+                        cancellationToken);
+                })
+                .WithMessage("Only one tenant admin is allowed per company.");
         });
     }
 }
@@ -68,6 +108,21 @@ public sealed class UpdateFgsUserCommandValidator : AbstractValidator<UpdateFgsU
         RuleFor(x => x.Dto.RoleId).MustAsync(async (_, roleId, cancellationToken) =>
                 await roleReadRepository.GetByIdAsync(roleId, cancellationToken) is not null)
             .WithMessage("The specified role was not found.");
+        RuleFor(x => x).MustAsync(async (command, cancellationToken) =>
+            {
+                var role = await roleReadRepository.GetByIdAsync(command.Dto.RoleId, cancellationToken);
+                if (role is null
+                    || !string.Equals(role.RoleCode, FgsRoleCodes.TenantAdmin, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                return !await roleReadRepository.HasOtherActiveUserWithRoleCodeAsync(
+                    FgsRoleCodes.TenantAdmin,
+                    excludeUserId: command.Id,
+                    cancellationToken);
+            })
+            .WithMessage("Only one tenant admin is allowed per company.");
     }
 }
 
@@ -82,6 +137,27 @@ public sealed class PatchFgsUserCommandValidator : AbstractValidator<PatchFgsUse
         RuleFor(x => x.Dto.RoleId).MustAsync(async (_, roleId, cancellationToken) =>
                 await roleReadRepository.GetByIdAsync(roleId!.Value, cancellationToken) is not null)
             .WithMessage("The specified role was not found.")
+            .When(x => x.Dto.RoleId.HasValue);
+        RuleFor(x => x).MustAsync(async (command, cancellationToken) =>
+            {
+                if (!command.Dto.RoleId.HasValue)
+                {
+                    return true;
+                }
+
+                var role = await roleReadRepository.GetByIdAsync(command.Dto.RoleId.Value, cancellationToken);
+                if (role is null
+                    || !string.Equals(role.RoleCode, FgsRoleCodes.TenantAdmin, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                return !await roleReadRepository.HasOtherActiveUserWithRoleCodeAsync(
+                    FgsRoleCodes.TenantAdmin,
+                    excludeUserId: command.Id,
+                    cancellationToken);
+            })
+            .WithMessage("Only one tenant admin is allowed per company.")
             .When(x => x.Dto.RoleId.HasValue);
     }
 }

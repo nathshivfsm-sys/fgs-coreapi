@@ -6,6 +6,8 @@ using Fgs.User.Application.Features.ServiceSetups.Commands.UpdateFgsTenantServic
 using Fgs.User.Application.Features.ServiceSetups.Dtos;
 using Fgs.User.Application.Features.ServiceSetups.Queries.GetFgsTenantServiceSetup;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -24,6 +26,7 @@ public sealed class ServiceSetupController(IMediator mediator) : FgsApiControlle
     public async Task<IActionResult> Get(CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new GetFgsTenantServiceSetupQuery(), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPut]
     [ProducesResponseType(typeof(ApiResponse<FgsTenantServiceSetupDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -33,6 +36,7 @@ public sealed class ServiceSetupController(IMediator mediator) : FgsApiControlle
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new UpdateFgsTenantServiceSetupCommand(request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPatch]
     [ProducesResponseType(typeof(ApiResponse<FgsTenantServiceSetupDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

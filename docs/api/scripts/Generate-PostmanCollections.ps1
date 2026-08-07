@@ -259,16 +259,13 @@ function New-PostmanRequest {
 function Get-GatewayExternalPath {
     param([string]$ServiceKey, [string]$RouteTemplate)
 
-    # Most live APIs are mounted at /api/v1/{controllerRoute} with no service prefix.
-    # Only worker/scaffold services (and BFF) keep a service segment in the public path.
+    # Most live APIs are mounted at /api/v1/{controllerRoute} with no service prefix
+    # (matches nginx api-v1-routes.conf: customer, invoice, appointment, serviceagreement, …).
+    # Only BFF and worker/scaffold shells keep a service segment in the public path.
     $prefixedServices = @{
         'BffService' = 'bff'
-        'CrmService' = 'crm'
-        'SchedulingService' = 'scheduling'
-        'BillingService' = 'billing'
         'ReportingService' = 'reporting'
         'IntegrationService' = 'integration'
-        'ServiceAgreementService' = 'serviceagreements'
         'CommunicationService' = 'communication'
         'PublisherService' = 'publisher'
         'ConsumerService' = 'consumer'
@@ -2145,6 +2142,10 @@ $serviceConfigs = @(
     @{ Key = 'AuditService'; Path = 'src\AuditService\Fgs.Audit.API\Controllers'; Desc = 'Credential audit trail via {{gatewayUrl}}/api/v1/credentialaudit.'; AuthFlow = $false }
     @{ Key = 'AssetService'; Path = 'src\AssetService\Fgs.Asset.API\Controllers'; Desc = 'Asset catalog APIs via {{gatewayUrl}}/api/v1/{asset*}. Attribute Create scenarios cover each inputType.'; AuthFlow = $false }
     @{ Key = 'InventoryService'; Path = 'src\InventoryService\Fgs.Inventory.API\Controllers'; Desc = 'Inventory catalog and purchasing APIs via {{gatewayUrl}}/api/v1/{inventory-*|vendor|vendorinventoryitem|purchaseorder|truckstocktemplate}. Aggregates: inventoryitem (alternates/dependencies), purchaseorder (details), truckstocktemplate (items).'; AuthFlow = $false }
+    @{ Key = 'CrmService'; Path = 'src\CrmService\Fgs.Crm.API\Controllers'; Desc = 'CRM customer catalog via {{gatewayUrl}}/api/v1/customer.'; AuthFlow = $false }
+    @{ Key = 'BillingService'; Path = 'src\BillingService\Fgs.Billing.API\Controllers'; Desc = 'Billing invoice catalog via {{gatewayUrl}}/api/v1/invoice.'; AuthFlow = $false }
+    @{ Key = 'SchedulingService'; Path = 'src\SchedulingService\Fgs.Scheduling.API\Controllers'; Desc = 'Scheduling appointments via {{gatewayUrl}}/api/v1/appointment.'; AuthFlow = $false }
+    @{ Key = 'ServiceAgreementService'; Path = 'src\ServiceAgreementService\Fgs.ServiceAgreement.API\Controllers'; Desc = 'Service agreements via {{gatewayUrl}}/api/v1/serviceagreement.'; AuthFlow = $false }
 )
 
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
@@ -2211,13 +2212,9 @@ foreach ($svc in $serviceConfigs) {
 $staleCollections = @(
     'PublisherService'
     'ConsumerService'
-    'BillingService'
     'CommunicationService'
-    'CrmService'
     'IntegrationService'
     'ReportingService'
-    'SchedulingService'
-    'ServiceAgreementService'
 )
 foreach ($name in $staleCollections) {
     $stalePath = Join-Path $OutputDir "$name.postman_collection.json"

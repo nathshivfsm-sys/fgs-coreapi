@@ -9,6 +9,8 @@ using Fgs.User.Application.Features.RoleDataAccesses.Dtos;
 using Fgs.User.Application.Features.RoleDataAccesses.Queries.GetFgsRoleDataAccessById;
 using Fgs.User.Application.Features.RoleDataAccesses.Queries.ListFgsRoleDataAccesses;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -43,6 +45,7 @@ public sealed class RoleDataAccessController(IMediator mediator) : FgsApiControl
                 new FgsRoleDataAccessListFilters(fgsRoleId, fgsDataAccessId)),
             cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsRoleDataAccessDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -52,6 +55,7 @@ public sealed class RoleDataAccessController(IMediator mediator) : FgsApiControl
         CancellationToken cancellationToken) =>
         CreatedFromApiResponse(await Mediator.Send(new CreateFgsRoleDataAccessCommand(request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserDelete)]
     [HttpDelete("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

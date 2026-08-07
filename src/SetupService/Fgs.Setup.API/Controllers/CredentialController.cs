@@ -14,15 +14,17 @@ using Fgs.Setup.Application.Features.Credentials.Queries.ResolveCredentialSecret
 using Fgs.Setup.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
 
 /// <summary>
 /// Global and tenant credential management with AWS KMS envelope encryption.
+/// Admin CRUD requires JWT. Credential distribution (<c>resolved</c>) is S2S via internal service key.
 /// </summary>
-[AllowAnonymous]
-//[Authorize]
+[Authorize]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("credential")]
 [Produces("application/json")]
@@ -56,6 +58,7 @@ public sealed class CredentialController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<CredentialMutationResultDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -76,6 +79,7 @@ public sealed class CredentialController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ApiResponse<CredentialMutationResultDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update(
@@ -96,6 +100,7 @@ public sealed class CredentialController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupCreate)]
     [HttpPost("{id}/rotate")]
     [ProducesResponseType(typeof(ApiResponse<CredentialMutationResultDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Rotate(

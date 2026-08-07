@@ -26,7 +26,7 @@ public sealed class FgsInventoryDbContextDesignFactory : IDesignTimeDbContextFac
             })
             .Options;
 
-        return new FgsInventoryDbContext(options);
+        return new FgsInventoryDbContext(options, new Fgs.MultiTenancy.Persistence.DesignTimeTenantContextAccessor());
     }
 
     private static string? TryLoadConnectionStringFromApiAppsettings()

@@ -1,5 +1,6 @@
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
+using Fgs.Messaging.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
@@ -12,6 +13,7 @@ using Fgs.Inventory.Infrastructure.Common.Time;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Inventory.Infrastructure.PurchaseOrders;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -206,7 +208,30 @@ public sealed class FgsPurchaseOrderCommandHandlerTests
     private static FgsPurchaseOrderWriteService CreateWriteService(FgsInventoryDbContext context)
     {
         var (auditHelper, unitOfWork) = CreateAuditAndUow(context);
-        return new FgsPurchaseOrderWriteService(context, unitOfWork, auditHelper);
+        var outboxWriter = new Mock<IOutboxWriter>();
+        outboxWriter
+            .Setup(o => o.EnqueueAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<long?>(),
+                It.IsAny<long?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<long?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        return new FgsPurchaseOrderWriteService(
+            context,
+            unitOfWork,
+            auditHelper,
+            outboxWriter.Object,
+            new DateTimeProvider());
     }
 
     private static (InventoryEntityAuditHelper AuditHelper, EfUnitOfWork<FgsInventoryDbContext> UnitOfWork) CreateAuditAndUow(
@@ -237,7 +262,7 @@ public sealed class FgsPurchaseOrderCommandHandlerTests
             .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options;
 
-        var context = new FgsInventoryDbContext(options);
+        var context = new FgsInventoryDbContext(options, new DesignTimeTenantContextAccessor());
         await context.Database.EnsureCreatedAsync();
         return context;
     }

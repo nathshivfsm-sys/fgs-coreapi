@@ -1035,7 +1035,7 @@
                  "description":  "Tenant S3 provisioning and attachment management via {{gatewayUrl}}/api/v1/attachment and /api/v1/tenant/{id}/bucket. Upload scenarios include general + logo variants.",
                  "name":  "FGS FileService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "8104a2e7-24d4-4f9d-8ca1-63eac415e0b4"
+                 "_postman_id":  "5143c92e-a119-464f-8533-912868d5c392"
              },
     "event":  [
                   {

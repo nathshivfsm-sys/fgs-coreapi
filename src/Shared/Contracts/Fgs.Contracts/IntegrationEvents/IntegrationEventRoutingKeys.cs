@@ -23,6 +23,10 @@ public static class IntegrationEventRoutingKeys
 
     public const string CredentialAuditRequested = "audit.credential.requested";
 
+    public const string InventoryStockChanged = "inventory.InventoryStockChanged";
+
+    public const string PurchaseOrderStatusChanged = "inventory.PurchaseOrderStatusChanged";
+
     public static string ForEventType(string eventType, string? routingKeyPrefix = null) =>
         eventType switch
         {
@@ -34,6 +38,8 @@ public static class IntegrationEventRoutingKeys
             IntegrationEventTypes.CompanyCreated => CompanyCreated,
             IntegrationEventTypes.CredentialConfigurationChanged => CredentialConfigurationChanged,
             IntegrationEventTypes.CredentialAuditRequested => CredentialAuditRequested,
+            IntegrationEventTypes.InventoryStockChanged => InventoryStockChanged,
+            IntegrationEventTypes.PurchaseOrderStatusChanged => PurchaseOrderStatusChanged,
             _ => $"{routingKeyPrefix ?? Prefix}{eventType}"
         };
 }

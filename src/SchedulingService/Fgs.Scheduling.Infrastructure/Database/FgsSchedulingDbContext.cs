@@ -1,3 +1,5 @@
+using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Fgs.Scheduling.Domain.Entities;
 using Fgs.Scheduling.Infrastructure.Database.Configurations;
 using Fgs.Scheduling.Infrastructure.Database.Schemas;
@@ -5,9 +7,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Scheduling.Infrastructure.Database;
 
-public sealed class FgsSchedulingDbContext(DbContextOptions<FgsSchedulingDbContext> options) : DbContext(options)
+public sealed class FgsSchedulingDbContext : FgsTenantFilteredDbContext
 {
     public const string MigrationHistorySchema = FgsDatabaseSchemas.MigrationHistory;
+
+    public FgsSchedulingDbContext(
+        DbContextOptions<FgsSchedulingDbContext> options,
+        ITenantContextAccessor tenantContextAccessor)
+        : base(options, tenantContextAccessor)
+    {
+    }
 
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
     public DbSet<FgsWorkOrder> FgsWorkOrders => Set<FgsWorkOrder>();
@@ -28,5 +37,6 @@ public sealed class FgsSchedulingDbContext(DbContextOptions<FgsSchedulingDbConte
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsSchedulingDbContext).Assembly);
         FgsSchedulingDbContextConfigurationExtensions.ApplyTenantCompanyCacheForeignKeys(modelBuilder);
         FgsSchedulingDbContextConfigurationExtensions.ConfigureAuditActorColumns(modelBuilder);
+        ApplyFgsTenantQueryFilters(modelBuilder);
     }
 }

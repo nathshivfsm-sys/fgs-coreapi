@@ -1,7 +1,9 @@
 using Fgs.Persistence.Abstractions;
+using Fgs.Persistence.HealthChecks;
 using Fgs.Persistence.Implementations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Fgs.Persistence.Extensions;
 
@@ -42,4 +44,20 @@ public static class PersistenceServiceCollectionExtensions
         where TDbContext : DbContext
         where TUnitOfWork : class, IUnitOfWork =>
         services.AddFgsPersistence<TDbContext>(typeof(TUnitOfWork));
+
+    /// <summary>
+    /// Registers a readiness health check that verifies the DbContext can connect.
+    /// </summary>
+    public static IServiceCollection AddFgsDbContextReadyCheck<TDbContext>(
+        this IServiceCollection services,
+        string name = "postgres")
+        where TDbContext : DbContext
+    {
+        services.AddHealthChecks().Add(new HealthCheckRegistration(
+            name,
+            sp => new DbContextReadyHealthCheck<TDbContext>(sp.GetRequiredService<IServiceScopeFactory>()),
+            failureStatus: HealthStatus.Unhealthy,
+            tags: ["ready"]));
+        return services;
+    }
 }

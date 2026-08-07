@@ -23,4 +23,12 @@ public interface IFgsRoleReadRepository
         CancellationToken cancellationToken = default);
 
     Task<bool> HasActiveUserAssignmentsAsync(long roleId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// True when another active (non-deleted) user in the current tenant/company already has the role code.
+    /// </summary>
+    Task<bool> HasOtherActiveUserWithRoleCodeAsync(
+        string roleCode,
+        Guid? excludeUserId = null,
+        CancellationToken cancellationToken = default);
 }

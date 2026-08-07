@@ -44,6 +44,7 @@ public static class DependencyInjection
             options.UseFgsNpgsql(connectionString, "__EFMigrationsHistory", FgsAssetDbContext.MigrationHistorySchema);
         });
         services.AddFgsPersistence<FgsAssetDbContext>();
+        services.AddFgsDbContextReadyCheck<FgsAssetDbContext>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IAssetReadConnectionFactory, FgsAssetReadConnectionFactory>();
         services.AddScoped<AssetEntityAuditHelper>();

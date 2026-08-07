@@ -10,6 +10,8 @@ using Fgs.Inventory.Application.Features.PurchaseOrders.Dtos;
 using Fgs.Inventory.Application.Features.PurchaseOrders.Queries.GetFgsPurchaseOrderById;
 using Fgs.Inventory.Application.Features.PurchaseOrders.Queries.ListPurchaseOrders;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Inventory.API.Controllers;
@@ -54,6 +56,7 @@ public sealed class PurchaseOrderController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.InventoryItemCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsPurchaseOrderDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -66,6 +69,7 @@ public sealed class PurchaseOrderController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.InventoryItemEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsPurchaseOrderDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -79,6 +83,7 @@ public sealed class PurchaseOrderController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.InventoryItemEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsPurchaseOrderDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

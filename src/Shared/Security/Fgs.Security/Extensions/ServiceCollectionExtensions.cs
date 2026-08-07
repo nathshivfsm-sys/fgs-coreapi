@@ -41,9 +41,22 @@ public static class ServiceCollectionExtensions
 
         if (string.IsNullOrWhiteSpace(entraOptions.ClientId))
         {
-            throw new InvalidOperationException(
-                $"Entra client id is not configured. Set {EntraExternalIdAuthOptions.SectionName}:ClientId "
-                + "(appsettings bootstrap or GloCredential ENTRA_EXTERNAL_ID).");
+            // Do not throw during options build — UseAuthentication runs for /health before
+            // credentials may be seeded. Anonymous endpoints stay available; bearer tokens fail.
+            options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = "fgs-unconfigured-entra",
+                ValidateAudience = true,
+                ValidAudience = "fgs-unconfigured-entra",
+                ValidateLifetime = false,
+                RequireSignedTokens = true,
+                SignatureValidator = (_, _) =>
+                    throw new Microsoft.IdentityModel.Tokens.SecurityTokenInvalidSigningKeyException(
+                        $"Entra client id is not configured. Set {EntraExternalIdAuthOptions.SectionName}:ClientId "
+                        + "(appsettings bootstrap or GloCredential ENTRA_EXTERNAL_ID).")
+            };
+            return;
         }
 
         var clientId = entraOptions.ClientId;

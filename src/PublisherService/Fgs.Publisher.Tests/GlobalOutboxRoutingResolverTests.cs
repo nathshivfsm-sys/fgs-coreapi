@@ -65,6 +65,44 @@ public sealed class GlobalOutboxRoutingResolverTests
         routingKey.Should().Be(IntegrationEventRoutingKeys.CompanySignupInviteEmail);
     }
 
+    [Fact]
+    public void ResolveExchangeName_UsesInventoryEventsForInventoryStockChanged()
+    {
+        var resolver = CreateResolver();
+
+        var exchange = resolver.ResolveExchangeName(new PendingOutboxMessage(
+            "inventory",
+            1,
+            IntegrationEventTypes.InventoryStockChanged,
+            "{}",
+            Guid.NewGuid(),
+            null,
+            null,
+            0,
+            5));
+
+        exchange.Should().Be(IntegrationEventExchanges.InventoryEvents);
+    }
+
+    [Fact]
+    public void ResolveExchangeName_UsesInventoryEventsForPurchaseOrderStatusChanged()
+    {
+        var resolver = CreateResolver();
+
+        var exchange = resolver.ResolveExchangeName(new PendingOutboxMessage(
+            "inventory",
+            1,
+            IntegrationEventTypes.PurchaseOrderStatusChanged,
+            "{}",
+            Guid.NewGuid(),
+            null,
+            null,
+            0,
+            5));
+
+        exchange.Should().Be(IntegrationEventExchanges.InventoryEvents);
+    }
+
     private static GlobalOutboxRoutingResolver CreateResolver() =>
         new(Options.Create(new RabbitMqOptions
         {

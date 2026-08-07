@@ -35,7 +35,7 @@ foreach ($rel in $controllerRoots) {
 
 function Test-RouteCovered([string]$route, [string]$nginx) {
     if ($route -match '^tenant/\{') {
-        return $nginx -match 'business-type'
+        return $nginx -match 'businesstype'
     }
     if ($route -eq 'tenant') {
         return $nginx -match '/api/v1/tenant'

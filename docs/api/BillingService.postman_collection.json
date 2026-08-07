@@ -1,26 +1,26 @@
 ﻿{
     "item":  [
                  {
-                     "description":  "HealthController - health",
-                     "name":  "HealthController",
+                     "description":  "InvoiceController - invoice",
+                     "name":  "InvoiceController",
                      "item":  [
                                   {
-                                      "name":  "Get",
+                                      "name":  "GetById",
                                       "request":  {
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/billing/health",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/invoice/{{invoiceId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
-                                                                               "billing",
-                                                                               "health"
+                                                                               "invoice",
+                                                                               "{{invoiceId}}"
                                                                            ]
                                                               },
-                                                      "description":  "Get",
+                                                      "description":  "GetById",
                                                       "header":  [
                                                                      {
                                                                          "key":  "Accept",
@@ -49,6 +49,349 @@
                                                                    "type":  "bearer"
                                                                }
                                                   }
+                                  },
+                                  {
+                                      "name":  "List",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "page",
+                                                                                    "description":  "Page number (1-based). Default: 1.",
+                                                                                    "value":  "{{page}}"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "pageSize",
+                                                                                    "description":  "Items per page (1-100). Default: 25.",
+                                                                                    "value":  "{{pageSize}}"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortBy",
+                                                                                    "description":  "Property to sort by (entity-specific). Optional.",
+                                                                                    "value":  "{{sortBy}}",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortDirection",
+                                                                                    "description":  "Sort direction: Asc or Desc. Default: Asc.",
+                                                                                    "value":  "{{sortDirection}}",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "search",
+                                                                                    "description":  "Free-text search across searchable fields. Optional.",
+                                                                                    "value":  "{{search}}",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "isActive",
+                                                                                    "description":  "Filter by active records. Default: true.",
+                                                                                    "value":  "true"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "invoiceNumber",
+                                                                                    "description":  "Optional invoiceNumber filter.",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "customerId",
+                                                                                    "description":  "Optional customerId filter.",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "isPosted",
+                                                                                    "description":  "Optional isPosted filter.",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "isApproved",
+                                                                                    "description":  "Optional isApproved filter.",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/invoice",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "invoice"
+                                                                           ]
+                                                              },
+                                                      "description":  "List",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Lookup",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/invoice/lookup",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "invoice",
+                                                                               "lookup"
+                                                                           ]
+                                                              },
+                                                      "description":  "Lookup",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/invoice",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "invoice"
+                                                                           ]
+                                                              },
+                                                      "description":  "Create",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"invoiceNumber\": \"Invoice\",\n  \"invoiceTypeId\": 1,\n  \"customerId\": {{customerId}},\n  \"serviceLocationId\": {{serviceLocationId}},\n  \"workOrderId\": null,\n  \"projectId\": null,\n  \"serviceAgreementId\": null,\n  \"maintenanceVisitId\": null,\n  \"serviceJobNum\": null,\n  \"isAgreementBilling\": true,\n  \"isRecurringInvoice\": true,\n  \"recurringScheduleId\": null,\n  \"workOrderNumber\": null,\n  \"jobTypeId\": null,\n  \"leadEmployeeId\": null,\n  \"customerPONumber\": null,\n  \"invoiceDate\": \"2026-06-21\",\n  \"accountingDate\": \"2026-06-21\",\n  \"dueDate\": null,\n  \"netTermId\": null,\n  \"preferredPaymentMethodId\": null,\n  \"laborPricingMatrixId\": null,\n  \"materialPricingMatrixId\": null,\n  \"otherPricingMatrixId\": null,\n  \"gLBreak1Id\": null,\n  \"gLBreak2Id\": null,\n  \"taxingAuthorityJson\": null,\n  \"billToAddressJson\": null,\n  \"serviceLocationAddressJson\": null,\n  \"companyAddressJson\": null,\n  \"invoiceTemplateId\": null,\n  \"invoiceSubtotal\": 0.00,\n  \"totalDiscount\": 0.00,\n  \"taxableAmount\": 100.00,\n  \"totalTax\": 0.00,\n  \"invoiceTotal\": 0.00,\n  \"balanceDue\": 0.00\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
+                                                                                    "  pm.environment.set(\"invoiceId\", String(body.data.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "Update",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/invoice/{{invoiceId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "invoice",
+                                                                               "{{invoiceId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Update",
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"invoiceNumber\": \"Invoice\",\n  \"invoiceTypeId\": 1,\n  \"customerId\": {{customerId}},\n  \"serviceLocationId\": {{serviceLocationId}},\n  \"workOrderId\": null,\n  \"projectId\": null,\n  \"serviceAgreementId\": null,\n  \"maintenanceVisitId\": null,\n  \"serviceJobNum\": null,\n  \"isAgreementBilling\": true,\n  \"isRecurringInvoice\": true,\n  \"recurringScheduleId\": null,\n  \"workOrderNumber\": null,\n  \"jobTypeId\": null,\n  \"leadEmployeeId\": null,\n  \"customerPONumber\": null,\n  \"invoiceDate\": \"2026-06-21\",\n  \"accountingDate\": \"2026-06-21\",\n  \"dueDate\": null,\n  \"netTermId\": null,\n  \"preferredPaymentMethodId\": null,\n  \"laborPricingMatrixId\": null,\n  \"materialPricingMatrixId\": null,\n  \"otherPricingMatrixId\": null,\n  \"gLBreak1Id\": null,\n  \"gLBreak2Id\": null,\n  \"taxingAuthorityJson\": null,\n  \"billToAddressJson\": null,\n  \"serviceLocationAddressJson\": null,\n  \"companyAddressJson\": null,\n  \"invoiceTemplateId\": null,\n  \"invoiceSubtotal\": 0.00,\n  \"totalDiscount\": 0.00,\n  \"taxableAmount\": 100.00,\n  \"totalTax\": 0.00,\n  \"invoiceTotal\": 0.00,\n  \"balanceDue\": 0.00\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Patch",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/invoice/{{invoiceId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "invoice",
+                                                                               "{{invoiceId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Patch",
+                                                      "method":  "PATCH",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"invoiceNumber\": null,\n  \"invoiceTypeId\": null\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
                                   }
                               ]
                  }
@@ -60,10 +403,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Billing service scaffold (health) via {{gatewayUrl}}/api/v1/billing/...",
+                 "description":  "Billing invoice catalog via {{gatewayUrl}}/api/v1/invoice.",
                  "name":  "FGS BillingService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "ab272a1e-a4df-4ca2-92de-4a741895bac9"
+                 "_postman_id":  "0119413b-3169-4254-b5b7-9f6928fcba91"
              },
     "event":  [
                   {

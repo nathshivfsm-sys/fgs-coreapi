@@ -8,9 +8,11 @@ namespace Fgs.Bff.Application.Features.Signup.Commands.CreateCompanySignup;
 
 /// <summary>
 /// BFF orchestration: validate → User identity signup → Setup business types → consolidated response.
+/// On Setup failure after identity creation, marks the tenant as ProvisioningFailed for operator remediation.
 /// </summary>
 public sealed class CreateCompanySignupCommandHandler(
     IUserSignupClient userSignupClient,
+    IUserTenantClient userTenantClient,
     ISetupClient setupClient,
     ILogger<CreateCompanySignupCommandHandler> logger)
     : IRequestHandler<CreateCompanySignupCommand, ApiResponse<CompanySignupResultDto>>
@@ -59,6 +61,8 @@ public sealed class CreateCompanySignupCommandHandler(
 
             if (!setupResponse.Success)
             {
+                await TryMarkProvisioningFailedAsync(identity.TenantId, cancellationToken);
+
                 logger.LogError(
                     "Company signup identity created (TenantId={TenantId}, CompanyNumber={CompanyNumber}) but Setup business-type seeding failed: {Errors}",
                     identity.TenantId,
@@ -69,7 +73,7 @@ public sealed class CreateCompanySignupCommandHandler(
                     ? setupResponse.Errors.ToList()
                     : ["Business type seeding failed after identity was created."];
                 errors.Add(
-                    $"Identity was created (tenantId={identity.TenantId}, companyNumber={identity.CompanyNumber}). Retry business-type seeding or contact support.");
+                    $"Identity was created (tenantId={identity.TenantId}, companyNumber={identity.CompanyNumber}). Tenant marked ProvisioningFailed; retry business-type seeding or contact support.");
 
                 return ApiResponse<CompanySignupResultDto>.Fail(
                     errors,
@@ -80,6 +84,8 @@ public sealed class CreateCompanySignupCommandHandler(
         }
         catch (Exception ex)
         {
+            await TryMarkProvisioningFailedAsync(identity.TenantId, cancellationToken);
+
             logger.LogError(
                 ex,
                 "Company signup identity created (TenantId={TenantId}, CompanyNumber={CompanyNumber}) but Setup call threw.",
@@ -90,11 +96,29 @@ public sealed class CreateCompanySignupCommandHandler(
                 [
                     "Business type seeding failed after identity was created.",
                     ex.Message,
-                    $"Identity was created (tenantId={identity.TenantId}, companyNumber={identity.CompanyNumber}). Retry business-type seeding or contact support."
+                    $"Identity was created (tenantId={identity.TenantId}, companyNumber={identity.CompanyNumber}). Tenant marked ProvisioningFailed; retry business-type seeding or contact support."
                 ],
                 ApiStatusCodes.InternalServerError);
         }
 
         return ApiResponse<CompanySignupResultDto>.Ok(identity, ApiStatusCodes.Created);
+    }
+
+    private async Task TryMarkProvisioningFailedAsync(long tenantId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await userTenantClient.UpdateStatusAsync(
+                tenantId,
+                new UpdateTenantStatusRequest(TenantStatusIds.ProvisioningFailed),
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Failed to mark tenant {TenantId} as ProvisioningFailed after Setup signup failure.",
+                tenantId);
+        }
     }
 }

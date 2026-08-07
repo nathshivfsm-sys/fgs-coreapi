@@ -10,6 +10,8 @@ using Fgs.User.Application.Features.DataAccessScopes.Dtos;
 using Fgs.User.Application.Features.DataAccessScopes.Queries.GetFgsDataAccessScopeById;
 using Fgs.User.Application.Features.DataAccessScopes.Queries.ListFgsDataAccessScopes;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -45,6 +47,7 @@ public sealed class DataAccessScopeController(IMediator mediator) : FgsApiContro
                 new FgsDataAccessScopeListFilters(fgsDataAccessId, scopeType)),
             cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsDataAccessScopeDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -54,6 +57,7 @@ public sealed class DataAccessScopeController(IMediator mediator) : FgsApiContro
         CancellationToken cancellationToken) =>
         CreatedFromApiResponse(await Mediator.Send(new CreateFgsDataAccessScopeCommand(request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsDataAccessScopeDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -63,6 +67,7 @@ public sealed class DataAccessScopeController(IMediator mediator) : FgsApiContro
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new UpdateFgsDataAccessScopeCommand(id, request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsDataAccessScopeDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

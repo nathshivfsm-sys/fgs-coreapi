@@ -1,9 +1,13 @@
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.Inventory.Application.Abstractions.PurchaseOrders;
+using Fgs.Inventory.Application.Abstractions.Time;
 using Fgs.Inventory.Application.Features.PurchaseOrders.Dtos;
 using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Infrastructure.Common;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Kernel.Entities;
+using Fgs.Messaging.Abstractions;
+using Fgs.Messaging.Outbox;
 using Fgs.Persistence.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,15 +18,21 @@ public sealed class FgsPurchaseOrderWriteService : IFgsPurchaseOrderWriteService
     private readonly FgsInventoryDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly InventoryEntityAuditHelper _auditHelper;
+    private readonly IOutboxWriter _outboxWriter;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
     public FgsPurchaseOrderWriteService(
         FgsInventoryDbContext context,
         IUnitOfWork unitOfWork,
-        InventoryEntityAuditHelper auditHelper)
+        InventoryEntityAuditHelper auditHelper,
+        IOutboxWriter outboxWriter,
+        IDateTimeProvider dateTimeProvider)
     {
         _context = context;
         _unitOfWork = unitOfWork;
         _auditHelper = auditHelper;
+        _outboxWriter = outboxWriter;
+        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task<FgsPurchaseOrderDetailDto> CreateAsync(
@@ -33,6 +43,9 @@ public sealed class FgsPurchaseOrderWriteService : IFgsPurchaseOrderWriteService
         _auditHelper.StampForCreate((FgsEntityBase)entity, entity);
         await _context.FgsPurchaseOrders.AddAsync(entity, cancellationToken);
         await SyncDetailsAsync(entity, dto.Details ?? [], cancellationToken);
+        // Identity Id is assigned on insert; enqueue after so aggregate/payload Ids are correct.
+        await SaveChangesAsync(cancellationToken);
+        await EnqueueStatusChangedAsync(entity, previousStatus: null, cancellationToken);
         await SaveChangesAsync(cancellationToken);
 
         return MapToDetail(entity);
@@ -46,9 +59,16 @@ public sealed class FgsPurchaseOrderWriteService : IFgsPurchaseOrderWriteService
         var entity = await FindEntityAsync(id, includeDetails: true, cancellationToken)
             ?? throw new KeyNotFoundException($"Purchase order '{id}' was not found.");
 
+        var previousStatus = entity.PurchaseOrderStatus;
         ApplyUpdateDto(entity, dto);
         _auditHelper.StampForUpdate(entity);
         await SyncDetailsAsync(entity, dto.Details ?? [], cancellationToken);
+
+        if (!StatusEquals(previousStatus, entity.PurchaseOrderStatus))
+        {
+            await EnqueueStatusChangedAsync(entity, previousStatus, cancellationToken);
+        }
+
         await SaveChangesAsync(cancellationToken);
 
         return MapToDetail(entity);
@@ -62,12 +82,19 @@ public sealed class FgsPurchaseOrderWriteService : IFgsPurchaseOrderWriteService
         var entity = await FindEntityAsync(id, includeDetails: dto.Details is not null, cancellationToken)
             ?? throw new KeyNotFoundException($"Purchase order '{id}' was not found.");
 
+        var previousStatus = entity.PurchaseOrderStatus;
         ApplyPatchDto(entity, dto);
         _auditHelper.StampForUpdate(entity);
 
         if (dto.Details is not null)
         {
             await SyncDetailsAsync(entity, dto.Details, cancellationToken);
+        }
+
+        if (dto.PurchaseOrderStatus is not null
+            && !StatusEquals(previousStatus, entity.PurchaseOrderStatus))
+        {
+            await EnqueueStatusChangedAsync(entity, previousStatus, cancellationToken);
         }
 
         await SaveChangesAsync(cancellationToken);
@@ -79,6 +106,29 @@ public sealed class FgsPurchaseOrderWriteService : IFgsPurchaseOrderWriteService
 
         return MapToDetail(entity);
     }
+
+    private Task EnqueueStatusChangedAsync(
+        FgsPurchaseOrder entity,
+        string? previousStatus,
+        CancellationToken cancellationToken)
+    {
+        var evt = new PurchaseOrderStatusChangedEvent(
+            entity.TenantId,
+            entity.CompanyId,
+            entity.Id,
+            entity.PurchaseOrderNumber,
+            previousStatus,
+            entity.PurchaseOrderStatus,
+            _dateTimeProvider.UtcNow);
+
+        return _outboxWriter.EnqueuePurchaseOrderStatusChangedAsync(
+            evt,
+            correlationId: Guid.NewGuid(),
+            cancellationToken);
+    }
+
+    private static bool StatusEquals(string? left, string? right) =>
+        string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
 
     private async Task SyncDetailsAsync(
         FgsPurchaseOrder purchaseOrder,

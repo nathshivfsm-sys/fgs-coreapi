@@ -1,14 +1,23 @@
 using Fgs.Asset.Domain.Entities;
 using Fgs.Asset.Infrastructure.Database.Configurations;
 using Fgs.Asset.Infrastructure.Database.Schemas;
+using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Asset.Infrastructure.Database;
 
-public sealed class FgsAssetDbContext(DbContextOptions<FgsAssetDbContext> options) : DbContext(options)
+public sealed class FgsAssetDbContext : FgsTenantFilteredDbContext
 {
     public const string MigrationHistorySchema = FgsDatabaseSchemas.MigrationHistory;
+
+    public FgsAssetDbContext(
+        DbContextOptions<FgsAssetDbContext> options,
+        ITenantContextAccessor tenantContextAccessor)
+        : base(options, tenantContextAccessor)
+    {
+    }
 
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
     public DbSet<FgsServiceLocationCache> FgsServiceLocationCaches => Set<FgsServiceLocationCache>();
@@ -28,5 +37,6 @@ public sealed class FgsAssetDbContext(DbContextOptions<FgsAssetDbContext> option
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsAssetDbContext).Assembly);
         FgsAssetDbContextConfigurationExtensions.ApplyTenantCompanyCacheForeignKeys(modelBuilder);
         modelBuilder.ConfigureAuditActorColumns(maxLength: 200);
+        ApplyFgsTenantQueryFilters(modelBuilder);
     }
 }

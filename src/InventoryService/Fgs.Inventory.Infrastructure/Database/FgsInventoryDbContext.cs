@@ -2,13 +2,22 @@ using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Domain.Enums;
 using Fgs.Inventory.Infrastructure.Database.Configurations;
 using Fgs.Inventory.Infrastructure.Database.Schemas;
+using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Inventory.Infrastructure.Database;
 
-public sealed class FgsInventoryDbContext(DbContextOptions<FgsInventoryDbContext> options) : DbContext(options)
+public sealed class FgsInventoryDbContext : FgsTenantFilteredDbContext
 {
     public const string MigrationHistorySchema = FgsDatabaseSchemas.MigrationHistory;
+
+    public FgsInventoryDbContext(
+        DbContextOptions<FgsInventoryDbContext> options,
+        ITenantContextAccessor tenantContextAccessor)
+        : base(options, tenantContextAccessor)
+    {
+    }
 
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
 
@@ -56,5 +65,6 @@ public sealed class FgsInventoryDbContext(DbContextOptions<FgsInventoryDbContext
         modelBuilder.HasDefaultSchema(FgsDatabaseSchemas.Inventory);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsInventoryDbContext).Assembly);
         FgsInventoryDbContextConfigurationExtensions.ApplyTenantCompanyCacheForeignKeys(modelBuilder);
+        ApplyFgsTenantQueryFilters(modelBuilder);
     }
 }

@@ -11,6 +11,8 @@ using Fgs.Setup.Application.Features.SetupPricingMatrixOthers.Queries.GetFgsSetu
 using Fgs.Setup.Application.Features.SetupPricingMatrixOthers.Queries.ListFgsSetupPricingMatrixOthers;
 using Fgs.Setup.Application.Features.SetupPricingMatrixOthers.Queries.LookupFgsSetupPricingMatrixOthers;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;

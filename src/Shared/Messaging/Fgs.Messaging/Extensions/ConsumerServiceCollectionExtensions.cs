@@ -1,4 +1,5 @@
 using Fgs.Messaging.Consumer;
+using Fgs.Messaging.HealthChecks;
 using Fgs.Messaging.Options;
 using Fgs.Messaging.RabbitMq;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +24,7 @@ public static class ConsumerServiceCollectionExtensions
         });
 
         services.AddFgsRabbitMqConnectionFactory();
+        services.AddFgsRabbitMqReadyCheck();
         services.TryAddSingleton<IConsumerIdempotencyStore, NoOpConsumerIdempotencyStore>();
         services.AddSingleton<ConsumerRoutingRegistry>(sp =>
         {

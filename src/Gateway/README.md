@@ -80,8 +80,8 @@ Windows: `C:\Windows\System32\drivers\etc\hosts`. Linux/macOS: `/etc/hosts`. Reg
 | `/api/v1/notification/*` | `notification-service:5002` | e.g. `POST …/notification/dispatch` |
 | `/api/v1/credential/*` | `setup-service:5004` | Credential admin |
 | `/api/v1/communication-template/*` | `setup-service:5004` | Templates for Notification |
-| `/api/v1/tenant-provisioning/*` | `setup-service:5004` | Tenant provisioning |
-| `/api/v1/tenant/{id}/companies/{id}/business-type` | `setup-service:5004` | Must be declared before the companies route |
+| `/api/v1/tenantprovisioning` | S2S only (Consumer→Setup) | Public gateway returns 403; not proxied |
+| `/api/v1/tenant/{id}/companies/{id}/businesstype` | S2S only (BFF→Setup) | Public gateway returns 403; not proxied |
 | `/api/v1/tenant/{id}/companies*` | `user-service:5001` | Tenant company management |
 | `/api/v1/tenant/{id}/bucket` | `file-service:5005` | Bucket provisioning |
 | `/api/v1/tenant/*` (other) | `user-service:5001` | Tenant CRUD |
@@ -251,11 +251,7 @@ Each API container mounts the **same** files you edit for local `dotnet run`:
 | Service Agreement | `src/ServiceAgreementService/Fgs.ServiceAgreement.API/appsettings.json` + `appsettings.Development.json` |
 | Communication | `src/CommunicationService/Fgs.Communication.API/appsettings.json` + `appsettings.Development.json` |
 
-Containers use `ASPNETCORE_ENVIRONMENT=Development`, so ASP.NET Core **merges** `appsettings.json` then `appsettings.Development.json` (same as Visual Studio / `dotnet run`). There are no duplicate Postgres settings in `docker-compose.yml`.
-
-Change connection strings in those JSON files and restart the service container; no image rebuild is required for config-only changes.
-
-`appsettings.Development.json` overrides `Host` to `host.docker.internal` so containers can reach Postgres on the host. Base `appsettings.json` keeps `localhost` for `dotnet run` on the machine when you use a profile without the Development override, or when `host.docker.internal` resolves on your OS.
+Containers use `ASPNETCORE_ENVIRONMENT=Production` and mount Setup `appsettings.json` (connection string + AWS/KMS bootstrap live there for Setup only until Secrets Manager). Redis is still set via Compose (`Redis__ConnectionString=redis:6379`) so the container reaches the Compose Redis service.
 
 ## Scale Services Locally
 

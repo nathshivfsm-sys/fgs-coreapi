@@ -35,6 +35,10 @@ public static class EntityFrameworkExtensions
             configure?.Invoke(npgsql);
         });
 
+        // Health checks / credential reloads can rebuild options; avoid treating that as fatal.
+        options.ConfigureWarnings(warnings =>
+            warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId.ManyServiceProvidersCreatedWarning));
+
         return options;
     }
 

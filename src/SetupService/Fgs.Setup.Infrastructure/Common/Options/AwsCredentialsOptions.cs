@@ -27,7 +27,12 @@ public sealed class AwsCredentialsOptions
         set => ApplicationSlug = value;
     }
 
-    public string DefaultVaultProvider { get; set; } = "AWS";
+    /// <summary>
+    /// Selects the optional external secret vault.
+    /// Use <c>Database</c> (default) to keep credentials in DB + KMS envelope encryption — vault DI registers a no-op and Compose stays unchanged.
+    /// Use <c>AwsSecretsManager</c> to activate AWS Secrets Manager via <c>ISecretVault</c> (requires IAM + KmsKeyArn; do not set in Compose unless intentionally enabling).
+    /// </summary>
+    public string DefaultVaultProvider { get; set; } = "Database";
 
     public int CacheTtlSeconds { get; set; } = 300;
 

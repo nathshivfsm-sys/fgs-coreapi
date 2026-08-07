@@ -10,6 +10,8 @@ using Fgs.Setup.Application.Features.SetupTaxAuthorities.Queries.GetFgsSetupTaxA
 using Fgs.Setup.Application.Features.SetupTaxAuthorities.Queries.ListSetupTaxAuthorities;
 using Fgs.Setup.Application.Features.SetupTaxAuthorities.Queries.LookupSetupTaxAuthorities;
 using Fgs.Setup.Application.Features.SetupTaxAuthorities.Dtos;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -65,6 +67,7 @@ public sealed class TaxAuthorityController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost]
+    [RequirePermission(FgsPermissionCodes.SetupCreate)]
     [ProducesResponseType(typeof(ApiResponse<FgsSetupTaxAuthorityDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
@@ -77,6 +80,7 @@ public sealed class TaxAuthorityController(IMediator mediator) : ControllerBase
     }
 
     [HttpPut("{id:long}")]
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [ProducesResponseType(typeof(ApiResponse<FgsSetupTaxAuthorityDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
@@ -90,6 +94,7 @@ public sealed class TaxAuthorityController(IMediator mediator) : ControllerBase
     }
 
     [HttpPatch("{id:long}")]
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [ProducesResponseType(typeof(ApiResponse<FgsSetupTaxAuthorityDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]

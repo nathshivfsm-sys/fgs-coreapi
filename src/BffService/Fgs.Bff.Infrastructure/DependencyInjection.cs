@@ -45,6 +45,11 @@ public static class DependencyInjection
             "http://user-service:5001",
             builder => builder.AddHttpMessageHandler<CorrelationIdPropagationHandler>());
 
+        services.AddFgsInternalServiceRefitClient<IUserTenantClient>(
+            configuration,
+            "UserService:BaseUrl",
+            "http://user-service:5001");
+
         services.AddFgsRefitClient<ISetupClient>(
             configuration,
             "SetupService:BaseUrl",

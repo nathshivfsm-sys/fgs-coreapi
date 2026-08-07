@@ -12,6 +12,7 @@ var hostOptions = builder.AddFgsApiHost(options =>
     options.SwaggerTitle = "FGS Publisher Service";
     options.SwaggerDescription = "Message publishing to the event bus.";
     options.XmlCommentsAssembly = typeof(Program).Assembly;
+    options.UseMultiTenancy = true;
 });
 
 builder.Services.AddFgsPublisherApplication();

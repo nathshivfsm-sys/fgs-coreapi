@@ -1,6 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine
-RUN apk add --no-cache curl ca-certificates && update-ca-certificates
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
 
 COPY NuGet.config .
@@ -36,15 +35,21 @@ COPY src/SetupService/ src/SetupService/
 
 WORKDIR /src/src/SetupService/Fgs.Setup.API
 RUN --mount=type=cache,target=/root/.nuget/packages \
-    dotnet build Fgs.Setup.API.csproj -c Release --no-restore
+    dotnet publish Fgs.Setup.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
+RUN apk add --no-cache curl ca-certificates && update-ca-certificates
+WORKDIR /app
+COPY --from=build /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:5004 \
-    ASPNETCORE_ENVIRONMENT=Development \
-    DOTNET_RUNNING_IN_CONTAINER=true
+    ASPNETCORE_ENVIRONMENT=Production \
+    DOTNET_RUNNING_IN_CONTAINER=true \
+    DOTNET_EnableDiagnostics=0
 
 EXPOSE 5004
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=5 \
     CMD curl -fsS http://localhost:5004/health || exit 1
 
-ENTRYPOINT ["dotnet", "run", "--no-build", "--no-launch-profile", "--project", "Fgs.Setup.API.csproj", "--configuration", "Release", "--urls", "http://+:5004"]
+ENTRYPOINT ["dotnet", "Fgs.Setup.API.dll"]

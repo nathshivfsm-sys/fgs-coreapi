@@ -8,7 +8,7 @@ namespace Fgs.Contracts.Clients;
 /// </summary>
 public interface ISetupClient
 {
-    [Post("/api/v1/tenant/{tenantId}/companies/{companyId}/business-type")]
+    [Post("/api/v1/tenant/{tenantId}/companies/{companyId}/businesstype")]
     Task<Fgs.Contracts.Api.ApiResponse<object>> AddCompanyBusinessTypesAsync(
         long tenantId,
         long companyId,
@@ -24,7 +24,7 @@ public interface ISetupClient
         [Header(InternalServiceHeaders.ServiceKey)] string internalServiceKey,
         CancellationToken cancellationToken = default);
 
-    [Post("/api/v1/tenant-provisioning")]
+    [Post("/api/v1/tenantprovisioning")]
     Task<Fgs.Contracts.Api.ApiResponse<object>> ProvisionTenantAsync(
         [Body] ProvisionTenantRequest request,
         CancellationToken cancellationToken = default);

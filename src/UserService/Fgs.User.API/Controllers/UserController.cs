@@ -11,6 +11,8 @@ using Fgs.User.Application.Features.Users.Dtos;
 using Fgs.User.Application.Features.Users.Queries.GetFgsUserById;
 using Fgs.User.Application.Features.Users.Queries.ListFgsUsers;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -48,6 +50,7 @@ public sealed class UserController(IMediator mediator) : FgsApiControllerBase(me
                 new FgsUserListFilters(email, displayName, roleId)),
             cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<FgsUserDetailDto>>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -57,6 +60,7 @@ public sealed class UserController(IMediator mediator) : FgsApiControllerBase(me
         CancellationToken cancellationToken) =>
         CreatedFromApiResponse(await Mediator.Send(new InviteFgsUserCommand(request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(ApiResponse<FgsUserDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -66,6 +70,7 @@ public sealed class UserController(IMediator mediator) : FgsApiControllerBase(me
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new UpdateFgsUserCommand(id, request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(typeof(ApiResponse<FgsUserDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -75,6 +80,7 @@ public sealed class UserController(IMediator mediator) : FgsApiControllerBase(me
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new PatchFgsUserCommand(id, request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserCreate)]
     [HttpPost("{id:guid}/resendinvite")]
     [ProducesResponseType(typeof(ApiResponse<FgsUserDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

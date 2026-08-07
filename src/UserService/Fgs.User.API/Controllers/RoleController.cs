@@ -11,6 +11,8 @@ using Fgs.User.Application.Features.Roles.Queries.GetFgsRoleById;
 using Fgs.User.Application.Features.Roles.Queries.ListFgsRoles;
 using Fgs.User.Application.Features.Roles.Queries.LookupFgsRoles;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -55,6 +57,7 @@ public sealed class RoleController(IMediator mediator) : FgsApiControllerBase(me
         CancellationToken cancellationToken = default) =>
         FromApiResponse(await Mediator.Send(new LookupFgsRolesQuery(activeOnly), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsRoleDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -64,6 +67,7 @@ public sealed class RoleController(IMediator mediator) : FgsApiControllerBase(me
         CancellationToken cancellationToken) =>
         CreatedFromApiResponse(await Mediator.Send(new CreateFgsRoleCommand(request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsRoleDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -74,6 +78,7 @@ public sealed class RoleController(IMediator mediator) : FgsApiControllerBase(me
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new UpdateFgsRoleCommand(id, request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsRoleDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

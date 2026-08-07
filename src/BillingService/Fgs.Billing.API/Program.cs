@@ -12,6 +12,7 @@ var hostOptions = builder.AddFgsApiHost(options =>
     options.SwaggerTitle = "FGS Billing Service";
     options.SwaggerDescription = "Billing, invoicing, and payment terms.";
     options.XmlCommentsAssembly = typeof(Program).Assembly;
+    options.UseMultiTenancy = true;
 });
 
 builder.Services.AddFgsBillingApplication();

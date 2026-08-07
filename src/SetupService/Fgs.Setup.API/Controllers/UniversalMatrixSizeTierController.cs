@@ -11,6 +11,8 @@ using Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Queries.GetFgsUniv
 using Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Queries.ListUniversalMatrixSizeTiers;
 using Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Queries.LookupUniversalMatrixSizeTiers;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
@@ -67,6 +69,7 @@ public sealed class UniversalMatrixSizeTierController(IMediator mediator) : Cont
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsUniversalMatrixSizeTierDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -79,6 +82,7 @@ public sealed class UniversalMatrixSizeTierController(IMediator mediator) : Cont
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsUniversalMatrixSizeTierDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -92,6 +96,7 @@ public sealed class UniversalMatrixSizeTierController(IMediator mediator) : Cont
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsUniversalMatrixSizeTierDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

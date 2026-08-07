@@ -1,11 +1,11 @@
-﻿name: fgs-local
+name: fgs-local
 
 # Startup order:
 #   1. rabbitmq, redis
-#   2. setup-service  — credential authority
+#   2. setup-service  ? credential authority
 #   3. audit-service starts first among consumers, then other credential consumers
-#   4. publisher / consumer — messaging workers
-#   5. nginx — public gateway after upstream health checks pass
+#   4. publisher / consumer ? messaging workers
+#   5. nginx ? public gateway after upstream health checks pass
 
 x-service-network: &service-network
   extra_hosts:
@@ -15,9 +15,12 @@ x-service-network: &service-network
   restart: unless-stopped
 
 x-credential-consumer-env: &credential-consumer-env
-  ASPNETCORE_ENVIRONMENT: Development
+  ASPNETCORE_ENVIRONMENT: Production
   SetupService__BaseUrl: http://setup-service:5004
-  CredentialDistribution__InternalServiceKey: fgs-internal-credential-distribution-key
+  CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+  # Production disables Swagger unless Enabled=true; without it /swagger/* falls through to JWT fallback (401).
+  Swagger__Enabled: "true"
+  Observability__OtlpEndpoint: ${OTLP_ENDPOINT:-}
 
 x-depends-on-setup: &depends-on-setup
   setup-service:
@@ -70,26 +73,42 @@ services:
       - fgs-private
     restart: unless-stopped
 
-  # Tier 1 — credential authority (bootstrap ConnectionStrings:FgsSetup from mounted appsettings)
+  # Optional OTLP collector — enable export by setting OTLP_ENDPOINT=http://otel-collector:4317
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.120.0
+    <<: *service-network
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    expose:
+      - "4317"
+      - "4318"
+    # Not required for app health; services export only when OTLP_ENDPOINT is set.
+
+  # Tier 1 ? credential authority (bootstrap ConnectionStrings:FgsSetup from mounted appsettings)
   setup-service:
     <<: *service-network
     build:
       context: ../..
       dockerfile: src/Gateway/docker/setup-service.Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_ENVIRONMENT: Production
+      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/setup
       UserService__BaseUrl: http://user-service:5001
       FileService__BaseUrl: http://file-service:5005
       RabbitMq__HostName: rabbitmq
+      Observability__OtlpEndpoint: ${OTLP_ENDPOINT:-}
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
     depends_on:
       redis:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
     volumes:
-      - ../SetupService/Fgs.Setup.API/appsettings.json:/src/src/SetupService/Fgs.Setup.API/appsettings.json:ro
-      - ../SetupService/Fgs.Setup.API/appsettings.Development.json:/src/src/SetupService/Fgs.Setup.API/appsettings.Development.json:ro
+      - ../SetupService/Fgs.Setup.API/appsettings.json:/app/appsettings.json:ro
     expose:
       - "5004"
     healthcheck:
@@ -99,7 +118,7 @@ services:
       retries: 5
       start_period: 90s
 
-  # Tier 2 — credential consumers (Setup must be healthy before these start)
+  # Tier 2 ? credential consumers (Setup must be healthy before these start)
   audit-service:
     <<: *service-network
     build:
@@ -116,8 +135,7 @@ services:
       rabbitmq:
         condition: service_healthy
     volumes:
-      - ../AuditService/Fgs.Audit.API/appsettings.json:/src/src/AuditService/Fgs.Audit.API/appsettings.json:ro
-      - ../AuditService/Fgs.Audit.API/appsettings.Development.json:/src/src/AuditService/Fgs.Audit.API/appsettings.Development.json:ro
+      - ../AuditService/Fgs.Audit.API/appsettings.json:/app/appsettings.json:ro
     expose:
       - "5008"
     healthcheck:
@@ -145,8 +163,7 @@ services:
         condition: service_healthy
       <<: *depends-on-setup-and-audit
     volumes:
-      - ../UserService/Fgs.User.API/appsettings.json:/src/src/UserService/Fgs.User.API/appsettings.json:ro
-      - ../UserService/Fgs.User.API/appsettings.Development.json:/src/src/UserService/Fgs.User.API/appsettings.Development.json:ro
+      - ../UserService/Fgs.User.API/appsettings.json:/app/appsettings.json:ro
     expose:
       - "5001"
     healthcheck:
@@ -156,7 +173,7 @@ services:
       retries: 5
       start_period: 90s
 
-  # Stateless BFF — scale with: docker compose up --scale bff-service=N
+  # Stateless BFF ? scale with: docker compose up --scale bff-service=N
   bff-service:
     <<: *service-network
     build:
@@ -179,8 +196,7 @@ services:
       user-service:
         condition: service_healthy
     volumes:
-      - ../BffService/Fgs.Bff.API/appsettings.json:/src/src/BffService/Fgs.Bff.API/appsettings.json:ro
-      - ../BffService/Fgs.Bff.API/appsettings.Development.json:/src/src/BffService/Fgs.Bff.API/appsettings.Development.json:ro
+      - ../BffService/Fgs.Bff.API/appsettings.json:/app/appsettings.json:ro
     ports:
       - "127.0.0.1:5003:5003"
     expose:
@@ -207,8 +223,7 @@ services:
     depends_on:
       <<: *depends-on-setup-and-audit
     volumes:
-      - ../FileService/Fgs.File.API/appsettings.json:/src/src/FileService/Fgs.File.API/appsettings.json:ro
-      - ../FileService/Fgs.File.API/appsettings.Development.json:/src/src/FileService/Fgs.File.API/appsettings.Development.json:ro
+      - ../FileService/Fgs.File.API/appsettings.json:/app/appsettings.json:ro
     expose:
       - "5005"
     healthcheck:
@@ -238,8 +253,7 @@ services:
         condition: service_healthy
       <<: *depends-on-setup-and-audit
     volumes:
-      - ../InventoryService/Fgs.Inventory.API/appsettings.json:/src/src/InventoryService/Fgs.Inventory.API/appsettings.json:ro
-      - ../InventoryService/Fgs.Inventory.API/appsettings.Development.json:/src/src/InventoryService/Fgs.Inventory.API/appsettings.Development.json:ro
+      - ../InventoryService/Fgs.Inventory.API/appsettings.json:/app/appsettings.json:ro
     expose:
       - "5012"
     healthcheck:
@@ -265,12 +279,115 @@ services:
     depends_on:
       <<: *depends-on-setup-and-audit
     volumes:
-      - ../AssetService/Fgs.Asset.API/appsettings.json:/src/src/AssetService/Fgs.Asset.API/appsettings.json:ro
-      - ../AssetService/Fgs.Asset.API/appsettings.Development.json:/src/src/AssetService/Fgs.Asset.API/appsettings.Development.json:ro
+      - ../AssetService/Fgs.Asset.API/appsettings.json:/app/appsettings.json:ro
     expose:
       - "5015"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:5015/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  service-agreement-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/service-agreement-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/service-agreement
+      CredentialConsumer__ServiceName: fgs-service-agreement-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      UserService__BaseUrl: http://user-service:5001
+      SetupService__BaseUrl: http://setup-service:5004
+      Observability__OtlpEndpoint: ${OTLP_ENDPOINT:-}
+    depends_on:
+      <<: *depends-on-setup-and-audit
+    volumes:
+      - ../ServiceAgreementService/Fgs.ServiceAgreement.API/appsettings.json:/app/appsettings.json:ro
+    expose:
+      - "5016"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5016/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  crm-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/crm-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/crm
+      CredentialConsumer__ServiceName: fgs-crm-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      UserService__BaseUrl: http://user-service:5001
+      SetupService__BaseUrl: http://setup-service:5004
+      Observability__OtlpEndpoint: ${OTLP_ENDPOINT:-}
+    depends_on:
+      <<: *depends-on-setup-and-audit
+    volumes:
+      - ../CrmService/Fgs.Crm.API/appsettings.json:/app/appsettings.json:ro
+    expose:
+      - "5009"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5009/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  scheduling-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/scheduling-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/scheduling
+      CredentialConsumer__ServiceName: fgs-scheduling-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      UserService__BaseUrl: http://user-service:5001
+      SetupService__BaseUrl: http://setup-service:5004
+      Observability__OtlpEndpoint: ${OTLP_ENDPOINT:-}
+    depends_on:
+      <<: *depends-on-setup-and-audit
+    volumes:
+      - ../SchedulingService/Fgs.Scheduling.API/appsettings.json:/app/appsettings.json:ro
+    expose:
+      - "5010"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5010/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  billing-service:
+    <<: *service-network
+    build:
+      context: ../..
+      dockerfile: src/Gateway/docker/billing-service.Dockerfile
+    environment:
+      <<: *credential-consumer-env
+      Swagger__RoutePrefix: swagger/billing
+      CredentialConsumer__ServiceName: fgs-billing-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      UserService__BaseUrl: http://user-service:5001
+      SetupService__BaseUrl: http://setup-service:5004
+      Observability__OtlpEndpoint: ${OTLP_ENDPOINT:-}
+    depends_on:
+      <<: *depends-on-setup-and-audit
+    volumes:
+      - ../BillingService/Fgs.Billing.API/appsettings.json:/app/appsettings.json:ro
+    expose:
+      - "5011"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5011/health"]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -299,8 +416,7 @@ services:
       rabbitmq:
         condition: service_healthy
     volumes:
-      - ../NotificationService/Fgs.Notification.API/appsettings.json:/src/src/NotificationService/Fgs.Notification.API/appsettings.json:ro
-      - ../NotificationService/Fgs.Notification.API/appsettings.Development.json:/src/src/NotificationService/Fgs.Notification.API/appsettings.Development.json:ro
+      - ../NotificationService/Fgs.Notification.API/appsettings.json:/app/appsettings.json:ro
     expose:
       - "5002"
     healthcheck:
@@ -310,7 +426,7 @@ services:
       retries: 5
       start_period: 90s
 
-  # Tier 3 — messaging workers
+  # Tier 3 ? messaging workers
   publisher-service:
     <<: *service-network
     build:
@@ -334,8 +450,7 @@ services:
       user-service:
         condition: service_healthy
     volumes:
-      - ../PublisherService/Fgs.Publisher.API/appsettings.json:/src/src/PublisherService/Fgs.Publisher.API/appsettings.json:ro
-      - ../PublisherService/Fgs.Publisher.API/appsettings.Development.json:/src/src/PublisherService/Fgs.Publisher.API/appsettings.Development.json:ro
+      - ../PublisherService/Fgs.Publisher.API/appsettings.json:/app/appsettings.json:ro
     expose:
       - "5006"
     healthcheck:
@@ -372,8 +487,7 @@ services:
       notification-service:
         condition: service_healthy
     volumes:
-      - ../ConsumerService/Fgs.Consumer.API/appsettings.json:/src/src/ConsumerService/Fgs.Consumer.API/appsettings.json:ro
-      - ../ConsumerService/Fgs.Consumer.API/appsettings.Development.json:/src/src/ConsumerService/Fgs.Consumer.API/appsettings.Development.json:ro
+      - ../ConsumerService/Fgs.Consumer.API/appsettings.json:/app/appsettings.json:ro
     expose:
       - "5007"
     healthcheck:
@@ -383,7 +497,7 @@ services:
       retries: 5
       start_period: 90s
 
-  # Tier 4 — public gateway
+  # Tier 4 ? public gateway
   nginx:
     build:
       context: .
@@ -404,6 +518,14 @@ services:
       inventory-service:
         condition: service_healthy
       asset-service:
+        condition: service_healthy
+      crm-service:
+        condition: service_healthy
+      billing-service:
+        condition: service_healthy
+      scheduling-service:
+        condition: service_healthy
+      service-agreement-service:
         condition: service_healthy
     ports:
       - "80:80"

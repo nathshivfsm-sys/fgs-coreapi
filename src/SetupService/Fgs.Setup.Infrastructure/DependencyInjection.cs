@@ -143,6 +143,7 @@ public static class DependencyInjection
         });
 
         services.AddFgsPersistence<FgsSetupDbContext>();
+        services.AddFgsDbContextReadyCheck<FgsSetupDbContext>();
 
         var auditOutboxEnabled = configuration.GetValue("AuditOutbox:Enabled", true);
         if (auditOutboxEnabled)

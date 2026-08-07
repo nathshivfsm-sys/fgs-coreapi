@@ -11,6 +11,8 @@ using Fgs.User.Application.Features.ApiWebhooks.Queries.GetFgsApiWebhookById;
 using Fgs.User.Application.Features.ApiWebhooks.Queries.ListFgsApiWebhooks;
 using Fgs.User.Application.Features.ApiWebhooks.Queries.LookupFgsApiWebhooks;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -54,6 +56,7 @@ public sealed class ApiWebhookController(IMediator mediator) : FgsApiControllerB
         CancellationToken cancellationToken = default) =>
         FromApiResponse(await Mediator.Send(new LookupFgsApiWebhooksQuery(activeOnly), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsApiWebhookDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -62,6 +65,7 @@ public sealed class ApiWebhookController(IMediator mediator) : FgsApiControllerB
         CancellationToken cancellationToken) =>
         CreatedFromApiResponse(await Mediator.Send(new CreateFgsApiWebhookCommand(request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsApiWebhookDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -71,6 +75,7 @@ public sealed class ApiWebhookController(IMediator mediator) : FgsApiControllerB
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new UpdateFgsApiWebhookCommand(id, request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsApiWebhookDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

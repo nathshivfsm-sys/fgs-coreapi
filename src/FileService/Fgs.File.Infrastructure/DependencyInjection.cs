@@ -62,6 +62,7 @@ public static class DependencyInjection
         });
 
         services.AddFgsPersistence<FgsFileDbContext>();
+        services.AddFgsDbContextReadyCheck<FgsFileDbContext>();
 
         services.AddAwsS3Services();
         services.AddSingleton<IS3ObjectKeyBuilder, S3ObjectKeyBuilder>();

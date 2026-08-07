@@ -18,7 +18,7 @@ public sealed class FgsBillingDbContextDesignFactory : IDesignTimeDbContextFacto
                 npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsBillingDbContext.MigrationHistorySchema))
             .Options;
 
-        return new FgsBillingDbContext(options);
+        return new FgsBillingDbContext(options, new Fgs.MultiTenancy.Persistence.DesignTimeTenantContextAccessor());
     }
 
     private static string? TryLoadConnectionStringFromApiAppsettings()

@@ -41,7 +41,12 @@ public static class DependencyInjection
         });
 
         services.AddFgsPersistence<FgsAuditDbContext>();
+        services.AddFgsDbContextReadyCheck<FgsAuditDbContext>();
         services.AddScoped<ICredentialAuditWriter, CredentialAuditWriter>();
+        services.AddScoped<IAuditEventWriter, AuditEventWriter>();
+        services.AddScoped<IAuditEventReadRepository, AuditEventReadRepository>();
+        services.AddScoped<IArchiveCatalogWriter, ArchiveCatalogWriter>();
+        services.AddScoped<IArchiveCatalogReadRepository, ArchiveCatalogReadRepository>();
 
         return services;
     }

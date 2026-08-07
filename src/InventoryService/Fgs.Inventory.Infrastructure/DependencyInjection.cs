@@ -32,7 +32,10 @@ using Fgs.Inventory.Infrastructure.InventoryTransactions;
 using Fgs.Inventory.Infrastructure.PurchaseOrders;
 using Fgs.Inventory.Infrastructure.TruckStockTemplates;
 using Fgs.Inventory.Infrastructure.VendorInventoryItems;
+using Fgs.Inventory.Infrastructure.Messaging;
 using Fgs.Inventory.Infrastructure.Vendors;
+using Fgs.Messaging.Abstractions;
+using Fgs.Messaging.Options;
 using Fgs.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -66,6 +69,10 @@ public static class DependencyInjection
         });
 
         services.AddFgsPersistence<FgsInventoryDbContext>();
+        services.AddFgsDbContextReadyCheck<FgsInventoryDbContext>();
+
+        services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
+        services.AddScoped<IOutboxWriter, OutboxWriter>();
 
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IInventoryReadConnectionFactory, FgsInventoryReadConnectionFactory>();

@@ -6,6 +6,8 @@ using Fgs.User.Application.Features.ServiceAccountsSetups.Commands.UpdateFgsTena
 using Fgs.User.Application.Features.ServiceAccountsSetups.Dtos;
 using Fgs.User.Application.Features.ServiceAccountsSetups.Queries.GetFgsTenantServiceAccountsSetup;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -24,6 +26,7 @@ public sealed class ServiceAccountsSetupController(IMediator mediator) : FgsApiC
     public async Task<IActionResult> Get(CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new GetFgsTenantServiceAccountsSetupQuery(), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPut]
     [ProducesResponseType(typeof(ApiResponse<FgsTenantServiceAccountsSetupDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -33,6 +36,7 @@ public sealed class ServiceAccountsSetupController(IMediator mediator) : FgsApiC
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new UpdateFgsTenantServiceAccountsSetupCommand(request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPatch]
     [ProducesResponseType(typeof(ApiResponse<FgsTenantServiceAccountsSetupDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
