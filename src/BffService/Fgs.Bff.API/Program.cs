@@ -40,7 +40,7 @@ try
         options.UseMultiTenancy = true;
         options.UseForwardedHeaders = true;
         options.UseAuthenticationPipeline = true;
-        options.UseActiveUserValidation = false;
+        options.UseActiveUserValidation = true;
     });
 
     builder.Services.AddFgsBffApplication();
@@ -56,7 +56,7 @@ try
     app.UseSerilogRequestLogging();
     app.UseFgsApiHost(hostOptions);
     app.MapFgsHealthChecks();
-    app.MapGraphQL("/api/v1/bff/graphql").AllowAnonymous();
+    app.MapGraphQL("/api/v1/bff/graphql").RequireAuthorization();
     app.Run();
 }
 catch (Exception ex)

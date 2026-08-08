@@ -9,6 +9,7 @@ using Fgs.Asset.Application.Features.Assets.Queries.ListAssets;
 using Fgs.Asset.Application.Features.Assets.Queries.LookupAssets;
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
+using Fgs.Foundation.Idempotency;
 using Fgs.Foundation.Paging;
 using MediatR;
 using Fgs.Security.Authorization;
@@ -65,6 +66,7 @@ public sealed class AssetController(IMediator mediator) : ControllerBase
     }
 
     [RequirePermission(FgsPermissionCodes.AssetCreate)]
+    [Idempotent]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsAssetDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

@@ -140,7 +140,12 @@ Generate new migrations with [`scripts/generate-migration-sql.ps1`](../../script
 | Inventory reference seed (item types + default location) | InventoryService | `Fgs.Inventory.Infrastructure/Database/Seeds/Initial_Inventory_Reference_Seed.sql` |
 | Inventory reference seed rollback | InventoryService | `Fgs.Inventory.Infrastructure/Database/Seeds/Initial_Inventory_Reference_Seed_Down.sql` |
 
-**Run order (greenfield):** all service `dotnet ef database update` → `Initial_Migration_Seed.sql` → `Glo_Cache_Tables_Seed.sql` → `Initial_Inventory_Reference_Seed.sql`. `FgsTenantCompanyCache` rows are filled on first tenant provision (`SeedOrder` 1–11), before glo→tenant catalog copy (`SeedOrder` 100+). Inventory categories seed to `inventory.FgsInventoryCategory` via `GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY`; subcategories via dedicated engine logic targeting `inventory` schema.
+-- Run order (greenfield):
+--   1. all service `dotnet ef database update`
+--   2. Setup Initial_Migration_Seed.sql + Glo_Cache_Tables_Seed.sql
+--      (includes all glo.GloSeedTableMapping / column mappings used by tenant provisioning)
+--   3. Initial_Inventory_Reference_Seed.sql
+--   4. other owning-service reference seeds
 
 ## Refit / integration contracts
 

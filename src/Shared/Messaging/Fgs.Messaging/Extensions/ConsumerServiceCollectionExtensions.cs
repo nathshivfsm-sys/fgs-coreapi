@@ -25,7 +25,7 @@ public static class ConsumerServiceCollectionExtensions
 
         services.AddFgsRabbitMqConnectionFactory();
         services.AddFgsRabbitMqReadyCheck();
-        services.TryAddSingleton<IConsumerIdempotencyStore, NoOpConsumerIdempotencyStore>();
+        services.TryAddSingleton<IConsumerIdempotencyStore, DistributedCacheConsumerIdempotencyStore>();
         services.AddSingleton<ConsumerRoutingRegistry>(sp =>
         {
             var registry = new ConsumerRoutingRegistry();
@@ -41,6 +41,17 @@ public static class ConsumerServiceCollectionExtensions
         services.AddScoped<MessageDispatcher>();
         services.AddHostedService<ConsumerHost>();
 
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the no-op store (tests / hosts without distributed cache). Prefer
+    /// <see cref="DistributedCacheConsumerIdempotencyStore"/> in production.
+    /// </summary>
+    public static IServiceCollection AddFgsNoOpConsumerIdempotency(this IServiceCollection services)
+    {
+        services.RemoveAll<IConsumerIdempotencyStore>();
+        services.AddSingleton<IConsumerIdempotencyStore, NoOpConsumerIdempotencyStore>();
         return services;
     }
 

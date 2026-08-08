@@ -3,6 +3,7 @@ using Fgs.Bff.Application.Features.Signup.Commands.CreateCompanySignup;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Signup;
 using Fgs.Foundation.Api;
+using Fgs.Foundation.Idempotency;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ public sealed class SignupController(IMediator mediator) : FgsApiControllerBase(
     /// Company self-serve signup: User identity + Setup business types (orchestrated on BFF).
     /// </summary>
     [AllowAnonymous]
+    [Idempotent]
     [HttpPost("company")]
     [ProducesResponseType(typeof(ApiResponse<CompanySignupResultDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

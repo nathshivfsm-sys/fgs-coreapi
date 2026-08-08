@@ -3,6 +3,7 @@ using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
 using Fgs.Foundation.Compression.Extensions;
 using Fgs.Foundation.Extensions;
+using Fgs.Foundation.Idempotency;
 using Fgs.MultiTenancy.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -31,6 +32,7 @@ public static class FgsApiHostExtensions
         }
 
         builder.Services.AddFgsApiVersioning();
+        builder.Services.AddFgsHttpIdempotency();
         builder.Services.AddControllers()
             .AddJsonOptions(json => json.JsonSerializerOptions.ConfigureFgsApi())
             .ConfigureApiBehaviorOptions(api =>

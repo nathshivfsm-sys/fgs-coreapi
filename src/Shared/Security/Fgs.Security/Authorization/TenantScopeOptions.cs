@@ -9,6 +9,7 @@ public sealed class TenantScopeOptions
         "/api/v1/login",
         "/api/v1/auth",
         "/api/v1/signup",
+        "/api/v1/bff/signup",
         "/api/v1/invitations",
         "/api/v1/internal",
         "/health",

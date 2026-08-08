@@ -60,10 +60,10 @@ public static class CacheServiceCollectionExtensions
         return services;
     }
 
-    internal static bool IsRedisConfigured(RedisCacheOptions options) =>
+    public static bool IsRedisConfigured(RedisCacheOptions options) =>
         options.Enabled && !string.IsNullOrWhiteSpace(options.ConnectionString);
 
-    internal static string NormalizeConnectionString(string connectionString)
+    public static string NormalizeConnectionString(string connectionString)
     {
         if (connectionString.Contains("abortConnect=", StringComparison.OrdinalIgnoreCase))
         {

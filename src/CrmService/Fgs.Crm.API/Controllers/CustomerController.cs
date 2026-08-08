@@ -9,6 +9,7 @@ using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerById;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers;
 using Fgs.Crm.Application.Features.Customers.Queries.LookupCrmCustomers;
 using Fgs.Foundation.Api;
+using Fgs.Foundation.Idempotency;
 using Fgs.Foundation.Paging;
 using Fgs.Security.Authorization;
 using Fgs.Security.Constants;
@@ -72,6 +73,7 @@ public sealed class CustomerController(IMediator mediator) : ControllerBase
     }
 
     [RequirePermission(FgsPermissionCodes.CustomerCreate)]
+    [Idempotent]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<CrmCustomerDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

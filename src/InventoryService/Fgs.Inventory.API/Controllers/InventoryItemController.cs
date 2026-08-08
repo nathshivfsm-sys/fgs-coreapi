@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
+using Fgs.Foundation.Idempotency;
 using Fgs.Foundation.Paging;
 using Fgs.Inventory.Application.Common.InventoryCrud;
 using Fgs.Inventory.Application.Features.InventoryItems.Commands.CreateFgsInventoryItem;
@@ -69,6 +70,7 @@ public sealed class InventoryItemController(IMediator mediator) : ControllerBase
     }
 
     [RequirePermission(FgsPermissionCodes.InventoryItemCreate)]
+    [Idempotent]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsInventoryItemDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

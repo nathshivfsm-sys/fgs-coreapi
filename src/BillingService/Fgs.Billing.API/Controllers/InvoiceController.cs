@@ -9,6 +9,7 @@ using Fgs.Billing.Application.Features.Invoices.Queries.GetFgsInvoiceById;
 using Fgs.Billing.Application.Features.Invoices.Queries.ListFgsInvoices;
 using Fgs.Billing.Application.Features.Invoices.Queries.LookupFgsInvoices;
 using Fgs.Foundation.Api;
+using Fgs.Foundation.Idempotency;
 using Fgs.Foundation.Paging;
 using Fgs.Security.Authorization;
 using Fgs.Security.Constants;
@@ -70,6 +71,7 @@ public sealed class InvoiceController(IMediator mediator) : ControllerBase
     }
 
     [RequirePermission(FgsPermissionCodes.InvoiceCreate)]
+    [Idempotent]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsInvoiceDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

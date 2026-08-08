@@ -18,35 +18,35 @@ public sealed class EfRepository<TEntity, TDbContext> : IRepository<TEntity>
     }
 
     public Task<TEntity?> GetByIdAsync(long id, CancellationToken cancellationToken = default) =>
-        _dbSet.FindAsync([id], cancellationToken).AsTask();
+        _dbSet.AsNoTracking().FirstOrDefaultAsync(CreateIdPredicate<long>(id), cancellationToken);
 
     public Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
-        _dbSet.FindAsync([id], cancellationToken).AsTask();
+        _dbSet.AsNoTracking().FirstOrDefaultAsync(CreateIdPredicate<Guid>(id), cancellationToken);
 
     public async Task<TEntity?> FirstOrDefaultAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default) =>
-        await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
+        await _dbSet.AsNoTracking().FirstOrDefaultAsync(predicate, cancellationToken);
 
     public async Task<TEntity?> FirstOrDefaultIgnoreFiltersAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default) =>
-        await _dbSet.IgnoreQueryFilters().FirstOrDefaultAsync(predicate, cancellationToken);
+        await _dbSet.IgnoreQueryFilters().AsNoTracking().FirstOrDefaultAsync(predicate, cancellationToken);
 
     public Task<bool> AnyAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default) =>
-        _dbSet.AnyAsync(predicate, cancellationToken);
+        _dbSet.AsNoTracking().AnyAsync(predicate, cancellationToken);
 
     public async Task<IReadOnlyList<TEntity>> ListAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default) =>
-        await _dbSet.Where(predicate).ToListAsync(cancellationToken);
+        await _dbSet.AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<TEntity>> ListIgnoreFiltersAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default) =>
-        await _dbSet.IgnoreQueryFilters().Where(predicate).ToListAsync(cancellationToken);
+        await _dbSet.IgnoreQueryFilters().AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
 
     public Task AddAsync(TEntity entity, CancellationToken cancellationToken = default) =>
         _dbSet.AddAsync(entity, cancellationToken).AsTask();
@@ -54,4 +54,13 @@ public sealed class EfRepository<TEntity, TDbContext> : IRepository<TEntity>
     public void Update(TEntity entity) => _dbSet.Update(entity);
 
     public void Remove(TEntity entity) => _dbSet.Remove(entity);
+
+    private static Expression<Func<TEntity, bool>> CreateIdPredicate<TId>(TId id)
+    {
+        var parameter = Expression.Parameter(typeof(TEntity), "entity");
+        var property = Expression.Property(parameter, "Id");
+        var constant = Expression.Constant(id, typeof(TId));
+        var equality = Expression.Equal(property, constant);
+        return Expression.Lambda<Func<TEntity, bool>>(equality, parameter);
+    }
 }

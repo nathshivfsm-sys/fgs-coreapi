@@ -35,6 +35,8 @@ public static class DependencyInjection
 
         services.AddFgsEntraAuthentication(configuration);
         services.AddFgsAuthorization();
+        services.AddFgsActiveUserValidation(configuration);
+        services.AddFgsUserAuthProfileClient(configuration);
 
         services.TryAddTransient<CorrelationIdPropagationHandler>();
         services.TryAddTransient<InternalServiceKeyDelegatingHandler>();
