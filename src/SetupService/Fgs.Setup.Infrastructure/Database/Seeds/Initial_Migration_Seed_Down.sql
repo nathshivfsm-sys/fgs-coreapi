@@ -156,38 +156,6 @@ WHERE "SkillCode" IN (
     'ELECTRICALHELPER'
 );
 
-DELETE FROM glo."GloJobTypeCategory"
-WHERE ("BusinessTypeId", "Code") IN (
-    SELECT bt."Id", v."Code"
-    FROM (
-        VALUES
-            ('HVAC',       'AC'),
-            ('HVAC',       'FURNACE'),
-            ('HVAC',       'THERMOSTAT'),
-            ('PLUMBING',   'TOILET'),
-            ('PLUMBING',   'FAUCET'),
-            ('PLUMBING',   'WATERHEATER'),
-            ('ELECTRICAL', 'PANEL'),
-            ('ELECTRICAL', 'LIGHTING'),
-            ('ELECTRICAL', 'OUTLET')
-    ) AS v("BusinessTypeCode", "Code")
-    INNER JOIN glo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
-);
-
-DELETE FROM glo."GloJobTypeSubCategory"
-WHERE "Code" IN (
-    'INSTALL',
-    'REPAIR',
-    'SERVICE',
-    'REPLACE',
-    'INSPECT',
-    'MAINTENANCE',
-    'TROUBLESHOOT',
-    'CLEANING',
-    'TUNEUP',
-    'UPGRADE'
-);
-
 DELETE FROM glo."GloTrade"
 WHERE "TradeCode" IN (
     'PESTCONTROL',
@@ -222,13 +190,6 @@ WHERE "Code" IN (
     'WINDOWCLEANING',
     'HOLIDAYLIGHTING',
     'OTHER'
-);
-
-DELETE FROM glo."GloTimeCardOption"
-WHERE "Code" IN (
-    'NONE',
-    'DISPATCHARRIVECOMPLETE',
-    'CHECKINCHECKOUT'
 );
 
 DELETE FROM glo."GloAccountingIntegrationType"
@@ -307,8 +268,6 @@ WHERE "SeedTableMappingId" IN (
     WHERE "SeedCode" IN (
         'ALL_GloBillingCategory',
         'ALL_GloRole',
-        'ALL_GloJobTypeCategory',
-        'ALL_GloJobTypeSubCategory',
         'ALL_GloLeadSource',
         'ALL_GloEstimateFlavor',
         'ALL_GloEstimateStatus',
@@ -331,6 +290,11 @@ WHERE "SeedTableMappingId" IN (
         'GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE',
         'GLO_INVENTORY_ITEM_TYPE_TO_FGS_INVENTORY_ITEM_TYPE',
         'GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY',
+        'GLO_INVENTORY_SUBCATEGORY_TO_FGS_INVENTORY_SUBCATEGORY',
+        'ALL_GloJobTypeCategory',
+        'ALL_GloJobTypeSubCategory',
+        'ALL_GloUniversalMatrixTier',
+        'ALL_GloUniversalMatrixSizeTier',
         'GLO_BILLING_CATEGORY_TO_FGS_BILLING_CATEGORY',
         'GLO_BUSINESS_TYPE_TO_FGS_BUSINESS_TYPE',
         'GLO_SETUP_LABOR_RATE_TYPE_TO_FGS_SETUP_LABOR_RATE_TYPE',
@@ -342,8 +306,6 @@ DELETE FROM glo."GloSeedTableMapping"
 WHERE "SeedCode" IN (
     'ALL_GloBillingCategory',
     'ALL_GloRole',
-    'ALL_GloJobTypeCategory',
-    'ALL_GloJobTypeSubCategory',
     'ALL_GloLeadSource',
     'ALL_GloEstimateFlavor',
     'ALL_GloEstimateStatus',
@@ -366,6 +328,11 @@ WHERE "SeedCode" IN (
     'GLO_UNIT_OF_MEASURE_TO_FGS_UNIT_OF_MEASURE',
     'GLO_INVENTORY_ITEM_TYPE_TO_FGS_INVENTORY_ITEM_TYPE',
     'GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY',
+    'GLO_INVENTORY_SUBCATEGORY_TO_FGS_INVENTORY_SUBCATEGORY',
+    'ALL_GloJobTypeCategory',
+    'ALL_GloJobTypeSubCategory',
+    'ALL_GloUniversalMatrixTier',
+    'ALL_GloUniversalMatrixSizeTier',
     'GLO_BILLING_CATEGORY_TO_FGS_BILLING_CATEGORY',
     'GLO_BUSINESS_TYPE_TO_FGS_BUSINESS_TYPE',
     'GLO_SETUP_LABOR_RATE_TYPE_TO_FGS_SETUP_LABOR_RATE_TYPE',

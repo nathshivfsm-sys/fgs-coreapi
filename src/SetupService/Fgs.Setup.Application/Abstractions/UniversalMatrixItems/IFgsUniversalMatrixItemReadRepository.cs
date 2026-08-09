@@ -18,11 +18,13 @@ public interface IFgsUniversalMatrixItemReadRepository
         long? universalPricingServiceId = null,
         CancellationToken cancellationToken = default);
 
-    Task<bool> ExistsByUniversalPricingServiceIdAndItemNameAsync(
-        long universalPricingServiceId, string itemName,
-        long? excludeId = null,
-        CancellationToken cancellationToken = default);
     Task<bool> ExistsUniversalPricingServiceIdAsync(
         long id,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsByItemNameAsync(
+        long universalPricingServiceId,
+        string itemName,
+        long? excludeId = null,
         CancellationToken cancellationToken = default);
 }

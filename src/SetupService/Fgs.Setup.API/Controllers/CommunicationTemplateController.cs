@@ -17,6 +17,8 @@ using Fgs.Setup.Application.Features.CommunicationTemplates.Queries.ListCommunic
 using Fgs.Setup.Application.Features.CommunicationTemplates.Queries.LookupCommunicationTemplates;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -26,7 +28,7 @@ namespace Fgs.Setup.API.Controllers;
 /// Global and tenant-scoped communication template catalog management.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("communication-template")]
+[FgsVersionedRoute("communicationtemplate")]
 [Produces("application/json")]
 public sealed class CommunicationTemplateController(
     IMediator mediator,
@@ -56,7 +58,9 @@ public sealed class CommunicationTemplateController(
         {
             return StatusCode(
                 StatusCodes.Status401Unauthorized,
-                ApiResponse<object>.Fail(["Unauthorized."], ApiStatusCodes.Unauthorized));
+                ApiResponse<object>.Fail(
+                    ["Authentication required. Provide a valid JWT or internal service key."],
+                    ApiStatusCodes.Unauthorized));
         }
 
         return FromApiResponse(await Mediator.Send(
@@ -111,6 +115,7 @@ public sealed class CommunicationTemplateController(
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsSetupCommunicationTemplateDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -123,6 +128,7 @@ public sealed class CommunicationTemplateController(
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsSetupCommunicationTemplateDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -136,6 +142,7 @@ public sealed class CommunicationTemplateController(
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsSetupCommunicationTemplateDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

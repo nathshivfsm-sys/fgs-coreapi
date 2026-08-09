@@ -12,7 +12,7 @@ public sealed class OutboxWriterTests
     public async Task EnqueueAsync_PersistsPendingMessage()
     {
         await using var context = await TestDbContextFactory.CreateAndInitializeAsync();
-        var dateTime = new Fgs.User.Infrastructure.Common.Time.DateTimeProvider();
+        var dateTime = new Fgs.Foundation.Time.DateTimeProvider();
         var writer = new OutboxWriter(context, dateTime, Options.Create(new OutboxOptions()));
         var correlationId = Guid.NewGuid();
 

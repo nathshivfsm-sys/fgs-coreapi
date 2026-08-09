@@ -24,7 +24,7 @@ public sealed class UpdateFgsSetupCommunicationTemplateCommandHandler(
         logger.LogInformation("Updated communication template {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "communication-template"),
+                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "communicationtemplate"),
                 cancellationToken);
         return ApiResponse<FgsSetupCommunicationTemplateDetailDto>.Ok(result);
     }

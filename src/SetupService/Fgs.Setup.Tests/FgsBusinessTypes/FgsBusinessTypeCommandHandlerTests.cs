@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.FgsBusinessTypes.Commands.DeleteFgsBusiness
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Commands.UpdateFgsBusinessType;
 using Fgs.Setup.Application.Features.FgsBusinessTypes.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.FgsBusinessTypes;
 using Microsoft.EntityFrameworkCore;

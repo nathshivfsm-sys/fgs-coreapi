@@ -16,10 +16,6 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
     /// <summary>Schema for EF Core migration history (<c>setup</c>).</summary>
     public const string MigrationHistorySchema = FgsDatabaseSchemas.MigrationHistory;
 
-    /// <summary>Legacy alias; use <see cref="MigrationHistorySchema"/>.</summary>
-    [Obsolete("Use MigrationHistorySchema. dbo is no longer the default schema.")]
-    public const string FgsSchema = MigrationHistorySchema;
-
     public FgsSetupDbContext(
         DbContextOptions<FgsSetupDbContext> options,
         ITenantContextAccessor tenantContextAccessor)
@@ -136,8 +132,6 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
     public DbSet<GloCommunicationTemplateToken> GloCommunicationTemplateTokens =>
         Set<GloCommunicationTemplateToken>();
 
-    public DbSet<GloTimeCardOption> GloTimeCardOptions => Set<GloTimeCardOption>();
-
     public DbSet<GloPaymentMethodType> GloPaymentMethodTypes => Set<GloPaymentMethodType>();
 
     public DbSet<GloCountry> GloCountries => Set<GloCountry>();
@@ -191,13 +185,17 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<GloJobTypeCategory> GloJobTypeCategories => Set<GloJobTypeCategory>();
 
-    public DbSet<GloJobTypeSubCategory> GloJobTypeSubCategories => Set<GloJobTypeSubCategory>();
+    public DbSet<FgsJobCategory> FgsJobCategories => Set<FgsJobCategory>();
 
     public DbSet<FgsJobTypeCategory> FgsJobTypeCategories => Set<FgsJobTypeCategory>();
 
-    public DbSet<FgsJobTypeSubCategory> FgsJobTypeSubCategories => Set<FgsJobTypeSubCategory>();
+    public DbSet<FgsJobTypeTask> FgsJobTypeTasks => Set<FgsJobTypeTask>();
 
     public DbSet<FgsJobType> FgsJobTypes => Set<FgsJobType>();
+
+    public DbSet<FgsPriceBook> FgsPriceBooks => Set<FgsPriceBook>();
+
+    public DbSet<FgsPriceBookItem> FgsPriceBookItems => Set<FgsPriceBookItem>();
 
     public DbSet<GloUnitOfMeasure> GloUnitOfMeasures => Set<GloUnitOfMeasure>();
 

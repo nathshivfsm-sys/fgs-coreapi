@@ -1423,6 +1423,82 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenantServiceAccountsSetup", b =>
+                {
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<long?>("AccountsPayableAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("General ledger account used to record amounts owed to vendors and suppliers.");
+
+                    b.Property<long?>("AccountsReceivableAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("General ledger account used to record customer accounts receivable.");
+
+                    b.Property<long?>("BankAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("Default bank account used for customer payments, deposits, and cash transactions.");
+
+                    b.Property<long?>("COGSAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("Cost of Goods Sold account used when inventory is consumed or sold.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<long?>("DiscountAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("General ledger account used to record customer discounts and promotional adjustments.");
+
+                    b.Property<long?>("InventoryAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("Asset account used to record the value of inventory on hand.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<long?>("ProcessingFeeAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("Expense account used to record merchant, credit card, and payment processing fees.");
+
+                    b.Property<long?>("RevenueAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("Default revenue or income account used when posting invoices and completed work orders.");
+
+                    b.Property<long?>("SalesTaxPayableAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("Liability account used to record collected sales taxes owed to tax authorities.");
+
+                    b.Property<long?>("UndepositedFundsAccountId")
+                        .HasColumnType("bigint")
+                        .HasComment("Holding account used for customer payments received but not yet deposited into a bank account.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.HasKey("TenantId", "CompanyId");
+
+                    b.ToTable("FgsTenantServiceAccountsSetup", "tenant");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenantServiceSetup", b =>
                 {
                     b.Property<long>("TenantId")
@@ -1472,9 +1548,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<bool>("EnableRulesManagement")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("GloTimeCardOptionId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("InvoiceBatchNumberFormat")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -1512,6 +1585,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<bool>("SourceCodeRequiredOnWorkOrder")
                         .HasColumnType("boolean");
 
+                    b.Property<short>("TimeCardOptionId")
+                        .HasColumnType("smallint")
+                        .HasComment("Determines the technician time tracking workflow. Valid values: 1 = No formal technician time tracking workflow, 2 = Technician manually checks in and checks out, 3 = Tracks dispatch, arrival, and completion timestamps, 4 = Tracks dispatch, arrival, completion, and documentation time timestamps.");
+
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -1540,6 +1617,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                             t.HasCheckConstraint("CK_FgsTenantServiceSetup_OTRange", "\"OTStartTime\" IS NULL OR \"OTEndTime\" IS NULL OR \"OTEndTime\" > \"OTStartTime\"");
 
+                            t.HasCheckConstraint("CK_FgsTenantServiceSetup_TimeCardOptionId", "\"TimeCardOptionId\" IN (1, 2, 3, 4)");
+
                             t.HasCheckConstraint("CK_FgsTenantServiceSetup_WorkLocationRadius", "\"WorkLocationRadiusForAutoArrive\" IS NULL OR \"WorkLocationRadiusForAutoArrive\" >= 0");
                         });
                 });
@@ -1549,6 +1628,11 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<short>("AuthenticationMethod")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)3);
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint");
@@ -1580,6 +1664,11 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Primary phone number used for SMS notifications and one-time password (OTP) verification when multi-factor authentication (MFA) using SMS is enabled.");
+
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");
 
@@ -1592,13 +1681,15 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId", "CompanyId");
-
-                    b.HasIndex("TenantId", "Email")
+                    b.HasIndex("TenantId", "CompanyId", "Email")
                         .IsUnique()
+                        .HasDatabaseName("IX_FgsUser_TenantId_CompanyId_Email")
                         .HasFilter("\"IsDeleted\" = false");
 
-                    b.ToTable("FgsUser", "identity");
+                    b.ToTable("FgsUser", "identity", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsUser_AuthenticationMethod", "\"AuthenticationMethod\" IN (1, 2, 3, 4, 5)");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUserRole", b =>
@@ -1967,6 +2058,17 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Navigation("FgsPermission");
 
                     b.Navigation("FgsRole");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenantServiceAccountsSetup", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompany", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .HasPrincipalKey("TenantId", "CompanyNumber")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsTenantServiceAccountsSetup_TenantCompany");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUser", b =>

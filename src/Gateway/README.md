@@ -7,6 +7,7 @@ Production-ready NGINX reverse proxy setup for the local .NET 10 microservices s
 ```text
 src/Gateway/
   Dockerfile
+  Dockerfile.prod
   README.md
   cache_params.conf
   docker-compose.yml
@@ -18,25 +19,36 @@ src/Gateway/
   conf.d/
     site.conf
     site.prod.conf
+    includes/
+      api-v1-routes.conf
+      api-v1-routes.prod.conf
+      rate-limit.inc
+      swagger-index.html
+      swagger-routes.conf
+      upstreams.conf
+      upstreams.prod.conf
   docker/
     user-service.Dockerfile
+    bff-service.Dockerfile
     notification-service.Dockerfile
     setup-service.Dockerfile
     file-service.Dockerfile
     audit-service.Dockerfile
     publisher-service.Dockerfile
     consumer-service.Dockerfile
+    inventory-service.Dockerfile
+    asset-service.Dockerfile
+    # scaffold-only Dockerfiles (not in docker-compose.yml yet):
     crm-service.Dockerfile
     scheduling-service.Dockerfile
     billing-service.Dockerfile
-    inventory-service.Dockerfile
     reporting-service.Dockerfile
     integration-service.Dockerfile
-    asset-service.Dockerfile
     service-agreement-service.Dockerfile
     communication-service.Dockerfile
   logs/
   scripts/
+    Compare-ApiRoutes.ps1
     generate-local-cert.ps1
     generate-local-cert.sh
 ```
@@ -45,60 +57,58 @@ RabbitMQ runs in this Compose file for **PublisherService** and **ConsumerServic
 
 ## Routes
 
-NGINX listens on `https://localhost:8443` locally.
+NGINX listens on `https://developer.fsm.com` (host ports `80` / `443`). Keep `conf.d/includes/api-v1-routes*.conf` in sync with `[FgsVersionedRoute]` templates under each `*/Controllers` folder (`scripts/Compare-ApiRoutes.ps1`).
 
-| Public route | Upstream service | Forwarded path |
+Map the hostname locally before first run (Administrator / root):
+
+```text
+127.0.0.1  developer.fsm.com
+```
+
+Windows: `C:\Windows\System32\drivers\etc\hosts`. Linux/macOS: `/etc/hosts`. Regenerate the self-signed cert after pulling (`.\scripts\generate-local-cert.ps1`) so the SAN includes `developer.fsm.com`.
+
+| Public route | Upstream | Notes |
 | --- | --- | --- |
-| `/api/v1/auth/{path}` | `user-service:5001` | `/api/v1/auth/{path}` (includes `entra/token`, `refresh`, `me`) |
-| `/api/v1/login/{path}` | `user-service:5001` | `/api/v1/login/{path}` |
-| `/api/v1/invite/{path}` | `user-service:5001` | `/api/v1/invite/{path}` |
-| `/api/v1/signup/{path}` | `user-service:5001` | `/api/v1/signup/{path}` |
-| `/api/v1/dashboard` | `user-service:5001` | `/api/v1/dashboard` |
-| `/api/v1/(role\|permission\|dataaccess\|…\|publicendpoint\|apievent\|…)` | `user-service:5001` | Identity catalog and API management |
-| `/api/v1/users` | `user-service:5001` | `/api/v1/` |
-| `/api/v1/users/{path}` | `user-service:5001` | `/api/v1/{path}` |
-| `/api/v1/notifications` | `notification-service:5002` | `/api/v1/` |
-| `/api/v1/notifications/{path}` | `notification-service:5002` | `/api/v1/{path}` |
-| `/api/v1/credentials/{path}` | `setup-service:5004` | KMS-backed credential admin |
-| `/api/v1/communication-templates/{path}` | `setup-service:5004` | Template reads for Notification |
-| `/api/v1/tenants/{tenantId}/companies/{path}` | `user-service:5001` | Tenant company management (details, list) |
-| `/api/v1/tenants/{tenantId}/bucket` | `file-service:5005` | S3 bucket and folder provisioning |
-| `/api/v1/tenants/{path}` (other) | `file-service:5005` | Fallback tenant storage routes |
-| `/api/v1/attachments/{path}` | `file-service:5005` | Attachment upload, download, metadata, and list |
-| `/api/v1/crm/{path}` | `crm-service:5009` | `/api/v1/{path}` |
-| `/api/v1/scheduling/{path}` | `scheduling-service:5010` | `/api/v1/{path}` |
-| `/api/v1/billing/{path}` | `billing-service:5011` | `/api/v1/{path}` |
-| `/api/v1/inventory/{path}` | `inventory-service:5012` | `/api/v1/{path}` |
-| `/api/v1/reporting/{path}` | `reporting-service:5013` | `/api/v1/{path}` |
-| `/api/v1/integration/{path}` | `integration-service:5014` | `/api/v1/{path}` |
-| `/api/v1/asset/{path}` | `asset-service:5015` | `/api/v1/{path}` |
-| `/api/v1/service-agreements/{path}` | `service-agreement-service:5016` | `/api/v1/{path}` |
-| `/api/v1/communication/{path}` | `communication-service:5017` | `/api/v1/{path}` |
+| `/api/v1/auth/*` | `user-service:5001` | Entra token, refresh, me, callback |
+| `/api/v1/bff/*` | `bff-service:5003` | Signup orchestration + GraphQL (`/api/v1/bff/graphql`) |
+| `/api/v1/login/*` | `user-service:5001` | |
+| `/api/v1/invite/*` | `user-service:5001` | |
+| `/api/v1/signup/*` | `user-service:5001` | |
+| `/api/v1/dashboard` | `user-service:5001` | |
+| `/api/v1/(role\|permission\|dataaccess\|…\|apiwebhooksubscription)` | `user-service:5001` | Identity catalog / API management |
+| `/api/v1/internal/users/*` | `user-service:5001` | Internal auth-profile |
+| `/api/v1/notification/*` | `notification-service:5002` | e.g. `POST …/notification/dispatch` |
+| `/api/v1/credential/*` | `setup-service:5004` | Credential admin |
+| `/api/v1/communication-template/*` | `setup-service:5004` | Templates for Notification |
+| `/api/v1/tenantprovisioning` | S2S only (Consumer→Setup) | Public gateway returns 403; not proxied |
+| `/api/v1/tenant/{id}/companies/{id}/businesstype` | S2S only (BFF→Setup) | Public gateway returns 403; not proxied |
+| `/api/v1/tenant/{id}/companies*` | `user-service:5001` | Tenant company management |
+| `/api/v1/tenant/{id}/bucket` | `file-service:5005` | Bucket provisioning |
+| `/api/v1/tenant/*` (other) | `user-service:5001` | Tenant CRUD |
+| `/api/v1/attachment/*` | `file-service:5005` | Attachments |
+| `/api/v1/credentialaudit/*` | `audit-service:5008` | Credential audit writes |
+| `/api/v1/(inventory-location\|truck-stock-template\|vendor)/*` | `inventory-service:5012` | Inventory catalog |
+| `/api/v1/(assettype\|…\|assetwarranty)/*` | `asset-service:5015` | Asset catalog |
+| `/api/v1/(billingcategory\|…\|zone)/*` | `setup-service:5004` | Setup catalog (includes universal pricing matrix) |
 
-### Swagger (OpenAPI UI)
+Publisher and Consumer are on the private Docker network only (no public API routes).
 
-Swagger is exposed through the gateway at **`https://localhost:8443/swagger/`**, which lists every service. Each service UI lives under a path prefix that matches its container configuration (`Swagger__RoutePrefix` in `docker-compose.yml`).
+### Swagger (OpenAPI UI) — local only
+
+Swagger is exposed through the local gateway at **`https://developer.fsm.com/swagger/`**. Production (`site.prod.conf` / `Dockerfile.prod`) does **not** include Swagger routes.
 
 | Swagger URL | Service |
 | --- | --- |
-| `https://localhost:8443/swagger/user/` | User |
-| `https://localhost:8443/swagger/notification/` | Notification |
-| `https://localhost:8443/swagger/setup/` | Setup |
-| `https://localhost:8443/swagger/file/` | File |
-| `https://localhost:8443/swagger/audit/` | Audit |
-| `https://localhost:8443/swagger/inventory/` | Inventory |
-| `https://localhost:8443/swagger/publisher/` | Publisher |
-| `https://localhost:8443/swagger/consumer/` | Consumer |
-| `https://localhost:8443/swagger/crm/` | CRM (502 until container is running) |
-| `https://localhost:8443/swagger/scheduling/` | Scheduling |
-| `https://localhost:8443/swagger/billing/` | Billing |
-| `https://localhost:8443/swagger/reporting/` | Reporting |
-| `https://localhost:8443/swagger/integration/` | Integration |
-| `https://localhost:8443/swagger/asset/` | Asset |
-| `https://localhost:8443/swagger/service-agreement/` | Service Agreement |
-| `https://localhost:8443/swagger/communication/` | Communication |
-
-NGINX proxies `/swagger/{service}/` to the matching upstream with the same path. Each API sets `Swagger:RoutePrefix` (via `Swagger__RoutePrefix`) so Swagger UI and `swagger.json` URLs align with the gateway. Swagger is enabled in Development by default; set `Swagger:Enabled` to `true` in other environments if needed.
+| `https://developer.fsm.com/swagger/user/` | User |
+| `https://developer.fsm.com/swagger/bff/` | BFF |
+| `https://developer.fsm.com/swagger/notification/` | Notification |
+| `https://developer.fsm.com/swagger/setup/` | Setup |
+| `https://developer.fsm.com/swagger/file/` | File |
+| `https://developer.fsm.com/swagger/audit/` | Audit |
+| `https://developer.fsm.com/swagger/inventory/` | Inventory |
+| `https://developer.fsm.com/swagger/asset/` | Asset |
+| `https://developer.fsm.com/swagger/publisher/` | Publisher |
+| `https://developer.fsm.com/swagger/consumer/` | Consumer |
 
 When adding a service to local Compose, set `Swagger__RoutePrefix: swagger/{service}` on that container and add a matching block in `conf.d/includes/swagger-routes.conf`.
 
@@ -112,9 +122,9 @@ OAuth and invitation URLs are exposed through the gateway (register the same val
 
 | Setting | Local gateway value |
 | --- | --- |
-| `EntraExternalId:RedirectUri` | `https://localhost:8443/api/v1/auth/entra/callback` (signup/invite API callback) |
+| `EntraExternalId:RedirectUri` | `https://developer.fsm.com/api/v1/auth/entra/callback` (signup/invite API callback) |
 | `EntraExternalId:LoginRedirectUri` | SPA login callback (e.g. `https://localhost:3000/auth/callback`) |
-| `Invitation:InviteBaseUrl` | `https://localhost:8443/api/v1/invite/start` |
+| `Invitation:InviteBaseUrl` | `https://developer.fsm.com/api/v1/invite/start` |
 
 Both upstreams use `least_conn`, keepalive connections, passive health checks with `max_fails` and `fail_timeout`, and Docker health checks against each service's `/health` endpoint.
 
@@ -128,7 +138,7 @@ Compression is enabled at **two layers** (each compresses only when the response
 | **Gateway** | `nginx.conf` (local) and `nginx.prod.conf` (production) | Gzip |
 
 - Direct service access (local ports, inter-service debugging) benefits from ASP.NET response compression.
-- Public clients through `https://localhost:8443` also get gateway gzip for JSON and related MIME types.
+- Public clients through `https://developer.fsm.com` also get gateway gzip for JSON and related MIME types.
 - When an upstream already sends `Content-Encoding: gzip` or `br`, nginx passes it through without re-compressing.
 
 Optional per-service override in `appsettings.json`:
@@ -157,7 +167,7 @@ Inter-service Refit clients use **direct container DNS and ports** on the `fgs-p
 | Publisher | `IFgsClaimsClient` | `http://user-service:5001` |
 | Domain scaffolds | Direct container DNS | `http://crm-service:5009`, `http://scheduling-service:5010`, `http://billing-service:5011`, `http://inventory-service:5012`, `http://reporting-service:5013`, `http://integration-service:5014`, `http://asset-service:5015`, `http://service-agreement-service:5016`, `http://communication-service:5017` |
 
-Public-facing URLs (OAuth, invites, dashboard) use the NGINX gateway at `https://localhost:8443`.
+Public-facing URLs (OAuth, invites, dashboard) use the NGINX gateway at `https://developer.fsm.com`.
 
 ## Run Locally
 
@@ -181,21 +191,17 @@ docker compose up --build
 Test the gateway:
 
 ```powershell
-curl.exe -k https://localhost:8443/nginx-health
-curl.exe -k https://localhost:8443/api/v1/users/health
-curl.exe -k https://localhost:8443/api/v1/notifications/health
-curl.exe -k https://localhost:8443/api/v1/crm/health
-curl.exe -k https://localhost:8443/api/v1/scheduling/health
-curl.exe -k https://localhost:8443/api/v1/billing/health
-curl.exe -k https://localhost:8443/api/v1/inventory/health
-curl.exe -k https://localhost:8443/api/v1/reporting/health
-curl.exe -k https://localhost:8443/api/v1/integration/health
-curl.exe -k https://localhost:8443/api/v1/asset/health
-curl.exe -k https://localhost:8443/api/v1/service-agreements/health
-curl.exe -k https://localhost:8443/api/v1/communication/health
+curl.exe -k https://developer.fsm.com/nginx-health
+curl.exe -k https://developer.fsm.com/api/v1/auth/me
+curl.exe -k https://developer.fsm.com/api/v1/notification/dispatch
+curl.exe -k https://developer.fsm.com/api/v1/credential/
+curl.exe -k https://developer.fsm.com/api/v1/attachment/
+curl.exe -k https://developer.fsm.com/api/v1/vendor/
+curl.exe -k https://developer.fsm.com/api/v1/asset/
+curl.exe -k https://developer.fsm.com/swagger/
 ```
 
-Container health checks use each service's `/health` endpoint (see Dockerfiles). Setup and File API routes are reachable under `/api/v1/credentials/` and `/api/v1/tenants/` without a path prefix rewrite.
+Container health checks use each service's `/health` endpoint (see Dockerfiles). Public API routes match controller `[FgsVersionedRoute]` templates (singular path segments such as `/api/v1/credential`, `/api/v1/tenant`, `/api/v1/attachment`, `/api/v1/notification`).
 
 The local Compose file starts services in credential-safe order:
 
@@ -203,7 +209,7 @@ The local Compose file starts services in credential-safe order:
 2. `setup-service` (`5004`) — credential authority; bootstraps `ConnectionStrings:FgsSetup` from mounted appsettings (no dependency on other FGS APIs)
 3. `audit-service` (`5008`) starts after Setup; other credential consumers wait for Setup **and** Audit healthy
 4. Messaging workers: `publisher-service` (`5006`), `consumer-service` (`5007`)
-5. `nginx` — host ports `8080` / `8443` (waits for gateway upstream health checks)
+5. `nginx` — host ports `80` / `443` (waits for gateway upstream health checks)
 
 ### Credential bootstrap environment variables
 
@@ -245,11 +251,7 @@ Each API container mounts the **same** files you edit for local `dotnet run`:
 | Service Agreement | `src/ServiceAgreementService/Fgs.ServiceAgreement.API/appsettings.json` + `appsettings.Development.json` |
 | Communication | `src/CommunicationService/Fgs.Communication.API/appsettings.json` + `appsettings.Development.json` |
 
-Containers use `ASPNETCORE_ENVIRONMENT=Development`, so ASP.NET Core **merges** `appsettings.json` then `appsettings.Development.json` (same as Visual Studio / `dotnet run`). There are no duplicate Postgres settings in `docker-compose.yml`.
-
-Change connection strings in those JSON files and restart the service container; no image rebuild is required for config-only changes.
-
-`appsettings.Development.json` overrides `Host` to `host.docker.internal` so containers can reach Postgres on the host. Base `appsettings.json` keeps `localhost` for `dotnet run` on the machine when you use a profile without the Development override, or when `host.docker.internal` resolves on your OS.
+Containers use `ASPNETCORE_ENVIRONMENT=Production` and mount Setup `appsettings.json` (connection string + AWS/KMS bootstrap live there for Setup only until Secrets Manager). Redis is still set via Compose (`Redis__ConnectionString=redis:6379`) so the container reaches the Compose Redis service.
 
 ## Scale Services Locally
 
@@ -304,12 +306,21 @@ Local logs are mounted to `src/Gateway/logs`.
 ## Promote to a Linux VM
 
 1. Build and publish the service images to your registry.
-2. Copy `nginx.prod.conf`, `conf.d/site.prod.conf`, `proxy_params.conf`, and `cache_params.conf` to the VM.
-3. Replace `fgs.example.com` in `site.prod.conf` with the real hostname.
-4. Mount production certificates at `/etc/nginx/certs/tls.crt` and `/etc/nginx/certs/tls.key`.
-5. Run NGINX in Docker or install NGINX directly on the VM.
-6. Keep microservices on a private Docker network or private VM subnet.
-7. Publish only ports `80` and `443` from NGINX.
+2. Build the production gateway image (from repo root):
+
+```sh
+docker build -f src/Gateway/Dockerfile.prod -t fgs-gateway:prod src/Gateway
+```
+
+   Or copy these files to the VM and install NGINX directly:
+   - `nginx.prod.conf`
+   - `conf.d/site.prod.conf`
+   - `conf.d/includes/` (especially `api-v1-routes.prod.conf`, `upstreams.prod.conf`, `rate-limit.inc`)
+   - `proxy_params.conf`, `cache_params.conf`
+3. Mount production certificates at `/etc/nginx/certs/tls.crt` and `/etc/nginx/certs/tls.key` (`server_name` is `developer.fsm.com` in `site.prod.conf`).
+4. Run NGINX in Docker or install NGINX directly on the VM.
+5. Keep microservices on a private Docker network or private VM subnet.
+6. Publish only ports `80` and `443` from NGINX.
 
 For direct VM NGINX:
 
@@ -318,14 +329,20 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
+Validate route coverage against controllers before deploy:
+
+```powershell
+.\scripts\Compare-ApiRoutes.ps1
+```
+
 ## Kubernetes Path Later
 
 For Kubernetes, keep this routing model but move responsibilities as follows:
 
-- Use Kubernetes `Service` objects for `user-service`, `notification-service`, `setup-service`, `file-service`, `publisher-service`, `consumer-service`, `crm-service`, `scheduling-service`, `billing-service`, `inventory-service`, `reporting-service`, `integration-service`, `asset-service`, `service-agreement-service`, and `communication-service`.
+- Use Kubernetes `Service` objects for the live compose services: `user-service`, `bff-service`, `notification-service`, `setup-service`, `file-service`, `audit-service`, `inventory-service`, `asset-service`, `publisher-service`, and `consumer-service`.
 - Put TLS certificates in `kubernetes.io/tls` secrets, or use cert-manager.
-- Use NGINX Ingress Controller for path routing and prefix rewrite annotations.
-- Keep `/api/v1/users`, `/api/v1/notifications`, `/api/v1/credentials`, `/api/v1/communication-templates`, `/api/v1/tenants`, `/api/v1/crm`, `/api/v1/scheduling`, `/api/v1/billing`, `/api/v1/inventory`, `/api/v1/reporting`, `/api/v1/integration`, `/api/v1/asset`, `/api/v1/service-agreements`, and `/api/v1/communication` as the stable external contract.
+- Use NGINX Ingress Controller for path routing that mirrors `api-v1-routes.prod.conf` (no path-stripping rewrites).
+- Keep the current controller route templates as the stable external contract (`/api/v1/auth`, `/api/v1/notification`, `/api/v1/credential`, `/api/v1/tenant`, `/api/v1/attachment`, catalog controllers, etc.).
 - Move rate limiting, body size, gzip, timeouts, and security headers into Ingress annotations or a controller ConfigMap.
 
 The production NGINX files remain useful as the reference edge policy when converting to Ingress resources.

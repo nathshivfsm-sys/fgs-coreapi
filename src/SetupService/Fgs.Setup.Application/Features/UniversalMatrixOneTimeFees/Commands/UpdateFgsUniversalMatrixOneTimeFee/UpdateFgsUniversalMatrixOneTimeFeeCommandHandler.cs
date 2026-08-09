@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.UniversalMatrixOneTimeFees.Commands.UpdateFgsUniversalMatrixOneTimeFee;
 
 public sealed class UpdateFgsUniversalMatrixOneTimeFeeCommandHandler(
-    IFgsUniversalMatrixOneTimeFeeWriteRepository writeRepository,
+    IFgsUniversalMatrixOneTimeFeeWriteService writeService,
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<UpdateFgsUniversalMatrixOneTimeFeeCommandHandler> logger)
@@ -20,12 +20,12 @@ public sealed class UpdateFgsUniversalMatrixOneTimeFeeCommandHandler(
         UpdateFgsUniversalMatrixOneTimeFeeCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await writeRepository.UpdateAsync(request.Id, request.Dto, cancellationToken);
+        var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
         logger.LogInformation("Updated universal matrix one-time fee {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current!;
-            await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixonetimefee"),
-                cancellationToken);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixonetimefee"),
+            cancellationToken);
         return ApiResponse<FgsUniversalMatrixOneTimeFeeDetailDto>.Ok(result);
     }
 }

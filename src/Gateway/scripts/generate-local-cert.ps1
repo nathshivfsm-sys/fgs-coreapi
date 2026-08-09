@@ -1,6 +1,5 @@
 param(
-    [int]$Days = 365,
-    [string]$DeveloperHost = "developer.fsm.com"
+    [int]$Days = 365
 )
 
 $ErrorActionPreference = "Stop"
@@ -29,20 +28,19 @@ using System.Text;
 
 var certDir = args[0];
 var days = int.Parse(args[1]);
-var developerHost = args[2];
 Directory.CreateDirectory(certDir);
 
 using var rsa = RSA.Create(2048);
 var request = new CertificateRequest(
-    "CN=localhost, O=FGS, OU=Local Development, L=Local, S=Local, C=US",
+    "CN=developer.fsm.com, O=FGS, OU=Local Development, L=Local, S=Local, C=US",
     rsa,
     HashAlgorithmName.SHA256,
     RSASignaturePadding.Pkcs1);
 
 var san = new SubjectAlternativeNameBuilder();
+san.AddDnsName("developer.fsm.com");
 san.AddDnsName("localhost");
 san.AddDnsName("nginx");
-san.AddDnsName(developerHost);
 san.AddIpAddress(IPAddress.Parse("127.0.0.1"));
 san.AddIpAddress(IPAddress.IPv6Loopback);
 request.CertificateExtensions.Add(san.Build());
@@ -69,7 +67,7 @@ File.WriteAllText(
     Encoding.ASCII);
 '@ | Set-Content -Path (Join-Path $temp "Program.cs") -Encoding utf8
 
-    dotnet run --project $temp -- $certDir $Days $DeveloperHost
+    dotnet run --project $temp -- $certDir $Days
     Write-Host "Created $certPath and $keyPath"
     return
 }
@@ -89,15 +87,15 @@ ST = Local
 L = Local
 O = FGS
 OU = Local Development
-CN = localhost
+CN = developer.fsm.com
 
 [req_ext]
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = localhost
-DNS.2 = nginx
-DNS.3 = $DeveloperHost
+DNS.1 = developer.fsm.com
+DNS.2 = localhost
+DNS.3 = nginx
 IP.1 = 127.0.0.1
 IP.2 = ::1
 "@ | Set-Content -Path $configPath -Encoding ascii

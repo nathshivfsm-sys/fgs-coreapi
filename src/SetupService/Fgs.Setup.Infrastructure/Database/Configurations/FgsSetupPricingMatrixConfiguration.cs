@@ -27,7 +27,10 @@ internal class FgsSetupPricingMatrixConfiguration : IEntityTypeConfiguration<Fgs
 
         entity.Property(e => e.Code).HasMaxLength(50).IsRequired();
         entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
-        entity.Property(e => e.IsLaborTierStructure).HasDefaultValue(false);
+        entity.Property(e => e.IsLaborTierStructure)
+            .HasDefaultValue(false)
+            .HasComment(
+                "Indicates whether labor pricing in this pricing matrix is based on labor tiers. When false, standard labor pricing rules are applied. When true, labor charges are calculated using the configured labor tier structure.");
         entity.Property(e => e.IsLaborRateBySkillLevel).HasDefaultValue(false);
         entity.Property(e => e.EffectiveFrom).HasColumnType("date");
         entity.Property(e => e.EffectiveTo).HasColumnType("date");

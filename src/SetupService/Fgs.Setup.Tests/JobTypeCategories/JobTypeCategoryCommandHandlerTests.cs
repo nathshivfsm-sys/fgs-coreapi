@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.JobTypeCategories.Commands.DeleteJobTypeCat
 using Fgs.Setup.Application.Features.JobTypeCategories.Commands.UpdateJobTypeCategory;
 using Fgs.Setup.Application.Features.JobTypeCategories.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.JobTypeCategories;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +38,7 @@ public sealed class JobTypeCategoryCommandHandlerTests
             NullLogger<CreateJobTypeCategoryCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateJobTypeCategoryCommand(new JobTypeCategoryCreateDto("TEST", "Name", "Description value", 1)),
+            new CreateJobTypeCategoryCommand(new JobTypeCategoryCreateDto(1, 1, 1)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -70,7 +70,7 @@ public sealed class JobTypeCategoryCommandHandlerTests
             NullLogger<DeleteJobTypeCategoryCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateJobTypeCategoryCommand(new JobTypeCategoryCreateDto("TEST", "Name", "Description value", 1)),
+            new CreateJobTypeCategoryCommand(new JobTypeCategoryCreateDto(1, 1, 1)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 

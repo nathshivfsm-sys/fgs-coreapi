@@ -10,10 +10,8 @@ public sealed class CreateFgsUniversalMatrixAddOnCommandValidator : AbstractVali
 {
     public CreateFgsUniversalMatrixAddOnCommandValidator(IFgsUniversalMatrixAddOnReadRepository readRepository)
     {
-        RuleFor(x => x.Dto).MustAsync(async (command, dto, cancellationToken) =>
-                !await readRepository.ExistsByUniversalPricingServiceIdAndNameAsync(dto.UniversalPricingServiceId, dto.Name, null, cancellationToken))
-            .WithMessage("A universal matrix add-on with this combination already exists.");
-        RuleFor(x => x.Dto.UniversalPricingServiceId).MustAsync(async (command, value, cancellationToken) =>
+        RuleFor(x => x.Dto.UniversalPricingServiceId).GreaterThan(0);
+        RuleFor(x => x.Dto.UniversalPricingServiceId).MustAsync(async (_, value, cancellationToken) =>
                 await readRepository.ExistsUniversalPricingServiceIdAsync(value, cancellationToken))
             .WithMessage("The specified universal pricing service was not found.");
         RuleFor(x => x.Dto.Name).NotEmpty();
@@ -22,6 +20,9 @@ public sealed class CreateFgsUniversalMatrixAddOnCommandValidator : AbstractVali
         RuleFor(x => x.Dto.UnitType).MaximumLength(50);
         RuleFor(x => x.Dto.Price).GreaterThanOrEqualTo(0m);
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)1);
+        RuleFor(x => x.Dto.Name).MustAsync(async (command, value, cancellationToken) =>
+                !await readRepository.ExistsByNameAsync(command.Dto.UniversalPricingServiceId, value, null, cancellationToken))
+            .WithMessage("A universal matrix add-on with this name already exists for the universal pricing service.");
     }
 }
 
@@ -30,10 +31,8 @@ public sealed class UpdateFgsUniversalMatrixAddOnCommandValidator : AbstractVali
     public UpdateFgsUniversalMatrixAddOnCommandValidator(IFgsUniversalMatrixAddOnReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto).MustAsync(async (command, dto, cancellationToken) =>
-                !await readRepository.ExistsByUniversalPricingServiceIdAndNameAsync(dto.UniversalPricingServiceId, dto.Name, command.Id, cancellationToken))
-            .WithMessage("A universal matrix add-on with this combination already exists.");
-        RuleFor(x => x.Dto.UniversalPricingServiceId).MustAsync(async (command, value, cancellationToken) =>
+        RuleFor(x => x.Dto.UniversalPricingServiceId).GreaterThan(0);
+        RuleFor(x => x.Dto.UniversalPricingServiceId).MustAsync(async (_, value, cancellationToken) =>
                 await readRepository.ExistsUniversalPricingServiceIdAsync(value, cancellationToken))
             .WithMessage("The specified universal pricing service was not found.");
         RuleFor(x => x.Dto.Name).NotEmpty();
@@ -42,6 +41,9 @@ public sealed class UpdateFgsUniversalMatrixAddOnCommandValidator : AbstractVali
         RuleFor(x => x.Dto.UnitType).MaximumLength(50);
         RuleFor(x => x.Dto.Price).GreaterThanOrEqualTo(0m);
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)1);
+        RuleFor(x => x.Dto.Name).MustAsync(async (command, value, cancellationToken) =>
+                !await readRepository.ExistsByNameAsync(command.Dto.UniversalPricingServiceId, value, command.Id, cancellationToken))
+            .WithMessage("A universal matrix add-on with this name already exists for the universal pricing service.");
     }
 }
 
@@ -50,12 +52,9 @@ public sealed class PatchFgsUniversalMatrixAddOnCommandValidator : AbstractValid
     public PatchFgsUniversalMatrixAddOnCommandValidator(IFgsUniversalMatrixAddOnReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto).MustAsync(async (command, dto, cancellationToken) =>
-                !await readRepository.ExistsByUniversalPricingServiceIdAndNameAsync(dto.UniversalPricingServiceId!.Value, dto.Name!, command.Id, cancellationToken))
-            .WithMessage("A universal matrix add-on with this combination already exists.")
-            .When(x => x.Dto.UniversalPricingServiceId.HasValue && x.Dto.Name is not null);
+        RuleFor(x => x.Dto.UniversalPricingServiceId).GreaterThan(0).When(x => x.Dto.UniversalPricingServiceId.HasValue);
         RuleFor(x => x.Dto.UniversalPricingServiceId).MustAsync(async (_, value, cancellationToken) =>
-                await readRepository.ExistsUniversalPricingServiceIdAsync(value!.Value, cancellationToken))
+                !value.HasValue || await readRepository.ExistsUniversalPricingServiceIdAsync(value.Value, cancellationToken))
             .WithMessage("The specified universal pricing service was not found.")
             .When(x => x.Dto.UniversalPricingServiceId.HasValue);
         RuleFor(x => x.Dto.Name).NotEmpty().When(x => x.Dto.Name is not null);

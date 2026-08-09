@@ -6,17 +6,19 @@ using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Commands.CreateFgsUniversalMatrixSizeTier;
 using Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Commands.PatchFgsUniversalMatrixSizeTier;
 using Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Commands.UpdateFgsUniversalMatrixSizeTier;
+using Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Dtos;
 using Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Queries.GetFgsUniversalMatrixSizeTierById;
 using Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Queries.ListUniversalMatrixSizeTiers;
 using Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Queries.LookupUniversalMatrixSizeTiers;
-using Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Dtos;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
 
 /// <summary>
-/// Tenant-scoped universal matrix size tier catalog management.
+/// Tenant-scoped universal matrix size tier management.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("universalmatrixsizetier")]
@@ -41,14 +43,14 @@ public sealed class UniversalMatrixSizeTierController(IMediator mediator) : Cont
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
         [FromQuery] bool? isActive = null,
-        [FromQuery] string? name = null,
         [FromQuery] long? universalPricingServiceId = null,
+        [FromQuery] string? name = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListUniversalMatrixSizeTiersQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new FgsUniversalMatrixSizeTierListFilters(name, universalPricingServiceId)),
+                new FgsUniversalMatrixSizeTierListFilters(universalPricingServiceId, name)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);
@@ -61,10 +63,13 @@ public sealed class UniversalMatrixSizeTierController(IMediator mediator) : Cont
         [FromQuery] long? universalPricingServiceId = null,
         CancellationToken cancellationToken = default)
     {
-        var response = await mediator.Send(new LookupUniversalMatrixSizeTiersQuery(activeOnly, universalPricingServiceId), cancellationToken);
+        var response = await mediator.Send(
+            new LookupUniversalMatrixSizeTiersQuery(activeOnly, universalPricingServiceId),
+            cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsUniversalMatrixSizeTierDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -77,6 +82,7 @@ public sealed class UniversalMatrixSizeTierController(IMediator mediator) : Cont
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsUniversalMatrixSizeTierDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -90,6 +96,7 @@ public sealed class UniversalMatrixSizeTierController(IMediator mediator) : Cont
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsUniversalMatrixSizeTierDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

@@ -26,4 +26,6 @@ public class FgsInventoryItemDependency : FgsEntityBase, ITenantCompanyScoped
     public short DisplayOrder { get; set; } = 1;
 
     public bool IsActive { get; set; } = true;
+
+    public FgsInventoryItem? InventoryItem { get; set; }
 }

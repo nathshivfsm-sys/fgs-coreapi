@@ -8,8 +8,9 @@ using Fgs.Setup.Application.Features.UniversalMatrixTiers.Commands.CreateFgsUniv
 using Fgs.Setup.Application.Features.UniversalMatrixTiers.Commands.DeleteFgsUniversalMatrixTier;
 using Fgs.Setup.Application.Features.UniversalMatrixTiers.Commands.UpdateFgsUniversalMatrixTier;
 using Fgs.Setup.Application.Features.UniversalMatrixTiers.Dtos;
+using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixTiers;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,7 @@ public sealed class FgsUniversalMatrixTierCommandHandlerTests
     public async Task CreateHandler_CreatesActiveRecord()
     {
         await using var context = await CreateContextAsync();
+        var parentId = await SeedParentAsync(context);
         var writeService = CreateWriteService(context);
         var cache = new Mock<ICacheService>();
         var tenantAccessor = CreateTenantContextAccessor();
@@ -38,12 +40,15 @@ public sealed class FgsUniversalMatrixTierCommandHandlerTests
             NullLogger<CreateFgsUniversalMatrixTierCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateFgsUniversalMatrixTierCommand(new FgsUniversalMatrixTierCreateDto(1, "Name", 10.5m, 5)),
+            new CreateFgsUniversalMatrixTierCommand(
+                new FgsUniversalMatrixTierCreateDto(parentId, "Standard", 1.0m, 1)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
         response.Data!.IsActive.Should().BeTrue();
+        response.Data.Name.Should().Be("Standard");
+        response.Data.UniversalPricingServiceId.Should().Be(parentId);
         cache.Verify(
             c => c.RemoveByPrefixAsync(
                 CacheKeys.EntityPrefix(TenantId, CompanyId, "universalmatrixtier"),
@@ -52,27 +57,56 @@ public sealed class FgsUniversalMatrixTierCommandHandlerTests
     }
 
     [Fact]
-    public async Task DeleteHandler_SoftDeletes()
+    public async Task UpdateHandler_UpdatesFields()
     {
         await using var context = await CreateContextAsync();
+        var parentId = await SeedParentAsync(context);
         var writeService = CreateWriteService(context);
         var cache = new Mock<ICacheService>();
         var tenantAccessor = CreateTenantContextAccessor();
         var createHandler = new CreateFgsUniversalMatrixTierCommandHandler(
-            writeService,
-            cache.Object,
-            tenantAccessor,
+            writeService, cache.Object, tenantAccessor,
+            NullLogger<CreateFgsUniversalMatrixTierCommandHandler>.Instance);
+        var updateHandler = new UpdateFgsUniversalMatrixTierCommandHandler(
+            writeService, cache.Object, tenantAccessor,
+            NullLogger<UpdateFgsUniversalMatrixTierCommandHandler>.Instance);
+
+        var created = await createHandler.Handle(
+            new CreateFgsUniversalMatrixTierCommand(
+                new FgsUniversalMatrixTierCreateDto(parentId, "Keep", 1.0m, 1)),
+            CancellationToken.None);
+
+        var updated = await updateHandler.Handle(
+            new UpdateFgsUniversalMatrixTierCommand(
+                created.Data!.Id,
+                new FgsUniversalMatrixTierUpdateDto(parentId, "Keep Updated", 1.25m, 2)),
+            CancellationToken.None);
+
+        updated.Success.Should().BeTrue();
+        updated.Data!.Name.Should().Be("Keep Updated");
+        updated.Data.Multiplier.Should().Be(1.25m);
+        updated.Data.DisplayOrder.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task DeleteHandler_SoftDeletes()
+    {
+        await using var context = await CreateContextAsync();
+        var parentId = await SeedParentAsync(context);
+        var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var createHandler = new CreateFgsUniversalMatrixTierCommandHandler(
+            writeService, cache.Object, tenantAccessor,
             NullLogger<CreateFgsUniversalMatrixTierCommandHandler>.Instance);
         var deleteHandler = new DeleteFgsUniversalMatrixTierCommandHandler(
-            writeService,
-            cache.Object,
-            tenantAccessor,
+            writeService, cache.Object, tenantAccessor,
             NullLogger<DeleteFgsUniversalMatrixTierCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateFgsUniversalMatrixTierCommand(new FgsUniversalMatrixTierCreateDto(1, "Name", 10.5m, 5)),
+            new CreateFgsUniversalMatrixTierCommand(
+                new FgsUniversalMatrixTierCreateDto(parentId, "Standard", 1.0m, 1)),
             CancellationToken.None);
-        created.Success.Should().BeTrue();
 
         var response = await deleteHandler.Handle(
             new DeleteFgsUniversalMatrixTierCommand(created.Data!.Id),
@@ -82,13 +116,28 @@ public sealed class FgsUniversalMatrixTierCommandHandlerTests
         response.Data!.IsActive.Should().BeFalse();
     }
 
+    private static async Task<long> SeedParentAsync(FgsSetupDbContext context)
+    {
+        var parent = new FgsUniversalPricingService
+        {
+            UniversalPricingServiceCode = "TEST",
+            DisplayOrder = 1,
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            IsActive = true
+        };
+        context.FgsUniversalPricingServices.Add(parent);
+        await context.SaveChangesAsync();
+        return parent.Id;
+    }
+
     private static ITenantContextAccessor CreateTenantContextAccessor() =>
         new TestTenantContextAccessor
         {
             Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId }
         };
 
-    private static FgsUniversalMatrixTierWriteRepository CreateWriteService(FgsSetupDbContext context)
+    private static FgsUniversalMatrixTierWriteService CreateWriteService(FgsSetupDbContext context)
     {
         var userContext = new Mock<IFgsUserContext>();
         userContext.SetupGet(x => x.TenantId).Returns(TenantId);
@@ -105,7 +154,7 @@ public sealed class FgsUniversalMatrixTierCommandHandlerTests
             tenantAccessor,
             new DateTimeProvider());
         var unitOfWork = new EfUnitOfWork<FgsSetupDbContext>(context);
-        return new FgsUniversalMatrixTierWriteRepository(context, unitOfWork, auditHelper);
+        return new FgsUniversalMatrixTierWriteService(context, unitOfWork, auditHelper);
     }
 
     private static async Task<FgsSetupDbContext> CreateContextAsync()

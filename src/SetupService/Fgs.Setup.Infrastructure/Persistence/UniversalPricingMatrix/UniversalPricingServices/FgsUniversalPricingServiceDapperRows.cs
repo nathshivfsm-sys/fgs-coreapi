@@ -10,11 +10,7 @@ internal sealed class FgsUniversalPricingServiceSummaryRow
     public bool IsActive { get; set; }
 
     public FgsUniversalPricingServiceSummaryDto ToDto() =>
-        new(
-            Id,
-            UniversalPricingServiceCode,
-            DisplayOrder,
-            IsActive);
+        new(Id, UniversalPricingServiceCode, DisplayOrder, IsActive);
 }
 
 internal sealed class FgsUniversalPricingServiceDetailRow
@@ -25,11 +21,7 @@ internal sealed class FgsUniversalPricingServiceDetailRow
     public bool IsActive { get; set; }
 
     public FgsUniversalPricingServiceDetailDto ToDto() =>
-        new(
-            Id,
-            UniversalPricingServiceCode,
-            DisplayOrder,
-            IsActive);
+        new(Id, UniversalPricingServiceCode, DisplayOrder, IsActive);
 }
 
 internal sealed class FgsUniversalPricingServiceLookupRow
@@ -38,7 +30,6 @@ internal sealed class FgsUniversalPricingServiceLookupRow
     public string UniversalPricingServiceCode { get; set; } = null!;
     public short DisplayOrder { get; set; }
 
-    public FgsUniversalPricingServiceLookupDto ToDto() => new(Id,
-            UniversalPricingServiceCode,
-            DisplayOrder);
+    public FgsUniversalPricingServiceLookupDto ToDto() =>
+        new(Id, UniversalPricingServiceCode, DisplayOrder);
 }

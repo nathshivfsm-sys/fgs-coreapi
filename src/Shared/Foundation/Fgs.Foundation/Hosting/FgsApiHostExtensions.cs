@@ -1,10 +1,14 @@
 using System.Reflection;
+using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
 using Fgs.Foundation.Compression.Extensions;
 using Fgs.Foundation.Extensions;
+using Fgs.Foundation.Idempotency;
 using Fgs.MultiTenancy.Extensions;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -28,8 +32,43 @@ public static class FgsApiHostExtensions
         }
 
         builder.Services.AddFgsApiVersioning();
+        builder.Services.AddFgsHttpIdempotency();
         builder.Services.AddControllers()
-            .AddJsonOptions(json => json.JsonSerializerOptions.ConfigureFgsApi());
+            .AddJsonOptions(json => json.JsonSerializerOptions.ConfigureFgsApi())
+            .ConfigureApiBehaviorOptions(api =>
+            {
+                api.InvalidModelStateResponseFactory = context =>
+                {
+                    var errors = context.ModelState
+                        .Where(entry => entry.Value is { Errors.Count: > 0 })
+                        .SelectMany(entry => entry.Value!.Errors.Select(error =>
+                        {
+                            if (!string.IsNullOrWhiteSpace(error.ErrorMessage))
+                            {
+                                return error.ErrorMessage;
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(error.Exception?.Message))
+                            {
+                                return error.Exception.Message;
+                            }
+
+                            return string.IsNullOrWhiteSpace(entry.Key)
+                                ? "The request is invalid."
+                                : $"{entry.Key} is invalid.";
+                        }))
+                        .Distinct()
+                        .ToArray();
+
+                    if (errors.Length == 0)
+                    {
+                        errors = ["The request is invalid."];
+                    }
+
+                    return new BadRequestObjectResult(
+                        ApiResponse<object>.Fail(errors, StatusCodes.Status400BadRequest));
+                };
+            });
         builder.Services.ConfigureHttpJsonOptions(json =>
             json.SerializerOptions.ConfigureFgsApi());
         builder.Services.AddFgsSwagger(swagger =>

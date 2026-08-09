@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.SetupPaymentMethods.Commands.DeleteFgsSetup
 using Fgs.Setup.Application.Features.SetupPaymentMethods.Commands.UpdateFgsSetupPaymentMethod;
 using Fgs.Setup.Application.Features.SetupPaymentMethods.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.SetupPaymentMethods;
 using Microsoft.EntityFrameworkCore;

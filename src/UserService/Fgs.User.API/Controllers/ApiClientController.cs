@@ -11,6 +11,8 @@ using Fgs.User.Application.Features.ApiClients.Queries.GetFgsApiClientById;
 using Fgs.User.Application.Features.ApiClients.Queries.ListFgsApiClients;
 using Fgs.User.Application.Features.ApiClients.Queries.LookupFgsApiClients;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -54,6 +56,7 @@ public sealed class ApiClientController(IMediator mediator) : FgsApiControllerBa
         CancellationToken cancellationToken = default) =>
         FromApiResponse(await Mediator.Send(new LookupFgsApiClientsQuery(activeOnly), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsApiClientDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -63,6 +66,7 @@ public sealed class ApiClientController(IMediator mediator) : FgsApiControllerBa
         CancellationToken cancellationToken) =>
         CreatedFromApiResponse(await Mediator.Send(new CreateFgsApiClientCommand(request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsApiClientDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -73,6 +77,7 @@ public sealed class ApiClientController(IMediator mediator) : FgsApiControllerBa
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new UpdateFgsApiClientCommand(id, request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsApiClientDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

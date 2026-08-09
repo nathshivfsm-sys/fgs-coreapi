@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
-using Fgs.User.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.User.Infrastructure.Common.Security;
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Options;
@@ -15,7 +15,6 @@ using Fgs.Contracts.Clients;
 using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
-using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Infrastructure.Database;
 using Fgs.User.Infrastructure.Messaging;
 using Fgs.Persistence.Implementations;

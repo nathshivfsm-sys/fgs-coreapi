@@ -22,7 +22,7 @@ internal static class TenantJoinedChildSeedHelper
         string targetSchema,
         CancellationToken cancellationToken)
     {
-        var referenceMapping = mappings.FirstOrDefault();
+        var referenceMapping = SelectReferenceMapping(mappings, targetSchema);
         var sourceSchema = referenceMapping?.SourceSchemaName ?? FgsDatabaseSchemas.Glo;
         var sourceDatabaseName = referenceMapping?.SourceDatabaseName;
         var targetDatabaseName = referenceMapping?.TargetDatabaseName;
@@ -40,6 +40,31 @@ internal static class TenantJoinedChildSeedHelper
             sourceDatabaseName,
             targetDatabaseName,
             connectionScope.IsCrossDatabase(sourceDatabaseName, targetDatabaseName));
+    }
+
+    /// <summary>
+    /// Picks a glo→target mapping for soft-path seeds. Cache mappings (SeedOrder 1+) use
+    /// <c>tenant</c> as source and must not drive catalog joins.
+    /// </summary>
+    internal static GloSeedTableMapping? SelectReferenceMapping(
+        IReadOnlyList<GloSeedTableMapping> mappings,
+        string targetSchema)
+    {
+        if (mappings.Count == 0)
+        {
+            return null;
+        }
+
+        var gloToTarget = mappings.FirstOrDefault(m =>
+            string.Equals(m.SourceSchemaName, FgsDatabaseSchemas.Glo, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(m.TargetSchemaName, targetSchema, StringComparison.OrdinalIgnoreCase));
+        if (gloToTarget is not null)
+        {
+            return gloToTarget;
+        }
+
+        return mappings.FirstOrDefault(m =>
+            string.Equals(m.SourceSchemaName, FgsDatabaseSchemas.Glo, StringComparison.OrdinalIgnoreCase));
     }
 
     internal static async Task<bool> IsTenantCompanySeededAsync(

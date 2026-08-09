@@ -78,7 +78,8 @@ FROM (
         ('INVOICE',         true, true, 11),
         ('Warehouse',       true, true, 12),
         ('Vehicle',         true, true, 13),
-        ('VehicleMaintenance', true, true, 14)
+        ('VehicleMaintenance', true, true, 14),
+        ('EMPLOYEE',        true, true, 15)
 ) AS v("Code", "IsDocumentAllowed", "IsActive", "SortOrder")
 WHERE NOT EXISTS (
     SELECT 1
@@ -181,32 +182,6 @@ WHERE NOT EXISTS (
 SELECT setval(
     pg_get_serial_sequence('glo."GloAccountingIntegrationType"', 'Id'),
     COALESCE((SELECT MAX("Id") FROM glo."GloAccountingIntegrationType"), 1),
-    true);
-
--- GloTimeCardOption
-INSERT INTO glo."GloTimeCardOption"
-(
-    "Code",
-    "Name"
-)
-SELECT
-    v."Code",
-    v."Name"
-FROM (
-    VALUES
-        ('NONE',                   'No formal technician time tracking workflow'),
-        ('DISPATCHARRIVECOMPLETE', 'Tracks dispatch, arrival, and completion timestamps'),
-        ('CHECKINCHECKOUT',        'Technician manually checks in and checks out')
-) AS v("Code", "Name")
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM glo."GloTimeCardOption" t
-    WHERE t."Code" = v."Code"
-);
-
-SELECT setval(
-    pg_get_serial_sequence('glo."GloTimeCardOption"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM glo."GloTimeCardOption"), 1),
     true);
 
 -- GloBusinessType (explicit Id: sequential 1..n; OTHER last)
@@ -403,7 +378,11 @@ FROM (
             'Amazon Web Services',
             '[
                 {"key":"AccessKeyId","label":"Access Key ID","type":"text","required":true},
-                {"key":"SecretAccessKey","label":"Secret Access Key","type":"password","required":true,"sensitive":true}
+                {"key":"SecretAccessKey","label":"Secret Access Key","type":"password","required":true,"sensitive":true},
+                {"key":"KmsKeyArn","label":"KMS Key ARN","type":"text","required":false},
+                {"key":"Region","label":"AWS Region","type":"text","required":false},
+                {"key":"BucketNamePrefix","label":"S3 Bucket Name Prefix","type":"text","required":false},
+                {"key":"ApplicationSlug","label":"Application Slug","type":"text","required":false}
             ]',
             TRUE
         ),
@@ -418,6 +397,8 @@ FROM (
                 {"key":"RedirectUri","label":"Redirect URI","type":"text","required":true},
                 {"key":"Scopes","label":"Scopes","type":"text","required":true},
                 {"key":"UserFlow","label":"User Flow","type":"text","required":false},
+                {"key":"PasswordUserFlow","label":"Password User Flow","type":"text","required":false},
+                {"key":"LoginRedirectUri","label":"Login Redirect URI","type":"text","required":false},
                 {"key":"AuthorizeEndpoint","label":"Authorize Endpoint","type":"text","required":false},
                 {"key":"TokenEndpoint","label":"Token Endpoint","type":"text","required":false}
             ]',
@@ -561,7 +542,11 @@ FROM (
             'Amazon Web Services',
             '[
                 {"key":"AccessKeyId","label":"Access Key ID","type":"text","required":true},
-                {"key":"SecretAccessKey","label":"Secret Access Key","type":"password","required":true,"sensitive":true}
+                {"key":"SecretAccessKey","label":"Secret Access Key","type":"password","required":true,"sensitive":true},
+                {"key":"KmsKeyArn","label":"KMS Key ARN","type":"text","required":false},
+                {"key":"Region","label":"AWS Region","type":"text","required":false},
+                {"key":"BucketNamePrefix","label":"S3 Bucket Name Prefix","type":"text","required":false},
+                {"key":"ApplicationSlug","label":"Application Slug","type":"text","required":false}
             ]',
             TRUE
         ),
@@ -576,6 +561,8 @@ FROM (
                 {"key":"RedirectUri","label":"Redirect URI","type":"text","required":true},
                 {"key":"Scopes","label":"Scopes","type":"text","required":true},
                 {"key":"UserFlow","label":"User Flow","type":"text","required":false},
+                {"key":"PasswordUserFlow","label":"Password User Flow","type":"text","required":false},
+                {"key":"LoginRedirectUri","label":"Login Redirect URI","type":"text","required":false},
                 {"key":"AuthorizeEndpoint","label":"Authorize Endpoint","type":"text","required":false},
                 {"key":"TokenEndpoint","label":"Token Endpoint","type":"text","required":false}
             ]',
@@ -1196,87 +1183,6 @@ WHERE NOT EXISTS (
 SELECT setval(
     pg_get_serial_sequence('glo."GloZone"', 'Id'),
     COALESCE((SELECT MAX("Id") FROM glo."GloZone"), 1),
-    true);
-
--- GloJobTypeSubCategory
-INSERT INTO glo."GloJobTypeSubCategory"
-(
-    "Code",
-    "Name",
-    "Description",
-    "IsActive",
-    "CreatedOn"
-)
-SELECT
-    v."Code",
-    v."Name",
-    v."Description",
-    v."IsActive",
-    timezone('utc', now())
-FROM (
-    VALUES
-        ('INSTALL',      'Install',      'Installation service', true),
-        ('REPAIR',       'Repair',       'Repair service', true),
-        ('SERVICE',      'Service',      'General maintenance service', true),
-        ('REPLACE',      'Replace',      'Replacement service', true),
-        ('INSPECT',      'Inspect',      'Inspection service', true),
-        ('MAINTENANCE',  'Maintenance',  'Preventive maintenance service', true),
-        ('TROUBLESHOOT', 'Troubleshoot', 'Diagnostic and troubleshooting service', true),
-        ('CLEANING',     'Cleaning',     'Cleaning service', true),
-        ('TUNEUP',       'Tune-Up',      'System tune-up service', true),
-        ('UPGRADE',      'Upgrade',      'Upgrade existing equipment or system', true)
-) AS v("Code", "Name", "Description", "IsActive")
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM glo."GloJobTypeSubCategory" sc
-    WHERE sc."Code" = v."Code"
-);
-
-SELECT setval(
-    pg_get_serial_sequence('glo."GloJobTypeSubCategory"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM glo."GloJobTypeSubCategory"), 1),
-    true);
-
--- GloJobTypeCategory
-INSERT INTO glo."GloJobTypeCategory"
-(
-    "BusinessTypeId",
-    "Code",
-    "Name",
-    "Description",
-    "IsActive",
-    "CreatedOn"
-)
-SELECT
-    bt."Id",
-    v."Code",
-    v."Name",
-    v."Description",
-    true,
-    timezone('utc', now())
-FROM (
-    VALUES
-        ('HVAC',       'AC',          'Air Conditioning',     'Air conditioning systems'),
-        ('HVAC',       'FURNACE',     'Furnace',              'Heating furnace systems'),
-        ('HVAC',       'THERMOSTAT',  'Thermostat',           'Thermostat systems and controls'),
-        ('PLUMBING',   'TOILET',      'Toilet',               'Toilet systems'),
-        ('PLUMBING',   'FAUCET',      'Faucet',               'Faucet systems'),
-        ('PLUMBING',   'WATERHEATER', 'Water Heater',         'Water heater systems'),
-        ('ELECTRICAL', 'PANEL',       'Electrical Panel',     'Electrical panel systems'),
-        ('ELECTRICAL', 'LIGHTING',    'Lighting',             'Lighting systems'),
-        ('ELECTRICAL', 'OUTLET',      'Outlet',               'Electrical outlet systems')
-) AS v("BusinessTypeCode", "Code", "Name", "Description")
-INNER JOIN glo."GloBusinessType" bt ON bt."Code" = v."BusinessTypeCode"
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM glo."GloJobTypeCategory" c
-    WHERE c."BusinessTypeId" = bt."Id"
-      AND c."Code" = v."Code"
-);
-
-SELECT setval(
-    pg_get_serial_sequence('glo."GloJobTypeCategory"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM glo."GloJobTypeCategory"), 1),
     true);
 
 -- GloInventoryItemType
@@ -1976,8 +1882,6 @@ FROM (
         ('ALL_GloRole', 'fgs_dev_db', 'glo', 'GloRole', 'fgs_dev_db', 'identity', 'FgsRole', 15, 'Tenant assignable roles (identity)', true),
         ('ALL_GloBillingCategory', 'fgs_dev_db', 'glo', 'GloBillingCategory', 'fgs_dev_db', 'setup', 'FgsBillingCategory', 100, 'Billing Category', true),
         ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', 'fgs_dev_db', 'glo', 'GloInventoryCategory', 'fgs_dev_db', 'inventory', 'FgsInventoryCategory', 105, 'Inventory Category', true),
-        ('ALL_GloJobTypeCategory', 'fgs_dev_db', 'glo', 'GloJobTypeCategory', 'fgs_dev_db', 'setup', 'FgsJobTypeCategory', 130, 'JobType Categories', true),
-        ('ALL_GloJobTypeSubCategory', 'fgs_dev_db', 'glo', 'GloJobTypeSubCategory', 'fgs_dev_db', 'setup', 'FgsJobTypeSubCategory', 160, 'JobType Sub Categories', true),
         ('ALL_GloLeadSource', 'fgs_dev_db', 'glo', 'GloLeadSource', 'fgs_dev_db', 'setup', 'FgsLeadSource', 190, 'Lead Source', true),
         ('ALL_GloLeadStatus', 'fgs_dev_db', 'glo', 'GloLeadStatus', 'fgs_dev_db', 'setup', 'FgsLeadStatus', 195, 'Lead Status', true),
         ('ALL_GloLeadDisqualificationReason', 'fgs_dev_db', 'glo', 'GloLeadDisqualificationReason', 'fgs_dev_db', 'setup', 'FgsLeadDisqualificationReason', 198, 'Lead Disqualification Reason', true),
@@ -2183,28 +2087,6 @@ INNER JOIN (
         ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', 'IsActive', 'IsActive', NULL, NULL, 8, true, true),
         ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 9, true, true),
         ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 10, false, true),
-
-        -- ALL_GloJobTypeCategory -> FgsJobTypeCategory
-        ('ALL_GloJobTypeCategory', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
-        ('ALL_GloJobTypeCategory', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
-        ('ALL_GloJobTypeCategory', 'Code', 'CategoryCode', NULL, NULL, 3, true, true),
-        ('ALL_GloJobTypeCategory', 'Name', 'Name', NULL, NULL, 4, true, true),
-        ('ALL_GloJobTypeCategory', 'Description', 'Description', NULL, NULL, 5, false, true),
-        ('ALL_GloJobTypeCategory', 'Id', 'DisplayOrder', NULL, NULL, 6, true, true),
-        ('ALL_GloJobTypeCategory', 'IsActive', 'IsActive', NULL, NULL, 7, true, true),
-        ('ALL_GloJobTypeCategory', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 8, true, true),
-        ('ALL_GloJobTypeCategory', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 9, false, true),
-
-        -- ALL_GloJobTypeSubCategory -> FgsJobTypeSubCategory
-        ('ALL_GloJobTypeSubCategory', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
-        ('ALL_GloJobTypeSubCategory', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
-        ('ALL_GloJobTypeSubCategory', 'Code', 'SubCategoryCode', NULL, NULL, 3, true, true),
-        ('ALL_GloJobTypeSubCategory', 'Name', 'Name', NULL, NULL, 4, true, true),
-        ('ALL_GloJobTypeSubCategory', 'Description', 'Description', NULL, NULL, 5, false, true),
-        ('ALL_GloJobTypeSubCategory', 'Id', 'DisplayOrder', NULL, NULL, 6, true, true),
-        ('ALL_GloJobTypeSubCategory', 'IsActive', 'IsActive', NULL, NULL, 7, true, true),
-        ('ALL_GloJobTypeSubCategory', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 8, true, true),
-        ('ALL_GloJobTypeSubCategory', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 9, false, true),
 
         -- ALL_GloLeadSource -> FgsLeadSource
         ('ALL_GloLeadSource', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
@@ -2504,6 +2386,30 @@ FROM glo."GloSeedTableMapping" m
 WHERE existing."SeedTableMappingId" = m."Id"
   AND m."SeedCode" = 'ALL_GloRole'
   AND existing."TargetColumnName" = 'CreatedBy';
+
+-- Retire obsolete JobType catalog seeds (hierarchy redesign) and JOINED_PARENT
+-- mappings that are handled only by TenantDataSeedingEngine soft paths.
+DELETE FROM glo."GloSeedTableColumnMapping"
+WHERE "SeedTableMappingId" IN (
+    SELECT "Id"
+    FROM glo."GloSeedTableMapping"
+    WHERE "SeedCode" IN (
+        'ALL_GloJobTypeCategory',
+        'ALL_GloJobTypeSubCategory',
+        'GLO_INVENTORY_SUBCATEGORY_TO_FGS_INVENTORY_SUBCATEGORY',
+        'ALL_GloUniversalMatrixTier',
+        'ALL_GloUniversalMatrixSizeTier'
+    )
+);
+
+DELETE FROM glo."GloSeedTableMapping"
+WHERE "SeedCode" IN (
+    'ALL_GloJobTypeCategory',
+    'ALL_GloJobTypeSubCategory',
+    'GLO_INVENTORY_SUBCATEGORY_TO_FGS_INVENTORY_SUBCATEGORY',
+    'ALL_GloUniversalMatrixTier',
+    'ALL_GloUniversalMatrixSizeTier'
+);
 
 SELECT setval(
     pg_get_serial_sequence('glo."GloSeedTableColumnMapping"', 'Id'),

@@ -4,7 +4,7 @@ using Fgs.Contracts.IntegrationEvents;
 using Fgs.Messaging.Abstractions;
 using Fgs.Credentials.Abstractions;
 using Fgs.Setup.Application.Abstractions.Credentials;
-using Fgs.Setup.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Domain.Enums;
 using Fgs.Persistence.Abstractions;

@@ -1,4 +1,5 @@
 using Fgs.User.Domain.Entities;
+using Fgs.User.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,6 +13,11 @@ internal class FgsTenantServiceSetupConfiguration : IEntityTypeConfiguration<Fgs
         entity.HasKey(e => new { e.TenantId, e.CompanyId });
         entity.Property(e => e.TenantId).HasColumnOrder(0);
         entity.Property(e => e.CompanyId).HasColumnOrder(1);
+        entity.Property(e => e.TimeCardOptionId)
+            .HasConversion<short>()
+            .IsRequired()
+            .HasComment(
+                "Determines the technician time tracking workflow. Valid values: 1 = No formal technician time tracking workflow, 2 = Technician manually checks in and checks out, 3 = Tracks dispatch, arrival, and completion timestamps, 4 = Tracks dispatch, arrival, completion, and documentation time timestamps.");
         entity.Property(e => e.BillHoursFromDispatchOrArrive).HasMaxLength(20);
         entity.Property(e => e.InvoiceNumberPrefix).HasMaxLength(20);
         entity.Property(e => e.QuoteNumberPrefix).HasMaxLength(20);
@@ -31,6 +37,9 @@ internal class FgsTenantServiceSetupConfiguration : IEntityTypeConfiguration<Fgs
             t.HasCheckConstraint(
                 "CK_FgsTenantServiceSetup_DTRange",
                 "\"DTStartTime\" IS NULL OR \"DTEndTime\" IS NULL OR \"DTEndTime\" > \"DTStartTime\"");
+            t.HasCheckConstraint(
+                "CK_FgsTenantServiceSetup_TimeCardOptionId",
+                "\"TimeCardOptionId\" IN (1, 2, 3, 4)");
         });
     }
 }

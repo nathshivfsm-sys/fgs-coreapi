@@ -23,7 +23,7 @@ public sealed class LookupUniversalMatrixFrequencyDiscountsQueryHandler(
             tenantScope.TenantId,
             tenantScope.CompanyId,
             "universalmatrixfrequencydiscount",
-            $"{CacheKeys.LookupSegment(request.ActiveOnly)}:universalPricingServiceId={request.UniversalPricingServiceId?.ToString() ?? "all"}");
+            $"{CacheKeys.LookupSegment(request.ActiveOnly)}:ups:{request.UniversalPricingServiceId}");
 
         var result = await cache.GetOrSetAsync(
             cacheKey,

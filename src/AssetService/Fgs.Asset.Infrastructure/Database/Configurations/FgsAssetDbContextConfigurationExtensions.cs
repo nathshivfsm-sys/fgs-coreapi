@@ -42,6 +42,7 @@ internal static class FgsAssetDbContextConfigurationExtensions
                 nameof(FgsServiceLocationCache.CompanyId),
                 nameof(FgsServiceLocationCache.ServiceLocationId))
             .HasConstraintName(constraintName)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
     }
 

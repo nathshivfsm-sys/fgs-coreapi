@@ -27,7 +27,7 @@ public static class DependencyInjection
             options =>
             {
                 options.ServiceName = "fgs-publisher-service";
-                options.RequiredProviders = ["DATABASE", "RABBITMQ"];
+                options.RequiredProviders = ["DATABASE", "RABBITMQ", "ENTRA_EXTERNAL_ID"];
             },
             typeof(RabbitMqOptions));
 
@@ -41,7 +41,7 @@ public static class DependencyInjection
         services.PostConfigure<RabbitMqOptions>(options =>
         {
             options.ClientProvidedName = "Fgs.Publisher";
-            options.AutomaticRecoveryEnabled = false;
+            options.AutomaticRecoveryEnabled = true;
         });
 
         services.AddSingleton<IOutboxStore>(sp =>
@@ -49,12 +49,12 @@ public static class DependencyInjection
             var sourceOptions = sp.GetRequiredService<IOptions<OutboxSourcesOptions>>().Value;
             var config = sp.GetRequiredService<IConfiguration>();
             var credentialProvider = sp.GetService<ICredentialConfigurationProvider>();
-            var sources = sourceOptions.Sources
+            var sources = sourceOptions.GetEnabledSources()
                 .Select(source =>
                 {
                     var connectionString = ConnectionStringResolver.ResolveRequired(
                         config,
-                        source.ConnectionStringName,
+                        source.ResolveConnectionStringName(),
                         credentialProvider: credentialProvider);
 
                     return (ISchemaOutboxSource)new SchemaOutboxStore(

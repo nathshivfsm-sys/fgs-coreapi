@@ -35,11 +35,16 @@ public class FgsInventoryItem : FgsTenantCompanySetupEntityBase<long>
 
     public bool TracksInventory { get; set; }
 
+    /// <summary>Indicates whether individual serial numbers are tracked for this inventory item.</summary>
+    public bool IsSerialized { get; set; }
+
     public decimal UnitCost { get; set; }
 
     public decimal StandardUnitCost { get; set; }
 
     public decimal SalesPrice { get; set; }
 
-    public bool DefaultTaxable { get; set; } = true;
+    public ICollection<FgsInventoryItemAlternate> Alternates { get; set; } = new List<FgsInventoryItemAlternate>();
+
+    public ICollection<FgsInventoryItemDependency> Dependencies { get; set; } = new List<FgsInventoryItemDependency>();
 }

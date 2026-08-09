@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.UniversalPricingServices.Commands.DeleteFgsUniversalPricingService;
 
 public sealed class DeleteFgsUniversalPricingServiceCommandHandler(
-    IFgsUniversalPricingServiceWriteRepository writeRepository,
+    IFgsUniversalPricingServiceWriteService writeRepository,
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<DeleteFgsUniversalPricingServiceCommandHandler> logger)

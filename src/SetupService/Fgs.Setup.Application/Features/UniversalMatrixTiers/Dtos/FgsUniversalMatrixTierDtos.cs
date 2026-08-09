@@ -42,5 +42,5 @@ public sealed record FgsUniversalMatrixTierPatchDto(
     bool? IsActive);
 
 public sealed record FgsUniversalMatrixTierListFilters(
-    string? Name = null,
-    long? UniversalPricingServiceId = null);
+    long? UniversalPricingServiceId = null,
+    string? Name = null);

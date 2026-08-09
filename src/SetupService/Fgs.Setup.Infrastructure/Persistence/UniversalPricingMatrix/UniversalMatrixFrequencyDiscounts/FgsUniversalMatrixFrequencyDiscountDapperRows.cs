@@ -12,13 +12,7 @@ internal sealed class FgsUniversalMatrixFrequencyDiscountSummaryRow
     public bool IsActive { get; set; }
 
     public FgsUniversalMatrixFrequencyDiscountSummaryDto ToDto() =>
-        new(
-            Id,
-            UniversalPricingServiceId,
-            Name,
-            DiscountPercent,
-            DisplayOrder,
-            IsActive);
+        new(Id, UniversalPricingServiceId, Name, DiscountPercent, DisplayOrder, IsActive);
 }
 
 internal sealed class FgsUniversalMatrixFrequencyDiscountDetailRow
@@ -31,13 +25,7 @@ internal sealed class FgsUniversalMatrixFrequencyDiscountDetailRow
     public bool IsActive { get; set; }
 
     public FgsUniversalMatrixFrequencyDiscountDetailDto ToDto() =>
-        new(
-            Id,
-            UniversalPricingServiceId,
-            Name,
-            DiscountPercent,
-            DisplayOrder,
-            IsActive);
+        new(Id, UniversalPricingServiceId, Name, DiscountPercent, DisplayOrder, IsActive);
 }
 
 internal sealed class FgsUniversalMatrixFrequencyDiscountLookupRow
@@ -47,8 +35,6 @@ internal sealed class FgsUniversalMatrixFrequencyDiscountLookupRow
     public string Name { get; set; } = null!;
     public short DisplayOrder { get; set; }
 
-    public FgsUniversalMatrixFrequencyDiscountLookupDto ToDto() => new(Id,
-            UniversalPricingServiceId,
-            Name,
-            DisplayOrder);
+    public FgsUniversalMatrixFrequencyDiscountLookupDto ToDto() =>
+        new(Id, UniversalPricingServiceId, Name, DisplayOrder);
 }

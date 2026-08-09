@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.UniversalMatrixItems.Commands.CreateFgsUniversalMatrixItem;
 
 public sealed class CreateFgsUniversalMatrixItemCommandHandler(
-    IFgsUniversalMatrixItemWriteRepository writeRepository,
+    IFgsUniversalMatrixItemWriteService writeService,
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<CreateFgsUniversalMatrixItemCommandHandler> logger)
@@ -20,12 +20,12 @@ public sealed class CreateFgsUniversalMatrixItemCommandHandler(
         CreateFgsUniversalMatrixItemCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await writeRepository.CreateAsync(request.Dto, cancellationToken);
-        logger.LogInformation("Created universal matrix item {Id} with code {ItemName}", result.Id, result.ItemName);
-            var tenantScope = tenantContextAccessor.Current!;
-            await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixitem"),
-                cancellationToken);
+        var result = await writeService.CreateAsync(request.Dto, cancellationToken);
+        logger.LogInformation("Created universal matrix item {Id}", result.Id);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixitem"),
+            cancellationToken);
         return ApiResponse<FgsUniversalMatrixItemDetailDto>.Ok(result, ApiStatusCodes.Created);
     }
 }

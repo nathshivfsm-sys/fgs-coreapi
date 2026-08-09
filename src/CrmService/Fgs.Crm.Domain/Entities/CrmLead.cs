@@ -16,17 +16,9 @@ public class CrmLead : FgsEntityBase, ITenantCompanyScoped
 
     public long? CampaignId { get; set; }
 
-    public string LeadSummary { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
     public string? LeadDescription { get; set; }
-
-    public string? FirstName { get; set; }
-
-    public string? LastName { get; set; }
-
-    public string? CompanyName { get; set; }
-
-    public long? CustomerTypeId { get; set; }
 
     public string? Email { get; set; }
 
@@ -34,19 +26,31 @@ public class CrmLead : FgsEntityBase, ITenantCompanyScoped
 
     public long? PrimaryContactMethodId { get; set; }
 
-    public string? ServiceZipCode { get; set; }
+    public string? Address1 { get; set; }
+
+    public string? Address2 { get; set; }
+
+    public string? City { get; set; }
+
+    public string? State { get; set; }
+
+    public string? PostalCode { get; set; }
+
+    public string? Country { get; set; }
 
     public long? AssignedToUserId { get; set; }
 
+    public long? CustomerId { get; set; }
+
+    public long? ServiceLocationId { get; set; }
+
     public DateTimeOffset LeadReceivedOn { get; set; }
-
-    public DateTimeOffset? QualifiedOn { get; set; }
-
-    public DateTimeOffset? DisqualifiedOn { get; set; }
 
     public long? DisqualificationReasonId { get; set; }
 
-    public long? CustomerId { get; set; }
+    public DateTimeOffset? DisqualifiedOn { get; set; }
+
+    public long? ConvertedOpportunityId { get; set; }
 
     public DateTimeOffset? ConvertedOn { get; set; }
 }

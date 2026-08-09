@@ -5,6 +5,16 @@
 **/bin/
 **/obj/
 
+# Logs and local temp artifacts
+*.log
+tmp/
+temp-*.json
+tmp-*.json
+**/out.xml
+
+# Test results / coverage
+**/TestResults/
+
 # UserService at repo root only (C:\SourceCode\FGS\UserService).
 # Leading "/" — do not use "UserService/" alone; it ignores every folder named UserService (e.g. src/Services/UserService).
 /UserService/
@@ -13,4 +23,3 @@
 /src/Gateway/logs/
 /src/Gateway/certs/*.crt
 /src/Gateway/certs/*.key
-/src/UserService/TestResults

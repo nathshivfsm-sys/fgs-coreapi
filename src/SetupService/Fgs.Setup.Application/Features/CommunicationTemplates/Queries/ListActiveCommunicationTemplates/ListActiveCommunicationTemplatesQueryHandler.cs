@@ -32,7 +32,7 @@ public sealed class ListActiveCommunicationTemplatesQueryHandler(
         var cacheKey = CacheKeys.Build(
         tenantScope.TenantId,
         tenantScope.CompanyId,
-        "communication-template",
+        "communicationtemplate",
         segment);
 
         var cached = await cache.GetOrSetAsync(

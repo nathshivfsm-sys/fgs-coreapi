@@ -25,9 +25,7 @@ internal sealed class FgsSetupPricingMatrixReadRepository : IFgsSetupPricingMatr
     public async Task<FgsSetupPricingMatrixDetailDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        var headerSql = $"""
+        var sql = $"""
             SELECT {FgsSetupPricingMatrixSql.SelectHeaderColumns}
             FROM {FgsSetupPricingMatrixSql.Table} pm
             WHERE pm."Id" = @Id
@@ -35,76 +33,29 @@ internal sealed class FgsSetupPricingMatrixReadRepository : IFgsSetupPricingMatr
               AND pm."CompanyId" = @CompanyId
             """;
 
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         var header = await connection.QueryFirstOrDefaultAsync<FgsSetupPricingMatrixHeaderRow>(
-            new CommandDefinition(headerSql, new { Id = id, TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { Id = id, TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
 
-        if (header is null)
-        {
-            return null;
-        }
+        return header?.ToDetailDto();
+    }
 
-        var parameters = new { PricingMatrixId = id, TenantId = tenantId, CompanyId = companyId };
+    public async Task<FgsSetupPricingMatrixFlagsDto?> GetFlagsByIdAsync(long id, CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var sql = $"""
+            SELECT {FgsSetupPricingMatrixSql.SelectFlagsColumns}
+            FROM {FgsSetupPricingMatrixSql.Table} pm
+            WHERE pm."Id" = @Id
+              AND pm."TenantId" = @TenantId
+              AND pm."CompanyId" = @CompanyId
+            """;
 
-        var laborRows = (await connection.QueryAsync<FgsSetupPricingMatrixLaborRow>(
-            new CommandDefinition(
-                $"""
-                SELECT {FgsSetupPricingMatrixSql.SelectLaborColumns}
-                FROM {FgsSetupPricingMatrixSql.LaborTable} l
-                WHERE l."PricingMatrixId" = @PricingMatrixId
-                  AND l."TenantId" = @TenantId
-                  AND l."CompanyId" = @CompanyId
-                  AND l."IsActive" = TRUE
-                ORDER BY l."LaborRateTypeId", l."TechSkillLevelId"
-                """,
-                parameters,
-                cancellationToken: cancellationToken))).ToList();
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        var header = await connection.QueryFirstOrDefaultAsync<FgsSetupPricingMatrixHeaderRow>(
+            new CommandDefinition(sql, new { Id = id, TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
 
-        var laborIds = laborRows.Select(l => l.Id).ToArray();
-        var tierRows = laborIds.Length == 0
-            ? []
-            : (await connection.QueryAsync<FgsSetupPricingMatrixLaborTierRow>(
-                new CommandDefinition(
-                    $"""
-                    SELECT {FgsSetupPricingMatrixSql.SelectLaborTierColumns}
-                    FROM {FgsSetupPricingMatrixSql.LaborTierTable} lt
-                    WHERE lt."PricingMatrixLaborId" = ANY(@LaborIds)
-                      AND lt."TenantId" = @TenantId
-                      AND lt."CompanyId" = @CompanyId
-                      AND lt."IsActive" = TRUE
-                    ORDER BY lt."PricingMatrixLaborId", lt."SequenceOrder"
-                    """,
-                    new { LaborIds = laborIds, TenantId = tenantId, CompanyId = companyId },
-                    cancellationToken: cancellationToken))).ToList();
-
-        var materialRows = (await connection.QueryAsync<FgsSetupPricingMatrixMaterialTierRow>(
-            new CommandDefinition(
-                $"""
-                SELECT {FgsSetupPricingMatrixSql.SelectMaterialTierColumns}
-                FROM {FgsSetupPricingMatrixSql.MaterialTierTable} mt
-                WHERE mt."PricingMatrixId" = @PricingMatrixId
-                  AND mt."TenantId" = @TenantId
-                  AND mt."CompanyId" = @CompanyId
-                  AND mt."IsActive" = TRUE
-                ORDER BY mt."FromCost"
-                """,
-                parameters,
-                cancellationToken: cancellationToken))).ToList();
-
-        var otherRows = (await connection.QueryAsync<FgsSetupPricingMatrixOtherRow>(
-            new CommandDefinition(
-                $"""
-                SELECT {FgsSetupPricingMatrixSql.SelectOtherColumns}
-                FROM {FgsSetupPricingMatrixSql.OtherTable} o
-                WHERE o."PricingMatrixId" = @PricingMatrixId
-                  AND o."TenantId" = @TenantId
-                  AND o."CompanyId" = @CompanyId
-                  AND o."IsActive" = TRUE
-                ORDER BY o."CategoryCode"
-                """,
-                parameters,
-                cancellationToken: cancellationToken))).ToList();
-
-        return FgsSetupPricingMatrixDetailAssembler.Assemble(header, laborRows, tierRows, materialRows, otherRows);
+        return header?.ToFlagsDto();
     }
 
     public async Task<PagedResult<FgsSetupPricingMatrixSummaryDto>> ListAsync(
@@ -206,6 +157,28 @@ internal sealed class FgsSetupPricingMatrixReadRepository : IFgsSetupPricingMatr
             new CommandDefinition(sql, new { TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
 
         return rows.Select(r => r.ToLookupDto()).ToList();
+    }
+
+    public async Task<bool> ExistsByIdAsync(long id, CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {FgsSetupPricingMatrixSql.Table} pm
+                WHERE pm."TenantId" = @TenantId
+                  AND pm."CompanyId" = @CompanyId
+                  AND pm."Id" = @Id
+                  AND pm."IsActive" = TRUE
+            )
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, CompanyId = companyId, Id = id },
+                cancellationToken: cancellationToken));
     }
 
     public async Task<bool> ExistsByCodeAsync(

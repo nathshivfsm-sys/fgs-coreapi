@@ -1,5 +1,6 @@
 using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
+using Fgs.Credentials.Redis;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Fgs.Setup.Infrastructure.Credentials;
@@ -7,7 +8,8 @@ namespace Fgs.Setup.Infrastructure.Credentials;
 public sealed class SetupCredentialConfigurationProvider(
     CredentialConfigurationHolder holder,
     IServiceScopeFactory scopeFactory,
-    CredentialOptionsChangeNotifier changeNotifier) : ICredentialConfigurationProvider
+    CredentialOptionsChangeNotifier changeNotifier,
+    ICredentialSnapshotRedisCache snapshotCache) : ICredentialConfigurationProvider
 {
     public IReadOnlyDictionary<string, string> Values => holder.Values;
 
@@ -36,5 +38,6 @@ public sealed class SetupCredentialConfigurationProvider(
         var loader = scope.ServiceProvider.GetRequiredService<CredentialConfigurationLoader>();
         await loader.ReloadAsync(cancellationToken);
         changeNotifier.NotifyChange();
+        await snapshotCache.PublishAsync(holder.Values, cancellationToken);
     }
 }

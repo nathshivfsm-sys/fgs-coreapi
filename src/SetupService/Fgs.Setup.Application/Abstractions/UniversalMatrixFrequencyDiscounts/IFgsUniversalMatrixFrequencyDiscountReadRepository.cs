@@ -18,11 +18,13 @@ public interface IFgsUniversalMatrixFrequencyDiscountReadRepository
         long? universalPricingServiceId = null,
         CancellationToken cancellationToken = default);
 
-    Task<bool> ExistsByUniversalPricingServiceIdAndNameAsync(
-        long universalPricingServiceId, string name,
-        long? excludeId = null,
-        CancellationToken cancellationToken = default);
     Task<bool> ExistsUniversalPricingServiceIdAsync(
         long id,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsByNameAsync(
+        long universalPricingServiceId,
+        string name,
+        long? excludeId = null,
         CancellationToken cancellationToken = default);
 }

@@ -1,9 +1,9 @@
 using Amazon;
 using Amazon.S3;
 using Fgs.Credentials.Aws;
-using Fgs.File.Infrastructure.Common.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Fgs.Credentials.Options;
 
 namespace Fgs.File.Infrastructure;
 

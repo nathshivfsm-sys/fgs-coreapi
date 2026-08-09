@@ -2,7 +2,7 @@ using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 using Fgs.User.Application.Abstractions.Security;
-using Fgs.User.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.User.Domain.Entities;
 
 namespace Fgs.User.Application.Features.Signup;

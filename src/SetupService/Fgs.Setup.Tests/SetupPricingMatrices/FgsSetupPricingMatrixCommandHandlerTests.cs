@@ -4,12 +4,11 @@ using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
-using Fgs.Setup.Application.Abstractions.SetupPricingMatrices;
 using Fgs.Setup.Application.Features.SetupPricingMatrices.Commands.CreateFgsSetupPricingMatrix;
 using Fgs.Setup.Application.Features.SetupPricingMatrices.Commands.UpdateFgsSetupPricingMatrix;
 using Fgs.Setup.Application.Features.SetupPricingMatrices.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.SetupPricingMatrices;
 using Microsoft.EntityFrameworkCore;
@@ -23,195 +22,85 @@ public sealed class FgsSetupPricingMatrixCommandHandlerTests
 {
     private const long TenantId = 10;
     private const long CompanyId = 20;
-    private const int LaborRateTypeId = 1;
 
     [Fact]
-    public async Task CreateHandler_WithTierLabor_ReturnsCreatedAndInvalidatesCache()
+    public async Task CreateHandler_CreatesHeaderOnlyAndInvalidatesCache()
     {
         await using var context = await CreateContextAsync();
-        await SeedLaborRateTypeAsync(context);
-        var writeService = CreateWriteService(context);
         var cache = new Mock<ICacheService>();
-        var tenantAccessor = CreateTenantContextAccessor();
         var handler = new CreateFgsSetupPricingMatrixCommandHandler(
-            writeService,
-            cache.Object,
-            tenantAccessor,
+            CreateWriteService(context), cache.Object, CreateTenantAccessor(),
             NullLogger<CreateFgsSetupPricingMatrixCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateFgsSetupPricingMatrixCommand(
-                new FgsSetupPricingMatrixCreateDto(
-                    "TIERED",
-                    "Tiered labor matrix",
-                    false,
-                    true,
-                    false,
-                    null,
-                    null,
-                    null,
-                    true,
-                    [
-                        new FgsSetupPricingMatrixLaborLineDto(
-                            null,
-                            LaborRateTypeId,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            [new FgsSetupPricingMatrixLaborTierItemDto(null, 1, 60, 50m, null)])
-                    ],
-                    null,
-                    null)),
+            new CreateFgsSetupPricingMatrixCommand(new(
+                "STANDARD", "Standard pricing", false, false, false, 1, null, null, true)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
-        response.Data!.Code.Should().Be("TIERED");
-        (await context.FgsSetupPricingMatrixLaborTiers.CountAsync(t => t.IsActive)).Should().Be(1);
-        cache.Verify(
-            c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "pricingmatrix"),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
+        response.Data!.Code.Should().Be("STANDARD");
+        context.FgsSetupPricingMatrices.Should().ContainSingle();
+        context.FgsSetupPricingMatrixLabors.Should().BeEmpty();
+        context.FgsSetupPricingMatrixLaborTiers.Should().BeEmpty();
+        context.FgsSetupPricingMatrixMaterialTiers.Should().BeEmpty();
+        context.FgsSetupPricingMatrixOthers.Should().BeEmpty();
+        cache.Verify(c => c.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(TenantId, CompanyId, "pricingmatrix"),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task UpdateHandler_WhenSwitchingMarkupBranch_DeactivatesOppositeChildren()
+    public async Task UpdateHandler_UpdatesHeaderOnlyAndInvalidatesCache()
     {
         await using var context = await CreateContextAsync();
-        var writeService = CreateWriteService(context);
+        var service = CreateWriteService(context);
+        var created = await service.CreateAsync(
+            new("OLD", "Old name", false, false, false, 1, null, null, true));
         var cache = new Mock<ICacheService>();
-        var tenantAccessor = CreateTenantContextAccessor();
-        var createHandler = new CreateFgsSetupPricingMatrixCommandHandler(
-            writeService,
-            cache.Object,
-            tenantAccessor,
-            NullLogger<CreateFgsSetupPricingMatrixCommandHandler>.Instance);
-        var updateHandler = new UpdateFgsSetupPricingMatrixCommandHandler(
-            writeService,
-            cache.Object,
-            tenantAccessor,
+        var handler = new UpdateFgsSetupPricingMatrixCommandHandler(
+            service, cache.Object, CreateTenantAccessor(),
             NullLogger<UpdateFgsSetupPricingMatrixCommandHandler>.Instance);
 
-        var created = await createHandler.Handle(
-            new CreateFgsSetupPricingMatrixCommand(
-                new FgsSetupPricingMatrixCreateDto(
-                    "MARKUP",
-                    "Markup matrix",
-                    false,
-                    false,
-                    false,
-                    1,
-                    null,
-                    null,
-                    true,
-                    null,
-                    [new FgsSetupPricingMatrixMaterialTierDto(null, 0m, null, 10m)],
-                    null)),
-            CancellationToken.None);
-
-        var response = await updateHandler.Handle(
-            new UpdateFgsSetupPricingMatrixCommand(
-                created.Data!.Id,
-                new FgsSetupPricingMatrixUpdateDto(
-                    "MARKUP",
-                    "Markup matrix",
-                    false,
-                    false,
-                    false,
-                    1,
-                    null,
-                    null,
-                    true,
-                    null,
-                    null,
-                    [new FgsSetupPricingMatrixOtherItemDto(null, "OT", "Other", 15m, null)])),
+        var response = await handler.Handle(
+            new UpdateFgsSetupPricingMatrixCommand(created.Id,
+                new("OLD", "Updated name", false, true, true, 2,
+                    new DateOnly(2026, 1, 1), new DateOnly(2026, 12, 31), false)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
-        context.FgsSetupPricingMatrixMaterialTiers.Any(t => t.IsActive).Should().BeFalse();
-        context.FgsSetupPricingMatrixOthers.Count(o => o.IsActive).Should().Be(1);
+        response.Data!.Code.Should().Be("OLD");
+        response.Data.Name.Should().Be("Updated name");
+        response.Data.IsLaborTierStructure.Should().BeTrue();
+        context.FgsSetupPricingMatrixLabors.Should().BeEmpty();
+        context.FgsSetupPricingMatrixMaterialTiers.Should().BeEmpty();
+        context.FgsSetupPricingMatrixOthers.Should().BeEmpty();
+        cache.Verify(c => c.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(TenantId, CompanyId, "pricingmatrix"),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    private static ITenantContextAccessor CreateTenantContextAccessor() =>
-        new TestTenantContextAccessor
-        {
-            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId }
-        };
+    private static ITenantContextAccessor CreateTenantAccessor() => new TestTenantContextAccessor
+    {
+        Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId }
+    };
 
     private static FgsSetupPricingMatrixWriteService CreateWriteService(FgsSetupDbContext context)
     {
-        var userContext = new Mock<IFgsUserContext>();
-        userContext.SetupGet(x => x.TenantId).Returns(TenantId);
-        userContext.SetupGet(x => x.CompanyId).Returns(CompanyId);
-        userContext.SetupGet(x => x.UserId).Returns(Guid.Parse("11111111-1111-1111-1111-111111111111"));
-
-        var tenantAccessor = CreateTenantContextAccessor();
-        var auditHelper = new SetupEntityAuditHelper(
-            userContext.Object,
-            tenantAccessor,
-            new DateTimeProvider());
-        var unitOfWork = new EfUnitOfWork<FgsSetupDbContext>(context);
-
-        var readRepository = new Mock<IFgsSetupPricingMatrixReadRepository>();
-        readRepository
-            .Setup(r => r.GetByIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
-            .Returns<long, CancellationToken>((id, _) =>
-            {
-                var matrix = context.FgsSetupPricingMatrices.AsNoTracking().First(m => m.Id == id);
-                return Task.FromResult<FgsSetupPricingMatrixDetailDto?>(new FgsSetupPricingMatrixDetailDto(
-                    matrix.Id,
-                    matrix.Code,
-                    matrix.Name,
-                    matrix.IsDefault,
-                    matrix.IsLaborTierStructure,
-                    matrix.IsLaborRateBySkillLevel,
-                    (short)matrix.PriceAdjustmentTypeId,
-                    matrix.EffectiveFrom,
-                    matrix.EffectiveTo,
-                    matrix.IsMobileVisible,
-                    matrix.IsActive,
-                    [],
-                    [],
-                    []));
-            });
-
-        return new FgsSetupPricingMatrixWriteService(
-            context,
-            unitOfWork,
-            auditHelper,
-            readRepository.Object);
-    }
-
-    private static async Task SeedLaborRateTypeAsync(FgsSetupDbContext context)
-    {
-        context.FgsSetupLaborRateTypes.Add(new Domain.Entities.FgsSetupLaborRateType
-        {
-            Id = LaborRateTypeId,
-            Name = "Standard",
-            SortOrder = 1,
-            TenantId = TenantId,
-            CompanyId = CompanyId,
-            IsActive = true,
-            CreatedOn = DateTime.UtcNow,
-            UpdatedOn = DateTime.UtcNow,
-            CreatedBy = "test",
-            UpdatedBy = "test"
-        });
-        await context.SaveChangesAsync();
+        var user = new Mock<IFgsUserContext>();
+        user.SetupGet(x => x.TenantId).Returns(TenantId);
+        user.SetupGet(x => x.CompanyId).Returns(CompanyId);
+        user.SetupGet(x => x.UserId).Returns(Guid.Parse("11111111-1111-1111-1111-111111111111"));
+        var audit = new SetupEntityAuditHelper(user.Object, CreateTenantAccessor(), new DateTimeProvider());
+        return new(context, new EfUnitOfWork<FgsSetupDbContext>(context), audit);
     }
 
     private static async Task<FgsSetupDbContext> CreateContextAsync()
     {
-        var accessor = CreateTenantContextAccessor();
         var options = new DbContextOptionsBuilder<FgsSetupDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-            .Options;
-
-        var context = new FgsSetupDbContext(options, accessor);
+            .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options;
+        var context = new FgsSetupDbContext(options, CreateTenantAccessor());
         await context.Database.EnsureCreatedAsync();
         return context;
     }

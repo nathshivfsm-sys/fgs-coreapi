@@ -16,7 +16,7 @@ namespace Fgs.Setup.API.Controllers;
 /// </summary>
 [AllowAnonymous]
 [ApiVersion(FgsApiVersions.V1)]
-[FgsVersionedRoute("tenant-provisioning")]
+[FgsVersionedRoute("tenantprovisioning")]
 public sealed class TenantProvisioningController(IMediator mediator) : ControllerBase
 {
     [HttpPost]

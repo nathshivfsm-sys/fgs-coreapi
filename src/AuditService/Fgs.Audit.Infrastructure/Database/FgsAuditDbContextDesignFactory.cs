@@ -1,3 +1,5 @@
+using Fgs.Audit.Domain.Enums;
+using Fgs.Audit.Infrastructure.Database.Schemas;
 using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -16,7 +18,12 @@ public sealed class FgsAuditDbContextDesignFactory : IDesignTimeDbContextFactory
 
         var options = new DbContextOptionsBuilder<FgsAuditDbContext>()
             .UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsAuditDbContext.MigrationHistorySchema))
+            {
+                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsAuditDbContext.MigrationHistorySchema);
+                npgsql.MapEnum<AuditRecordType>("record_type", FgsDatabaseSchemas.Audit, nameTranslator: new Npgsql.NameTranslation.NpgsqlNullNameTranslator());
+                npgsql.MapEnum<AuditEventSource>("event_source", FgsDatabaseSchemas.Audit, nameTranslator: new Npgsql.NameTranslation.NpgsqlNullNameTranslator());
+                npgsql.MapEnum<AuditEventDetailType>("event_detail_type", FgsDatabaseSchemas.Audit, nameTranslator: new Npgsql.NameTranslation.NpgsqlNullNameTranslator());
+            })
             .Options;
 
         return new FgsAuditDbContext(options, new DesignTimeTenantContextAccessor());

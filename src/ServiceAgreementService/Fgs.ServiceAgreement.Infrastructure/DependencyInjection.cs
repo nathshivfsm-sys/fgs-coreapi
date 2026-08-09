@@ -2,7 +2,10 @@ using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using Fgs.Persistence.Extensions;
+using Fgs.ServiceAgreement.Application.Abstractions.ServiceAgreements;
+using Fgs.ServiceAgreement.Infrastructure.Common;
 using Fgs.ServiceAgreement.Infrastructure.Database;
+using Fgs.ServiceAgreement.Infrastructure.Persistence.ServiceAgreements;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +34,11 @@ public static class DependencyInjection
         });
 
         services.AddFgsPersistence<FgsServiceAgreementDbContext>();
+        services.AddFgsDbContextReadyCheck<FgsServiceAgreementDbContext>();
+
+        services.AddScoped<ServiceAgreementEntityAuditHelper>();
+        services.AddScoped<IFgsServiceAgreementReadRepository, FgsServiceAgreementReadRepository>();
+        services.AddScoped<IFgsServiceAgreementWriteService, FgsServiceAgreementWriteService>();
 
         return services;
     }

@@ -30,6 +30,7 @@ public sealed class FgsUniversalPricingServiceQueryHandlerTests
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(ApiStatusCodes.Ok);
+        response.Data!.UniversalPricingServiceCode.Should().Be("TEST");
         readRepository.Verify(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()), Times.Once);
     }
 

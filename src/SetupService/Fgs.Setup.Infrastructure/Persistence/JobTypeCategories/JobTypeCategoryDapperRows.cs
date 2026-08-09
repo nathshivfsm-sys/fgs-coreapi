@@ -5,18 +5,16 @@ namespace Fgs.Setup.Infrastructure.Persistence.JobTypeCategories;
 internal sealed class JobTypeCategorySummaryRow
 {
     public long Id { get; set; }
-    public string CategoryCode { get; set; } = null!;
-    public string Name { get; set; } = null!;
-    public string? Description { get; set; }
+    public long JobTypeId { get; set; }
+    public long JobCategoryId { get; set; }
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
 
     public JobTypeCategorySummaryDto ToDto() =>
         new(
             Id,
-            CategoryCode,
-            Name,
-            Description,
+            JobTypeId,
+            JobCategoryId,
             DisplayOrder,
             IsActive);
 }
@@ -24,18 +22,16 @@ internal sealed class JobTypeCategorySummaryRow
 internal sealed class JobTypeCategoryDetailRow
 {
     public long Id { get; set; }
-    public string CategoryCode { get; set; } = null!;
-    public string Name { get; set; } = null!;
-    public string? Description { get; set; }
+    public long JobTypeId { get; set; }
+    public long JobCategoryId { get; set; }
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
 
     public JobTypeCategoryDetailDto ToDto() =>
         new(
             Id,
-            CategoryCode,
-            Name,
-            Description,
+            JobTypeId,
+            JobCategoryId,
             DisplayOrder,
             IsActive);
 }
@@ -43,12 +39,12 @@ internal sealed class JobTypeCategoryDetailRow
 internal sealed class JobTypeCategoryLookupRow
 {
     public long Id { get; set; }
-    public string CategoryCode { get; set; } = null!;
-    public string Name { get; set; } = null!;
+    public long JobTypeId { get; set; }
+    public long JobCategoryId { get; set; }
     public short? DisplayOrder { get; set; }
 
     public JobTypeCategoryLookupDto ToDto() => new(Id,
-            CategoryCode,
-            Name,
+            JobTypeId,
+            JobCategoryId,
             DisplayOrder);
 }

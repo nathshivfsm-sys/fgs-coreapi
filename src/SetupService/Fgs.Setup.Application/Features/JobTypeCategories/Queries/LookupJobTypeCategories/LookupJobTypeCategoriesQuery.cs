@@ -4,5 +4,5 @@ using MediatR;
 
 namespace Fgs.Setup.Application.Features.JobTypeCategories.Queries.LookupJobTypeCategories;
 
-public sealed record LookupJobTypeCategoriesQuery(bool ActiveOnly = true)
+public sealed record LookupJobTypeCategoriesQuery(bool ActiveOnly = true, long? JobTypeId = null)
     : IRequest<ApiResponse<IReadOnlyList<JobTypeCategoryLookupDto>>>;

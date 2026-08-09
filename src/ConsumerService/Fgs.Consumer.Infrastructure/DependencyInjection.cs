@@ -1,6 +1,8 @@
 using Fgs.Contracts.Clients;
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.Credentials.Extensions;
+using Fgs.Foundation.Caching.Extensions;
+using Fgs.Foundation.Caching.Options;
 using Fgs.Messaging.Options;
 using Fgs.Consumer.Application.Features.Audit.Commands.ProcessCredentialAuditRequested;
 using Fgs.Consumer.Application.Features.Notifications.Commands.ProcessCompanySignupInviteEmail;
@@ -11,6 +13,9 @@ using Fgs.Messaging.Consumer;
 using Fgs.Messaging.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 
 namespace Fgs.Consumer.Infrastructure;
 
@@ -26,15 +31,19 @@ public static class DependencyInjection
             options =>
             {
                 options.ServiceName = "fgs-consumer-service";
-                options.RequiredProviders = ["RABBITMQ"];
+                options.RequiredProviders = ["RABBITMQ", "REDIS"];
                 options.RegisterSetupClient = false;
             },
-            typeof(RabbitMqOptions));
+            typeof(RabbitMqOptions),
+            typeof(RedisCacheOptions));
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
+
+        services.AddDistributedMemoryCache();
+        services.AddFgsRedisCache(configuration);
 
         services.AddFgsSetupClient(configuration);
 
-        services.AddFgsRefitClient<INotificationDispatchClient>(
+        services.AddFgsInternalServiceRefitClient<INotificationDispatchClient>(
             configuration,
             "NotificationService:BaseUrl",
             "http://notification-service:5002");
@@ -45,6 +54,22 @@ public static class DependencyInjection
             "http://audit-service:5008");
 
         services.AddFgsRabbitMqConsumerFramework(configuration);
+        services.RemoveAll<IConsumerIdempotencyStore>();
+        services.AddSingleton<IConsumerIdempotencyStore>(sp =>
+        {
+            var redisOptions = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<RedisCacheOptions>>().Value;
+            if (CacheServiceCollectionExtensions.IsRedisConfigured(redisOptions))
+            {
+                return new RedisConsumerIdempotencyStore(
+                    sp.GetRequiredService<IConnectionMultiplexer>(),
+                    sp.GetRequiredService<ILogger<RedisConsumerIdempotencyStore>>());
+            }
+
+            return new DistributedCacheConsumerIdempotencyStore(
+                sp.GetRequiredService<Microsoft.Extensions.Caching.Distributed.IDistributedCache>(),
+                sp.GetRequiredService<ILogger<DistributedCacheConsumerIdempotencyStore>>());
+        });
+
         services.AddScoped<IConsumerMessageRouter, MediatRConsumerMessageRouter>();
 
         services.AddConsumerRouting<TenantProvisionRequestedEvent>(

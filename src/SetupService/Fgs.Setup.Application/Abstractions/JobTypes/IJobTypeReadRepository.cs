@@ -21,10 +21,8 @@ public interface IJobTypeReadRepository
         string jobTypeCode,
         long? excludeId = null,
         CancellationToken cancellationToken = default);
-    Task<bool> ExistsJobTypeCategoryIdAsync(
-        long id,
-        CancellationToken cancellationToken = default);
-    Task<bool> ExistsJobTypeSubCategoryIdAsync(
-        long? id,
+    Task<bool> ExistsByNameAsync(
+        string name,
+        long? excludeId = null,
         CancellationToken cancellationToken = default);
 }

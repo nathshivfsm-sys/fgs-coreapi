@@ -24,7 +24,11 @@ internal sealed class FgsAssetConfiguration : IEntityTypeConfiguration<Domain.En
         entity.Property(e => e.AssetGuid).HasComment("Globally unique asset identifier used by integrations and external systems.");
         entity.Property(e => e.AssetNumber).HasMaxLength(100).IsRequired()
             .HasComment("User-visible asset number within the tenant company.");
-        entity.Property(e => e.ServiceLocationId).HasComment("Service location where the asset is installed.");
+        entity.Property(e => e.ServiceLocationId).IsRequired(false)
+            .HasComment("Optional service location where the asset is installed.");
+        entity.Property(e => e.UnitNumber).HasMaxLength(50)
+            .HasComment(
+                "Apartment, suite, unit, condo, office, bay, or other sub-location identifier within the service location where the asset is installed. Examples: Apt 1205, Suite 400, Unit 8B, Bay 12.");
         entity.Property(e => e.AssetTypeId).HasComment("Optional catalog asset type reference.");
         entity.Property(e => e.AssetManufacturerId).HasComment("Optional catalog manufacturer reference.");
         entity.Property(e => e.AssetModelId).HasComment("Optional catalog model reference.");
@@ -47,6 +51,9 @@ internal sealed class FgsAssetConfiguration : IEntityTypeConfiguration<Domain.En
         entity.Property(e => e.InstalledWorkOrderId).HasComment("Work order that installed the asset. References job service; no FK by design.");
         entity.Property(e => e.IsInstalledByCompany).HasDefaultValue(false)
             .HasComment("Indicates whether the asset was installed by the service company.");
+        entity.Property(e => e.IsOurInstallation).HasDefaultValue(false)
+            .HasComment(
+                "Indicates whether the asset was originally installed by the company. TRUE if installed by this company; FALSE if installed by another contractor or the customer.");
         entity.Property(e => e.AssetStatusId).HasComment("Current lifecycle status of the asset.");
         entity.Property(e => e.IsActive).HasDefaultValue(true)
             .HasComment("Indicates whether the asset record is active.");

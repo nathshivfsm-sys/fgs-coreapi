@@ -42,5 +42,5 @@ public sealed record FgsUniversalMatrixOneTimeFeePatchDto(
     bool? IsActive);
 
 public sealed record FgsUniversalMatrixOneTimeFeeListFilters(
-    string? Name = null,
-    long? UniversalPricingServiceId = null);
+    long? UniversalPricingServiceId = null,
+    string? Name = null);

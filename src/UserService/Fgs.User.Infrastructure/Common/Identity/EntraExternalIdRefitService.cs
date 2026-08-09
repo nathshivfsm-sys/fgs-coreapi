@@ -14,15 +14,21 @@ public sealed class EntraExternalIdRefitService(
 {
     private readonly EntraExternalIdOptions _options = options.Value;
 
-    public string BuildAuthorizationUrl(string state, string redirectUri, string? loginHint = null) =>
-        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge: null);
+    public string BuildAuthorizationUrl(
+        string state,
+        string redirectUri,
+        string? loginHint = null,
+        bool forceSignup = false,
+        string? userFlow = null) =>
+        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge: null, forceSignup, userFlow);
 
     public string BuildLoginAuthorizationUrl(
         string state,
         string redirectUri,
         string codeChallenge,
-        string? loginHint = null) =>
-        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge);
+        string? loginHint = null,
+        string? userFlow = null) =>
+        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge, forceSignup: false, userFlow);
 
     public Task<EntraTokenResult> ExchangeCodeAsync(
         string code,
@@ -84,11 +90,17 @@ public sealed class EntraExternalIdRefitService(
         string state,
         string redirectUri,
         string? loginHint,
-        string? codeChallenge)
+        string? codeChallenge,
+        bool forceSignup,
+        string? userFlow)
     {
         var authorize = string.IsNullOrWhiteSpace(_options.AuthorizeEndpoint)
             ? BuildAuthorizeEndpoint()
             : _options.AuthorizeEndpoint;
+
+        var resolvedFlow = !string.IsNullOrWhiteSpace(userFlow)
+            ? userFlow
+            : _options.UserFlow;
 
         var query = new Dictionary<string, string?>
         {
@@ -99,7 +111,9 @@ public sealed class EntraExternalIdRefitService(
             ["scope"] = _options.Scopes,
             ["state"] = state,
             ["login_hint"] = loginHint,
-            ["p"] = _options.UserFlow
+            ["p"] = resolvedFlow,
+            // Entra External ID SignUpSignIn: prompt=create opens signup instead of sign-in.
+            ["prompt"] = forceSignup ? "create" : null
         };
 
         if (!string.IsNullOrWhiteSpace(codeChallenge))
@@ -124,7 +138,8 @@ public sealed class EntraExternalIdRefitService(
         var accessToken = response.Access_token
             ?? throw new InvalidOperationException("access_token missing from Entra response.");
 
-        var (objectId, email, displayName) = ParseUserFromAccessToken(accessToken);
+        // CIAM access tokens often omit email; id_token carries profile claims.
+        var (objectId, email, displayName) = ParseUserClaims(accessToken, response.Id_token);
 
         return new EntraTokenResult(
             accessToken,
@@ -137,35 +152,82 @@ public sealed class EntraExternalIdRefitService(
             string.IsNullOrWhiteSpace(response.Token_type) ? "Bearer" : response.Token_type);
     }
 
-    private static (string ObjectId, string Email, string? DisplayName) ParseUserFromAccessToken(string accessToken)
+    internal static (string ObjectId, string Email, string? DisplayName) ParseUserClaims(
+        string accessToken,
+        string? idToken)
     {
-        var parts = accessToken.Split('.');
-        if (parts.Length < 2)
-        {
-            throw new InvalidOperationException("Invalid JWT access token from Entra.");
-        }
+        var fromAccess = TryReadClaims(accessToken);
+        var fromId = string.IsNullOrWhiteSpace(idToken) ? default : TryReadClaims(idToken);
 
-        var payloadJson = Encoding.UTF8.GetString(Base64UrlDecode(parts[1]));
-        using var doc = JsonDocument.Parse(payloadJson);
-        var root = doc.RootElement;
-
-        var oid = root.TryGetProperty("oid", out var oidEl) ? oidEl.GetString()
-            : root.TryGetProperty("sub", out var subEl) ? subEl.GetString()
-            : null;
-
-        var email = root.TryGetProperty("email", out var emailEl) ? emailEl.GetString()
-            : root.TryGetProperty("preferred_username", out var prefEl) ? prefEl.GetString()
-            : null;
-
-        var name = root.TryGetProperty("name", out var nameEl) ? nameEl.GetString() : null;
+        var oid = FirstNonEmpty(fromAccess.ObjectId, fromId.ObjectId);
+        var email = FirstNonEmpty(fromAccess.Email, fromId.Email);
+        var name = FirstNonEmpty(fromAccess.DisplayName, fromId.DisplayName);
 
         if (string.IsNullOrWhiteSpace(oid) || string.IsNullOrWhiteSpace(email))
         {
-            throw new InvalidOperationException("Required Entra claims (oid, email) were not present.");
+            throw new InvalidOperationException(
+                "Required Entra claims (oid, email) were not present on access_token or id_token.");
         }
 
         return (oid, email, name);
     }
+
+    private static (string? ObjectId, string? Email, string? DisplayName) TryReadClaims(string jwt)
+    {
+        var parts = jwt.Split('.');
+        if (parts.Length < 2)
+        {
+            return default;
+        }
+
+        try
+        {
+            var payloadJson = Encoding.UTF8.GetString(Base64UrlDecode(parts[1]));
+            using var doc = JsonDocument.Parse(payloadJson);
+            var root = doc.RootElement;
+
+            var oid = root.TryGetProperty("oid", out var oidEl) ? oidEl.GetString()
+                : root.TryGetProperty("sub", out var subEl) ? subEl.GetString()
+                : null;
+
+            var email = root.TryGetProperty("email", out var emailEl) ? emailEl.GetString()
+                : root.TryGetProperty("preferred_username", out var prefEl) ? prefEl.GetString()
+                : TryReadEmailsArray(root);
+
+            var name = root.TryGetProperty("name", out var nameEl) ? nameEl.GetString() : null;
+
+            return (oid, email, name);
+        }
+        catch (Exception)
+        {
+            return default;
+        }
+    }
+
+    private static string? TryReadEmailsArray(JsonElement root)
+    {
+        if (!root.TryGetProperty("emails", out var emails) || emails.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        foreach (var item in emails.EnumerateArray())
+        {
+            if (item.ValueKind == JsonValueKind.String)
+            {
+                var value = item.GetString();
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    return value;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static string? FirstNonEmpty(params string?[] values) =>
+        values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
 
     private string BuildAuthorizeEndpoint()
     {

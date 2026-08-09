@@ -1,6 +1,5 @@
 using Fgs.Setup.Application.Abstractions.UniversalPricingServices;
 using Fgs.Setup.Application.Features.UniversalPricingServices.Commands.CreateFgsUniversalPricingService;
-using Fgs.Setup.Application.Features.UniversalPricingServices.Commands.PatchFgsUniversalPricingService;
 using Fgs.Setup.Application.Features.UniversalPricingServices.Commands.UpdateFgsUniversalPricingService;
 using Fgs.Setup.Application.Features.UniversalPricingServices.Dtos;
 using Fgs.Setup.Application.Features.UniversalPricingServices.Validators;
@@ -38,15 +37,27 @@ public sealed class FgsUniversalPricingServiceValidatorTests
     }
 
     [Fact]
+    public async Task CreateValidator_WhenCustomUniqueCode_Passes()
+    {
+        _readRepository
+            .Setup(r => r.ExistsByUniversalPricingServiceCodeAsync("DIAGFEE", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        var validator = new CreateFgsUniversalPricingServiceCommandValidator(_readRepository.Object);
+        var command = new CreateFgsUniversalPricingServiceCommand(
+            new FgsUniversalPricingServiceCreateDto("DIAGFEE", 1));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task UpdateValidator_WhenDuplicateCodeExcludesCurrentId_Passes()
     {
-
         _readRepository
             .Setup(r => r.ExistsByUniversalPricingServiceCodeAsync("TEST", 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
-        _readRepository
-            .Setup(r => r.ExistsGloUniversalPricingServiceCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
         var validator = new UpdateFgsUniversalPricingServiceCommandValidator(_readRepository.Object);
         var command = new UpdateFgsUniversalPricingServiceCommand(5, new FgsUniversalPricingServiceUpdateDto("TEST", 5));
 

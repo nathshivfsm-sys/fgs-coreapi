@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Commands.UpdateFgsUniversalMatrixSizeTier;
 
 public sealed class UpdateFgsUniversalMatrixSizeTierCommandHandler(
-    IFgsUniversalMatrixSizeTierWriteRepository writeRepository,
+    IFgsUniversalMatrixSizeTierWriteService writeService,
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<UpdateFgsUniversalMatrixSizeTierCommandHandler> logger)
@@ -20,12 +20,12 @@ public sealed class UpdateFgsUniversalMatrixSizeTierCommandHandler(
         UpdateFgsUniversalMatrixSizeTierCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await writeRepository.UpdateAsync(request.Id, request.Dto, cancellationToken);
+        var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
         logger.LogInformation("Updated universal matrix size tier {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current!;
-            await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixsizetier"),
-                cancellationToken);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixsizetier"),
+            cancellationToken);
         return ApiResponse<FgsUniversalMatrixSizeTierDetailDto>.Ok(result);
     }
 }

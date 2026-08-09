@@ -57,13 +57,28 @@ public sealed class ActiveUserAuthorizationMiddleware(
 
     private bool IsInternalServiceRequest(HttpContext context)
     {
-        var configuredKey = internalServiceKeyOptions.Value.InternalServiceKey;
-        if (string.IsNullOrWhiteSpace(configuredKey))
+        var providedKey = context.Request.Headers[InternalServiceHeaders.ServiceKey].FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(providedKey))
         {
             return false;
         }
 
-        var providedKey = context.Request.Headers[InternalServiceHeaders.ServiceKey].FirstOrDefault();
-        return string.Equals(providedKey, configuredKey, StringComparison.Ordinal);
+        var options = internalServiceKeyOptions.Value;
+        if (!string.IsNullOrWhiteSpace(options.InternalServiceKey)
+            && string.Equals(providedKey, options.InternalServiceKey, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        foreach (var key in options.AdditionalInternalServiceKeys)
+        {
+            if (!string.IsNullOrWhiteSpace(key)
+                && string.Equals(providedKey, key, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

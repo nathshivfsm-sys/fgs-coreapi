@@ -7,9 +7,13 @@ public sealed class ProvisionTenantCommandValidator : AbstractValidator<Provisio
 {
     public ProvisionTenantCommandValidator()
     {
-        RuleFor(x => x.Request.TenantId).GreaterThan(0);
-        RuleFor(x => x.Request.CompanyId).GreaterThan(0);
-        RuleFor(x => x.Request.TenantCode).NotEmpty();
-        RuleFor(x => x.Request.CorrelationId).NotEmpty();
+        RuleFor(x => x.Request).NotNull();
+        When(x => x.Request is not null, () =>
+        {
+            RuleFor(x => x.Request.TenantId).GreaterThan(0);
+            RuleFor(x => x.Request.CompanyId).GreaterThan(0);
+            RuleFor(x => x.Request.TenantCode).NotEmpty();
+            RuleFor(x => x.Request.CorrelationId).NotEmpty();
+        });
     }
 }

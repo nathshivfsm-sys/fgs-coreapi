@@ -54,7 +54,7 @@ internal sealed class FgsEmployeeConfiguration : IEntityTypeConfiguration<FgsEmp
         entity.Property(e => e.OfficePhone).HasMaxLength(25)
             .HasComment("Employee office phone number or extension.");
         entity.Property(e => e.AddressId)
-            .HasComment("Reference to the employee mailing or home address record. No FK by design.");
+            .HasComment("Optional reference to the employee mailing or home address in FgsLocation. No FK by design.");
         entity.Property(e => e.ProfilePhotoFileId)
             .HasComment("Identifier of the employee profile photo stored in the file repository. No FK by design.");
         entity.Property(e => e.RegularRate).HasColumnType("numeric(18,2)")

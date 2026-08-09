@@ -1,9 +1,9 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Fgs.File.Application.Abstractions.Storage;
-using Fgs.File.Infrastructure.Common.Options;
 using Microsoft.Extensions.Options;
 using S3ByteRange = Amazon.S3.Model.ByteRange;
+using Fgs.Credentials.Options;
 
 namespace Fgs.File.Infrastructure.Storage;
 

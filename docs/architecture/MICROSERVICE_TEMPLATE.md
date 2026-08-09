@@ -12,13 +12,22 @@
 ## DI order (`Program.cs`)
 
 ```csharp
+var hostOptions = builder.AddFgsApiHost(options =>
+{
+    options.ServiceName = "fgs-{service}-service";
+    // ...
+});
 builder.Services.AddFgs{Service}Application();
 builder.Services.AddFgs{Service}Infrastructure(builder.Configuration);
-builder.Services.AddFgsMultiTenancy();
-builder.Services.AddFgsObservability(builder.Configuration, "fgs-{service}-service");
+builder.AddFgsObservability(hostOptions.ServiceName);
+// ...
+app.UseFgsApiHost(hostOptions);
+app.MapFgsHealthChecks();
 ```
 
 `AddFgsFoundation()` is registered **only** inside `AddFgs{Service}Application()`.
+
+Observability (Datadog APM, Serilog JSON, DogStatsD, health) is shared via `Fgs.Observability` — see [docs/observability/DATADOG.md](../observability/DATADOG.md). Use the same `Datadog` + `Serilog` appsettings sections on every API; do not add per-service Serilog/Datadog packages.
 
 ## Data access
 

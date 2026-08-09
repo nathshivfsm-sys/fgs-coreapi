@@ -12,13 +12,7 @@ internal sealed class FgsUniversalMatrixOneTimeFeeSummaryRow
     public bool IsActive { get; set; }
 
     public FgsUniversalMatrixOneTimeFeeSummaryDto ToDto() =>
-        new(
-            Id,
-            UniversalPricingServiceId,
-            Name,
-            Amount,
-            DisplayOrder,
-            IsActive);
+        new(Id, UniversalPricingServiceId, Name, Amount, DisplayOrder, IsActive);
 }
 
 internal sealed class FgsUniversalMatrixOneTimeFeeDetailRow
@@ -31,13 +25,7 @@ internal sealed class FgsUniversalMatrixOneTimeFeeDetailRow
     public bool IsActive { get; set; }
 
     public FgsUniversalMatrixOneTimeFeeDetailDto ToDto() =>
-        new(
-            Id,
-            UniversalPricingServiceId,
-            Name,
-            Amount,
-            DisplayOrder,
-            IsActive);
+        new(Id, UniversalPricingServiceId, Name, Amount, DisplayOrder, IsActive);
 }
 
 internal sealed class FgsUniversalMatrixOneTimeFeeLookupRow
@@ -47,8 +35,6 @@ internal sealed class FgsUniversalMatrixOneTimeFeeLookupRow
     public string Name { get; set; } = null!;
     public short DisplayOrder { get; set; }
 
-    public FgsUniversalMatrixOneTimeFeeLookupDto ToDto() => new(Id,
-            UniversalPricingServiceId,
-            Name,
-            DisplayOrder);
+    public FgsUniversalMatrixOneTimeFeeLookupDto ToDto() =>
+        new(Id, UniversalPricingServiceId, Name, DisplayOrder);
 }

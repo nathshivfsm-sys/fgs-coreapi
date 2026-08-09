@@ -14,4 +14,12 @@ public interface IInvitationReadQuery
         string normalizedEmail,
         DateTimeOffset nowUtc,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Pending invitation check scoped to the current tenant and company (via user join).
+    /// </summary>
+    Task<bool> HasPendingInvitationForNormalizedEmailInCurrentTenantCompanyAsync(
+        string normalizedEmail,
+        DateTimeOffset nowUtc,
+        CancellationToken cancellationToken = default);
 }

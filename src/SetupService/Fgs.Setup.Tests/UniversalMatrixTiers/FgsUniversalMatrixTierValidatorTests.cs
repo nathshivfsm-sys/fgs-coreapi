@@ -1,6 +1,5 @@
 using Fgs.Setup.Application.Abstractions.UniversalMatrixTiers;
 using Fgs.Setup.Application.Features.UniversalMatrixTiers.Commands.CreateFgsUniversalMatrixTier;
-using Fgs.Setup.Application.Features.UniversalMatrixTiers.Commands.PatchFgsUniversalMatrixTier;
 using Fgs.Setup.Application.Features.UniversalMatrixTiers.Commands.UpdateFgsUniversalMatrixTier;
 using Fgs.Setup.Application.Features.UniversalMatrixTiers.Dtos;
 using Fgs.Setup.Application.Features.UniversalMatrixTiers.Validators;
@@ -15,8 +14,13 @@ public sealed class FgsUniversalMatrixTierValidatorTests
     [Fact]
     public async Task CreateValidator_WhenNameMissing_HasValidationError()
     {
+        _readRepository
+            .Setup(r => r.ExistsUniversalPricingServiceIdAsync(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
         var validator = new CreateFgsUniversalMatrixTierCommandValidator(_readRepository.Object);
-        var command = new CreateFgsUniversalMatrixTierCommand(new FgsUniversalMatrixTierCreateDto(1, "", 10.5m, 5));
+        var command = new CreateFgsUniversalMatrixTierCommand(
+            new FgsUniversalMatrixTierCreateDto(1, "", 1.0m, 1));
 
         var result = await validator.ValidateAsync(command);
 
@@ -25,17 +29,36 @@ public sealed class FgsUniversalMatrixTierValidatorTests
     }
 
     [Fact]
-    public async Task UpdateValidator_WhenDuplicateCodeExcludesCurrentId_Passes()
+    public async Task CreateValidator_WhenParentMissing_HasValidationError()
     {
-
         _readRepository
-            .Setup(r => r.ExistsByUniversalPricingServiceIdAndNameAsync(It.IsAny<long>(), It.IsAny<string>(), 5, It.IsAny<CancellationToken>()))
+            .Setup(r => r.ExistsUniversalPricingServiceIdAsync(99, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
+
+        var validator = new CreateFgsUniversalMatrixTierCommandValidator(_readRepository.Object);
+        var command = new CreateFgsUniversalMatrixTierCommand(
+            new FgsUniversalMatrixTierCreateDto(99, "Standard", 1.0m, 1));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Dto.UniversalPricingServiceId");
+    }
+
+    [Fact]
+    public async Task UpdateValidator_WhenValid_Passes()
+    {
         _readRepository
-            .Setup(r => r.ExistsUniversalPricingServiceIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.ExistsUniversalPricingServiceIdAsync(1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
+        _readRepository
+            .Setup(r => r.ExistsByNameAsync(1, "Standard", 5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
         var validator = new UpdateFgsUniversalMatrixTierCommandValidator(_readRepository.Object);
-        var command = new UpdateFgsUniversalMatrixTierCommand(5, new FgsUniversalMatrixTierUpdateDto(1, "Name", 10.5m, 5));
+        var command = new UpdateFgsUniversalMatrixTierCommand(
+            5,
+            new FgsUniversalMatrixTierUpdateDto(1, "Standard", 1.0m, 1));
 
         var result = await validator.ValidateAsync(command);
 

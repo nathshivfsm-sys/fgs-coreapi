@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
 using Fgs.Contracts.IntegrationEvents;
+using Fgs.Contracts.Observability;
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Options;
 using Microsoft.Extensions.Logging;
@@ -12,9 +14,11 @@ namespace Fgs.Messaging.RabbitMq;
 
 public sealed class RabbitMqPublisher(
     IOptions<RabbitMqOptions> options,
-    ILogger<RabbitMqPublisher> logger) : IRabbitMqPublisher, IMessagePublisher, IAsyncDisposable
+    ILogger<RabbitMqPublisher> logger,
+    IFgsMetrics? metrics = null) : IRabbitMqPublisher, IAsyncDisposable
 {
     private readonly RabbitMqOptions _options = options.Value;
+    private readonly IFgsMetrics _metrics = metrics ?? NoOpFgsMetrics.Instance;
     private IConnection? _connection;
     private IChannel? _channel;
     private readonly SemaphoreSlim _initLock = new(1, 1);
@@ -73,18 +77,30 @@ public sealed class RabbitMqPublisher(
             properties.Headers = new Dictionary<string, object?>(headers);
         }
 
-        await _channel!.BasicPublishAsync(
-            exchange: exchangeName,
-            routingKey: routingKey,
-            mandatory: false,
-            basicProperties: properties,
-            body: body,
-            cancellationToken: cancellationToken);
+        var sw = Stopwatch.StartNew();
+        try
+        {
+            await _channel!.BasicPublishAsync(
+                exchange: exchangeName,
+                routingKey: routingKey,
+                mandatory: false,
+                basicProperties: properties,
+                body: body,
+                cancellationToken: cancellationToken);
 
-        logger.LogInformation(
-            "Published message to exchange {Exchange} routing key {RoutingKey}",
-            exchangeName,
-            routingKey);
+            _metrics.Increment("rabbitmq.publish");
+            _metrics.Histogram("rabbitmq.publish_latency_ms", sw.Elapsed.TotalMilliseconds);
+
+            logger.LogInformation(
+                "Published message to exchange {Exchange} routing key {RoutingKey}",
+                exchangeName,
+                routingKey);
+        }
+        catch
+        {
+            _metrics.Increment("rabbitmq.publish_failure");
+            throw;
+        }
     }
 
     private async Task EnsureChannelAsync(CancellationToken cancellationToken)

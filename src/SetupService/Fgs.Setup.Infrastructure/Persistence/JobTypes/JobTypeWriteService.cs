@@ -1,6 +1,7 @@
 using Fgs.Persistence.Abstractions;
 using Fgs.Setup.Application.Abstractions.JobTypes;
 using Fgs.Setup.Application.Features.JobTypes.Dtos;
+using Fgs.Setup.Domain.Enums;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
@@ -31,21 +32,7 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
     {
         var entity = new FgsJobType
         {
-            JobTypeCategoryId = dto.JobTypeCategoryId,
-            JobTypeSubCategoryId = dto.JobTypeSubCategoryId,
-            JobTypeCode = NormalizeCode(dto.JobTypeCode),
-            TaskName = dto.TaskName.Trim(),
-            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
-            UsedFor = dto.UsedFor.Trim(),
-            Trade = string.IsNullOrWhiteSpace(dto.Trade) ? null : dto.Trade.Trim(),
-            EstimatedDurationMinutes = dto.EstimatedDurationMinutes ?? 1,
-            BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim(),
-            Priority = dto.Priority,
-            BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim(),
-            TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim(),
-            ShowToFieldTech = dto.ShowToFieldTech,
-            ShowOnCustomerPortal = dto.ShowOnCustomerPortal,
-            DisplayOrder = dto.DisplayOrder ?? 1
+            JobTypeCode = NormalizeCode(dto.JobTypeCode), Name = dto.Name.Trim(), UsedFor = (JobTypeUsedFor)dto.UsedFor, BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim(), BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim(), TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim(), ShowToFieldTech = dto.ShowToFieldTech, ShowOnCustomerPortal = dto.ShowOnCustomerPortal, DisplayOrder = dto.DisplayOrder ?? 1
         };
 
         _auditHelper.StampForCreate(entity);
@@ -63,16 +50,10 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Job Type '{id}' was not found.");
 
-        entity.JobTypeCategoryId = dto.JobTypeCategoryId;
-        entity.JobTypeSubCategoryId = dto.JobTypeSubCategoryId;
         entity.JobTypeCode = NormalizeCode(dto.JobTypeCode);
-        entity.TaskName = dto.TaskName.Trim();
-        entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
-        entity.UsedFor = dto.UsedFor.Trim();
-        entity.Trade = string.IsNullOrWhiteSpace(dto.Trade) ? null : dto.Trade.Trim();
-        entity.EstimatedDurationMinutes = dto.EstimatedDurationMinutes ?? entity.EstimatedDurationMinutes;
+        entity.Name = dto.Name.Trim();
+        entity.UsedFor = (JobTypeUsedFor)dto.UsedFor;
         entity.BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim();
-        entity.Priority = dto.Priority;
         entity.BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim();
         entity.TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim();
         entity.ShowToFieldTech = dto.ShowToFieldTech;
@@ -93,53 +74,29 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Job Type '{id}' was not found.");
 
-        if (dto.JobTypeCategoryId.HasValue)
-        {
-            entity.JobTypeCategoryId = dto.JobTypeCategoryId.Value;
-        }
-        if (dto.JobTypeSubCategoryId.HasValue)
-        {
-            entity.JobTypeSubCategoryId = dto.JobTypeSubCategoryId.Value;
-        }
         if (dto.JobTypeCode is not null)
         {
-            entity.JobTypeCode = NormalizeCode(dto.JobTypeCode); ;
+            entity.JobTypeCode = NormalizeCode(dto.JobTypeCode);;
         }
-        if (dto.TaskName is not null)
+        if (dto.Name is not null)
         {
-            entity.TaskName = dto.TaskName.Trim(); ;
+            entity.Name = dto.Name.Trim();;
         }
-        if (dto.Description is not null)
+        if (dto.UsedFor.HasValue)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
-        }
-        if (dto.UsedFor is not null)
-        {
-            entity.UsedFor = dto.UsedFor.Trim(); ;
-        }
-        if (dto.Trade is not null)
-        {
-            entity.Trade = string.IsNullOrWhiteSpace(dto.Trade) ? null : dto.Trade.Trim(); ;
-        }
-        if (dto.EstimatedDurationMinutes.HasValue)
-        {
-            entity.EstimatedDurationMinutes = dto.EstimatedDurationMinutes.Value;
+            entity.UsedFor = (JobTypeUsedFor)dto.UsedFor.Value;
         }
         if (dto.BusinessUnit is not null)
         {
-            entity.BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim(); ;
-        }
-        if (dto.Priority.HasValue)
-        {
-            entity.Priority = dto.Priority.Value;
+            entity.BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim();;
         }
         if (dto.BackgroundColor is not null)
         {
-            entity.BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim(); ;
+            entity.BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim();;
         }
         if (dto.TextColor is not null)
         {
-            entity.TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim(); ;
+            entity.TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim();;
         }
         if (dto.ShowToFieldTech.HasValue)
         {
@@ -205,16 +162,10 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
     private static JobTypeDetailDto MapToDetail(FgsJobType entity) =>
         new(
             entity.Id,
-            entity.JobTypeCategoryId,
-            entity.JobTypeSubCategoryId,
             entity.JobTypeCode,
-            entity.TaskName,
-            entity.Description,
-            entity.UsedFor,
-            entity.Trade,
-            entity.EstimatedDurationMinutes,
+            entity.Name,
+            (short)entity.UsedFor,
             entity.BusinessUnit,
-            entity.Priority,
             entity.BackgroundColor,
             entity.TextColor,
             entity.ShowToFieldTech,

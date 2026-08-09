@@ -11,6 +11,8 @@ using Fgs.Setup.Application.Features.JobTypes.Queries.ListJobTypes;
 using Fgs.Setup.Application.Features.JobTypes.Queries.LookupJobTypes;
 using Fgs.Setup.Application.Features.JobTypes.Dtos;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
@@ -42,13 +44,14 @@ public sealed class JobTypeController(IMediator mediator) : ControllerBase
         [FromQuery] string? search = null,
         [FromQuery] bool? isActive = null,
         [FromQuery] string? jobTypeCode = null,
-        [FromQuery] string? taskName = null,
+        [FromQuery] string? name = null,
+        [FromQuery] short? usedFor = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListJobTypesQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new JobTypeListFilters(jobTypeCode, taskName)),
+                new JobTypeListFilters(jobTypeCode, name, usedFor)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);
@@ -64,6 +67,7 @@ public sealed class JobTypeController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<JobTypeDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -76,6 +80,7 @@ public sealed class JobTypeController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<JobTypeDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -89,6 +94,7 @@ public sealed class JobTypeController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<JobTypeDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

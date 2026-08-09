@@ -40,10 +40,10 @@ public sealed class RefreshAuthTokenCommandHandler(
         {
             tokens = await entraService.RefreshTokenAsync(request.RefreshToken, cancellationToken);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             return ApiResponse<LoginProfileDto>.Fail(
-                [AuthErrorMessages.RefreshTokenFailed],
+                [$"{AuthErrorMessages.RefreshTokenFailed} {ex.Message}"],
                 ApiStatusCodes.Unauthorized);
         }
 

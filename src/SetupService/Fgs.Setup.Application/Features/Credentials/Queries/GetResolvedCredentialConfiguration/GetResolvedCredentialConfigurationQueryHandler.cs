@@ -1,6 +1,7 @@
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
 using Fgs.Contracts.CredentialAudit;
+using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Options;
 using Fgs.Persistence.Abstractions;
@@ -27,7 +28,7 @@ public sealed class GetResolvedCredentialConfigurationQueryHandler(
             ? "unknown"
             : request.RequestingServiceName.Trim();
 
-        if (!IsInternalServiceAuthorized(request.InternalServiceKey, distributionOptions.Value))
+        if (!InternalServiceAuthorization.IsAuthorized(request.InternalServiceKey, distributionOptions.Value))
         {
             await RecordAccessAuditAsync(
                 requestingService,
@@ -35,7 +36,7 @@ public sealed class GetResolvedCredentialConfigurationQueryHandler(
                 "Internal service key validation failed.",
                 cancellationToken);
             return ApiResponse<ResolvedCredentialConfigurationDto>.Fail(
-                ["Unauthorized."],
+                ["Internal service key validation failed."],
                 ApiStatusCodes.Unauthorized);
         }
 
@@ -59,18 +60,6 @@ public sealed class GetResolvedCredentialConfigurationQueryHandler(
 
         return ApiResponse<ResolvedCredentialConfigurationDto>.Ok(
             new ResolvedCredentialConfigurationDto(configurationProvider.Values));
-    }
-
-    private static bool IsInternalServiceAuthorized(
-        string? providedKey,
-        CredentialDistributionOptions options)
-    {
-        if (string.IsNullOrWhiteSpace(options.InternalServiceKey))
-        {
-            return false;
-        }
-
-        return string.Equals(providedKey, options.InternalServiceKey, StringComparison.Ordinal);
     }
 
     private async Task RecordAccessAuditAsync(

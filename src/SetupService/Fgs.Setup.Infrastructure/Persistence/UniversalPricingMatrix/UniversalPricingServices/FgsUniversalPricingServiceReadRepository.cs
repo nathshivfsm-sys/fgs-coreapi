@@ -69,8 +69,7 @@ internal sealed class FgsUniversalPricingServiceReadRepository : IFgsUniversalPr
 
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
-            where.Add(
-                "(\"UniversalPricingServiceCode\" ILIKE @Search)");
+            where.Add("(\"UniversalPricingServiceCode\" ILIKE @Search)");
         }
 
         var whereClause = string.Join(" AND ", where);
@@ -163,26 +162,6 @@ internal sealed class FgsUniversalPricingServiceReadRepository : IFgsUniversalPr
                     UniversalPricingServiceCode = universalPricingServiceCode.Trim().ToUpperInvariant(),
                     ExcludeId = excludeId
                 },
-                cancellationToken: cancellationToken));
-    }
-    public async Task<bool> ExistsGloUniversalPricingServiceCodeAsync(
-        string code,
-        CancellationToken cancellationToken = default)
-    {
-        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
-        var sql = $"""
-            SELECT EXISTS(
-                SELECT 1
-                FROM glo."GloUniversalPricingService"
-                WHERE "ServiceCode" = UPPER(@Code)
-            )
-            """;
-
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        return await connection.ExecuteScalarAsync<bool>(
-            new CommandDefinition(
-                sql,
-                new { Code = code.Trim().ToUpperInvariant() },
                 cancellationToken: cancellationToken));
     }
 }

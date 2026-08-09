@@ -4,7 +4,6 @@ using Fgs.Setup.Application.Features.SetupPostalCodes.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
-using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.Persistence.SetupPostalCodes;
@@ -32,6 +31,10 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
         var entity = new FgsSetupPostalCode
         {
             PostalCode = dto.PostalCode.Trim(),
+            CountryCode = NormalizeCountryCode(dto.CountryCode),
+            StateProvinceCode = dto.StateProvinceCode.Trim(),
+            City = dto.City.Trim(),
+            TripChargeAmount = dto.TripChargeAmount,
             FgsSetupZoneId = dto.FgsSetupZoneId,
             FgsSetupTaxId = dto.FgsSetupTaxId
         };
@@ -52,6 +55,10 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
             ?? throw new KeyNotFoundException($"Postal Code '{id}' was not found.");
 
         entity.PostalCode = dto.PostalCode.Trim();
+        entity.CountryCode = NormalizeCountryCode(dto.CountryCode);
+        entity.StateProvinceCode = dto.StateProvinceCode.Trim();
+        entity.City = dto.City.Trim();
+        entity.TripChargeAmount = dto.TripChargeAmount;
         entity.FgsSetupZoneId = dto.FgsSetupZoneId;
         entity.FgsSetupTaxId = dto.FgsSetupTaxId;
 
@@ -71,12 +78,34 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
 
         if (dto.PostalCode is not null)
         {
-            entity.PostalCode = dto.PostalCode.Trim(); ;
+            entity.PostalCode = dto.PostalCode.Trim();
         }
+
+        if (dto.CountryCode is not null)
+        {
+            entity.CountryCode = NormalizeCountryCode(dto.CountryCode);
+        }
+
+        if (dto.StateProvinceCode is not null)
+        {
+            entity.StateProvinceCode = dto.StateProvinceCode.Trim();
+        }
+
+        if (dto.City is not null)
+        {
+            entity.City = dto.City.Trim();
+        }
+
+        if (dto.TripChargeAmount.HasValue)
+        {
+            entity.TripChargeAmount = dto.TripChargeAmount.Value;
+        }
+
         if (dto.FgsSetupZoneId.HasValue)
         {
             entity.FgsSetupZoneId = dto.FgsSetupZoneId.Value;
         }
+
         if (dto.FgsSetupTaxId.HasValue)
         {
             entity.FgsSetupTaxId = dto.FgsSetupTaxId.Value;
@@ -128,12 +157,16 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
         || exception.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true
         || exception.InnerException?.Message.Contains("23505", StringComparison.Ordinal) == true;
 
-    private static string NormalizeCode(string code) => code.Trim().ToUpperInvariant();
+    private static string NormalizeCountryCode(string code) => code.Trim().ToUpperInvariant();
 
     private static FgsSetupPostalCodeDetailDto MapToDetail(FgsSetupPostalCode entity) =>
         new(
             entity.Id,
             entity.PostalCode,
+            entity.CountryCode,
+            entity.StateProvinceCode,
+            entity.City,
+            entity.TripChargeAmount,
             entity.FgsSetupZoneId,
             entity.FgsSetupTaxId,
             entity.IsActive);

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.UniversalMatrixFrequencyDiscounts.Commands.DeleteFgsUniversalMatrixFrequencyDiscount;
 
 public sealed class DeleteFgsUniversalMatrixFrequencyDiscountCommandHandler(
-    IFgsUniversalMatrixFrequencyDiscountWriteRepository writeRepository,
+    IFgsUniversalMatrixFrequencyDiscountWriteService writeService,
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<DeleteFgsUniversalMatrixFrequencyDiscountCommandHandler> logger)
@@ -20,12 +20,12 @@ public sealed class DeleteFgsUniversalMatrixFrequencyDiscountCommandHandler(
         DeleteFgsUniversalMatrixFrequencyDiscountCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await writeRepository.DeleteAsync(request.Id, cancellationToken);
+        var result = await writeService.DeleteAsync(request.Id, cancellationToken);
         logger.LogInformation("Soft-deleted universal matrix frequency discount {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current!;
-            await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixfrequencydiscount"),
-                cancellationToken);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixfrequencydiscount"),
+            cancellationToken);
         return ApiResponse<FgsUniversalMatrixFrequencyDiscountDetailDto>.Ok(result);
     }
 }

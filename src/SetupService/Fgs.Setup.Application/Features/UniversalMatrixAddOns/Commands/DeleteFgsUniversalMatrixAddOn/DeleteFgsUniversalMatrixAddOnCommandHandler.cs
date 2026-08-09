@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.UniversalMatrixAddOns.Commands.DeleteFgsUniversalMatrixAddOn;
 
 public sealed class DeleteFgsUniversalMatrixAddOnCommandHandler(
-    IFgsUniversalMatrixAddOnWriteRepository writeRepository,
+    IFgsUniversalMatrixAddOnWriteService writeService,
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<DeleteFgsUniversalMatrixAddOnCommandHandler> logger)
@@ -20,12 +20,12 @@ public sealed class DeleteFgsUniversalMatrixAddOnCommandHandler(
         DeleteFgsUniversalMatrixAddOnCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await writeRepository.DeleteAsync(request.Id, cancellationToken);
+        var result = await writeService.DeleteAsync(request.Id, cancellationToken);
         logger.LogInformation("Soft-deleted universal matrix add-on {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current!;
-            await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixaddon"),
-                cancellationToken);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixaddon"),
+            cancellationToken);
         return ApiResponse<FgsUniversalMatrixAddOnDetailDto>.Ok(result);
     }
 }

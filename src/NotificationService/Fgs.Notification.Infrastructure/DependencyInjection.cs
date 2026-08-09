@@ -1,26 +1,17 @@
-using Fgs.Notification.Application.Audit;
-using Fgs.Notification.Application.BackgroundJobs;
 using Fgs.Notification.Application.Configuration;
-using Fgs.Notification.Application.Integrations.QuickBooks;
 using Fgs.Notification.Application.Integrations.SendGrid;
-using Fgs.Notification.Application.Integrations.Stripe;
-using Fgs.Notification.Application.Integrations.Twilio;
 using Fgs.Notification.Application.Notifications.Channels;
 using Fgs.Notification.Application.Notifications.History;
 using Fgs.Notification.Application.Notifications.Providers;
 using Fgs.Notification.Application.Notifications.Dispatch;
 using Fgs.Notification.Application.Notifications.Queues;
 using Fgs.Notification.Application.Notifications.Templates;
-using Fgs.Notification.Application.Reporting;
-using Fgs.Notification.Infrastructure.Audit;
-using Fgs.Notification.Infrastructure.BackgroundJobs;
+using Fgs.Notification.Domain.Enums;
 using Fgs.Notification.Infrastructure.Configuration;
 using Fgs.Notification.Infrastructure.Database;
+using Fgs.Notification.Infrastructure.Database.Schemas;
 using Fgs.Persistence.Extensions;
-using Fgs.Notification.Infrastructure.Integrations.QuickBooks;
 using Fgs.Notification.Infrastructure.Integrations.SendGrid;
-using Fgs.Notification.Infrastructure.Integrations.Stripe;
-using Fgs.Notification.Infrastructure.Integrations.Twilio;
 using Fgs.Notification.Infrastructure.Notifications.Channels;
 using Fgs.Notification.Infrastructure.Notifications.History;
 using Fgs.Notification.Infrastructure.Notifications.Providers;
@@ -30,12 +21,9 @@ using Fgs.Notification.Infrastructure.Notifications.Providers.Sms;
 using Fgs.Notification.Infrastructure.Notifications.Queues;
 using Fgs.Notification.Infrastructure.Notifications.Templates;
 using Fgs.Notification.Infrastructure.Options;
-using Fgs.Notification.Infrastructure.Reporting;
 using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
-using System.Reflection;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,13 +46,15 @@ public static class DependencyInjection
             },
             typeof(SendGridOptions));
 
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-
         services.Configure<SendGridOptions>(configuration.GetSection(SendGridOptions.SectionName));
-        services.Configure<SetupServiceClientOptions>(configuration.GetSection(SetupServiceClientOptions.SectionName));
+        services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
+        services.Configure<TwilioOptions>(configuration.GetSection(TwilioOptions.SectionName));
+        services.Configure<FirebaseOptions>(configuration.GetSection(FirebaseOptions.SectionName));
         services.Configure<TenantProviderOptions>(configuration.GetSection(TenantProviderOptions.SectionName));
         services.Configure<NotificationFeatureFlagsOptions>(configuration.GetSection(NotificationFeatureFlagsOptions.SectionName));
         services.Configure<NotificationOptions>(configuration.GetSection(NotificationOptions.SectionName));
+
+        services.AddHttpClient(nameof(TwilioSmsProvider));
 
         services.AddDbContext<FgsNotificationDbContext>((sp, options) =>
         {
@@ -73,8 +63,21 @@ public static class DependencyInjection
                 ConnectionStringNames.FgsNotification,
                 "FGS_NOTIFICATION_DB",
                 sp.GetService<ICredentialConfigurationProvider>());
-            options.UseFgsNpgsql(connectionString, "__EFMigrationsHistory", FgsNotificationDbContext.MigrationHistorySchema);
+            var nullTranslator = new Npgsql.NameTranslation.NpgsqlNullNameTranslator();
+            options.UseFgsNpgsql(
+                connectionString,
+                "__EFMigrationsHistory",
+                FgsNotificationDbContext.MigrationHistorySchema,
+                npgsql =>
+                {
+                    npgsql.MapEnum<NotificationStatus>(
+                        "notification_status", FgsDatabaseSchemas.Notification, nameTranslator: nullTranslator);
+                    npgsql.MapEnum<NotificationSourceApplication>(
+                        "source_application", FgsDatabaseSchemas.Notification, nameTranslator: nullTranslator);
+                });
         });
+
+        services.AddFgsDbContextReadyCheck<FgsNotificationDbContext>();
 
         services.AddScoped<INotificationHistoryRepository, NotificationHistoryRepository>();
         services.AddScoped<IIdempotencyStore, IdempotencyStore>();
@@ -93,14 +96,8 @@ public static class DependencyInjection
         services.AddSingleton<FirebasePushProvider>();
 
         services.AddSingleton<ISendGridIntegrationClient, SendGridIntegrationClient>();
-        services.AddSingleton<IQuickBooksIntegrationClient, QuickBooksIntegrationClient>();
-        services.AddSingleton<IStripeIntegrationClient, StripeIntegrationClient>();
-        services.AddSingleton<ITwilioIntegrationClient, TwilioIntegrationClient>();
 
         services.AddSingleton<ITenantConfigurationResolver, TenantConfigurationResolver>();
-        services.AddSingleton<IAuditLogger, NoOpAuditLogger>();
-        services.AddSingleton<IBackgroundJobQueue, InMemoryBackgroundJobQueue>();
-        services.AddSingleton<IReportExporter, PlaceholderReportExporter>();
 
         return services;
     }

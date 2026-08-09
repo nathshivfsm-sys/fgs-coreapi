@@ -69,8 +69,10 @@ class EntityConfig:
 
 
 FK_EXISTS_TABLES: dict[str, tuple[str, str]] = {
+    "JobCategoryId": ('setup."FgsJobCategory"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
+    "JobTypeId": ('setup."FgsJobType"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
     "JobTypeCategoryId": ('setup."FgsJobTypeCategory"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
-    "JobTypeSubCategoryId": ('setup."FgsJobTypeSubCategory"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
+    "TradeId": ('setup."FgsSetupTechTrade"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
     "GloResolutionTypeId": ('setup."GloResolutionTypeCache"', '"ResolutionTypeId" = @Id AND "IsActive" = TRUE'),
     "FgsSetupTechTradeId": ('setup."FgsSetupTechTrade"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
     "FgsSetupZoneId": ('setup."FgsSetupZone"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
@@ -82,7 +84,6 @@ FK_EXISTS_TABLES: dict[str, tuple[str, str]] = {
     "VehicleMaintenanceTypeId": ('glo."GloVehicleMaintenanceType"', '"Id" = @Id AND "IsActive" = TRUE'),
     "NextSalesPipelineStatusId": ('setup."FgsSalesPipelineStatus"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
     "UniversalPricingServiceId": ('setup."FgsUniversalPricingService"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
-    "UniversalPricingServiceCode": ('glo."GloUniversalPricingService"', '"ServiceCode" = UPPER(@Code)'),
 }
 
 
@@ -187,14 +188,14 @@ ENTITIES: list[EntityConfig] = [
         expose_http_delete=False,
     ),
     EntityConfig(
-        type_prefix="JobTypeCategory",
-        plural_folder="JobTypeCategories",
-        route="jobtypecategories",
-        controller="JobTypeCategoriesController",
-        domain_entity="FgsJobTypeCategory",
-        table='setup."FgsJobTypeCategory"',
-        dbset="FgsJobTypeCategories",
-        display_name="job type category",
+        type_prefix="JobCategory",
+        plural_folder="JobCategories",
+        route="jobcategory",
+        controller="JobCategoryController",
+        domain_entity="FgsJobCategory",
+        table='setup."FgsJobCategory"',
+        dbset="FgsJobCategories",
+        display_name="job category",
         base="setup_tenant",
         code_field="CategoryCode",
         name_field="Name",
@@ -202,67 +203,93 @@ ENTITIES: list[EntityConfig] = [
         fields=f([
             Field("CategoryCode", "string", 50, uppercase=True, in_lookup=True, in_list_filter=True),
             Field("Name", "string", 150, in_lookup=True, in_list_filter=True),
-            Field("Description", "string?", required=False),
             Field("DisplayOrder", "short?", required=False, in_lookup=True),
         ]),
-        search_columns=["CategoryCode", "Name", "Description"],
+        search_columns=["CategoryCode", "Name"],
     ),
     EntityConfig(
-        type_prefix="JobTypeSubCategory",
-        plural_folder="JobTypeSubCategories",
-        route="jobtypesubcategories",
-        controller="JobTypeSubCategoriesController",
-        domain_entity="FgsJobTypeSubCategory",
-        table='setup."FgsJobTypeSubCategory"',
-        dbset="FgsJobTypeSubCategories",
-        display_name="job type subcategory",
+        type_prefix="JobTypeCategory",
+        plural_folder="JobTypeCategories",
+        route="jobtypecategory",
+        controller="JobTypeCategoryController",
+        domain_entity="FgsJobTypeCategory",
+        table='setup."FgsJobTypeCategory"',
+        dbset="FgsJobTypeCategories",
+        display_name="job type category",
         base="setup_tenant",
-        code_field="SubCategoryCode",
-        name_field="Name",
+        code_field="JobTypeId",
+        name_field="JobCategoryId",
+        unique_code=False,
         has_display_order=True,
+        unique_composite=("JobTypeId", "JobCategoryId"),
+        extra_list_filters=[("JobTypeId", "long?"), ("JobCategoryId", "long?")],
         fields=f([
-            Field("SubCategoryCode", "string", 50, uppercase=True, in_lookup=True, in_list_filter=True),
-            Field("Name", "string", 150, in_lookup=True, in_list_filter=True),
-            Field("Description", "string?", required=False),
+            Field("JobTypeId", "long", in_lookup=True),
+            Field("JobCategoryId", "long", in_lookup=True),
             Field("DisplayOrder", "short?", required=False, in_lookup=True),
         ]),
-        search_columns=["SubCategoryCode", "Name", "Description"],
+        fk_checks=[
+            ("JobTypeId", "ExistsJobTypeIdAsync", "job type"),
+            ("JobCategoryId", "ExistsJobCategoryIdAsync", "job category"),
+        ],
+        search_columns=[],
     ),
     EntityConfig(
         type_prefix="JobType",
         plural_folder="JobTypes",
-        route="jobtypes",
-        controller="JobTypesController",
+        route="jobtype",
+        controller="JobTypeController",
         domain_entity="FgsJobType",
         table='setup."FgsJobType"',
         dbset="FgsJobTypes",
         display_name="job type",
         base="setup_tenant",
         code_field="JobTypeCode",
-        name_field="TaskName",
+        name_field="Name",
+        unique_code=True,
+        unique_name=True,
         has_display_order=True,
         fields=f([
-            Field("JobTypeCategoryId", "long", in_lookup=False, in_summary=True),
-            Field("JobTypeSubCategoryId", "long?", required=False),
             Field("JobTypeCode", "string", 50, uppercase=True, in_lookup=True, in_list_filter=True),
-            Field("TaskName", "string", 200, in_lookup=True, in_list_filter=True),
-            Field("Description", "string?", required=False),
-            Field("UsedFor", "string", 50),
-            Field("Trade", "string?", 100, required=False),
-            Field("EstimatedDurationMinutes", "int?", required=False),
+            Field("Name", "string", 200, in_lookup=True, in_list_filter=True),
+            Field("UsedFor", "short", validator_min=1, validator_max=4),
             Field("BusinessUnit", "string?", 100, required=False),
-            Field("Priority", "short", default="5", validator_min=1),
             Field("BackgroundColor", "string?", 20, required=False),
             Field("TextColor", "string?", 20, required=False),
             Field("ShowToFieldTech", "bool", default="true"),
             Field("ShowOnCustomerPortal", "bool", default="true"),
             Field("DisplayOrder", "short?", required=False, in_lookup=True),
         ]),
+        extra_list_filters=[("UsedFor", "short?")],
+        search_columns=["JobTypeCode", "Name"],
+    ),
+    EntityConfig(
+        type_prefix="JobTypeTask",
+        plural_folder="JobTypeTasks",
+        route="jobtypetask",
+        controller="JobTypeTaskController",
+        domain_entity="FgsJobTypeTask",
+        table='setup."FgsJobTypeTask"',
+        dbset="FgsJobTypeTasks",
+        display_name="job type task",
+        base="setup_tenant",
+        code_field="TaskName",
+        name_field="TaskName",
+        unique_code=False,
+        has_display_order=True,
+        fields=f([
+            Field("JobTypeCategoryId", "long", in_summary=True),
+            Field("TradeId", "long"),
+            Field("TaskName", "string", 200, in_list_filter=True),
+            Field("Priority", "short", default="5", validator_min=1),
+            Field("EstimatedHours", "decimal", default="1.00m", validator_min=0),
+            Field("DisplayOrder", "short?", required=False),
+        ]),
         fk_checks=[
             ("JobTypeCategoryId", "ExistsJobTypeCategoryIdAsync", "job type category"),
-            ("JobTypeSubCategoryId", "ExistsJobTypeSubCategoryIdAsync", "job type subcategory"),
+            ("TradeId", "ExistsTradeIdAsync", "trade"),
         ],
-        search_columns=["JobTypeCode", "TaskName", "Description"],
+        search_columns=["TaskName"],
     ),
     EntityConfig(
         type_prefix="LeadDisqualificationReason",
@@ -909,9 +936,6 @@ UNIVERSAL_MATRIX_ENTITIES: list[EntityConfig] = [
             Field("UniversalPricingServiceCode", "string", 50, uppercase=True, in_lookup=True, in_list_filter=True),
             Field("DisplayOrder", "short", default="1", in_lookup=True, validator_min=1),
         ]),
-        fk_checks=[
-            ("UniversalPricingServiceCode", "ExistsGloUniversalPricingServiceCodeAsync", "universal pricing service"),
-        ],
         search_columns=["UniversalPricingServiceCode"],
     ),
     EntityConfig(
@@ -1699,7 +1723,7 @@ def filter_where(cfg: EntityConfig) -> str:
             where.Add("\\"{name}\\" = @{name}");
         }}
 """)
-        elif cs == "long?":
+        elif cs in ("long?", "short?"):
             parts.append(f"""        if (filters.{name}.HasValue)
         {{
             where.Add("\\"{name}\\" = @{name}");
@@ -1726,6 +1750,8 @@ def filter_params(cfg: EntityConfig) -> str:
 
 def search_clause(cfg: EntityConfig) -> str:
     cols = cfg.search_columns or [cfg.code_field, cfg.name_field]
+    if not cols:
+        return '""'
     parts = " OR ".join(f'\\"{c}\\" ILIKE @Search' for c in cols)
     return f"({parts})"
 
@@ -2226,6 +2252,11 @@ def extra_validator_rules(cfg: EntityConfig, mode: str) -> str:
     if cfg.type_prefix == "FgsSetupTimeSlot":
         rules.append("""        RuleFor(x => x.Dto).Must(dto => dto.EndTime > dto.BeginTime)
             .WithMessage("EndTime must be greater than BeginTime.");""")
+    if cfg.type_prefix == "JobType":
+        if mode == "patch":
+            rules.append("""        RuleFor(x => x.Dto.UsedFor).InclusiveBetween((short)1, (short)4).When(x => x.Dto.UsedFor.HasValue);""")
+        else:
+            rules.append("""        RuleFor(x => x.Dto.UsedFor).InclusiveBetween((short)1, (short)4);""")
     return "\n".join(rules)
 
 
@@ -2633,8 +2664,8 @@ def controller_filter_params(cfg: EntityConfig) -> str:
         camel = lc(name)
         if cs == "bool?":
             lines.append(f'        [FromQuery] bool? {camel} = null,')
-        elif cs == "long?":
-            lines.append(f'        [FromQuery] long? {camel} = null,')
+        elif cs in ("long?", "short?"):
+            lines.append(f'        [FromQuery] {cs} {camel} = null,')
     return "\n".join(lines)
 
 

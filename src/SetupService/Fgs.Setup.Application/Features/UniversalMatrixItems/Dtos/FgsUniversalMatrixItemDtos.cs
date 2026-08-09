@@ -47,5 +47,5 @@ public sealed record FgsUniversalMatrixItemPatchDto(
     bool? IsActive);
 
 public sealed record FgsUniversalMatrixItemListFilters(
-    string? ItemName = null,
-    long? UniversalPricingServiceId = null);
+    long? UniversalPricingServiceId = null,
+    string? ItemName = null);

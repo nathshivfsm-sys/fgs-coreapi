@@ -1,13 +1,14 @@
 using Amazon.KeyManagementService;
+using Amazon.SecretsManager;
 using Fgs.Credentials.Aws;
 using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Configuration;
 using Fgs.Credentials.Extensions;
 using Fgs.Credentials.Options;
+using Fgs.Credentials.Redis;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Application.Common.Options;
-using Fgs.Setup.Infrastructure.Common.Options;
 using Fgs.Setup.Infrastructure.Credentials;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Database.Repositories;
@@ -17,6 +18,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Fgs.Setup.Infrastructure;
@@ -47,6 +50,7 @@ public static class CredentialServiceCollectionExtensions
         services.AddScoped<ICredentialRepository, CredentialRepository>();
         services.AddScoped<ICredentialActorResolver, CredentialActorResolver>();
         services.AddSingleton<ICredentialSecretAccessPolicy, CredentialSecretAccessPolicy>();
+        RegisterSecretVault(services);
 
         var credentialConfigurationHolder = new CredentialConfigurationHolder();
         services.AddSingleton(credentialConfigurationHolder);
@@ -54,6 +58,7 @@ public static class CredentialServiceCollectionExtensions
         configurationBuilder.AddFgsCredentialApplicationConfiguration(credentialConfigurationHolder);
 
         services.AddSingleton<CredentialOptionsChangeNotifier>();
+        services.TryAddSingleton<ICredentialSnapshotRedisCache, CredentialSnapshotRedisCache>();
         services.AddSingleton<ICredentialConfigurationProvider, SetupCredentialConfigurationProvider>();
         services.AddScoped<CredentialConfigurationLoader>();
 
@@ -93,6 +98,24 @@ public static class CredentialServiceCollectionExtensions
         });
     }
 
+    private static void RegisterSecretVault(IServiceCollection services)
+    {
+        services.TryAddSingleton<IAmazonSecretsManager>(CreateSecretsManagerClient);
+        services.AddSingleton<ISecretVault>(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<AwsCredentialsOptions>>().Value;
+            if (SecretVaultProviders.IsAwsSecretsManager(options.DefaultVaultProvider))
+            {
+                return new AwsSecretsManagerSecretVault(
+                    sp.GetRequiredService<IAmazonSecretsManager>(),
+                    sp.GetRequiredService<IOptions<AwsCredentialsOptions>>(),
+                    sp.GetRequiredService<ILogger<AwsSecretsManagerSecretVault>>());
+            }
+
+            return new NoOpSecretVault();
+        });
+    }
+
     private static IAmazonKeyManagementService CreateKmsClient(IServiceProvider sp)
     {
         var options = sp.GetRequiredService<IOptions<AwsCredentialsOptions>>().Value;
@@ -111,5 +134,25 @@ public static class CredentialServiceCollectionExtensions
         }
 
         return new AmazonKeyManagementServiceClient(config);
+    }
+
+    private static IAmazonSecretsManager CreateSecretsManagerClient(IServiceProvider sp)
+    {
+        var options = sp.GetRequiredService<IOptions<AwsCredentialsOptions>>().Value;
+        var config = new AmazonSecretsManagerConfig
+        {
+            RegionEndpoint = AwsClientCredentialHelper.ResolveRegionEndpoint(options.Region)
+        };
+
+        if (AwsClientCredentialHelper.TryResolveExplicitCredentials(
+                options.AccessKeyId,
+                options.SecretAccessKey,
+                out var accessKeyId,
+                out var secretAccessKey))
+        {
+            return new AmazonSecretsManagerClient(accessKeyId, secretAccessKey, config);
+        }
+
+        return new AmazonSecretsManagerClient(config);
     }
 }

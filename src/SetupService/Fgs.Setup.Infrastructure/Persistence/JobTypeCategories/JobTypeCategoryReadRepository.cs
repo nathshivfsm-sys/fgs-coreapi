@@ -1,11 +1,11 @@
 using Dapper;
 using Fgs.Foundation.Paging;
-using Fgs.Setup.Infrastructure.Common;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.Persistence;
 using Fgs.Setup.Application.Abstractions.JobTypeCategories;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.JobTypeCategories.Dtos;
+using Fgs.Setup.Infrastructure.Common;
 
 namespace Fgs.Setup.Infrastructure.Persistence.JobTypeCategories;
 
@@ -62,19 +62,13 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
             where.Add("\"IsActive\" = @IsActive");
         }
 
-        if (!string.IsNullOrWhiteSpace(filters.CategoryCode))
+        if (filters.JobTypeId.HasValue)
         {
-            where.Add("\"CategoryCode\" = @CategoryCode");
+            where.Add("\"JobTypeId\" = @JobTypeId");
         }
-        if (!string.IsNullOrWhiteSpace(filters.Name))
+        if (filters.JobCategoryId.HasValue)
         {
-            where.Add("\"Name\" ILIKE @Name");
-        }
-
-        if (!string.IsNullOrWhiteSpace(paging.Search))
-        {
-            where.Add(
-                "(\"CategoryCode\" ILIKE @Search OR \"Name\" ILIKE @Search OR \"Description\" ILIKE @Search)");
+            where.Add("\"JobCategoryId\" = @JobCategoryId");
         }
 
         var whereClause = string.Join(" AND ", where);
@@ -97,8 +91,8 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
             TenantId = tenantId,
             CompanyId = companyId,
             IsActive = paging.IsActive,
-            CategoryCode = filters.CategoryCode?.Trim().ToUpperInvariant(),
-            Name = string.IsNullOrWhiteSpace(filters.Name) ? null : $"%{filters.Name.Trim()}%",
+            JobTypeId = filters.JobTypeId,
+            JobCategoryId = filters.JobCategoryId,
             Search = string.IsNullOrWhiteSpace(paging.Search) ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
             Offset = offset
@@ -120,28 +114,31 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
 
     public async Task<IReadOnlyList<JobTypeCategoryLookupDto>> LookupAsync(
         bool activeOnly = true,
+        long? jobTypeId = null,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var activeFilter = activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty;
+        var jobTypeFilter = jobTypeId.HasValue ? "AND \"JobTypeId\" = @JobTypeId" : string.Empty;
         var sql = $"""
             SELECT {JobTypeCategorySql.SelectLookupColumns}
             FROM {JobTypeCategorySql.Table}
             WHERE "TenantId" = @TenantId
               AND "CompanyId" = @CompanyId
               {activeFilter}
-            ORDER BY "DisplayOrder" ASC NULLS LAST, "Name" ASC
+              {jobTypeFilter}
+            ORDER BY "DisplayOrder" ASC NULLS LAST, "JobCategoryId" ASC
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         var rows = await connection.QueryAsync<JobTypeCategoryLookupRow>(
-            new CommandDefinition(sql, new { TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { TenantId = tenantId, CompanyId = companyId, JobTypeId = jobTypeId }, cancellationToken: cancellationToken));
 
         return rows.Select(r => r.ToDto()).ToList();
     }
 
-    public async Task<bool> ExistsByCategoryCodeAsync(
-        string categoryCode,
+    public async Task<bool> ExistsByJobTypeIdAndJobCategoryIdAsync(
+        long jobTypeId, long jobCategoryId,
         long? excludeId = null,
         CancellationToken cancellationToken = default)
     {
@@ -152,7 +149,7 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
                 FROM {JobTypeCategorySql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
-                  AND "CategoryCode" = @CategoryCode
+                  AND "JobTypeId" = @JobTypeId AND "JobCategoryId" = @JobCategoryId
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )
             """;
@@ -165,9 +162,50 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
                 {
                     TenantId = tenantId,
                     CompanyId = companyId,
-                    CategoryCode = categoryCode.Trim().ToUpperInvariant(),
+                    JobTypeId = jobTypeId,
+                    JobCategoryId = jobCategoryId,
                     ExcludeId = excludeId
                 },
+                cancellationToken: cancellationToken));
+    }
+    public async Task<bool> ExistsJobTypeIdAsync(
+        long id,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM setup."FgsJobType"
+                WHERE "TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE
+            )
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, CompanyId = companyId, Id = id },
+                cancellationToken: cancellationToken));
+    }
+    public async Task<bool> ExistsJobCategoryIdAsync(
+        long id,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM setup."FgsJobCategory"
+                WHERE "TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE
+            )
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, CompanyId = companyId, Id = id },
                 cancellationToken: cancellationToken));
     }
 }

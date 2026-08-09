@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Configuration;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 
 namespace Fgs.Persistence.Extensions;
 
@@ -12,7 +13,8 @@ public static class EntityFrameworkExtensions
         this DbContextOptionsBuilder options,
         string connectionString,
         string migrationsHistoryTable,
-        string? migrationsHistorySchema = null)
+        string? migrationsHistorySchema = null,
+        Action<NpgsqlDbContextOptionsBuilder>? configure = null)
     {
         options.UseNpgsql(connectionString, npgsql =>
         {
@@ -29,7 +31,13 @@ public static class EntityFrameworkExtensions
                 maxRetryCount: 5,
                 maxRetryDelay: TimeSpan.FromSeconds(10),
                 errorCodesToAdd: null);
+
+            configure?.Invoke(npgsql);
         });
+
+        // Health checks / credential reloads can rebuild options; avoid treating that as fatal.
+        options.ConfigureWarnings(warnings =>
+            warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId.ManyServiceProvidersCreatedWarning));
 
         return options;
     }

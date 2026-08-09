@@ -6,17 +6,19 @@ using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.UniversalMatrixItems.Commands.CreateFgsUniversalMatrixItem;
 using Fgs.Setup.Application.Features.UniversalMatrixItems.Commands.PatchFgsUniversalMatrixItem;
 using Fgs.Setup.Application.Features.UniversalMatrixItems.Commands.UpdateFgsUniversalMatrixItem;
+using Fgs.Setup.Application.Features.UniversalMatrixItems.Dtos;
 using Fgs.Setup.Application.Features.UniversalMatrixItems.Queries.GetFgsUniversalMatrixItemById;
 using Fgs.Setup.Application.Features.UniversalMatrixItems.Queries.ListUniversalMatrixItems;
 using Fgs.Setup.Application.Features.UniversalMatrixItems.Queries.LookupUniversalMatrixItems;
-using Fgs.Setup.Application.Features.UniversalMatrixItems.Dtos;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
 
 /// <summary>
-/// Tenant-scoped universal matrix item catalog management.
+/// Tenant-scoped universal matrix item management.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("universalmatrixitem")]
@@ -41,14 +43,14 @@ public sealed class UniversalMatrixItemController(IMediator mediator) : Controll
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
         [FromQuery] bool? isActive = null,
-        [FromQuery] string? itemName = null,
         [FromQuery] long? universalPricingServiceId = null,
+        [FromQuery] string? itemName = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListUniversalMatrixItemsQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new FgsUniversalMatrixItemListFilters(itemName, universalPricingServiceId)),
+                new FgsUniversalMatrixItemListFilters(universalPricingServiceId, itemName)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);
@@ -61,10 +63,13 @@ public sealed class UniversalMatrixItemController(IMediator mediator) : Controll
         [FromQuery] long? universalPricingServiceId = null,
         CancellationToken cancellationToken = default)
     {
-        var response = await mediator.Send(new LookupUniversalMatrixItemsQuery(activeOnly, universalPricingServiceId), cancellationToken);
+        var response = await mediator.Send(
+            new LookupUniversalMatrixItemsQuery(activeOnly, universalPricingServiceId),
+            cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsUniversalMatrixItemDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -77,6 +82,7 @@ public sealed class UniversalMatrixItemController(IMediator mediator) : Controll
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsUniversalMatrixItemDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -90,6 +96,7 @@ public sealed class UniversalMatrixItemController(IMediator mediator) : Controll
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsUniversalMatrixItemDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

@@ -14,6 +14,8 @@ internal sealed class FgsSetupTimeSlotSummaryRow
     public TimeSpan? MarkWorkOrderDelayedCompletionAfter { get; set; }
     public bool IsMobileVisible { get; set; }
     public bool IsCustomerPortalVisible { get; set; }
+    public bool IncludeInCapacityPlanning { get; set; }
+    public bool ShowToExternalSystem { get; set; }
     public bool IsActive { get; set; }
 
     public FgsSetupTimeSlotSummaryDto ToDto() =>
@@ -28,6 +30,8 @@ internal sealed class FgsSetupTimeSlotSummaryRow
             MarkWorkOrderDelayedCompletionAfter,
             IsMobileVisible,
             IsCustomerPortalVisible,
+            IncludeInCapacityPlanning,
+            ShowToExternalSystem,
             IsActive);
 }
 
@@ -43,6 +47,8 @@ internal sealed class FgsSetupTimeSlotDetailRow
     public TimeSpan? MarkWorkOrderDelayedCompletionAfter { get; set; }
     public bool IsMobileVisible { get; set; }
     public bool IsCustomerPortalVisible { get; set; }
+    public bool IncludeInCapacityPlanning { get; set; }
+    public bool ShowToExternalSystem { get; set; }
     public bool IsActive { get; set; }
 
     public FgsSetupTimeSlotDetailDto ToDto() =>
@@ -57,6 +63,8 @@ internal sealed class FgsSetupTimeSlotDetailRow
             MarkWorkOrderDelayedCompletionAfter,
             IsMobileVisible,
             IsCustomerPortalVisible,
+            IncludeInCapacityPlanning,
+            ShowToExternalSystem,
             IsActive);
 }
 

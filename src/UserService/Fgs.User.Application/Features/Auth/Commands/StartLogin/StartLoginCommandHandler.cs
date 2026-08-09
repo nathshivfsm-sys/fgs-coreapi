@@ -84,11 +84,17 @@ public sealed class StartLoginCommandHandler(
             new LoginPkceState(codeVerifier, redirectUri, user.Id),
             cancellationToken);
 
+        var userFlow = EntraUserFlowResolver.Resolve(
+            user.AuthenticationMethod,
+            configuration[ConfigurationKeys.EntraExternalId.UserFlow],
+            configuration[ConfigurationKeys.EntraExternalId.PasswordUserFlow]);
+
         var redirectUrl = entraService.BuildLoginAuthorizationUrl(
             state,
             redirectUri,
             codeChallenge,
-            user.Email);
+            user.Email,
+            userFlow);
 
         return ApiResponse<StartLoginResultDto>.Ok(new StartLoginResultDto(redirectUrl));
     }

@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using Fgs.Contracts.Observability;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.Caching.Options;
 using Microsoft.Extensions.Caching.Distributed;
@@ -13,26 +15,32 @@ public sealed class RedisCacheService : ICacheService
     private readonly IConnectionMultiplexer _connectionMultiplexer;
     private readonly RedisCacheOptions _options;
     private readonly ILogger<RedisCacheService> _logger;
+    private readonly IFgsMetrics _metrics;
 
     public RedisCacheService(
         IDistributedCache distributedCache,
         IConnectionMultiplexer connectionMultiplexer,
         IOptions<RedisCacheOptions> options,
-        ILogger<RedisCacheService> logger)
+        ILogger<RedisCacheService> logger,
+        IFgsMetrics? metrics = null)
     {
         _distributedCache = distributedCache;
         _connectionMultiplexer = connectionMultiplexer;
         _options = options.Value;
         _logger = logger;
+        _metrics = metrics ?? NoOpFgsMetrics.Instance;
     }
 
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default) where T : class
     {
+        var sw = Stopwatch.StartNew();
         try
         {
             var data = await _distributedCache.GetAsync(key, cancellationToken);
             if (data is null || data.Length == 0)
             {
+                _metrics.Increment("cache.miss");
+                _metrics.Histogram("cache.latency_ms", sw.Elapsed.TotalMilliseconds, ("result", "miss"));
                 _logger.LogInformation("CacheMiss {CacheKey}", key);
                 return null;
             }
@@ -40,15 +48,20 @@ public sealed class RedisCacheService : ICacheService
             var value = CacheJsonSerializer.Deserialize<T>(data);
             if (value is null)
             {
+                _metrics.Increment("cache.miss");
+                _metrics.Histogram("cache.latency_ms", sw.Elapsed.TotalMilliseconds, ("result", "miss"));
                 _logger.LogInformation("CacheMiss {CacheKey}", key);
                 return null;
             }
 
+            _metrics.Increment("cache.hit");
+            _metrics.Histogram("cache.latency_ms", sw.Elapsed.TotalMilliseconds, ("result", "hit"));
             _logger.LogInformation("CacheHit {CacheKey}", key);
             return value;
         }
         catch (Exception ex)
         {
+            _metrics.Increment("cache.error", tags: ("operation", nameof(GetAsync)));
             _logger.LogWarning(ex, "RedisFailure {Operation} {CacheKey}", nameof(GetAsync), key);
             return null;
         }
@@ -80,6 +93,7 @@ public sealed class RedisCacheService : ICacheService
         }
         catch (Exception ex)
         {
+            _metrics.Increment("cache.error", tags: ("operation", nameof(SetAsync)));
             _logger.LogWarning(ex, "RedisFailure {Operation} {CacheKey}", nameof(SetAsync), key);
         }
     }
@@ -93,6 +107,7 @@ public sealed class RedisCacheService : ICacheService
         }
         catch (Exception ex)
         {
+            _metrics.Increment("cache.error", tags: ("operation", nameof(RemoveAsync)));
             _logger.LogWarning(ex, "RedisFailure {Operation} {CacheKey}", nameof(RemoveAsync), key);
         }
     }
@@ -132,6 +147,7 @@ public sealed class RedisCacheService : ICacheService
         }
         catch (Exception ex)
         {
+            _metrics.Increment("cache.error", tags: ("operation", nameof(RemoveByPrefixAsync)));
             _logger.LogWarning(ex, "RedisFailure {Operation} {CachePrefix}", nameof(RemoveByPrefixAsync), prefix);
         }
     }

@@ -7,11 +7,13 @@ internal static class FgsSetupPostalCodeSql
     public const string Table = "setup.\"FgsSetupPostalCode\"";
 
     public const string SelectDetailColumns = """
-        "Id", "PostalCode", "FgsSetupZoneId", "FgsSetupTaxId", "IsActive"
+        "Id", "PostalCode", "CountryCode", "StateProvinceCode", "City", "TripChargeAmount",
+        "FgsSetupZoneId", "FgsSetupTaxId", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "PostalCode", "FgsSetupZoneId", "FgsSetupTaxId", "IsActive"
+        "Id", "PostalCode", "CountryCode", "StateProvinceCode", "City", "TripChargeAmount",
+        "FgsSetupZoneId", "FgsSetupTaxId", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -20,7 +22,8 @@ internal static class FgsSetupPostalCodeSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "IsActive", "PostalCode", "FgsSetupZoneId", "FgsSetupTaxId"
+        "Id", "IsActive", "PostalCode", "CountryCode", "StateProvinceCode", "City",
+        "TripChargeAmount", "FgsSetupZoneId", "FgsSetupTaxId"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)
@@ -32,8 +35,6 @@ internal static class FgsSetupPostalCodeSql
         }
 
         var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));
-        return column.Equals("DisplayOrder", StringComparison.OrdinalIgnoreCase)
-            ? $"ORDER BY \"PostalCode\" {dir}"
-            : $"ORDER BY \"{column}\" {dir}";
+        return $"ORDER BY \"{column}\" {dir}";
     }
 }

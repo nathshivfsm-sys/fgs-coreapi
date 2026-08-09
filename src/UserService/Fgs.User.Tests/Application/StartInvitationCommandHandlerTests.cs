@@ -1,17 +1,12 @@
 using Fgs.MultiTenancy;
 using Fgs.User.Infrastructure.Common.Security;
-using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Invitations;
 using Fgs.User.Application.Abstractions.Identity;
-using Fgs.Persistence.Abstractions;
-using Fgs.User.Application.Abstractions.Security;
-using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Application.Features.Invitations.Commands.StartInvitation;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
-using Fgs.Security.Constants;
-using Fgs.User.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.User.Infrastructure.Database;
 using Fgs.Persistence.Implementations;
 using Microsoft.Extensions.Configuration;
@@ -59,14 +54,17 @@ public sealed class StartInvitationCommandHandlerTests
             .Setup(s => s.BuildAuthorizationUrl(
                 invitationId.ToString(),
                 It.IsAny<string>(),
-                "a@test.com"))
+                "a@test.com",
+                true,
+                It.IsAny<string?>()))
             .Returns("https://login.example/authorize");
 
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback",
-                ["EntraExternalId:UserFlow"] = "SignUpSignIn"
+                [ConfigurationKeys.EntraExternalId.UserFlow] = "Fgs_SignUpSignIn",
+                [ConfigurationKeys.EntraExternalId.PasswordUserFlow] = "Fgs_SignUpSignIn_Pwd"
             })
             .Build();
 
@@ -81,6 +79,89 @@ public sealed class StartInvitationCommandHandlerTests
 
         result.Success.Should().BeTrue();
         result.RedirectUrl.Should().StartWith("https://login.example");
+        // Default AuthenticationMethod is PasswordOrEmailOtp → password user flow.
+        entraMock.Verify(
+            s => s.BuildAuthorizationUrl(
+                invitationId.ToString(),
+                It.IsAny<string>(),
+                "a@test.com",
+                true,
+                "Fgs_SignUpSignIn_Pwd"),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_WithPasswordAuthUser_UsesPasswordUserFlow()
+    {
+        var tokenService = new InvitationTokenService();
+        var plain = tokenService.GenerateToken();
+        var hash = tokenService.HashToken(plain);
+
+        var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        var invitationId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        context.FgsUsers.Add(new FgsUser
+        {
+            Id = userId,
+            TenantId = 1,
+            CompanyId = 1,
+            Email = "pwd@test.com",
+            DisplayName = "Pwd Admin",
+            AuthenticationMethod = AuthenticationMethod.Password,
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        context.FgsInvitations.Add(new FgsInvitation
+        {
+            Id = invitationId,
+            UserId = userId,
+            TenantId = 1,
+            Email = "pwd@test.com",
+            TokenHash = hash,
+            Status = InvitationStatus.Pending,
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(1),
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        await context.SaveChangesAsync();
+
+        var entraMock = new Mock<IEntraExternalIdService>();
+        entraMock
+            .Setup(s => s.BuildAuthorizationUrl(
+                invitationId.ToString(),
+                It.IsAny<string>(),
+                "pwd@test.com",
+                true,
+                "Fgs_SignUpSignIn_Pwd"))
+            .Returns("https://login.example/pwd");
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback",
+                [ConfigurationKeys.EntraExternalId.UserFlow] = "Fgs_SignUpSignIn",
+                [ConfigurationKeys.EntraExternalId.PasswordUserFlow] = "Fgs_SignUpSignIn_Pwd"
+            })
+            .Build();
+
+        var handler = new StartInvitationCommandHandler(
+            new EfUnitOfWork<FgsUserDbContext>(context),
+            tokenService,
+            entraMock.Object,
+            new DateTimeProvider(),
+            configuration);
+
+        var result = await handler.Handle(new StartInvitationCommand(plain), CancellationToken.None);
+
+        result.Success.Should().BeTrue();
+        result.RedirectUrl.Should().Be("https://login.example/pwd");
+        entraMock.Verify(
+            s => s.BuildAuthorizationUrl(
+                invitationId.ToString(),
+                It.IsAny<string>(),
+                "pwd@test.com",
+                true,
+                "Fgs_SignUpSignIn_Pwd"),
+            Times.Once);
     }
 
     [Fact]
@@ -92,10 +173,21 @@ public sealed class StartInvitationCommandHandlerTests
 
         var context = await TestDbContextFactory.CreateAndInitializeAsync();
         var invitationId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        context.FgsUsers.Add(new FgsUser
+        {
+            Id = userId,
+            TenantId = 1,
+            CompanyId = 1,
+            Email = "verified@test.com",
+            DisplayName = "Verified",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
         context.FgsInvitations.Add(new FgsInvitation
         {
             Id = invitationId,
-            UserId = Guid.NewGuid(),
+            UserId = userId,
             TenantId = 1,
             Email = "verified@test.com",
             TokenHash = hash,
@@ -111,13 +203,16 @@ public sealed class StartInvitationCommandHandlerTests
             .Setup(s => s.BuildAuthorizationUrl(
                 invitationId.ToString(),
                 It.IsAny<string>(),
-                "verified@test.com"))
+                "verified@test.com",
+                false,
+                It.IsAny<string?>()))
             .Returns("https://login.example/signin");
 
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback"
+                [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback",
+                [ConfigurationKeys.EntraExternalId.UserFlow] = "Fgs_SignUpSignIn"
             })
             .Build();
 
@@ -132,6 +227,14 @@ public sealed class StartInvitationCommandHandlerTests
 
         result.Success.Should().BeTrue();
         result.RedirectUrl.Should().StartWith("https://login.example/signin");
+        entraMock.Verify(
+            s => s.BuildAuthorizationUrl(
+                invitationId.ToString(),
+                It.IsAny<string>(),
+                "verified@test.com",
+                false,
+                "Fgs_SignUpSignIn"),
+            Times.Once);
     }
 
     [Fact]
@@ -223,13 +326,16 @@ public sealed class StartInvitationCommandHandlerTests
             .Setup(s => s.BuildAuthorizationUrl(
                 invitationId.ToString(),
                 It.IsAny<string>(),
-                "a@test.com"))
+                "a@test.com",
+                true,
+                It.IsAny<string?>()))
             .Returns("https://login.example/authorize");
 
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback"
+                [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback",
+                [ConfigurationKeys.EntraExternalId.UserFlow] = "Fgs_SignUpSignIn"
             })
             .Build();
 
@@ -244,6 +350,14 @@ public sealed class StartInvitationCommandHandlerTests
 
         result.Success.Should().BeTrue();
         result.RedirectUrl.Should().Be("https://login.example/authorize");
+        entraMock.Verify(
+            s => s.BuildAuthorizationUrl(
+                invitationId.ToString(),
+                It.IsAny<string>(),
+                "a@test.com",
+                true,
+                "Fgs_SignUpSignIn"),
+            Times.Once);
     }
 
     [Fact]
@@ -290,4 +404,3 @@ public sealed class StartInvitationCommandHandlerTests
             configuration);
     }
 }
-

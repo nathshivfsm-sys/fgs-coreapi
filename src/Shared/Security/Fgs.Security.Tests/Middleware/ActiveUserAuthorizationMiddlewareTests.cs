@@ -167,6 +167,36 @@ public sealed class ActiveUserAuthorizationMiddlewareTests
         nextCalled.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task InvokeAsync_WithAdditionalInternalServiceKey_SkipsValidation()
+    {
+        var nextCalled = false;
+        var middleware = new ActiveUserAuthorizationMiddleware(
+            _ =>
+            {
+                nextCalled = true;
+                return Task.CompletedTask;
+            },
+            Microsoft.Extensions.Options.Options.Create(new TenantScopeOptions()),
+            Microsoft.Extensions.Options.Options.Create(new InternalServiceKeyOptions
+            {
+                InternalServiceKey = "primary-key",
+                AdditionalInternalServiceKeys = ["rotated-key"]
+            }));
+
+        var context = CreateHttpContext(authenticated: true);
+        context.Request.Headers["X-FGS-Internal-Service-Key"] = "rotated-key";
+        var userContext = CreateUserContext(authenticated: true, entraObjectId: "oid-1");
+
+        await middleware.InvokeAsync(
+            context,
+            userContext,
+            Mock.Of<IUserAuthProfileStore>(),
+            new TenantContextAccessor());
+
+        nextCalled.Should().BeTrue();
+    }
+
     private static ActiveUserAuthorizationMiddleware CreateMiddleware(
         RequestDelegate next,
         string? internalServiceKey = null) =>

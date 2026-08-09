@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.SetupTaxes.Commands.DeleteFgsSetupTax;
 using Fgs.Setup.Application.Features.SetupTaxes.Commands.UpdateFgsSetupTax;
 using Fgs.Setup.Application.Features.SetupTaxes.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.SetupTaxes;
 using Microsoft.EntityFrameworkCore;

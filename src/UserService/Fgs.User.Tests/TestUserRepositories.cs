@@ -110,6 +110,28 @@ internal static class TestUserRepositories
                 return invitations.Any(email => normalizer.Normalize(email) == normalizedEmail);
             });
 
+        mock
+            .Setup(q => q.HasPendingInvitationForNormalizedEmailInCurrentTenantCompanyAsync(
+                It.IsAny<string>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .Returns<string, DateTimeOffset, CancellationToken>(async (normalizedEmail, nowUtc, cancellationToken) =>
+            {
+                var invitations = await context.FgsInvitations
+                    .IgnoreQueryFilters()
+                    .Where(i => i.Status == InvitationStatus.Pending && i.ExpiresAtUtc > nowUtc)
+                    .Join(
+                        context.FgsUsers.IgnoreQueryFilters(),
+                        i => i.UserId,
+                        u => u.Id,
+                        (i, u) => new { i.Email, u.TenantId, u.CompanyId, u.IsDeleted })
+                    .Where(x => !x.IsDeleted)
+                    .Select(x => x.Email)
+                    .ToListAsync(cancellationToken);
+
+                return invitations.Any(email => normalizer.Normalize(email) == normalizedEmail);
+            });
+
         return mock.Object;
     }
 

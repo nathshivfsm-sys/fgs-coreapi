@@ -2,9 +2,9 @@ using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Fgs.File.Application.Abstractions.Provisioning;
-using Fgs.File.Infrastructure.Common.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Fgs.Credentials.Options;
 
 namespace Fgs.File.Infrastructure.Storage;
 

@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.SalesDispositionReasons.Commands.DeleteFgsS
 using Fgs.Setup.Application.Features.SalesDispositionReasons.Commands.UpdateFgsSalesDispositionReason;
 using Fgs.Setup.Application.Features.SalesDispositionReasons.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.SalesDispositionReasons;
 using Microsoft.EntityFrameworkCore;

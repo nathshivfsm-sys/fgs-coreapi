@@ -32,7 +32,9 @@ public sealed class TenantStorageController(
         {
             return StatusCode(
                 StatusCodes.Status401Unauthorized,
-                ApiResponse<object>.Fail(["Unauthorized."], ApiStatusCodes.Unauthorized));
+                ApiResponse<object>.Fail(
+                    ["Internal service key is missing or invalid."],
+                    ApiStatusCodes.Unauthorized));
         }
 
         return FromApiResponse(await Mediator.Send(

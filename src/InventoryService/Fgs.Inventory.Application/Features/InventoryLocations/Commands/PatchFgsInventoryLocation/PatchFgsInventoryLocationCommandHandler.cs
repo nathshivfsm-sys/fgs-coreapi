@@ -24,7 +24,7 @@ public sealed class PatchFgsInventoryLocationCommandHandler(
         logger.LogInformation("Patched inventory location {Id}", result.Id);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
-            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "inventory-location"),
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "inventorylocation"),
             cancellationToken);
         return ApiResponse<FgsInventoryLocationDetailDto>.Ok(result);
     }

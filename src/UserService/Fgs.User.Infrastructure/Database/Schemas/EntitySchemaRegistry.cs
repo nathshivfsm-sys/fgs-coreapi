@@ -42,6 +42,7 @@ internal static class EntitySchemaRegistry
     {
         ["FgsTenant"] = FgsDatabaseSchemas.Tenant,
         ["FgsTenantCompany"] = FgsDatabaseSchemas.Tenant,
+        ["FgsTenantServiceAccountsSetup"] = FgsDatabaseSchemas.Tenant,
         ["FgsLocation"] = FgsDatabaseSchemas.Tenant,
         ["FgsUser"] = FgsDatabaseSchemas.Identity,
         ["FgsInvitation"] = FgsDatabaseSchemas.Identity,
@@ -82,6 +83,7 @@ internal static class EntitySchemaRegistry
         [typeof(FgsTenant)] = FgsDatabaseSchemas.Tenant,
         [typeof(FgsTenantCompany)] = FgsDatabaseSchemas.Tenant,
         [typeof(FgsTenantServiceSetup)] = FgsDatabaseSchemas.Tenant,
+        [typeof(FgsTenantServiceAccountsSetup)] = FgsDatabaseSchemas.Tenant,
         [typeof(FgsLocation)] = FgsDatabaseSchemas.Tenant,
         [typeof(TenantOutboxMessage)] = FgsDatabaseSchemas.Tenant,
         [typeof(FgsTenantCompanyCache)] = FgsDatabaseSchemas.Identity,

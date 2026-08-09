@@ -9,8 +9,11 @@ using Fgs.Asset.Application.Features.Assets.Queries.ListAssets;
 using Fgs.Asset.Application.Features.Assets.Queries.LookupAssets;
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
+using Fgs.Foundation.Idempotency;
 using Fgs.Foundation.Paging;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Asset.API.Controllers;
@@ -62,6 +65,8 @@ public sealed class AssetController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.AssetCreate)]
+    [Idempotent]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsAssetDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -74,6 +79,7 @@ public sealed class AssetController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.AssetEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsAssetDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -87,6 +93,7 @@ public sealed class AssetController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.AssetEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsAssetDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

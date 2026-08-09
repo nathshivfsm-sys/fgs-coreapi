@@ -13,12 +13,15 @@ public static class IntegrationEventExchanges
 
     public const string AuditEvents = "audit.events";
 
+    public const string InventoryEvents = "inventory.events";
+
     public static IReadOnlyList<string> All { get; } =
     [
         UserEvents,
         TenantEvents,
         SetupEvents,
-        AuditEvents
+        AuditEvents,
+        InventoryEvents
     ];
 
     /// <summary>
@@ -32,6 +35,8 @@ public static class IntegrationEventExchanges
             IntegrationEventTypes.CompanySignupInviteEmail => UserEvents,
             IntegrationEventTypes.CredentialConfigurationChanged => SetupEvents,
             IntegrationEventTypes.CredentialAuditRequested => AuditEvents,
+            IntegrationEventTypes.InventoryStockChanged => InventoryEvents,
+            IntegrationEventTypes.PurchaseOrderStatusChanged => InventoryEvents,
 
             _ => UserEvents
         };

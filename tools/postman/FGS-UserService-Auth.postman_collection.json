@@ -6,13 +6,13 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "https://localhost:8443" },
+    { "key": "baseUrl", "value": "https://developer.fsm.com" },
     { "key": "entraAuthority", "value": "https://fsdemoapp.ciamlogin.com" },
     { "key": "entraTenantId", "value": "f9417a96-cb71-4919-8332-7087f1ad0455" },
     { "key": "entraClientId", "value": "3c788340-59a5-4864-b1b4-4f9adeffcb37" },
     { "key": "entraClientSecret", "value": "" },
     { "key": "entraUserFlow", "value": "Fgs_SignUpSignIn" },
-    { "key": "redirectUri", "value": "https://localhost:8443/api/v1/auth/entra/callback" },
+    { "key": "redirectUri", "value": "https://developer.fsm.com/api/v1/auth/entra/callback" },
     { "key": "signupEmail", "value": "admin@example.com" },
     { "key": "inviteToken", "value": "" },
     { "key": "invitationId", "value": "" },

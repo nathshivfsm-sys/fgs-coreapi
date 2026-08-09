@@ -9,6 +9,8 @@ using Fgs.User.Application.Features.RolePermissions.Dtos;
 using Fgs.User.Application.Features.RolePermissions.Queries.GetFgsRolePermissionById;
 using Fgs.User.Application.Features.RolePermissions.Queries.ListFgsRolePermissions;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -43,6 +45,7 @@ public sealed class RolePermissionController(IMediator mediator) : FgsApiControl
                 new FgsRolePermissionListFilters(fgsRoleId, fgsPermissionId)),
             cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsRolePermissionDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -52,6 +55,7 @@ public sealed class RolePermissionController(IMediator mediator) : FgsApiControl
         CancellationToken cancellationToken) =>
         CreatedFromApiResponse(await Mediator.Send(new CreateFgsRolePermissionCommand(request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserDelete)]
     [HttpDelete("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

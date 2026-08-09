@@ -4,15 +4,16 @@ using Fgs.MultiTenancy;
 using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
 using Fgs.Inventory.Application.Features.InventoryLocations.Commands.CreateFgsInventoryLocation;
-using Fgs.Inventory.Application.Features.InventoryLocations.Commands.DeleteFgsInventoryLocation;
 using Fgs.Inventory.Application.Features.InventoryLocations.Dtos;
 using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Infrastructure.Common;
-using Fgs.Inventory.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Inventory.Infrastructure.InventoryLocations;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
@@ -63,40 +64,9 @@ public sealed class FgsInventoryLocationCommandHandlerTests
         response.Data!.IsActive.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(TenantId, CompanyId, "inventory-location"),
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "inventorylocation"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
-    }
-
-    [Fact]
-    public async Task DeleteHandler_SoftDeletes()
-    {
-        await using var context = await CreateContextAsync();
-        var writeService = CreateWriteService(context);
-        var cache = new Mock<ICacheService>();
-        var tenantAccessor = CreateTenantContextAccessor();
-        var createHandler = new CreateFgsInventoryLocationCommandHandler(
-            writeService,
-            cache.Object,
-            tenantAccessor,
-            NullLogger<CreateFgsInventoryLocationCommandHandler>.Instance);
-        var deleteHandler = new DeleteFgsInventoryLocationCommandHandler(
-            writeService,
-            cache.Object,
-            tenantAccessor,
-            NullLogger<DeleteFgsInventoryLocationCommandHandler>.Instance);
-
-        var created = await createHandler.Handle(
-            new CreateFgsInventoryLocationCommand(SampleCreateDto()),
-            CancellationToken.None);
-        created.Success.Should().BeTrue();
-
-        var response = await deleteHandler.Handle(
-            new DeleteFgsInventoryLocationCommand(created.Data!.Id),
-            CancellationToken.None);
-
-        response.Success.Should().BeTrue();
-        response.Data!.IsActive.Should().BeFalse();
     }
 
     private static ITenantContextAccessor CreateTenantContextAccessor() =>
@@ -132,7 +102,7 @@ public sealed class FgsInventoryLocationCommandHandlerTests
             .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options;
 
-        var context = new FgsInventoryDbContext(options);
+        var context = new FgsInventoryDbContext(options, new DesignTimeTenantContextAccessor());
         await context.Database.EnsureCreatedAsync();
         return context;
     }

@@ -22,8 +22,8 @@ public sealed class PatchJobTypeCommandHandler(
     {
         var result = await writeService.PatchAsync(request.Id, request.Dto, cancellationToken);
         logger.LogInformation("Patchd job type {Id}", result.Id);
-        var tenantScope = tenantContextAccessor.Current!;
-        await cache.RemoveByPrefixAsync(
+            var tenantScope = tenantContextAccessor.Current!;
+            await cache.RemoveByPrefixAsync(
                 CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "jobtype"),
                 cancellationToken);
         return ApiResponse<JobTypeDetailDto>.Ok(result);

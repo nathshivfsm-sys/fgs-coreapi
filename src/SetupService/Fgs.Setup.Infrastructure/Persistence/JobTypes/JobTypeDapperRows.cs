@@ -5,16 +5,10 @@ namespace Fgs.Setup.Infrastructure.Persistence.JobTypes;
 internal sealed class JobTypeSummaryRow
 {
     public long Id { get; set; }
-    public long JobTypeCategoryId { get; set; }
-    public long? JobTypeSubCategoryId { get; set; }
     public string JobTypeCode { get; set; } = null!;
-    public string TaskName { get; set; } = null!;
-    public string? Description { get; set; }
-    public string UsedFor { get; set; } = null!;
-    public string? Trade { get; set; }
-    public int? EstimatedDurationMinutes { get; set; }
+    public string Name { get; set; } = null!;
+    public short UsedFor { get; set; }
     public string? BusinessUnit { get; set; }
-    public short Priority { get; set; }
     public string? BackgroundColor { get; set; }
     public string? TextColor { get; set; }
     public bool ShowToFieldTech { get; set; }
@@ -25,16 +19,10 @@ internal sealed class JobTypeSummaryRow
     public JobTypeSummaryDto ToDto() =>
         new(
             Id,
-            JobTypeCategoryId,
-            JobTypeSubCategoryId,
             JobTypeCode,
-            TaskName,
-            Description,
+            Name,
             UsedFor,
-            Trade,
-            EstimatedDurationMinutes,
             BusinessUnit,
-            Priority,
             BackgroundColor,
             TextColor,
             ShowToFieldTech,
@@ -46,16 +34,10 @@ internal sealed class JobTypeSummaryRow
 internal sealed class JobTypeDetailRow
 {
     public long Id { get; set; }
-    public long JobTypeCategoryId { get; set; }
-    public long? JobTypeSubCategoryId { get; set; }
     public string JobTypeCode { get; set; } = null!;
-    public string TaskName { get; set; } = null!;
-    public string? Description { get; set; }
-    public string UsedFor { get; set; } = null!;
-    public string? Trade { get; set; }
-    public int? EstimatedDurationMinutes { get; set; }
+    public string Name { get; set; } = null!;
+    public short UsedFor { get; set; }
     public string? BusinessUnit { get; set; }
-    public short Priority { get; set; }
     public string? BackgroundColor { get; set; }
     public string? TextColor { get; set; }
     public bool ShowToFieldTech { get; set; }
@@ -66,16 +48,10 @@ internal sealed class JobTypeDetailRow
     public JobTypeDetailDto ToDto() =>
         new(
             Id,
-            JobTypeCategoryId,
-            JobTypeSubCategoryId,
             JobTypeCode,
-            TaskName,
-            Description,
+            Name,
             UsedFor,
-            Trade,
-            EstimatedDurationMinutes,
             BusinessUnit,
-            Priority,
             BackgroundColor,
             TextColor,
             ShowToFieldTech,
@@ -88,11 +64,11 @@ internal sealed class JobTypeLookupRow
 {
     public long Id { get; set; }
     public string JobTypeCode { get; set; } = null!;
-    public string TaskName { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public short? DisplayOrder { get; set; }
 
     public JobTypeLookupDto ToDto() => new(Id,
             JobTypeCode,
-            TaskName,
+            Name,
             DisplayOrder);
 }

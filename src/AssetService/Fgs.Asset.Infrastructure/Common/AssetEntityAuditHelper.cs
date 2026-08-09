@@ -1,4 +1,4 @@
-using Fgs.Asset.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.Asset.Domain.Entities;
 using Fgs.Kernel.Entities;
 using Fgs.MultiTenancy;
@@ -46,6 +46,9 @@ public sealed class AssetEntityAuditHelper
 
     public void StampForCreate(FgsAssetWarranty entity) => StampEntity(entity);
     public void StampForUpdate(FgsAssetWarranty entity) => StampUpdate(entity);
+
+    public void StampForCreate(FgsAssetAttributeValue entity) => StampEntity(entity);
+    public void StampForUpdate(FgsAssetAttributeValue entity) => StampUpdate(entity);
 
     private void StampActiveEntity(FgsAssetType entity)
     {
@@ -133,6 +136,10 @@ public sealed class AssetEntityAuditHelper
             case FgsAssetWarranty warranty:
                 warranty.TenantId = tenantId;
                 warranty.CompanyId = companyId;
+                break;
+            case FgsAssetAttributeValue attributeValue:
+                attributeValue.TenantId = tenantId;
+                attributeValue.CompanyId = companyId;
                 break;
         }
     }

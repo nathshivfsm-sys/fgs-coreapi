@@ -31,6 +31,7 @@ public static class DependencyInjection
         });
 
         services.AddFgsPersistence<FgsIntegrationDbContext>();
+        services.AddFgsDbContextReadyCheck<FgsIntegrationDbContext>();
 
         return services;
     }

@@ -25,6 +25,8 @@ internal sealed class FgsInventoryTransactionConfiguration : IEntityTypeConfigur
         entity.ConfigureTenantCompanyColumns();
 
         entity.Property(e => e.TransactionNumber).HasMaxLength(50).IsRequired();
+        entity.Property(e => e.SerialNumber).HasMaxLength(200)
+            .HasComment("Serial number of the inventory item involved in the transaction. Null for non-serialized inventory items.");
         entity.Property(e => e.TransactionType).HasMaxLength(30).IsRequired();
         entity.Property(e => e.Quantity).HasColumnType("numeric(18,4)").IsRequired();
         entity.Property(e => e.UnitCost).HasColumnType("numeric(18,2)").HasDefaultValue(0m);
@@ -71,5 +73,7 @@ internal sealed class FgsInventoryTransactionConfiguration : IEntityTypeConfigur
             .HasDatabaseName("IX_FgsInventoryTransaction_TenantId_CompanyId_TransactionType");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.ReferenceType, e.ReferenceId })
             .HasDatabaseName("IX_FgsInventoryTransaction_TenantId_CompanyId_ReferenceType_ReferenceId");
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.SerialNumber })
+            .HasDatabaseName("IX_FgsInventoryTransaction_TenantId_CompanyId_SerialNumber");
     }
 }

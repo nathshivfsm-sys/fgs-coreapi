@@ -1,13 +1,22 @@
 using Fgs.Billing.Domain.Entities;
 using Fgs.Billing.Infrastructure.Database.Configurations;
 using Fgs.Billing.Infrastructure.Database.Schemas;
+using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Billing.Infrastructure.Database;
 
-public sealed class FgsBillingDbContext(DbContextOptions<FgsBillingDbContext> options) : DbContext(options)
+public sealed class FgsBillingDbContext : FgsTenantFilteredDbContext
 {
     public const string MigrationHistorySchema = FgsDatabaseSchemas.MigrationHistory;
+
+    public FgsBillingDbContext(
+        DbContextOptions<FgsBillingDbContext> options,
+        ITenantContextAccessor tenantContextAccessor)
+        : base(options, tenantContextAccessor)
+    {
+    }
 
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
 
@@ -30,5 +39,6 @@ public sealed class FgsBillingDbContext(DbContextOptions<FgsBillingDbContext> op
         modelBuilder.HasDefaultSchema(FgsDatabaseSchemas.Billing);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsBillingDbContext).Assembly);
         FgsBillingDbContextConfigurationExtensions.ApplyTenantCompanyCacheForeignKeys(modelBuilder);
+        ApplyFgsTenantQueryFilters(modelBuilder);
     }
 }

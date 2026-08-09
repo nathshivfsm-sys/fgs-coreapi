@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.UniversalMatrixFrequencyDiscounts.Commands.UpdateFgsUniversalMatrixFrequencyDiscount;
 
 public sealed class UpdateFgsUniversalMatrixFrequencyDiscountCommandHandler(
-    IFgsUniversalMatrixFrequencyDiscountWriteRepository writeRepository,
+    IFgsUniversalMatrixFrequencyDiscountWriteService writeService,
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<UpdateFgsUniversalMatrixFrequencyDiscountCommandHandler> logger)
@@ -20,12 +20,12 @@ public sealed class UpdateFgsUniversalMatrixFrequencyDiscountCommandHandler(
         UpdateFgsUniversalMatrixFrequencyDiscountCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await writeRepository.UpdateAsync(request.Id, request.Dto, cancellationToken);
+        var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
         logger.LogInformation("Updated universal matrix frequency discount {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current!;
-            await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixfrequencydiscount"),
-                cancellationToken);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixfrequencydiscount"),
+            cancellationToken);
         return ApiResponse<FgsUniversalMatrixFrequencyDiscountDetailDto>.Ok(result);
     }
 }

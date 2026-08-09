@@ -23,11 +23,11 @@ public sealed class LookupJobTypeCategoriesQueryHandler(
             tenantScope.TenantId,
             tenantScope.CompanyId,
             "jobtypecategory",
-            CacheKeys.LookupSegment(request.ActiveOnly));
+            $"{CacheKeys.LookupSegment(request.ActiveOnly)}:jobTypeId={request.JobTypeId?.ToString() ?? "all"}");
 
         var result = await cache.GetOrSetAsync(
             cacheKey,
-            () => readRepository.LookupAsync(request.ActiveOnly, cancellationToken),
+            () => readRepository.LookupAsync(request.ActiveOnly, request.JobTypeId, cancellationToken),
             cancellationToken: cancellationToken);
 
         return ApiResponse<IReadOnlyList<JobTypeCategoryLookupDto>>.Ok(result ?? Array.Empty<JobTypeCategoryLookupDto>());

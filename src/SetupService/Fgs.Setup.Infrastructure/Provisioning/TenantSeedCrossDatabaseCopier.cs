@@ -166,6 +166,7 @@ internal static class TenantSeedCrossDatabaseCopier
         }
 
         sql.AppendJoin(", ", valueClauses);
+        sql.Append(" ON CONFLICT DO NOTHING");
         command.CommandText = sql.ToString();
 
         return await command.ExecuteNonQueryAsync(cancellationToken);

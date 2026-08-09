@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.UniversalMatrixItems.Commands.UpdateFgsUniversalMatrixItem;
 
 public sealed class UpdateFgsUniversalMatrixItemCommandHandler(
-    IFgsUniversalMatrixItemWriteRepository writeRepository,
+    IFgsUniversalMatrixItemWriteService writeService,
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<UpdateFgsUniversalMatrixItemCommandHandler> logger)
@@ -20,12 +20,12 @@ public sealed class UpdateFgsUniversalMatrixItemCommandHandler(
         UpdateFgsUniversalMatrixItemCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await writeRepository.UpdateAsync(request.Id, request.Dto, cancellationToken);
+        var result = await writeService.UpdateAsync(request.Id, request.Dto, cancellationToken);
         logger.LogInformation("Updated universal matrix item {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current!;
-            await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixitem"),
-                cancellationToken);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixitem"),
+            cancellationToken);
         return ApiResponse<FgsUniversalMatrixItemDetailDto>.Ok(result);
     }
 }

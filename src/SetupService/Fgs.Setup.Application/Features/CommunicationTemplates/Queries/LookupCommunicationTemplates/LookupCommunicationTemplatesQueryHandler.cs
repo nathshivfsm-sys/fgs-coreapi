@@ -22,7 +22,7 @@ public sealed class LookupCommunicationTemplatesQueryHandler(
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
-            "communication-template",
+            "communicationtemplate",
             CacheKeys.LookupSegment(request.ActiveOnly));
 
         var result = await cache.GetOrSetAsync(

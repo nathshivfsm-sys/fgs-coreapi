@@ -6,10 +6,11 @@ using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
 using Fgs.Setup.Application.Features.UniversalPricingServices.Commands.CreateFgsUniversalPricingService;
 using Fgs.Setup.Application.Features.UniversalPricingServices.Commands.DeleteFgsUniversalPricingService;
+using Fgs.Setup.Application.Features.UniversalPricingServices.Commands.PatchFgsUniversalPricingService;
 using Fgs.Setup.Application.Features.UniversalPricingServices.Commands.UpdateFgsUniversalPricingService;
 using Fgs.Setup.Application.Features.UniversalPricingServices.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalPricingServices;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,7 @@ public sealed class FgsUniversalPricingServiceCommandHandlerTests
     private const long CompanyId = 20;
 
     [Fact]
-    public async Task CreateHandler_CreatesActiveRecord()
+    public async Task CreateHandler_CreatesActiveHeaderOnly()
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
@@ -38,17 +39,81 @@ public sealed class FgsUniversalPricingServiceCommandHandlerTests
             NullLogger<CreateFgsUniversalPricingServiceCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateFgsUniversalPricingServiceCommand(new FgsUniversalPricingServiceCreateDto("TEST", 5)),
+            new CreateFgsUniversalPricingServiceCommand(
+                new FgsUniversalPricingServiceCreateDto("TEST", 5)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
         response.Data!.IsActive.Should().BeTrue();
+        response.Data.UniversalPricingServiceCode.Should().Be("TEST");
+        response.Data.DisplayOrder.Should().Be(5);
+        (await context.FgsUniversalMatrixTiers.CountAsync()).Should().Be(0);
         cache.Verify(
             c => c.RemoveByPrefixAsync(
                 CacheKeys.EntityPrefix(TenantId, CompanyId, "universalpricingservice"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateHandler_UpdatesHeaderOnly()
+    {
+        await using var context = await CreateContextAsync();
+        var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var createHandler = new CreateFgsUniversalPricingServiceCommandHandler(
+            writeService, cache.Object, tenantAccessor,
+            NullLogger<CreateFgsUniversalPricingServiceCommandHandler>.Instance);
+        var updateHandler = new UpdateFgsUniversalPricingServiceCommandHandler(
+            writeService, cache.Object, tenantAccessor,
+            NullLogger<UpdateFgsUniversalPricingServiceCommandHandler>.Instance);
+
+        var created = await createHandler.Handle(
+            new CreateFgsUniversalPricingServiceCommand(
+                new FgsUniversalPricingServiceCreateDto("TEST", 5)),
+            CancellationToken.None);
+
+        var updated = await updateHandler.Handle(
+            new UpdateFgsUniversalPricingServiceCommand(
+                created.Data!.Id,
+                new FgsUniversalPricingServiceUpdateDto("TEST2", 9)),
+            CancellationToken.None);
+
+        updated.Success.Should().BeTrue();
+        updated.Data!.UniversalPricingServiceCode.Should().Be("TEST2");
+        updated.Data.DisplayOrder.Should().Be(9);
+    }
+
+    [Fact]
+    public async Task PatchHandler_UpdatesDisplayOrder()
+    {
+        await using var context = await CreateContextAsync();
+        var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var createHandler = new CreateFgsUniversalPricingServiceCommandHandler(
+            writeService, cache.Object, tenantAccessor,
+            NullLogger<CreateFgsUniversalPricingServiceCommandHandler>.Instance);
+        var patchHandler = new PatchFgsUniversalPricingServiceCommandHandler(
+            writeService, cache.Object, tenantAccessor,
+            NullLogger<PatchFgsUniversalPricingServiceCommandHandler>.Instance);
+
+        var created = await createHandler.Handle(
+            new CreateFgsUniversalPricingServiceCommand(
+                new FgsUniversalPricingServiceCreateDto("TEST", 5)),
+            CancellationToken.None);
+
+        var patched = await patchHandler.Handle(
+            new PatchFgsUniversalPricingServiceCommand(
+                created.Data!.Id,
+                new FgsUniversalPricingServicePatchDto(null, 9, null)),
+            CancellationToken.None);
+
+        patched.Success.Should().BeTrue();
+        patched.Data!.DisplayOrder.Should().Be(9);
+        patched.Data.UniversalPricingServiceCode.Should().Be("TEST");
     }
 
     [Fact]
@@ -88,7 +153,7 @@ public sealed class FgsUniversalPricingServiceCommandHandlerTests
             Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId }
         };
 
-    private static FgsUniversalPricingServiceWriteRepository CreateWriteService(FgsSetupDbContext context)
+    private static FgsUniversalPricingServiceWriteService CreateWriteService(FgsSetupDbContext context)
     {
         var userContext = new Mock<IFgsUserContext>();
         userContext.SetupGet(x => x.TenantId).Returns(TenantId);
@@ -105,7 +170,7 @@ public sealed class FgsUniversalPricingServiceCommandHandlerTests
             tenantAccessor,
             new DateTimeProvider());
         var unitOfWork = new EfUnitOfWork<FgsSetupDbContext>(context);
-        return new FgsUniversalPricingServiceWriteRepository(context, unitOfWork, auditHelper);
+        return new FgsUniversalPricingServiceWriteService(context, unitOfWork, auditHelper);
     }
 
     private static async Task<FgsSetupDbContext> CreateContextAsync()

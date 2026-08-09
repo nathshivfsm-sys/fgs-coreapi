@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.JobTypes.Commands.DeleteJobType;
 using Fgs.Setup.Application.Features.JobTypes.Commands.UpdateJobType;
 using Fgs.Setup.Application.Features.JobTypes.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.JobTypes;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +38,7 @@ public sealed class JobTypeCommandHandlerTests
             NullLogger<CreateJobTypeCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateJobTypeCommand(new JobTypeCreateDto(1, null, "TEST", "TaskName", "Description value", "UsedFor", "Trade", 60, "BusinessUnit", 5, "BackgroundColor", "TextColor", true, true, 1)),
+            new CreateJobTypeCommand(new JobTypeCreateDto("TEST", "Name", 5, "BusinessUnit", "BackgroundColor", "TextColor", true, true, 1)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -70,7 +70,7 @@ public sealed class JobTypeCommandHandlerTests
             NullLogger<DeleteJobTypeCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateJobTypeCommand(new JobTypeCreateDto(1, null, "TEST", "TaskName", "Description value", "UsedFor", "Trade", 60, "BusinessUnit", 5, "BackgroundColor", "TextColor", true, true, 1)),
+            new CreateJobTypeCommand(new JobTypeCreateDto("TEST", "Name", 5, "BusinessUnit", "BackgroundColor", "TextColor", true, true, 1)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 

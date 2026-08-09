@@ -69,6 +69,8 @@ public sealed class InternalUsersController(
 
         return StatusCode(
             StatusCodes.Status401Unauthorized,
-            ApiResponse<object>.Fail(["Unauthorized."], ApiStatusCodes.Unauthorized));
+            ApiResponse<object>.Fail(
+                ["Internal service key is missing or invalid."],
+                ApiStatusCodes.Unauthorized));
     }
 }

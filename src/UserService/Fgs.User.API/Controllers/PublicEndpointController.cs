@@ -11,6 +11,8 @@ using Fgs.User.Application.Features.PublicEndpoints.Queries.GetFgsPublicEndpoint
 using Fgs.User.Application.Features.PublicEndpoints.Queries.ListFgsPublicEndpoints;
 using Fgs.User.Application.Features.PublicEndpoints.Queries.LookupFgsPublicEndpoints;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -54,6 +56,7 @@ public sealed class PublicEndpointController(IMediator mediator) : FgsApiControl
         CancellationToken cancellationToken = default) =>
         FromApiResponse(await Mediator.Send(new LookupFgsPublicEndpointsQuery(activeOnly), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsPublicEndpointDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -63,6 +66,7 @@ public sealed class PublicEndpointController(IMediator mediator) : FgsApiControl
         CancellationToken cancellationToken) =>
         CreatedFromApiResponse(await Mediator.Send(new CreateFgsPublicEndpointCommand(request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsPublicEndpointDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -73,6 +77,7 @@ public sealed class PublicEndpointController(IMediator mediator) : FgsApiControl
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new UpdateFgsPublicEndpointCommand(id, request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsPublicEndpointDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

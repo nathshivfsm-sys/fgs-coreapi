@@ -18,9 +18,6 @@ public sealed class CreateFgsUniversalPricingServiceCommandValidator : AbstractV
         RuleFor(x => x.Dto.UniversalPricingServiceCode).MustAsync(async (_, code, cancellationToken) =>
                 !await readRepository.ExistsByUniversalPricingServiceCodeAsync(code, null, cancellationToken))
             .WithMessage("A universal pricing service with this code already exists.");
-        RuleFor(x => x.Dto.UniversalPricingServiceCode).MustAsync(async (_, value, cancellationToken) =>
-                await readRepository.ExistsGloUniversalPricingServiceCodeAsync(value, cancellationToken))
-            .WithMessage("The specified universal pricing service was not found.");
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)1);
     }
 }
@@ -38,9 +35,6 @@ public sealed class UpdateFgsUniversalPricingServiceCommandValidator : AbstractV
         RuleFor(x => x.Dto.UniversalPricingServiceCode).MustAsync(async (command, code, cancellationToken) =>
                 !await readRepository.ExistsByUniversalPricingServiceCodeAsync(code, command.Id, cancellationToken))
             .WithMessage("A universal pricing service with this code already exists.");
-        RuleFor(x => x.Dto.UniversalPricingServiceCode).MustAsync(async (_, value, cancellationToken) =>
-                await readRepository.ExistsGloUniversalPricingServiceCodeAsync(value, cancellationToken))
-            .WithMessage("The specified universal pricing service was not found.");
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)1);
     }
 }
@@ -59,10 +53,6 @@ public sealed class PatchFgsUniversalPricingServiceCommandValidator : AbstractVa
         RuleFor(x => x.Dto.UniversalPricingServiceCode).MustAsync(async (command, code, cancellationToken) =>
                 !await readRepository.ExistsByUniversalPricingServiceCodeAsync(code!, command.Id, cancellationToken))
             .WithMessage("A universal pricing service with this code already exists.")
-            .When(x => x.Dto.UniversalPricingServiceCode is not null);
-        RuleFor(x => x.Dto.UniversalPricingServiceCode).MustAsync(async (_, value, cancellationToken) =>
-                await readRepository.ExistsGloUniversalPricingServiceCodeAsync(value!, cancellationToken))
-            .WithMessage("The specified universal pricing service was not found.")
             .When(x => x.Dto.UniversalPricingServiceCode is not null);
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)1).When(x => x.Dto.DisplayOrder.HasValue);
     }

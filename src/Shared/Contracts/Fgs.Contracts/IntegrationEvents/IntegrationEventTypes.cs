@@ -18,6 +18,10 @@ public static class IntegrationEventTypes
 
     public const string CredentialAuditRequested = "CredentialAuditRequested";
 
+    public const string InventoryStockChanged = "InventoryStockChanged";
+
+    public const string PurchaseOrderStatusChanged = "PurchaseOrderStatusChanged";
+
     public static class AggregateTypes
     {
         public const string Invitation = "Invitation";
@@ -29,5 +33,9 @@ public static class IntegrationEventTypes
         public const string Company = "Company";
 
         public const string Credential = "Credential";
+
+        public const string InventoryStock = "InventoryStock";
+
+        public const string PurchaseOrder = "PurchaseOrder";
     }
 }

@@ -1,4 +1,5 @@
 using Fgs.Messaging.Consumer;
+using Fgs.Messaging.HealthChecks;
 using Fgs.Messaging.Options;
 using Fgs.Messaging.RabbitMq;
 using Microsoft.Extensions.Configuration;
@@ -22,8 +23,11 @@ public static class ConsumerServiceCollectionExtensions
             options.AutomaticRecoveryEnabled = true;
         });
 
+        services.TryAddSingleton<Fgs.Contracts.Observability.IFgsMetrics>(
+            Fgs.Contracts.Observability.NoOpFgsMetrics.Instance);
         services.AddFgsRabbitMqConnectionFactory();
-        services.TryAddSingleton<IConsumerIdempotencyStore, NoOpConsumerIdempotencyStore>();
+        services.AddFgsRabbitMqReadyCheck();
+        services.TryAddSingleton<IConsumerIdempotencyStore, DistributedCacheConsumerIdempotencyStore>();
         services.AddSingleton<ConsumerRoutingRegistry>(sp =>
         {
             var registry = new ConsumerRoutingRegistry();
@@ -39,6 +43,17 @@ public static class ConsumerServiceCollectionExtensions
         services.AddScoped<MessageDispatcher>();
         services.AddHostedService<ConsumerHost>();
 
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the no-op store (tests / hosts without distributed cache). Prefer
+    /// <see cref="DistributedCacheConsumerIdempotencyStore"/> in production.
+    /// </summary>
+    public static IServiceCollection AddFgsNoOpConsumerIdempotency(this IServiceCollection services)
+    {
+        services.RemoveAll<IConsumerIdempotencyStore>();
+        services.AddSingleton<IConsumerIdempotencyStore, NoOpConsumerIdempotencyStore>();
         return services;
     }
 

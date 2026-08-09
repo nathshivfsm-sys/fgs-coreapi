@@ -15,10 +15,17 @@ public interface IJobTypeCategoryReadRepository
 
     Task<IReadOnlyList<JobTypeCategoryLookupDto>> LookupAsync(
         bool activeOnly = true,
+        long? jobTypeId = null,
         CancellationToken cancellationToken = default);
 
-    Task<bool> ExistsByCategoryCodeAsync(
-        string categoryCode,
+    Task<bool> ExistsByJobTypeIdAndJobCategoryIdAsync(
+        long jobTypeId, long jobCategoryId,
         long? excludeId = null,
+        CancellationToken cancellationToken = default);
+    Task<bool> ExistsJobTypeIdAsync(
+        long id,
+        CancellationToken cancellationToken = default);
+    Task<bool> ExistsJobCategoryIdAsync(
+        long id,
         CancellationToken cancellationToken = default);
 }

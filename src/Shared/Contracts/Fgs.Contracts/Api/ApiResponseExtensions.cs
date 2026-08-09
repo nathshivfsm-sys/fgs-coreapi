@@ -11,7 +11,7 @@ public static class ApiResponseExtensions
 
         var message = response.Errors.Count > 0
             ? string.Join("; ", response.Errors)
-            : "An unexpected error occurred.";
+            : $"Request failed with status code {response.StatusCode}.";
 
         throw response.StatusCode switch
         {

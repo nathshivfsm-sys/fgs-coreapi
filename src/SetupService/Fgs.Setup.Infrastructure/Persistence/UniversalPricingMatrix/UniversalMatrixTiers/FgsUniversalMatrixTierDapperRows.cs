@@ -12,13 +12,7 @@ internal sealed class FgsUniversalMatrixTierSummaryRow
     public bool IsActive { get; set; }
 
     public FgsUniversalMatrixTierSummaryDto ToDto() =>
-        new(
-            Id,
-            UniversalPricingServiceId,
-            Name,
-            Multiplier,
-            DisplayOrder,
-            IsActive);
+        new(Id, UniversalPricingServiceId, Name, Multiplier, DisplayOrder, IsActive);
 }
 
 internal sealed class FgsUniversalMatrixTierDetailRow
@@ -31,13 +25,7 @@ internal sealed class FgsUniversalMatrixTierDetailRow
     public bool IsActive { get; set; }
 
     public FgsUniversalMatrixTierDetailDto ToDto() =>
-        new(
-            Id,
-            UniversalPricingServiceId,
-            Name,
-            Multiplier,
-            DisplayOrder,
-            IsActive);
+        new(Id, UniversalPricingServiceId, Name, Multiplier, DisplayOrder, IsActive);
 }
 
 internal sealed class FgsUniversalMatrixTierLookupRow
@@ -47,8 +35,6 @@ internal sealed class FgsUniversalMatrixTierLookupRow
     public string Name { get; set; } = null!;
     public short DisplayOrder { get; set; }
 
-    public FgsUniversalMatrixTierLookupDto ToDto() => new(Id,
-            UniversalPricingServiceId,
-            Name,
-            DisplayOrder);
+    public FgsUniversalMatrixTierLookupDto ToDto() =>
+        new(Id, UniversalPricingServiceId, Name, DisplayOrder);
 }

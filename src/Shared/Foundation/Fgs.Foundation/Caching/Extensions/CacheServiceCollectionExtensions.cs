@@ -1,8 +1,10 @@
+using Fgs.Contracts.Observability;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.Caching.HealthChecks;
 using Fgs.Foundation.Caching.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
@@ -38,6 +40,8 @@ public static class CacheServiceCollectionExtensions
             return ConnectionMultiplexer.Connect(NormalizeConnectionString(options.ConnectionString));
         });
 
+        services.TryAddSingleton<IFgsMetrics>(NoOpFgsMetrics.Instance);
+
         services.AddSingleton<ICacheService>(sp =>
         {
             var options = sp.GetRequiredService<IOptions<RedisCacheOptions>>().Value;
@@ -50,7 +54,8 @@ public static class CacheServiceCollectionExtensions
                 sp.GetRequiredService<Microsoft.Extensions.Caching.Distributed.IDistributedCache>(),
                 sp.GetRequiredService<IConnectionMultiplexer>(),
                 sp.GetRequiredService<IOptions<RedisCacheOptions>>(),
-                sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<RedisCacheService>>());
+                sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<RedisCacheService>>(),
+                sp.GetService<IFgsMetrics>());
         });
 
         services.AddSingleton<RedisHealthCheck>();
@@ -60,10 +65,10 @@ public static class CacheServiceCollectionExtensions
         return services;
     }
 
-    internal static bool IsRedisConfigured(RedisCacheOptions options) =>
+    public static bool IsRedisConfigured(RedisCacheOptions options) =>
         options.Enabled && !string.IsNullOrWhiteSpace(options.ConnectionString);
 
-    internal static string NormalizeConnectionString(string connectionString)
+    public static string NormalizeConnectionString(string connectionString)
     {
         if (connectionString.Contains("abortConnect=", StringComparison.OrdinalIgnoreCase))
         {

@@ -1,13 +1,11 @@
 ﻿{
     "item":  [
                  {
-                     "description":  "AttachmentController - attachment",
+                     "description":  "Attachment management via {{gatewayUrl}}/api/v1/attachment. Upload scenarios: general file + each logoVariant.",
                      "name":  "AttachmentController",
                      "item":  [
                                   {
-                                      "name":  "Upload",
                                       "request":  {
-                                                      "method":  "POST",
                                                       "url":  {
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
@@ -19,7 +17,8 @@
                                                                                "attachment"
                                                                            ]
                                                               },
-                                                      "description":  "Upload",
+                                                      "description":  "Upload a general file via multipart/form-data. Select a local file for the file field.",
+                                                      "method":  "POST",
                                                       "header":  [
                                                                      {
                                                                          "key":  "Accept",
@@ -37,6 +36,53 @@
                                                                          "value":  "{{companyId}}"
                                                                      }
                                                                  ],
+                                                      "body":  {
+                                                                   "formdata":  [
+                                                                                    {
+                                                                                        "key":  "file",
+                                                                                        "type":  "file",
+                                                                                        "src":  [
+
+                                                                                                ]
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "entityType",
+                                                                                        "type":  "text",
+                                                                                        "value":  "Company"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "entityId",
+                                                                                        "type":  "text",
+                                                                                        "value":  "{{companyId}}"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "category",
+                                                                                        "type":  "text",
+                                                                                        "value":  "general"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "description",
+                                                                                        "type":  "text",
+                                                                                        "value":  "General attachment upload"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "tags",
+                                                                                        "type":  "text",
+                                                                                        "value":  "postman"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "isVisibleToCustomer",
+                                                                                        "type":  "text",
+                                                                                        "value":  "true"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "isVisibleToFieldTechnician",
+                                                                                        "type":  "text",
+                                                                                        "value":  "true"
+                                                                                    }
+                                                                                ],
+                                                                   "mode":  "formdata"
+                                                               },
                                                       "auth":  {
                                                                    "bearer":  [
                                                                                   {
@@ -47,12 +93,475 @@
                                                                               ],
                                                                    "type":  "bearer"
                                                                }
-                                                  }
+                                                  },
+                                      "name":  "Upload - General",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.attachmentId) {",
+                                                                                    "  pm.environment.set(\"attachmentId\", String(body.data.attachmentId));",
+                                                                                    "  pm.environment.set(\"fileId\", String(body.data.attachmentId));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/attachment",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "attachment"
+                                                                           ]
+                                                              },
+                                                      "description":  "Upload company logo (category=logo, logoVariant=full).",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "formdata":  [
+                                                                                    {
+                                                                                        "key":  "file",
+                                                                                        "type":  "file",
+                                                                                        "src":  [
+
+                                                                                                ]
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "entityType",
+                                                                                        "type":  "text",
+                                                                                        "value":  "Company"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "entityId",
+                                                                                        "type":  "text",
+                                                                                        "value":  "{{companyId}}"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "category",
+                                                                                        "type":  "text",
+                                                                                        "value":  "logo"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "description",
+                                                                                        "type":  "text",
+                                                                                        "value":  "Company logo (full)"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "tags",
+                                                                                        "type":  "text",
+                                                                                        "value":  "postman"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "isVisibleToCustomer",
+                                                                                        "type":  "text",
+                                                                                        "value":  "true"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "isVisibleToFieldTechnician",
+                                                                                        "type":  "text",
+                                                                                        "value":  "true"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "logoVariant",
+                                                                                        "type":  "text",
+                                                                                        "value":  "full"
+                                                                                    }
+                                                                                ],
+                                                                   "mode":  "formdata"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Upload - Company Logo (full)",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.attachmentId) {",
+                                                                                    "  pm.environment.set(\"attachmentId\", String(body.data.attachmentId));",
+                                                                                    "  pm.environment.set(\"fileId\", String(body.data.attachmentId));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/attachment",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "attachment"
+                                                                           ]
+                                                              },
+                                                      "description":  "Upload company logo (category=logo, logoVariant=compact).",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "formdata":  [
+                                                                                    {
+                                                                                        "key":  "file",
+                                                                                        "type":  "file",
+                                                                                        "src":  [
+
+                                                                                                ]
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "entityType",
+                                                                                        "type":  "text",
+                                                                                        "value":  "Company"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "entityId",
+                                                                                        "type":  "text",
+                                                                                        "value":  "{{companyId}}"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "category",
+                                                                                        "type":  "text",
+                                                                                        "value":  "logo"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "description",
+                                                                                        "type":  "text",
+                                                                                        "value":  "Company logo (compact)"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "tags",
+                                                                                        "type":  "text",
+                                                                                        "value":  "postman"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "isVisibleToCustomer",
+                                                                                        "type":  "text",
+                                                                                        "value":  "true"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "isVisibleToFieldTechnician",
+                                                                                        "type":  "text",
+                                                                                        "value":  "true"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "logoVariant",
+                                                                                        "type":  "text",
+                                                                                        "value":  "compact"
+                                                                                    }
+                                                                                ],
+                                                                   "mode":  "formdata"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Upload - Company Logo (compact)",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.attachmentId) {",
+                                                                                    "  pm.environment.set(\"attachmentId\", String(body.data.attachmentId));",
+                                                                                    "  pm.environment.set(\"fileId\", String(body.data.attachmentId));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/attachment",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "attachment"
+                                                                           ]
+                                                              },
+                                                      "description":  "Upload company logo (category=logo, logoVariant=icon).",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "formdata":  [
+                                                                                    {
+                                                                                        "key":  "file",
+                                                                                        "type":  "file",
+                                                                                        "src":  [
+
+                                                                                                ]
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "entityType",
+                                                                                        "type":  "text",
+                                                                                        "value":  "Company"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "entityId",
+                                                                                        "type":  "text",
+                                                                                        "value":  "{{companyId}}"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "category",
+                                                                                        "type":  "text",
+                                                                                        "value":  "logo"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "description",
+                                                                                        "type":  "text",
+                                                                                        "value":  "Company logo (icon)"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "tags",
+                                                                                        "type":  "text",
+                                                                                        "value":  "postman"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "isVisibleToCustomer",
+                                                                                        "type":  "text",
+                                                                                        "value":  "true"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "isVisibleToFieldTechnician",
+                                                                                        "type":  "text",
+                                                                                        "value":  "true"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "logoVariant",
+                                                                                        "type":  "text",
+                                                                                        "value":  "icon"
+                                                                                    }
+                                                                                ],
+                                                                   "mode":  "formdata"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Upload - Company Logo (icon)",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.attachmentId) {",
+                                                                                    "  pm.environment.set(\"attachmentId\", String(body.data.attachmentId));",
+                                                                                    "  pm.environment.set(\"fileId\", String(body.data.attachmentId));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/attachment",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "attachment"
+                                                                           ]
+                                                              },
+                                                      "description":  "Upload company logo (category=logo, logoVariant=favicon).",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "formdata":  [
+                                                                                    {
+                                                                                        "key":  "file",
+                                                                                        "type":  "file",
+                                                                                        "src":  [
+
+                                                                                                ]
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "entityType",
+                                                                                        "type":  "text",
+                                                                                        "value":  "Company"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "entityId",
+                                                                                        "type":  "text",
+                                                                                        "value":  "{{companyId}}"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "category",
+                                                                                        "type":  "text",
+                                                                                        "value":  "logo"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "description",
+                                                                                        "type":  "text",
+                                                                                        "value":  "Company logo (favicon)"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "tags",
+                                                                                        "type":  "text",
+                                                                                        "value":  "postman"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "isVisibleToCustomer",
+                                                                                        "type":  "text",
+                                                                                        "value":  "true"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "isVisibleToFieldTechnician",
+                                                                                        "type":  "text",
+                                                                                        "value":  "true"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "logoVariant",
+                                                                                        "type":  "text",
+                                                                                        "value":  "favicon"
+                                                                                    }
+                                                                                ],
+                                                                   "mode":  "formdata"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Upload - Company Logo (favicon)",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.attachmentId) {",
+                                                                                    "  pm.environment.set(\"attachmentId\", String(body.data.attachmentId));",
+                                                                                    "  pm.environment.set(\"fileId\", String(body.data.attachmentId));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
                                   },
                                   {
                                       "name":  "Download",
                                       "request":  {
-                                                      "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
@@ -66,12 +575,13 @@
                                                                                "{{attachmentId}}"
                                                                            ]
                                                               },
-                                                      "description":  "Download",
+                                                      "description":  "Stream/download attachment bytes (supports Range requests for video/audio).",
+                                                      "method":  "GET",
                                                       "header":  [
                                                                      {
                                                                          "key":  "Accept",
                                                                          "type":  "text",
-                                                                         "value":  "application/json"
+                                                                         "value":  "*/*"
                                                                      },
                                                                      {
                                                                          "key":  "X-Tenant-Id",
@@ -99,7 +609,6 @@
                                   {
                                       "name":  "Thumbnail",
                                       "request":  {
-                                                      "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
@@ -114,12 +623,13 @@
                                                                                "thumbnail"
                                                                            ]
                                                               },
-                                                      "description":  "Thumbnail",
+                                                      "description":  "Stream attachment thumbnail/preview image.",
+                                                      "method":  "GET",
                                                       "header":  [
                                                                      {
                                                                          "key":  "Accept",
                                                                          "type":  "text",
-                                                                         "value":  "application/json"
+                                                                         "value":  "*/*"
                                                                      },
                                                                      {
                                                                          "key":  "X-Tenant-Id",
@@ -170,14 +680,14 @@
                                                                          "value":  "application/json"
                                                                      },
                                                                      {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
                                                                          "key":  "X-Company-Id",
                                                                          "type":  "text",
                                                                          "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
@@ -225,11 +735,6 @@
                                                                                     "description":  "Free-text search across searchable fields. Optional.",
                                                                                     "value":  "{{search}}",
                                                                                     "disabled":  true
-                                                                                },
-                                                                                {
-                                                                                    "key":  "isActive",
-                                                                                    "description":  "Filter by active records. Default: true.",
-                                                                                    "value":  "true"
                                                                                 },
                                                                                 {
                                                                                     "key":  "entityType",
@@ -296,6 +801,26 @@
                                                                                     "description":  "Optional tags filter.",
                                                                                     "value":  "",
                                                                                     "disabled":  true
+                                                                                },
+                                                                                {
+                                                                                    "key":  "entityType",
+                                                                                    "description":  "",
+                                                                                    "value":  "Company"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "entityId",
+                                                                                    "description":  "",
+                                                                                    "value":  "{{companyId}}"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "isVisibleToCustomer",
+                                                                                    "description":  "",
+                                                                                    "value":  "true"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "isVisibleToFieldTechnician",
+                                                                                    "description":  "",
+                                                                                    "value":  "true"
                                                                                 }
                                                                             ],
                                                                   "host":  [
@@ -316,14 +841,14 @@
                                                                          "value":  "application/json"
                                                                      },
                                                                      {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
                                                                          "key":  "X-Company-Id",
                                                                          "type":  "text",
                                                                          "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
@@ -362,14 +887,14 @@
                                                                          "value":  "application/json"
                                                                      },
                                                                      {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
                                                                          "key":  "X-Company-Id",
                                                                          "type":  "text",
                                                                          "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
@@ -389,6 +914,23 @@
                                       "request":  {
                                                       "method":  "DELETE",
                                                       "url":  {
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "entityId",
+                                                                                    "description":  "",
+                                                                                    "value":  "{{companyId}}"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "category",
+                                                                                    "description":  "",
+                                                                                    "value":  "general"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "entityType",
+                                                                                    "description":  "",
+                                                                                    "value":  "Company"
+                                                                                }
+                                                                            ],
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
@@ -408,111 +950,14 @@
                                                                          "value":  "application/json"
                                                                      },
                                                                      {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
                                                                          "key":  "X-Company-Id",
                                                                          "type":  "text",
                                                                          "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  }
-                              ]
-                 },
-                 {
-                     "description":  "HealthController - health",
-                     "name":  "HealthController",
-                     "item":  [
-                                  {
-                                      "name":  "Get",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/health",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "health"
-                                                                           ]
-                                                              },
-                                                      "description":  "Get",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
                                                                      },
                                                                      {
                                                                          "key":  "X-Tenant-Id",
                                                                          "type":  "text",
                                                                          "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  },
-                                  {
-                                      "name":  "AuthCheck",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/health/auth-check",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "health",
-                                                                               "auth-check"
-                                                                           ]
-                                                              },
-                                                      "description":  "Development helper: validates the Bearer token and returns the validation error, if any.",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
                                                                      }
                                                                  ],
                                                       "auth":  {
@@ -564,7 +1009,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\r\n  \"tenantId\": 4,\r\n  \"existingBucketName\": null,\r\n  \"companyNumbers\": [1]\r\n}",
+                                                                   "raw":  "{\n  \"tenantId\": 4,\n  \"existingBucketName\": null,\n  \"companyNumbers\": [1]\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -587,10 +1032,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Tenant S3 provisioning and attachment management via {{gatewayUrl}}. Upload via multipart/form-data; download/thumbnail stream through the API (no S3 URLs exposed).",
+                 "description":  "Tenant S3 provisioning and attachment management via {{gatewayUrl}}/api/v1/attachment and /api/v1/tenant/{id}/bucket. Upload scenarios include general + logo variants.",
                  "name":  "FGS FileService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "d425eda2-4a22-4c3b-831f-3a6895ed76bf"
+                 "_postman_id":  "5143c92e-a119-464f-8533-912868d5c392"
              },
     "event":  [
                   {

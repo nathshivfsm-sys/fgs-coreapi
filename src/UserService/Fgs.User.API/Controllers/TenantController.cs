@@ -13,6 +13,8 @@ using Fgs.User.Application.Features.Tenants.Queries.GetTenantCompanyDetails;
 using Fgs.User.Application.Features.Tenants.Queries.ListTenantCompanies;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -73,6 +75,7 @@ public sealed class TenantController(
             cancellationToken));
 
     [HttpPost("{tenantId:long}/companies/{companyId:long}/details")]
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [ProducesResponseType(typeof(ApiResponse<TenantCompanyDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -141,7 +144,9 @@ public sealed class TenantController(
 
         return StatusCode(
             StatusCodes.Status401Unauthorized,
-            ApiResponse<object>.Fail(["Unauthorized."], ApiStatusCodes.Unauthorized));
+            ApiResponse<object>.Fail(
+                ["Authentication required. Provide a valid JWT or internal service key."],
+                ApiStatusCodes.Unauthorized));
     }
 
     private IActionResult? UnauthorizedIfNotInternal(string? serviceKey)
@@ -153,6 +158,8 @@ public sealed class TenantController(
 
         return StatusCode(
             StatusCodes.Status401Unauthorized,
-            ApiResponse<object>.Fail(["Unauthorized."], ApiStatusCodes.Unauthorized));
+            ApiResponse<object>.Fail(
+                ["Internal service key is missing or invalid."],
+                ApiStatusCodes.Unauthorized));
     }
 }

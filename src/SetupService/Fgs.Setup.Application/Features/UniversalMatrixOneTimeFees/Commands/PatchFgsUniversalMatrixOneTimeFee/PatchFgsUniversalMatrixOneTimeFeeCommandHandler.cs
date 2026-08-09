@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.UniversalMatrixOneTimeFees.Commands.PatchFgsUniversalMatrixOneTimeFee;
 
 public sealed class PatchFgsUniversalMatrixOneTimeFeeCommandHandler(
-    IFgsUniversalMatrixOneTimeFeeWriteRepository writeRepository,
+    IFgsUniversalMatrixOneTimeFeeWriteService writeService,
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<PatchFgsUniversalMatrixOneTimeFeeCommandHandler> logger)
@@ -20,12 +20,12 @@ public sealed class PatchFgsUniversalMatrixOneTimeFeeCommandHandler(
         PatchFgsUniversalMatrixOneTimeFeeCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await writeRepository.PatchAsync(request.Id, request.Dto, cancellationToken);
-        logger.LogInformation("Patchd universal matrix one-time fee {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current!;
-            await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixonetimefee"),
-                cancellationToken);
+        var result = await writeService.PatchAsync(request.Id, request.Dto, cancellationToken);
+        logger.LogInformation("Patched universal matrix one-time fee {Id}", result.Id);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixonetimefee"),
+            cancellationToken);
         return ApiResponse<FgsUniversalMatrixOneTimeFeeDetailDto>.Ok(result);
     }
 }

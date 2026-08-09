@@ -427,9 +427,9 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("AddressId")
-                        .HasColumnType("bigint")
-                        .HasComment("Reference to the employee mailing or home address record. No FK by design.");
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uuid")
+                        .HasComment("Optional reference to the employee mailing or home address in FgsLocation. No FK by design.");
 
                     b.Property<DateOnly?>("BirthDate")
                         .HasColumnType("date")
@@ -562,8 +562,8 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("timestamp")
                         .HasComment("Date and time the employee record was last modified.");
 
-                    b.Property<long?>("UserId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
                         .HasComment("Optional reference to the system user account associated with this employee. One user may be linked to only one employee. References identity service; no FK by design.");
 
                     b.HasKey("Id")
@@ -785,112 +785,181 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.ToTable("FgsEntityTag", "setup");
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobCategory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Unique identifier for the Job Category.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CategoryCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique business code used to identify the Job Category within a tenant and company.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Identifier of the company within the tenant that owns this Job Category.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the Job Category.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time when the Job Category was created.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the display sequence of Job Categories in lists and selection controls.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the Job Category is active and available for selection.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasComment("Display name of the Job Category.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Identifier of the tenant that owns this Job Category.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last modified the Job Category.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time when the Job Category was last modified.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsJobCategory_Tenant_Company");
+
+                    b.HasIndex("TenantId", "CompanyId", "CategoryCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsJobCategory_Tenant_Company_CategoryCode");
+
+                    b.ToTable("FgsJobCategory", "setup", t =>
+                        {
+                            t.HasComment("Stores the master list of Job Categories available for configuring Job Types. Categories organize related Job Tasks within a Job Type.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobType", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasColumnOrder(0);
+                        .HasColumnOrder(0)
+                        .HasComment("Unique identifier for the Job Type.");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("BackgroundColor")
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Optional background color used when displaying the Job Type in the user interface.");
 
                     b.Property<string>("BusinessUnit")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Optional business unit or department responsible for this Job Type.");
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
-                        .HasColumnOrder(2);
+                        .HasColumnOrder(2)
+                        .HasComment("Identifier of the company within the tenant that owns this Job Type.");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the Job Type.");
 
                     b.Property<DateTimeOffset>("CreatedOn")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamptz")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time when the Job Type was created.");
 
                     b.Property<short>("DisplayOrder")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("smallint")
-                        .HasDefaultValue((short)1);
-
-                    b.Property<int?>("EstimatedDurationMinutes")
-                        .HasColumnType("integer");
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the display sequence of Job Types in lists and selection controls.");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<long>("JobTypeCategoryId")
-                        .HasColumnType("bigint");
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the Job Type is active and available for new work orders.");
 
                     b.Property<string>("JobTypeCode")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique business code used to identify the Job Type within a tenant and company.");
 
-                    b.Property<long?>("JobTypeSubCategoryId")
-                        .HasColumnType("bigint");
-
-                    b.Property<short>("Priority")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint")
-                        .HasDefaultValue((short)5);
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Display name of the Job Type shown throughout the application.");
 
                     b.Property<bool>("ShowOnCustomerPortal")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether this Job Type is available for customers through the customer portal.");
 
                     b.Property<bool>("ShowToFieldTech")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("TaskName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether this Job Type is visible to field technicians in the mobile application.");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
-                        .HasColumnOrder(1);
+                        .HasColumnOrder(1)
+                        .HasComment("Identifier of the tenant that owns this Job Type.");
 
                     b.Property<string>("TextColor")
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("Trade")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Optional text color used when displaying the Job Type in the user interface.");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last modified the Job Type.");
 
                     b.Property<DateTimeOffset?>("UpdatedOn")
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time when the Job Type was last modified.");
 
-                    b.Property<string>("UsedFor")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<short>("UsedFor")
+                        .HasColumnType("smallint")
+                        .HasComment("Specifies the business process for the Job Type. Valid values: 1=Service, 2=Maintenance, 3=Warranty, 4=Installation. Corresponds to the JobTypeUsedFor enum in the application.");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("JobTypeCategoryId");
-
-                    b.HasIndex("JobTypeSubCategoryId");
 
                     b.HasIndex("TenantId", "CompanyId")
                         .HasDatabaseName("IX_FgsJobType_Tenant_Company");
@@ -902,13 +971,19 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .IsUnique()
                         .HasDatabaseName("UX_FgsJobType_Tenant_Company_JobTypeCode");
 
-                    b.HasIndex("TenantId", "CompanyId", "Trade")
-                        .HasDatabaseName("IX_FgsJobType_Tenant_Company_Trade");
+                    b.HasIndex("TenantId", "CompanyId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsJobType_Tenant_Company_Name");
 
                     b.HasIndex("TenantId", "CompanyId", "UsedFor")
                         .HasDatabaseName("IX_FgsJobType_Tenant_Company_UsedFor");
 
-                    b.ToTable("FgsJobType", "setup");
+                    b.ToTable("FgsJobType", "setup", t =>
+                        {
+                            t.HasComment("Defines reusable Job Types that represent the type of work performed. A Job Type serves as the header for one or more Job Type Categories and their associated tasks.");
+
+                            t.HasCheckConstraint("CK_FgsJobType_UsedFor", "\"UsedFor\" IN (1, 2, 3, 4)");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobTypeCategory", b =>
@@ -916,135 +991,184 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasColumnOrder(0);
+                        .HasColumnOrder(0)
+                        .HasComment("Unique identifier for the Job Type Category mapping.");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("CategoryCode")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
-                        .HasColumnOrder(2);
+                        .HasColumnOrder(2)
+                        .HasComment("Identifier of the company within the tenant that owns this Job Type Category mapping.");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the mapping.");
 
                     b.Property<DateTimeOffset>("CreatedOn")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamptz")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time when the mapping was created.");
 
                     b.Property<short>("DisplayOrder")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("smallint")
-                        .HasDefaultValue((short)1);
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the display sequence of Job Categories within the Job Type.");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the Job Category assignment is active.");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                    b.Property<long>("JobCategoryId")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifier of the Job Category assigned to the Job Type.");
+
+                    b.Property<long>("JobTypeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifier of the Job Type.");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
-                        .HasColumnOrder(1);
+                        .HasColumnOrder(1)
+                        .HasComment("Identifier of the tenant that owns this Job Type Category mapping.");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last modified the mapping.");
 
                     b.Property<DateTimeOffset?>("UpdatedOn")
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time when the mapping was last modified.");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("JobCategoryId");
+
+                    b.HasIndex("JobTypeId");
 
                     b.HasIndex("TenantId", "CompanyId")
                         .HasDatabaseName("IX_FgsJobTypeCategory_Tenant_Company");
 
-                    b.HasIndex("TenantId", "CompanyId", "CategoryCode")
-                        .IsUnique()
-                        .HasDatabaseName("UX_FgsJobTypeCategory_Tenant_Company_CategoryCode");
+                    b.HasIndex("TenantId", "CompanyId", "JobCategoryId")
+                        .HasDatabaseName("IX_FgsJobTypeCategory_Tenant_Company_JobCategory");
 
-                    b.ToTable("FgsJobTypeCategory", "setup");
+                    b.HasIndex("TenantId", "CompanyId", "JobTypeId")
+                        .HasDatabaseName("IX_FgsJobTypeCategory_Tenant_Company_JobType");
+
+                    b.HasIndex("TenantId", "CompanyId", "JobTypeId", "DisplayOrder")
+                        .HasDatabaseName("IX_FgsJobTypeCategory_Tenant_Company_DisplayOrder");
+
+                    b.HasIndex("TenantId", "CompanyId", "JobTypeId", "JobCategoryId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsJobTypeCategory_Tenant_Company_JobType_Category");
+
+                    b.ToTable("FgsJobTypeCategory", "setup", t =>
+                        {
+                            t.HasComment("Maps Job Categories to Job Types. A Job Type can contain one or more Job Categories, each with its own display order.");
+                        });
                 });
 
-            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobTypeSubCategory", b =>
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobTypeTask", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasColumnOrder(0);
+                        .HasColumnOrder(0)
+                        .HasComment("Unique identifier for the Job Type Task.");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
-                        .HasColumnOrder(2);
+                        .HasColumnOrder(2)
+                        .HasComment("Identifier of the company within the tenant that owns this Job Type Task.");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the Job Type Task.");
 
                     b.Property<DateTimeOffset>("CreatedOn")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamptz")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time when the Job Type Task was created.");
 
                     b.Property<short>("DisplayOrder")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("smallint")
-                        .HasDefaultValue((short)1);
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the display sequence of tasks within the Job Type Category.");
+
+                    b.Property<decimal>("EstimatedHours")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasDefaultValue(1.00m)
+                        .HasComment("Estimated labor hours required to complete the task.");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the Job Type Task is active and available for use.");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                    b.Property<long>("JobTypeCategoryId")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifier of the Job Type Category that owns this task.");
 
-                    b.Property<string>("SubCategoryCode")
+                    b.Property<short>("Priority")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)5)
+                        .HasComment("Execution priority for the task. Lower values typically represent higher priority.");
+
+                    b.Property<string>("TaskName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Name of the task to be performed.");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
-                        .HasColumnOrder(1);
+                        .HasColumnOrder(1)
+                        .HasComment("Identifier of the tenant that owns this Job Type Task.");
+
+                    b.Property<long>("TradeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifier of the Trade responsible for performing this task.");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last modified the Job Type Task.");
 
                     b.Property<DateTimeOffset?>("UpdatedOn")
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time when the Job Type Task was last modified.");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("JobTypeCategoryId");
+
+                    b.HasIndex("TradeId");
+
                     b.HasIndex("TenantId", "CompanyId")
-                        .HasDatabaseName("IX_FgsJobTypeSubCategory_Tenant_Company");
+                        .HasDatabaseName("IX_FgsJobTypeTask_Tenant_Company");
 
-                    b.HasIndex("TenantId", "CompanyId", "SubCategoryCode")
-                        .IsUnique()
-                        .HasDatabaseName("UX_FgsJobTypeSubCategory_Tenant_Company_SubCategoryCode");
+                    b.HasIndex("TenantId", "CompanyId", "JobTypeCategoryId")
+                        .HasDatabaseName("IX_FgsJobTypeTask_Tenant_Company_JobTypeCategory");
 
-                    b.ToTable("FgsJobTypeSubCategory", "setup");
+                    b.ToTable("FgsJobTypeTask", "setup", t =>
+                        {
+                            t.HasComment("Stores the tasks that belong to a Job Type Category. Each task defines the work to be performed, along with its associated Trade, Priority, and estimated labor hours.");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsLeadDisqualificationReason", b =>
@@ -1382,6 +1506,209 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.ToTable("FgsLocation", "setup", t =>
                         {
                             t.HasComment("Reusable address and geo location rows scoped to a tenant company.");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsPriceBook", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Unique identifier of the price book record.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal?>("BasePrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasComment("Base selling price when the pricing model is Flat Rate. Null for Dynamic pricing.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Identifier of the company that owns the record.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time when the record was created.");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasComment("Detailed description of the service.");
+
+                    b.Property<int>("EstimatedDurationMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(60)
+                        .HasComment("Estimated time in minutes required to complete the service.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the price book item is active and available for use.");
+
+                    b.Property<bool>("IsTaxable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the service is taxable by default.");
+
+                    b.Property<long>("JobTypeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Default work order type associated with this service.");
+
+                    b.Property<string>("PriceBookCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique business code of the price book item.");
+
+                    b.Property<string>("PriceBookName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Display name of the service offered in the price book.");
+
+                    b.Property<string>("PricingModel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Determines whether pricing is Flat Rate or Dynamic.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Identifier of the tenant that owns the record.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time when the record was last updated.");
+
+                    b.HasKey("Id")
+                        .HasName("PK_FgsPriceBook");
+
+                    b.HasIndex("JobTypeId")
+                        .HasDatabaseName("IX_FgsPriceBook_JobTypeId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsPriceBook_Tenant_Company");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsPriceBook_Tenant_Company_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "PriceBookCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsPriceBook_Tenant_Company_PriceBookCode");
+
+                    b.ToTable("FgsPriceBook", "setup", t =>
+                        {
+                            t.HasComment("Defines the master catalog of services offered by a company. Each price book header represents a reusable service template used by estimates, work orders, invoices, scheduling, and pricing.");
+
+                            t.HasCheckConstraint("CK_FgsPriceBook_PricingModel", "\"PricingModel\" IN ('Flat Rate', 'Dynamic')");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsPriceBookItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Primary key identifier of the price book item.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasComment("Company identifier owning the record.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the display order of items within the price book.");
+
+                    b.Property<long?>("InventoryItemId")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifier of the inventory or non-inventory item. No database foreign key is enforced because the inventory module resides in a separate schema.");
+
+                    b.Property<string>("ItemCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Business code of the selected item. Stored as a snapshot for reporting and historical consistency.");
+
+                    b.Property<string>("ItemDescription")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Description of the item as it should appear within the price book.");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text")
+                        .HasComment("Optional notes or installation instructions.");
+
+                    b.Property<long>("PriceBookId")
+                        .HasColumnType("bigint")
+                        .HasComment("Reference to the parent price book.");
+
+                    b.Property<decimal>("Quantity")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(1m)
+                        .HasComment("Default quantity required to perform the service.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasComment("Tenant identifier owning the record.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.HasKey("Id")
+                        .HasName("PK_FgsPriceBookItem");
+
+                    b.HasIndex("PriceBookId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsPriceBookItem_TenantId_CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "PriceBookId")
+                        .HasDatabaseName("IX_FgsPriceBookItem_TenantId_CompanyId_PriceBookId");
+
+                    b.ToTable("FgsPriceBookItem", "setup", t =>
+                        {
+                            t.HasComment("Defines the inventory, non-inventory, and free-form items that make up a price book service.");
                         });
                 });
 
@@ -2447,9 +2774,21 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Primary city or municipality associated with the postal code.");
+
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
                         .HasColumnOrder(2);
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasComment("ISO 3166-1 alpha-2 country code associated with the postal code (for example, US, CA, MX).");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
@@ -2471,9 +2810,22 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("StateProvinceCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasComment("State, province, or territory code associated with the postal code (for example, TX, ON, BC).");
+
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
                         .HasColumnOrder(1);
+
+                    b.Property<decimal>("TripChargeAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasDefaultValue(0m)
+                        .HasComment("Default trip charge applied when providing service to this postal code. Used by dispatching, estimating, and pricing calculations.");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
@@ -2549,7 +2901,8 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.Property<bool>("IsLaborTierStructure")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether labor pricing in this pricing matrix is based on labor tiers. When false, standard labor pricing rules are applied. When true, labor charges are calculated using the configured labor tier structure.");
 
                     b.Property<bool>("IsMobileVisible")
                         .ValueGeneratedOnAdd()
@@ -2644,7 +2997,7 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.Property<long>("PricingMatrixId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("TechSkillLevelId")
+                    b.Property<long?>("TechSkillLevelId")
                         .HasColumnType("bigint");
 
                     b.Property<long>("TenantId")
@@ -2660,9 +3013,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("TenantId", "CompanyId", "PricingMatrixId", "LaborRateTypeId", "TechSkillLevelId")
-                        .HasName("UQ_FgsSetupPricingMatrixLabor");
-
                     b.HasIndex("PricingMatrixId");
 
                     b.HasIndex("TechSkillLevelId");
@@ -2675,6 +3025,10 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     b.HasIndex("TenantId", "CompanyId", "TechSkillLevelId")
                         .HasDatabaseName("IX_FgsSetupPricingMatrixLabor_TenantId_CompanyId_TechSkillLevelId");
+
+                    b.HasIndex("TenantId", "CompanyId", "PricingMatrixId", "LaborRateTypeId", "TechSkillLevelId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_FgsSetupPricingMatrixLabor");
 
                     b.ToTable("FgsSetupPricingMatrixLabor", "setup", t =>
                         {
@@ -2865,7 +3219,7 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
-                        .HasComment("Unique category code within the pricing matrix.");
+                        .HasComment("Billing category type code (FgsBillingCategory.BillingCategoryType) such as NI, OT, or SF.");
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -3643,6 +3997,12 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.Property<long?>("FgsSetupZoneId")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("IncludeInCapacityPlanning")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether this time slot is considered during capacity planning and scheduling calculations. When false, the time slot is excluded from capacity planning.");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -3661,6 +4021,12 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("ShowToExternalSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether this time slot is exposed to third-party integrations and external systems. When false, the time slot remains internal to the application.");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
@@ -5868,67 +6234,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloJobTypeSubCategory", b =>
-                {
-                    b.Property<short>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<short>("Id"));
-
-                    b.Property<int?>("BusinessTypeId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamptz")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTimeOffset?>("UpdatedOn")
-                        .HasColumnType("timestamptz");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BusinessTypeId")
-                        .HasDatabaseName("IX_GloJobTypeSubCategory_BusinessTypeId");
-
-                    b.HasIndex("Code")
-                        .IsUnique()
-                        .HasDatabaseName("UQ_GloJobTypeSubCategory_Code");
-
-                    b.ToTable("GloJobTypeSubCategory", "glo", t =>
-                        {
-                            t.HasCheckConstraint("CK_GloJobTypeSubCategory_Code_Upper", "\"Code\" = upper(\"Code\")");
-                        });
-                });
-
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloLanguage", b =>
                 {
                     b.Property<string>("LanguageCode")
@@ -7511,33 +7816,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.ToTable("GloTag", "glo");
                 });
 
-            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloTimeCardOption", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasAlternateKey("Code")
-                        .HasName("UQ_GloTimeCardOption_Code");
-
-                    b.ToTable("GloTimeCardOption", "glo", t =>
-                        {
-                            t.HasCheckConstraint("CK_GloTimeCardOption_Code_Upper", "\"Code\" = UPPER(\"Code\")");
-                        });
-                });
-
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloTitleOfCourtesy", b =>
                 {
                     b.Property<int>("Id")
@@ -8210,51 +8488,80 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasConstraintName("FK_FgsEntityTag_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
-            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobType", b =>
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobCategory", b =>
                 {
-                    b.HasOne("Fgs.Setup.Domain.Entities.FgsJobTypeCategory", "JobTypeCategory")
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
                         .WithMany()
-                        .HasForeignKey("JobTypeCategoryId")
+                        .HasForeignKey("TenantId", "CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_FgsJobType_FgsJobTypeCategory");
+                        .HasConstraintName("FK_FgsJobCategory_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
 
-                    b.HasOne("Fgs.Setup.Domain.Entities.FgsJobTypeSubCategory", "JobTypeSubCategory")
-                        .WithMany()
-                        .HasForeignKey("JobTypeSubCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("FK_FgsJobType_FgsJobTypeSubCategory");
-
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobType", b =>
+                {
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsJobType_FgsTenantCompanyCache_TenantId_CompanyId");
-
-                    b.Navigation("JobTypeCategory");
-
-                    b.Navigation("JobTypeSubCategory");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobTypeCategory", b =>
                 {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsJobCategory", "JobCategory")
+                        .WithMany()
+                        .HasForeignKey("JobCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsJobTypeCategory_FgsJobCategory");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsJobType", "JobType")
+                        .WithMany("JobTypeCategories")
+                        .HasForeignKey("JobTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsJobTypeCategory_FgsJobType");
+
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsJobTypeCategory_FgsTenantCompanyCache_TenantId_CompanyId");
+
+                    b.Navigation("JobCategory");
+
+                    b.Navigation("JobType");
                 });
 
-            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobTypeSubCategory", b =>
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobTypeTask", b =>
                 {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsJobTypeCategory", "JobTypeCategory")
+                        .WithMany("Tasks")
+                        .HasForeignKey("JobTypeCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsJobTypeTask_FgsJobTypeCategory");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsSetupTechTrade", "Trade")
+                        .WithMany()
+                        .HasForeignKey("TradeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsJobTypeTask_FgsSetupTechTrade");
+
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_FgsJobTypeSubCategory_FgsTenantCompanyCache_TenantId_CompanyId");
+                        .HasConstraintName("FK_FgsJobTypeTask_FgsTenantCompanyCache_TenantId_CompanyId");
+
+                    b.Navigation("JobTypeCategory");
+
+                    b.Navigation("Trade");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsLeadDisqualificationReason", b =>
@@ -8285,6 +8592,44 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsLeadStatus_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsPriceBook", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsJobType", "JobType")
+                        .WithMany()
+                        .HasForeignKey("JobTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsPriceBook_JobTypeId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsPriceBook_FgsTenantCompanyCache_TenantId_CompanyId");
+
+                    b.Navigation("JobType");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsPriceBookItem", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsPriceBook", "PriceBook")
+                        .WithMany("Items")
+                        .HasForeignKey("PriceBookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsPriceBookItem_FgsPriceBook");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsPriceBookItem_FgsTenantCompanyCache_TenantId_CompanyId");
+
+                    b.Navigation("PriceBook");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsResolutionCode", b =>
@@ -8472,7 +8817,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .WithMany()
                         .HasForeignKey("TechSkillLevelId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
                         .HasConstraintName("FK_FgsSetupPricingMatrixLabor_TechSkillLevel");
 
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
@@ -8939,15 +9283,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasConstraintName("FK_GloJobTypeCategory_GloBusinessType_BusinessTypeId");
                 });
 
-            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloJobTypeSubCategory", b =>
-                {
-                    b.HasOne("Fgs.Setup.Domain.Entities.GloBusinessType", null)
-                        .WithMany()
-                        .HasForeignKey("BusinessTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("FK_GloJobTypeSubCategory_GloBusinessType_BusinessTypeId");
-                });
-
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloSeedTableColumnMapping", b =>
                 {
                     b.HasOne("Fgs.Setup.Domain.Entities.GloSeedTableMapping", "SeedTableMapping")
@@ -9017,6 +9352,21 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_GloUniversalMatrixTier_GloUniversalPricingService_UniversalPricingServiceId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobType", b =>
+                {
+                    b.Navigation("JobTypeCategories");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsJobTypeCategory", b =>
+                {
+                    b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsPriceBook", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupGLBreak", b =>

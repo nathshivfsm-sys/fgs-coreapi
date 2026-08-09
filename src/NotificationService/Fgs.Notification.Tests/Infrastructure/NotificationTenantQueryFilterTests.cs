@@ -1,8 +1,9 @@
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Notification.Domain.Entities;
-using Fgs.Notification.Domain.Notifications;
+using Fgs.Notification.Domain.Enums;
 using Fgs.Notification.Infrastructure.Database;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -11,21 +12,21 @@ namespace Fgs.Notification.Tests.Infrastructure;
 public sealed class NotificationTenantQueryFilterTests
 {
     [Fact]
-    public async Task NotificationHistory_WhenUnresolved_ReturnsAllRows()
+    public async Task EmailHistory_WhenUnresolved_ReturnsAllRows()
     {
         var context = await CreateContextAsync();
-        context.NotificationHistory.AddRange(
-            CreateHistory(1, "TENANT_A"),
-            CreateHistory(2, "TENANT_B"));
+        context.FgsEmailHistories.AddRange(
+            CreateEmailHistory(1, "TENANT_A"),
+            CreateEmailHistory(2, "TENANT_B"));
         await context.SaveChangesAsync();
 
-        var history = await context.NotificationHistory.ToListAsync();
+        var history = await context.FgsEmailHistories.ToListAsync();
 
         history.Should().HaveCount(2);
     }
 
     [Fact]
-    public async Task NotificationHistory_WhenResolved_FiltersToCurrentTenant()
+    public async Task EmailHistory_WhenResolved_FiltersToCurrentTenant()
     {
         var accessor = new NotificationTestTenantContextAccessor
         {
@@ -37,15 +38,15 @@ public sealed class NotificationTenantQueryFilterTests
         };
 
         var context = await CreateContextAsync(accessor);
-        context.NotificationHistory.AddRange(
-            CreateHistory(1, "MATCH"),
-            CreateHistory(2, "OTHER"));
+        context.FgsEmailHistories.AddRange(
+            CreateEmailHistory(1, "MATCH"),
+            CreateEmailHistory(2, "OTHER"));
         await context.SaveChangesAsync();
 
-        var history = await context.NotificationHistory.ToListAsync();
+        var history = await context.FgsEmailHistories.ToListAsync();
 
         history.Should().ContainSingle();
-        history[0].TemplateName.Should().Be("MATCH");
+        history[0].Subject.Should().Be("MATCH");
     }
 
     private static async Task<FgsNotificationDbContext> CreateContextAsync(
@@ -63,14 +64,19 @@ public sealed class NotificationTenantQueryFilterTests
         return context;
     }
 
-    private static FgsNotificationHistory CreateHistory(long tenantId, string templateName) =>
+    private static FgsEmailHistory CreateEmailHistory(long tenantId, string subject) =>
         new()
         {
-            Id = Guid.NewGuid(),
             TenantId = tenantId,
-            Channel = NotificationChannel.Email,
-            TemplateName = templateName,
-            Status = NotificationDeliveryStatus.Pending,
+            CompanyId = 1,
+            RecordType = "USER",
+            RecordId = 1,
+            Status = NotificationStatus.Queued,
+            SourceApplication = NotificationSourceApplication.Api,
+            Subject = subject,
+            FromEmailAddress = "noreply@fgs.local",
+            ToEmailAddresses = "[\"a@b.com\"]",
+            Body = "body",
             CreatedOn = DateTimeOffset.UtcNow
         };
 

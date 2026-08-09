@@ -33,8 +33,13 @@ public sealed class EntraExternalIdOptions
     public string AuthorizeEndpoint { get; set; } = string.Empty;
 
     /// <summary>
-    /// Sign-up/sign-in user flow name. Passed as the <c>p</c> query parameter on the authorize request.
+    /// Sign-up/sign-in user flow name (email OTP / code). Passed as the <c>p</c> query parameter.
     /// </summary>
     public string UserFlow { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Password-based sign-up/sign-in user flow name. Used when the user prefers password auth.
+    /// </summary>
+    public string PasswordUserFlow { get; set; } = string.Empty;
 }
 

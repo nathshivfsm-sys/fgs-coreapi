@@ -23,7 +23,7 @@ public sealed class LookupUniversalMatrixOneTimeFeesQueryHandler(
             tenantScope.TenantId,
             tenantScope.CompanyId,
             "universalmatrixonetimefee",
-            $"{CacheKeys.LookupSegment(request.ActiveOnly)}:universalPricingServiceId={request.UniversalPricingServiceId?.ToString() ?? "all"}");
+            $"{CacheKeys.LookupSegment(request.ActiveOnly)}:ups:{request.UniversalPricingServiceId}");
 
         var result = await cache.GetOrSetAsync(
             cacheKey,

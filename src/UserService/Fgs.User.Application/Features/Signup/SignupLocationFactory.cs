@@ -1,5 +1,4 @@
-using Fgs.User.Application.Features.Signup.DTOs;
-
+using Fgs.Contracts.Signup;
 using Fgs.User.Domain.Entities;
 
 namespace Fgs.User.Application.Features.Signup;

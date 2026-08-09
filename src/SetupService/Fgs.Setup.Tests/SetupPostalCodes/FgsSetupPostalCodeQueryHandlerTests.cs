@@ -16,7 +16,7 @@ public sealed class FgsSetupPostalCodeQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new FgsSetupPostalCodeDetailDto(1, "PostalCode value", null, null, true);
+        var detail = new FgsSetupPostalCodeDetailDto(1, "PostalCode value", "US", "TX", "Austin", 0m, null, null, true);
 
         var readRepository = new Mock<IFgsSetupPostalCodeReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);

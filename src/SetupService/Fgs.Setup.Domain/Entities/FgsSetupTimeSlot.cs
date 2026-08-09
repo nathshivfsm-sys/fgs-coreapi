@@ -19,4 +19,8 @@ public class FgsSetupTimeSlot : FgsTenantCompanySetupEntityBase<long>
     public bool IsMobileVisible { get; set; } = true;
 
     public bool IsCustomerPortalVisible { get; set; } = true;
+
+    public bool IncludeInCapacityPlanning { get; set; }
+
+    public bool ShowToExternalSystem { get; set; }
 }

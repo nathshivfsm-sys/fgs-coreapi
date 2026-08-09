@@ -42,5 +42,5 @@ public sealed record FgsUniversalMatrixFrequencyDiscountPatchDto(
     bool? IsActive);
 
 public sealed record FgsUniversalMatrixFrequencyDiscountListFilters(
-    string? Name = null,
-    long? UniversalPricingServiceId = null);
+    long? UniversalPricingServiceId = null,
+    string? Name = null);

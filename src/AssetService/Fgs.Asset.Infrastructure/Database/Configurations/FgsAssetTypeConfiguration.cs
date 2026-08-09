@@ -10,7 +10,7 @@ internal sealed class FgsAssetTypeConfiguration : IEntityTypeConfiguration<FgsAs
     public void Configure(EntityTypeBuilder<FgsAssetType> entity)
     {
         entity.ToTable(
-            "assettype",
+            "FgsAssetType",
             t =>
             {
                 t.HasComment("Defines equipment classifications used by service assets.");

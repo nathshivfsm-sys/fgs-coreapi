@@ -39,10 +39,10 @@ public sealed class EntraLoginCallbackCommandHandler(
         {
             entraUser = await entraService.ExchangeCodeAsync(request.Code, redirectUri, cancellationToken);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             return ApiResponse<EntraLoginCallbackResultDto>.Fail(
-                [AuthErrorMessages.EntraCodeExchangeFailed],
+                [$"{AuthErrorMessages.EntraCodeExchangeFailed} {ex.Message}"],
                 ApiStatusCodes.Unauthorized);
         }
 

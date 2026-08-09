@@ -1,10 +1,12 @@
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.Notification.Domain.Notifications;
 using Fgs.Notification.Application.Notifications.Channels;
 using Fgs.Notification.Application.Notifications.Channels.Models;
 using Fgs.Notification.Application.Notifications.History;
 using Fgs.Notification.Application.Notifications.Providers;
 using Fgs.Notification.Application.Notifications.Templates;
-using Fgs.Contracts.IntegrationEvents;
+using Fgs.Notification.Domain.Entities;
+using Fgs.Notification.Domain.Enums;
 using Fgs.Notification.Infrastructure.Notifications.Channels;
 using FluentAssertions;
 using Moq;
@@ -25,13 +27,15 @@ public sealed class NotificationDispatcherTests
         factory.Setup(f => f.ResolveEmailProvider(It.IsAny<long>())).Returns(emailProvider.Object);
 
         var history = new Mock<INotificationHistoryRepository>();
-        history.Setup(h => h.AddAsync(It.IsAny<Domain.Entities.FgsNotificationHistory>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-        history.Setup(h => h.UpdateStatusAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<NotificationDeliveryStatus>(),
+        history.Setup(h => h.AddEmailAsync(It.IsAny<FgsEmailHistory>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1L);
+        history.Setup(h => h.UpdateEmailStatusAsync(
+                It.IsAny<long>(),
+                It.IsAny<NotificationStatus>(),
                 It.IsAny<string?>(),
                 It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset?>(),
                 It.IsAny<DateTimeOffset?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -58,9 +62,9 @@ public sealed class NotificationDispatcherTests
                 tenantId,
                 CompanyId: null,
                 NotificationChannel.Email,
-                "USER_INVITED",
+                CommunicationTemplateCodes.UserInvitation,
                 "user@example.com",
-                new Dictionary<string, string> { ["DisplayName"] = "Test" },
+                new Dictionary<string, string> { ["UserName"] = "Test" },
                 "corr-1",
                 "msg-id-1"));
 
@@ -70,5 +74,6 @@ public sealed class NotificationDispatcherTests
                 It.Is<EmailNotificationMessage>(m => m.ToAddress == "user@example.com" && m.TenantId == tenantId),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+        history.Verify(h => h.AddEmailAsync(It.IsAny<FgsEmailHistory>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

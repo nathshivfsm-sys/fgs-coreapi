@@ -4,6 +4,7 @@ using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Configuration;
 using Fgs.Credentials.Http;
 using Fgs.Credentials.Options;
+using Fgs.Credentials.Redis;
 using Fgs.Foundation.Extensions;
 using Fgs.Security.Extensions;
 using Fgs.Security.UserAuth;
@@ -27,7 +28,11 @@ public static class CredentialServiceCollectionExtensions
                 options =>
                 {
                     options.ServiceName = serviceName;
-                    options.RequiredProviders = requiredProviders;
+                    // JWT bearer is registered via AddFgsApiSecurity for all standard API hosts.
+                    options.RequiredProviders = requiredProviders
+                        .Append("ENTRA_EXTERNAL_ID")
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToArray();
                 })
             .AddFgsApiSecurity(configuration)
             .AddFgsUserAuthProfileClient(configuration);
@@ -94,6 +99,8 @@ public static class CredentialServiceCollectionExtensions
         services.AddSingleton<CredentialOptionsChangeNotifier>();
         services.AddSingleton<RemoteCredentialConfigurationLoader>();
         services.AddSingleton<ICredentialConfigurationProvider, CredentialConfigurationProvider>();
+        services.TryAddSingleton<ICredentialSnapshotRedisCache, CredentialSnapshotRedisCache>();
+        services.AddHostedService<CredentialSnapshotReloadHostedService>();
 
         configurationBuilder.Add(new CredentialApplicationConfigurationSource(holder));
 

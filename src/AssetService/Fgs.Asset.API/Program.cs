@@ -20,7 +20,7 @@ builder.Services.AddFgsAssetApplication();
 builder.Services.AddFgsAssetInfrastructure(builder.Configuration);
 await builder.LoadFgsRemoteCredentialsAsync();
 builder.Services.AddFgsRedisCache(builder.Configuration);
-builder.Services.AddFgsObservability(builder.Configuration, hostOptions.ServiceName);
+builder.AddFgsObservability(hostOptions.ServiceName);
 
 var app = builder.Build();
 app.UseFgsApiHost(hostOptions);

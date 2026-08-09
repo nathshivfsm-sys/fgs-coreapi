@@ -31,10 +31,7 @@ public sealed class JobTypeCategoryWriteService : IJobTypeCategoryWriteService
     {
         var entity = new FgsJobTypeCategory
         {
-            CategoryCode = NormalizeCode(dto.CategoryCode),
-            Name = dto.Name.Trim(),
-            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
-            DisplayOrder = dto.DisplayOrder ?? 1
+            JobTypeId = dto.JobTypeId, JobCategoryId = dto.JobCategoryId, DisplayOrder = dto.DisplayOrder ?? 1
         };
 
         _auditHelper.StampForCreate(entity);
@@ -52,9 +49,8 @@ public sealed class JobTypeCategoryWriteService : IJobTypeCategoryWriteService
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Job Type Category '{id}' was not found.");
 
-        entity.CategoryCode = NormalizeCode(dto.CategoryCode);
-        entity.Name = dto.Name.Trim();
-        entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
+        entity.JobTypeId = dto.JobTypeId;
+        entity.JobCategoryId = dto.JobCategoryId;
         entity.DisplayOrder = dto.DisplayOrder ?? entity.DisplayOrder;
 
         _auditHelper.StampForUpdate(entity);
@@ -71,17 +67,13 @@ public sealed class JobTypeCategoryWriteService : IJobTypeCategoryWriteService
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Job Type Category '{id}' was not found.");
 
-        if (dto.CategoryCode is not null)
+        if (dto.JobTypeId.HasValue)
         {
-            entity.CategoryCode = NormalizeCode(dto.CategoryCode); ;
+            entity.JobTypeId = dto.JobTypeId.Value;
         }
-        if (dto.Name is not null)
+        if (dto.JobCategoryId.HasValue)
         {
-            entity.Name = dto.Name.Trim(); ;
-        }
-        if (dto.Description is not null)
-        {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
+            entity.JobCategoryId = dto.JobCategoryId.Value;
         }
         if (dto.DisplayOrder.HasValue)
         {
@@ -125,7 +117,7 @@ public sealed class JobTypeCategoryWriteService : IJobTypeCategoryWriteService
         }
         catch (DbUpdateException ex) when (IsUniqueViolation(ex))
         {
-            throw new InvalidOperationException("A job type category with the same code already exists.", ex);
+            throw new InvalidOperationException("A job type category with the same type and name already exists.", ex);
         }
     }
 
@@ -139,9 +131,8 @@ public sealed class JobTypeCategoryWriteService : IJobTypeCategoryWriteService
     private static JobTypeCategoryDetailDto MapToDetail(FgsJobTypeCategory entity) =>
         new(
             entity.Id,
-            entity.CategoryCode,
-            entity.Name,
-            entity.Description,
+            entity.JobTypeId,
+            entity.JobCategoryId,
             entity.DisplayOrder,
             entity.IsActive);
 }

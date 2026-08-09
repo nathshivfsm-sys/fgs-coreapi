@@ -8,6 +8,12 @@ public static class SeedTransformationTypes
     public const string CurrentTimestamp = "CURRENT_TIMESTAMP";
     public const string SeedCreatedBy = "SEED_CREATED_BY";
 
+    /// <summary>
+    /// Marker for parent-FK remap via join. Not executed by <c>TenantSeedSqlBuilder</c>;
+    /// handled by joined-child soft paths in <c>TenantDataSeedingEngine</c>.
+    /// </summary>
+    public const string JoinedParent = "JOINED_PARENT";
+
     public const string SeedCreatedByValue = "Data Seed";
 
     public static class TargetColumns
@@ -62,5 +68,8 @@ public static class SeedTransformationTypes
 
         public const string NoColumnMappingsFormat =
             "Seed mapping {0} has no active column mappings.";
+
+        public const string JoinedParentHandledBySoftPathFormat =
+            "Seed mapping {0} uses JOINED_PARENT and is handled by the joined-child soft path.";
     }
 }

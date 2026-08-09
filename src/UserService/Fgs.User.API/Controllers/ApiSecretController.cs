@@ -10,6 +10,8 @@ using Fgs.User.Application.Features.ApiSecrets.Dtos;
 using Fgs.User.Application.Features.ApiSecrets.Queries.GetFgsApiSecretById;
 using Fgs.User.Application.Features.ApiSecrets.Queries.ListFgsApiSecrets;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.User.API.Controllers;
@@ -45,6 +47,7 @@ public sealed class ApiSecretController(IMediator mediator) : FgsApiControllerBa
                 new FgsApiSecretListFilters(fgsApiClientId)),
             cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsApiSecretCreateResultDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -55,6 +58,7 @@ public sealed class ApiSecretController(IMediator mediator) : FgsApiControllerBa
         CancellationToken cancellationToken) =>
         CreatedFromApiResponse(await Mediator.Send(new CreateFgsApiSecretCommand(request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsApiSecretDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -65,6 +69,7 @@ public sealed class ApiSecretController(IMediator mediator) : FgsApiControllerBa
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new PatchFgsApiSecretCommand(id, request), cancellationToken));
 
+    [RequirePermission(FgsPermissionCodes.UserCreate)]
     [HttpPost("{id:long}/revoke")]
     [ProducesResponseType(typeof(ApiResponse<FgsApiSecretDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

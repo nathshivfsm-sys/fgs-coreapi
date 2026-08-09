@@ -62,19 +62,19 @@ internal sealed class FgsUniversalMatrixAddOnReadRepository : IFgsUniversalMatri
             where.Add("\"IsActive\" = @IsActive");
         }
 
-        if (!string.IsNullOrWhiteSpace(filters.Name))
-        {
-            where.Add("\"Name\" ILIKE @Name");
-        }
         if (filters.UniversalPricingServiceId.HasValue)
         {
             where.Add("\"UniversalPricingServiceId\" = @UniversalPricingServiceId");
         }
 
+        if (!string.IsNullOrWhiteSpace(filters.Name))
+        {
+            where.Add("\"Name\" ILIKE @Name");
+        }
+
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
-            where.Add(
-                "(\"Name\" ILIKE @Search OR \"UnitType\" ILIKE @Search)");
+            where.Add("(\"Name\" ILIKE @Search)");
         }
 
         var whereClause = string.Join(" AND ", where);
@@ -97,8 +97,8 @@ internal sealed class FgsUniversalMatrixAddOnReadRepository : IFgsUniversalMatri
             TenantId = tenantId,
             CompanyId = companyId,
             IsActive = paging.IsActive,
-            Name = string.IsNullOrWhiteSpace(filters.Name) ? null : $"%{filters.Name.Trim()}%",
             UniversalPricingServiceId = filters.UniversalPricingServiceId,
+            Name = string.IsNullOrWhiteSpace(filters.Name) ? null : $"%{filters.Name.Trim()}%",
             Search = string.IsNullOrWhiteSpace(paging.Search) ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
             Offset = offset
@@ -125,7 +125,7 @@ internal sealed class FgsUniversalMatrixAddOnReadRepository : IFgsUniversalMatri
     {
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var activeFilter = activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty;
-        var universalPricingServiceFilter = universalPricingServiceId.HasValue
+        var parentFilter = universalPricingServiceId.HasValue
             ? "AND \"UniversalPricingServiceId\" = @UniversalPricingServiceId"
             : string.Empty;
         var sql = $"""
@@ -134,7 +134,7 @@ internal sealed class FgsUniversalMatrixAddOnReadRepository : IFgsUniversalMatri
             WHERE "TenantId" = @TenantId
               AND "CompanyId" = @CompanyId
               {activeFilter}
-              {universalPricingServiceFilter}
+              {parentFilter}
             ORDER BY "DisplayOrder" ASC NULLS LAST, "Name" ASC
             """;
 
@@ -148,8 +148,30 @@ internal sealed class FgsUniversalMatrixAddOnReadRepository : IFgsUniversalMatri
         return rows.Select(r => r.ToDto()).ToList();
     }
 
-    public async Task<bool> ExistsByUniversalPricingServiceIdAndNameAsync(
-        long universalPricingServiceId, string name,
+    public async Task<bool> ExistsUniversalPricingServiceIdAsync(
+        long id,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {FgsUniversalMatrixAddOnSql.ParentTable}
+                WHERE "TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE
+            )
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, CompanyId = companyId, Id = id },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task<bool> ExistsByNameAsync(
+        long universalPricingServiceId,
+        string name,
         long? excludeId = null,
         CancellationToken cancellationToken = default)
     {
@@ -160,7 +182,8 @@ internal sealed class FgsUniversalMatrixAddOnReadRepository : IFgsUniversalMatri
                 FROM {FgsUniversalMatrixAddOnSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
-                  AND "UniversalPricingServiceId" = @UniversalPricingServiceId AND "Name" = @Name
+                  AND "UniversalPricingServiceId" = @UniversalPricingServiceId
+                  AND "Name" = @Name
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )
             """;
@@ -177,26 +200,6 @@ internal sealed class FgsUniversalMatrixAddOnReadRepository : IFgsUniversalMatri
                     Name = name.Trim(),
                     ExcludeId = excludeId
                 },
-                cancellationToken: cancellationToken));
-    }
-    public async Task<bool> ExistsUniversalPricingServiceIdAsync(
-        long id,
-        CancellationToken cancellationToken = default)
-    {
-        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
-        var sql = $"""
-            SELECT EXISTS(
-                SELECT 1
-                FROM setup."FgsUniversalPricingService"
-                WHERE "TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE
-            )
-            """;
-
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        return await connection.ExecuteScalarAsync<bool>(
-            new CommandDefinition(
-                sql,
-                new { TenantId = tenantId, CompanyId = companyId, Id = id },
                 cancellationToken: cancellationToken));
     }
 }

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.UniversalPricingServices.Commands.PatchFgsUniversalPricingService;
 
 public sealed class PatchFgsUniversalPricingServiceCommandHandler(
-    IFgsUniversalPricingServiceWriteRepository writeRepository,
+    IFgsUniversalPricingServiceWriteService writeRepository,
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<PatchFgsUniversalPricingServiceCommandHandler> logger)

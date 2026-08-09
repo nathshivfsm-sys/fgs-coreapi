@@ -1,3 +1,5 @@
+using Fgs.Inventory.Domain.Enums;
+using Fgs.Inventory.Infrastructure.Database.Schemas;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -15,10 +17,16 @@ public sealed class FgsInventoryDbContextDesignFactory : IDesignTimeDbContextFac
 
         var options = new DbContextOptionsBuilder<FgsInventoryDbContext>()
             .UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsInventoryDbContext.MigrationHistorySchema))
+            {
+                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsInventoryDbContext.MigrationHistorySchema);
+                npgsql.MapEnum<FgsInventorySerialStatus>(
+                    "FgsInventorySerialStatus",
+                    FgsDatabaseSchemas.Inventory,
+                    nameTranslator: new Npgsql.NameTranslation.NpgsqlNullNameTranslator());
+            })
             .Options;
 
-        return new FgsInventoryDbContext(options);
+        return new FgsInventoryDbContext(options, new Fgs.MultiTenancy.Persistence.DesignTimeTenantContextAccessor());
     }
 
     private static string? TryLoadConnectionStringFromApiAppsettings()

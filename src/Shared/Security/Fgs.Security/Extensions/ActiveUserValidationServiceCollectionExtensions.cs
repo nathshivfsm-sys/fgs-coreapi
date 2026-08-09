@@ -41,7 +41,4 @@ public static class ActiveUserValidationServiceCollectionExtensions
             ServiceDescriptor.Singleton<IConfigureOptions<FgsApiHostOptions>, ConfigureActiveUserValidationHostOptions>());
         return services;
     }
-
-    public static IApplicationBuilder UseFgsActiveUserValidation(this IApplicationBuilder app) =>
-        app.UseMiddleware<ActiveUserAuthorizationMiddleware>();
 }

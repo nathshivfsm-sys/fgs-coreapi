@@ -6,17 +6,19 @@ using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.UniversalMatrixOneTimeFees.Commands.CreateFgsUniversalMatrixOneTimeFee;
 using Fgs.Setup.Application.Features.UniversalMatrixOneTimeFees.Commands.PatchFgsUniversalMatrixOneTimeFee;
 using Fgs.Setup.Application.Features.UniversalMatrixOneTimeFees.Commands.UpdateFgsUniversalMatrixOneTimeFee;
+using Fgs.Setup.Application.Features.UniversalMatrixOneTimeFees.Dtos;
 using Fgs.Setup.Application.Features.UniversalMatrixOneTimeFees.Queries.GetFgsUniversalMatrixOneTimeFeeById;
 using Fgs.Setup.Application.Features.UniversalMatrixOneTimeFees.Queries.ListUniversalMatrixOneTimeFees;
 using Fgs.Setup.Application.Features.UniversalMatrixOneTimeFees.Queries.LookupUniversalMatrixOneTimeFees;
-using Fgs.Setup.Application.Features.UniversalMatrixOneTimeFees.Dtos;
 using MediatR;
+using Fgs.Security.Authorization;
+using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fgs.Setup.API.Controllers;
 
 /// <summary>
-/// Tenant-scoped universal matrix one-time fee catalog management.
+/// Tenant-scoped universal matrix one-time fee management.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("universalmatrixonetimefee")]
@@ -41,14 +43,14 @@ public sealed class UniversalMatrixOneTimeFeeController(IMediator mediator) : Co
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
         [FromQuery] bool? isActive = null,
-        [FromQuery] string? name = null,
         [FromQuery] long? universalPricingServiceId = null,
+        [FromQuery] string? name = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListUniversalMatrixOneTimeFeesQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new FgsUniversalMatrixOneTimeFeeListFilters(name, universalPricingServiceId)),
+                new FgsUniversalMatrixOneTimeFeeListFilters(universalPricingServiceId, name)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);
@@ -61,10 +63,13 @@ public sealed class UniversalMatrixOneTimeFeeController(IMediator mediator) : Co
         [FromQuery] long? universalPricingServiceId = null,
         CancellationToken cancellationToken = default)
     {
-        var response = await mediator.Send(new LookupUniversalMatrixOneTimeFeesQuery(activeOnly, universalPricingServiceId), cancellationToken);
+        var response = await mediator.Send(
+            new LookupUniversalMatrixOneTimeFeesQuery(activeOnly, universalPricingServiceId),
+            cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupCreate)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FgsUniversalMatrixOneTimeFeeDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -77,6 +82,7 @@ public sealed class UniversalMatrixOneTimeFeeController(IMediator mediator) : Co
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsUniversalMatrixOneTimeFeeDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -90,6 +96,7 @@ public sealed class UniversalMatrixOneTimeFeeController(IMediator mediator) : Co
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupEdit)]
     [HttpPatch("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<FgsUniversalMatrixOneTimeFeeDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

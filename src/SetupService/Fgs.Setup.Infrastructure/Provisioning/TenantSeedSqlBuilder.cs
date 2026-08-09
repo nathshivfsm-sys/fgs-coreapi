@@ -39,6 +39,7 @@ internal static class TenantSeedSqlBuilder
             INSERT INTO {qualifiedTarget} ({targetColumns})
             SELECT {selectExpressions}
             FROM {qualifiedSource}{whereClause}
+            ON CONFLICT DO NOTHING
             """;
     }
 

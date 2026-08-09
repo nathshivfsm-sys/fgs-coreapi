@@ -47,9 +47,9 @@ public sealed class RequestResponseLoggingMiddleware
 
         sw.Stop();
         _logger.LogInformation(
-            "HTTP {Method} {Path} completed {StatusCode} in {ElapsedMs}ms (CorrelationId={CorrelationId})",
+            "HTTP {Method} {RequestPath} completed {StatusCode} in {Duration}ms (CorrelationId={CorrelationId})",
             context.Request.Method,
-            context.Request.Path,
+            context.Request.Path.Value,
             context.Response.StatusCode,
             sw.ElapsedMilliseconds,
             correlationId);

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Commands.PatchFgsUniversalMatrixSizeTier;
 
 public sealed class PatchFgsUniversalMatrixSizeTierCommandHandler(
-    IFgsUniversalMatrixSizeTierWriteRepository writeRepository,
+    IFgsUniversalMatrixSizeTierWriteService writeService,
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<PatchFgsUniversalMatrixSizeTierCommandHandler> logger)
@@ -20,12 +20,12 @@ public sealed class PatchFgsUniversalMatrixSizeTierCommandHandler(
         PatchFgsUniversalMatrixSizeTierCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await writeRepository.PatchAsync(request.Id, request.Dto, cancellationToken);
-        logger.LogInformation("Patchd universal matrix size tier {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current!;
-            await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixsizetier"),
-                cancellationToken);
+        var result = await writeService.PatchAsync(request.Id, request.Dto, cancellationToken);
+        logger.LogInformation("Patched universal matrix size tier {Id}", result.Id);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixsizetier"),
+            cancellationToken);
         return ApiResponse<FgsUniversalMatrixSizeTierDetailDto>.Ok(result);
     }
 }

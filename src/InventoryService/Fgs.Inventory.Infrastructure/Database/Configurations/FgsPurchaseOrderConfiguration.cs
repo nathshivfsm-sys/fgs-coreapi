@@ -99,5 +99,11 @@ internal sealed class FgsPurchaseOrderConfiguration : IEntityTypeConfiguration<F
             .HasDatabaseName("IX_FgsPurchaseOrder_TenantId_CompanyId_PurchaseOrderDate");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.BuyerEmployeeId })
             .HasDatabaseName("IX_FgsPurchaseOrder_TenantId_CompanyId_BuyerEmployeeId");
+
+        entity.HasMany(e => e.Details)
+            .WithOne(e => e.PurchaseOrder)
+            .HasForeignKey(e => e.PurchaseOrderId)
+            .HasConstraintName("FK_FgsPurchaseOrderDetail_FgsPurchaseOrder")
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

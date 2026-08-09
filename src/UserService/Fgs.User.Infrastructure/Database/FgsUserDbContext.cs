@@ -21,6 +21,7 @@ public class FgsUserDbContext : FgsTenantFilteredDbContext
     public DbSet<FgsTenant> FgsTenants => Set<FgsTenant>();
     public DbSet<FgsTenantCompany> FgsTenantCompanies => Set<FgsTenantCompany>();
     public DbSet<FgsTenantServiceSetup> FgsTenantServiceSetups => Set<FgsTenantServiceSetup>();
+    public DbSet<FgsTenantServiceAccountsSetup> FgsTenantServiceAccountsSetups => Set<FgsTenantServiceAccountsSetup>();
     public DbSet<FgsLocation> FgsLocations => Set<FgsLocation>();
     public DbSet<FgsUser> FgsUsers => Set<FgsUser>();
     public DbSet<FgsUserRole> FgsUserRoles => Set<FgsUserRole>();

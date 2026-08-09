@@ -1,0 +1,25 @@
+using Fgs.Contracts.Api;
+using Fgs.Foundation.Caching;
+using Fgs.Foundation.Caching.Abstractions;
+using Fgs.MultiTenancy;
+using Fgs.Setup.Application.Abstractions.SetupPricingMatrixLabors;
+using Fgs.Setup.Application.Features.SetupPricingMatrixLabors.Dtos;
+using MediatR;
+using Microsoft.Extensions.Logging;
+
+namespace Fgs.Setup.Application.Features.SetupPricingMatrixLabors.Commands.CreateFgsSetupPricingMatrixLabor;
+
+public sealed class CreateFgsSetupPricingMatrixLaborCommandHandler(
+    IFgsSetupPricingMatrixLaborWriteService writeService, ICacheService cache, ITenantContextAccessor tenantContextAccessor,
+    ILogger<CreateFgsSetupPricingMatrixLaborCommandHandler> logger)
+    : IRequestHandler<CreateFgsSetupPricingMatrixLaborCommand, ApiResponse<FgsSetupPricingMatrixLaborDetailDto>>
+{
+    public async Task<ApiResponse<FgsSetupPricingMatrixLaborDetailDto>> Handle(CreateFgsSetupPricingMatrixLaborCommand request, CancellationToken cancellationToken)
+    {
+        var result = await writeService.CreateAsync(request.Dto, cancellationToken);
+        logger.LogInformation("Created Pricing Matrix Labor {Id}", result.Id);
+        var scope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(CacheKeys.EntityPrefix(scope.TenantId, scope.CompanyId, "pricingmatrixlabor"), cancellationToken);
+        return ApiResponse<FgsSetupPricingMatrixLaborDetailDto>.Ok(result, ApiStatusCodes.Created);
+    }
+}

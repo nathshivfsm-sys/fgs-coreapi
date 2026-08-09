@@ -232,21 +232,6 @@ public sealed class FgsVendorWriteService : IFgsVendorWriteService
         return MapToDetail(entity);
     }
 
-    public async Task<FgsVendorDetailDto> DeleteAsync(long id, CancellationToken cancellationToken = default)
-    {
-        var entity = await FindEntityAsync(id, cancellationToken)
-            ?? throw new KeyNotFoundException($"Vendor '{id}' was not found.");
-
-        if (entity.IsActive)
-        {
-            entity.IsActive = false;
-            _auditHelper.StampForUpdate(entity);
-            await SaveChangesAsync(cancellationToken);
-        }
-
-        return MapToDetail(entity);
-    }
-
     private async Task<FgsVendor?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
         await _context.FgsVendors.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 

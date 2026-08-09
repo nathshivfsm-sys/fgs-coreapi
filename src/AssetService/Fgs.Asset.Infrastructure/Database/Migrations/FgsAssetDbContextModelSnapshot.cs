@@ -108,6 +108,12 @@ namespace Fgs.Asset.Infrastructure.Database.Migrations
                         .HasDefaultValue(false)
                         .HasComment("Indicates whether the asset was installed by the service company.");
 
+                    b.Property<bool>("IsOurInstallation")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the asset was originally installed by the company. TRUE if installed by this company; FALSE if installed by another contractor or the customer.");
+
                     b.Property<DateOnly?>("ManufactureDate")
                         .HasColumnType("date")
                         .HasComment("Date the equipment was manufactured.");
@@ -127,14 +133,19 @@ namespace Fgs.Asset.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(200)")
                         .HasComment("Equipment serial number.");
 
-                    b.Property<long>("ServiceLocationId")
+                    b.Property<long?>("ServiceLocationId")
                         .HasColumnType("bigint")
-                        .HasComment("Service location where the asset is installed.");
+                        .HasComment("Optional service location where the asset is installed.");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
                         .HasColumnOrder(1)
                         .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UnitNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Apartment, suite, unit, condo, office, bay, or other sub-location identifier within the service location where the asset is installed. Examples: Apt 1205, Suite 400, Unit 8B, Bay 12.");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(200)
@@ -425,6 +436,100 @@ namespace Fgs.Asset.Infrastructure.Database.Migrations
                             t.HasComment("Stores selectable dropdown values for asset attributes.");
 
                             t.HasCheckConstraint("CK_FgsAssetAttributeOption_OptionCode_Upper", "\"OptionCode\" = upper(\"OptionCode\")");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Asset.Domain.Entities.FgsAssetAttributeValue", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Unique asset attribute value identifier.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AssetAttributeId")
+                        .HasColumnType("bigint")
+                        .HasComment("Asset attribute definition that this value corresponds to.");
+
+                    b.Property<long>("AssetId")
+                        .HasColumnType("bigint")
+                        .HasComment("Asset that this attribute value is assigned to.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("User who created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the record was created.");
+
+                    b.Property<long?>("OptionId")
+                        .HasColumnType("bigint")
+                        .HasComment("Selected dropdown option when the attribute's input type is DROPDOWN.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("User who last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the record was last updated.");
+
+                    b.Property<bool?>("ValueBoolean")
+                        .HasColumnType("boolean")
+                        .HasComment("Boolean value when the attribute's input type is BOOLEAN.");
+
+                    b.Property<DateOnly?>("ValueDate")
+                        .HasColumnType("date")
+                        .HasComment("Date value when the attribute's input type is DATE.");
+
+                    b.Property<decimal?>("ValueDecimal")
+                        .HasColumnType("numeric(18,4)")
+                        .HasComment("Decimal value when the attribute's input type is DECIMAL.");
+
+                    b.Property<int?>("ValueInteger")
+                        .HasColumnType("integer")
+                        .HasComment("Integer value when the attribute's input type is INTEGER.");
+
+                    b.Property<string>("ValueText")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Text value when the attribute's input type is TEXT or TEXTAREA.");
+
+                    b.HasKey("Id")
+                        .HasName("PK_FgsAssetAttributeValue");
+
+                    b.HasIndex("AssetAttributeId")
+                        .HasDatabaseName("IX_FgsAssetAttributeValue_AssetAttributeId");
+
+                    b.HasIndex("AssetId")
+                        .HasDatabaseName("IX_FgsAssetAttributeValue_AssetId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsAssetAttributeValue_TenantCompany");
+
+                    b.HasIndex("TenantId", "CompanyId", "AssetId", "AssetAttributeId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_FgsAssetAttributeValue_AssetAttribute");
+
+                    b.ToTable("FgsAssetAttributeValue", "asset", t =>
+                        {
+                            t.HasComment("Stores the values of custom attributes for individual assets. Each record contains the value of one attribute assigned to one asset.");
                         });
                 });
 
@@ -1023,7 +1128,6 @@ namespace Fgs.Asset.Infrastructure.Database.Migrations
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId", "ServiceLocationId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
                         .HasConstraintName("FK_FgsAsset_ServiceLocationCache");
                 });
 
@@ -1059,6 +1163,30 @@ namespace Fgs.Asset.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsAssetAttributeOption_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Asset.Domain.Entities.FgsAssetAttributeValue", b =>
+                {
+                    b.HasOne("Fgs.Asset.Domain.Entities.FgsAssetAttribute", null)
+                        .WithMany()
+                        .HasForeignKey("AssetAttributeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsAssetAttributeValue_Attribute");
+
+                    b.HasOne("Fgs.Asset.Domain.Entities.FgsAsset", null)
+                        .WithMany()
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsAssetAttributeValue_Asset");
+
+                    b.HasOne("Fgs.Asset.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsAssetAttributeValue_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Asset.Domain.Entities.FgsAssetManufacturer", b =>

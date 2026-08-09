@@ -9,6 +9,4 @@ public interface IFgsVendorWriteService
     Task<FgsVendorDetailDto> UpdateAsync(long id, FgsVendorUpdateDto dto, CancellationToken cancellationToken = default);
 
     Task<FgsVendorDetailDto> PatchAsync(long id, FgsVendorPatchDto dto, CancellationToken cancellationToken = default);
-
-    Task<FgsVendorDetailDto> DeleteAsync(long id, CancellationToken cancellationToken = default);
 }

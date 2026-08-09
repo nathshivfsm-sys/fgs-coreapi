@@ -1,7 +1,11 @@
 using Fgs.Kernel.Entities;
+using Fgs.Notification.Domain.Enums;
 
 namespace Fgs.Notification.Domain.Entities;
 
+/// <summary>
+/// Stores outbound email history for business entities and provides a permanent audit trail of email communications.
+/// </summary>
 public class FgsEmailHistory : ITenantCompanyScoped
 {
     public long Id { get; set; }
@@ -10,11 +14,15 @@ public class FgsEmailHistory : ITenantCompanyScoped
 
     public long CompanyId { get; set; }
 
-    public string EntityType { get; set; } = null!;
+    public string RecordType { get; set; } = null!;
 
-    public long EntityId { get; set; }
+    public long RecordId { get; set; }
 
     public long? EmailTemplateId { get; set; }
+
+    public NotificationStatus Status { get; set; } = NotificationStatus.Queued;
+
+    public NotificationSourceApplication SourceApplication { get; set; }
 
     public string Subject { get; set; } = null!;
 
@@ -28,21 +36,23 @@ public class FgsEmailHistory : ITenantCompanyScoped
 
     public string? BccEmailAddresses { get; set; }
 
-    public string? BodyHtml { get; set; }
+    public string Body { get; set; } = null!;
 
-    public string? BodyText { get; set; }
-
-    public bool HasAttachments { get; set; }
-
-    public string Status { get; set; } = null!;
-
-    public DateTimeOffset? SentOn { get; set; }
-
-    public string? FailureReason { get; set; }
+    public string? ProviderName { get; set; }
 
     public string? ProviderMessageId { get; set; }
 
+    public DateTimeOffset? SentOn { get; set; }
+
+    public DateTimeOffset? DeliveredOn { get; set; }
+
+    public DateTimeOffset? OpenedOn { get; set; }
+
+    public DateTimeOffset? FailedOn { get; set; }
+
+    public string? FailureReason { get; set; }
+
     public DateTimeOffset CreatedOn { get; set; }
 
-    public string? CreatedBy { get; set; }
+    public long? CreatedBy { get; set; }
 }

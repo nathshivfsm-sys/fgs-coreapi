@@ -12,6 +12,10 @@ public static class ConfigurationKeys
         public const string RedirectUri = $"{Section}:RedirectUri";
 
         public const string LoginRedirectUri = $"{Section}:LoginRedirectUri";
+
+        public const string UserFlow = $"{Section}:UserFlow";
+
+        public const string PasswordUserFlow = $"{Section}:PasswordUserFlow";
     }
 
     public static class Application

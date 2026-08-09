@@ -6,4 +6,5 @@ public sealed record UserInvitedEvent(
     Guid UserId,
     string Email,
     string DisplayName,
-    string InviteUrl);
+    string InviteUrl,
+    string CompanyName);

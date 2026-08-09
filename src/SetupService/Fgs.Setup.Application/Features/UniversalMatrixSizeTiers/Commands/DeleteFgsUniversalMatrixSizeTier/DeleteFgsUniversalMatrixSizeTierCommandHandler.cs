@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.UniversalMatrixSizeTiers.Commands.DeleteFgsUniversalMatrixSizeTier;
 
 public sealed class DeleteFgsUniversalMatrixSizeTierCommandHandler(
-    IFgsUniversalMatrixSizeTierWriteRepository writeRepository,
+    IFgsUniversalMatrixSizeTierWriteService writeService,
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<DeleteFgsUniversalMatrixSizeTierCommandHandler> logger)
@@ -20,12 +20,12 @@ public sealed class DeleteFgsUniversalMatrixSizeTierCommandHandler(
         DeleteFgsUniversalMatrixSizeTierCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await writeRepository.DeleteAsync(request.Id, cancellationToken);
+        var result = await writeService.DeleteAsync(request.Id, cancellationToken);
         logger.LogInformation("Soft-deleted universal matrix size tier {Id}", result.Id);
-            var tenantScope = tenantContextAccessor.Current!;
-            await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixsizetier"),
-                cancellationToken);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixsizetier"),
+            cancellationToken);
         return ApiResponse<FgsUniversalMatrixSizeTierDetailDto>.Ok(result);
     }
 }

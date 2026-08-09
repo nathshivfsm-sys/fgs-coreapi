@@ -96,6 +96,24 @@ public sealed class TenantDataSeedingEngine(
                 continue;
             }
 
+            if (columns.Any(c =>
+                    string.Equals(
+                        c.TransformationType,
+                        SeedTransformationTypes.JoinedParent,
+                        StringComparison.OrdinalIgnoreCase)))
+            {
+                logger.LogInformation(
+                    "Seed mapping {SeedCode} uses JOINED_PARENT; skipping flat seed (handled by joined-child soft path)",
+                    mapping.SeedCode);
+                tableResults.Add(new TenantSeedTableResult(
+                    mapping.SeedCode,
+                    TenantSeedTableOutcome.Skipped,
+                    string.Format(
+                        SeedTransformationTypes.ErrorMessages.JoinedParentHandledBySoftPathFormat,
+                        mapping.SeedCode)));
+                continue;
+            }
+
             TenantSeedTableResult tableResult;
             try
             {
@@ -234,30 +252,13 @@ public sealed class TenantDataSeedingEngine(
             mapping.SourceDatabaseName,
             mapping.TargetDatabaseName);
 
-        var seedsTenantId = columns.Any(c =>
-            string.Equals(c.TargetColumnName, SeedTransformationTypes.TargetColumns.TenantId, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(c.TransformationType, SeedTransformationTypes.TenantId, StringComparison.Ordinal));
-
         await using var transaction = await targetConnection.BeginTransactionAsync(cancellationToken);
 
         try
         {
-            if (seedsTenantId
-                && await TargetAlreadySeededAsync(
-                    targetConnection,
-                    transaction,
-                    mapping.TargetSchemaName,
-                    mapping.TargetTableName,
-                    tenantId,
-                    cancellationToken))
-            {
-                await transaction.CommitAsync(cancellationToken);
-                return new TenantSeedTableResult(
-                    mapping.SeedCode,
-                    TenantSeedTableOutcome.Skipped,
-                    $"Target {validation.TargetDatabaseName}.{mapping.TargetSchemaName}.{mapping.TargetTableName} already has rows for tenant {tenantId}.");
-            }
-
+            // Do not skip when the target already has some tenant rows (e.g. signup creates
+            // TENANT_ADMIN before ALL_GloRole runs). Inserts use ON CONFLICT DO NOTHING so
+            // existing unique keys are left alone and missing catalog rows are still seeded.
             int inserted;
             if (isCrossDatabase)
             {
@@ -823,32 +824,6 @@ public sealed class TenantDataSeedingEngine(
                     tableResult.Message);
                 break;
         }
-    }
-
-    private static async Task<bool> TargetAlreadySeededAsync(
-        DbConnection connection,
-        DbTransaction transaction,
-        string targetSchema,
-        string targetTable,
-        long tenantId,
-        CancellationToken cancellationToken)
-    {
-        var qualifiedTarget = TenantSeedSqlBuilder.QualifyTable(targetSchema, targetTable);
-        var tenantColumn = TenantSeedSqlBuilder.QuoteIdentifier(SeedTransformationTypes.TargetColumns.TenantId);
-        var checkSql = $"""
-            SELECT EXISTS(
-                SELECT 1 FROM {qualifiedTarget}
-                WHERE {tenantColumn} = @{SeedTransformationTypes.SqlParameters.TenantId}
-                LIMIT 1
-            )
-            """;
-
-        await using var command = connection.CreateCommand();
-        command.Transaction = transaction;
-        command.CommandText = checkSql;
-        AddParameter(command, SeedTransformationTypes.SqlParameters.TenantId, tenantId);
-        var exists = Convert.ToBoolean(await command.ExecuteScalarAsync(cancellationToken) ?? false);
-        return exists;
     }
 
     private static async Task<string> GetCurrentDatabaseNameAsync(

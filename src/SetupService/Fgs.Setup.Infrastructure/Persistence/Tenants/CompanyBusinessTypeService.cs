@@ -1,6 +1,6 @@
 using Fgs.Contracts.Clients;
 using Fgs.Setup.Application.Abstractions.Tenants;
-using Fgs.Setup.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;

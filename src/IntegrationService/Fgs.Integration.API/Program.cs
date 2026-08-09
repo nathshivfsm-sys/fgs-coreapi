@@ -32,7 +32,7 @@ builder.Services.AddFgsIntegrationApplication();
 
 builder.Services.AddFgsIntegrationInfrastructure(builder.Configuration);
 
-builder.Services.AddFgsObservability(builder.Configuration, hostOptions.ServiceName);
+builder.AddFgsObservability(hostOptions.ServiceName);
 
 
 

@@ -1,19 +1,33 @@
 using Fgs.Crm.Domain.Entities;
+using Fgs.Crm.Domain.Enums;
 using Fgs.Crm.Infrastructure.Database.Configurations;
 using Fgs.Crm.Infrastructure.Database.Schemas;
+using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Crm.Infrastructure.Database;
 
-public sealed class FgsCrmDbContext(DbContextOptions<FgsCrmDbContext> options) : DbContext(options)
+public sealed class FgsCrmDbContext : FgsTenantFilteredDbContext
 {
     public const string MigrationHistorySchema = FgsDatabaseSchemas.MigrationHistory;
+
+    public FgsCrmDbContext(
+        DbContextOptions<FgsCrmDbContext> options,
+        ITenantContextAccessor tenantContextAccessor)
+        : base(options, tenantContextAccessor)
+    {
+    }
 
     public DbSet<FgsTenantCompanyCache> FgsTenantCompanyCaches => Set<FgsTenantCompanyCache>();
 
     public DbSet<CrmOutboxMessage> CrmOutboxMessages => Set<CrmOutboxMessage>();
 
     public DbSet<CrmLead> CrmLeads => Set<CrmLead>();
+
+    public DbSet<FgsOpportunity> FgsOpportunities => Set<FgsOpportunity>();
+
+    public DbSet<FgsSalesActivity> FgsSalesActivities => Set<FgsSalesActivity>();
 
     public DbSet<CrmCustomer> CrmCustomers => Set<CrmCustomer>();
 
@@ -57,9 +71,15 @@ public sealed class FgsCrmDbContext(DbContextOptions<FgsCrmDbContext> options) :
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresEnum<SalesPriority>(
+            FgsDatabaseSchemas.Crm,
+            "SalesPriority",
+            nameTranslator: new Npgsql.NameTranslation.NpgsqlNullNameTranslator());
+
         modelBuilder.HasDefaultSchema(FgsDatabaseSchemas.Crm);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FgsCrmDbContext).Assembly);
         FgsCrmDbContextConfigurationExtensions.ApplyTenantCompanyCacheForeignKeys(modelBuilder);
         FgsCrmDbContextConfigurationExtensions.ConfigureAuditActorColumns(modelBuilder);
+        ApplyFgsTenantQueryFilters(modelBuilder);
     }
 }

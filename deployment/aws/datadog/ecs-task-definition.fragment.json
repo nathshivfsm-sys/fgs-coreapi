@@ -1,0 +1,64 @@
+{
+  "comment": "Merge into Fargate task definitions. Replace secret ARNs. Do not commit real keys.",
+  "containerDefinitions": [
+    {
+      "name": "fgs-service",
+      "environment": [
+        { "name": "Datadog__Enabled", "value": "true" },
+        { "name": "Datadog__AgentHost", "value": "localhost" },
+        { "name": "Datadog__AgentPort", "value": "8126" },
+        { "name": "Datadog__DogStatsDPort", "value": "8125" },
+        { "name": "Datadog__Site", "value": "datadoghq.com" },
+        { "name": "Datadog__Env", "value": "prod" },
+        { "name": "Datadog__EnableApm", "value": "true" },
+        { "name": "DD_LOGS_INJECTION", "value": "true" }
+      ],
+      "secrets": [
+        {
+          "name": "Datadog__ApiKey",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT:secret:fgs/datadog/api-key"
+        },
+        {
+          "name": "DD_API_KEY",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT:secret:fgs/datadog/api-key"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awsfirelens",
+        "options": {
+          "Name": "datadog",
+          "Host": "http-intake.logs.datadoghq.com",
+          "TLS": "on",
+          "dd_service": "fgs-service",
+          "dd_source": "csharp",
+          "dd_tags": "env:prod",
+          "provider": "ecs"
+        },
+        "secretOptions": [
+          {
+            "name": "apikey",
+            "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT:secret:fgs/datadog/api-key"
+          }
+        ]
+      }
+    },
+    {
+      "name": "datadog-agent",
+      "image": "public.ecr.aws/datadog/agent:7",
+      "essential": true,
+      "environment": [
+        { "name": "DD_SITE", "value": "datadoghq.com" },
+        { "name": "DD_APM_ENABLED", "value": "true" },
+        { "name": "DD_APM_NON_LOCAL_TRAFFIC", "value": "true" },
+        { "name": "DD_DOGSTATSD_NON_LOCAL_TRAFFIC", "value": "true" },
+        { "name": "ECS_FARGATE", "value": "true" }
+      ],
+      "secrets": [
+        {
+          "name": "DD_API_KEY",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT:secret:fgs/datadog/api-key"
+        }
+      ]
+    }
+  ]
+}

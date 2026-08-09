@@ -3,7 +3,7 @@ using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.Messaging.Abstractions;
 using Fgs.Persistence.Abstractions;
-using Fgs.User.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Auth;
@@ -67,10 +67,10 @@ public sealed class EntraCallbackCommandHandler : IRequestHandler<EntraCallbackC
         {
             entraUser = await _entraService.ExchangeCodeAsync(request.Code, redirectUri, cancellationToken);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             return ApiResponse<EntraCallbackResultDto>.Fail(
-                [AuthErrorMessages.EntraCodeExchangeFailed],
+                [$"{AuthErrorMessages.EntraCodeExchangeFailed} {ex.Message}"],
                 ApiStatusCodes.Unauthorized);
         }
 
@@ -135,10 +135,10 @@ public sealed class EntraCallbackCommandHandler : IRequestHandler<EntraCallbackC
 
             return ApiResponse<EntraCallbackResultDto>.Ok(result);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             return ApiResponse<EntraCallbackResultDto>.Fail(
-                [AuthErrorMessages.FinalizeOnboardingFailed],
+                [$"{AuthErrorMessages.FinalizeOnboardingFailed} {ex.Message}"],
                 ApiStatusCodes.InternalServerError);
         }
     }

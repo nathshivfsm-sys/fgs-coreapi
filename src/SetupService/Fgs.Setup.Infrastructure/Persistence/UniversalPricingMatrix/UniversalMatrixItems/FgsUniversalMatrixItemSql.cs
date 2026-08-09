@@ -5,6 +5,7 @@ namespace Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalM
 internal static class FgsUniversalMatrixItemSql
 {
     public const string Table = "setup.\"FgsUniversalMatrixItem\"";
+    public const string ParentTable = "setup.\"FgsUniversalPricingService\"";
 
     public const string SelectDetailColumns = """
         "Id", "UniversalPricingServiceId", "ItemName", "UnitType", "BasePrice", "DisplayOrder", "IsActive"
@@ -20,7 +21,13 @@ internal static class FgsUniversalMatrixItemSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "IsActive", "DisplayOrder", "UniversalPricingServiceId", "ItemName", "UnitType", "BasePrice"
+        "Id",
+        "IsActive",
+        "UniversalPricingServiceId",
+        "ItemName",
+        "UnitType",
+        "BasePrice",
+        "DisplayOrder"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

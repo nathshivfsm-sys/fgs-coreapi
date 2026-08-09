@@ -4,7 +4,7 @@ public sealed class FileServiceOptions
 {
     public const string SectionName = "FileService";
 
-    public string PublicBaseUrl { get; set; } = "https://localhost:8443";
+    public string PublicBaseUrl { get; set; } = "https://developer.fsm.com";
 
     public int UploadUrlExpiryMinutes { get; set; } = 15;
 

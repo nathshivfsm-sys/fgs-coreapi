@@ -198,7 +198,7 @@ public sealed class CredentialMutationServiceTests
         var actorResolver = new Mock<ICredentialActorResolver>();
         actorResolver.Setup(a => a.ResolveActorId()).Returns("test-user");
 
-        var dateTimeProvider = new Mock<Fgs.Setup.Application.Abstractions.Time.IDateTimeProvider>();
+        var dateTimeProvider = new Mock<Fgs.Foundation.Time.IDateTimeProvider>();
         dateTimeProvider.Setup(d => d.UtcNow).Returns(DateTimeOffset.UtcNow);
 
         var unitOfWork = new Mock<IUnitOfWork>();

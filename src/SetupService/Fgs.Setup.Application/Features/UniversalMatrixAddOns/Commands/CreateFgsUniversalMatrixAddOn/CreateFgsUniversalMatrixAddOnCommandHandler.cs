@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Fgs.Setup.Application.Features.UniversalMatrixAddOns.Commands.CreateFgsUniversalMatrixAddOn;
 
 public sealed class CreateFgsUniversalMatrixAddOnCommandHandler(
-    IFgsUniversalMatrixAddOnWriteRepository writeRepository,
+    IFgsUniversalMatrixAddOnWriteService writeService,
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<CreateFgsUniversalMatrixAddOnCommandHandler> logger)
@@ -20,12 +20,12 @@ public sealed class CreateFgsUniversalMatrixAddOnCommandHandler(
         CreateFgsUniversalMatrixAddOnCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await writeRepository.CreateAsync(request.Dto, cancellationToken);
-        logger.LogInformation("Created universal matrix add-on {Id} with code {Name}", result.Id, result.Name);
-            var tenantScope = tenantContextAccessor.Current!;
-            await cache.RemoveByPrefixAsync(
-                CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixaddon"),
-                cancellationToken);
+        var result = await writeService.CreateAsync(request.Dto, cancellationToken);
+        logger.LogInformation("Created universal matrix add-on {Id}", result.Id);
+        var tenantScope = tenantContextAccessor.Current!;
+        await cache.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "universalmatrixaddon"),
+            cancellationToken);
         return ApiResponse<FgsUniversalMatrixAddOnDetailDto>.Ok(result, ApiStatusCodes.Created);
     }
 }

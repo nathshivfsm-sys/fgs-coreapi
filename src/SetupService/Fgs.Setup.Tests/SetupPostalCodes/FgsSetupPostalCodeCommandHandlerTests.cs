@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.SetupPostalCodes.Commands.DeleteFgsSetupPos
 using Fgs.Setup.Application.Features.SetupPostalCodes.Commands.UpdateFgsSetupPostalCode;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.SetupPostalCodes;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +38,8 @@ public sealed class FgsSetupPostalCodeCommandHandlerTests
             NullLogger<CreateFgsSetupPostalCodeCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateFgsSetupPostalCodeCommand(new FgsSetupPostalCodeCreateDto("PostalCode value", null, null)),
+            new CreateFgsSetupPostalCodeCommand(new FgsSetupPostalCodeCreateDto(
+                "PostalCode value", "US", "TX", "Austin", 0m, null, null)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -70,7 +71,8 @@ public sealed class FgsSetupPostalCodeCommandHandlerTests
             NullLogger<DeleteFgsSetupPostalCodeCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateFgsSetupPostalCodeCommand(new FgsSetupPostalCodeCreateDto("PostalCode value", null, null)),
+            new CreateFgsSetupPostalCodeCommand(new FgsSetupPostalCodeCreateDto(
+                "PostalCode value", "US", "TX", "Austin", 0m, null, null)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 
