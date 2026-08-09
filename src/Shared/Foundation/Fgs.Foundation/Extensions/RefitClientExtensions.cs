@@ -1,6 +1,8 @@
 using Fgs.Contracts.Options;
+using Fgs.Foundation.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
 using Refit;
 
@@ -20,6 +22,7 @@ public static class RefitClientExtensions
 
     /// <summary>
     /// Registers a Refit client with Polly-based retry, timeout, and circuit breaker.
+    /// Always attaches <see cref="CorrelationIdPropagationHandler"/> for outbound correlation.
     /// </summary>
     public static IServiceCollection AddFgsRefitClient<TClient>(
         this IServiceCollection services,
@@ -36,9 +39,13 @@ public static class RefitClientExtensions
         var resilience = configuration.GetSection(HttpResilienceOptions.SectionName).Get<HttpResilienceOptions>()
             ?? new HttpResilienceOptions();
 
+        services.AddHttpContextAccessor();
+        services.TryAddTransient<CorrelationIdPropagationHandler>();
+
         var builder = services
             .AddRefitClient<TClient>(ApiResponseRefitSettings)
-            .ConfigureHttpClient(client => client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/"));
+            .ConfigureHttpClient(client => client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/"))
+            .AddHttpMessageHandler<CorrelationIdPropagationHandler>();
 
         configureBuilder?.Invoke(builder);
 
@@ -55,9 +62,13 @@ public static class RefitClientExtensions
     {
         var resilience = new HttpResilienceOptions();
 
+        services.AddHttpContextAccessor();
+        services.TryAddTransient<CorrelationIdPropagationHandler>();
+
         var builder = services
             .AddRefitClient<TClient>(ApiResponseRefitSettings)
-            .ConfigureHttpClient(client => client.BaseAddress = baseAddress);
+            .ConfigureHttpClient(client => client.BaseAddress = baseAddress)
+            .AddHttpMessageHandler<CorrelationIdPropagationHandler>();
 
         configureBuilder?.Invoke(builder);
 

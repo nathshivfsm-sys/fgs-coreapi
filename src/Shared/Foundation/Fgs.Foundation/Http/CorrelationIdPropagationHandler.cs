@@ -1,10 +1,10 @@
 using Fgs.Foundation.Correlation;
 using Microsoft.AspNetCore.Http;
 
-namespace Fgs.Bff.Infrastructure.Http;
+namespace Fgs.Foundation.Http;
 
 /// <summary>
-/// Propagates the inbound <c>X-Correlation-Id</c> (or TraceIdentifier) to outbound Refit calls.
+/// Propagates the inbound <c>X-Correlation-Id</c> (or TraceIdentifier) to outbound HttpClient/Refit calls.
 /// </summary>
 public sealed class CorrelationIdPropagationHandler(IHttpContextAccessor httpContextAccessor) : DelegatingHandler
 {

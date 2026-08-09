@@ -23,6 +23,8 @@ public static class ConsumerServiceCollectionExtensions
             options.AutomaticRecoveryEnabled = true;
         });
 
+        services.TryAddSingleton<Fgs.Contracts.Observability.IFgsMetrics>(
+            Fgs.Contracts.Observability.NoOpFgsMetrics.Instance);
         services.AddFgsRabbitMqConnectionFactory();
         services.AddFgsRabbitMqReadyCheck();
         services.TryAddSingleton<IConsumerIdempotencyStore, DistributedCacheConsumerIdempotencyStore>();

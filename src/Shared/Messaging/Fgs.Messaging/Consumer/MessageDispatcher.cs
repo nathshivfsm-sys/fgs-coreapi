@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using Fgs.Contracts.Observability;
 using Microsoft.Extensions.Logging;
 
 namespace Fgs.Messaging.Consumer;
@@ -5,8 +7,11 @@ namespace Fgs.Messaging.Consumer;
 public sealed class MessageDispatcher(
     IConsumerMessageRouter router,
     IConsumerIdempotencyStore idempotency,
-    ILogger<MessageDispatcher> logger)
+    ILogger<MessageDispatcher> logger,
+    IFgsMetrics? metrics = null)
 {
+    private readonly IFgsMetrics _metrics = metrics ?? NoOpFgsMetrics.Instance;
+
     public async Task DispatchAsync(
         string routingKey,
         ReadOnlyMemory<byte> body,
@@ -25,6 +30,7 @@ public sealed class MessageDispatcher(
 
         if (!await idempotency.TryMarkProcessedAsync(context.MessageId, routingKey, cancellationToken))
         {
+            _metrics.Increment("rabbitmq.consumer_duplicate");
             logger.LogInformation(
                 "Skipping duplicate message {MessageId} for routing key {RoutingKey}",
                 context.MessageId,
@@ -39,6 +45,17 @@ public sealed class MessageDispatcher(
             context.CorrelationId,
             context.RetryCount);
 
-        await router.RouteAsync(routingKey, body, context, cancellationToken);
+        var sw = Stopwatch.StartNew();
+        try
+        {
+            await router.RouteAsync(routingKey, body, context, cancellationToken);
+            _metrics.Increment("rabbitmq.consume");
+            _metrics.Histogram("rabbitmq.consume_latency_ms", sw.Elapsed.TotalMilliseconds);
+        }
+        catch
+        {
+            _metrics.Increment("rabbitmq.consume_failure");
+            throw;
+        }
     }
 }

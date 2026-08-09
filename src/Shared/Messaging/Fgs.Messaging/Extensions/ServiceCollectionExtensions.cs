@@ -1,3 +1,4 @@
+using Fgs.Contracts.Observability;
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.HealthChecks;
 using Fgs.Messaging.Options;
@@ -12,6 +13,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddFgsRabbitMqPublisher(this IServiceCollection services)
     {
+        services.TryAddSingleton<IFgsMetrics>(NoOpFgsMetrics.Instance);
         services.AddSingleton<RabbitMqPublisher>();
         services.AddSingleton<IRabbitMqPublisher>(sp => sp.GetRequiredService<RabbitMqPublisher>());
         services.AddFgsRabbitMqReadyCheck();

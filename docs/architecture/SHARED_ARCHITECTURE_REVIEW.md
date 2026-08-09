@@ -76,7 +76,7 @@ Fgs.Security        → (no dependencies)
 Fgs.Messaging       → Fgs.Contracts
 Fgs.MultiTenancy    → Fgs.Kernel, Fgs.Security
 Fgs.Foundation      → Fgs.Kernel, Fgs.MultiTenancy
-Fgs.Observability   → Fgs.Foundation
+Fgs.Observability   → Fgs.Foundation, Fgs.MultiTenancy, Fgs.Security, Fgs.Contracts
 
 Microservice.Domain       → Fgs.Kernel
 Microservice.Application  → Kernel, Foundation, Contracts, Persistence, Messaging
@@ -194,18 +194,16 @@ Service-specific exception mapping via `IExceptionStatusMapper` (e.g. `Credentia
 
 ---
 
-## 9. Observability Recommendations
+## 9. Observability
 
 ### Implemented
 - `/health`, `/health/ready`, `/health/live` via `MapFgsHealthChecks()`
-- Correlation ID in all request logs
-
-### Recommended Next Steps
-1. **OpenTelemetry** — add `Fgs.Observability` exporters (OTLP) for traces, metrics, logs
-2. **Structured logging** — Serilog enrichers for CorrelationId, TenantId, CompanyId
-3. **RabbitMQ metrics** — publish/consume counters, DLQ depth
-4. **Outbox lag metric** — time since oldest unpublished message
-5. **Health check dependencies** — PostgreSQL, RabbitMQ, AWS in `/health/ready`
+- Shared Datadog stack in `Fgs.Observability`: `builder.AddFgsObservability(serviceName)` (Serilog JSON, APM, DogStatsD)
+- Log enrichers: `ServiceName`, `CorrelationId`, `TenantId`, `CompanyId`, `UserId`, `TraceId`, `SpanId`
+- Correlation propagation on all `AddFgsRefitClient` outbound calls
+- Cache / RabbitMQ / outbox metrics via `IFgsMetrics`
+- Local Datadog Agent in `src/Gateway/docker-compose.yml`
+- Docs: `docs/observability/DATADOG.md`, `deployment/aws/datadog/`
 
 ---
 
@@ -275,7 +273,7 @@ Service-specific exception mapping via `IExceptionStatusMapper` (e.g. `Credentia
 | Shared contracts | ✅ Single source |
 | Standard middleware | ✅ |
 | Health endpoints | ✅ |
-| OpenTelemetry | ✅ ASP.NET Core + HTTP tracing (OTLP optional) |
+| Datadog observability | ✅ Shared `AddFgsObservability` (APM + Serilog + DogStatsD) |
 | API Gateway | ✅ NGINX in `src/Gateway/` |
 | Container images | Existing per-service docker-compose |
 
@@ -293,14 +291,14 @@ Service-specific exception mapping via `IExceptionStatusMapper` (e.g. `Credentia
 ### Phase 2 — Complete
 - [x] Move `RabbitMqPublisher` / `RabbitMqConnectionFactory` to `Fgs.Messaging`
 - [x] Generic outbox processor abstraction (`IOutboxStore`, `OutboxBatchProcessor`, `OutboxPollingBackgroundService`)
-- [x] OpenTelemetry in `Fgs.Observability` (`AddFgsObservability(configuration, serviceName)`)
+- [x] Datadog in `Fgs.Observability` (`builder.AddFgsObservability(serviceName)`)
 - [x] JWT authentication middleware in `Fgs.Security` (`AddFgsJwtAuthentication`)
 - [x] Global credentials in `glo.GloCredential` (no tenant/company scope); tenant validators allow `>= 0` where applicable
 
 **New shared APIs:**
 - `Fgs.Messaging`: `AddFgsRabbitMqPublisher()`, `AddFgsRabbitMqConnectionFactory()`, `AddFgsOutboxProcessor()`
 - `Fgs.Security`: `AddFgsJwtAuthentication(configuration)`
-- `Fgs.Observability`: `AddFgsObservability(configuration, serviceName)` with optional `Observability:OtlpEndpoint`
+- `Fgs.Observability`: `builder.AddFgsObservability(serviceName)` with `Datadog` + `Serilog` appsettings
 
 **UserService wiring:** `GloOutboxStore`, `UserOutboxRoutingResolver`, platform tenant seed on startup, JWT auth pipeline.
 

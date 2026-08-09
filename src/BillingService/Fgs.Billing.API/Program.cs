@@ -17,7 +17,7 @@ var hostOptions = builder.AddFgsApiHost(options =>
 
 builder.Services.AddFgsBillingApplication();
 builder.Services.AddFgsBillingInfrastructure(builder.Configuration);
-builder.Services.AddFgsObservability(builder.Configuration, hostOptions.ServiceName);
+builder.AddFgsObservability(hostOptions.ServiceName);
 
 var app = builder.Build();
 await app.LoadFgsRemoteCredentialsAsync();

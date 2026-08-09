@@ -20,7 +20,6 @@ x-credential-consumer-env: &credential-consumer-env
   CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
   # Production disables Swagger unless Enabled=true; without it /swagger/* falls through to JWT fallback (401).
   Swagger__Enabled: "true"
-  Observability__OtlpEndpoint: ${OTLP_ENDPOINT:-}
 
 x-depends-on-setup: &depends-on-setup
   setup-service:
@@ -73,17 +72,28 @@ services:
       - fgs-private
     restart: unless-stopped
 
-  # Optional OTLP collector — enable export by setting OTLP_ENDPOINT=http://otel-collector:4317
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.120.0
+  # Datadog Agent — set DD_API_KEY (match Datadog:ApiKey in appsettings when verifying the UI)
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:7.64.0
     <<: *service-network
-    command: ["--config=/etc/otel-collector-config.yaml"]
+    environment:
+      DD_API_KEY: ${DD_API_KEY:-}
+      DD_SITE: ${DD_SITE:-datadoghq.com}
+      DD_APM_ENABLED: "true"
+      DD_APM_NON_LOCAL_TRAFFIC: "true"
+      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
+      DD_LOGS_ENABLED: "false"
+      DD_PROCESS_AGENT_ENABLED: "false"
+      DD_HOSTNAME: fgs-local-datadog
     volumes:
-      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./logs:/var/log/nginx:ro
     expose:
-      - "4317"
-      - "4318"
-    # Not required for app health; services export only when OTLP_ENDPOINT is set.
+      - "8126"
+      - "8125"
+    ports:
+      - "127.0.0.1:8126:8126"
+      - "127.0.0.1:8125:8125/udp"
 
   # Tier 1 ? credential authority (bootstrap ConnectionStrings:FgsSetup from mounted appsettings)
   setup-service:
@@ -99,7 +109,6 @@ services:
       UserService__BaseUrl: http://user-service:5001
       FileService__BaseUrl: http://file-service:5005
       RabbitMq__HostName: rabbitmq
-      Observability__OtlpEndpoint: ${OTLP_ENDPOINT:-}
       Redis__ConnectionString: redis:6379
       Redis__Enabled: "true"
     depends_on:
@@ -301,7 +310,6 @@ services:
       CredentialConsumer__RequiredProviders__0: DATABASE
       UserService__BaseUrl: http://user-service:5001
       SetupService__BaseUrl: http://setup-service:5004
-      Observability__OtlpEndpoint: ${OTLP_ENDPOINT:-}
     depends_on:
       <<: *depends-on-setup-and-audit
     volumes:
@@ -327,7 +335,6 @@ services:
       CredentialConsumer__RequiredProviders__0: DATABASE
       UserService__BaseUrl: http://user-service:5001
       SetupService__BaseUrl: http://setup-service:5004
-      Observability__OtlpEndpoint: ${OTLP_ENDPOINT:-}
     depends_on:
       <<: *depends-on-setup-and-audit
     volumes:
@@ -353,7 +360,6 @@ services:
       CredentialConsumer__RequiredProviders__0: DATABASE
       UserService__BaseUrl: http://user-service:5001
       SetupService__BaseUrl: http://setup-service:5004
-      Observability__OtlpEndpoint: ${OTLP_ENDPOINT:-}
     depends_on:
       <<: *depends-on-setup-and-audit
     volumes:
@@ -379,7 +385,6 @@ services:
       CredentialConsumer__RequiredProviders__0: DATABASE
       UserService__BaseUrl: http://user-service:5001
       SetupService__BaseUrl: http://setup-service:5004
-      Observability__OtlpEndpoint: ${OTLP_ENDPOINT:-}
     depends_on:
       <<: *depends-on-setup-and-audit
     volumes:

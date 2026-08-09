@@ -3,9 +3,7 @@ using Fgs.Credentials.Extensions;
 using Fgs.Credentials.Http;
 using Fgs.Foundation.Caching.Extensions;
 using Fgs.Foundation.Caching.Options;
-using Fgs.Foundation.Correlation;
 using Fgs.Foundation.Extensions;
-using Fgs.Bff.Infrastructure.Http;
 using Fgs.Security.Extensions;
 using Fgs.Security.Options;
 using Microsoft.Extensions.Configuration;
@@ -38,14 +36,13 @@ public static class DependencyInjection
         services.AddFgsActiveUserValidation(configuration);
         services.AddFgsUserAuthProfileClient(configuration);
 
-        services.TryAddTransient<CorrelationIdPropagationHandler>();
         services.TryAddTransient<InternalServiceKeyDelegatingHandler>();
 
+        // CorrelationIdPropagationHandler is attached by AddFgsRefitClient for all outbound calls.
         services.AddFgsRefitClient<IUserSignupClient>(
             configuration,
             "UserService:BaseUrl",
-            "http://user-service:5001",
-            builder => builder.AddHttpMessageHandler<CorrelationIdPropagationHandler>());
+            "http://user-service:5001");
 
         services.AddFgsInternalServiceRefitClient<IUserTenantClient>(
             configuration,
@@ -56,11 +53,7 @@ public static class DependencyInjection
             configuration,
             "SetupService:BaseUrl",
             "http://setup-service:5004",
-            builder =>
-            {
-                builder.AddHttpMessageHandler<CorrelationIdPropagationHandler>();
-                builder.AddHttpMessageHandler<InternalServiceKeyDelegatingHandler>();
-            });
+            builder => builder.AddHttpMessageHandler<InternalServiceKeyDelegatingHandler>());
 
         services.AddFgsRedisCache(configuration);
         return services;

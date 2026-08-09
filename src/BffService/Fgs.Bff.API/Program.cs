@@ -5,27 +5,17 @@ using Fgs.Credentials;
 using Fgs.Credentials.Extensions;
 using Fgs.Foundation.Hosting;
 using Fgs.Observability.Extensions;
+using Fgs.Observability.Logging;
 using Serilog;
 
 // Non-reloadable logger: LoadFgsRemoteCredentialsAsync builds a temporary ServiceProvider
 // before WebApplication.Build(), which freezes Serilog's CreateBootstrapLogger().
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateLogger();
+Log.Logger = SerilogHostExtensions.CreateFgsBootstrapLogger();
 
 try
 {
     var builder = WebApplication.CreateBuilder(args);
     builder.Configuration.ApplyFgsKmsEnvironmentVariable();
-
-    builder.Host.UseSerilog((context, services, configuration) => configuration
-        .ReadFrom.Configuration(context.Configuration)
-        .ReadFrom.Services(services)
-        .Enrich.FromLogContext()
-        .Enrich.WithMachineName()
-        .Enrich.WithThreadId()
-        .Enrich.WithProperty("Service", "fgs-bff-service")
-        .WriteTo.Console());
 
     var hostOptions = builder.AddFgsApiHost(options =>
     {
@@ -46,14 +36,14 @@ try
     builder.Services.AddFgsBffApplication();
     builder.Services.AddFgsBffInfrastructure(builder.Configuration);
     await builder.LoadFgsRemoteCredentialsAsync();
-    builder.Services.AddFgsObservability(builder.Configuration, hostOptions.ServiceName);
+    builder.AddFgsObservability(hostOptions.ServiceName);
 
     builder.Services
         .AddGraphQLServer()
-        .AddQueryType<BffQuery>();
+        .AddQueryType<BffQuery>()
+        .AddDiagnosticEventListener<Fgs.Bff.API.GraphQL.FgsGraphQlDiagnosticObserver>();
 
     var app = builder.Build();
-    app.UseSerilogRequestLogging();
     app.UseFgsApiHost(hostOptions);
     app.MapFgsHealthChecks();
     app.MapGraphQL("/api/v1/bff/graphql").RequireAuthorization();

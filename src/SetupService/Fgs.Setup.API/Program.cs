@@ -24,7 +24,7 @@ builder.Services.AddFgsSetupApplication();
 builder.Services.AddFgsSetupInfrastructure(builder.Configuration);
 await builder.LoadFgsSetupCredentialsAsync();
 builder.Services.AddFgsRedisCache(builder.Configuration);
-builder.Services.AddFgsObservability(builder.Configuration, hostOptions.ServiceName);
+builder.AddFgsObservability(hostOptions.ServiceName);
 
 var app = builder.Build();
 

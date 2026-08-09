@@ -1,3 +1,4 @@
+using Fgs.Contracts.Observability;
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Options;
 using Microsoft.Extensions.Logging;
@@ -10,9 +11,11 @@ public sealed class OutboxBatchProcessor(
     IRabbitMqPublisher publisher,
     IOutboxRoutingResolver routingResolver,
     IOptions<OutboxOptions> options,
-    ILogger<OutboxBatchProcessor> logger)
+    ILogger<OutboxBatchProcessor> logger,
+    IFgsMetrics? metrics = null)
 {
     private readonly OutboxOptions _options = options.Value;
+    private readonly IFgsMetrics _metrics = metrics ?? NoOpFgsMetrics.Instance;
 
     public async Task ProcessBatchAsync(CancellationToken cancellationToken)
     {
@@ -21,6 +24,8 @@ public sealed class OutboxBatchProcessor(
         {
             return;
         }
+
+        _metrics.Gauge("outbox.pending", messages.Count);
 
         var now = DateTimeOffset.UtcNow;
 
@@ -47,6 +52,7 @@ public sealed class OutboxBatchProcessor(
                     cancellationToken);
 
                 await store.MarkPublishedAsync(message.SourceKey, message.Id, now, cancellationToken);
+                _metrics.Increment("outbox.published");
             }
             catch (Exception ex)
             {
@@ -60,6 +66,7 @@ public sealed class OutboxBatchProcessor(
 
                 if (isFailed)
                 {
+                    _metrics.Increment("outbox.failed");
                     logger.LogError(
                         ex,
                         "Outbox message {MessageId} moved to Failed after {RetryCount} attempts",
@@ -68,6 +75,7 @@ public sealed class OutboxBatchProcessor(
                 }
                 else
                 {
+                    _metrics.Increment("outbox.retry");
                     logger.LogWarning(
                         ex,
                         "Failed to publish outbox message {MessageId}; retry {RetryCount}/{MaxRetries}",
