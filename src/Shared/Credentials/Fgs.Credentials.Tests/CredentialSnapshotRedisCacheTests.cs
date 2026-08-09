@@ -2,6 +2,7 @@ using Fgs.Credentials;
 using Fgs.Credentials.Options;
 using Fgs.Credentials.Redis;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -107,6 +108,60 @@ public sealed class CredentialSnapshotRedisCacheTests
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase))
             .Should()
             .BeNull();
+    }
+
+    [Fact]
+    public void ResolveRedisConnectionString_FallsBackToRedisConfigurationSection()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Redis:ConnectionString"] = "seed-redis:6379"
+            })
+            .Build();
+
+        var connectionString = CredentialSnapshotRedisCache.ResolveRedisConnectionString(
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+            configuration);
+
+        connectionString.Should().Be("seed-redis:6379");
+    }
+
+    [Fact]
+    public void ResolveRedisConnectionString_FallsBackToConnectionStringsRedis()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:Redis"] = "cs-redis:6379"
+            })
+            .Build();
+
+        var connectionString = CredentialSnapshotRedisCache.ResolveRedisConnectionString(
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+            configuration);
+
+        connectionString.Should().Be("cs-redis:6379");
+    }
+
+    [Fact]
+    public void ResolveRedisConnectionString_PrefersSnapshotOverConfigurationSeed()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Redis:ConnectionString"] = "seed-redis:6379"
+            })
+            .Build();
+
+        var connectionString = CredentialSnapshotRedisCache.ResolveRedisConnectionString(
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Global:REDIS:ConnectionString"] = "snapshot-redis:6379"
+            },
+            configuration);
+
+        connectionString.Should().Be("snapshot-redis:6379");
     }
 
     [Fact]
