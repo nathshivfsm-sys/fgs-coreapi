@@ -1,3 +1,5 @@
+using Fgs.Crm.Domain.Enums;
+using Fgs.Crm.Infrastructure.Database.Schemas;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -15,7 +17,13 @@ public sealed class FgsCrmDbContextDesignFactory : IDesignTimeDbContextFactory<F
 
         var options = new DbContextOptionsBuilder<FgsCrmDbContext>()
             .UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsCrmDbContext.MigrationHistorySchema))
+            {
+                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", FgsCrmDbContext.MigrationHistorySchema);
+                npgsql.MapEnum<SalesPriority>(
+                    "SalesPriority",
+                    FgsDatabaseSchemas.Crm,
+                    nameTranslator: new Npgsql.NameTranslation.NpgsqlNullNameTranslator());
+            })
             .Options;
 
         return new FgsCrmDbContext(options, new Fgs.MultiTenancy.Persistence.DesignTimeTenantContextAccessor());

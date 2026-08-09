@@ -2,8 +2,10 @@ using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using Fgs.Crm.Application.Abstractions.Customers;
+using Fgs.Crm.Domain.Enums;
 using Fgs.Crm.Infrastructure.Common;
 using Fgs.Crm.Infrastructure.Database;
+using Fgs.Crm.Infrastructure.Database.Schemas;
 using Fgs.Crm.Infrastructure.Persistence.Customers;
 using Fgs.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +32,11 @@ public static class DependencyInjection
             options.UseFgsNpgsql(
                 connectionString,
                 "__EFMigrationsHistory",
-                FgsCrmDbContext.MigrationHistorySchema);
+                FgsCrmDbContext.MigrationHistorySchema,
+                npgsql => npgsql.MapEnum<SalesPriority>(
+                    "SalesPriority",
+                    FgsDatabaseSchemas.Crm,
+                    nameTranslator: new Npgsql.NameTranslation.NpgsqlNullNameTranslator()));
         });
 
         services.AddFgsPersistence<FgsCrmDbContext>();
