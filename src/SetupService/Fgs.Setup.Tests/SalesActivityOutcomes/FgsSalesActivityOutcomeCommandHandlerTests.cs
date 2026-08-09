@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.SalesActivityOutcomes.Commands.DeleteFgsSal
 using Fgs.Setup.Application.Features.SalesActivityOutcomes.Commands.UpdateFgsSalesActivityOutcome;
 using Fgs.Setup.Application.Features.SalesActivityOutcomes.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.SalesActivityOutcomes;
 using Microsoft.EntityFrameworkCore;

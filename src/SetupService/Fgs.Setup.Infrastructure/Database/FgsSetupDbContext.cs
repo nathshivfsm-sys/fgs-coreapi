@@ -16,10 +16,6 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
     /// <summary>Schema for EF Core migration history (<c>setup</c>).</summary>
     public const string MigrationHistorySchema = FgsDatabaseSchemas.MigrationHistory;
 
-    /// <summary>Legacy alias; use <see cref="MigrationHistorySchema"/>.</summary>
-    [Obsolete("Use MigrationHistorySchema. dbo is no longer the default schema.")]
-    public const string FgsSchema = MigrationHistorySchema;
-
     public FgsSetupDbContext(
         DbContextOptions<FgsSetupDbContext> options,
         ITenantContextAccessor tenantContextAccessor)

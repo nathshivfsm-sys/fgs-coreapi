@@ -1,5 +1,5 @@
 using Fgs.Inventory.Application.Abstractions.InventoryTransactions;
-using Fgs.Inventory.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.Inventory.Application.Features.InventoryTransactions.Dtos;
 using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Infrastructure.Common;

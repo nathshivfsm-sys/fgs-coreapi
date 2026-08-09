@@ -1,6 +1,6 @@
 using Fgs.Setup.Application.Abstractions.Credentials;
-using Fgs.Setup.Infrastructure.Common.Options;
 using Fgs.Setup.Infrastructure.Credentials;
+using Fgs.Credentials.Options;
 
 namespace Fgs.Setup.Tests.Credentials;
 

@@ -2,7 +2,7 @@ using Fgs.Asset.Application.Features.AssetTypes.Commands.CreateFgsAssetType;
 using Fgs.Asset.Application.Features.AssetTypes.Commands.PatchFgsAssetType;
 using Fgs.Asset.Application.Features.AssetTypes.Dtos;
 using Fgs.Asset.Infrastructure.Common;
-using Fgs.Asset.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Asset.Infrastructure.Database;
 using Fgs.Asset.Infrastructure.AssetTypes;
 using Fgs.Foundation.Caching.Abstractions;

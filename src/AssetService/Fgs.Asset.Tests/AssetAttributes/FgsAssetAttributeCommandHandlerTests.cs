@@ -2,7 +2,7 @@ using Fgs.Asset.Application.Features.AssetAttributes.Commands.CreateFgsAssetAttr
 using Fgs.Asset.Application.Features.AssetAttributes.Dtos;
 using Fgs.Asset.Infrastructure.AssetAttributes;
 using Fgs.Asset.Infrastructure.Common;
-using Fgs.Asset.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Asset.Infrastructure.Database;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;

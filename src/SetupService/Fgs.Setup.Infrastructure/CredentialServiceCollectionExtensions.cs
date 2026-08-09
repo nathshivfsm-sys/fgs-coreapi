@@ -9,7 +9,6 @@ using Fgs.Credentials.Options;
 using Fgs.Credentials.Redis;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Application.Common.Options;
-using Fgs.Setup.Infrastructure.Common.Options;
 using Fgs.Setup.Infrastructure.Credentials;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Database.Repositories;

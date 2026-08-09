@@ -1,6 +1,6 @@
 using Fgs.Contracts.IntegrationEvents;
 using Fgs.Inventory.Application.Abstractions.InventoryStocks;
-using Fgs.Inventory.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.Inventory.Application.Features.InventoryStocks.Dtos;
 using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Infrastructure.Common;

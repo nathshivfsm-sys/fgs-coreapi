@@ -2,7 +2,7 @@ using Fgs.Asset.Application.Features.AssetStatuses.Commands.CreateFgsAssetStatus
 using Fgs.Asset.Application.Features.AssetStatuses.Commands.PatchFgsAssetStatus;
 using Fgs.Asset.Application.Features.AssetStatuses.Dtos;
 using Fgs.Asset.Infrastructure.Common;
-using Fgs.Asset.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Asset.Infrastructure.Database;
 using Fgs.Asset.Infrastructure.AssetStatuses;
 using Fgs.Foundation.Caching.Abstractions;

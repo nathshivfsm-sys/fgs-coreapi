@@ -1,7 +1,7 @@
 using Fgs.MultiTenancy;
 using Fgs.Security.Abstractions;
 using Fgs.Security.Extensions;
-using Fgs.ServiceAgreement.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.ServiceAgreement.Domain.Entities;
 
 namespace Fgs.ServiceAgreement.Infrastructure.Common;

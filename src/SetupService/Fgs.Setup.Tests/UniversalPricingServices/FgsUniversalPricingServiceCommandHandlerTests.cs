@@ -10,7 +10,7 @@ using Fgs.Setup.Application.Features.UniversalPricingServices.Commands.PatchFgsU
 using Fgs.Setup.Application.Features.UniversalPricingServices.Commands.UpdateFgsUniversalPricingService;
 using Fgs.Setup.Application.Features.UniversalPricingServices.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalPricingServices;
 using Microsoft.EntityFrameworkCore;

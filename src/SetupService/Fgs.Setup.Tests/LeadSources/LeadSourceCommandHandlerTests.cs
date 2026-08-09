@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.LeadSources.Commands.DeleteLeadSource;
 using Fgs.Setup.Application.Features.LeadSources.Commands.UpdateLeadSource;
 using Fgs.Setup.Application.Features.LeadSources.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.LeadSources;
 using Microsoft.EntityFrameworkCore;

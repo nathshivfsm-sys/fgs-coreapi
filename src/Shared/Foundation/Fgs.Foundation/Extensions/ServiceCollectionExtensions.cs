@@ -1,5 +1,6 @@
 using Fgs.Foundation.Behaviors;
 using Fgs.Foundation.Correlation;
+using Fgs.Foundation.Time;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -19,6 +20,7 @@ public static class ServiceCollectionExtensions
 
         services.AddHttpContextAccessor();
         services.AddScoped<ICorrelationContext, HttpCorrelationContext>();
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
         return services;

@@ -1,7 +1,7 @@
 using Fgs.Contracts.Clients;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Setup.Domain.Entities;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.Tenants;
 using Microsoft.EntityFrameworkCore;

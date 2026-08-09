@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.JobCategories.Commands.DeleteJobCategory;
 using Fgs.Setup.Application.Features.JobCategories.Commands.UpdateJobCategory;
 using Fgs.Setup.Application.Features.JobCategories.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.JobCategories;
 using Microsoft.EntityFrameworkCore;

@@ -4,7 +4,7 @@ using Fgs.Kernel.Entities;
 using Fgs.MultiTenancy;
 using Fgs.Security.Abstractions;
 using Fgs.Security.Extensions;
-using Fgs.Inventory.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 
 namespace Fgs.Inventory.Infrastructure.Common;
 

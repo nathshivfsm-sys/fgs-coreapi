@@ -8,7 +8,7 @@ using Fgs.Inventory.Application.Features.InventoryItems.Commands.UpdateFgsInvent
 using Fgs.Inventory.Application.Features.InventoryItems.Dtos;
 using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Infrastructure.Common;
-using Fgs.Inventory.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Inventory.Infrastructure.InventoryItems;
 using Microsoft.EntityFrameworkCore;

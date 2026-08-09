@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.Tags.Commands.DeleteFgsTag;
 using Fgs.Setup.Application.Features.Tags.Commands.UpdateFgsTag;
 using Fgs.Setup.Application.Features.Tags.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.Tags;
 using Microsoft.EntityFrameworkCore;

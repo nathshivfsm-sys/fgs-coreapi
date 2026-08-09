@@ -8,7 +8,7 @@ using Fgs.Setup.Application.Features.TechTrades.Commands.UpdateTechTrade;
 using Fgs.Setup.Application.Features.TechTrades.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.TechTrades;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-using Fgs.Asset.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.Asset.Domain.Entities;
 using Fgs.Kernel.Entities;
 using Fgs.MultiTenancy;

@@ -3,7 +3,7 @@ using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Abstractions.Security;
 using Fgs.Messaging.Abstractions;
 using Fgs.Persistence.Abstractions;
-using Fgs.User.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Auth;

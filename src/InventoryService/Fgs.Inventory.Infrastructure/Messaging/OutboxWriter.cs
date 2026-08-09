@@ -1,4 +1,4 @@
-using Fgs.Inventory.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Domain.Enums;
 using Fgs.Inventory.Infrastructure.Database;

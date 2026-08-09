@@ -1,5 +1,5 @@
 using Fgs.MultiTenancy;
-using Fgs.Scheduling.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.Scheduling.Domain.Entities;
 using Fgs.Security.Abstractions;
 

@@ -3,9 +3,7 @@ using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using Fgs.Persistence.Extensions;
 using Fgs.ServiceAgreement.Application.Abstractions.ServiceAgreements;
-using Fgs.ServiceAgreement.Application.Abstractions.Time;
 using Fgs.ServiceAgreement.Infrastructure.Common;
-using Fgs.ServiceAgreement.Infrastructure.Common.Time;
 using Fgs.ServiceAgreement.Infrastructure.Database;
 using Fgs.ServiceAgreement.Infrastructure.Persistence.ServiceAgreements;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +36,6 @@ public static class DependencyInjection
         services.AddFgsPersistence<FgsServiceAgreementDbContext>();
         services.AddFgsDbContextReadyCheck<FgsServiceAgreementDbContext>();
 
-        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddScoped<ServiceAgreementEntityAuditHelper>();
         services.AddScoped<IFgsServiceAgreementReadRepository, FgsServiceAgreementReadRepository>();
         services.AddScoped<IFgsServiceAgreementWriteService, FgsServiceAgreementWriteService>();

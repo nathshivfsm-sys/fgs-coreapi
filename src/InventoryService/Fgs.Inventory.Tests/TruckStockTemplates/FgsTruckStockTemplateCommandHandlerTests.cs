@@ -8,7 +8,7 @@ using Fgs.Inventory.Application.Features.TruckStockTemplates.Commands.UpdateFgsT
 using Fgs.Inventory.Application.Features.TruckStockTemplates.Dtos;
 using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Infrastructure.Common;
-using Fgs.Inventory.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Inventory.Infrastructure.TruckStockTemplates;
 using Microsoft.EntityFrameworkCore;

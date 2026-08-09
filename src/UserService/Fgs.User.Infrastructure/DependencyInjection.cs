@@ -4,14 +4,12 @@ using Fgs.User.Infrastructure.Extensions;
 using Fgs.User.Application.Abstractions.Geo;
 using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Abstractions.Security;
-using Fgs.User.Application.Abstractions.Time;
 using Fgs.User.Infrastructure.Common.Geo;
 using Fgs.Contracts.Clients;
 using Fgs.Foundation.Extensions;
 using Fgs.User.Infrastructure.Common.Identity;
 using Fgs.User.Infrastructure.Common.Options;
 using Fgs.User.Infrastructure.Common.Security;
-using Fgs.User.Infrastructure.Common.Time;
 using Fgs.User.Application.Abstractions.ApiClients;
 using Fgs.User.Application.Abstractions.ApiEvents;
 using Fgs.User.Application.Abstractions.ApiSecrets;
@@ -61,6 +59,7 @@ using Fgs.User.Infrastructure.Messaging;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Fgs.Credentials.Options;
 
 namespace Fgs.User.Infrastructure;
 
@@ -146,7 +145,6 @@ public static class DependencyInjection
         services.AddScoped<IFgsApiWebhookSubscriptionWriteService, FgsApiWebhookSubscriptionWriteService>();
         services.AddScoped<IOutboxWriter, OutboxWriter>();
         services.AddScoped<IAddressLocaleResolver, AddressLocaleResolver>();
-        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IEmailNormalizer, EmailNormalizer>();
         services.AddSingleton<IInvitationTokenService, InvitationTokenService>();
         services.AddScoped<IEntraExternalIdService, EntraExternalIdRefitService>();

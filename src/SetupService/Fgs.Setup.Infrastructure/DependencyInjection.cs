@@ -12,9 +12,7 @@ using Fgs.Setup.Infrastructure.Audit;
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Options;
 using Fgs.Setup.Application.Abstractions.Provisioning;
-using Fgs.Setup.Application.Abstractions.Time;
 using Fgs.Setup.Infrastructure.Common.Options;
-using Fgs.Setup.Infrastructure.Common.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Database.Read;
 using Fgs.Setup.Infrastructure.Messaging;
@@ -165,7 +163,6 @@ public static class DependencyInjection
             "FileService:BaseUrl",
             "http://file-service:5005");
 
-        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<ISetupReadConnectionFactory, FgsSetupReadConnectionFactory>();
         services.AddScoped<ITechTradeReadRepository, TechTradeReadRepository>();
         services.AddScoped<ITitleOfCourtesyReadRepository, TitleOfCourtesyReadRepository>();

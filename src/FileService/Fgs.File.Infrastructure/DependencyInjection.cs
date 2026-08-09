@@ -7,7 +7,6 @@ using Fgs.File.Application.Abstractions.Storage;
 using Fgs.File.Application.Common.Options;
 using Fgs.File.Application.Features.Attachments;
 using Fgs.File.Application.Abstractions.Provisioning;
-using Fgs.File.Infrastructure.Common.Options;
 using Fgs.File.Infrastructure.Database;
 using Fgs.File.Infrastructure.Persistence;
 using Fgs.File.Infrastructure.Storage;
@@ -18,6 +17,7 @@ using Fgs.Security.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Fgs.Credentials.Options;
 
 namespace Fgs.File.Infrastructure;
 

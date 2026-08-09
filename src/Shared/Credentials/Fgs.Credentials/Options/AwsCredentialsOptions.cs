@@ -1,4 +1,4 @@
-namespace Fgs.File.Infrastructure.Common.Options;
+namespace Fgs.Credentials.Options;
 
 public sealed class AwsCredentialsOptions
 {
@@ -20,16 +20,10 @@ public sealed class AwsCredentialsOptions
     /// <summary>Application segment in secret paths (default: fsm). Full pattern: {Environment}/{ApplicationSlug}/{tenantCode}/{providerCode}.</summary>
     public string ApplicationSlug { get; set; } = "fsm";
 
-    /// <summary>Legacy alias for <see cref="ApplicationSlug"/>.</summary>
-    public string SecretNamePrefix
-    {
-        get => ApplicationSlug;
-        set => ApplicationSlug = value;
-    }
-
     /// <summary>
-    /// Selects the optional external secret vault. Default <c>Database</c> keeps credentials in DB + KMS.
-    /// Set to <c>AwsSecretsManager</c> only when intentionally enabling Secrets Manager (Setup owns vault wiring).
+    /// Selects the optional external secret vault.
+    /// Use <c>Database</c> (default) to keep credentials in DB + KMS envelope encryption.
+    /// Use <c>AwsSecretsManager</c> to activate AWS Secrets Manager via <c>ISecretVault</c>.
     /// </summary>
     public string DefaultVaultProvider { get; set; } = "Database";
 

@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.SetupPostalCodes.Commands.DeleteFgsSetupPos
 using Fgs.Setup.Application.Features.SetupPostalCodes.Commands.UpdateFgsSetupPostalCode;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.SetupPostalCodes;
 using Microsoft.EntityFrameworkCore;

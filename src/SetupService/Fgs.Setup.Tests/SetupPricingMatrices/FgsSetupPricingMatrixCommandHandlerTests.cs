@@ -8,7 +8,7 @@ using Fgs.Setup.Application.Features.SetupPricingMatrices.Commands.CreateFgsSetu
 using Fgs.Setup.Application.Features.SetupPricingMatrices.Commands.UpdateFgsSetupPricingMatrix;
 using Fgs.Setup.Application.Features.SetupPricingMatrices.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.SetupPricingMatrices;
 using Microsoft.EntityFrameworkCore;

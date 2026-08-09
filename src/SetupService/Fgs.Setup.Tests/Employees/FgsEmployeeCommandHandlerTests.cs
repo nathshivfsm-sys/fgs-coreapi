@@ -11,7 +11,7 @@ using Fgs.Setup.Application.Features.Employees.Commands.DeleteFgsEmployee;
 using Fgs.Setup.Application.Features.Employees.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.Employees;
 using Microsoft.EntityFrameworkCore;

@@ -7,7 +7,7 @@ using Fgs.Setup.Application.Features.TitlesOfCourtesy.Commands.DeleteTitleOfCour
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Commands.UpdateTitleOfCourtesy;
 using Fgs.Setup.Application.Features.TitlesOfCourtesy.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.TitlesOfCourtesy;
 using Microsoft.EntityFrameworkCore;

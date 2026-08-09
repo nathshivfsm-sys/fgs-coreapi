@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.JobTypeTasks.Commands.DeleteJobTypeTask;
 using Fgs.Setup.Application.Features.JobTypeTasks.Commands.UpdateJobTypeTask;
 using Fgs.Setup.Application.Features.JobTypeTasks.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.JobTypeTasks;
 using Microsoft.EntityFrameworkCore;

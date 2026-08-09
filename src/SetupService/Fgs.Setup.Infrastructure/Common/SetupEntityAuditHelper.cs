@@ -2,7 +2,7 @@ using Fgs.Kernel.Entities;
 using Fgs.MultiTenancy;
 using Fgs.Security.Abstractions;
 using Fgs.Security.Extensions;
-using Fgs.Setup.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Domain.Entities;
 
 namespace Fgs.Setup.Infrastructure.Common;

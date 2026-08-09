@@ -3,9 +3,7 @@ using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using Fgs.Persistence.Extensions;
 using Fgs.Scheduling.Application.Abstractions.Appointments;
-using Fgs.Scheduling.Application.Abstractions.Time;
 using Fgs.Scheduling.Infrastructure.Common;
-using Fgs.Scheduling.Infrastructure.Common.Time;
 using Fgs.Scheduling.Infrastructure.Database;
 using Fgs.Scheduling.Infrastructure.Persistence.Appointments;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +36,6 @@ public static class DependencyInjection
         services.AddFgsPersistence<FgsSchedulingDbContext>();
         services.AddFgsDbContextReadyCheck<FgsSchedulingDbContext>();
 
-        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddScoped<SchedulingEntityAuditHelper>();
         services.AddScoped<IFgsAppointmentReadRepository, FgsAppointmentReadRepository>();
         services.AddScoped<IFgsAppointmentWriteService, FgsAppointmentWriteService>();

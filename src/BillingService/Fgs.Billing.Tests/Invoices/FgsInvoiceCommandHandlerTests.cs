@@ -1,7 +1,7 @@
 using Fgs.Billing.Application.Features.Invoices.Commands.CreateFgsInvoice;
 using Fgs.Billing.Application.Features.Invoices.Dtos;
 using Fgs.Billing.Infrastructure.Common;
-using Fgs.Billing.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Billing.Infrastructure.Database;
 using Fgs.Billing.Infrastructure.Persistence.Invoices;
 using Fgs.Foundation.Caching;

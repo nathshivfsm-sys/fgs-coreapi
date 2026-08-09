@@ -4,7 +4,7 @@ using Fgs.User.Application.Features.Auth;
 using Fgs.User.Application.Features.Invitations;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Security;
-using Fgs.User.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 using MediatR;

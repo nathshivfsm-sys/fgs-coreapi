@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.SalesPipelineStatuses.Commands.DeleteFgsSal
 using Fgs.Setup.Application.Features.SalesPipelineStatuses.Commands.UpdateFgsSalesPipelineStatus;
 using Fgs.Setup.Application.Features.SalesPipelineStatuses.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.SalesPipelineStatuses;
 using Microsoft.EntityFrameworkCore;

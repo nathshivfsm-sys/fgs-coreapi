@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.SetupTimeSlots.Commands.DeleteFgsSetupTimeS
 using Fgs.Setup.Application.Features.SetupTimeSlots.Commands.UpdateFgsSetupTimeSlot;
 using Fgs.Setup.Application.Features.SetupTimeSlots.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.SetupTimeSlots;
 using Microsoft.EntityFrameworkCore;

@@ -10,6 +10,7 @@
 tmp/
 temp-*.json
 tmp-*.json
+**/out.xml
 
 # Test results / coverage
 **/TestResults/

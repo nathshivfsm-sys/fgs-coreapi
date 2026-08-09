@@ -1,5 +1,5 @@
 using Fgs.Messaging.Abstractions;
-using Fgs.User.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 using Fgs.Messaging.Options;

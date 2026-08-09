@@ -10,14 +10,12 @@ using Fgs.Inventory.Application.Abstractions.InventoryStocks;
 using Fgs.Inventory.Application.Abstractions.InventorySubCategories;
 using Fgs.Inventory.Application.Abstractions.InventoryTransactions;
 using Fgs.Inventory.Application.Abstractions.Persistence;
-using Fgs.Inventory.Application.Abstractions.Time;
 using Fgs.Inventory.Application.Abstractions.PurchaseOrders;
 using Fgs.Inventory.Application.Abstractions.TruckStockTemplates;
 using Fgs.Inventory.Application.Abstractions.VendorInventoryItems;
 using Fgs.Inventory.Application.Abstractions.Vendors;
 using Fgs.Inventory.Domain.Enums;
 using Fgs.Inventory.Infrastructure.Common;
-using Fgs.Inventory.Infrastructure.Common.Time;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Inventory.Infrastructure.Database.Read;
 using Fgs.Inventory.Infrastructure.Database.Schemas;
@@ -74,7 +72,6 @@ public static class DependencyInjection
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
         services.AddScoped<IOutboxWriter, OutboxWriter>();
 
-        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IInventoryReadConnectionFactory, FgsInventoryReadConnectionFactory>();
         services.AddScoped<InventoryEntityAuditHelper>();
         services.AddScoped<IFgsInventoryLocationReadRepository, FgsInventoryLocationReadRepository>();

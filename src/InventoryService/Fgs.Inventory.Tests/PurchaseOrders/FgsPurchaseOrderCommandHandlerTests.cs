@@ -9,7 +9,7 @@ using Fgs.Inventory.Application.Features.PurchaseOrders.Commands.UpdateFgsPurcha
 using Fgs.Inventory.Application.Features.PurchaseOrders.Dtos;
 using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Infrastructure.Common;
-using Fgs.Inventory.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Inventory.Infrastructure.PurchaseOrders;
 using Microsoft.EntityFrameworkCore;

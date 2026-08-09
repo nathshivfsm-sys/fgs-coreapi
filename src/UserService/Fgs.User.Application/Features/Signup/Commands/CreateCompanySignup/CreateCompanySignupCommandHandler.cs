@@ -1,7 +1,7 @@
 using Fgs.User.Application.Abstractions.Geo;
 using Fgs.User.Application.Abstractions.Invitations;
 using Fgs.Persistence.Abstractions;
-using Fgs.User.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Signup;
 using Fgs.Foundation.Caching;

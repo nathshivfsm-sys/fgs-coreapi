@@ -1,6 +1,6 @@
 using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Options;
-using Fgs.Setup.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Domain.Enums;
 using Fgs.Setup.Infrastructure.Database;

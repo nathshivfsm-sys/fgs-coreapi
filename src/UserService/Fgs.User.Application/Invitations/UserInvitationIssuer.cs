@@ -4,7 +4,7 @@ using Fgs.Messaging.Abstractions;
 using Fgs.Persistence.Abstractions;
 using Fgs.User.Application.Abstractions.Invitations;
 using Fgs.User.Application.Abstractions.Security;
-using Fgs.User.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Signup;
 using Fgs.User.Domain.Entities;

@@ -9,7 +9,7 @@ using Fgs.Setup.Application.Features.SetupTechSkillLevels.Commands.DeleteFgsSetu
 using Fgs.Setup.Application.Features.SetupTechSkillLevels.Commands.UpdateFgsSetupTechSkillLevel;
 using Fgs.Setup.Application.Features.SetupTechSkillLevels.Dtos;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.SetupTechSkillLevels;
 using Microsoft.EntityFrameworkCore;

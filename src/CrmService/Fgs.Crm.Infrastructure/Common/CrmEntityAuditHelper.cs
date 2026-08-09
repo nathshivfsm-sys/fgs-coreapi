@@ -2,7 +2,7 @@ using Fgs.Crm.Domain.Entities;
 using Fgs.MultiTenancy;
 using Fgs.Security.Abstractions;
 using Fgs.Security.Extensions;
-using Fgs.Crm.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 
 namespace Fgs.Crm.Infrastructure.Common;
 

@@ -140,7 +140,7 @@ Fgs.Setup.Tests/{Entities}/
 - Scope all queries by `TenantId` and `CompanyId` from `ITenantContextAccessor`.
 - List: dynamic SQL with whitelist sort columns, `LIMIT/OFFSET`, separate `COUNT(*)`.
 - Apply `IsActive` filter only when `SetupListQuery.IsActive` has a value.
-- Reuse `PagedQuery`, `PagedResult<T>`, `SortDirection` from `Fgs.Foundation.CatalogCrud`.
+- Reuse `PagedQuery`, `PagedResult<T>`, `SortDirection` from `Fgs.Foundation.Paging`.
 - `Exists*` methods support validators (with optional `excludeId`).
 - Trim detail DTOs when summary/create/update/patch already expose flags (e.g. omit `IsActive` from GetById when appropriate).
 
@@ -150,7 +150,7 @@ Fgs.Setup.Tests/{Entities}/
 - Stamp audit via `SetupEntityAuditHelper` (`CreatedOn/By`, `UpdatedOn/By`; actor from `IFgsUserContext`).
 - Set `TenantId`/`CompanyId` from user context on create.
 - Soft delete only: set `IsActive = false` (no `DeletedOn`/`DeletedBy` columns).
-- Catch `DbUpdateException` for unique violations (`23505`) → `InvalidOperationException` (409 via `CatalogCrudExceptionMapper`).
+- Catch `DbUpdateException` for unique violations (`23505`) → `InvalidOperationException` (mapped to 409 by `ExceptionHandlingMiddleware`).
 - Add delete guards in write services when references exist (e.g. TaxAuthority → active tax details → 409).
 
 ## Validation
@@ -162,7 +162,7 @@ Fgs.Setup.Tests/{Entities}/
 ## Error handling and logging
 
 - Global: `ExceptionHandlingMiddleware` + MediatR `ValidationBehavior` via `AddFgsFoundation()`.
-- Handlers: try/catch → `CatalogCrudExceptionMapper.MapException<T>()`.
+- Handlers: catch persistence/domain failures and rethrow as `InvalidOperationException` / domain exceptions the middleware understands; avoid leaking raw EF exceptions.
 - Log create/update/delete at Information; failures at Error.
 
 ## Step-by-step clone checklist

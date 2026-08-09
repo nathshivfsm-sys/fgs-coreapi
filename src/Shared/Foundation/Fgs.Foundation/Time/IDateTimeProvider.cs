@@ -1,4 +1,4 @@
-namespace Fgs.Crm.Application.Abstractions.Time;
+namespace Fgs.Foundation.Time;
 
 public interface IDateTimeProvider
 {

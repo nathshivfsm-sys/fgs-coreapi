@@ -1,7 +1,7 @@
 using Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Dtos;
 using Fgs.Crm.Infrastructure.Common;
-using Fgs.Crm.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Crm.Infrastructure.Database;
 using Fgs.Crm.Infrastructure.Persistence.Customers;
 using Fgs.Foundation.Caching;

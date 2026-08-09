@@ -9,7 +9,7 @@ using Fgs.Asset.Application.Features.AssetModels.Dtos;
 using Fgs.Asset.Domain.Entities;
 using Fgs.Asset.Infrastructure.AssetModels;
 using Fgs.Asset.Infrastructure.Common;
-using Fgs.Asset.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Asset.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Fgs.MultiTenancy.Persistence;

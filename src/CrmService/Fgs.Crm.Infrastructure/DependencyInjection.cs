@@ -2,9 +2,7 @@ using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using Fgs.Crm.Application.Abstractions.Customers;
-using Fgs.Crm.Application.Abstractions.Time;
 using Fgs.Crm.Infrastructure.Common;
-using Fgs.Crm.Infrastructure.Common.Time;
 using Fgs.Crm.Infrastructure.Database;
 using Fgs.Crm.Infrastructure.Persistence.Customers;
 using Fgs.Persistence.Extensions;
@@ -38,7 +36,6 @@ public static class DependencyInjection
         services.AddFgsPersistence<FgsCrmDbContext>();
         services.AddFgsDbContextReadyCheck<FgsCrmDbContext>();
 
-        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddScoped<CrmEntityAuditHelper>();
         services.AddScoped<ICrmCustomerReadRepository, CrmCustomerReadRepository>();
         services.AddScoped<ICrmCustomerWriteService, CrmCustomerWriteService>();

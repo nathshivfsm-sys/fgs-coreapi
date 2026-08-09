@@ -10,7 +10,7 @@ using Fgs.Setup.Application.Features.SetupPricingMatrixLabors.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Domain.Enums;
 using Fgs.Setup.Infrastructure.Common;
-using Fgs.Setup.Infrastructure.Common.Time;
+using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.Setup.Infrastructure.Persistence.SetupPricingMatrixLabors;
 using Microsoft.EntityFrameworkCore;

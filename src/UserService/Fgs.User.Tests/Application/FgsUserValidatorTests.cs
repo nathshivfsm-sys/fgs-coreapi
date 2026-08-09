@@ -2,7 +2,7 @@ using Fgs.Security.Constants;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Roles;
 using Fgs.User.Application.Abstractions.Security;
-using Fgs.User.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.User.Application.Abstractions.Users;
 using Fgs.User.Application.Features.Roles.Dtos;
 using Fgs.User.Application.Features.Users.Commands.InviteFgsUser;

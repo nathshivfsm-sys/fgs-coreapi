@@ -2,9 +2,7 @@ using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using Fgs.Billing.Application.Abstractions.Invoices;
-using Fgs.Billing.Application.Abstractions.Time;
 using Fgs.Billing.Infrastructure.Common;
-using Fgs.Billing.Infrastructure.Common.Time;
 using Fgs.Billing.Infrastructure.Database;
 using Fgs.Billing.Infrastructure.Persistence.Invoices;
 using Fgs.Persistence.Extensions;
@@ -38,7 +36,6 @@ public static class DependencyInjection
         services.AddFgsPersistence<FgsBillingDbContext>();
         services.AddFgsDbContextReadyCheck<FgsBillingDbContext>();
 
-        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddScoped<BillingEntityAuditHelper>();
         services.AddScoped<IFgsInvoiceReadRepository, FgsInvoiceReadRepository>();
         services.AddScoped<IFgsInvoiceWriteService, FgsInvoiceWriteService>();

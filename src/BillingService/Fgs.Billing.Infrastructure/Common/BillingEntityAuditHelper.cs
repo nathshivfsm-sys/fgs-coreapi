@@ -1,4 +1,4 @@
-using Fgs.Billing.Application.Abstractions.Time;
+using Fgs.Foundation.Time;
 using Fgs.Billing.Domain.Entities;
 using Fgs.MultiTenancy;
 using Fgs.Security.Abstractions;
