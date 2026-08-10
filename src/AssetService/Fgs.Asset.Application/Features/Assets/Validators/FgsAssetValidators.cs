@@ -24,6 +24,8 @@ public sealed class CreateFgsAssetCommandValidator : AbstractValidator<CreateFgs
                     !await readRepository.ExistsByAssetNumberAsync(value!, null, ct))
                 .WithMessage("An asset with this asset number already exists.");
 
+            RuleFor(x => x.Dto.AssetLocation).MaximumLength(200);
+
             RuleFor(x => x.Dto.AssetStatusId)
                 .GreaterThan(0)
                 .WithMessage("Asset status is required.");
@@ -77,6 +79,8 @@ public sealed class UpdateFgsAssetCommandValidator : AbstractValidator<UpdateFgs
                     !await readRepository.ExistsByAssetNumberAsync(value!, cmd.Id, ct))
                 .WithMessage("An asset with this asset number already exists.");
 
+            RuleFor(x => x.Dto.AssetLocation).MaximumLength(200);
+
             RuleFor(x => x.Dto.AssetStatusId)
                 .GreaterThan(0)
                 .WithMessage("Asset status is required.");
@@ -127,6 +131,9 @@ public sealed class PatchFgsAssetCommandValidator : AbstractValidator<PatchFgsAs
                 .NotEmpty()
                 .MaximumLength(100)
                 .When(x => x.Dto.AssetNumber is not null);
+            RuleFor(x => x.Dto.AssetLocation)
+                .MaximumLength(200)
+                .When(x => x.Dto.AssetLocation is not null);
             RuleFor(x => x.Dto.ServiceLocationId)
                 .GreaterThan(0)
                 .When(x => x.Dto.ServiceLocationId.HasValue);

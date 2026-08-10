@@ -33,6 +33,7 @@ public sealed class FgsAssetWriteService : IFgsAssetWriteService
             AssetNumber = dto.AssetNumber.Trim(),
             ServiceLocationId = dto.ServiceLocationId,
             UnitNumber = Trim(dto.UnitNumber),
+            AssetLocation = Trim(dto.AssetLocation),
             AssetTypeId = dto.AssetTypeId,
             AssetManufacturerId = dto.AssetManufacturerId,
             AssetModelId = dto.AssetModelId,
@@ -89,6 +90,7 @@ public sealed class FgsAssetWriteService : IFgsAssetWriteService
         e.AssetNumber = dto.AssetNumber.Trim();
         e.ServiceLocationId = dto.ServiceLocationId;
         e.UnitNumber = Trim(dto.UnitNumber);
+        e.AssetLocation = Trim(dto.AssetLocation);
         e.AssetTypeId = dto.AssetTypeId;
         e.AssetManufacturerId = dto.AssetManufacturerId;
         e.AssetModelId = dto.AssetModelId;
@@ -111,6 +113,7 @@ public sealed class FgsAssetWriteService : IFgsAssetWriteService
         if (dto.AssetNumber is not null) e.AssetNumber = dto.AssetNumber.Trim();
         if (dto.ServiceLocationId.HasValue) e.ServiceLocationId = dto.ServiceLocationId;
         if (dto.UnitNumber is not null) e.UnitNumber = Trim(dto.UnitNumber);
+        if (dto.AssetLocation is not null) e.AssetLocation = Trim(dto.AssetLocation);
         if (dto.AssetTypeId.HasValue) e.AssetTypeId = dto.AssetTypeId;
         if (dto.AssetManufacturerId.HasValue) e.AssetManufacturerId = dto.AssetManufacturerId;
         if (dto.AssetModelId.HasValue) e.AssetModelId = dto.AssetModelId;
@@ -138,6 +141,7 @@ public sealed class FgsAssetWriteService : IFgsAssetWriteService
             e.AssetNumber,
             e.ServiceLocationId,
             e.UnitNumber,
+            e.AssetLocation,
             e.AssetTypeId,
             e.AssetManufacturerId,
             e.AssetModelId,
