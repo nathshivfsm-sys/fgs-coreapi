@@ -1,5 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <InternalsVisibleTo Include="Fgs.Messaging.Tests" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Contracts\Fgs.Contracts\Fgs.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>

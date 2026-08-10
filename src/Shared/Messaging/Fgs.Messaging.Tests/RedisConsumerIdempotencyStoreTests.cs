@@ -66,4 +66,36 @@ public sealed class RedisConsumerIdempotencyStoreTests
         result.Should().BeTrue();
         multiplexer.VerifyNoOtherCalls();
     }
+
+    [Fact]
+    public async Task HasBeenProcessedAsync_UsesKeyExists()
+    {
+        var database = new Mock<IDatabase>();
+        database
+            .Setup(d => d.KeyExistsAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(true);
+
+        var multiplexer = new Mock<IConnectionMultiplexer>();
+        multiplexer.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(database.Object);
+
+        var store = new RedisConsumerIdempotencyStore(
+            multiplexer.Object,
+            NullLogger<RedisConsumerIdempotencyStore>.Instance);
+
+        var result = await store.HasBeenProcessedAsync("msg-1", "tenant.provision.requested");
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task HasBeenProcessedAsync_EmptyMessageId_ReturnsFalseWithoutRedis()
+    {
+        var multiplexer = new Mock<IConnectionMultiplexer>(MockBehavior.Strict);
+        var store = new RedisConsumerIdempotencyStore(
+            multiplexer.Object,
+            NullLogger<RedisConsumerIdempotencyStore>.Instance);
+
+        var result = await store.HasBeenProcessedAsync(" ", "rk");
+        result.Should().BeFalse();
+        multiplexer.VerifyNoOtherCalls();
+    }
 }
