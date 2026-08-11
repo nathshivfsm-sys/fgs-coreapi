@@ -1,4 +1,5 @@
 using Fgs.Foundation.Paging;
+using Fgs.Setup.Infrastructure.Common;
 
 namespace Fgs.Setup.Infrastructure.Persistence.SetupLaborRateTypes;
 
@@ -24,16 +25,10 @@ internal static class FgsSetupLaborRateTypeSql
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)
-    {
-        var dir = direction == SortDirection.Desc ? "DESC" : "ASC";
-        if (string.IsNullOrWhiteSpace(sortBy) || !AllowedSortColumns.Contains(sortBy))
-        {
-            return $"ORDER BY \"SortOrder\" {dir} NULLS LAST, \"Name\" {dir}";
-        }
+        => SetupSqlOrderBy.Resolve(
+            sortBy,
+            direction,
+            AllowedSortColumns,
+            defaultColumn: "SortOrder", nullsLastTiebreakerColumn: "Name");
 
-        var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));
-        return column.Equals("SortOrder", StringComparison.OrdinalIgnoreCase)
-            ? $"ORDER BY \"SortOrder\" {dir} NULLS LAST, \"Name\" {dir}"
-            : $"ORDER BY \"{column}\" {dir}";
-    }
 }

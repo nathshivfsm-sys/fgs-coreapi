@@ -1,4 +1,5 @@
 using Fgs.Foundation.Paging;
+using Fgs.Setup.Infrastructure.Common;
 
 namespace Fgs.Setup.Infrastructure.Persistence.SalesDispositionReasons;
 
@@ -24,16 +25,10 @@ internal static class FgsSalesDispositionReasonSql
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)
-    {
-        var dir = direction == SortDirection.Desc ? "DESC" : "ASC";
-        if (string.IsNullOrWhiteSpace(sortBy) || !AllowedSortColumns.Contains(sortBy))
-        {
-            return $"ORDER BY \"Id\" {dir}";
-        }
+        => SetupSqlOrderBy.Resolve(
+            sortBy,
+            direction,
+            AllowedSortColumns,
+            nullsLastTiebreakerColumn: "DispositionReasonName");
 
-        var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));
-        return column.Equals("DisplayOrder", StringComparison.OrdinalIgnoreCase)
-            ? $"ORDER BY \"DisplayOrder\" {dir} NULLS LAST, \"DispositionReasonName\" {dir}"
-            : $"ORDER BY \"{column}\" {dir}";
-    }
 }

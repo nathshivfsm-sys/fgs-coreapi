@@ -64,10 +64,10 @@ public sealed class PatchJobTypeTaskCommandValidator : AbstractValidator<PatchJo
         RuleFor(x => x.Dto.TradeId).MustAsync(async (command, value, cancellationToken) =>
                 !value.HasValue || await readRepository.ExistsTradeIdAsync(value.Value, cancellationToken))
             .WithMessage("The specified trade was not found.").When(x => x.Dto.TradeId.HasValue);
-        RuleFor(x => x.Dto.TaskName).NotEmpty();
-        RuleFor(x => x.Dto.TaskName).MaximumLength(200);
-        RuleFor(x => x.Dto.Priority).GreaterThanOrEqualTo((short)1);
-        RuleFor(x => x.Dto.EstimatedHours).GreaterThanOrEqualTo(0m);
+        RuleFor(x => x.Dto.TaskName).NotEmpty().When(x => x.Dto.TaskName is not null);
+        RuleFor(x => x.Dto.TaskName).MaximumLength(200).When(x => x.Dto.TaskName is not null);
+        RuleFor(x => x.Dto.Priority).GreaterThanOrEqualTo((short)1).When(x => x.Dto.Priority.HasValue);
+        RuleFor(x => x.Dto.EstimatedHours).GreaterThanOrEqualTo(0m).When(x => x.Dto.EstimatedHours.HasValue);
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
     }
 }

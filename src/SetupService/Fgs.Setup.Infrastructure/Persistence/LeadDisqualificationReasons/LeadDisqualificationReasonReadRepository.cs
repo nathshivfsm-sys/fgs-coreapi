@@ -152,6 +152,7 @@ internal sealed class LeadDisqualificationReasonReadRepository : ILeadDisqualifi
                 FROM {LeadDisqualificationReasonSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "ReasonCode" = @ReasonCode
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

@@ -55,14 +55,14 @@ public sealed class PatchFgsBusinessTypeCommandValidator : AbstractValidator<Pat
     public PatchFgsBusinessTypeCommandValidator(IFgsBusinessTypeReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.Code).NotEmpty();
-        RuleFor(x => x.Dto.Code).MaximumLength(100);
-        RuleFor(x => x.Dto.Code).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("Code must be uppercase.");
+        RuleFor(x => x.Dto.Code).NotEmpty().When(x => x.Dto.Code is not null);
+        RuleFor(x => x.Dto.Code).MaximumLength(100).When(x => x.Dto.Code is not null);
+        RuleFor(x => x.Dto.Code).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("Code must be uppercase.").When(x => x.Dto.Code is not null);
         RuleFor(x => x.Dto.Code).MustAsync(async (command, code, cancellationToken) =>
                 !await readRepository.ExistsByCodeAsync(code!, command.Id, cancellationToken))
-            .WithMessage("A business type with this code already exists.");
-        RuleFor(x => x.Dto.Name).NotEmpty();
-        RuleFor(x => x.Dto.Name).MaximumLength(200);
+            .WithMessage("A business type with this code already exists.").When(x => x.Dto.Code is not null);
+        RuleFor(x => x.Dto.Name).NotEmpty().When(x => x.Dto.Name is not null);
+        RuleFor(x => x.Dto.Name).MaximumLength(200).When(x => x.Dto.Name is not null);
 
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
     }

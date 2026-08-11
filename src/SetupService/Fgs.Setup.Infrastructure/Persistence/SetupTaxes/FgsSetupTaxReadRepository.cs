@@ -158,6 +158,7 @@ internal sealed class FgsSetupTaxReadRepository : IFgsSetupTaxReadRepository
                 FROM {FgsSetupTaxSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "TaxCode" = @TaxCode
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

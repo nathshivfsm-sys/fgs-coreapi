@@ -152,6 +152,7 @@ internal sealed class FgsSalesDispositionReasonReadRepository : IFgsSalesDisposi
                 FROM {FgsSalesDispositionReasonSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "DispositionReasonCode" = @DispositionReasonCode
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

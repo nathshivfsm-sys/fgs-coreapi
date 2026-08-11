@@ -65,6 +65,8 @@ public sealed class TenantProvisioningOrchestrator(
                     seedResult.SucceededCount,
                     seedResult.SkippedCount,
                     seedResult.FailedCount);
+                throw new InvalidOperationException(
+                    $"Tenant data seed completed with failures for tenant {request.TenantId}: {seedResult.SucceededCount} succeeded, {seedResult.SkippedCount} skipped, {seedResult.FailedCount} failed.");
             }
 
             var companies = (await userTenantClient.GetCompaniesAsync(request.TenantId, cancellationToken))

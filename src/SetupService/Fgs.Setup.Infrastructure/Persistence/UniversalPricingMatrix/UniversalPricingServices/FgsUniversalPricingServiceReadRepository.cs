@@ -146,6 +146,7 @@ internal sealed class FgsUniversalPricingServiceReadRepository : IFgsUniversalPr
                 FROM {FgsUniversalPricingServiceSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "UniversalPricingServiceCode" = @UniversalPricingServiceCode
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

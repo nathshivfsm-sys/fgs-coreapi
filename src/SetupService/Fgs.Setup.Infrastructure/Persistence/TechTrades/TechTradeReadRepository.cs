@@ -153,6 +153,7 @@ internal sealed class TechTradeReadRepository : ITechTradeReadRepository
                 FROM {TechTradeSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "TradeCode" = @TradeCode
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

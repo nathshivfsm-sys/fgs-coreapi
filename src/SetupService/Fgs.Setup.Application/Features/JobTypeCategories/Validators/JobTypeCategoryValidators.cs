@@ -54,7 +54,7 @@ public sealed class PatchJobTypeCategoryCommandValidator : AbstractValidator<Pat
                     dto.JobCategoryId.Value,
                     command.Id,
                     cancellationToken))
-            .WithMessage("A job type category with this combination already exists.");
+            .WithMessage("A job type category with this combination already exists.").When(x => x.Dto.JobTypeId.HasValue && x.Dto.JobCategoryId.HasValue);
         RuleFor(x => x.Dto.JobTypeId).MustAsync(async (command, value, cancellationToken) =>
                 !value.HasValue || await readRepository.ExistsJobTypeIdAsync(value.Value, cancellationToken))
             .WithMessage("The specified job type was not found.").When(x => x.Dto.JobTypeId.HasValue);

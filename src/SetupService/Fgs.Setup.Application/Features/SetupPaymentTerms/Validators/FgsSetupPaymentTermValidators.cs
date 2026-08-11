@@ -52,11 +52,11 @@ public sealed class PatchFgsSetupPaymentTermCommandValidator : AbstractValidator
     public PatchFgsSetupPaymentTermCommandValidator(IFgsSetupPaymentTermReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.Name).NotEmpty();
+        RuleFor(x => x.Dto.Name).NotEmpty().When(x => x.Dto.Name is not null);
         RuleFor(x => x.Dto.Name).MustAsync(async (command, name, cancellationToken) =>
                 !await readRepository.ExistsByNameAsync(name!, command.Id, cancellationToken))
-            .WithMessage("An active payment term with this name already exists.");
-        RuleFor(x => x.Dto.DueDateMethod).NotEmpty();
+            .WithMessage("An active payment term with this name already exists.").When(x => x.Dto.Name is not null);
+        RuleFor(x => x.Dto.DueDateMethod).NotEmpty().When(x => x.Dto.DueDateMethod is not null);
 
 
 

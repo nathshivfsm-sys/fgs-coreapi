@@ -173,6 +173,7 @@ internal sealed class ResolutionCodeReadRepository : IResolutionCodeReadReposito
                 FROM {ResolutionCodeSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "ResolutionCode" = @ResolutionCode
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

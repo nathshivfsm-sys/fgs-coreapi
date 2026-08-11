@@ -82,6 +82,56 @@ public sealed class TenantProvisioningOrchestratorTests
         capturedGloIds!.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task ProvisionAsync_WhenSeedHasFailures_ThrowsAndSetsProvisioningFailed()
+    {
+        await using var context = await CreateContextAsync();
+
+        var seedingEngine = new Mock<ITenantDataSeedingEngine>();
+        seedingEngine
+            .Setup(s => s.SeedTenantDataAsync(10, 1, It.IsAny<IReadOnlyList<int>?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantDataSeedResult(
+                0,
+                0,
+                1,
+                [new TenantSeedTableResult("tableX", TenantSeedTableOutcome.Failed, "seed failed")]));
+
+        var userTenantClient = CreateUserTenantClientMock();
+        var fileTenantClient = CreateFileTenantClientMock();
+
+        var orchestrator = new TenantProvisioningOrchestrator(
+            userTenantClient.Object,
+            fileTenantClient.Object,
+            seedingEngine.Object,
+            context,
+            NullLogger<TenantProvisioningOrchestrator>.Instance);
+
+        var act = () => orchestrator.ProvisionAsync(
+            new TenantProvisionRequestedEvent(10, 1, "ACME", Guid.NewGuid()),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*seed completed with failures*");
+
+        userTenantClient.Verify(
+            c => c.UpdateStatusAsync(
+                10,
+                It.Is<UpdateTenantStatusRequest>(r => r.FgsTenantStatusId == TenantStatusIds.ProvisioningFailed),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        fileTenantClient.Verify(
+            c => c.ProvisionBucketAsync(It.IsAny<long>(), It.IsAny<ProvisionTenantBucketRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        userTenantClient.Verify(
+            c => c.UpdateStatusAsync(
+                10,
+                It.Is<UpdateTenantStatusRequest>(r => r.FgsTenantStatusId == TenantStatusIds.Active),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static Mock<IUserTenantClient> CreateUserTenantClientMock()
     {
         var mock = new Mock<IUserTenantClient>();

@@ -152,6 +152,7 @@ internal sealed class LeadSourceReadRepository : ILeadSourceReadRepository
                 FROM {LeadSourceSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "SourceCode" = @SourceCode
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

@@ -152,6 +152,7 @@ internal sealed class FgsSalesActivityTypeReadRepository : IFgsSalesActivityType
                 FROM {FgsSalesActivityTypeSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "ActivityTypeCode" = @ActivityTypeCode
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )
