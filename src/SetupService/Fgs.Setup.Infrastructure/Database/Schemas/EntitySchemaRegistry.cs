@@ -133,6 +133,7 @@ internal static class EntitySchemaRegistry
         [typeof(FgsUniversalPricingService)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsVehicle)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsVehicleMaintenance)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsNonWorkingDate)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsCredential)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsCrew)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsCrewMember)] = FgsDatabaseSchemas.Setup,

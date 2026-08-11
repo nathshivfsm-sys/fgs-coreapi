@@ -55,6 +55,7 @@ using Fgs.Setup.Application.Abstractions.SetupTaxes;
 using Fgs.Setup.Application.Abstractions.SetupTechSkillLevels;
 using Fgs.Setup.Application.Abstractions.SetupTimeSlots;
 using Fgs.Setup.Application.Abstractions.SetupZones;
+using Fgs.Setup.Application.Abstractions.NonWorkingDates;
 using Fgs.Setup.Application.Abstractions.Tags;
 using Fgs.Setup.Application.Abstractions.VehicleMaintenances;
 using Fgs.Setup.Application.Abstractions.Employees;
@@ -80,6 +81,7 @@ using Fgs.Setup.Infrastructure.Persistence.SetupTaxes;
 using Fgs.Setup.Infrastructure.Persistence.SetupTechSkillLevels;
 using Fgs.Setup.Infrastructure.Persistence.SetupTimeSlots;
 using Fgs.Setup.Infrastructure.Persistence.SetupZones;
+using Fgs.Setup.Infrastructure.Persistence.NonWorkingDates;
 using Fgs.Setup.Infrastructure.Persistence.Tags;
 using Fgs.Setup.Infrastructure.Persistence.VehicleMaintenances;
 using Fgs.Setup.Infrastructure.Persistence.Vehicles;
@@ -158,6 +160,11 @@ public static class DependencyInjection
             "UserService:BaseUrl",
             "http://user-service:5001");
 
+        services.AddFgsInternalServiceRefitClient<IUserCompanyClient>(
+            configuration,
+            "UserService:BaseUrl",
+            "http://user-service:5001");
+
         services.AddFgsInternalServiceRefitClient<IFileTenantClient>(
             configuration,
             "FileService:BaseUrl",
@@ -180,6 +187,8 @@ public static class DependencyInjection
         services.AddScoped<IFgsSalesActivityOutcomeWriteService, FgsSalesActivityOutcomeWriteService>();
         services.AddScoped<IFgsSetupZoneReadRepository, FgsSetupZoneReadRepository>();
         services.AddScoped<IFgsSetupZoneWriteService, FgsSetupZoneWriteService>();
+        services.AddScoped<IFgsNonWorkingDateReadRepository, FgsNonWorkingDateReadRepository>();
+        services.AddScoped<IFgsNonWorkingDateWriteService, FgsNonWorkingDateWriteService>();
         services.AddScoped<IFgsSetupTechSkillLevelReadRepository, FgsSetupTechSkillLevelReadRepository>();
         services.AddScoped<IFgsSetupTechSkillLevelWriteService, FgsSetupTechSkillLevelWriteService>();
         services.AddScoped<IFgsSetupLaborRateTypeReadRepository, FgsSetupLaborRateTypeReadRepository>();

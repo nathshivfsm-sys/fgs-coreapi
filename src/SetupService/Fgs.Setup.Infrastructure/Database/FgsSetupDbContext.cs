@@ -121,6 +121,8 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsVehicleMaintenance> FgsVehicleMaintenances => Set<FgsVehicleMaintenance>();
 
+    public DbSet<FgsNonWorkingDate> FgsNonWorkingDates => Set<FgsNonWorkingDate>();
+
     public DbSet<GloVehicleMaintenanceType> GloVehicleMaintenanceTypes => Set<GloVehicleMaintenanceType>();
 
     public DbSet<GloMasterEntityType> GloMasterEntityTypes => Set<GloMasterEntityType>();
