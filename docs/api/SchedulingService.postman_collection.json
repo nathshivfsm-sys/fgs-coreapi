@@ -246,7 +246,7 @@
                  "description":  "Scheduling appointments via {{gatewayUrl}}/api/v1/appointment.",
                  "name":  "FGS SchedulingService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "76c486cc-d3d0-4b22-8b53-4efc4128596d"
+                 "_postman_id":  "373b5246-bcac-451c-8448-7e0f0804de75"
              },
     "event":  [
                   {

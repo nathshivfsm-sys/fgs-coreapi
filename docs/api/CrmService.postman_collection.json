@@ -408,7 +408,7 @@
                  "description":  "CRM customer catalog via {{gatewayUrl}}/api/v1/customer.",
                  "name":  "FGS CrmService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "e6099f85-a7f4-48bb-bdd0-28a90b08d19f"
+                 "_postman_id":  "f5b77f45-4c52-4cb1-84f1-6e3ee5ddbfd0"
              },
     "event":  [
                   {

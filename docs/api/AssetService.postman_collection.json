@@ -1855,7 +1855,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetNumber\": \"Primary Asset\",\n  \"serviceLocationId\": null,\n  \"unitNumber\": null,\n  \"assetTypeId\": null,\n  \"assetManufacturerId\": null,\n  \"assetModelId\": null,\n  \"assetDescription\": null,\n  \"customerAssetNumber\": null,\n  \"customerAssetName\": null,\n  \"manufacturerName\": null,\n  \"modelNumber\": null,\n  \"serialNumber\": null,\n  \"manufactureDate\": \"2024-03-15\",\n  \"installDate\": \"2024-03-15\",\n  \"installedWorkOrderId\": null,\n  \"isInstalledByCompany\": true,\n  \"isOurInstallation\": true,\n  \"assetStatusId\": {{assetStatusId}}\n}",
+                                                                   "raw":  "{\n  \"assetNumber\": \"Primary Asset\",\n  \"serviceLocationId\": null,\n  \"unitNumber\": null,\n  \"assetLocation\": null,\n  \"assetTypeId\": null,\n  \"assetManufacturerId\": null,\n  \"assetModelId\": null,\n  \"assetDescription\": null,\n  \"customerAssetNumber\": null,\n  \"customerAssetName\": null,\n  \"manufacturerName\": null,\n  \"modelNumber\": null,\n  \"serialNumber\": null,\n  \"manufactureDate\": \"2024-03-15\",\n  \"installDate\": \"2024-03-15\",\n  \"installedWorkOrderId\": null,\n  \"isInstalledByCompany\": true,\n  \"isOurInstallation\": true,\n  \"assetStatusId\": {{assetStatusId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1930,7 +1930,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetNumber\": \"Primary Asset\",\n  \"serviceLocationId\": null,\n  \"unitNumber\": null,\n  \"assetTypeId\": null,\n  \"assetManufacturerId\": null,\n  \"assetModelId\": null,\n  \"assetDescription\": null,\n  \"customerAssetNumber\": null,\n  \"customerAssetName\": null,\n  \"manufacturerName\": null,\n  \"modelNumber\": null,\n  \"serialNumber\": null,\n  \"manufactureDate\": \"2024-03-15\",\n  \"installDate\": \"2024-03-15\",\n  \"installedWorkOrderId\": null,\n  \"isInstalledByCompany\": true,\n  \"isOurInstallation\": true,\n  \"assetStatusId\": {{assetStatusId}}\n}",
+                                                                   "raw":  "{\n  \"assetNumber\": \"Primary Asset\",\n  \"serviceLocationId\": null,\n  \"unitNumber\": null,\n  \"assetLocation\": null,\n  \"assetTypeId\": null,\n  \"assetManufacturerId\": null,\n  \"assetModelId\": null,\n  \"assetDescription\": null,\n  \"customerAssetNumber\": null,\n  \"customerAssetName\": null,\n  \"manufacturerName\": null,\n  \"modelNumber\": null,\n  \"serialNumber\": null,\n  \"manufactureDate\": \"2024-03-15\",\n  \"installDate\": \"2024-03-15\",\n  \"installedWorkOrderId\": null,\n  \"isInstalledByCompany\": true,\n  \"isOurInstallation\": true,\n  \"assetStatusId\": {{assetStatusId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3976,7 +3976,7 @@
                  "description":  "Asset catalog APIs via {{gatewayUrl}}/api/v1/{asset*}. Attribute Create scenarios cover each inputType.",
                  "name":  "FGS AssetService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "eef5190b-c60e-49f9-9322-e676a1eb9a11"
+                 "_postman_id":  "8d331382-fa6d-41c4-a7e3-9e1586414c88"
              },
     "event":  [
                   {

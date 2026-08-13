@@ -406,7 +406,7 @@
                  "description":  "Billing invoice catalog via {{gatewayUrl}}/api/v1/invoice.",
                  "name":  "FGS BillingService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "0119413b-3169-4254-b5b7-9f6928fcba91"
+                 "_postman_id":  "276a8477-57c3-444f-a6ca-ea472b9e4bf7"
              },
     "event":  [
                   {

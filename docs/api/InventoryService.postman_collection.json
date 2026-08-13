@@ -5029,7 +5029,7 @@
                  "description":  "Inventory catalog and purchasing APIs via {{gatewayUrl}}/api/v1/{inventory-*|vendor|vendorinventoryitem|purchaseorder|truckstocktemplate}. Aggregates: inventoryitem (alternates/dependencies), purchaseorder (details), truckstocktemplate (items).",
                  "name":  "FGS InventoryService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "2e9c01c7-01fb-4b8d-9342-f1fc2a301fc1"
+                 "_postman_id":  "20258500-051f-49f7-b0d5-4622518d6740"
              },
     "event":  [
                   {

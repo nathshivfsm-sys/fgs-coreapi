@@ -269,7 +269,7 @@
                  "description":  "Credential audit trail via {{gatewayUrl}}/api/v1/credentialaudit.",
                  "name":  "FGS AuditService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "0a84fa6a-1412-4e42-8f9a-150c79668908"
+                 "_postman_id":  "6bf8ded3-b6f2-4505-ac4d-c2a30a5e6660"
              },
     "event":  [
                   {

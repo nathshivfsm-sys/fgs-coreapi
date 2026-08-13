@@ -14,6 +14,18 @@ x-service-network: &service-network
     - fgs-private
   restart: unless-stopped
 
+x-datadog-env: &datadog-env
+  Datadog__Enabled: "true"
+  Datadog__ApiKey: ${DD_API_KEY:-}
+  Datadog__Site: ${DD_SITE:-datadoghq.com}
+  Datadog__AgentHost: datadog-agent
+  Datadog__AgentPort: "8126"
+  Datadog__DogStatsDPort: "8125"
+  Datadog__Env: ${DD_ENV:-local}
+  Datadog__Version: ${DD_VERSION:-0.0.0}
+  Datadog__EnableApm: "true"
+  Datadog__EnableRuntimeMetrics: "true"
+
 x-credential-consumer-env: &credential-consumer-env
   ASPNETCORE_ENVIRONMENT: Production
   SetupService__BaseUrl: http://setup-service:5004
@@ -23,6 +35,7 @@ x-credential-consumer-env: &credential-consumer-env
   Redis__Enabled: "true"
   # Production disables Swagger unless Enabled=true; without it /swagger/* falls through to JWT fallback (401).
   Swagger__Enabled: "true"
+  <<: *datadog-env
 
 x-depends-on-setup: &depends-on-setup
   setup-service:
@@ -75,13 +88,14 @@ services:
       - fgs-private
     restart: unless-stopped
 
-  # Datadog Agent — set DD_API_KEY (match Datadog:ApiKey in appsettings when verifying the UI)
+  # Datadog Agent — set DD_API_KEY (same value as Datadog:ApiKey / Datadog__ApiKey)
   datadog-agent:
     image: gcr.io/datadoghq/agent:7.64.0
     <<: *service-network
     environment:
       DD_API_KEY: ${DD_API_KEY:-}
       DD_SITE: ${DD_SITE:-datadoghq.com}
+      DD_ENV: ${DD_ENV:-local}
       DD_APM_ENABLED: "true"
       DD_APM_NON_LOCAL_TRAFFIC: "true"
       DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
@@ -105,6 +119,7 @@ services:
       context: ../..
       dockerfile: src/Gateway/docker/setup-service.Dockerfile
     environment:
+      <<: *datadog-env
       ASPNETCORE_ENVIRONMENT: Production
       CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
       Swagger__Enabled: "true"

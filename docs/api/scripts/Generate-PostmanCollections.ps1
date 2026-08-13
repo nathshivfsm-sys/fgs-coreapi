@@ -388,6 +388,7 @@ function Get-EntitySampleProfile {
         RolePermission = @{ Code = 'ADMIN_USER_VIEW'; Name = 'Admin View Users'; Description = 'Administrator permission to view users' }
         User = @{ Code = 'OFFICE'; Name = 'Office User'; Description = 'Office staff user account' }
         UserRole = @{ Code = 'OFFICE_ADMIN'; Name = 'Office Administrator'; Description = 'Assigns administrator role to a user' }
+        Company = @{ Code = 'ACME'; Name = 'Acme Field Services'; Description = 'Tenant company profile' }
         ServiceSetup = @{ Code = 'DEFAULT'; Name = 'Default Service Setup'; Description = 'Tenant service configuration defaults' }
         Asset = @{ Code = 'ASSET01'; Name = 'Primary Asset'; Description = 'Customer installed asset' }
         AssetAttribute = @{ Code = 'SERIAL'; Name = 'Serial Number'; Description = 'Asset serial number attribute' }
@@ -886,6 +887,10 @@ function Parse-ControllerFile {
             $fullPath = '{{gatewayUrl}}/api/v1/dashboard?token={{accessToken}}'
             $useAuth = $false
         }
+        if ($fileName -eq 'CompanyController') {
+            # Route {companyId} is CompanyNumber (same as X-Company-Id / signup env).
+            $query['tenantId'] = '{{tenantId}}'
+        }
         if ($httpAttr -in @('Post','Put','Patch') -and $methodName -notin @('EntraCallback','EntraConnector','CompanySignup','Start','Upload')) {
             $body = "{}"
         }
@@ -1209,6 +1214,16 @@ function Parse-ControllerFile {
             ('  pm.environment.set("{0}", String(body.data.id));' -f $entityIdVar),
             '}'
         )
+        if ($fileName -eq 'CompanyController' -and $methodName -eq 'Create') {
+            # Company routes and X-Company-Id use CompanyNumber, not the surrogate Id.
+            $createIdScript = @(
+                'const body = pm.response.json();',
+                'if (body.success && body.data) {',
+                '  if (body.data.companyNumber) pm.environment.set("companyId", String(body.data.companyNumber));',
+                '  if (body.data.id) pm.environment.set("createdCompanyPkId", String(body.data.id));',
+                '}'
+            )
+        }
         if ($methodName -eq 'Create' -and $httpAttr -eq 'Post') {
             $req['event'] = @(@{
                 listen = 'test'
@@ -1237,6 +1252,10 @@ function Parse-ControllerFile {
     }
 
     if ($items.Count -eq 0) { return $null }
+
+    if ($fileName -eq 'CompanyController') {
+        $controllerDescription = 'Company CRUD via {{gatewayUrl}}/api/v1/company. Path companyId is CompanyNumber (not PK Id). Optional tenantId query overrides JWT tenant context.'
+    }
 
     return @{
         name = $fileName
