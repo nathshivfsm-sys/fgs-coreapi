@@ -41,6 +41,7 @@ public sealed class UserInvitationIssuer(
                 existing.MarkExpired();
                 existing.UpdatedOn = now;
                 existing.UpdatedBy = createdBy;
+                invitationRepo.Update(existing);
             }
         }
 

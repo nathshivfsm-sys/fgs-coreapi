@@ -1,0 +1,843 @@
+{
+  "Fgs.Audit.Application.dll": {
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\DependencyInjection.cs": {
+      "Fgs.Audit.Application.DependencyInjection": {
+        "Microsoft.Extensions.DependencyInjection.IServiceCollection Fgs.Audit.Application.DependencyInjection::AddFgsAuditApplication(Microsoft.Extensions.DependencyInjection.IServiceCollection)": {
+          "Lines": {
+            "10": 0,
+            "11": 0,
+            "12": 0,
+            "13": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\Events\\Queries\\ListAuditEventsByEntity\\ListAuditEventsByEntityQuery.cs": {
+      "Fgs.Audit.Application.Features.Events.Queries.ListAuditEventsByEntity.ListAuditEventsByEntityQuery": {
+        "System.String Fgs.Audit.Application.Features.Events.Queries.ListAuditEventsByEntity.ListAuditEventsByEntityQuery::get_RecordType()": {
+          "Lines": {
+            "8": 3
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Audit.Application.Features.Events.Queries.ListAuditEventsByEntity.ListAuditEventsByEntityQuery::get_EntityId()": {
+          "Lines": {
+            "9": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Audit.Application.Features.Events.Queries.ListAuditEventsByEntity.ListAuditEventsByEntityQuery::get_TenantId()": {
+          "Lines": {
+            "10": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Audit.Application.Features.Events.Queries.ListAuditEventsByEntity.ListAuditEventsByEntityQuery::get_CompanyId()": {
+          "Lines": {
+            "11": 3
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Audit.Application.Features.Events.Queries.ListAuditEventsByEntity.ListAuditEventsByEntityQuery::.ctor(System.String,System.Int64,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>)": {
+          "Lines": {
+            "7": 2
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\Events\\Queries\\ListAuditEventsByEntity\\ListAuditEventsByEntityQueryHandler.cs": {
+      "Fgs.Audit.Application.Features.Events.Queries.ListAuditEventsByEntity.ListAuditEventsByEntityQueryHandler": {
+        "System.Void Fgs.Audit.Application.Features.Events.Queries.ListAuditEventsByEntity.ListAuditEventsByEntityQueryHandler::.ctor(Fgs.Audit.Application.Abstractions.IAuditEventReadRepository)": {
+          "Lines": {
+            "9": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Audit.Application.Features.Events.Queries.ListAuditEventsByEntity.ListAuditEventsByEntityQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Audit.Application.Features.Events.Queries.ListAuditEventsByEntity.ListAuditEventsByEntityQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "15": 2,
+            "16": 2,
+            "17": 1,
+            "18": 1,
+            "19": 1,
+            "20": 1,
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 1,
+            "28": 1,
+            "30": 1,
+            "31": 2
+          },
+          "Branches": [
+            {
+              "Line": 16,
+              "Offset": 46,
+              "EndOffset": 48,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 16,
+              "Offset": 46,
+              "EndOffset": 96,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 1
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\Events\\Queries\\GetAuditEventById\\GetAuditEventByIdQuery.cs": {
+      "Fgs.Audit.Application.Features.Events.Queries.GetAuditEventById.GetAuditEventByIdQuery": {
+        "System.Int64 Fgs.Audit.Application.Features.Events.Queries.GetAuditEventById.GetAuditEventByIdQuery::get_Id()": {
+          "Lines": {
+            "7": 5
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\Events\\Queries\\GetAuditEventById\\GetAuditEventByIdQueryHandler.cs": {
+      "Fgs.Audit.Application.Features.Events.Queries.GetAuditEventById.GetAuditEventByIdQueryHandler": {
+        "System.Void Fgs.Audit.Application.Features.Events.Queries.GetAuditEventById.GetAuditEventByIdQueryHandler::.ctor(Fgs.Audit.Application.Abstractions.IAuditEventReadRepository)": {
+          "Lines": {
+            "8": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Audit.Application.Features.Events.Queries.GetAuditEventById.GetAuditEventByIdQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Audit.Application.Features.Events.Queries.GetAuditEventById.GetAuditEventByIdQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "14": 2,
+            "15": 2,
+            "16": 2,
+            "17": 1,
+            "18": 1,
+            "19": 1,
+            "20": 1,
+            "23": 1,
+            "24": 2
+          },
+          "Branches": [
+            {
+              "Line": 16,
+              "Offset": 175,
+              "EndOffset": 177,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 16,
+              "Offset": 175,
+              "EndOffset": 258,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 1
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\Events\\Dtos\\AuditEventDtos.cs": {
+      "Fgs.Audit.Application.Features.Events.Dtos.AuditEventSummaryDto": {
+        "System.Int64 Fgs.Audit.Application.Features.Events.Dtos.AuditEventSummaryDto::get_Id()": {
+          "Lines": {
+            "4": 0
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Audit.Application.Features.Events.Dtos.AuditEventSummaryDto::get_TenantId()": {
+          "Lines": {
+            "5": 0
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Audit.Application.Features.Events.Dtos.AuditEventSummaryDto::get_CompanyId()": {
+          "Lines": {
+            "6": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventSummaryDto::get_EventCode()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventSummaryDto::get_EventSource()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventSummaryDto::get_RecordType()": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Audit.Application.Features.Events.Dtos.AuditEventSummaryDto::get_EntityId()": {
+          "Lines": {
+            "10": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventSummaryDto::get_EntityNumber()": {
+          "Lines": {
+            "11": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventSummaryDto::get_UserName()": {
+          "Lines": {
+            "12": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventSummaryDto::get_Summary()": {
+          "Lines": {
+            "13": 0
+          },
+          "Branches": []
+        },
+        "System.DateTime Fgs.Audit.Application.Features.Events.Dtos.AuditEventSummaryDto::get_OccurredOn()": {
+          "Lines": {
+            "14": 0
+          },
+          "Branches": []
+        },
+        "System.DateTime Fgs.Audit.Application.Features.Events.Dtos.AuditEventSummaryDto::get_CreatedOn()": {
+          "Lines": {
+            "15": 1
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Audit.Application.Features.Events.Dtos.AuditEventSummaryDto::.ctor(System.Int64,System.Int64,System.Int64,System.String,System.String,System.String,System.Int64,System.String,System.String,System.String,System.DateTime,System.DateTime)": {
+          "Lines": {
+            "3": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto": {
+        "System.Int64 Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::get_Id()": {
+          "Lines": {
+            "18": 2
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::get_TenantId()": {
+          "Lines": {
+            "19": 0
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::get_CompanyId()": {
+          "Lines": {
+            "20": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::get_EventCode()": {
+          "Lines": {
+            "21": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::get_EventSource()": {
+          "Lines": {
+            "22": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::get_RecordType()": {
+          "Lines": {
+            "23": 0
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::get_EntityId()": {
+          "Lines": {
+            "24": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::get_EntityNumber()": {
+          "Lines": {
+            "25": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::get_UserName()": {
+          "Lines": {
+            "26": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::get_Summary()": {
+          "Lines": {
+            "27": 0
+          },
+          "Branches": []
+        },
+        "System.DateTime Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::get_OccurredOn()": {
+          "Lines": {
+            "28": 0
+          },
+          "Branches": []
+        },
+        "System.DateTime Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::get_CreatedOn()": {
+          "Lines": {
+            "29": 0
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.IReadOnlyList`1<Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailEntryDto> Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::get_Details()": {
+          "Lines": {
+            "30": 1
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.IReadOnlyList`1<Fgs.Audit.Application.Features.Events.Dtos.AuditEventAttachmentDto> Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::get_Attachments()": {
+          "Lines": {
+            "31": 4
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailDto::.ctor(System.Int64,System.Int64,System.Int64,System.String,System.String,System.String,System.Int64,System.String,System.String,System.String,System.DateTime,System.DateTime,System.Collections.Generic.IReadOnlyList`1<Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailEntryDto>,System.Collections.Generic.IReadOnlyList`1<Fgs.Audit.Application.Features.Events.Dtos.AuditEventAttachmentDto>)": {
+          "Lines": {
+            "17": 3
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailEntryDto": {
+        "System.Int64 Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailEntryDto::get_Id()": {
+          "Lines": {
+            "34": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailEntryDto::get_EntryType()": {
+          "Lines": {
+            "35": 0
+          },
+          "Branches": []
+        },
+        "System.Int16 Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailEntryDto::get_Sequence()": {
+          "Lines": {
+            "36": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailEntryDto::get_ItemName()": {
+          "Lines": {
+            "37": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailEntryDto::get_OldValue()": {
+          "Lines": {
+            "38": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailEntryDto::get_NewValue()": {
+          "Lines": {
+            "39": 0
+          },
+          "Branches": []
+        },
+        "System.DateTime Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailEntryDto::get_CreatedOn()": {
+          "Lines": {
+            "40": 1
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Audit.Application.Features.Events.Dtos.AuditEventDetailEntryDto::.ctor(System.Int64,System.String,System.Int16,System.String,System.String,System.String,System.DateTime)": {
+          "Lines": {
+            "33": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Audit.Application.Features.Events.Dtos.AuditEventAttachmentDto": {
+        "System.Int64 Fgs.Audit.Application.Features.Events.Dtos.AuditEventAttachmentDto::get_Id()": {
+          "Lines": {
+            "43": 0
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Audit.Application.Features.Events.Dtos.AuditEventAttachmentDto::get_DocumentId()": {
+          "Lines": {
+            "44": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.Events.Dtos.AuditEventAttachmentDto::get_Description()": {
+          "Lines": {
+            "45": 0
+          },
+          "Branches": []
+        },
+        "System.DateTime Fgs.Audit.Application.Features.Events.Dtos.AuditEventAttachmentDto::get_CreatedOn()": {
+          "Lines": {
+            "46": 1
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Audit.Application.Features.Events.Dtos.AuditEventAttachmentDto::.ctor(System.Int64,System.Int64,System.String,System.DateTime)": {
+          "Lines": {
+            "42": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\Events\\Commands\\RecordAuditEvent\\RecordAuditEventCommand.cs": {
+      "Fgs.Audit.Application.Features.Events.Commands.RecordAuditEvent.RecordAuditEventCommand": {
+        "Fgs.Contracts.Audit.RecordAuditEventRequest Fgs.Audit.Application.Features.Events.Commands.RecordAuditEvent.RecordAuditEventCommand::get_Request()": {
+          "Lines": {
+            "8": 8
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\Events\\Commands\\RecordAuditEvent\\RecordAuditEventCommandHandler.cs": {
+      "Fgs.Audit.Application.Features.Events.Commands.RecordAuditEvent.RecordAuditEventCommandHandler": {
+        "System.Void Fgs.Audit.Application.Features.Events.Commands.RecordAuditEvent.RecordAuditEventCommandHandler::.ctor(Fgs.Audit.Application.Abstractions.IAuditEventWriter)": {
+          "Lines": {
+            "9": 4
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Audit.Application.Features.Events.Commands.RecordAuditEvent.RecordAuditEventCommandHandler/<Handle>d__2": {
+        "System.Void Fgs.Audit.Application.Features.Events.Commands.RecordAuditEvent.RecordAuditEventCommandHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "15": 4,
+            "16": 4,
+            "17": 4,
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "21": 0,
+            "24": 4,
+            "25": 1,
+            "26": 1,
+            "27": 1,
+            "28": 1,
+            "31": 3,
+            "32": 1,
+            "33": 1,
+            "34": 1,
+            "35": 1,
+            "38": 2,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "45": 2,
+            "46": 2,
+            "47": 9,
+            "48": 2,
+            "49": 2,
+            "50": 1,
+            "51": 1,
+            "52": 1,
+            "53": 1,
+            "56": 1,
+            "57": 0,
+            "58": 0,
+            "59": 0,
+            "60": 0,
+            "62": 1,
+            "63": 1,
+            "65": 1,
+            "66": 1,
+            "67": 4
+          },
+          "Branches": [
+            {
+              "Line": 17,
+              "Offset": 53,
+              "EndOffset": 55,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 17,
+              "Offset": 53,
+              "EndOffset": 82,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 4
+            },
+            {
+              "Line": 24,
+              "Offset": 100,
+              "EndOffset": 102,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 24,
+              "Offset": 100,
+              "EndOffset": 129,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 3
+            },
+            {
+              "Line": 31,
+              "Offset": 155,
+              "EndOffset": 157,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 1
+            },
+            {
+              "Line": 31,
+              "Offset": 155,
+              "EndOffset": 205,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 2
+            },
+            {
+              "Line": 38,
+              "Offset": 231,
+              "EndOffset": 233,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 0
+            },
+            {
+              "Line": 38,
+              "Offset": 231,
+              "EndOffset": 281,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 2
+            },
+            {
+              "Line": 45,
+              "Offset": 302,
+              "EndOffset": 307,
+              "Path": 0,
+              "Ordinal": 8,
+              "Hits": 2
+            },
+            {
+              "Line": 47,
+              "Offset": 498,
+              "EndOffset": 336,
+              "Path": 1,
+              "Ordinal": 15,
+              "Hits": 2
+            },
+            {
+              "Line": 49,
+              "Offset": 380,
+              "EndOffset": 382,
+              "Path": 0,
+              "Ordinal": 10,
+              "Hits": 1
+            },
+            {
+              "Line": 49,
+              "Offset": 380,
+              "EndOffset": 430,
+              "Path": 1,
+              "Ordinal": 11,
+              "Hits": 1
+            },
+            {
+              "Line": 56,
+              "Offset": 450,
+              "EndOffset": 452,
+              "Path": 0,
+              "Ordinal": 12,
+              "Hits": 0
+            },
+            {
+              "Line": 56,
+              "Offset": 450,
+              "EndOffset": 479,
+              "Path": 1,
+              "Ordinal": 13,
+              "Hits": 1
+            },
+            {
+              "Line": 47,
+              "Offset": 498,
+              "EndOffset": 503,
+              "Path": 0,
+              "Ordinal": 14,
+              "Hits": 1
+            },
+            {
+              "Line": 45,
+              "Offset": 302,
+              "EndOffset": 538,
+              "Path": 1,
+              "Ordinal": 9,
+              "Hits": 1
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\CredentialAudits\\Commands\\RecordCredentialAudit\\RecordCredentialAuditCommand.cs": {
+      "Fgs.Audit.Application.Features.CredentialAudits.Commands.RecordCredentialAudit.RecordCredentialAuditCommand": {
+        "Fgs.Contracts.CredentialAudit.RecordCredentialAuditRequest Fgs.Audit.Application.Features.CredentialAudits.Commands.RecordCredentialAudit.RecordCredentialAuditCommand::get_Request()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\CredentialAudits\\Commands\\RecordCredentialAudit\\RecordCredentialAuditCommandHandler.cs": {
+      "Fgs.Audit.Application.Features.CredentialAudits.Commands.RecordCredentialAudit.RecordCredentialAuditCommandHandler": {
+        "System.Void Fgs.Audit.Application.Features.CredentialAudits.Commands.RecordCredentialAudit.RecordCredentialAuditCommandHandler::.ctor(Fgs.Audit.Application.Abstractions.ICredentialAuditWriter)": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Audit.Application.Features.CredentialAudits.Commands.RecordCredentialAudit.RecordCredentialAuditCommandHandler/<Handle>d__2": {
+        "System.Void Fgs.Audit.Application.Features.CredentialAudits.Commands.RecordCredentialAudit.RecordCredentialAuditCommandHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\ArchiveCatalogs\\Queries\\ListArchiveCatalogs\\ListArchiveCatalogsQueryHandler.cs": {
+      "Fgs.Audit.Application.Features.ArchiveCatalogs.Queries.ListArchiveCatalogs.ListArchiveCatalogsQueryHandler": {
+        "System.Void Fgs.Audit.Application.Features.ArchiveCatalogs.Queries.ListArchiveCatalogs.ListArchiveCatalogsQueryHandler::.ctor(Fgs.Audit.Application.Abstractions.IArchiveCatalogReadRepository)": {
+          "Lines": {
+            "8": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Audit.Application.Features.ArchiveCatalogs.Queries.ListArchiveCatalogs.ListArchiveCatalogsQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Audit.Application.Features.ArchiveCatalogs.Queries.ListArchiveCatalogs.ListArchiveCatalogsQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "14": 1,
+            "15": 1,
+            "16": 1,
+            "17": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\ArchiveCatalogs\\Queries\\GetArchiveCatalogById\\GetArchiveCatalogByIdQuery.cs": {
+      "Fgs.Audit.Application.Features.ArchiveCatalogs.Queries.GetArchiveCatalogById.GetArchiveCatalogByIdQuery": {
+        "System.Int64 Fgs.Audit.Application.Features.ArchiveCatalogs.Queries.GetArchiveCatalogById.GetArchiveCatalogByIdQuery::get_Id()": {
+          "Lines": {
+            "7": 3
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\ArchiveCatalogs\\Queries\\GetArchiveCatalogById\\GetArchiveCatalogByIdQueryHandler.cs": {
+      "Fgs.Audit.Application.Features.ArchiveCatalogs.Queries.GetArchiveCatalogById.GetArchiveCatalogByIdQueryHandler": {
+        "System.Void Fgs.Audit.Application.Features.ArchiveCatalogs.Queries.GetArchiveCatalogById.GetArchiveCatalogByIdQueryHandler::.ctor(Fgs.Audit.Application.Abstractions.IArchiveCatalogReadRepository)": {
+          "Lines": {
+            "8": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Audit.Application.Features.ArchiveCatalogs.Queries.GetArchiveCatalogById.GetArchiveCatalogByIdQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Audit.Application.Features.ArchiveCatalogs.Queries.GetArchiveCatalogById.GetArchiveCatalogByIdQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "14": 1,
+            "15": 1,
+            "16": 1,
+            "17": 1,
+            "18": 1,
+            "19": 1,
+            "20": 1,
+            "23": 0,
+            "24": 1
+          },
+          "Branches": [
+            {
+              "Line": 16,
+              "Offset": 175,
+              "EndOffset": 177,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 16,
+              "Offset": 175,
+              "EndOffset": 258,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\ArchiveCatalogs\\Dtos\\ArchiveCatalogDtos.cs": {
+      "Fgs.Audit.Application.Features.ArchiveCatalogs.Dtos.ArchiveCatalogDto": {
+        "System.Int64 Fgs.Audit.Application.Features.ArchiveCatalogs.Dtos.ArchiveCatalogDto::get_Id()": {
+          "Lines": {
+            "4": 2
+          },
+          "Branches": []
+        },
+        "System.DateOnly Fgs.Audit.Application.Features.ArchiveCatalogs.Dtos.ArchiveCatalogDto::get_ArchiveMonth()": {
+          "Lines": {
+            "5": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Audit.Application.Features.ArchiveCatalogs.Dtos.ArchiveCatalogDto::get_StoragePath()": {
+          "Lines": {
+            "6": 2
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Audit.Application.Features.ArchiveCatalogs.Dtos.ArchiveCatalogDto::get_FileSize()": {
+          "Lines": {
+            "7": 1
+          },
+          "Branches": []
+        },
+        "System.DateTime Fgs.Audit.Application.Features.ArchiveCatalogs.Dtos.ArchiveCatalogDto::get_CreatedOn()": {
+          "Lines": {
+            "8": 5
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Audit.Application.Features.ArchiveCatalogs.Dtos.ArchiveCatalogDto::.ctor(System.Int64,System.DateOnly,System.String,System.Int64,System.DateTime)": {
+          "Lines": {
+            "3": 5
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\ArchiveCatalogs\\Commands\\UpsertArchiveCatalog\\UpsertArchiveCatalogCommand.cs": {
+      "Fgs.Audit.Application.Features.ArchiveCatalogs.Commands.UpsertArchiveCatalog.UpsertArchiveCatalogCommand": {
+        "Fgs.Contracts.Audit.UpsertArchiveCatalogRequest Fgs.Audit.Application.Features.ArchiveCatalogs.Commands.UpsertArchiveCatalog.UpsertArchiveCatalogCommand::get_Request()": {
+          "Lines": {
+            "8": 8
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AuditService\\Fgs.Audit.Application\\Features\\ArchiveCatalogs\\Commands\\UpsertArchiveCatalog\\UpsertArchiveCatalogCommandHandler.cs": {
+      "Fgs.Audit.Application.Features.ArchiveCatalogs.Commands.UpsertArchiveCatalog.UpsertArchiveCatalogCommandHandler": {
+        "System.Void Fgs.Audit.Application.Features.ArchiveCatalogs.Commands.UpsertArchiveCatalog.UpsertArchiveCatalogCommandHandler::.ctor(Fgs.Audit.Application.Abstractions.IArchiveCatalogWriter)": {
+          "Lines": {
+            "8": 4
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Audit.Application.Features.ArchiveCatalogs.Commands.UpsertArchiveCatalog.UpsertArchiveCatalogCommandHandler/<Handle>d__2": {
+        "System.Void Fgs.Audit.Application.Features.ArchiveCatalogs.Commands.UpsertArchiveCatalog.UpsertArchiveCatalogCommandHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "14": 4,
+            "15": 4,
+            "16": 4,
+            "17": 1,
+            "18": 1,
+            "19": 1,
+            "20": 1,
+            "23": 3,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 1,
+            "30": 2,
+            "31": 2,
+            "32": 2,
+            "33": 2,
+            "34": 4
+          },
+          "Branches": [
+            {
+              "Line": 16,
+              "Offset": 53,
+              "EndOffset": 55,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 16,
+              "Offset": 53,
+              "EndOffset": 82,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 3
+            },
+            {
+              "Line": 23,
+              "Offset": 99,
+              "EndOffset": 101,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 23,
+              "Offset": 99,
+              "EndOffset": 128,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 2
+            },
+            {
+              "Line": 31,
+              "Offset": 337,
+              "EndOffset": 339,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 1
+            },
+            {
+              "Line": 31,
+              "Offset": 337,
+              "EndOffset": 346,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 1
+            }
+          ]
+        }
+      }
+    }
+  }
+}

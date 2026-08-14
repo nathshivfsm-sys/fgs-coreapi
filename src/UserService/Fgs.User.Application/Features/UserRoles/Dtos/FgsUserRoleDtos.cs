@@ -14,6 +14,10 @@ public sealed record FgsUserRoleDetailDto(
     DateTimeOffset CreatedOn,
     string CreatedBy);
 
-public sealed record FgsUserRoleCreateDto(Guid UserId, long FgsRoleId);
+/// <summary>
+/// Sync payload: the user's role set becomes exactly <see cref="FgsRoleIds"/>.
+/// Missing IDs are added, matching IDs are kept, DB rows not in the list are removed.
+/// Empty list clears all roles for the user.
+/// </summary>
+public sealed record FgsUserRoleSyncDto(Guid UserId, IReadOnlyList<long> FgsRoleIds);
 
-public sealed record FgsUserRoleListFilters(Guid? UserId = null, long? FgsRoleId = null);

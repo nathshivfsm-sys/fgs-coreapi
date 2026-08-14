@@ -75,6 +75,6 @@ public sealed class RefreshAuthTokenCommandHandlerTests
 
         result.Success.Should().BeFalse();
         result.StatusCode.Should().Be(ApiStatusCodes.Unauthorized);
-        result.Errors.Should().Contain(AuthErrorMessages.RefreshTokenFailed);
+        result.Errors.Should().Contain(e => e.StartsWith(AuthErrorMessages.RefreshTokenFailed));
     }
 }

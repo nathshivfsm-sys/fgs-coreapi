@@ -283,8 +283,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"billingCategoryId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"billingCategoryId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -356,8 +357,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"billingCategoryId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"billingCategoryId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -429,8 +431,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"billingCategoryId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"billingCategoryId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -502,8 +505,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"billingCategoryId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"billingCategoryId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -575,8 +579,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"billingCategoryId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"billingCategoryId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -685,7 +690,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"billingCategoryName\": \"Updated Non Inventory\",\n  \"description\": \"Updated Non Inventory\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"billingCategoryName\": \"Non Inventory\",\n  \"description\": \"Non-inventory billing category\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -966,8 +971,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"businessTypeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"businessTypeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1076,7 +1082,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Plumbing\",\n  \"description\": \"Updated Plumbing\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Plumbing\",\n  \"description\": \"Residential and commercial plumbing services\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1398,8 +1404,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"communicationTemplateId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"communicationTemplateId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1471,8 +1478,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"communicationTemplateId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"communicationTemplateId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1544,8 +1552,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"communicationTemplateId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"communicationTemplateId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1617,8 +1626,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"communicationTemplateId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"communicationTemplateId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1727,7 +1737,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Invite Email\",\n  \"subject\": \"Updated Invite Email\",\n  \"body\": \"Updated Invite Email\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Invite Email\",\n  \"subject\": \"You are invited to {{CompanyName}}\",\n  \"body\": \"Hello, use {{InviteUrl}} to join {{CompanyName}}.\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1926,8 +1936,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"credentialId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"credentialId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1999,8 +2010,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"credentialId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"credentialId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -2549,7 +2561,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"userId\": null,\n  \"employeeNumber\": \"EMP001\",\n  \"employeeTypeId\": 1,\n  \"displayName\": \"Alex Rivera\",\n  \"legalFirstName\": \"Alex\",\n  \"legalMiddleName\": null,\n  \"legalLastName\": \"Rivera\",\n  \"birthDate\": \"2024-03-15\",\n  \"hireDate\": \"2024-03-15\",\n  \"terminationDate\": null,\n  \"statusId\": 1,\n  \"personalEmail\": \"office@example.com\",\n  \"officeEmail\": \"office@example.com\",\n  \"personalPhone\": \"+15551234567\",\n  \"officePhone\": \"+15551234567\",\n  \"address\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": null,\n    \"addressLine4\": null,\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": null,\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": null,\n    \"latitude\": null,\n    \"longitude\": null,\n    \"placeId\": null\n  },\n  \"profilePhotoFileId\": null,\n  \"regularRate\": 45.00,\n  \"laborBurdenTypeId\": null,\n  \"laborBurdenValue\": null,\n  \"isPurchaser\": false,\n  \"notes\": \"Alex Rivera notes\"\n}",
+                                                                   "raw":  "{\n  \"userId\": \"{{userId}}\",\n  \"employeeNumber\": \"EMP001\",\n  \"employeeTypeId\": 1,\n  \"displayName\": \"Alex Rivera\",\n  \"legalFirstName\": \"Alex\",\n  \"legalMiddleName\": \"A\",\n  \"legalLastName\": \"Rivera\",\n  \"birthDate\": \"2024-03-15\",\n  \"hireDate\": \"2024-03-15\",\n  \"terminationDate\": \"2026-06-21\",\n  \"statusId\": 1,\n  \"personalEmail\": \"office@example.com\",\n  \"officeEmail\": \"office@example.com\",\n  \"personalPhone\": \"+15551234567\",\n  \"officePhone\": \"+15551234567\",\n  \"address\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": \"Building A\",\n    \"addressLine4\": \"Floor 2\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": \"Travis\",\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": \"100 Main St, Suite 200, Austin, TX 78701\",\n    \"latitude\": 30.2672,\n    \"longitude\": -97.7431,\n    \"placeId\": {{placeId}}\n  },\n  \"profilePhotoFileId\": {{profilePhotoFileId}},\n  \"regularRate\": 45.00,\n  \"laborBurdenTypeId\": {{laborBurdenTypeId}},\n  \"laborBurdenValue\": 15.00,\n  \"isPurchaser\": false,\n  \"notes\": \"Alex Rivera notes\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2574,8 +2586,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"employeeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"employeeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -2624,7 +2637,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"userId\": null,\n  \"employeeNumber\": \"EMP001\",\n  \"employeeTypeId\": 1,\n  \"displayName\": \"Alex Rivera\",\n  \"legalFirstName\": \"Alex\",\n  \"legalMiddleName\": null,\n  \"legalLastName\": \"Rivera\",\n  \"birthDate\": \"2024-03-15\",\n  \"hireDate\": \"2024-03-15\",\n  \"terminationDate\": null,\n  \"statusId\": 1,\n  \"personalEmail\": \"office@example.com\",\n  \"officeEmail\": \"office@example.com\",\n  \"personalPhone\": \"+15551234567\",\n  \"officePhone\": \"+15551234567\",\n  \"address\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": null,\n    \"addressLine4\": null,\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": null,\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": null,\n    \"latitude\": null,\n    \"longitude\": null,\n    \"placeId\": null\n  },\n  \"profilePhotoFileId\": null,\n  \"regularRate\": 45.00,\n  \"overtimeRate\": 45.00,\n  \"doubleTimeRate\": 45.00,\n  \"laborBurdenTypeId\": null,\n  \"laborBurdenValue\": null,\n  \"isPurchaser\": false,\n  \"notes\": \"Alex Rivera notes\"\n}",
+                                                                   "raw":  "{\n  \"userId\": \"{{userId}}\",\n  \"employeeNumber\": \"EMP001\",\n  \"employeeTypeId\": 1,\n  \"displayName\": \"Alex Rivera\",\n  \"legalFirstName\": \"Alex\",\n  \"legalMiddleName\": \"A\",\n  \"legalLastName\": \"Rivera\",\n  \"birthDate\": \"2024-03-15\",\n  \"hireDate\": \"2024-03-15\",\n  \"terminationDate\": \"2026-06-21\",\n  \"statusId\": 1,\n  \"personalEmail\": \"office@example.com\",\n  \"officeEmail\": \"office@example.com\",\n  \"personalPhone\": \"+15551234567\",\n  \"officePhone\": \"+15551234567\",\n  \"address\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": \"Building A\",\n    \"addressLine4\": \"Floor 2\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": \"Travis\",\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": \"100 Main St, Suite 200, Austin, TX 78701\",\n    \"latitude\": 30.2672,\n    \"longitude\": -97.7431,\n    \"placeId\": {{placeId}}\n  },\n  \"profilePhotoFileId\": {{profilePhotoFileId}},\n  \"regularRate\": 45.00,\n  \"overtimeRate\": 45.00,\n  \"doubleTimeRate\": 45.00,\n  \"laborBurdenTypeId\": {{laborBurdenTypeId}},\n  \"laborBurdenValue\": 15.00,\n  \"isPurchaser\": false,\n  \"notes\": \"Alex Rivera notes\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2684,7 +2697,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"displayName\": \"Updated Alex Rivera\",\n  \"legalFirstName\": \"Updated Alex Rivera\",\n  \"legalMiddleName\": \"Updated Alex Rivera\",\n  \"legalLastName\": \"Updated Alex Rivera\"\n}",
+                                                                   "raw":  "{\n  \"displayName\": \"Alex Rivera\",\n  \"legalFirstName\": \"Alex\",\n  \"legalMiddleName\": \"A\",\n  \"legalLastName\": \"Rivera\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2952,7 +2965,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"code\": \"LABOR\",\n  \"name\": \"Labor GL\",\n  \"breakLabel\": \"Labor\",\n  \"breakLevel\": 1,\n  \"logoFileId\": null,\n  \"address\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": null,\n    \"addressLine4\": null,\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": null,\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": null,\n    \"latitude\": null,\n    \"longitude\": null,\n    \"placeId\": null\n  },\n  \"tradeCodes\": [\"PLUMB\"]\n}",
+                                                                   "raw":  "{\n  \"code\": \"LABOR\",\n  \"name\": \"Labor GL\",\n  \"breakLabel\": \"Labor\",\n  \"breakLevel\": 1,\n  \"logoFileId\": {{logoFileId}},\n  \"address\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": \"Building A\",\n    \"addressLine4\": \"Floor 2\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": \"Travis\",\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": \"100 Main St, Suite 200, Austin, TX 78701\",\n    \"latitude\": 30.2672,\n    \"longitude\": -97.7431,\n    \"placeId\": {{placeId}}\n  },\n  \"tradeCodes\": [\"PLUMB\"]\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2977,8 +2990,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"glBreakId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"glBreakId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3027,7 +3041,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"code\": \"LABOR\",\n  \"name\": \"Labor GL\",\n  \"breakLabel\": \"Labor\",\n  \"breakLevel\": 1,\n  \"logoFileId\": null,\n  \"address\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": null,\n    \"addressLine4\": null,\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": null,\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": null,\n    \"latitude\": null,\n    \"longitude\": null,\n    \"placeId\": null\n  },\n  \"tradeCodes\": [\"PLUMB\"]\n}",
+                                                                   "raw":  "{\n  \"code\": \"LABOR\",\n  \"name\": \"Labor GL\",\n  \"breakLabel\": \"Labor\",\n  \"breakLevel\": 1,\n  \"logoFileId\": {{logoFileId}},\n  \"address\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": \"Building A\",\n    \"addressLine4\": \"Floor 2\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": \"Travis\",\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": \"100 Main St, Suite 200, Austin, TX 78701\",\n    \"latitude\": 30.2672,\n    \"longitude\": -97.7431,\n    \"placeId\": {{placeId}}\n  },\n  \"tradeCodes\": [\"PLUMB\"]\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3087,7 +3101,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Labor GL\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Labor GL\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3368,8 +3382,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"jobCategoryId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"jobCategoryId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3478,7 +3493,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Repair\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Repair\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3765,8 +3780,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"jobTypeCategoryId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"jobTypeCategoryId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3875,7 +3891,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4162,8 +4178,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"jobTypeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"jobTypeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4235,8 +4252,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"jobTypeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"jobTypeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4308,8 +4326,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"jobTypeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"jobTypeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4381,8 +4400,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"jobTypeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"jobTypeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4491,7 +4511,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Service Call\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Service Call\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4766,8 +4786,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"jobTypeTaskId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"jobTypeTaskId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4876,7 +4897,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"taskName\": \"Updated Diagnose Issue\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"taskName\": \"Diagnose Issue\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -5151,8 +5172,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"laborRateTypeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"laborRateTypeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -5261,7 +5283,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Standard Labor\",\n  \"description\": \"Updated Standard Labor\",\n  \"sortOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Standard Labor\",\n  \"description\": \"Standard technician labor rate type\",\n  \"sortOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -5542,8 +5564,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"leadDisqualificationReasonId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"leadDisqualificationReasonId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -5652,7 +5675,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"reasonName\": \"Updated No Budget\",\n  \"description\": \"Updated No Budget\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"reasonName\": \"No Budget\",\n  \"description\": \"Lead has insufficient budget\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -5933,8 +5956,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"leadSourceId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"leadSourceId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -6043,7 +6067,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"sourceName\": \"Updated Website\",\n  \"description\": \"Updated Website\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"sourceName\": \"Website\",\n  \"description\": \"Lead originated from company website\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -6324,8 +6348,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"leadStatusId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"leadStatusId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -6434,7 +6459,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"statusName\": \"Updated New Lead\",\n  \"description\": \"Updated New Lead\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"statusName\": \"New Lead\",\n  \"description\": \"Newly captured lead status\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -6715,8 +6740,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"nonWorkingDateId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"nonWorkingDateId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -6825,7 +6851,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Non Working Date\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Non Working Date\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -7112,8 +7138,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"paymentMethodId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"paymentMethodId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -7222,7 +7249,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"displayName\": \"Updated Check\",\n  \"sortOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"displayName\": \"Check\",\n  \"sortOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -7497,8 +7524,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"paymentTermId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"paymentTermId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -7607,7 +7635,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Net 30\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Net 30\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -7857,7 +7885,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"postalCode\": \"78701\",\n  \"countryCode\": \"US\",\n  \"stateProvinceCode\": \"TX\",\n  \"city\": \"Austin\",\n  \"tripChargeAmount\": 75.00,\n  \"fgsSetupZoneId\": null,\n  \"fgsSetupTaxId\": {{fgsSetupTaxId}}\n}",
+                                                                   "raw":  "{\n  \"postalCode\": \"78701\",\n  \"countryCode\": \"US\",\n  \"stateProvinceCode\": \"TX\",\n  \"city\": \"Austin\",\n  \"tripChargeAmount\": 75.00,\n  \"fgsSetupZoneId\": {{fgsSetupZoneId}},\n  \"fgsSetupTaxId\": {{fgsSetupTaxId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -7882,8 +7910,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"postalCodeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"postalCodeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -7932,7 +7961,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"postalCode\": \"78701\",\n  \"countryCode\": \"US\",\n  \"stateProvinceCode\": \"TX\",\n  \"city\": \"Austin\",\n  \"tripChargeAmount\": 75.00,\n  \"fgsSetupZoneId\": null,\n  \"fgsSetupTaxId\": {{fgsSetupTaxId}}\n}",
+                                                                   "raw":  "{\n  \"postalCode\": \"78701\",\n  \"countryCode\": \"US\",\n  \"stateProvinceCode\": \"TX\",\n  \"city\": \"Austin\",\n  \"tripChargeAmount\": 75.00,\n  \"fgsSetupZoneId\": {{fgsSetupZoneId}},\n  \"fgsSetupTaxId\": {{fgsSetupTaxId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -8285,8 +8314,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"priceBookId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"priceBookId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -8395,7 +8425,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"priceBookName\": \"Updated Price Book\",\n  \"description\": \"Updated Price Book\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"priceBookName\": \"Updated Price Book\",\n  \"description\": \"Price Book used in field service operations\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -8657,7 +8687,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"priceBookId\": {{priceBookId}},\n  \"inventoryItemId\": null,\n  \"itemCode\": \"PBI\",\n  \"itemDescription\": \"Price Book Item\",\n  \"quantity\": 0.00,\n  \"displayOrder\": 1,\n  \"notes\": \"Price Book Item notes\"\n}",
+                                                                   "raw":  "{\n  \"priceBookId\": {{priceBookId}},\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"itemCode\": \"PBI\",\n  \"itemDescription\": \"Price Book Item item description\",\n  \"quantity\": 0.00,\n  \"displayOrder\": 1,\n  \"notes\": \"Price Book Item notes\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -8682,8 +8712,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"priceBookItemId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"priceBookItemId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -8732,7 +8763,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"priceBookId\": {{priceBookId}},\n  \"inventoryItemId\": null,\n  \"itemCode\": \"PBI\",\n  \"itemDescription\": \"Price Book Item\",\n  \"quantity\": 0.00,\n  \"displayOrder\": 1,\n  \"notes\": \"Price Book Item notes\"\n}",
+                                                                   "raw":  "{\n  \"priceBookId\": {{priceBookId}},\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"itemCode\": \"PBI\",\n  \"itemDescription\": \"Price Book Item item description\",\n  \"quantity\": 0.00,\n  \"displayOrder\": 1,\n  \"notes\": \"Price Book Item notes\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -8792,7 +8823,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"itemDescription\": \"Updated Price Book Item\",\n  \"displayOrder\": null\n}",
+                                                                   "raw":  "{\n  \"itemDescription\": \"Updated Price Book Item\",\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -9119,8 +9150,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"pricingMatrixId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"pricingMatrixId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -9192,8 +9224,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"pricingMatrixId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"pricingMatrixId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -9265,8 +9298,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"pricingMatrixId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"pricingMatrixId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -9338,8 +9372,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"pricingMatrixId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"pricingMatrixId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -9411,8 +9446,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"pricingMatrixId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"pricingMatrixId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -9747,8 +9783,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"pricingMatrixLaborId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"pricingMatrixLaborId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -10083,8 +10120,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"pricingMatrixLaborTierId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"pricingMatrixLaborTierId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -10419,8 +10457,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"pricingMatrixMaterialTierId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"pricingMatrixMaterialTierId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -10755,8 +10794,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"pricingMatrixOtherId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"pricingMatrixOtherId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -11152,8 +11192,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"resolutionCodeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"resolutionCodeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -11262,7 +11303,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"resolutionName\": \"Updated Issue Resolved\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"resolutionName\": \"Issue Resolved\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -11518,7 +11559,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"outcomeCode\": \"WON\",\n  \"outcomeName\": \"Won\",\n  \"description\": \"Sales activity resulted in a win\",\n  \"displayOrder\": 1,\n  \"isSystem\": false,\n  \"appliesToLead\": true,\n  \"appliesToOpportunity\": true,\n  \"nextSalesPipelineStatusId\": null,\n  \"isTerminal\": false,\n  \"requireComment\": false,\n  \"allowManualSelection\": true\n}",
+                                                                   "raw":  "{\n  \"outcomeCode\": \"WON\",\n  \"outcomeName\": \"Won\",\n  \"description\": \"Sales activity resulted in a win\",\n  \"displayOrder\": 1,\n  \"isSystem\": false,\n  \"appliesToLead\": true,\n  \"appliesToOpportunity\": true,\n  \"nextSalesPipelineStatusId\": {{nextSalesPipelineStatusId}},\n  \"isTerminal\": false,\n  \"requireComment\": false,\n  \"allowManualSelection\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -11543,8 +11584,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"salesActivityOutcomeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"salesActivityOutcomeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -11593,7 +11635,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"outcomeCode\": \"WON\",\n  \"outcomeName\": \"Won\",\n  \"description\": \"Sales activity resulted in a win\",\n  \"displayOrder\": 1,\n  \"isSystem\": false,\n  \"appliesToLead\": true,\n  \"appliesToOpportunity\": true,\n  \"nextSalesPipelineStatusId\": null,\n  \"isTerminal\": false,\n  \"requireComment\": false,\n  \"allowManualSelection\": true\n}",
+                                                                   "raw":  "{\n  \"outcomeCode\": \"WON\",\n  \"outcomeName\": \"Won\",\n  \"description\": \"Sales activity resulted in a win\",\n  \"displayOrder\": 1,\n  \"isSystem\": false,\n  \"appliesToLead\": true,\n  \"appliesToOpportunity\": true,\n  \"nextSalesPipelineStatusId\": {{nextSalesPipelineStatusId}},\n  \"isTerminal\": false,\n  \"requireComment\": false,\n  \"allowManualSelection\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -11653,7 +11695,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"outcomeName\": \"Updated Won\",\n  \"description\": \"Updated Won\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"outcomeName\": \"Won\",\n  \"description\": \"Sales activity resulted in a win\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -11934,8 +11976,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"salesActivityTypeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"salesActivityTypeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -12044,7 +12087,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"activityTypeName\": \"Updated Phone Call\",\n  \"description\": \"Updated Phone Call\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"activityTypeName\": \"Phone Call\",\n  \"description\": \"Outbound sales phone call\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -12325,8 +12368,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"salesDispositionReasonId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"salesDispositionReasonId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -12435,7 +12479,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"dispositionReasonName\": \"Updated No Budget\",\n  \"description\": \"Updated No Budget\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"dispositionReasonName\": \"No Budget\",\n  \"description\": \"Opportunity closed due to budget\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -12716,8 +12760,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"salesPipelineStatusId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"salesPipelineStatusId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -12789,8 +12834,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"salesPipelineStatusId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"salesPipelineStatusId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -12899,7 +12945,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"statusName\": \"Updated New Lead\",\n  \"description\": \"Updated New Lead\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"statusName\": \"New Lead\",\n  \"description\": \"Newly captured lead pipeline status\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -13149,7 +13195,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"descriptionTypeCode\": \"NOTES\",\n  \"shortNote\": \"Follow up with customer\",\n  \"body\": \"Customer reported intermittent cooling. Inspected and cleaned condensate drain.\",\n  \"fgsSetupTechTradeId\": null,\n  \"sortOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"descriptionTypeCode\": \"NOTES\",\n  \"shortNote\": \"Follow up with customer\",\n  \"body\": \"Customer reported intermittent cooling. Inspected and cleaned condensate drain.\",\n  \"fgsSetupTechTradeId\": {{fgsSetupTechTradeId}},\n  \"sortOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -13174,8 +13220,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"setupDescriptionId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"setupDescriptionId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -13224,7 +13271,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"descriptionTypeCode\": \"NOTES\",\n  \"shortNote\": \"Follow up with customer\",\n  \"body\": \"Customer reported intermittent cooling. Inspected and cleaned condensate drain.\",\n  \"fgsSetupTechTradeId\": null,\n  \"sortOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"descriptionTypeCode\": \"NOTES\",\n  \"shortNote\": \"Follow up with customer\",\n  \"body\": \"Customer reported intermittent cooling. Inspected and cleaned condensate drain.\",\n  \"fgsSetupTechTradeId\": {{fgsSetupTechTradeId}},\n  \"sortOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -13284,7 +13331,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"descriptionTypeCode\": \"Updated Work Notes\",\n  \"body\": \"Updated Work Notes\",\n  \"sortOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"descriptionTypeCode\": \"NOTES\",\n  \"body\": \"Customer reported intermittent cooling. Inspected and cleaned condensate drain.\",\n  \"sortOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -13540,7 +13587,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"tagCode\": \"VIP\",\n  \"name\": \"VIP Customer\",\n  \"description\": \"High-priority customer tag\",\n  \"backgroundColor\": \"#3366FF\",\n  \"textColor\": \"#FFFFFF\",\n  \"iconFileId\": null\n}",
+                                                                   "raw":  "{\n  \"tagCode\": \"VIP\",\n  \"name\": \"VIP Customer\",\n  \"description\": \"High-priority customer tag\",\n  \"backgroundColor\": \"#3366FF\",\n  \"textColor\": \"#FFFFFF\",\n  \"iconFileId\": {{iconFileId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -13565,8 +13612,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"tagId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"tagId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -13615,7 +13663,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"tagCode\": \"VIP\",\n  \"name\": \"VIP Customer\",\n  \"description\": \"High-priority customer tag\",\n  \"backgroundColor\": \"#3366FF\",\n  \"textColor\": \"#FFFFFF\",\n  \"iconFileId\": null\n}",
+                                                                   "raw":  "{\n  \"tagCode\": \"VIP\",\n  \"name\": \"VIP Customer\",\n  \"description\": \"High-priority customer tag\",\n  \"backgroundColor\": \"#3366FF\",\n  \"textColor\": \"#FFFFFF\",\n  \"iconFileId\": {{iconFileId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -13675,7 +13723,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated VIP Customer\",\n  \"description\": \"Updated VIP Customer\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"VIP Customer\",\n  \"description\": \"High-priority customer tag\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -13956,8 +14004,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"taxAuthorityId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"taxAuthorityId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -14066,7 +14115,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Texas State\",\n  \"description\": \"Updated Texas State\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Texas State\",\n  \"description\": \"Texas state tax authority\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -14347,8 +14396,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"taxId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"taxId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -14738,8 +14788,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"techSkillLevelId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"techSkillLevelId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -14848,7 +14899,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Journeyman\",\n  \"description\": \"Updated Journeyman\",\n  \"sortOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Journeyman\",\n  \"description\": \"Journeyman technician skill level\",\n  \"sortOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -15129,8 +15180,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"techTradeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"techTradeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -15617,7 +15669,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"fgsSetupZoneId\": null,\n  \"code\": \"AM\",\n  \"name\": \"Morning\",\n  \"beginTime\": \"08:00:00\",\n  \"endTime\": \"17:00:00\",\n  \"markTechArrivedLateAfter\": \"08:00:00\",\n  \"markWorkOrderDelayedCompletionAfter\": \"17:00:00\",\n  \"isMobileVisible\": true,\n  \"isCustomerPortalVisible\": true,\n  \"includeInCapacityPlanning\": true,\n  \"showToExternalSystem\": true\n}",
+                                                                   "raw":  "{\n  \"fgsSetupZoneId\": {{fgsSetupZoneId}},\n  \"code\": \"AM\",\n  \"name\": \"Morning\",\n  \"beginTime\": \"08:00:00\",\n  \"endTime\": \"17:00:00\",\n  \"markTechArrivedLateAfter\": \"08:00:00\",\n  \"markWorkOrderDelayedCompletionAfter\": \"17:00:00\",\n  \"isMobileVisible\": true,\n  \"isCustomerPortalVisible\": true,\n  \"includeInCapacityPlanning\": true,\n  \"showToExternalSystem\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -15642,8 +15694,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"timeslotId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"timeslotId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -15692,7 +15745,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"fgsSetupZoneId\": null,\n  \"code\": \"AM\",\n  \"name\": \"Morning\",\n  \"beginTime\": \"08:00:00\",\n  \"endTime\": \"17:00:00\",\n  \"markTechArrivedLateAfter\": \"08:00:00\",\n  \"markWorkOrderDelayedCompletionAfter\": \"17:00:00\",\n  \"isMobileVisible\": true,\n  \"isCustomerPortalVisible\": true,\n  \"includeInCapacityPlanning\": true,\n  \"showToExternalSystem\": true\n}",
+                                                                   "raw":  "{\n  \"fgsSetupZoneId\": {{fgsSetupZoneId}},\n  \"code\": \"AM\",\n  \"name\": \"Morning\",\n  \"beginTime\": \"08:00:00\",\n  \"endTime\": \"17:00:00\",\n  \"markTechArrivedLateAfter\": \"08:00:00\",\n  \"markWorkOrderDelayedCompletionAfter\": \"17:00:00\",\n  \"isMobileVisible\": true,\n  \"isCustomerPortalVisible\": true,\n  \"includeInCapacityPlanning\": true,\n  \"showToExternalSystem\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -15752,7 +15805,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Morning\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Morning\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -16033,8 +16086,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"titleOfCourtesyId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"titleOfCourtesyId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -16143,7 +16197,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"displayName\": \"Updated Mr.\",\n  \"sortOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"displayName\": \"Mr.\",\n  \"sortOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -16430,8 +16484,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"universalMatrixAddOnId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"universalMatrixAddOnId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -16540,7 +16595,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Extended Warranty\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Extended Warranty\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -16827,8 +16882,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"universalMatrixFrequencyDiscountId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"universalMatrixFrequencyDiscountId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -16937,7 +16993,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Monthly\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Monthly\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -17224,8 +17280,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"universalMatrixItemId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"universalMatrixItemId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -17334,7 +17391,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"itemName\": \"Updated Air Filter\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"itemName\": \"Updated Air Filter\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -17621,8 +17678,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"universalMatrixOneTimeFeeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"universalMatrixOneTimeFeeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -17731,7 +17789,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Setup Fee\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Setup Fee\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -18018,8 +18076,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"universalMatrixSizeTierId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"universalMatrixSizeTierId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -18128,7 +18187,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Medium\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Medium\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -18415,8 +18474,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"universalMatrixTierId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"universalMatrixTierId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -18525,7 +18585,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Standard\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Standard\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -18800,8 +18860,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"universalPricingServiceId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"universalPricingServiceId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -18910,7 +18971,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -19191,8 +19252,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"vehicleId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"vehicleId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -19264,8 +19326,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"vehicleId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"vehicleId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -19337,8 +19400,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"vehicleId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"vehicleId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -19703,7 +19767,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"vehicleId\": {{vehicleId}},\n  \"vehicleMaintenanceTypeId\": 1,\n  \"serviceDate\": \"2026-06-21\",\n  \"mileageAtService\": 1,\n  \"serviceProvider\": \"Acme Field Services\",\n  \"invoiceNumber\": null,\n  \"cost\": 100.00,\n  \"nextServiceDate\": null,\n  \"nextServiceMileage\": 1,\n  \"isCompleted\": true,\n  \"description\": \"Scheduled oil change maintenance\",\n  \"notes\": \"Oil Change notes\"\n}",
+                                                                   "raw":  "{\n  \"vehicleId\": {{vehicleId}},\n  \"vehicleMaintenanceTypeId\": 1,\n  \"serviceDate\": \"2026-06-21\",\n  \"mileageAtService\": 1,\n  \"serviceProvider\": \"Acme Field Services\",\n  \"invoiceNumber\": \"Oil Change\",\n  \"cost\": 100.00,\n  \"nextServiceDate\": \"2026-06-21\",\n  \"nextServiceMileage\": 1,\n  \"isCompleted\": true,\n  \"description\": \"Scheduled oil change maintenance\",\n  \"notes\": \"Oil Change notes\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -19728,8 +19792,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"vehicleMaintenanceId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"vehicleMaintenanceId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -19778,7 +19843,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"vehicleId\": {{vehicleId}},\n  \"vehicleMaintenanceTypeId\": 1,\n  \"serviceDate\": \"2026-06-21\",\n  \"mileageAtService\": 1,\n  \"serviceProvider\": \"Acme Field Services\",\n  \"invoiceNumber\": null,\n  \"cost\": 100.00,\n  \"nextServiceDate\": null,\n  \"nextServiceMileage\": 1,\n  \"isCompleted\": true,\n  \"description\": \"Scheduled oil change maintenance\",\n  \"notes\": \"Oil Change notes\"\n}",
+                                                                   "raw":  "{\n  \"vehicleId\": {{vehicleId}},\n  \"vehicleMaintenanceTypeId\": 1,\n  \"serviceDate\": \"2026-06-21\",\n  \"mileageAtService\": 1,\n  \"serviceProvider\": \"Acme Field Services\",\n  \"invoiceNumber\": \"Oil Change\",\n  \"cost\": 100.00,\n  \"nextServiceDate\": \"2026-06-21\",\n  \"nextServiceMileage\": 1,\n  \"isCompleted\": true,\n  \"description\": \"Scheduled oil change maintenance\",\n  \"notes\": \"Oil Change notes\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -19838,7 +19903,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"description\": \"Updated Oil Change\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"description\": \"Scheduled oil change maintenance\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -20119,8 +20184,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"zoneId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"zoneId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -20229,7 +20295,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated North Zone\",\n  \"description\": \"Updated North Zone\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"North Zone\",\n  \"description\": \"Northern service coverage zone\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -20262,7 +20328,7 @@
                  "description":  "Platform setup catalog APIs via {{gatewayUrl}}/api/v1/{catalog}. Multi-scenario Create requests for pricing matrix, credentials, vehicles, job types, communication templates, and billing categories.",
                  "name":  "FGS SetupService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "6153fc4a-ce61-4e21-b884-312ccba7b956"
+                 "_postman_id":  "c0342904-44d7-42e2-90ee-c75c3fcaf2c7"
              },
     "event":  [
                   {

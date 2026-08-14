@@ -161,7 +161,8 @@ public sealed class GLBreakWriteService : IGLBreakWriteService
             await SaveChangesAsync(cancellationToken);
         }
 
-        return await MapToDetailAsync(entity.Id, cancellationToken);
+        // Soft-deleted rows are filtered out of normal queries; map from the tracked entity.
+        return await MapToDetailAsync(entity, cancellationToken);
     }
 
     private void SyncTrades(FgsSetupGLBreak entity, IReadOnlyList<string> tradeCodes)
@@ -201,12 +202,25 @@ public sealed class GLBreakWriteService : IGLBreakWriteService
             .Include(e => e.Trades)
             .FirstAsync(e => e.Id == id, cancellationToken);
 
+        return await MapToDetailAsync(entity, cancellationToken);
+    }
+
+    private async Task<GLBreakDetailDto> MapToDetailAsync(
+        FgsSetupGLBreak entity,
+        CancellationToken cancellationToken)
+    {
         GLBreakAddressDetailDto? address = null;
         if (entity.AddressId is Guid addressId)
         {
+            // Address may already be soft-deleted with the GL break; load without active filter.
             var location = await _context.FgsLocations
+                .IgnoreQueryFilters()
                 .AsNoTracking()
-                .FirstOrDefaultAsync(l => l.Id == addressId && l.IsActive, cancellationToken);
+                .FirstOrDefaultAsync(
+                    l => l.Id == addressId
+                        && l.TenantId == entity.TenantId
+                        && l.CompanyId == entity.CompanyId,
+                    cancellationToken);
 
             if (location is not null)
             {

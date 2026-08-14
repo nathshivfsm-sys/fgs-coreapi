@@ -602,8 +602,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"apiClientId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"apiClientId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -712,7 +713,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"applicationName\": \"Updated Field Service Integration\",\n  \"description\": \"Updated Field Service Integration\",\n  \"contactName\": \"Updated Field Service Integration\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"applicationName\": \"Field Service Integration\",\n  \"description\": \"API client for field service integrations\",\n  \"contactName\": \"Ops Admin\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -999,8 +1000,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"apiEventId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"apiEventId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1109,7 +1111,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Work Order Created\",\n  \"description\": \"Updated Work Order Created\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Work Order Created\",\n  \"description\": \"Fired when a work order is created\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1305,7 +1307,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"fgsApiClientId\": {{fgsApiClientId}},\n  \"name\": \"Primary Secret\",\n  \"expiresOn\": null\n}",
+                                                                   "raw":  "{\n  \"fgsApiClientId\": {{fgsApiClientId}},\n  \"name\": \"Primary Secret\",\n  \"expiresOn\": \"Primary Secret\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1330,8 +1332,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"apiSecretId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"apiSecretId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1380,7 +1383,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Primary Secret\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Primary Secret\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1697,7 +1700,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Work Order Webhook\",\n  \"description\": \"Webhook for work order events\",\n  \"endpointUrl\": \"https://hooks.example.com/fgs/workorders\",\n  \"authenticationType\": \"None\",\n  \"authenticationValue\": null,\n  \"secret\": null,\n  \"timeoutSeconds\": 30,\n  \"maximumRetryCount\": 3\n}",
+                                                                   "raw":  "{\n  \"name\": \"Work Order Webhook\",\n  \"description\": \"Webhook for work order events\",\n  \"endpointUrl\": \"https://hooks.example.com/fgs/workorders\",\n  \"authenticationType\": \"None\",\n  \"authenticationValue\": \"__null__\",\n  \"secret\": \"sample-secret\",\n  \"timeoutSeconds\": 30,\n  \"maximumRetryCount\": 3\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1722,8 +1725,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"apiWebhookId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"apiWebhookId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1772,7 +1776,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Work Order Webhook\",\n  \"description\": \"Webhook for work order events\",\n  \"endpointUrl\": \"https://hooks.example.com/fgs/workorders\",\n  \"authenticationType\": \"None\",\n  \"authenticationValue\": null,\n  \"secret\": null,\n  \"timeoutSeconds\": 30,\n  \"maximumRetryCount\": 3\n}",
+                                                                   "raw":  "{\n  \"name\": \"Work Order Webhook\",\n  \"description\": \"Webhook for work order events\",\n  \"endpointUrl\": \"https://hooks.example.com/fgs/workorders\",\n  \"authenticationType\": \"None\",\n  \"authenticationValue\": \"__null__\",\n  \"secret\": \"sample-secret\",\n  \"timeoutSeconds\": 30,\n  \"maximumRetryCount\": 3\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1832,7 +1836,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Work Order Webhook\",\n  \"description\": \"Updated Work Order Webhook\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Work Order Webhook\",\n  \"description\": \"Webhook for work order events\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2059,8 +2063,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"apiWebhookSubscriptionId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"apiWebhookSubscriptionId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -2533,7 +2538,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"code\": \"ACME\",\n  \"name\": \"Acme Field Services\",\n  \"legalName\": \"Acme Field Services LLC\",\n  \"email\": \"office@example.com\",\n  \"phoneNumber\": \"+15551234567\",\n  \"website\": \"https://acme.example.com\",\n  \"taxId\": null,\n  \"companySize\": null,\n  \"timeZone\": null,\n  \"physicalAddress\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": null,\n    \"addressLine4\": null,\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": null,\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": null,\n    \"latitude\": null,\n    \"longitude\": null,\n    \"placeId\": null\n  },\n  \"billingAddress\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": null,\n    \"addressLine4\": null,\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": null,\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": null,\n    \"latitude\": null,\n    \"longitude\": null,\n    \"placeId\": null\n  }\n}",
+                                                                   "raw":  "{\n  \"code\": \"ACME\",\n  \"name\": \"Acme Field Services\",\n  \"legalName\": \"Acme Field Services LLC\",\n  \"email\": \"office@example.com\",\n  \"phoneNumber\": \"+15551234567\",\n  \"website\": \"https://acme.example.com\",\n  \"taxId\": {{taxId}},\n  \"companySize\": \"Acme Field Services\",\n  \"timeZone\": \"Acme Field Services\",\n  \"physicalAddress\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": \"Building A\",\n    \"addressLine4\": \"Floor 2\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": \"Travis\",\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": \"100 Main St, Suite 200, Austin, TX 78701\",\n    \"latitude\": 30.2672,\n    \"longitude\": -97.7431,\n    \"placeId\": {{placeId}}\n  },\n  \"billingAddress\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": \"Building A\",\n    \"addressLine4\": \"Floor 2\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": \"Travis\",\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": \"100 Main St, Suite 200, Austin, TX 78701\",\n    \"latitude\": 30.2672,\n    \"longitude\": -97.7431,\n    \"placeId\": {{placeId}}\n  }\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2616,7 +2621,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Acme Field Services\",\n  \"legalName\": \"Acme Field Services LLC\",\n  \"email\": \"office@example.com\",\n  \"phoneNumber\": \"+15551234567\",\n  \"website\": \"https://acme.example.com\",\n  \"taxId\": null,\n  \"companySize\": null,\n  \"timeZone\": null,\n  \"isActive\": true,\n  \"physicalAddress\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": null,\n    \"addressLine4\": null,\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": null,\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": null,\n    \"latitude\": null,\n    \"longitude\": null,\n    \"placeId\": null\n  },\n  \"billingAddress\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": null,\n    \"addressLine4\": null,\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": null,\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": null,\n    \"latitude\": null,\n    \"longitude\": null,\n    \"placeId\": null\n  }\n}",
+                                                                   "raw":  "{\n  \"name\": \"Acme Field Services\",\n  \"legalName\": \"Acme Field Services LLC\",\n  \"email\": \"office@example.com\",\n  \"phoneNumber\": \"+15551234567\",\n  \"website\": \"https://acme.example.com\",\n  \"taxId\": {{taxId}},\n  \"companySize\": \"Acme Field Services\",\n  \"timeZone\": \"Acme Field Services\",\n  \"isActive\": true,\n  \"physicalAddress\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": \"Building A\",\n    \"addressLine4\": \"Floor 2\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": \"Travis\",\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": \"100 Main St, Suite 200, Austin, TX 78701\",\n    \"latitude\": 30.2672,\n    \"longitude\": -97.7431,\n    \"placeId\": {{placeId}}\n  },\n  \"billingAddress\": {\n    \"addressLine1\": \"100 Main St\",\n    \"addressLine2\": \"Suite 200\",\n    \"addressLine3\": \"Building A\",\n    \"addressLine4\": \"Floor 2\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": \"Travis\",\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"formattedAddress\": \"100 Main St, Suite 200, Austin, TX 78701\",\n    \"latitude\": 30.2672,\n    \"longitude\": -97.7431,\n    \"placeId\": {{placeId}}\n  }\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2683,7 +2688,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Acme Field Services\",\n  \"legalName\": \"Updated Acme Field Services\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Acme Field Services\",\n  \"legalName\": \"Acme Field Services LLC\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3011,8 +3016,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"dataAccessId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"dataAccessId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3121,7 +3127,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Own Company\",\n  \"description\": \"Updated Own Company\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Own Company\",\n  \"description\": \"Restrict access to the user company\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3348,8 +3354,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"dataAccessScopeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"dataAccessScopeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3458,7 +3465,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"displayOrder\": null\n}",
+                                                                   "raw":  "{\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3871,8 +3878,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"permissionId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"permissionId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3981,7 +3989,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated View Users\",\n  \"description\": \"Updated View Users\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"View Users\",\n  \"description\": \"Allows viewing user records\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4262,8 +4270,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"publicEndpointId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"publicEndpointId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4372,7 +4381,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"displayName\": \"Updated Local API Gateway\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"displayName\": \"Local API Gateway\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4634,7 +4643,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"roleCode\": \"ADMIN\",\n  \"name\": \"Administrator\",\n  \"description\": \"Full administrative access role\",\n  \"parentRoleId\": null,\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"roleCode\": \"ADMIN\",\n  \"name\": \"Administrator\",\n  \"description\": \"Full administrative access role\",\n  \"parentRoleId\": {{parentRoleId}},\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4659,8 +4668,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"roleId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"roleId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4769,7 +4779,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Administrator\",\n  \"description\": \"Updated Administrator\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Administrator\",\n  \"description\": \"Full administrative access role\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4796,22 +4806,22 @@
                      "name":  "RoleDataAccessController",
                      "item":  [
                                   {
-                                      "name":  "GetById",
+                                      "name":  "GetByRoleId",
                                       "request":  {
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/roledataaccess/{{roleDataAccessId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/roledataaccess/{{fgsRoleId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "roledataaccess",
-                                                                               "{{roleDataAccessId}}"
+                                                                               "{{fgsRoleId}}"
                                                                            ]
                                                               },
-                                                      "description":  "GetById",
+                                                      "description":  "GetByRoleId",
                                                       "header":  [
                                                                      {
                                                                          "key":  "Accept",
@@ -4842,98 +4852,7 @@
                                                   }
                                   },
                                   {
-                                      "name":  "List",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "query":  [
-                                                                                {
-                                                                                    "key":  "page",
-                                                                                    "description":  "Page number (1-based). Default: 1.",
-                                                                                    "value":  "{{page}}"
-                                                                                },
-                                                                                {
-                                                                                    "key":  "pageSize",
-                                                                                    "description":  "Items per page (1-100). Default: 25.",
-                                                                                    "value":  "{{pageSize}}"
-                                                                                },
-                                                                                {
-                                                                                    "key":  "sortBy",
-                                                                                    "description":  "Property to sort by (entity-specific). Optional.",
-                                                                                    "value":  "{{sortBy}}",
-                                                                                    "disabled":  true
-                                                                                },
-                                                                                {
-                                                                                    "key":  "sortDirection",
-                                                                                    "description":  "Sort direction: Asc or Desc. Default: Asc.",
-                                                                                    "value":  "{{sortDirection}}",
-                                                                                    "disabled":  true
-                                                                                },
-                                                                                {
-                                                                                    "key":  "search",
-                                                                                    "description":  "Free-text search across searchable fields. Optional.",
-                                                                                    "value":  "{{search}}",
-                                                                                    "disabled":  true
-                                                                                },
-                                                                                {
-                                                                                    "key":  "isActive",
-                                                                                    "description":  "Filter by active records. Default: true.",
-                                                                                    "value":  "true"
-                                                                                },
-                                                                                {
-                                                                                    "key":  "fgsRoleId",
-                                                                                    "description":  "Optional fgsRoleId filter.",
-                                                                                    "value":  "",
-                                                                                    "disabled":  true
-                                                                                },
-                                                                                {
-                                                                                    "key":  "fgsDataAccessId",
-                                                                                    "description":  "Optional fgsDataAccessId filter.",
-                                                                                    "value":  "",
-                                                                                    "disabled":  true
-                                                                                }
-                                                                            ],
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/roledataaccess",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "roledataaccess"
-                                                                           ]
-                                                              },
-                                                      "description":  "List",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  },
-                                  {
+                                      "name":  "Sync",
                                       "request":  {
                                                       "url":  {
                                                                   "host":  [
@@ -4946,8 +4865,8 @@
                                                                                "roledataaccess"
                                                                            ]
                                                               },
-                                                      "description":  "Create",
-                                                      "method":  "POST",
+                                                      "description":  "Sync",
+                                                      "method":  "PUT",
                                                       "header":  [
                                                                      {
                                                                          "key":  "Accept",
@@ -4971,7 +4890,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"fgsRoleId\": {{fgsRoleId}},\n  \"fgsDataAccessId\": {{fgsDataAccessId}}\n}",
+                                                                   "raw":  "{\n  \"fgsRoleId\": {{fgsRoleId}},\n  \"fgsDataAccessIds\": [{{fgsDataAccessId}}]\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4979,67 +4898,6 @@
                                                                                },
                                                                    "mode":  "raw"
                                                                },
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  },
-                                      "name":  "Create",
-                                      "event":  [
-                                                    {
-                                                        "script":  {
-                                                                       "exec":  [
-                                                                                    "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"roleDataAccessId\", String(body.data.id));",
-                                                                                    "}"
-                                                                                ],
-                                                                       "type":  "text/javascript"
-                                                                   },
-                                                        "listen":  "test"
-                                                    }
-                                                ]
-                                  },
-                                  {
-                                      "name":  "Delete",
-                                      "request":  {
-                                                      "method":  "DELETE",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/roledataaccess/{{roleDataAccessId}}",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "roledataaccess",
-                                                                               "{{roleDataAccessId}}"
-                                                                           ]
-                                                              },
-                                                      "description":  "Delete",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
                                                       "auth":  {
                                                                    "bearer":  [
                                                                                   {
@@ -5059,22 +4917,22 @@
                      "name":  "RolePermissionController",
                      "item":  [
                                   {
-                                      "name":  "GetById",
+                                      "name":  "GetByRoleId",
                                       "request":  {
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/rolepermission/{{rolePermissionId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/rolepermission/{{fgsRoleId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "rolepermission",
-                                                                               "{{rolePermissionId}}"
+                                                                               "{{fgsRoleId}}"
                                                                            ]
                                                               },
-                                                      "description":  "GetById",
+                                                      "description":  "GetByRoleId",
                                                       "header":  [
                                                                      {
                                                                          "key":  "Accept",
@@ -5105,98 +4963,7 @@
                                                   }
                                   },
                                   {
-                                      "name":  "List",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "query":  [
-                                                                                {
-                                                                                    "key":  "page",
-                                                                                    "description":  "Page number (1-based). Default: 1.",
-                                                                                    "value":  "{{page}}"
-                                                                                },
-                                                                                {
-                                                                                    "key":  "pageSize",
-                                                                                    "description":  "Items per page (1-100). Default: 25.",
-                                                                                    "value":  "{{pageSize}}"
-                                                                                },
-                                                                                {
-                                                                                    "key":  "sortBy",
-                                                                                    "description":  "Property to sort by (entity-specific). Optional.",
-                                                                                    "value":  "{{sortBy}}",
-                                                                                    "disabled":  true
-                                                                                },
-                                                                                {
-                                                                                    "key":  "sortDirection",
-                                                                                    "description":  "Sort direction: Asc or Desc. Default: Asc.",
-                                                                                    "value":  "{{sortDirection}}",
-                                                                                    "disabled":  true
-                                                                                },
-                                                                                {
-                                                                                    "key":  "search",
-                                                                                    "description":  "Free-text search across searchable fields. Optional.",
-                                                                                    "value":  "{{search}}",
-                                                                                    "disabled":  true
-                                                                                },
-                                                                                {
-                                                                                    "key":  "isActive",
-                                                                                    "description":  "Filter by active records. Default: true.",
-                                                                                    "value":  "true"
-                                                                                },
-                                                                                {
-                                                                                    "key":  "fgsRoleId",
-                                                                                    "description":  "Optional fgsRoleId filter.",
-                                                                                    "value":  "",
-                                                                                    "disabled":  true
-                                                                                },
-                                                                                {
-                                                                                    "key":  "fgsPermissionId",
-                                                                                    "description":  "Optional fgsPermissionId filter.",
-                                                                                    "value":  "",
-                                                                                    "disabled":  true
-                                                                                }
-                                                                            ],
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/rolepermission",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "rolepermission"
-                                                                           ]
-                                                              },
-                                                      "description":  "List",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  },
-                                  {
+                                      "name":  "Sync",
                                       "request":  {
                                                       "url":  {
                                                                   "host":  [
@@ -5209,8 +4976,8 @@
                                                                                "rolepermission"
                                                                            ]
                                                               },
-                                                      "description":  "Create",
-                                                      "method":  "POST",
+                                                      "description":  "Sync",
+                                                      "method":  "PUT",
                                                       "header":  [
                                                                      {
                                                                          "key":  "Accept",
@@ -5234,7 +5001,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"fgsRoleId\": {{fgsRoleId}},\n  \"fgsPermissionId\": {{fgsPermissionId}}\n}",
+                                                                   "raw":  "{\n  \"fgsRoleId\": {{fgsRoleId}},\n  \"fgsPermissionIds\": [{{fgsPermissionId}}]\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -5242,67 +5009,6 @@
                                                                                },
                                                                    "mode":  "raw"
                                                                },
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  },
-                                      "name":  "Create",
-                                      "event":  [
-                                                    {
-                                                        "script":  {
-                                                                       "exec":  [
-                                                                                    "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"rolePermissionId\", String(body.data.id));",
-                                                                                    "}"
-                                                                                ],
-                                                                       "type":  "text/javascript"
-                                                                   },
-                                                        "listen":  "test"
-                                                    }
-                                                ]
-                                  },
-                                  {
-                                      "name":  "Delete",
-                                      "request":  {
-                                                      "method":  "DELETE",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/rolepermission/{{rolePermissionId}}",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "rolepermission",
-                                                                               "{{rolePermissionId}}"
-                                                                           ]
-                                                              },
-                                                      "description":  "Delete",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
                                                       "auth":  {
                                                                    "bearer":  [
                                                                                   {
@@ -5405,7 +5111,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"bankAccountId\": null,\n  \"accountsReceivableAccountId\": null,\n  \"revenueAccountId\": null,\n  \"discountAccountId\": null,\n  \"salesTaxPayableAccountId\": null,\n  \"inventoryAccountId\": null,\n  \"cOGSAccountId\": null,\n  \"undepositedFundsAccountId\": null,\n  \"processingFeeAccountId\": null,\n  \"accountsPayableAccountId\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"bankAccountId\": {{bankAccountId}},\n  \"accountsReceivableAccountId\": {{accountsReceivableAccountId}},\n  \"revenueAccountId\": {{revenueAccountId}},\n  \"discountAccountId\": {{discountAccountId}},\n  \"salesTaxPayableAccountId\": {{salesTaxPayableAccountId}},\n  \"inventoryAccountId\": {{inventoryAccountId}},\n  \"cOGSAccountId\": {{cOGSAccountId}},\n  \"undepositedFundsAccountId\": {{undepositedFundsAccountId}},\n  \"processingFeeAccountId\": {{processingFeeAccountId}},\n  \"accountsPayableAccountId\": {{accountsPayableAccountId}},\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -5574,7 +5280,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"timeCardOptionId\": 2,\n  \"accountingIntegrationTypeId\": null,\n  \"useExternalTaxCalculationProvider\": true,\n  \"enableCallBookingWidget\": true,\n  \"enablePaymentWidget\": true,\n  \"enableCustomerPortal\": true,\n  \"enableRulesManagement\": true,\n  \"enableAutoArrive\": true,\n  \"workLocationRadiusForAutoArrive\": 100,\n  \"oTStartTime\": \"08:00:00\",\n  \"oTEndTime\": \"17:00:00\",\n  \"dTStartTime\": \"08:00:00\",\n  \"dTEndTime\": \"17:00:00\",\n  \"billHoursFromDispatchOrArrive\": \"Dispatch\",\n  \"sourceCodeRequiredOnWorkOrder\": true,\n  \"sourceCodeRequiredOnServiceLocation\": true,\n  \"billToStartNumber\": 1000,\n  \"pOStartNumber\": 1000,\n  \"quoteStartNumber\": 1000,\n  \"workOrderStartNumber\": 1000,\n  \"invoiceNumberPrefix\": \"INV\",\n  \"quoteNumberPrefix\": \"QTE\",\n  \"pONumberPrefix\": \"PO\",\n  \"workOrderNumberPrefix\": \"WO\",\n  \"invoiceBatchNumberFormat\": \"INV-{YYYY}-{####}\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"timeCardOptionId\": 2,\n  \"accountingIntegrationTypeId\": {{accountingIntegrationTypeId}},\n  \"useExternalTaxCalculationProvider\": true,\n  \"enableCallBookingWidget\": true,\n  \"enablePaymentWidget\": true,\n  \"enableCustomerPortal\": true,\n  \"enableRulesManagement\": true,\n  \"enableAutoArrive\": true,\n  \"workLocationRadiusForAutoArrive\": 100,\n  \"oTStartTime\": \"08:00:00\",\n  \"oTEndTime\": \"17:00:00\",\n  \"dTStartTime\": \"08:00:00\",\n  \"dTEndTime\": \"17:00:00\",\n  \"billHoursFromDispatchOrArrive\": \"Dispatch\",\n  \"sourceCodeRequiredOnWorkOrder\": true,\n  \"sourceCodeRequiredOnServiceLocation\": true,\n  \"billToStartNumber\": 1000,\n  \"pOStartNumber\": 1000,\n  \"quoteStartNumber\": 1000,\n  \"workOrderStartNumber\": 1000,\n  \"invoiceNumberPrefix\": \"INV\",\n  \"quoteNumberPrefix\": \"QTE\",\n  \"pONumberPrefix\": \"PO\",\n  \"workOrderNumberPrefix\": \"WO\",\n  \"invoiceBatchNumberFormat\": \"INV-{YYYY}-{####}\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -5857,7 +5563,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Tenant\",\n  \"legalName\": \"Tenant LLC\",\n  \"email\": \"office@example.com\",\n  \"phoneNumber\": \"+15551234567\",\n  \"website\": \"https://acme.example.com\",\n  \"defaultCurrency\": null,\n  \"defaultLanguageId\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Tenant\",\n  \"legalName\": \"Tenant LLC\",\n  \"email\": \"office@example.com\",\n  \"phoneNumber\": \"+15551234567\",\n  \"website\": \"https://acme.example.com\",\n  \"defaultCurrency\": \"Tenant\",\n  \"defaultLanguageId\": {{defaultLanguageId}},\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -5917,7 +5623,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Tenant\",\n  \"legalName\": \"Updated Tenant\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Tenant\",\n  \"legalName\": \"Tenant LLC\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -6214,7 +5920,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "[\n  {\n    \"displayName\": \"Office User\",\n    \"email\": \"office@example.com\",\n    \"phoneNumber\": \"+15551234567\",\n    \"roleId\": {{roleId}},\n    \"authenticationMethod\": 3\n  }\n]",
+                                                                   "raw":  "[\n  {\n    \"displayName\": \"Office User\",\n    \"email\": \"office@example.com\",\n    \"phoneNumber\": \"+15551234567\",\n    \"roleIds\": [{{roleId}}],\n    \"authenticationMethod\": 3\n  }\n]",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -6274,7 +5980,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"displayName\": \"Office User\",\n  \"phoneNumber\": \"+15551234567\",\n  \"roleId\": {{roleId}},\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"displayName\": \"Office User\",\n  \"phoneNumber\": \"+15551234567\",\n  \"roleIds\": [{{roleId}}],\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -6334,7 +6040,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"displayName\": \"Updated Office User\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"displayName\": \"Office User\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -6422,22 +6128,22 @@
                      "name":  "UserRoleController",
                      "item":  [
                                   {
-                                      "name":  "GetById",
+                                      "name":  "GetByUserId",
                                       "request":  {
                                                       "method":  "GET",
                                                       "url":  {
                                                                   "host":  [
                                                                                "{{gatewayUrl}}"
                                                                            ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/userrole/{{userRoleId}}",
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/userrole/{{userId}}",
                                                                   "path":  [
                                                                                "api",
                                                                                "v1",
                                                                                "userrole",
-                                                                               "{{userRoleId}}"
+                                                                               "{{userId}}"
                                                                            ]
                                                               },
-                                                      "description":  "GetById",
+                                                      "description":  "GetByUserId",
                                                       "header":  [
                                                                      {
                                                                          "key":  "Accept",
@@ -6468,98 +6174,7 @@
                                                   }
                                   },
                                   {
-                                      "name":  "List",
-                                      "request":  {
-                                                      "method":  "GET",
-                                                      "url":  {
-                                                                  "query":  [
-                                                                                {
-                                                                                    "key":  "page",
-                                                                                    "description":  "Page number (1-based). Default: 1.",
-                                                                                    "value":  "{{page}}"
-                                                                                },
-                                                                                {
-                                                                                    "key":  "pageSize",
-                                                                                    "description":  "Items per page (1-100). Default: 25.",
-                                                                                    "value":  "{{pageSize}}"
-                                                                                },
-                                                                                {
-                                                                                    "key":  "sortBy",
-                                                                                    "description":  "Property to sort by (entity-specific). Optional.",
-                                                                                    "value":  "{{sortBy}}",
-                                                                                    "disabled":  true
-                                                                                },
-                                                                                {
-                                                                                    "key":  "sortDirection",
-                                                                                    "description":  "Sort direction: Asc or Desc. Default: Asc.",
-                                                                                    "value":  "{{sortDirection}}",
-                                                                                    "disabled":  true
-                                                                                },
-                                                                                {
-                                                                                    "key":  "search",
-                                                                                    "description":  "Free-text search across searchable fields. Optional.",
-                                                                                    "value":  "{{search}}",
-                                                                                    "disabled":  true
-                                                                                },
-                                                                                {
-                                                                                    "key":  "isActive",
-                                                                                    "description":  "Filter by active records. Default: true.",
-                                                                                    "value":  "true"
-                                                                                },
-                                                                                {
-                                                                                    "key":  "userId",
-                                                                                    "description":  "Optional userId filter.",
-                                                                                    "value":  "",
-                                                                                    "disabled":  true
-                                                                                },
-                                                                                {
-                                                                                    "key":  "fgsRoleId",
-                                                                                    "description":  "Optional fgsRoleId filter.",
-                                                                                    "value":  "",
-                                                                                    "disabled":  true
-                                                                                }
-                                                                            ],
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/userrole",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "userrole"
-                                                                           ]
-                                                              },
-                                                      "description":  "List",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  }
-                                  },
-                                  {
+                                      "name":  "Sync",
                                       "request":  {
                                                       "url":  {
                                                                   "host":  [
@@ -6572,8 +6187,8 @@
                                                                                "userrole"
                                                                            ]
                                                               },
-                                                      "description":  "Create",
-                                                      "method":  "POST",
+                                                      "description":  "Sync",
+                                                      "method":  "PUT",
                                                       "header":  [
                                                                      {
                                                                          "key":  "Accept",
@@ -6597,7 +6212,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"userId\": \"11111111-1111-1111-1111-111111111111\",\n  \"fgsRoleId\": {{fgsRoleId}}\n}",
+                                                                   "raw":  "{\n  \"userId\": \"{{userId}}\",\n  \"fgsRoleIds\": [{{fgsRoleId}}]\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -6605,67 +6220,6 @@
                                                                                },
                                                                    "mode":  "raw"
                                                                },
-                                                      "auth":  {
-                                                                   "bearer":  [
-                                                                                  {
-                                                                                      "key":  "token",
-                                                                                      "type":  "string",
-                                                                                      "value":  "{{accessToken}}"
-                                                                                  }
-                                                                              ],
-                                                                   "type":  "bearer"
-                                                               }
-                                                  },
-                                      "name":  "Create",
-                                      "event":  [
-                                                    {
-                                                        "script":  {
-                                                                       "exec":  [
-                                                                                    "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"userRoleId\", String(body.data.id));",
-                                                                                    "}"
-                                                                                ],
-                                                                       "type":  "text/javascript"
-                                                                   },
-                                                        "listen":  "test"
-                                                    }
-                                                ]
-                                  },
-                                  {
-                                      "name":  "Delete",
-                                      "request":  {
-                                                      "method":  "DELETE",
-                                                      "url":  {
-                                                                  "host":  [
-                                                                               "{{gatewayUrl}}"
-                                                                           ],
-                                                                  "raw":  "{{gatewayUrl}}/api/v1/userrole/{{userRoleId}}",
-                                                                  "path":  [
-                                                                               "api",
-                                                                               "v1",
-                                                                               "userrole",
-                                                                               "{{userRoleId}}"
-                                                                           ]
-                                                              },
-                                                      "description":  "Delete",
-                                                      "header":  [
-                                                                     {
-                                                                         "key":  "Accept",
-                                                                         "type":  "text",
-                                                                         "value":  "application/json"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Tenant-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{tenantId}}"
-                                                                     },
-                                                                     {
-                                                                         "key":  "X-Company-Id",
-                                                                         "type":  "text",
-                                                                         "value":  "{{companyId}}"
-                                                                     }
-                                                                 ],
                                                       "auth":  {
                                                                    "bearer":  [
                                                                                   {
@@ -6691,7 +6245,7 @@
                  "description":  "Company onboarding, UI login, Entra auth, active-user cache, dashboard, and tenant admin APIs via {{gatewayUrl}}.",
                  "name":  "FGS UserService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "34667cda-9eaf-4885-9918-59851f95c0bd"
+                 "_postman_id":  "f8023807-0cf3-4dd5-88da-568b1a15dc61"
              },
     "event":  [
                   {

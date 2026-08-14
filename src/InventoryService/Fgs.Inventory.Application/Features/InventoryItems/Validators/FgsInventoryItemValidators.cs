@@ -5,7 +5,6 @@ using Fgs.Inventory.Application.Abstractions.InventorySubCategories;
 using Fgs.Inventory.Application.Features.InventoryItems.Commands.CreateFgsInventoryItem;
 using Fgs.Inventory.Application.Features.InventoryItems.Commands.PatchFgsInventoryItem;
 using Fgs.Inventory.Application.Features.InventoryItems.Commands.UpdateFgsInventoryItem;
-using Fgs.Inventory.Application.Features.InventoryItems.Dtos;
 using FluentValidation;
 
 namespace Fgs.Inventory.Application.Features.InventoryItems.Validators;
@@ -51,32 +50,8 @@ public sealed class CreateFgsInventoryItemCommandValidator : AbstractValidator<C
                     await subCategoryReadRepository.ExistsAsync(subCategoryId, cancellationToken: cancellationToken))
                 .WithMessage("Inventory sub-category was not found or is inactive.")
                 .When(x => x.Dto.InventorySubCategoryId.HasValue);
-
-            RuleFor(x => x.Dto.Alternates)
-                .Must(HaveUniqueAlternateInventoryItemIds)
-                .WithMessage("Alternates must not contain duplicate alternateInventoryItemId values.")
-                .When(x => x.Dto.Alternates is { Count: > 0 });
-            RuleFor(x => x.Dto.Dependencies)
-                .Must(HaveUniqueDependentInventoryItemIds)
-                .WithMessage("Dependencies must not contain duplicate dependentInventoryItemId values.")
-                .When(x => x.Dto.Dependencies is { Count: > 0 });
-
-            RuleForEach(x => x.Dto.Alternates)
-                .SetValidator(new FgsInventoryItemAlternateDtoValidator(readRepository))
-                .When(x => x.Dto.Alternates is not null);
-            RuleForEach(x => x.Dto.Dependencies)
-                .SetValidator(new FgsInventoryItemDependencyDtoValidator(readRepository))
-                .When(x => x.Dto.Dependencies is not null);
         });
     }
-
-    private static bool HaveUniqueAlternateInventoryItemIds(IReadOnlyList<FgsInventoryItemAlternateDto>? alternates) =>
-        alternates is null
-        || alternates.Select(a => a.AlternateInventoryItemId).Distinct().Count() == alternates.Count;
-
-    private static bool HaveUniqueDependentInventoryItemIds(IReadOnlyList<FgsInventoryItemDependencyDto>? dependencies) =>
-        dependencies is null
-        || dependencies.Select(d => d.DependentInventoryItemId).Distinct().Count() == dependencies.Count;
 }
 
 public sealed class UpdateFgsInventoryItemCommandValidator : AbstractValidator<UpdateFgsInventoryItemCommand>
@@ -121,32 +96,8 @@ public sealed class UpdateFgsInventoryItemCommandValidator : AbstractValidator<U
                     await subCategoryReadRepository.ExistsAsync(subCategoryId, cancellationToken: cancellationToken))
                 .WithMessage("Inventory sub-category was not found or is inactive.")
                 .When(x => x.Dto.InventorySubCategoryId.HasValue);
-
-            RuleFor(x => x.Dto.Alternates)
-                .Must(HaveUniqueAlternateInventoryItemIds)
-                .WithMessage("Alternates must not contain duplicate alternateInventoryItemId values.")
-                .When(x => x.Dto.Alternates is { Count: > 0 });
-            RuleFor(x => x.Dto.Dependencies)
-                .Must(HaveUniqueDependentInventoryItemIds)
-                .WithMessage("Dependencies must not contain duplicate dependentInventoryItemId values.")
-                .When(x => x.Dto.Dependencies is { Count: > 0 });
-
-            RuleForEach(x => x.Dto.Alternates)
-                .SetValidator(new FgsInventoryItemAlternateDtoValidator(readRepository))
-                .When(x => x.Dto.Alternates is not null);
-            RuleForEach(x => x.Dto.Dependencies)
-                .SetValidator(new FgsInventoryItemDependencyDtoValidator(readRepository))
-                .When(x => x.Dto.Dependencies is not null);
         });
     }
-
-    private static bool HaveUniqueAlternateInventoryItemIds(IReadOnlyList<FgsInventoryItemAlternateDto>? alternates) =>
-        alternates is null
-        || alternates.Select(a => a.AlternateInventoryItemId).Distinct().Count() == alternates.Count;
-
-    private static bool HaveUniqueDependentInventoryItemIds(IReadOnlyList<FgsInventoryItemDependencyDto>? dependencies) =>
-        dependencies is null
-        || dependencies.Select(d => d.DependentInventoryItemId).Distinct().Count() == dependencies.Count;
 }
 
 public sealed class PatchFgsInventoryItemCommandValidator : AbstractValidator<PatchFgsInventoryItemCommand>
@@ -196,61 +147,6 @@ public sealed class PatchFgsInventoryItemCommandValidator : AbstractValidator<Pa
                     await subCategoryReadRepository.ExistsAsync(subCategoryId, cancellationToken: cancellationToken))
                 .WithMessage("Inventory sub-category was not found or is inactive.")
                 .When(x => x.Dto.InventorySubCategoryId.HasValue);
-
-            RuleFor(x => x.Dto.Alternates)
-                .Must(HaveUniqueAlternateInventoryItemIds)
-                .WithMessage("Alternates must not contain duplicate alternateInventoryItemId values.")
-                .When(x => x.Dto.Alternates is { Count: > 0 });
-            RuleFor(x => x.Dto.Dependencies)
-                .Must(HaveUniqueDependentInventoryItemIds)
-                .WithMessage("Dependencies must not contain duplicate dependentInventoryItemId values.")
-                .When(x => x.Dto.Dependencies is { Count: > 0 });
-
-            RuleForEach(x => x.Dto.Alternates)
-                .SetValidator(new FgsInventoryItemAlternateDtoValidator(readRepository))
-                .When(x => x.Dto.Alternates is not null);
-            RuleForEach(x => x.Dto.Dependencies)
-                .SetValidator(new FgsInventoryItemDependencyDtoValidator(readRepository))
-                .When(x => x.Dto.Dependencies is not null);
         });
-    }
-
-    private static bool HaveUniqueAlternateInventoryItemIds(IReadOnlyList<FgsInventoryItemAlternateDto>? alternates) =>
-        alternates is null
-        || alternates.Select(a => a.AlternateInventoryItemId).Distinct().Count() == alternates.Count;
-
-    private static bool HaveUniqueDependentInventoryItemIds(IReadOnlyList<FgsInventoryItemDependencyDto>? dependencies) =>
-        dependencies is null
-        || dependencies.Select(d => d.DependentInventoryItemId).Distinct().Count() == dependencies.Count;
-}
-
-internal sealed class FgsInventoryItemAlternateDtoValidator : AbstractValidator<FgsInventoryItemAlternateDto>
-{
-    public FgsInventoryItemAlternateDtoValidator(IFgsInventoryItemReadRepository readRepository)
-    {
-        RuleFor(x => x.Id!.Value).GreaterThan(0)
-            .When(x => x.Id.HasValue);
-        RuleFor(x => x.AlternateInventoryItemId).GreaterThan(0);
-        RuleFor(x => x.AlternateInventoryItemId)
-            .MustAsync(async (alternateInventoryItemId, cancellationToken) =>
-                await readRepository.ExistsInventoryItemAsync(alternateInventoryItemId, cancellationToken))
-            .WithMessage("Alternate inventory item was not found or is inactive.");
-        RuleFor(x => x.PriorityOrder).GreaterThan((short)0);
-    }
-}
-
-internal sealed class FgsInventoryItemDependencyDtoValidator : AbstractValidator<FgsInventoryItemDependencyDto>
-{
-    public FgsInventoryItemDependencyDtoValidator(IFgsInventoryItemReadRepository readRepository)
-    {
-        RuleFor(x => x.Id!.Value).GreaterThan(0)
-            .When(x => x.Id.HasValue);
-        RuleFor(x => x.DependentInventoryItemId).GreaterThan(0);
-        RuleFor(x => x.DependentInventoryItemId)
-            .MustAsync(async (dependentInventoryItemId, cancellationToken) =>
-                await readRepository.ExistsInventoryItemAsync(dependentInventoryItemId, cancellationToken))
-            .WithMessage("Dependent inventory item was not found or is inactive.");
-        RuleFor(x => x.Quantity).GreaterThan(0);
-        RuleFor(x => x.DisplayOrder).GreaterThan((short)0);
     }
 }

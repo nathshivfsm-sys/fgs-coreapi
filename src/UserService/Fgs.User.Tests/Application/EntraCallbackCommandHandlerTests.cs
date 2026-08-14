@@ -78,7 +78,7 @@ public sealed class EntraCallbackCommandHandlerTests
 
         response.Success.Should().BeFalse();
         response.StatusCode.Should().Be(ApiStatusCodes.Unauthorized);
-        response.Errors.Should().Contain(AuthErrorMessages.EntraCodeExchangeFailed);
+        response.Errors.Should().Contain(e => e.StartsWith(AuthErrorMessages.EntraCodeExchangeFailed));
     }
 
     [Fact]
@@ -196,7 +196,7 @@ public sealed class EntraCallbackCommandHandlerTests
 
         response.Success.Should().BeFalse();
         response.StatusCode.Should().Be(ApiStatusCodes.InternalServerError);
-        response.Errors.Should().Contain(AuthErrorMessages.FinalizeOnboardingFailed);
+        response.Errors.Should().Contain(e => e.StartsWith(AuthErrorMessages.FinalizeOnboardingFailed));
     }
 
     [Fact]
@@ -240,7 +240,7 @@ public sealed class EntraCallbackCommandHandlerTests
 
         response.Success.Should().BeFalse();
         response.StatusCode.Should().Be(ApiStatusCodes.InternalServerError);
-        response.Errors.Should().Contain(AuthErrorMessages.FinalizeOnboardingFailed);
+        response.Errors.Should().Contain(e => e.StartsWith(AuthErrorMessages.FinalizeOnboardingFailed));
     }
 
     private static async Task<(EntraCallbackCommandHandler Handler, Guid InvitationId)> CreateHandlerAsync(

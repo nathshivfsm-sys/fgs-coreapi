@@ -240,7 +240,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"customerNumber\": \"Customer\",\n  \"name\": \"Customer\",\n  \"displayName\": \"Customer\",\n  \"addressLine1\": \"100 Main St\",\n  \"addressLine2\": \"Suite 200\",\n  \"addressLine3\": null,\n  \"addressLine4\": null,\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"county\": null,\n  \"country\": \"US\",\n  \"postalCode\": \"78701\",\n  \"formattedAddress\": null,\n  \"latitude\": null,\n  \"longitude\": null,\n  \"placeId\": null,\n  \"defaultPaymentTermId\": null,\n  \"defaultMaterialPricingMatrixId\": null,\n  \"defaultLaborPricingMatrixId\": null,\n  \"defaultOtherPricingMatrixId\": null,\n  \"defaultPORequired\": true,\n  \"taxExempt\": true,\n  \"taxExemptNumber\": null,\n  \"customerAccountNumber\": null,\n  \"externalEntityId\": null,\n  \"externalVersion\": null\n}",
+                                                                   "raw":  "{\n  \"customerNumber\": \"Customer\",\n  \"name\": \"Customer\",\n  \"displayName\": \"Customer\",\n  \"addressLine1\": \"100 Main St\",\n  \"addressLine2\": \"Suite 200\",\n  \"addressLine3\": \"Building A\",\n  \"addressLine4\": \"Floor 2\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"county\": \"Travis\",\n  \"country\": \"US\",\n  \"postalCode\": \"78701\",\n  \"formattedAddress\": \"100 Main St, Suite 200, Austin, TX 78701\",\n  \"latitude\": 30.2672,\n  \"longitude\": -97.7431,\n  \"placeId\": {{placeId}},\n  \"defaultPaymentTermId\": {{defaultPaymentTermId}},\n  \"defaultMaterialPricingMatrixId\": {{defaultMaterialPricingMatrixId}},\n  \"defaultLaborPricingMatrixId\": {{defaultLaborPricingMatrixId}},\n  \"defaultOtherPricingMatrixId\": {{defaultOtherPricingMatrixId}},\n  \"defaultPORequired\": true,\n  \"taxExempt\": true,\n  \"taxExemptNumber\": \"Customer\",\n  \"customerAccountNumber\": \"Customer\",\n  \"externalEntityId\": {{externalEntityId}},\n  \"externalVersion\": \"Customer\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -265,8 +265,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"customerId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"customerId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -315,7 +316,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"customerNumber\": \"Customer\",\n  \"name\": \"Customer\",\n  \"displayName\": \"Customer\",\n  \"addressLine1\": \"100 Main St\",\n  \"addressLine2\": \"Suite 200\",\n  \"addressLine3\": null,\n  \"addressLine4\": null,\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"county\": null,\n  \"country\": \"US\",\n  \"postalCode\": \"78701\",\n  \"formattedAddress\": null,\n  \"latitude\": null,\n  \"longitude\": null,\n  \"placeId\": null,\n  \"defaultPaymentTermId\": null,\n  \"defaultMaterialPricingMatrixId\": null,\n  \"defaultLaborPricingMatrixId\": null,\n  \"defaultOtherPricingMatrixId\": null,\n  \"defaultPORequired\": true,\n  \"taxExempt\": true,\n  \"taxExemptNumber\": null,\n  \"customerAccountNumber\": null,\n  \"externalEntityId\": null,\n  \"externalVersion\": null\n}",
+                                                                   "raw":  "{\n  \"customerNumber\": \"Customer\",\n  \"name\": \"Customer\",\n  \"displayName\": \"Customer\",\n  \"addressLine1\": \"100 Main St\",\n  \"addressLine2\": \"Suite 200\",\n  \"addressLine3\": \"Building A\",\n  \"addressLine4\": \"Floor 2\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"county\": \"Travis\",\n  \"country\": \"US\",\n  \"postalCode\": \"78701\",\n  \"formattedAddress\": \"100 Main St, Suite 200, Austin, TX 78701\",\n  \"latitude\": 30.2672,\n  \"longitude\": -97.7431,\n  \"placeId\": {{placeId}},\n  \"defaultPaymentTermId\": {{defaultPaymentTermId}},\n  \"defaultMaterialPricingMatrixId\": {{defaultMaterialPricingMatrixId}},\n  \"defaultLaborPricingMatrixId\": {{defaultLaborPricingMatrixId}},\n  \"defaultOtherPricingMatrixId\": {{defaultOtherPricingMatrixId}},\n  \"defaultPORequired\": true,\n  \"taxExempt\": true,\n  \"taxExemptNumber\": \"Customer\",\n  \"customerAccountNumber\": \"Customer\",\n  \"externalEntityId\": {{externalEntityId}},\n  \"externalVersion\": \"Customer\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -375,7 +376,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Customer\",\n  \"displayName\": \"Updated Customer\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Customer\",\n  \"displayName\": \"Customer\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -408,7 +409,7 @@
                  "description":  "CRM customer catalog via {{gatewayUrl}}/api/v1/customer.",
                  "name":  "FGS CrmService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "f5b77f45-4c52-4cb1-84f1-6e3ee5ddbfd0"
+                 "_postman_id":  "42c66b0d-72b0-44b4-915a-d250887c7c31"
              },
     "event":  [
                   {

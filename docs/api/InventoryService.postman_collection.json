@@ -234,7 +234,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"categoryCode\": \"IC\",\n  \"name\": \"Inventory Category\",\n  \"description\": \"Inventory Category used in field service operations\",\n  \"textColor\": \"#FFFFFF\",\n  \"backgroundColor\": \"#3366FF\",\n  \"displayIconFileId\": null,\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"categoryCode\": \"IC\",\n  \"name\": \"Inventory Category\",\n  \"description\": \"Inventory Category used in field service operations\",\n  \"textColor\": \"#FFFFFF\",\n  \"backgroundColor\": \"#3366FF\",\n  \"displayIconFileId\": {{displayIconFileId}},\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -259,8 +259,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"inventoryCategoryId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventoryCategoryId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -309,7 +310,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"categoryCode\": \"IC\",\n  \"name\": \"Inventory Category\",\n  \"description\": \"Inventory Category used in field service operations\",\n  \"textColor\": \"#FFFFFF\",\n  \"backgroundColor\": \"#3366FF\",\n  \"displayIconFileId\": null,\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"categoryCode\": \"IC\",\n  \"name\": \"Inventory Category\",\n  \"description\": \"Inventory Category used in field service operations\",\n  \"textColor\": \"#FFFFFF\",\n  \"backgroundColor\": \"#3366FF\",\n  \"displayIconFileId\": {{displayIconFileId}},\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -369,7 +370,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Inventory Category\",\n  \"description\": \"Updated Inventory Category\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Inventory Category\",\n  \"description\": \"Inventory Category used in field service operations\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -377,6 +378,282 @@
                                                                                },
                                                                    "mode":  "raw"
                                                                },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "description":  "InventoryItemAlternateController - inventoryitemalternate",
+                     "name":  "InventoryItemAlternateController",
+                     "item":  [
+                                  {
+                                      "name":  "GetById",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventoryitemalternate/{{inventoryItemAlternateId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventoryitemalternate",
+                                                                               "{{inventoryItemAlternateId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetById",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "List",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventoryitemalternate",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventoryitemalternate"
+                                                                           ]
+                                                              },
+                                                      "description":  "List",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventoryitemalternate",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventoryitemalternate"
+                                                                           ]
+                                                              },
+                                                      "description":  "Create",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"items\": [{\n  \"id\": null,\n  \"alternateInventoryItemId\": {{alternateInventoryItemId}},\n  \"priorityOrder\": 5,\n  \"notes\": \"Inventory Item Alternate notes\",\n  \"isActive\": true\n}]\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventoryItemAlternateId\", String(row.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "Update",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventoryitemalternate",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventoryitemalternate"
+                                                                           ]
+                                                              },
+                                                      "description":  "Update",
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"items\": [{\n  \"id\": null,\n  \"alternateInventoryItemId\": {{alternateInventoryItemId}},\n  \"priorityOrder\": 5,\n  \"notes\": \"Inventory Item Alternate notes\",\n  \"isActive\": true\n}]\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Delete",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventoryitemalternate/{{inventoryItemAlternateId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventoryitemalternate",
+                                                                               "{{inventoryItemAlternateId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Delete",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
                                                       "auth":  {
                                                                    "bearer":  [
                                                                                   {
@@ -631,7 +908,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"inventoryItemTypeId\": {{inventoryItemTypeId}},\n  \"itemCode\": \"II\",\n  \"name\": \"Inventory Item\",\n  \"description\": \"Inventory Item used in field service operations\",\n  \"purchaseDescription\": null,\n  \"salesDescription\": null,\n  \"manufacturerPartNumber\": null,\n  \"manufacturerName\": null,\n  \"sku\": null,\n  \"uPCCode\": \"II\",\n  \"unitOfMeasure\": null,\n  \"tracksInventory\": true,\n  \"isSerialized\": true,\n  \"unitCost\": 100.00,\n  \"standardUnitCost\": 100.00,\n  \"salesPrice\": 100.00,\n  \"inventoryCategoryId\": null,\n  \"inventorySubCategoryId\": null,\n  \"alternates\": [{\n  \"id\": null,\n  \"alternateInventoryItemId\": {{alternateInventoryItemId}},\n  \"priorityOrder\": 5,\n  \"notes\": \"Inventory Item notes\",\n  \"isActive\": true\n}],\n  \"dependencies\": [{\n  \"id\": null,\n  \"dependentInventoryItemId\": {{dependentInventoryItemId}},\n  \"quantity\": 0.00,\n  \"isRequired\": true,\n  \"notes\": \"Inventory Item notes\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}]\n}",
+                                                                   "raw":  "{\n  \"inventoryItemTypeId\": {{inventoryItemTypeId}},\n  \"itemCode\": \"II\",\n  \"name\": \"Inventory Item\",\n  \"description\": \"Inventory Item used in field service operations\",\n  \"purchaseDescription\": \"Purchase description for Inventory Item\",\n  \"salesDescription\": \"Sales description for Inventory Item\",\n  \"manufacturerPartNumber\": \"MPN-001\",\n  \"manufacturerName\": \"Acme Manufacturing\",\n  \"sku\": \"II\",\n  \"uPCCode\": \"II\",\n  \"unitOfMeasure\": \"EA\",\n  \"tracksInventory\": true,\n  \"isSerialized\": true,\n  \"unitCost\": 100.00,\n  \"standardUnitCost\": 100.00,\n  \"salesPrice\": 100.00,\n  \"inventoryCategoryId\": {{inventoryCategoryId}},\n  \"inventorySubCategoryId\": {{inventorySubCategoryId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -656,8 +933,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"inventoryItemId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventoryItemId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -706,7 +984,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"inventoryItemTypeId\": {{inventoryItemTypeId}},\n  \"itemCode\": \"II\",\n  \"name\": \"Inventory Item\",\n  \"description\": \"Inventory Item used in field service operations\",\n  \"purchaseDescription\": null,\n  \"salesDescription\": null,\n  \"manufacturerPartNumber\": null,\n  \"manufacturerName\": null,\n  \"sku\": null,\n  \"uPCCode\": \"II\",\n  \"unitOfMeasure\": null,\n  \"tracksInventory\": true,\n  \"isSerialized\": true,\n  \"unitCost\": 100.00,\n  \"standardUnitCost\": 100.00,\n  \"salesPrice\": 100.00,\n  \"inventoryCategoryId\": null,\n  \"inventorySubCategoryId\": null,\n  \"alternates\": [{\n  \"id\": null,\n  \"alternateInventoryItemId\": {{alternateInventoryItemId}},\n  \"priorityOrder\": 5,\n  \"notes\": \"Inventory Item notes\",\n  \"isActive\": true\n}],\n  \"dependencies\": [{\n  \"id\": null,\n  \"dependentInventoryItemId\": {{dependentInventoryItemId}},\n  \"quantity\": 0.00,\n  \"isRequired\": true,\n  \"notes\": \"Inventory Item notes\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}]\n}",
+                                                                   "raw":  "{\n  \"inventoryItemTypeId\": {{inventoryItemTypeId}},\n  \"itemCode\": \"II\",\n  \"name\": \"Inventory Item\",\n  \"description\": \"Inventory Item used in field service operations\",\n  \"purchaseDescription\": \"Purchase description for Inventory Item\",\n  \"salesDescription\": \"Sales description for Inventory Item\",\n  \"manufacturerPartNumber\": \"MPN-001\",\n  \"manufacturerName\": \"Acme Manufacturing\",\n  \"sku\": \"II\",\n  \"uPCCode\": \"II\",\n  \"unitOfMeasure\": \"EA\",\n  \"tracksInventory\": true,\n  \"isSerialized\": true,\n  \"unitCost\": 100.00,\n  \"standardUnitCost\": 100.00,\n  \"salesPrice\": 100.00,\n  \"inventoryCategoryId\": {{inventoryCategoryId}},\n  \"inventorySubCategoryId\": {{inventorySubCategoryId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -766,7 +1044,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Inventory Item\",\n  \"description\": \"Updated Inventory Item\",\n  \"purchaseDescription\": \"Updated Inventory Item\",\n  \"salesDescription\": \"Updated Inventory Item\",\n  \"manufacturerName\": \"Updated Inventory Item\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Inventory Item\",\n  \"description\": \"Inventory Item used in field service operations\",\n  \"purchaseDescription\": \"Purchase description for Inventory Item\",\n  \"salesDescription\": \"Sales description for Inventory Item\",\n  \"manufacturerName\": \"Acme Manufacturing\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -774,6 +1052,282 @@
                                                                                },
                                                                    "mode":  "raw"
                                                                },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "description":  "InventoryItemDependencyController - inventoryitemdependency",
+                     "name":  "InventoryItemDependencyController",
+                     "item":  [
+                                  {
+                                      "name":  "GetById",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventoryitemdependency/{{inventoryItemDependencyId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventoryitemdependency",
+                                                                               "{{inventoryItemDependencyId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "GetById",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "List",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventoryitemdependency",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventoryitemdependency"
+                                                                           ]
+                                                              },
+                                                      "description":  "List",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventoryitemdependency",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventoryitemdependency"
+                                                                           ]
+                                                              },
+                                                      "description":  "Create",
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"items\": [{\n  \"id\": null,\n  \"dependentInventoryItemId\": {{dependentInventoryItemId}},\n  \"quantity\": 0.00,\n  \"isRequired\": true,\n  \"notes\": \"Inventory Item Dependency notes\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}]\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  },
+                                      "name":  "Create",
+                                      "event":  [
+                                                    {
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const body = pm.response.json();",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventoryItemDependencyId\", String(row.id));",
+                                                                                    "}"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   },
+                                                        "listen":  "test"
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "Update",
+                                      "request":  {
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventoryitemdependency",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventoryitemdependency"
+                                                                           ]
+                                                              },
+                                                      "description":  "Update",
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "raw":  "{\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"items\": [{\n  \"id\": null,\n  \"dependentInventoryItemId\": {{dependentInventoryItemId}},\n  \"quantity\": 0.00,\n  \"isRequired\": true,\n  \"notes\": \"Inventory Item Dependency notes\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}]\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               },
+                                                                   "mode":  "raw"
+                                                               },
+                                                      "auth":  {
+                                                                   "bearer":  [
+                                                                                  {
+                                                                                      "key":  "token",
+                                                                                      "type":  "string",
+                                                                                      "value":  "{{accessToken}}"
+                                                                                  }
+                                                                              ],
+                                                                   "type":  "bearer"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Delete",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "url":  {
+                                                                  "host":  [
+                                                                               "{{gatewayUrl}}"
+                                                                           ],
+                                                                  "raw":  "{{gatewayUrl}}/api/v1/inventoryitemdependency/{{inventoryItemDependencyId}}",
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "v1",
+                                                                               "inventoryitemdependency",
+                                                                               "{{inventoryItemDependencyId}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Delete",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Accept",
+                                                                         "type":  "text",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Tenant-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{tenantId}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "X-Company-Id",
+                                                                         "type":  "text",
+                                                                         "value":  "{{companyId}}"
+                                                                     }
+                                                                 ],
                                                       "auth":  {
                                                                    "bearer":  [
                                                                                   {
@@ -1047,8 +1601,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"inventoryItemTypeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventoryItemTypeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1157,7 +1712,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Inventory Item Type\",\n  \"description\": \"Updated Inventory Item Type\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Inventory Item Type\",\n  \"description\": \"Inventory Item Type used in field service operations\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1438,8 +1993,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"inventoryLocationId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventoryLocationId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1511,8 +2067,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"inventoryLocationId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventoryLocationId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1584,8 +2141,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"inventoryLocationId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventoryLocationId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1657,8 +2215,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"inventoryLocationId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventoryLocationId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1730,8 +2289,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"inventoryLocationId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventoryLocationId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1803,8 +2363,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"inventoryLocationId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventoryLocationId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1853,7 +2414,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"inventoryLocationCode\": \"WH-MAIN\",\n  \"name\": \"Main Warehouse\",\n  \"inventoryLocationType\": \"WAREHOUSE\",\n  \"parentInventoryLocationId\": null,\n  \"description\": \"Primary parts warehouse\",\n  \"address1\": \"100 Main St\",\n  \"address2\": \"Suite 200\",\n  \"city\": \"Austin\",\n  \"stateProvince\": \"TX\",\n  \"postalCode\": \"78701\",\n  \"country\": \"US\",\n  \"contactName\": \"Ops Admin\",\n  \"phoneNumber\": \"+15551234567\",\n  \"email\": \"office@example.com\",\n  \"isDefault\": false\n}",
+                                                                   "raw":  "{\n  \"inventoryLocationCode\": \"WH-MAIN\",\n  \"name\": \"Main Warehouse\",\n  \"inventoryLocationType\": \"WAREHOUSE\",\n  \"parentInventoryLocationId\": {{parentInventoryLocationId}},\n  \"description\": \"Primary parts warehouse\",\n  \"address1\": \"100 Main St\",\n  \"address2\": \"Suite 200\",\n  \"city\": \"Austin\",\n  \"stateProvince\": \"TX\",\n  \"postalCode\": \"78701\",\n  \"country\": \"US\",\n  \"contactName\": \"Ops Admin\",\n  \"phoneNumber\": \"+15551234567\",\n  \"email\": \"office@example.com\",\n  \"isDefault\": false\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1913,7 +2474,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Main Warehouse\",\n  \"description\": \"Updated Main Warehouse\",\n  \"contactName\": \"Updated Main Warehouse\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Main Warehouse\",\n  \"description\": \"Primary parts warehouse\",\n  \"contactName\": \"Ops Admin\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2200,8 +2761,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"inventorySerialId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventorySerialId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -2310,7 +2872,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"inventoryItemId\": null,\n  \"serialNumber\": null\n}",
+                                                                   "raw":  "{\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"serialNumber\": \"Inventory Serial\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2506,7 +3068,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"quantityOnHand\": 0.00,\n  \"quantityCommitted\": 0.00,\n  \"quantityAvailable\": 0.00,\n  \"averageCost\": 100.00,\n  \"lastCost\": 100.00,\n  \"lastPurchaseDate\": null,\n  \"lastSoldDate\": null\n}",
+                                                                   "raw":  "{\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"quantityOnHand\": 0.00,\n  \"quantityCommitted\": 0.00,\n  \"quantityAvailable\": 0.00,\n  \"averageCost\": 100.00,\n  \"lastCost\": 100.00,\n  \"lastPurchaseDate\": \"Inventory Stock\",\n  \"lastSoldDate\": \"Inventory Stock\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2531,8 +3093,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"inventoryStockId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventoryStockId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -2581,7 +3144,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"quantityOnHand\": 0.00,\n  \"quantityCommitted\": 0.00,\n  \"quantityAvailable\": 0.00,\n  \"averageCost\": 100.00,\n  \"lastCost\": 100.00,\n  \"lastPurchaseDate\": null,\n  \"lastSoldDate\": null\n}",
+                                                                   "raw":  "{\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"quantityOnHand\": 0.00,\n  \"quantityCommitted\": 0.00,\n  \"quantityAvailable\": 0.00,\n  \"averageCost\": 100.00,\n  \"lastCost\": 100.00,\n  \"lastPurchaseDate\": \"Inventory Stock\",\n  \"lastSoldDate\": \"Inventory Stock\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2641,7 +3204,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"inventoryItemId\": null,\n  \"quantityOnHand\": null\n}",
+                                                                   "raw":  "{\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"quantityOnHand\": 0.00\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2903,7 +3466,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"inventoryCategoryId\": {{inventoryCategoryId}},\n  \"subCategoryCode\": \"SUB\",\n  \"name\": \"Inventory Sub Category\",\n  \"description\": \"Inventory Sub Category used in field service operations\",\n  \"textColor\": \"#FFFFFF\",\n  \"backgroundColor\": \"#3366FF\",\n  \"displayIconFileId\": null,\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"inventoryCategoryId\": {{inventoryCategoryId}},\n  \"subCategoryCode\": \"SUB\",\n  \"name\": \"Inventory Sub Category\",\n  \"description\": \"Inventory Sub Category used in field service operations\",\n  \"textColor\": \"#FFFFFF\",\n  \"backgroundColor\": \"#3366FF\",\n  \"displayIconFileId\": {{displayIconFileId}},\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2928,8 +3491,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"inventorySubCategoryId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventorySubCategoryId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -2978,7 +3542,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"inventoryCategoryId\": {{inventoryCategoryId}},\n  \"subCategoryCode\": \"SUB\",\n  \"name\": \"Inventory Sub Category\",\n  \"description\": \"Inventory Sub Category used in field service operations\",\n  \"textColor\": \"#FFFFFF\",\n  \"backgroundColor\": \"#3366FF\",\n  \"displayIconFileId\": null,\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"inventoryCategoryId\": {{inventoryCategoryId}},\n  \"subCategoryCode\": \"SUB\",\n  \"name\": \"Inventory Sub Category\",\n  \"description\": \"Inventory Sub Category used in field service operations\",\n  \"textColor\": \"#FFFFFF\",\n  \"backgroundColor\": \"#3366FF\",\n  \"displayIconFileId\": {{displayIconFileId}},\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3038,7 +3602,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Inventory Sub Category\",\n  \"description\": \"Updated Inventory Sub Category\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Inventory Sub Category\",\n  \"description\": \"Inventory Sub Category used in field service operations\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3240,7 +3804,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"transactionNumber\": \"Inventory Transaction\",\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"serialNumber\": null,\n  \"transactionType\": \"Inventory Transaction\",\n  \"quantity\": 0.00,\n  \"fromInventoryLocationId\": null,\n  \"toInventoryLocationId\": null,\n  \"unitCost\": 100.00,\n  \"transactionDate\": null,\n  \"referenceType\": null,\n  \"referenceId\": null,\n  \"notes\": \"Inventory Transaction notes\"\n}",
+                                                                   "raw":  "{\n  \"transactionNumber\": \"Inventory Transaction\",\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"serialNumber\": \"Inventory Transaction\",\n  \"transactionType\": \"Inventory Transaction\",\n  \"quantity\": 0.00,\n  \"fromInventoryLocationId\": {{fromInventoryLocationId}},\n  \"toInventoryLocationId\": {{toInventoryLocationId}},\n  \"unitCost\": 100.00,\n  \"transactionDate\": \"Inventory Transaction\",\n  \"referenceType\": \"Inventory Transaction\",\n  \"referenceId\": {{referenceId}},\n  \"notes\": \"Inventory Transaction notes\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3265,8 +3829,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"inventoryTransactionId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"inventoryTransactionId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3463,7 +4028,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"purchaseOrderNumber\": \"Purchase Order\",\n  \"vendorId\": {{vendorId}},\n  \"purchaseOrderStatus\": \"Purchase Order\",\n  \"purchaseOrderDate\": \"Purchase Order\",\n  \"expectedDeliveryDate\": null,\n  \"requestedByEmployeeId\": null,\n  \"requestedByName\": null,\n  \"buyerEmployeeId\": null,\n  \"shipToInventoryLocationId\": null,\n  \"shipToServiceLocationId\": null,\n  \"shipToName\": null,\n  \"shipToAddress1\": null,\n  \"shipToAddress2\": null,\n  \"shipToCity\": null,\n  \"shipToStateProvince\": null,\n  \"shipToPostalCode\": \"PO\",\n  \"shipToCountry\": null,\n  \"vendorReferenceNumber\": null,\n  \"vendorContactName\": null,\n  \"vendorEmail\": \"office@example.com\",\n  \"vendorPhoneNumber\": \"+15551234567\",\n  \"subtotal\": 0.00,\n  \"discountAmount\": 100.00,\n  \"taxableAmount\": 100.00,\n  \"purchaseTaxJson\": null,\n  \"freightAmount\": 100.00,\n  \"otherCharges\": 0.00,\n  \"totalAmount\": 100.00,\n  \"vendorNotes\": null,\n  \"internalNotes\": null,\n  \"details\": [{\n  \"id\": null,\n  \"lineNumber\": 1,\n  \"itemId\": {{itemId}},\n  \"vendorPartNumber\": null,\n  \"itemDescription\": \"Purchase Order\",\n  \"unitOfMeasureCode\": \"PO\",\n  \"orderedQuantity\": 0.00,\n  \"receivedQuantity\": 0.00,\n  \"unitCost\": 100.00,\n  \"discountAmount\": 100.00,\n  \"isTaxable\": true,\n  \"extendedAmount\": 100.00,\n  \"expectedDeliveryDate\": null,\n  \"notes\": \"Purchase Order notes\"\n}]\n}",
+                                                                   "raw":  "{\n  \"purchaseOrderNumber\": \"Purchase Order\",\n  \"vendorId\": {{vendorId}},\n  \"purchaseOrderStatus\": \"Purchase Order\",\n  \"purchaseOrderDate\": \"Purchase Order\",\n  \"expectedDeliveryDate\": \"Purchase Order\",\n  \"requestedByEmployeeId\": {{requestedByEmployeeId}},\n  \"requestedByName\": \"Purchase Order\",\n  \"buyerEmployeeId\": {{buyerEmployeeId}},\n  \"shipToInventoryLocationId\": {{shipToInventoryLocationId}},\n  \"shipToServiceLocationId\": {{shipToServiceLocationId}},\n  \"shipToName\": \"Purchase Order\",\n  \"shipToAddress1\": \"Purchase Order\",\n  \"shipToAddress2\": \"Purchase Order\",\n  \"shipToCity\": \"Purchase Order\",\n  \"shipToStateProvince\": \"Purchase Order\",\n  \"shipToPostalCode\": \"PO\",\n  \"shipToCountry\": \"Purchase Order\",\n  \"vendorReferenceNumber\": \"Purchase Order\",\n  \"vendorContactName\": \"Purchase Order\",\n  \"vendorEmail\": \"office@example.com\",\n  \"vendorPhoneNumber\": \"+15551234567\",\n  \"subtotal\": 0.00,\n  \"discountAmount\": 100.00,\n  \"taxableAmount\": 100.00,\n  \"purchaseTaxJson\": \"Purchase Order\",\n  \"freightAmount\": 100.00,\n  \"otherCharges\": 0.00,\n  \"totalAmount\": 100.00,\n  \"vendorNotes\": \"Purchase Order vendor notes\",\n  \"internalNotes\": \"Purchase Order internal notes\",\n  \"details\": [{\n  \"id\": null,\n  \"lineNumber\": 1,\n  \"itemId\": {{itemId}},\n  \"vendorPartNumber\": \"PO\",\n  \"itemDescription\": \"Purchase Order item description\",\n  \"unitOfMeasureCode\": \"PO\",\n  \"orderedQuantity\": 0.00,\n  \"receivedQuantity\": 0.00,\n  \"unitCost\": 100.00,\n  \"discountAmount\": 100.00,\n  \"isTaxable\": true,\n  \"extendedAmount\": 100.00,\n  \"expectedDeliveryDate\": \"Purchase Order\",\n  \"notes\": \"Purchase Order notes\"\n}]\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3488,8 +4053,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"purchaseOrderId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"purchaseOrderId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3538,7 +4104,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"purchaseOrderNumber\": \"Purchase Order\",\n  \"vendorId\": {{vendorId}},\n  \"purchaseOrderStatus\": \"Purchase Order\",\n  \"purchaseOrderDate\": \"Purchase Order\",\n  \"expectedDeliveryDate\": null,\n  \"requestedByEmployeeId\": null,\n  \"requestedByName\": null,\n  \"buyerEmployeeId\": null,\n  \"shipToInventoryLocationId\": null,\n  \"shipToServiceLocationId\": null,\n  \"shipToName\": null,\n  \"shipToAddress1\": null,\n  \"shipToAddress2\": null,\n  \"shipToCity\": null,\n  \"shipToStateProvince\": null,\n  \"shipToPostalCode\": \"PO\",\n  \"shipToCountry\": null,\n  \"vendorReferenceNumber\": null,\n  \"vendorContactName\": null,\n  \"vendorEmail\": \"office@example.com\",\n  \"vendorPhoneNumber\": \"+15551234567\",\n  \"subtotal\": 0.00,\n  \"discountAmount\": 100.00,\n  \"taxableAmount\": 100.00,\n  \"purchaseTaxJson\": null,\n  \"freightAmount\": 100.00,\n  \"otherCharges\": 0.00,\n  \"totalAmount\": 100.00,\n  \"vendorNotes\": null,\n  \"internalNotes\": null,\n  \"details\": [{\n  \"id\": null,\n  \"lineNumber\": 1,\n  \"itemId\": {{itemId}},\n  \"vendorPartNumber\": null,\n  \"itemDescription\": \"Purchase Order\",\n  \"unitOfMeasureCode\": \"PO\",\n  \"orderedQuantity\": 0.00,\n  \"receivedQuantity\": 0.00,\n  \"unitCost\": 100.00,\n  \"discountAmount\": 100.00,\n  \"isTaxable\": true,\n  \"extendedAmount\": 100.00,\n  \"expectedDeliveryDate\": null,\n  \"notes\": \"Purchase Order notes\"\n}]\n}",
+                                                                   "raw":  "{\n  \"purchaseOrderNumber\": \"Purchase Order\",\n  \"vendorId\": {{vendorId}},\n  \"purchaseOrderStatus\": \"Purchase Order\",\n  \"purchaseOrderDate\": \"Purchase Order\",\n  \"expectedDeliveryDate\": \"Purchase Order\",\n  \"requestedByEmployeeId\": {{requestedByEmployeeId}},\n  \"requestedByName\": \"Purchase Order\",\n  \"buyerEmployeeId\": {{buyerEmployeeId}},\n  \"shipToInventoryLocationId\": {{shipToInventoryLocationId}},\n  \"shipToServiceLocationId\": {{shipToServiceLocationId}},\n  \"shipToName\": \"Purchase Order\",\n  \"shipToAddress1\": \"Purchase Order\",\n  \"shipToAddress2\": \"Purchase Order\",\n  \"shipToCity\": \"Purchase Order\",\n  \"shipToStateProvince\": \"Purchase Order\",\n  \"shipToPostalCode\": \"PO\",\n  \"shipToCountry\": \"Purchase Order\",\n  \"vendorReferenceNumber\": \"Purchase Order\",\n  \"vendorContactName\": \"Purchase Order\",\n  \"vendorEmail\": \"office@example.com\",\n  \"vendorPhoneNumber\": \"+15551234567\",\n  \"subtotal\": 0.00,\n  \"discountAmount\": 100.00,\n  \"taxableAmount\": 100.00,\n  \"purchaseTaxJson\": \"Purchase Order\",\n  \"freightAmount\": 100.00,\n  \"otherCharges\": 0.00,\n  \"totalAmount\": 100.00,\n  \"vendorNotes\": \"Purchase Order vendor notes\",\n  \"internalNotes\": \"Purchase Order internal notes\",\n  \"details\": [{\n  \"id\": null,\n  \"lineNumber\": 1,\n  \"itemId\": {{itemId}},\n  \"vendorPartNumber\": \"PO\",\n  \"itemDescription\": \"Purchase Order item description\",\n  \"unitOfMeasureCode\": \"PO\",\n  \"orderedQuantity\": 0.00,\n  \"receivedQuantity\": 0.00,\n  \"unitCost\": 100.00,\n  \"discountAmount\": 100.00,\n  \"isTaxable\": true,\n  \"extendedAmount\": 100.00,\n  \"expectedDeliveryDate\": \"Purchase Order\",\n  \"notes\": \"Purchase Order notes\"\n}]\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3879,8 +4445,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"truckStockTemplateId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"truckStockTemplateId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3989,7 +4556,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Standard Truck Stock\",\n  \"description\": \"Updated Standard Truck Stock\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Standard Truck Stock\",\n  \"description\": \"Default truck stock template\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4270,8 +4837,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"vendorId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"vendorId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4343,8 +4911,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"vendorId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"vendorId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4416,8 +4985,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"vendorId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"vendorId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4489,8 +5059,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"vendorId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"vendorId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4539,7 +5110,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"vendorCode\": \"VND01\",\n  \"name\": \"Acme Supply Co\",\n  \"legalName\": \"Acme Supply Co LLC\",\n  \"vendorType\": \"VENDOR\",\n  \"vendorStatus\": \"ACTIVE\",\n  \"vendorAccountNumber\": \"ACCT-1001\",\n  \"paymentTermId\": null,\n  \"contactName\": \"Ops Admin\",\n  \"contactTitle\": \"Buyer\",\n  \"email\": \"office@example.com\",\n  \"purchaseOrderEmail\": \"office@example.com\",\n  \"phoneNumber\": \"+15551234567\",\n  \"mobileNumber\": \"+15551234567\",\n  \"faxNumber\": null,\n  \"website\": \"https://acme.example.com\",\n  \"address1\": \"100 Main St\",\n  \"address2\": \"Suite 200\",\n  \"city\": \"Austin\",\n  \"stateProvince\": \"TX\",\n  \"postalCode\": \"78701\",\n  \"country\": \"US\",\n  \"taxIdNumber\": \"12-3456789\",\n  \"licenseNumber\": null,\n  \"insurancePolicyNumber\": null,\n  \"notes\": \"Acme Supply Co notes\",\n  \"is1099Eligible\": false\n}",
+                                                                   "raw":  "{\n  \"vendorCode\": \"VND01\",\n  \"name\": \"Acme Supply Co\",\n  \"legalName\": \"Acme Supply Co LLC\",\n  \"vendorType\": \"VENDOR\",\n  \"vendorStatus\": \"ACTIVE\",\n  \"vendorAccountNumber\": \"ACCT-1001\",\n  \"paymentTermId\": {{paymentTermId}},\n  \"contactName\": \"Ops Admin\",\n  \"contactTitle\": \"Buyer\",\n  \"email\": \"office@example.com\",\n  \"purchaseOrderEmail\": \"office@example.com\",\n  \"phoneNumber\": \"+15551234567\",\n  \"mobileNumber\": \"+15551234567\",\n  \"faxNumber\": \"Acme Supply Co\",\n  \"website\": \"https://acme.example.com\",\n  \"address1\": \"100 Main St\",\n  \"address2\": \"Suite 200\",\n  \"city\": \"Austin\",\n  \"stateProvince\": \"TX\",\n  \"postalCode\": \"78701\",\n  \"country\": \"US\",\n  \"taxIdNumber\": \"12-3456789\",\n  \"licenseNumber\": \"Acme Supply Co\",\n  \"insurancePolicyNumber\": \"Acme Supply Co\",\n  \"notes\": \"Acme Supply Co notes\",\n  \"is1099Eligible\": false\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4599,7 +5170,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Acme Supply Co\",\n  \"legalName\": \"Updated Acme Supply Co\",\n  \"contactName\": \"Updated Acme Supply Co\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Acme Supply Co\",\n  \"legalName\": \"Acme Supply Co LLC\",\n  \"contactName\": \"Ops Admin\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4861,7 +5432,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"vendorId\": {{vendorId}},\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"vendorPartNumber\": null,\n  \"vendorPartName\": null,\n  \"lastCost\": 100.00,\n  \"lastReceivedDate\": null,\n  \"purchaseOrderComments\": null,\n  \"vendorPriority\": 5,\n  \"leadTimeDays\": 1\n}",
+                                                                   "raw":  "{\n  \"vendorId\": {{vendorId}},\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"vendorPartNumber\": \"VII\",\n  \"vendorPartName\": \"Vendor Inventory Item\",\n  \"lastCost\": 100.00,\n  \"lastReceivedDate\": \"Vendor Inventory Item\",\n  \"purchaseOrderComments\": \"Vendor Inventory Item purchase order comments\",\n  \"vendorPriority\": 5,\n  \"leadTimeDays\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -4886,8 +5457,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"vendorInventoryItemId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"vendorInventoryItemId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -4936,7 +5508,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"vendorId\": {{vendorId}},\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"vendorPartNumber\": null,\n  \"vendorPartName\": null,\n  \"lastCost\": 100.00,\n  \"lastReceivedDate\": null,\n  \"purchaseOrderComments\": null,\n  \"vendorPriority\": 5,\n  \"leadTimeDays\": 1\n}",
+                                                                   "raw":  "{\n  \"vendorId\": {{vendorId}},\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"vendorPartNumber\": \"VII\",\n  \"vendorPartName\": \"Vendor Inventory Item\",\n  \"lastCost\": 100.00,\n  \"lastReceivedDate\": \"Vendor Inventory Item\",\n  \"purchaseOrderComments\": \"Vendor Inventory Item purchase order comments\",\n  \"vendorPriority\": 5,\n  \"leadTimeDays\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -5026,10 +5598,10 @@
                      }
                  ],
     "info":  {
-                 "description":  "Inventory catalog and purchasing APIs via {{gatewayUrl}}/api/v1/{inventory-*|vendor|vendorinventoryitem|purchaseorder|truckstocktemplate}. Aggregates: inventoryitem (alternates/dependencies), purchaseorder (details), truckstocktemplate (items).",
+                 "description":  "Inventory catalog and purchasing APIs via {{gatewayUrl}}/api/v1/{inventory-*|vendor|vendorinventoryitem|purchaseorder|truckstocktemplate}. Relationship APIs: inventoryitemalternate, inventoryitemdependency.",
                  "name":  "FGS InventoryService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "20258500-051f-49f7-b0d5-4622518d6740"
+                 "_postman_id":  "b31b2e44-a66b-4aea-b673-dd7b6ea9da02"
              },
     "event":  [
                   {

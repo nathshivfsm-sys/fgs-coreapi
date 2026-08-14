@@ -94,7 +94,7 @@ public sealed class TitleOfCourtesyCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
 
-        var entity = await context.FgsSetupTitlesOfCourtesy.SingleAsync();
+        var entity = await context.FgsSetupTitlesOfCourtesy.IgnoreQueryFilters().SingleAsync();
         entity.IsActive.Should().BeFalse();
     }
 

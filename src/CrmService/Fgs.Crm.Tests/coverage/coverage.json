@@ -1,0 +1,1372 @@
+{
+  "Fgs.Crm.Application.dll": {
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\DependencyInjection.cs": {
+      "Fgs.Crm.Application.DependencyInjection": {
+        "Microsoft.Extensions.DependencyInjection.IServiceCollection Fgs.Crm.Application.DependencyInjection::AddFgsCrmApplication(Microsoft.Extensions.DependencyInjection.IServiceCollection)": {
+          "Lines": {
+            "10": 0,
+            "11": 0,
+            "12": 0,
+            "13": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Features\\Customers\\Validators\\CrmCustomerValidators.cs": {
+      "Fgs.Crm.Application.Features.Customers.Validators.CreateCrmCustomerCommandValidator": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Validators.CreateCrmCustomerCommandValidator::ApplyAddressRules(FluentValidation.AbstractValidator`1<Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer.CreateCrmCustomerCommand>)": {
+          "Lines": {
+            "41": 2,
+            "42": 2,
+            "43": 2,
+            "44": 2,
+            "45": 2,
+            "46": 2,
+            "47": 2,
+            "48": 2,
+            "49": 2,
+            "50": 2,
+            "51": 2
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Crm.Application.Features.Customers.Validators.CreateCrmCustomerCommandValidator::.ctor(Fgs.Crm.Application.Abstractions.Customers.ICrmCustomerReadRepository)": {
+          "Lines": {
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 2,
+            "15": 2,
+            "16": 2,
+            "18": 4,
+            "19": 2,
+            "20": 2,
+            "21": 2,
+            "22": 2,
+            "23": 2,
+            "24": 2,
+            "25": 2,
+            "26": 2,
+            "27": 2,
+            "28": 2,
+            "29": 2,
+            "30": 2,
+            "31": 2,
+            "32": 2,
+            "33": 2,
+            "34": 2,
+            "35": 2,
+            "36": 2,
+            "37": 4,
+            "38": 2
+          },
+          "Branches": [
+            {
+              "Line": 24,
+              "Offset": 332,
+              "EndOffset": 334,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 2
+            },
+            {
+              "Line": 24,
+              "Offset": 332,
+              "EndOffset": 356,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 2
+            }
+          ]
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Validators.UpdateCrmCustomerCommandValidator": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Validators.UpdateCrmCustomerCommandValidator::.ctor(Fgs.Crm.Application.Abstractions.Customers.ICrmCustomerReadRepository)": {
+          "Lines": {
+            "56": 1,
+            "57": 1,
+            "58": 1,
+            "59": 1,
+            "60": 1,
+            "61": 1,
+            "62": 1,
+            "64": 2,
+            "65": 1,
+            "66": 1,
+            "67": 1,
+            "68": 1,
+            "69": 1,
+            "70": 1,
+            "71": 1,
+            "72": 1,
+            "73": 1,
+            "74": 1,
+            "75": 1,
+            "76": 1,
+            "77": 1,
+            "78": 1,
+            "79": 1,
+            "80": 1,
+            "81": 1,
+            "82": 1,
+            "83": 1,
+            "84": 1,
+            "85": 1,
+            "86": 1,
+            "87": 1,
+            "88": 1,
+            "89": 1,
+            "90": 1,
+            "91": 2,
+            "92": 1
+          },
+          "Branches": [
+            {
+              "Line": 70,
+              "Offset": 332,
+              "EndOffset": 334,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 70,
+              "Offset": 332,
+              "EndOffset": 356,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 1
+            }
+          ]
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Validators.PatchCrmCustomerCommandValidator": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Validators.PatchCrmCustomerCommandValidator::.ctor(Fgs.Crm.Application.Abstractions.Customers.ICrmCustomerReadRepository)": {
+          "Lines": {
+            "97": 0,
+            "98": 0,
+            "99": 0,
+            "100": 0,
+            "101": 0,
+            "102": 0,
+            "103": 0,
+            "105": 0,
+            "106": 0,
+            "107": 0,
+            "108": 0,
+            "109": 0,
+            "110": 0,
+            "111": 0,
+            "112": 0,
+            "113": 0,
+            "114": 0,
+            "115": 0,
+            "116": 0,
+            "117": 0,
+            "118": 0,
+            "119": 0,
+            "120": 0,
+            "121": 0,
+            "122": 0,
+            "123": 0,
+            "124": 0,
+            "125": 0,
+            "126": 0,
+            "127": 0,
+            "128": 0,
+            "129": 0,
+            "130": 0,
+            "131": 0,
+            "132": 0,
+            "133": 0,
+            "134": 0,
+            "135": 0
+          },
+          "Branches": [
+            {
+              "Line": 112,
+              "Offset": 406,
+              "EndOffset": 408,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 112,
+              "Offset": 406,
+              "EndOffset": 430,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Features\\Customers\\Queries\\LookupCrmCustomers\\LookupCrmCustomersQuery.cs": {
+      "Fgs.Crm.Application.Features.Customers.Queries.LookupCrmCustomers.LookupCrmCustomersQuery": {
+        "System.Boolean Fgs.Crm.Application.Features.Customers.Queries.LookupCrmCustomers.LookupCrmCustomersQuery::get_ActiveOnly()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Features\\Customers\\Queries\\LookupCrmCustomers\\LookupCrmCustomersQueryHandler.cs": {
+      "Fgs.Crm.Application.Features.Customers.Queries.LookupCrmCustomers.LookupCrmCustomersQueryHandler": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Queries.LookupCrmCustomers.LookupCrmCustomersQueryHandler::.ctor(Fgs.Crm.Application.Abstractions.Customers.ICrmCustomerReadRepository,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Queries.LookupCrmCustomers.LookupCrmCustomersQueryHandler/<>c__DisplayClass4_0": {
+        "System.Threading.Tasks.Task`1<System.Collections.Generic.IReadOnlyList`1<Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerLookupDto>> Fgs.Crm.Application.Features.Customers.Queries.LookupCrmCustomers.LookupCrmCustomersQueryHandler/<>c__DisplayClass4_0::<Handle>b__0()": {
+          "Lines": {
+            "30": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Queries.LookupCrmCustomers.LookupCrmCustomersQueryHandler/<Handle>d__4": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Queries.LookupCrmCustomers.LookupCrmCustomersQueryHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "28": 0,
+            "29": 0,
+            "31": 0,
+            "33": 0,
+            "34": 0
+          },
+          "Branches": [
+            {
+              "Line": 33,
+              "Offset": 345,
+              "EndOffset": 347,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 33,
+              "Offset": 345,
+              "EndOffset": 353,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Features\\Customers\\Queries\\ListCrmCustomers\\ListCrmCustomersQuery.cs": {
+      "Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers.ListCrmCustomersQuery": {
+        "Fgs.Crm.Application.Common.CrmCrud.CrmListQuery Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers.ListCrmCustomersQuery::get_Query()": {
+          "Lines": {
+            "10": 1
+          },
+          "Branches": []
+        },
+        "Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerListFilters Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers.ListCrmCustomersQuery::get_Filters()": {
+          "Lines": {
+            "11": 2
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers.ListCrmCustomersQuery::.ctor(Fgs.Crm.Application.Common.CrmCrud.CrmListQuery,Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerListFilters)": {
+          "Lines": {
+            "9": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Features\\Customers\\Queries\\ListCrmCustomers\\ListCrmCustomersQueryHandler.cs": {
+      "Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers.ListCrmCustomersQueryHandler": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers.ListCrmCustomersQueryHandler::.ctor(Fgs.Crm.Application.Abstractions.Customers.ICrmCustomerReadRepository)": {
+          "Lines": {
+            "9": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers.ListCrmCustomersQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers.ListCrmCustomersQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "15": 1,
+            "16": 1,
+            "17": 1,
+            "18": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Features\\Customers\\Queries\\GetCrmCustomerById\\GetCrmCustomerByIdQuery.cs": {
+      "Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerById.GetCrmCustomerByIdQuery": {
+        "System.Int64 Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerById.GetCrmCustomerByIdQuery::get_Id()": {
+          "Lines": {
+            "7": 7
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Features\\Customers\\Queries\\GetCrmCustomerById\\GetCrmCustomerByIdQueryHandler.cs": {
+      "Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerById.GetCrmCustomerByIdQueryHandler": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerById.GetCrmCustomerByIdQueryHandler::.ctor(Fgs.Crm.Application.Abstractions.Customers.ICrmCustomerReadRepository,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerById.GetCrmCustomerByIdQueryHandler/<Handle>d__4": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerById.GetCrmCustomerByIdQueryHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 2,
+            "21": 2,
+            "22": 2,
+            "23": 2,
+            "24": 2,
+            "25": 2,
+            "26": 2,
+            "28": 2,
+            "29": 2,
+            "30": 0,
+            "31": 0,
+            "34": 2,
+            "35": 2,
+            "36": 1,
+            "37": 1,
+            "38": 1,
+            "39": 1,
+            "42": 1,
+            "43": 1,
+            "44": 2
+          },
+          "Branches": [
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 280,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 303,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 2
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 469,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 553,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 1
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Features\\Customers\\Dtos\\CrmCustomerDtos.cs": {
+      "Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerSummaryDto": {
+        "System.Int64 Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerSummaryDto::get_Id()": {
+          "Lines": {
+            "4": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerSummaryDto::get_CustomerNumber()": {
+          "Lines": {
+            "5": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerSummaryDto::get_Name()": {
+          "Lines": {
+            "6": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerSummaryDto::get_DisplayName()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerSummaryDto::get_City()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerSummaryDto::get_State()": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerSummaryDto::get_PostalCode()": {
+          "Lines": {
+            "10": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerSummaryDto::get_Country()": {
+          "Lines": {
+            "11": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerSummaryDto::get_CustomerAccountNumber()": {
+          "Lines": {
+            "12": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerSummaryDto::get_IsActive()": {
+          "Lines": {
+            "13": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerSummaryDto::.ctor(System.Int64,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Boolean)": {
+          "Lines": {
+            "3": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto": {
+        "System.Int64 Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_Id()": {
+          "Lines": {
+            "16": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_CustomerNumber()": {
+          "Lines": {
+            "17": 2
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_Name()": {
+          "Lines": {
+            "18": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_DisplayName()": {
+          "Lines": {
+            "19": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_AddressLine1()": {
+          "Lines": {
+            "20": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_AddressLine2()": {
+          "Lines": {
+            "21": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_AddressLine3()": {
+          "Lines": {
+            "22": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_AddressLine4()": {
+          "Lines": {
+            "23": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_City()": {
+          "Lines": {
+            "24": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_State()": {
+          "Lines": {
+            "25": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_County()": {
+          "Lines": {
+            "26": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_Country()": {
+          "Lines": {
+            "27": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_PostalCode()": {
+          "Lines": {
+            "28": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_FormattedAddress()": {
+          "Lines": {
+            "29": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Decimal> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_Latitude()": {
+          "Lines": {
+            "30": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Decimal> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_Longitude()": {
+          "Lines": {
+            "31": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_PlaceId()": {
+          "Lines": {
+            "32": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_DefaultPaymentTermId()": {
+          "Lines": {
+            "33": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_DefaultMaterialPricingMatrixId()": {
+          "Lines": {
+            "34": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_DefaultLaborPricingMatrixId()": {
+          "Lines": {
+            "35": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_DefaultOtherPricingMatrixId()": {
+          "Lines": {
+            "36": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_DefaultPORequired()": {
+          "Lines": {
+            "37": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_TaxExempt()": {
+          "Lines": {
+            "38": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_TaxExemptNumber()": {
+          "Lines": {
+            "39": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_CustomerAccountNumber()": {
+          "Lines": {
+            "40": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_ExternalEntityId()": {
+          "Lines": {
+            "41": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_ExternalVersion()": {
+          "Lines": {
+            "42": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::get_IsActive()": {
+          "Lines": {
+            "43": 3
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerDetailDto::.ctor(System.Int64,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable`1<System.Decimal>,System.Nullable`1<System.Decimal>,System.String,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Boolean,System.Boolean,System.String,System.String,System.String,System.String,System.Boolean)": {
+          "Lines": {
+            "15": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerLookupDto": {
+        "System.Int64 Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerLookupDto::get_Id()": {
+          "Lines": {
+            "46": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerLookupDto::get_CustomerNumber()": {
+          "Lines": {
+            "47": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerLookupDto::get_DisplayName()": {
+          "Lines": {
+            "48": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerLookupDto::.ctor(System.Int64,System.String,System.String)": {
+          "Lines": {
+            "45": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto": {
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_CustomerNumber()": {
+          "Lines": {
+            "51": 8
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_Name()": {
+          "Lines": {
+            "52": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_DisplayName()": {
+          "Lines": {
+            "53": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_AddressLine1()": {
+          "Lines": {
+            "54": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_AddressLine2()": {
+          "Lines": {
+            "55": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_AddressLine3()": {
+          "Lines": {
+            "56": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_AddressLine4()": {
+          "Lines": {
+            "57": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_City()": {
+          "Lines": {
+            "58": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_State()": {
+          "Lines": {
+            "59": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_County()": {
+          "Lines": {
+            "60": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_Country()": {
+          "Lines": {
+            "61": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_PostalCode()": {
+          "Lines": {
+            "62": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_FormattedAddress()": {
+          "Lines": {
+            "63": 3
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Decimal> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_Latitude()": {
+          "Lines": {
+            "64": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Decimal> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_Longitude()": {
+          "Lines": {
+            "65": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_PlaceId()": {
+          "Lines": {
+            "66": 3
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_DefaultPaymentTermId()": {
+          "Lines": {
+            "67": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_DefaultMaterialPricingMatrixId()": {
+          "Lines": {
+            "68": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_DefaultLaborPricingMatrixId()": {
+          "Lines": {
+            "69": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_DefaultOtherPricingMatrixId()": {
+          "Lines": {
+            "70": 1
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_DefaultPORequired()": {
+          "Lines": {
+            "71": 1
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_TaxExempt()": {
+          "Lines": {
+            "72": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_TaxExemptNumber()": {
+          "Lines": {
+            "73": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_CustomerAccountNumber()": {
+          "Lines": {
+            "74": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_ExternalEntityId()": {
+          "Lines": {
+            "75": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::get_ExternalVersion()": {
+          "Lines": {
+            "76": 6
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto::.ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable`1<System.Decimal>,System.Nullable`1<System.Decimal>,System.String,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Boolean,System.Boolean,System.String,System.String,System.String,System.String)": {
+          "Lines": {
+            "50": 3
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto": {
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_CustomerNumber()": {
+          "Lines": {
+            "79": 3
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_Name()": {
+          "Lines": {
+            "80": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_DisplayName()": {
+          "Lines": {
+            "81": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_AddressLine1()": {
+          "Lines": {
+            "82": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_AddressLine2()": {
+          "Lines": {
+            "83": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_AddressLine3()": {
+          "Lines": {
+            "84": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_AddressLine4()": {
+          "Lines": {
+            "85": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_City()": {
+          "Lines": {
+            "86": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_State()": {
+          "Lines": {
+            "87": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_County()": {
+          "Lines": {
+            "88": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_Country()": {
+          "Lines": {
+            "89": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_PostalCode()": {
+          "Lines": {
+            "90": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_FormattedAddress()": {
+          "Lines": {
+            "91": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Decimal> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_Latitude()": {
+          "Lines": {
+            "92": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Decimal> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_Longitude()": {
+          "Lines": {
+            "93": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_PlaceId()": {
+          "Lines": {
+            "94": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_DefaultPaymentTermId()": {
+          "Lines": {
+            "95": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_DefaultMaterialPricingMatrixId()": {
+          "Lines": {
+            "96": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_DefaultLaborPricingMatrixId()": {
+          "Lines": {
+            "97": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_DefaultOtherPricingMatrixId()": {
+          "Lines": {
+            "98": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_DefaultPORequired()": {
+          "Lines": {
+            "99": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_TaxExempt()": {
+          "Lines": {
+            "100": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_TaxExemptNumber()": {
+          "Lines": {
+            "101": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_CustomerAccountNumber()": {
+          "Lines": {
+            "102": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_ExternalEntityId()": {
+          "Lines": {
+            "103": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::get_ExternalVersion()": {
+          "Lines": {
+            "104": 2
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerUpdateDto::.ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable`1<System.Decimal>,System.Nullable`1<System.Decimal>,System.String,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Boolean,System.Boolean,System.String,System.String,System.String,System.String)": {
+          "Lines": {
+            "78": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto": {
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_CustomerNumber()": {
+          "Lines": {
+            "107": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_Name()": {
+          "Lines": {
+            "108": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_DisplayName()": {
+          "Lines": {
+            "109": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_AddressLine1()": {
+          "Lines": {
+            "110": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_AddressLine2()": {
+          "Lines": {
+            "111": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_AddressLine3()": {
+          "Lines": {
+            "112": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_AddressLine4()": {
+          "Lines": {
+            "113": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_City()": {
+          "Lines": {
+            "114": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_State()": {
+          "Lines": {
+            "115": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_County()": {
+          "Lines": {
+            "116": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_Country()": {
+          "Lines": {
+            "117": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_PostalCode()": {
+          "Lines": {
+            "118": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_FormattedAddress()": {
+          "Lines": {
+            "119": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Decimal> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_Latitude()": {
+          "Lines": {
+            "120": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Decimal> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_Longitude()": {
+          "Lines": {
+            "121": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_PlaceId()": {
+          "Lines": {
+            "122": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_DefaultPaymentTermId()": {
+          "Lines": {
+            "123": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_DefaultMaterialPricingMatrixId()": {
+          "Lines": {
+            "124": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_DefaultLaborPricingMatrixId()": {
+          "Lines": {
+            "125": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_DefaultOtherPricingMatrixId()": {
+          "Lines": {
+            "126": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Boolean> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_DefaultPORequired()": {
+          "Lines": {
+            "127": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Boolean> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_TaxExempt()": {
+          "Lines": {
+            "128": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_TaxExemptNumber()": {
+          "Lines": {
+            "129": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_CustomerAccountNumber()": {
+          "Lines": {
+            "130": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_ExternalEntityId()": {
+          "Lines": {
+            "131": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_ExternalVersion()": {
+          "Lines": {
+            "132": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Boolean> Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::get_IsActive()": {
+          "Lines": {
+            "133": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerPatchDto::.ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable`1<System.Decimal>,System.Nullable`1<System.Decimal>,System.String,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Boolean>,System.Nullable`1<System.Boolean>,System.String,System.String,System.String,System.String,System.Nullable`1<System.Boolean>)": {
+          "Lines": {
+            "106": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerListFilters": {
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerListFilters::get_CustomerNumber()": {
+          "Lines": {
+            "136": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerListFilters::get_Name()": {
+          "Lines": {
+            "137": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerListFilters::get_DisplayName()": {
+          "Lines": {
+            "138": 1
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerListFilters::.ctor(System.String,System.String,System.String)": {
+          "Lines": {
+            "135": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Features\\Customers\\Commands\\UpdateCrmCustomer\\UpdateCrmCustomerCommand.cs": {
+      "Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer.UpdateCrmCustomerCommand": {
+        "System.Int64 Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer.UpdateCrmCustomerCommand::get_Id()": {
+          "Lines": {
+            "7": 25
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Features\\Customers\\Commands\\UpdateCrmCustomer\\UpdateCrmCustomerCommandHandler.cs": {
+      "Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer.UpdateCrmCustomerCommandHandler": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer.UpdateCrmCustomerCommandHandler::.ctor(Fgs.Crm.Application.Abstractions.Customers.ICrmCustomerWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor,Microsoft.Extensions.Logging.ILogger`1<Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer.UpdateCrmCustomerCommandHandler>)": {
+          "Lines": {
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer.UpdateCrmCustomerCommandHandler/<Handle>d__5": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer.UpdateCrmCustomerCommandHandler/<Handle>d__5::MoveNext()": {
+          "Lines": {
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Features\\Customers\\Commands\\PatchCrmCustomer\\PatchCrmCustomerCommand.cs": {
+      "Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomer.PatchCrmCustomerCommand": {
+        "System.Int64 Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomer.PatchCrmCustomerCommand::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Features\\Customers\\Commands\\PatchCrmCustomer\\PatchCrmCustomerCommandHandler.cs": {
+      "Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomer.PatchCrmCustomerCommandHandler": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomer.PatchCrmCustomerCommandHandler::.ctor(Fgs.Crm.Application.Abstractions.Customers.ICrmCustomerWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor,Microsoft.Extensions.Logging.ILogger`1<Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomer.PatchCrmCustomerCommandHandler>)": {
+          "Lines": {
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomer.PatchCrmCustomerCommandHandler/<Handle>d__5": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomer.PatchCrmCustomerCommandHandler/<Handle>d__5::MoveNext()": {
+          "Lines": {
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Features\\Customers\\Commands\\CreateCrmCustomer\\CreateCrmCustomerCommand.cs": {
+      "Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer.CreateCrmCustomerCommand": {
+        "Fgs.Crm.Application.Features.Customers.Dtos.CrmCustomerCreateDto Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer.CreateCrmCustomerCommand::get_Dto()": {
+          "Lines": {
+            "7": 48
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Features\\Customers\\Commands\\CreateCrmCustomer\\CreateCrmCustomerCommandHandler.cs": {
+      "Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer.CreateCrmCustomerCommandHandler": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer.CreateCrmCustomerCommandHandler::.ctor(Fgs.Crm.Application.Abstractions.Customers.ICrmCustomerWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor,Microsoft.Extensions.Logging.ILogger`1<Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer.CreateCrmCustomerCommandHandler>)": {
+          "Lines": {
+            "12": 1,
+            "13": 1,
+            "14": 1,
+            "15": 1,
+            "16": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer.CreateCrmCustomerCommandHandler/<Handle>d__5": {
+        "System.Void Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer.CreateCrmCustomerCommandHandler/<Handle>d__5::MoveNext()": {
+          "Lines": {
+            "22": 1,
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 1,
+            "28": 1,
+            "29": 1,
+            "30": 1,
+            "31": 1,
+            "32": 1,
+            "33": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\CrmService\\Fgs.Crm.Application\\Common\\CrmCrud\\CrmListQuery.cs": {
+      "Fgs.Crm.Application.Common.CrmCrud.CrmListQuery": {
+        "System.Int32 Fgs.Crm.Application.Common.CrmCrud.CrmListQuery::get_Page()": {
+          "Lines": {
+            "6": 0
+          },
+          "Branches": []
+        },
+        "System.Int32 Fgs.Crm.Application.Common.CrmCrud.CrmListQuery::get_PageSize()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Common.CrmCrud.CrmListQuery::get_SortBy()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        },
+        "Fgs.Foundation.Paging.SortDirection Fgs.Crm.Application.Common.CrmCrud.CrmListQuery::get_SortDirection()": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Crm.Application.Common.CrmCrud.CrmListQuery::get_Search()": {
+          "Lines": {
+            "10": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Boolean> Fgs.Crm.Application.Common.CrmCrud.CrmListQuery::get_IsActive()": {
+          "Lines": {
+            "11": 1
+          },
+          "Branches": []
+        },
+        "Fgs.Foundation.Paging.PagedQuery Fgs.Crm.Application.Common.CrmCrud.CrmListQuery::ToPagedQuery()": {
+          "Lines": {
+            "14": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Crm.Application.Common.CrmCrud.CrmListQuery::.ctor(System.Int32,System.Int32,System.String,Fgs.Foundation.Paging.SortDirection,System.String,System.Nullable`1<System.Boolean>)": {
+          "Lines": {
+            "5": 1
+          },
+          "Branches": []
+        }
+      }
+    }
+  }
+}

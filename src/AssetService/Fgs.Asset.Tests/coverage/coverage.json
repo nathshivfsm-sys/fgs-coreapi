@@ -1,0 +1,4572 @@
+{
+  "Fgs.Asset.Application.dll": {
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\DependencyInjection.cs": {
+      "Fgs.Asset.Application.DependencyInjection": {
+        "Microsoft.Extensions.DependencyInjection.IServiceCollection Fgs.Asset.Application.DependencyInjection::AddFgsAssetApplication(Microsoft.Extensions.DependencyInjection.IServiceCollection)": {
+          "Lines": {
+            "10": 0,
+            "11": 0,
+            "12": 0,
+            "13": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetWarranties\\Validators\\FgsAssetWarrantyValidators.cs": {
+      "Fgs.Asset.Application.Features.AssetWarranties.Validators.CreateFgsAssetWarrantyCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Validators.CreateFgsAssetWarrantyCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetWarranties.IFgsAssetWarrantyReadRepository)": {
+          "Lines": {
+            "9": 0,
+            "10": 0,
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Validators.UpdateFgsAssetWarrantyCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Validators.UpdateFgsAssetWarrantyCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetWarranties.IFgsAssetWarrantyReadRepository)": {
+          "Lines": {
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Validators.PatchFgsAssetWarrantyCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Validators.PatchFgsAssetWarrantyCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetWarranties.IFgsAssetWarrantyReadRepository)": {
+          "Lines": {
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0,
+            "46": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Validators.PatchFgsAssetWarrantyCommandValidator/<>c__DisplayClass0_0/<<-ctor>b__6>d": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Validators.PatchFgsAssetWarrantyCommandValidator/<>c__DisplayClass0_0/<<-ctor>b__6>d::MoveNext()": {
+          "Lines": {},
+          "Branches": [
+            {
+              "Line": 45,
+              "Offset": 52,
+              "EndOffset": 57,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 45,
+              "Offset": 52,
+              "EndOffset": 194,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetWarranties\\Queries\\LookupAssetWarranties\\LookupAssetWarrantiesQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetWarranties.Queries.LookupAssetWarranties.LookupAssetWarrantiesQuery": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Queries.LookupAssetWarranties.LookupAssetWarrantiesQuery::.ctor()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetWarranties\\Queries\\LookupAssetWarranties\\LookupAssetWarrantiesQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetWarranties.Queries.LookupAssetWarranties.LookupAssetWarrantiesQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Queries.LookupAssetWarranties.LookupAssetWarrantiesQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetWarranties.IFgsAssetWarrantyReadRepository)": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Queries.LookupAssetWarranties.LookupAssetWarrantiesQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Queries.LookupAssetWarranties.LookupAssetWarrantiesQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetWarranties\\Queries\\ListAssetWarranties\\ListAssetWarrantiesQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetWarranties.Queries.ListAssetWarranties.ListAssetWarrantiesQuery": {
+        "Fgs.Asset.Application.Common.AssetCrud.AssetListQuery Fgs.Asset.Application.Features.AssetWarranties.Queries.ListAssetWarranties.ListAssetWarrantiesQuery::get_Query()": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetWarranties\\Queries\\ListAssetWarranties\\ListAssetWarrantiesQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetWarranties.Queries.ListAssetWarranties.ListAssetWarrantiesQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Queries.ListAssetWarranties.ListAssetWarrantiesQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetWarranties.IFgsAssetWarrantyReadRepository)": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Queries.ListAssetWarranties.ListAssetWarrantiesQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Queries.ListAssetWarranties.ListAssetWarrantiesQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetWarranties\\Queries\\GetFgsAssetWarrantyById\\GetFgsAssetWarrantyByIdQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetWarranties.Queries.GetFgsAssetWarrantyById.GetFgsAssetWarrantyByIdQuery": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetWarranties.Queries.GetFgsAssetWarrantyById.GetFgsAssetWarrantyByIdQuery::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetWarranties\\Queries\\GetFgsAssetWarrantyById\\GetFgsAssetWarrantyByIdQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetWarranties.Queries.GetFgsAssetWarrantyById.GetFgsAssetWarrantyByIdQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Queries.GetFgsAssetWarrantyById.GetFgsAssetWarrantyByIdQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetWarranties.IFgsAssetWarrantyReadRepository,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Queries.GetFgsAssetWarrantyById.GetFgsAssetWarrantyByIdQueryHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Queries.GetFgsAssetWarrantyById.GetFgsAssetWarrantyByIdQueryHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "Branches": [
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 280,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 303,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 469,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 0
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 553,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetWarranties\\Dtos\\FgsAssetWarrantyDtos.cs": {
+      "Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantySummaryDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantySummaryDto::get_Id()": {
+          "Lines": {
+            "2": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantyDetailDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantyDetailDto::get_Id()": {
+          "Lines": {
+            "3": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantyLookupDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantyLookupDto::get_Id()": {
+          "Lines": {
+            "4": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantyCreateDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantyCreateDto::get_AssetId()": {
+          "Lines": {
+            "5": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantyUpdateDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantyUpdateDto::get_AssetId()": {
+          "Lines": {
+            "6": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantyPatchDto": {
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantyPatchDto::get_AssetId()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantyListFilters": {
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantyListFilters::get_AssetId()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetWarranties\\Commands\\UpdateFgsAssetWarranty\\UpdateFgsAssetWarrantyCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetWarranties.Commands.UpdateFgsAssetWarranty.UpdateFgsAssetWarrantyCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetWarranties.Commands.UpdateFgsAssetWarranty.UpdateFgsAssetWarrantyCommand::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetWarranties\\Commands\\UpdateFgsAssetWarranty\\UpdateFgsAssetWarrantyCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetWarranties.Commands.UpdateFgsAssetWarranty.UpdateFgsAssetWarrantyCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Commands.UpdateFgsAssetWarranty.UpdateFgsAssetWarrantyCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetWarranties.IFgsAssetWarrantyWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Commands.UpdateFgsAssetWarranty.UpdateFgsAssetWarrantyCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Commands.UpdateFgsAssetWarranty.UpdateFgsAssetWarrantyCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetWarranties\\Commands\\PatchFgsAssetWarranty\\PatchFgsAssetWarrantyCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetWarranties.Commands.PatchFgsAssetWarranty.PatchFgsAssetWarrantyCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetWarranties.Commands.PatchFgsAssetWarranty.PatchFgsAssetWarrantyCommand::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetWarranties\\Commands\\PatchFgsAssetWarranty\\PatchFgsAssetWarrantyCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetWarranties.Commands.PatchFgsAssetWarranty.PatchFgsAssetWarrantyCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Commands.PatchFgsAssetWarranty.PatchFgsAssetWarrantyCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetWarranties.IFgsAssetWarrantyWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Commands.PatchFgsAssetWarranty.PatchFgsAssetWarrantyCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Commands.PatchFgsAssetWarranty.PatchFgsAssetWarrantyCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetWarranties\\Commands\\CreateFgsAssetWarranty\\CreateFgsAssetWarrantyCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetWarranties.Commands.CreateFgsAssetWarranty.CreateFgsAssetWarrantyCommand": {
+        "Fgs.Asset.Application.Features.AssetWarranties.Dtos.FgsAssetWarrantyCreateDto Fgs.Asset.Application.Features.AssetWarranties.Commands.CreateFgsAssetWarranty.CreateFgsAssetWarrantyCommand::get_Dto()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetWarranties\\Commands\\CreateFgsAssetWarranty\\CreateFgsAssetWarrantyCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetWarranties.Commands.CreateFgsAssetWarranty.CreateFgsAssetWarrantyCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Commands.CreateFgsAssetWarranty.CreateFgsAssetWarrantyCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetWarranties.IFgsAssetWarrantyWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetWarranties.Commands.CreateFgsAssetWarranty.CreateFgsAssetWarrantyCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetWarranties.Commands.CreateFgsAssetWarranty.CreateFgsAssetWarrantyCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetTypes\\Validators\\FgsAssetTypeValidators.cs": {
+      "Fgs.Asset.Application.Features.AssetTypes.Validators.CreateFgsAssetTypeCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Validators.CreateFgsAssetTypeCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetTypes.IFgsAssetTypeReadRepository)": {
+          "Lines": {
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 4,
+            "15": 4,
+            "16": 2,
+            "17": 2,
+            "18": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetTypes.Validators.UpdateFgsAssetTypeCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Validators.UpdateFgsAssetTypeCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetTypes.IFgsAssetTypeReadRepository)": {
+          "Lines": {
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 2,
+            "28": 2,
+            "29": 1,
+            "30": 1,
+            "31": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetTypes.Validators.PatchFgsAssetTypeCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Validators.PatchFgsAssetTypeCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetTypes.IFgsAssetTypeReadRepository)": {
+          "Lines": {
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetTypes\\Queries\\LookupAssetTypes\\LookupAssetTypesQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetTypes.Queries.LookupAssetTypes.LookupAssetTypesQuery": {
+        "System.Boolean Fgs.Asset.Application.Features.AssetTypes.Queries.LookupAssetTypes.LookupAssetTypesQuery::get_ActiveOnly()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetTypes\\Queries\\LookupAssetTypes\\LookupAssetTypesQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetTypes.Queries.LookupAssetTypes.LookupAssetTypesQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Queries.LookupAssetTypes.LookupAssetTypesQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetTypes.IFgsAssetTypeReadRepository)": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetTypes.Queries.LookupAssetTypes.LookupAssetTypesQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Queries.LookupAssetTypes.LookupAssetTypesQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetTypes\\Queries\\ListAssetTypes\\ListAssetTypesQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetTypes.Queries.ListAssetTypes.ListAssetTypesQuery": {
+        "Fgs.Asset.Application.Common.AssetCrud.AssetListQuery Fgs.Asset.Application.Features.AssetTypes.Queries.ListAssetTypes.ListAssetTypesQuery::get_Query()": {
+          "Lines": {
+            "9": 3
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetTypes\\Queries\\ListAssetTypes\\ListAssetTypesQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetTypes.Queries.ListAssetTypes.ListAssetTypesQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Queries.ListAssetTypes.ListAssetTypesQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetTypes.IFgsAssetTypeReadRepository)": {
+          "Lines": {
+            "9": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetTypes.Queries.ListAssetTypes.ListAssetTypesQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Queries.ListAssetTypes.ListAssetTypesQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "15": 1,
+            "16": 1,
+            "17": 1,
+            "18": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetTypes\\Queries\\GetFgsAssetTypeById\\GetFgsAssetTypeByIdQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetTypes.Queries.GetFgsAssetTypeById.GetFgsAssetTypeByIdQuery": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetTypes.Queries.GetFgsAssetTypeById.GetFgsAssetTypeByIdQuery::get_Id()": {
+          "Lines": {
+            "7": 7
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetTypes\\Queries\\GetFgsAssetTypeById\\GetFgsAssetTypeByIdQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetTypes.Queries.GetFgsAssetTypeById.GetFgsAssetTypeByIdQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Queries.GetFgsAssetTypeById.GetFgsAssetTypeByIdQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetTypes.IFgsAssetTypeReadRepository,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetTypes.Queries.GetFgsAssetTypeById.GetFgsAssetTypeByIdQueryHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Queries.GetFgsAssetTypeById.GetFgsAssetTypeByIdQueryHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 2,
+            "21": 2,
+            "22": 2,
+            "23": 2,
+            "24": 2,
+            "25": 2,
+            "26": 2,
+            "28": 2,
+            "29": 2,
+            "30": 0,
+            "31": 0,
+            "34": 2,
+            "35": 2,
+            "36": 1,
+            "37": 1,
+            "38": 1,
+            "39": 1,
+            "42": 1,
+            "43": 1,
+            "44": 2
+          },
+          "Branches": [
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 280,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 303,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 2
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 469,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 553,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 1
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetTypes\\Dtos\\FgsAssetTypeDtos.cs": {
+      "Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypeSummaryDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypeSummaryDto::get_Id()": {
+          "Lines": {
+            "3": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypeDetailDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypeDetailDto::get_Id()": {
+          "Lines": {
+            "4": 7
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypeLookupDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypeLookupDto::get_Id()": {
+          "Lines": {
+            "5": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypeCreateDto": {
+        "System.String Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypeCreateDto::get_Code()": {
+          "Lines": {
+            "6": 20
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypeUpdateDto": {
+        "System.String Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypeUpdateDto::get_Code()": {
+          "Lines": {
+            "7": 6
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypePatchDto": {
+        "System.String Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypePatchDto::get_Code()": {
+          "Lines": {
+            "8": 6
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypeListFilters": {
+        "System.String Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypeListFilters::get_Code()": {
+          "Lines": {
+            "9": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetTypes\\Commands\\UpdateFgsAssetType\\UpdateFgsAssetTypeCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetTypes.Commands.UpdateFgsAssetType.UpdateFgsAssetTypeCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetTypes.Commands.UpdateFgsAssetType.UpdateFgsAssetTypeCommand::get_Id()": {
+          "Lines": {
+            "7": 8
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetTypes\\Commands\\UpdateFgsAssetType\\UpdateFgsAssetTypeCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetTypes.Commands.UpdateFgsAssetType.UpdateFgsAssetTypeCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Commands.UpdateFgsAssetType.UpdateFgsAssetTypeCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetTypes.IFgsAssetTypeWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetTypes.Commands.UpdateFgsAssetType.UpdateFgsAssetTypeCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Commands.UpdateFgsAssetType.UpdateFgsAssetTypeCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetTypes\\Commands\\PatchFgsAssetType\\PatchFgsAssetTypeCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetTypes.Commands.PatchFgsAssetType.PatchFgsAssetTypeCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetTypes.Commands.PatchFgsAssetType.PatchFgsAssetTypeCommand::get_Id()": {
+          "Lines": {
+            "7": 3
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetTypes\\Commands\\PatchFgsAssetType\\PatchFgsAssetTypeCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetTypes.Commands.PatchFgsAssetType.PatchFgsAssetTypeCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Commands.PatchFgsAssetType.PatchFgsAssetTypeCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetTypes.IFgsAssetTypeWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 1,
+            "12": 1,
+            "13": 1,
+            "14": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetTypes.Commands.PatchFgsAssetType.PatchFgsAssetTypeCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Commands.PatchFgsAssetType.PatchFgsAssetTypeCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 1,
+            "21": 1,
+            "22": 1,
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetTypes\\Commands\\CreateFgsAssetType\\CreateFgsAssetTypeCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetTypes.Commands.CreateFgsAssetType.CreateFgsAssetTypeCommand": {
+        "Fgs.Asset.Application.Features.AssetTypes.Dtos.FgsAssetTypeCreateDto Fgs.Asset.Application.Features.AssetTypes.Commands.CreateFgsAssetType.CreateFgsAssetTypeCommand::get_Dto()": {
+          "Lines": {
+            "7": 16
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetTypes\\Commands\\CreateFgsAssetType\\CreateFgsAssetTypeCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetTypes.Commands.CreateFgsAssetType.CreateFgsAssetTypeCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Commands.CreateFgsAssetType.CreateFgsAssetTypeCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetTypes.IFgsAssetTypeWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetTypes.Commands.CreateFgsAssetType.CreateFgsAssetTypeCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetTypes.Commands.CreateFgsAssetType.CreateFgsAssetTypeCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 2,
+            "21": 2,
+            "22": 2,
+            "23": 2,
+            "24": 2,
+            "25": 2,
+            "26": 2,
+            "27": 2
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\Assets\\Validators\\FgsAssetValidators.cs": {
+      "Fgs.Asset.Application.Features.Assets.Validators.CreateFgsAssetCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Validators.CreateFgsAssetCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.Assets.IFgsAssetReadRepository)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0,
+            "46": 0,
+            "47": 0,
+            "48": 0,
+            "49": 0,
+            "50": 0,
+            "51": 0,
+            "52": 0,
+            "53": 0,
+            "54": 0,
+            "55": 0,
+            "56": 0,
+            "57": 0,
+            "58": 0,
+            "59": 0,
+            "60": 0
+          },
+          "Branches": [
+            {
+              "Line": 19,
+              "Offset": 114,
+              "EndOffset": 116,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 19,
+              "Offset": 114,
+              "EndOffset": 138,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            },
+            {
+              "Line": 33,
+              "Offset": 454,
+              "EndOffset": 456,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 0
+            },
+            {
+              "Line": 33,
+              "Offset": 454,
+              "EndOffset": 478,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            },
+            {
+              "Line": 42,
+              "Offset": 769,
+              "EndOffset": 771,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 0
+            },
+            {
+              "Line": 42,
+              "Offset": 769,
+              "EndOffset": 793,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 0
+            },
+            {
+              "Line": 47,
+              "Offset": 941,
+              "EndOffset": 943,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 0
+            },
+            {
+              "Line": 47,
+              "Offset": 941,
+              "EndOffset": 965,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 0
+            },
+            {
+              "Line": 51,
+              "Offset": 1113,
+              "EndOffset": 1115,
+              "Path": 0,
+              "Ordinal": 8,
+              "Hits": 0
+            },
+            {
+              "Line": 51,
+              "Offset": 1113,
+              "EndOffset": 1137,
+              "Path": 1,
+              "Ordinal": 9,
+              "Hits": 0
+            },
+            {
+              "Line": 55,
+              "Offset": 1285,
+              "EndOffset": 1287,
+              "Path": 0,
+              "Ordinal": 10,
+              "Hits": 0
+            },
+            {
+              "Line": 55,
+              "Offset": 1285,
+              "EndOffset": 1309,
+              "Path": 1,
+              "Ordinal": 11,
+              "Hits": 0
+            }
+          ]
+        }
+      },
+      "Fgs.Asset.Application.Features.Assets.Validators.UpdateFgsAssetCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Validators.UpdateFgsAssetCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.Assets.IFgsAssetReadRepository)": {
+          "Lines": {
+            "65": 0,
+            "66": 0,
+            "67": 0,
+            "68": 0,
+            "69": 0,
+            "70": 0,
+            "72": 0,
+            "73": 0,
+            "74": 0,
+            "75": 0,
+            "76": 0,
+            "77": 0,
+            "78": 0,
+            "79": 0,
+            "80": 0,
+            "81": 0,
+            "82": 0,
+            "83": 0,
+            "84": 0,
+            "85": 0,
+            "86": 0,
+            "87": 0,
+            "88": 0,
+            "89": 0,
+            "90": 0,
+            "91": 0,
+            "92": 0,
+            "93": 0,
+            "94": 0,
+            "95": 0,
+            "96": 0,
+            "97": 0,
+            "98": 0,
+            "99": 0,
+            "100": 0,
+            "101": 0,
+            "102": 0,
+            "103": 0,
+            "104": 0,
+            "105": 0,
+            "106": 0,
+            "107": 0,
+            "108": 0,
+            "109": 0,
+            "110": 0,
+            "111": 0,
+            "112": 0,
+            "113": 0,
+            "114": 0,
+            "115": 0
+          },
+          "Branches": [
+            {
+              "Line": 74,
+              "Offset": 114,
+              "EndOffset": 116,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 74,
+              "Offset": 114,
+              "EndOffset": 138,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            },
+            {
+              "Line": 88,
+              "Offset": 454,
+              "EndOffset": 456,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 0
+            },
+            {
+              "Line": 88,
+              "Offset": 454,
+              "EndOffset": 478,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            },
+            {
+              "Line": 97,
+              "Offset": 769,
+              "EndOffset": 771,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 0
+            },
+            {
+              "Line": 97,
+              "Offset": 769,
+              "EndOffset": 793,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 0
+            },
+            {
+              "Line": 102,
+              "Offset": 941,
+              "EndOffset": 943,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 0
+            },
+            {
+              "Line": 102,
+              "Offset": 941,
+              "EndOffset": 965,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 0
+            },
+            {
+              "Line": 106,
+              "Offset": 1113,
+              "EndOffset": 1115,
+              "Path": 0,
+              "Ordinal": 8,
+              "Hits": 0
+            },
+            {
+              "Line": 106,
+              "Offset": 1113,
+              "EndOffset": 1137,
+              "Path": 1,
+              "Ordinal": 9,
+              "Hits": 0
+            },
+            {
+              "Line": 110,
+              "Offset": 1285,
+              "EndOffset": 1287,
+              "Path": 0,
+              "Ordinal": 10,
+              "Hits": 0
+            },
+            {
+              "Line": 110,
+              "Offset": 1285,
+              "EndOffset": 1309,
+              "Path": 1,
+              "Ordinal": 11,
+              "Hits": 0
+            }
+          ]
+        }
+      },
+      "Fgs.Asset.Application.Features.Assets.Validators.PatchFgsAssetCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Validators.PatchFgsAssetCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.Assets.IFgsAssetReadRepository)": {
+          "Lines": {
+            "120": 0,
+            "121": 0,
+            "122": 0,
+            "123": 0,
+            "124": 0,
+            "125": 0,
+            "127": 0,
+            "128": 0,
+            "129": 0,
+            "130": 0,
+            "131": 0,
+            "132": 0,
+            "133": 0,
+            "134": 0,
+            "135": 0,
+            "136": 0,
+            "137": 0,
+            "138": 0,
+            "139": 0,
+            "140": 0,
+            "141": 0,
+            "142": 0,
+            "143": 0,
+            "144": 0,
+            "145": 0,
+            "146": 0,
+            "147": 0,
+            "148": 0,
+            "149": 0,
+            "150": 0,
+            "151": 0,
+            "152": 0,
+            "153": 0,
+            "154": 0,
+            "155": 0,
+            "156": 0,
+            "157": 0,
+            "158": 0,
+            "159": 0,
+            "160": 0,
+            "161": 0,
+            "162": 0,
+            "163": 0,
+            "164": 0,
+            "165": 0
+          },
+          "Branches": [
+            {
+              "Line": 144,
+              "Offset": 642,
+              "EndOffset": 644,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 144,
+              "Offset": 642,
+              "EndOffset": 666,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            },
+            {
+              "Line": 148,
+              "Offset": 814,
+              "EndOffset": 816,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 0
+            },
+            {
+              "Line": 148,
+              "Offset": 814,
+              "EndOffset": 838,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            },
+            {
+              "Line": 152,
+              "Offset": 986,
+              "EndOffset": 988,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 0
+            },
+            {
+              "Line": 152,
+              "Offset": 986,
+              "EndOffset": 1010,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 0
+            },
+            {
+              "Line": 156,
+              "Offset": 1158,
+              "EndOffset": 1160,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 0
+            },
+            {
+              "Line": 156,
+              "Offset": 1158,
+              "EndOffset": 1182,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 0
+            },
+            {
+              "Line": 160,
+              "Offset": 1330,
+              "EndOffset": 1332,
+              "Path": 0,
+              "Ordinal": 8,
+              "Hits": 0
+            },
+            {
+              "Line": 160,
+              "Offset": 1330,
+              "EndOffset": 1354,
+              "Path": 1,
+              "Ordinal": 9,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\Assets\\Queries\\LookupAssets\\LookupAssetsQuery.cs": {
+      "Fgs.Asset.Application.Features.Assets.Queries.LookupAssets.LookupAssetsQuery": {
+        "System.Boolean Fgs.Asset.Application.Features.Assets.Queries.LookupAssets.LookupAssetsQuery::get_ActiveOnly()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\Assets\\Queries\\LookupAssets\\LookupAssetsQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.Assets.Queries.LookupAssets.LookupAssetsQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Queries.LookupAssets.LookupAssetsQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.Assets.IFgsAssetReadRepository)": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.Assets.Queries.LookupAssets.LookupAssetsQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Queries.LookupAssets.LookupAssetsQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\Assets\\Queries\\ListAssets\\ListAssetsQuery.cs": {
+      "Fgs.Asset.Application.Features.Assets.Queries.ListAssets.ListAssetsQuery": {
+        "Fgs.Asset.Application.Common.AssetCrud.AssetListQuery Fgs.Asset.Application.Features.Assets.Queries.ListAssets.ListAssetsQuery::get_Query()": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\Assets\\Queries\\ListAssets\\ListAssetsQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.Assets.Queries.ListAssets.ListAssetsQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Queries.ListAssets.ListAssetsQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.Assets.IFgsAssetReadRepository)": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.Assets.Queries.ListAssets.ListAssetsQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Queries.ListAssets.ListAssetsQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\Assets\\Queries\\GetFgsAssetById\\GetFgsAssetByIdQuery.cs": {
+      "Fgs.Asset.Application.Features.Assets.Queries.GetFgsAssetById.GetFgsAssetByIdQuery": {
+        "System.Int64 Fgs.Asset.Application.Features.Assets.Queries.GetFgsAssetById.GetFgsAssetByIdQuery::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\Assets\\Queries\\GetFgsAssetById\\GetFgsAssetByIdQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.Assets.Queries.GetFgsAssetById.GetFgsAssetByIdQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Queries.GetFgsAssetById.GetFgsAssetByIdQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.Assets.IFgsAssetReadRepository,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.Assets.Queries.GetFgsAssetById.GetFgsAssetByIdQueryHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Queries.GetFgsAssetById.GetFgsAssetByIdQueryHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "Branches": [
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 280,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 303,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 469,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 0
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 553,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\Assets\\Dtos\\FgsAssetDtos.cs": {
+      "Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto": {
+        "System.Int64 Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_Id()": {
+          "Lines": {
+            "4": 0
+          },
+          "Branches": []
+        },
+        "System.Guid Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_AssetGuid()": {
+          "Lines": {
+            "5": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_AssetNumber()": {
+          "Lines": {
+            "6": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_ServiceLocationId()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_UnitNumber()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_AssetLocation()": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_AssetTypeId()": {
+          "Lines": {
+            "10": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_AssetManufacturerId()": {
+          "Lines": {
+            "11": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_AssetModelId()": {
+          "Lines": {
+            "12": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_AssetDescription()": {
+          "Lines": {
+            "13": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_CustomerAssetNumber()": {
+          "Lines": {
+            "14": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_CustomerAssetName()": {
+          "Lines": {
+            "15": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_ManufacturerName()": {
+          "Lines": {
+            "16": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_ModelNumber()": {
+          "Lines": {
+            "17": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_SerialNumber()": {
+          "Lines": {
+            "18": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_ManufactureDate()": {
+          "Lines": {
+            "19": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_InstallDate()": {
+          "Lines": {
+            "20": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_InstalledWorkOrderId()": {
+          "Lines": {
+            "21": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_IsInstalledByCompany()": {
+          "Lines": {
+            "22": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_IsOurInstallation()": {
+          "Lines": {
+            "23": 0
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_AssetStatusId()": {
+          "Lines": {
+            "24": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::get_IsActive()": {
+          "Lines": {
+            "25": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetSummaryDto::.ctor(System.Int64,System.Guid,System.String,System.Nullable`1<System.Int64>,System.String,System.String,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.Int64>,System.Boolean,System.Boolean,System.Int64,System.Boolean)": {
+          "Lines": {
+            "3": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto": {
+        "System.Int64 Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_Id()": {
+          "Lines": {
+            "28": 0
+          },
+          "Branches": []
+        },
+        "System.Guid Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_AssetGuid()": {
+          "Lines": {
+            "29": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_AssetNumber()": {
+          "Lines": {
+            "30": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_ServiceLocationId()": {
+          "Lines": {
+            "31": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_UnitNumber()": {
+          "Lines": {
+            "32": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_AssetLocation()": {
+          "Lines": {
+            "33": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_AssetTypeId()": {
+          "Lines": {
+            "34": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_AssetManufacturerId()": {
+          "Lines": {
+            "35": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_AssetModelId()": {
+          "Lines": {
+            "36": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_AssetDescription()": {
+          "Lines": {
+            "37": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_CustomerAssetNumber()": {
+          "Lines": {
+            "38": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_CustomerAssetName()": {
+          "Lines": {
+            "39": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_ManufacturerName()": {
+          "Lines": {
+            "40": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_ModelNumber()": {
+          "Lines": {
+            "41": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_SerialNumber()": {
+          "Lines": {
+            "42": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_ManufactureDate()": {
+          "Lines": {
+            "43": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_InstallDate()": {
+          "Lines": {
+            "44": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_InstalledWorkOrderId()": {
+          "Lines": {
+            "45": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_IsInstalledByCompany()": {
+          "Lines": {
+            "46": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_IsOurInstallation()": {
+          "Lines": {
+            "47": 0
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_AssetStatusId()": {
+          "Lines": {
+            "48": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::get_IsActive()": {
+          "Lines": {
+            "49": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetDetailDto::.ctor(System.Int64,System.Guid,System.String,System.Nullable`1<System.Int64>,System.String,System.String,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.Int64>,System.Boolean,System.Boolean,System.Int64,System.Boolean)": {
+          "Lines": {
+            "27": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetLookupDto": {
+        "System.Int64 Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetLookupDto::get_Id()": {
+          "Lines": {
+            "51": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto": {
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_AssetNumber()": {
+          "Lines": {
+            "54": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_ServiceLocationId()": {
+          "Lines": {
+            "55": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_UnitNumber()": {
+          "Lines": {
+            "56": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_AssetLocation()": {
+          "Lines": {
+            "57": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_AssetTypeId()": {
+          "Lines": {
+            "58": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_AssetManufacturerId()": {
+          "Lines": {
+            "59": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_AssetModelId()": {
+          "Lines": {
+            "60": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_AssetDescription()": {
+          "Lines": {
+            "61": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_CustomerAssetNumber()": {
+          "Lines": {
+            "62": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_CustomerAssetName()": {
+          "Lines": {
+            "63": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_ManufacturerName()": {
+          "Lines": {
+            "64": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_ModelNumber()": {
+          "Lines": {
+            "65": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_SerialNumber()": {
+          "Lines": {
+            "66": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_ManufactureDate()": {
+          "Lines": {
+            "67": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_InstallDate()": {
+          "Lines": {
+            "68": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_InstalledWorkOrderId()": {
+          "Lines": {
+            "69": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_IsInstalledByCompany()": {
+          "Lines": {
+            "70": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_IsOurInstallation()": {
+          "Lines": {
+            "71": 0
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::get_AssetStatusId()": {
+          "Lines": {
+            "72": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto::.ctor(System.String,System.Nullable`1<System.Int64>,System.String,System.String,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.Int64>,System.Boolean,System.Boolean,System.Int64)": {
+          "Lines": {
+            "53": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto": {
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_AssetNumber()": {
+          "Lines": {
+            "75": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_ServiceLocationId()": {
+          "Lines": {
+            "76": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_UnitNumber()": {
+          "Lines": {
+            "77": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_AssetLocation()": {
+          "Lines": {
+            "78": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_AssetTypeId()": {
+          "Lines": {
+            "79": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_AssetManufacturerId()": {
+          "Lines": {
+            "80": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_AssetModelId()": {
+          "Lines": {
+            "81": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_AssetDescription()": {
+          "Lines": {
+            "82": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_CustomerAssetNumber()": {
+          "Lines": {
+            "83": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_CustomerAssetName()": {
+          "Lines": {
+            "84": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_ManufacturerName()": {
+          "Lines": {
+            "85": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_ModelNumber()": {
+          "Lines": {
+            "86": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_SerialNumber()": {
+          "Lines": {
+            "87": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_ManufactureDate()": {
+          "Lines": {
+            "88": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_InstallDate()": {
+          "Lines": {
+            "89": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_InstalledWorkOrderId()": {
+          "Lines": {
+            "90": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_IsInstalledByCompany()": {
+          "Lines": {
+            "91": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_IsOurInstallation()": {
+          "Lines": {
+            "92": 0
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::get_AssetStatusId()": {
+          "Lines": {
+            "93": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetUpdateDto::.ctor(System.String,System.Nullable`1<System.Int64>,System.String,System.String,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.Int64>,System.Boolean,System.Boolean,System.Int64)": {
+          "Lines": {
+            "74": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto": {
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_AssetNumber()": {
+          "Lines": {
+            "96": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_ServiceLocationId()": {
+          "Lines": {
+            "97": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_UnitNumber()": {
+          "Lines": {
+            "98": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_AssetLocation()": {
+          "Lines": {
+            "99": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_AssetTypeId()": {
+          "Lines": {
+            "100": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_AssetManufacturerId()": {
+          "Lines": {
+            "101": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_AssetModelId()": {
+          "Lines": {
+            "102": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_AssetDescription()": {
+          "Lines": {
+            "103": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_CustomerAssetNumber()": {
+          "Lines": {
+            "104": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_CustomerAssetName()": {
+          "Lines": {
+            "105": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_ManufacturerName()": {
+          "Lines": {
+            "106": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_ModelNumber()": {
+          "Lines": {
+            "107": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_SerialNumber()": {
+          "Lines": {
+            "108": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_ManufactureDate()": {
+          "Lines": {
+            "109": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_InstallDate()": {
+          "Lines": {
+            "110": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_InstalledWorkOrderId()": {
+          "Lines": {
+            "111": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Boolean> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_IsInstalledByCompany()": {
+          "Lines": {
+            "112": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Boolean> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_IsOurInstallation()": {
+          "Lines": {
+            "113": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_AssetStatusId()": {
+          "Lines": {
+            "114": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Boolean> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::get_IsActive()": {
+          "Lines": {
+            "115": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetPatchDto::.ctor(System.String,System.Nullable`1<System.Int64>,System.String,System.String,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Boolean>,System.Nullable`1<System.Boolean>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Boolean>)": {
+          "Lines": {
+            "95": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetListFilters": {
+        "System.String Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetListFilters::get_AssetNumber()": {
+          "Lines": {
+            "118": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetListFilters::get_ServiceLocationId()": {
+          "Lines": {
+            "119": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetListFilters::get_AssetStatusId()": {
+          "Lines": {
+            "120": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetListFilters::.ctor(System.String,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>)": {
+          "Lines": {
+            "117": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\Assets\\Commands\\UpdateFgsAsset\\UpdateFgsAssetCommand.cs": {
+      "Fgs.Asset.Application.Features.Assets.Commands.UpdateFgsAsset.UpdateFgsAssetCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.Assets.Commands.UpdateFgsAsset.UpdateFgsAssetCommand::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\Assets\\Commands\\UpdateFgsAsset\\UpdateFgsAssetCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.Assets.Commands.UpdateFgsAsset.UpdateFgsAssetCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Commands.UpdateFgsAsset.UpdateFgsAssetCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.Assets.IFgsAssetWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.Assets.Commands.UpdateFgsAsset.UpdateFgsAssetCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Commands.UpdateFgsAsset.UpdateFgsAssetCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\Assets\\Commands\\PatchFgsAsset\\PatchFgsAssetCommand.cs": {
+      "Fgs.Asset.Application.Features.Assets.Commands.PatchFgsAsset.PatchFgsAssetCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.Assets.Commands.PatchFgsAsset.PatchFgsAssetCommand::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\Assets\\Commands\\PatchFgsAsset\\PatchFgsAssetCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.Assets.Commands.PatchFgsAsset.PatchFgsAssetCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Commands.PatchFgsAsset.PatchFgsAssetCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.Assets.IFgsAssetWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.Assets.Commands.PatchFgsAsset.PatchFgsAssetCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Commands.PatchFgsAsset.PatchFgsAssetCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\Assets\\Commands\\CreateFgsAsset\\CreateFgsAssetCommand.cs": {
+      "Fgs.Asset.Application.Features.Assets.Commands.CreateFgsAsset.CreateFgsAssetCommand": {
+        "Fgs.Asset.Application.Features.Assets.Dtos.FgsAssetCreateDto Fgs.Asset.Application.Features.Assets.Commands.CreateFgsAsset.CreateFgsAssetCommand::get_Dto()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\Assets\\Commands\\CreateFgsAsset\\CreateFgsAssetCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.Assets.Commands.CreateFgsAsset.CreateFgsAssetCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Commands.CreateFgsAsset.CreateFgsAssetCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.Assets.IFgsAssetWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.Assets.Commands.CreateFgsAsset.CreateFgsAssetCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.Assets.Commands.CreateFgsAsset.CreateFgsAssetCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetStatuses\\Validators\\FgsAssetStatusValidators.cs": {
+      "Fgs.Asset.Application.Features.AssetStatuses.Validators.CreateFgsAssetStatusCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Validators.CreateFgsAssetStatusCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetStatuses.IFgsAssetStatusReadRepository)": {
+          "Lines": {
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 4,
+            "15": 4,
+            "16": 2,
+            "17": 2,
+            "18": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetStatuses.Validators.UpdateFgsAssetStatusCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Validators.UpdateFgsAssetStatusCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetStatuses.IFgsAssetStatusReadRepository)": {
+          "Lines": {
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 2,
+            "28": 2,
+            "29": 1,
+            "30": 1,
+            "31": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetStatuses.Validators.PatchFgsAssetStatusCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Validators.PatchFgsAssetStatusCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetStatuses.IFgsAssetStatusReadRepository)": {
+          "Lines": {
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetStatuses\\Queries\\LookupAssetStatuses\\LookupAssetStatusesQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetStatuses.Queries.LookupAssetStatuses.LookupAssetStatusesQuery": {
+        "System.Boolean Fgs.Asset.Application.Features.AssetStatuses.Queries.LookupAssetStatuses.LookupAssetStatusesQuery::get_ActiveOnly()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetStatuses\\Queries\\LookupAssetStatuses\\LookupAssetStatusesQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetStatuses.Queries.LookupAssetStatuses.LookupAssetStatusesQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Queries.LookupAssetStatuses.LookupAssetStatusesQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetStatuses.IFgsAssetStatusReadRepository)": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetStatuses.Queries.LookupAssetStatuses.LookupAssetStatusesQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Queries.LookupAssetStatuses.LookupAssetStatusesQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetStatuses\\Queries\\ListAssetStatuses\\ListAssetStatusesQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetStatuses.Queries.ListAssetStatuses.ListAssetStatusesQuery": {
+        "Fgs.Asset.Application.Common.AssetCrud.AssetListQuery Fgs.Asset.Application.Features.AssetStatuses.Queries.ListAssetStatuses.ListAssetStatusesQuery::get_Query()": {
+          "Lines": {
+            "9": 3
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetStatuses\\Queries\\ListAssetStatuses\\ListAssetStatusesQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetStatuses.Queries.ListAssetStatuses.ListAssetStatusesQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Queries.ListAssetStatuses.ListAssetStatusesQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetStatuses.IFgsAssetStatusReadRepository)": {
+          "Lines": {
+            "9": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetStatuses.Queries.ListAssetStatuses.ListAssetStatusesQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Queries.ListAssetStatuses.ListAssetStatusesQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "15": 1,
+            "16": 1,
+            "17": 1,
+            "18": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetStatuses\\Queries\\GetFgsAssetStatusById\\GetFgsAssetStatusByIdQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetStatuses.Queries.GetFgsAssetStatusById.GetFgsAssetStatusByIdQuery": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetStatuses.Queries.GetFgsAssetStatusById.GetFgsAssetStatusByIdQuery::get_Id()": {
+          "Lines": {
+            "7": 7
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetStatuses\\Queries\\GetFgsAssetStatusById\\GetFgsAssetStatusByIdQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetStatuses.Queries.GetFgsAssetStatusById.GetFgsAssetStatusByIdQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Queries.GetFgsAssetStatusById.GetFgsAssetStatusByIdQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetStatuses.IFgsAssetStatusReadRepository,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetStatuses.Queries.GetFgsAssetStatusById.GetFgsAssetStatusByIdQueryHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Queries.GetFgsAssetStatusById.GetFgsAssetStatusByIdQueryHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 2,
+            "21": 2,
+            "22": 2,
+            "23": 2,
+            "24": 2,
+            "25": 2,
+            "26": 2,
+            "28": 2,
+            "29": 2,
+            "30": 0,
+            "31": 0,
+            "34": 2,
+            "35": 2,
+            "36": 1,
+            "37": 1,
+            "38": 1,
+            "39": 1,
+            "42": 1,
+            "43": 1,
+            "44": 2
+          },
+          "Branches": [
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 280,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 303,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 2
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 469,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 553,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 1
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetStatuses\\Dtos\\FgsAssetStatusDtos.cs": {
+      "Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusSummaryDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusSummaryDto::get_Id()": {
+          "Lines": {
+            "3": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusDetailDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusDetailDto::get_Id()": {
+          "Lines": {
+            "4": 7
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusLookupDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusLookupDto::get_Id()": {
+          "Lines": {
+            "5": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusCreateDto": {
+        "System.String Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusCreateDto::get_Code()": {
+          "Lines": {
+            "6": 20
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusUpdateDto": {
+        "System.String Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusUpdateDto::get_Code()": {
+          "Lines": {
+            "7": 6
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusPatchDto": {
+        "System.String Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusPatchDto::get_Code()": {
+          "Lines": {
+            "8": 6
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusListFilters": {
+        "System.String Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusListFilters::get_Code()": {
+          "Lines": {
+            "9": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetStatuses\\Commands\\UpdateFgsAssetStatus\\UpdateFgsAssetStatusCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetStatuses.Commands.UpdateFgsAssetStatus.UpdateFgsAssetStatusCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetStatuses.Commands.UpdateFgsAssetStatus.UpdateFgsAssetStatusCommand::get_Id()": {
+          "Lines": {
+            "7": 8
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetStatuses\\Commands\\UpdateFgsAssetStatus\\UpdateFgsAssetStatusCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetStatuses.Commands.UpdateFgsAssetStatus.UpdateFgsAssetStatusCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Commands.UpdateFgsAssetStatus.UpdateFgsAssetStatusCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetStatuses.IFgsAssetStatusWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetStatuses.Commands.UpdateFgsAssetStatus.UpdateFgsAssetStatusCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Commands.UpdateFgsAssetStatus.UpdateFgsAssetStatusCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetStatuses\\Commands\\PatchFgsAssetStatus\\PatchFgsAssetStatusCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetStatuses.Commands.PatchFgsAssetStatus.PatchFgsAssetStatusCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetStatuses.Commands.PatchFgsAssetStatus.PatchFgsAssetStatusCommand::get_Id()": {
+          "Lines": {
+            "7": 3
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetStatuses\\Commands\\PatchFgsAssetStatus\\PatchFgsAssetStatusCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetStatuses.Commands.PatchFgsAssetStatus.PatchFgsAssetStatusCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Commands.PatchFgsAssetStatus.PatchFgsAssetStatusCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetStatuses.IFgsAssetStatusWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 1,
+            "12": 1,
+            "13": 1,
+            "14": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetStatuses.Commands.PatchFgsAssetStatus.PatchFgsAssetStatusCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Commands.PatchFgsAssetStatus.PatchFgsAssetStatusCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 1,
+            "21": 1,
+            "22": 1,
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetStatuses\\Commands\\CreateFgsAssetStatus\\CreateFgsAssetStatusCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetStatuses.Commands.CreateFgsAssetStatus.CreateFgsAssetStatusCommand": {
+        "Fgs.Asset.Application.Features.AssetStatuses.Dtos.FgsAssetStatusCreateDto Fgs.Asset.Application.Features.AssetStatuses.Commands.CreateFgsAssetStatus.CreateFgsAssetStatusCommand::get_Dto()": {
+          "Lines": {
+            "7": 16
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetStatuses\\Commands\\CreateFgsAssetStatus\\CreateFgsAssetStatusCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetStatuses.Commands.CreateFgsAssetStatus.CreateFgsAssetStatusCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Commands.CreateFgsAssetStatus.CreateFgsAssetStatusCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetStatuses.IFgsAssetStatusWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetStatuses.Commands.CreateFgsAssetStatus.CreateFgsAssetStatusCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetStatuses.Commands.CreateFgsAssetStatus.CreateFgsAssetStatusCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 2,
+            "21": 2,
+            "22": 2,
+            "23": 2,
+            "24": 2,
+            "25": 2,
+            "26": 2,
+            "27": 2
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetModels\\Validators\\FgsAssetModelValidators.cs": {
+      "Fgs.Asset.Application.Features.AssetModels.Validators.CreateFgsAssetModelCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Validators.CreateFgsAssetModelCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetModels.IFgsAssetModelReadRepository)": {
+          "Lines": {
+            "9": 1,
+            "10": 1,
+            "11": 1,
+            "12": 1,
+            "13": 1,
+            "14": 1,
+            "15": 2,
+            "16": 2,
+            "17": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Validators.UpdateFgsAssetModelCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Validators.UpdateFgsAssetModelCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetModels.IFgsAssetModelReadRepository)": {
+          "Lines": {
+            "21": 1,
+            "22": 1,
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 1,
+            "28": 2,
+            "29": 2,
+            "30": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Validators.PatchFgsAssetModelCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Validators.PatchFgsAssetModelCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetModels.IFgsAssetModelReadRepository)": {
+          "Lines": {
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Validators.PatchFgsAssetModelCommandValidator/<>c__DisplayClass0_0/<<-ctor>b__10>d": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Validators.PatchFgsAssetModelCommandValidator/<>c__DisplayClass0_0/<<-ctor>b__10>d::MoveNext()": {
+          "Lines": {},
+          "Branches": [
+            {
+              "Line": 41,
+              "Offset": 52,
+              "EndOffset": 57,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 41,
+              "Offset": 52,
+              "EndOffset": 194,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Validators.PatchFgsAssetModelCommandValidator/<>c__DisplayClass0_0/<<-ctor>b__13>d": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Validators.PatchFgsAssetModelCommandValidator/<>c__DisplayClass0_0/<<-ctor>b__13>d::MoveNext()": {
+          "Lines": {},
+          "Branches": [
+            {
+              "Line": 42,
+              "Offset": 52,
+              "EndOffset": 57,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 42,
+              "Offset": 52,
+              "EndOffset": 194,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetModels\\Queries\\LookupAssetModels\\LookupAssetModelsQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetModels.Queries.LookupAssetModels.LookupAssetModelsQuery": {
+        "System.Boolean Fgs.Asset.Application.Features.AssetModels.Queries.LookupAssetModels.LookupAssetModelsQuery::get_ActiveOnly()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetModels\\Queries\\LookupAssetModels\\LookupAssetModelsQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetModels.Queries.LookupAssetModels.LookupAssetModelsQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Queries.LookupAssetModels.LookupAssetModelsQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetModels.IFgsAssetModelReadRepository)": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Queries.LookupAssetModels.LookupAssetModelsQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Queries.LookupAssetModels.LookupAssetModelsQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetModels\\Queries\\ListAssetModels\\ListAssetModelsQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetModels.Queries.ListAssetModels.ListAssetModelsQuery": {
+        "Fgs.Asset.Application.Common.AssetCrud.AssetListQuery Fgs.Asset.Application.Features.AssetModels.Queries.ListAssetModels.ListAssetModelsQuery::get_Query()": {
+          "Lines": {
+            "9": 3
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetModels\\Queries\\ListAssetModels\\ListAssetModelsQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetModels.Queries.ListAssetModels.ListAssetModelsQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Queries.ListAssetModels.ListAssetModelsQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetModels.IFgsAssetModelReadRepository)": {
+          "Lines": {
+            "9": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Queries.ListAssetModels.ListAssetModelsQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Queries.ListAssetModels.ListAssetModelsQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "15": 1,
+            "16": 1,
+            "17": 1,
+            "18": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetModels\\Queries\\GetFgsAssetModelById\\GetFgsAssetModelByIdQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetModels.Queries.GetFgsAssetModelById.GetFgsAssetModelByIdQuery": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetModels.Queries.GetFgsAssetModelById.GetFgsAssetModelByIdQuery::get_Id()": {
+          "Lines": {
+            "7": 3
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetModels\\Queries\\GetFgsAssetModelById\\GetFgsAssetModelByIdQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetModels.Queries.GetFgsAssetModelById.GetFgsAssetModelByIdQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Queries.GetFgsAssetModelById.GetFgsAssetModelByIdQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetModels.IFgsAssetModelReadRepository,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 1,
+            "12": 1,
+            "13": 1,
+            "14": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Queries.GetFgsAssetModelById.GetFgsAssetModelByIdQueryHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Queries.GetFgsAssetModelById.GetFgsAssetModelByIdQueryHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 1,
+            "21": 1,
+            "22": 1,
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "28": 1,
+            "29": 1,
+            "30": 0,
+            "31": 0,
+            "34": 1,
+            "35": 1,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "42": 1,
+            "43": 1,
+            "44": 1
+          },
+          "Branches": [
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 280,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 303,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 1
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 469,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 0
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 553,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 1
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetModels\\Dtos\\FgsAssetModelDtos.cs": {
+      "Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelSummaryDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelSummaryDto::get_Id()": {
+          "Lines": {
+            "2": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelDetailDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelDetailDto::get_Id()": {
+          "Lines": {
+            "3": 7
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelLookupDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelLookupDto::get_Id()": {
+          "Lines": {
+            "4": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelCreateDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelCreateDto::get_AssetTypeId()": {
+          "Lines": {
+            "5": 17
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelUpdateDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelUpdateDto::get_AssetTypeId()": {
+          "Lines": {
+            "6": 7
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelPatchDto": {
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelPatchDto::get_AssetTypeId()": {
+          "Lines": {
+            "7": 7
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelListFilters": {
+        "System.String Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelListFilters::get_ModelNumber()": {
+          "Lines": {
+            "8": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetModels\\Commands\\UpdateFgsAssetModel\\UpdateFgsAssetModelCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetModels.Commands.UpdateFgsAssetModel.UpdateFgsAssetModelCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetModels.Commands.UpdateFgsAssetModel.UpdateFgsAssetModelCommand::get_Id()": {
+          "Lines": {
+            "7": 8
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetModels\\Commands\\UpdateFgsAssetModel\\UpdateFgsAssetModelCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetModels.Commands.UpdateFgsAssetModel.UpdateFgsAssetModelCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Commands.UpdateFgsAssetModel.UpdateFgsAssetModelCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetModels.IFgsAssetModelWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Commands.UpdateFgsAssetModel.UpdateFgsAssetModelCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Commands.UpdateFgsAssetModel.UpdateFgsAssetModelCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetModels\\Commands\\PatchFgsAssetModel\\PatchFgsAssetModelCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetModels.Commands.PatchFgsAssetModel.PatchFgsAssetModelCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetModels.Commands.PatchFgsAssetModel.PatchFgsAssetModelCommand::get_Id()": {
+          "Lines": {
+            "7": 3
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetModels\\Commands\\PatchFgsAssetModel\\PatchFgsAssetModelCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetModels.Commands.PatchFgsAssetModel.PatchFgsAssetModelCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Commands.PatchFgsAssetModel.PatchFgsAssetModelCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetModels.IFgsAssetModelWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 1,
+            "12": 1,
+            "13": 1,
+            "14": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Commands.PatchFgsAssetModel.PatchFgsAssetModelCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Commands.PatchFgsAssetModel.PatchFgsAssetModelCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 1,
+            "21": 1,
+            "22": 1,
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetModels\\Commands\\CreateFgsAssetModel\\CreateFgsAssetModelCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetModels.Commands.CreateFgsAssetModel.CreateFgsAssetModelCommand": {
+        "Fgs.Asset.Application.Features.AssetModels.Dtos.FgsAssetModelCreateDto Fgs.Asset.Application.Features.AssetModels.Commands.CreateFgsAssetModel.CreateFgsAssetModelCommand::get_Dto()": {
+          "Lines": {
+            "7": 11
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetModels\\Commands\\CreateFgsAssetModel\\CreateFgsAssetModelCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetModels.Commands.CreateFgsAssetModel.CreateFgsAssetModelCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Commands.CreateFgsAssetModel.CreateFgsAssetModelCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetModels.IFgsAssetModelWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetModels.Commands.CreateFgsAssetModel.CreateFgsAssetModelCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetModels.Commands.CreateFgsAssetModel.CreateFgsAssetModelCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 2,
+            "21": 2,
+            "22": 2,
+            "23": 2,
+            "24": 2,
+            "25": 2,
+            "26": 2,
+            "27": 2
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetManufacturers\\Validators\\FgsAssetManufacturerValidators.cs": {
+      "Fgs.Asset.Application.Features.AssetManufacturers.Validators.CreateFgsAssetManufacturerCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Validators.CreateFgsAssetManufacturerCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetManufacturers.IFgsAssetManufacturerReadRepository)": {
+          "Lines": {
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 4,
+            "15": 4,
+            "16": 2,
+            "17": 2,
+            "18": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetManufacturers.Validators.UpdateFgsAssetManufacturerCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Validators.UpdateFgsAssetManufacturerCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetManufacturers.IFgsAssetManufacturerReadRepository)": {
+          "Lines": {
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 2,
+            "28": 2,
+            "29": 1,
+            "30": 1,
+            "31": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetManufacturers.Validators.PatchFgsAssetManufacturerCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Validators.PatchFgsAssetManufacturerCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetManufacturers.IFgsAssetManufacturerReadRepository)": {
+          "Lines": {
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetManufacturers\\Queries\\LookupAssetManufacturers\\LookupAssetManufacturersQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetManufacturers.Queries.LookupAssetManufacturers.LookupAssetManufacturersQuery": {
+        "System.Boolean Fgs.Asset.Application.Features.AssetManufacturers.Queries.LookupAssetManufacturers.LookupAssetManufacturersQuery::get_ActiveOnly()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetManufacturers\\Queries\\LookupAssetManufacturers\\LookupAssetManufacturersQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetManufacturers.Queries.LookupAssetManufacturers.LookupAssetManufacturersQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Queries.LookupAssetManufacturers.LookupAssetManufacturersQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetManufacturers.IFgsAssetManufacturerReadRepository)": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetManufacturers.Queries.LookupAssetManufacturers.LookupAssetManufacturersQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Queries.LookupAssetManufacturers.LookupAssetManufacturersQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetManufacturers\\Queries\\ListAssetManufacturers\\ListAssetManufacturersQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetManufacturers.Queries.ListAssetManufacturers.ListAssetManufacturersQuery": {
+        "Fgs.Asset.Application.Common.AssetCrud.AssetListQuery Fgs.Asset.Application.Features.AssetManufacturers.Queries.ListAssetManufacturers.ListAssetManufacturersQuery::get_Query()": {
+          "Lines": {
+            "9": 3
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetManufacturers\\Queries\\ListAssetManufacturers\\ListAssetManufacturersQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetManufacturers.Queries.ListAssetManufacturers.ListAssetManufacturersQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Queries.ListAssetManufacturers.ListAssetManufacturersQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetManufacturers.IFgsAssetManufacturerReadRepository)": {
+          "Lines": {
+            "9": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetManufacturers.Queries.ListAssetManufacturers.ListAssetManufacturersQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Queries.ListAssetManufacturers.ListAssetManufacturersQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "15": 1,
+            "16": 1,
+            "17": 1,
+            "18": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetManufacturers\\Queries\\GetFgsAssetManufacturerById\\GetFgsAssetManufacturerByIdQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetManufacturers.Queries.GetFgsAssetManufacturerById.GetFgsAssetManufacturerByIdQuery": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetManufacturers.Queries.GetFgsAssetManufacturerById.GetFgsAssetManufacturerByIdQuery::get_Id()": {
+          "Lines": {
+            "7": 7
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetManufacturers\\Queries\\GetFgsAssetManufacturerById\\GetFgsAssetManufacturerByIdQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetManufacturers.Queries.GetFgsAssetManufacturerById.GetFgsAssetManufacturerByIdQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Queries.GetFgsAssetManufacturerById.GetFgsAssetManufacturerByIdQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetManufacturers.IFgsAssetManufacturerReadRepository,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetManufacturers.Queries.GetFgsAssetManufacturerById.GetFgsAssetManufacturerByIdQueryHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Queries.GetFgsAssetManufacturerById.GetFgsAssetManufacturerByIdQueryHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 2,
+            "21": 2,
+            "22": 2,
+            "23": 2,
+            "24": 2,
+            "25": 2,
+            "26": 2,
+            "28": 2,
+            "29": 2,
+            "30": 0,
+            "31": 0,
+            "34": 2,
+            "35": 2,
+            "36": 1,
+            "37": 1,
+            "38": 1,
+            "39": 1,
+            "42": 1,
+            "43": 1,
+            "44": 2
+          },
+          "Branches": [
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 280,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 303,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 2
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 469,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 553,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 1
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetManufacturers\\Dtos\\FgsAssetManufacturerDtos.cs": {
+      "Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerSummaryDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerSummaryDto::get_Id()": {
+          "Lines": {
+            "3": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerDetailDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerDetailDto::get_Id()": {
+          "Lines": {
+            "4": 7
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerLookupDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerLookupDto::get_Id()": {
+          "Lines": {
+            "5": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerCreateDto": {
+        "System.String Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerCreateDto::get_Code()": {
+          "Lines": {
+            "6": 20
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerUpdateDto": {
+        "System.String Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerUpdateDto::get_Code()": {
+          "Lines": {
+            "7": 6
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerPatchDto": {
+        "System.String Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerPatchDto::get_Code()": {
+          "Lines": {
+            "8": 6
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerListFilters": {
+        "System.String Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerListFilters::get_Code()": {
+          "Lines": {
+            "9": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetManufacturers\\Commands\\UpdateFgsAssetManufacturer\\UpdateFgsAssetManufacturerCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetManufacturers.Commands.UpdateFgsAssetManufacturer.UpdateFgsAssetManufacturerCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetManufacturers.Commands.UpdateFgsAssetManufacturer.UpdateFgsAssetManufacturerCommand::get_Id()": {
+          "Lines": {
+            "7": 8
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetManufacturers\\Commands\\UpdateFgsAssetManufacturer\\UpdateFgsAssetManufacturerCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetManufacturers.Commands.UpdateFgsAssetManufacturer.UpdateFgsAssetManufacturerCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Commands.UpdateFgsAssetManufacturer.UpdateFgsAssetManufacturerCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetManufacturers.IFgsAssetManufacturerWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetManufacturers.Commands.UpdateFgsAssetManufacturer.UpdateFgsAssetManufacturerCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Commands.UpdateFgsAssetManufacturer.UpdateFgsAssetManufacturerCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetManufacturers\\Commands\\PatchFgsAssetManufacturer\\PatchFgsAssetManufacturerCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetManufacturers.Commands.PatchFgsAssetManufacturer.PatchFgsAssetManufacturerCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetManufacturers.Commands.PatchFgsAssetManufacturer.PatchFgsAssetManufacturerCommand::get_Id()": {
+          "Lines": {
+            "7": 3
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetManufacturers\\Commands\\PatchFgsAssetManufacturer\\PatchFgsAssetManufacturerCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetManufacturers.Commands.PatchFgsAssetManufacturer.PatchFgsAssetManufacturerCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Commands.PatchFgsAssetManufacturer.PatchFgsAssetManufacturerCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetManufacturers.IFgsAssetManufacturerWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 1,
+            "12": 1,
+            "13": 1,
+            "14": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetManufacturers.Commands.PatchFgsAssetManufacturer.PatchFgsAssetManufacturerCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Commands.PatchFgsAssetManufacturer.PatchFgsAssetManufacturerCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 1,
+            "21": 1,
+            "22": 1,
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetManufacturers\\Commands\\CreateFgsAssetManufacturer\\CreateFgsAssetManufacturerCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetManufacturers.Commands.CreateFgsAssetManufacturer.CreateFgsAssetManufacturerCommand": {
+        "Fgs.Asset.Application.Features.AssetManufacturers.Dtos.FgsAssetManufacturerCreateDto Fgs.Asset.Application.Features.AssetManufacturers.Commands.CreateFgsAssetManufacturer.CreateFgsAssetManufacturerCommand::get_Dto()": {
+          "Lines": {
+            "7": 16
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetManufacturers\\Commands\\CreateFgsAssetManufacturer\\CreateFgsAssetManufacturerCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetManufacturers.Commands.CreateFgsAssetManufacturer.CreateFgsAssetManufacturerCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Commands.CreateFgsAssetManufacturer.CreateFgsAssetManufacturerCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetManufacturers.IFgsAssetManufacturerWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetManufacturers.Commands.CreateFgsAssetManufacturer.CreateFgsAssetManufacturerCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetManufacturers.Commands.CreateFgsAssetManufacturer.CreateFgsAssetManufacturerCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 2,
+            "21": 2,
+            "22": 2,
+            "23": 2,
+            "24": 2,
+            "25": 2,
+            "26": 2,
+            "27": 2
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeValues\\Validators\\FgsAssetAttributeValueValidators.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Validators.CreateFgsAssetAttributeValueCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Validators.CreateFgsAssetAttributeValueCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeValues.IFgsAssetAttributeValueReadRepository)": {
+          "Lines": {
+            "9": 0,
+            "10": 0,
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Validators.UpdateFgsAssetAttributeValueCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Validators.UpdateFgsAssetAttributeValueCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeValues.IFgsAssetAttributeValueReadRepository)": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Validators.PatchFgsAssetAttributeValueCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Validators.PatchFgsAssetAttributeValueCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeValues.IFgsAssetAttributeValueReadRepository)": {
+          "Lines": {
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Validators.PatchFgsAssetAttributeValueCommandValidator/<>c__DisplayClass0_0/<<-ctor>b__6>d": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Validators.PatchFgsAssetAttributeValueCommandValidator/<>c__DisplayClass0_0/<<-ctor>b__6>d::MoveNext()": {
+          "Lines": {},
+          "Branches": [
+            {
+              "Line": 37,
+              "Offset": 52,
+              "EndOffset": 57,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 37,
+              "Offset": 52,
+              "EndOffset": 194,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Validators.PatchFgsAssetAttributeValueCommandValidator/<>c__DisplayClass0_0/<<-ctor>b__9>d": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Validators.PatchFgsAssetAttributeValueCommandValidator/<>c__DisplayClass0_0/<<-ctor>b__9>d::MoveNext()": {
+          "Lines": {},
+          "Branches": [
+            {
+              "Line": 38,
+              "Offset": 52,
+              "EndOffset": 57,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 38,
+              "Offset": 52,
+              "EndOffset": 194,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeValues\\Queries\\LookupAssetAttributeValues\\LookupAssetAttributeValuesQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Queries.LookupAssetAttributeValues.LookupAssetAttributeValuesQuery": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Queries.LookupAssetAttributeValues.LookupAssetAttributeValuesQuery::.ctor()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeValues\\Queries\\LookupAssetAttributeValues\\LookupAssetAttributeValuesQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Queries.LookupAssetAttributeValues.LookupAssetAttributeValuesQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Queries.LookupAssetAttributeValues.LookupAssetAttributeValuesQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeValues.IFgsAssetAttributeValueReadRepository)": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Queries.LookupAssetAttributeValues.LookupAssetAttributeValuesQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Queries.LookupAssetAttributeValues.LookupAssetAttributeValuesQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeValues\\Queries\\ListAssetAttributeValues\\ListAssetAttributeValuesQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Queries.ListAssetAttributeValues.ListAssetAttributeValuesQuery": {
+        "Fgs.Asset.Application.Common.AssetCrud.AssetListQuery Fgs.Asset.Application.Features.AssetAttributeValues.Queries.ListAssetAttributeValues.ListAssetAttributeValuesQuery::get_Query()": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeValues\\Queries\\ListAssetAttributeValues\\ListAssetAttributeValuesQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Queries.ListAssetAttributeValues.ListAssetAttributeValuesQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Queries.ListAssetAttributeValues.ListAssetAttributeValuesQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeValues.IFgsAssetAttributeValueReadRepository)": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Queries.ListAssetAttributeValues.ListAssetAttributeValuesQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Queries.ListAssetAttributeValues.ListAssetAttributeValuesQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeValues\\Queries\\GetFgsAssetAttributeValueById\\GetFgsAssetAttributeValueByIdQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Queries.GetFgsAssetAttributeValueById.GetFgsAssetAttributeValueByIdQuery": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeValues.Queries.GetFgsAssetAttributeValueById.GetFgsAssetAttributeValueByIdQuery::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeValues\\Queries\\GetFgsAssetAttributeValueById\\GetFgsAssetAttributeValueByIdQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Queries.GetFgsAssetAttributeValueById.GetFgsAssetAttributeValueByIdQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Queries.GetFgsAssetAttributeValueById.GetFgsAssetAttributeValueByIdQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeValues.IFgsAssetAttributeValueReadRepository,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Queries.GetFgsAssetAttributeValueById.GetFgsAssetAttributeValueByIdQueryHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Queries.GetFgsAssetAttributeValueById.GetFgsAssetAttributeValueByIdQueryHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "Branches": [
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 280,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 303,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 469,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 0
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 553,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeValues\\Dtos\\FgsAssetAttributeValueDtos.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValueSummaryDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValueSummaryDto::get_Id()": {
+          "Lines": {
+            "2": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValueDetailDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValueDetailDto::get_Id()": {
+          "Lines": {
+            "3": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValueLookupDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValueLookupDto::get_Id()": {
+          "Lines": {
+            "4": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValueCreateDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValueCreateDto::get_AssetId()": {
+          "Lines": {
+            "5": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValueUpdateDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValueUpdateDto::get_AssetId()": {
+          "Lines": {
+            "6": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValuePatchDto": {
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValuePatchDto::get_AssetId()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValueListFilters": {
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValueListFilters::get_AssetId()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeValues\\Commands\\UpdateFgsAssetAttributeValue\\UpdateFgsAssetAttributeValueCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Commands.UpdateFgsAssetAttributeValue.UpdateFgsAssetAttributeValueCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeValues.Commands.UpdateFgsAssetAttributeValue.UpdateFgsAssetAttributeValueCommand::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeValues\\Commands\\UpdateFgsAssetAttributeValue\\UpdateFgsAssetAttributeValueCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Commands.UpdateFgsAssetAttributeValue.UpdateFgsAssetAttributeValueCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Commands.UpdateFgsAssetAttributeValue.UpdateFgsAssetAttributeValueCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeValues.IFgsAssetAttributeValueWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Commands.UpdateFgsAssetAttributeValue.UpdateFgsAssetAttributeValueCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Commands.UpdateFgsAssetAttributeValue.UpdateFgsAssetAttributeValueCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeValues\\Commands\\PatchFgsAssetAttributeValue\\PatchFgsAssetAttributeValueCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Commands.PatchFgsAssetAttributeValue.PatchFgsAssetAttributeValueCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeValues.Commands.PatchFgsAssetAttributeValue.PatchFgsAssetAttributeValueCommand::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeValues\\Commands\\PatchFgsAssetAttributeValue\\PatchFgsAssetAttributeValueCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Commands.PatchFgsAssetAttributeValue.PatchFgsAssetAttributeValueCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Commands.PatchFgsAssetAttributeValue.PatchFgsAssetAttributeValueCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeValues.IFgsAssetAttributeValueWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Commands.PatchFgsAssetAttributeValue.PatchFgsAssetAttributeValueCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Commands.PatchFgsAssetAttributeValue.PatchFgsAssetAttributeValueCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeValues\\Commands\\CreateFgsAssetAttributeValue\\CreateFgsAssetAttributeValueCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Commands.CreateFgsAssetAttributeValue.CreateFgsAssetAttributeValueCommand": {
+        "Fgs.Asset.Application.Features.AssetAttributeValues.Dtos.FgsAssetAttributeValueCreateDto Fgs.Asset.Application.Features.AssetAttributeValues.Commands.CreateFgsAssetAttributeValue.CreateFgsAssetAttributeValueCommand::get_Dto()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeValues\\Commands\\CreateFgsAssetAttributeValue\\CreateFgsAssetAttributeValueCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Commands.CreateFgsAssetAttributeValue.CreateFgsAssetAttributeValueCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Commands.CreateFgsAssetAttributeValue.CreateFgsAssetAttributeValueCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeValues.IFgsAssetAttributeValueWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeValues.Commands.CreateFgsAssetAttributeValue.CreateFgsAssetAttributeValueCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeValues.Commands.CreateFgsAssetAttributeValue.CreateFgsAssetAttributeValueCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributes\\Validators\\FgsAssetAttributeValidators.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributes.Validators.CreateFgsAssetAttributeCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Validators.CreateFgsAssetAttributeCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributes.IFgsAssetAttributeReadRepository)": {
+          "Lines": {
+            "10": 1,
+            "11": 1,
+            "12": 1,
+            "13": 1,
+            "14": 2,
+            "15": 2,
+            "16": 1,
+            "17": 2,
+            "18": 2,
+            "19": 1,
+            "20": 1
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Validators.CreateFgsAssetAttributeCommandValidator::.cctor()": {
+          "Lines": {
+            "9": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Validators.UpdateFgsAssetAttributeCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Validators.UpdateFgsAssetAttributeCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributes.IFgsAssetAttributeReadRepository)": {
+          "Lines": {
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Validators.UpdateFgsAssetAttributeCommandValidator::.cctor()": {
+          "Lines": {
+            "24": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Validators.PatchFgsAssetAttributeCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Validators.PatchFgsAssetAttributeCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributes.IFgsAssetAttributeReadRepository)": {
+          "Lines": {
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Validators.PatchFgsAssetAttributeCommandValidator::.cctor()": {
+          "Lines": {
+            "38": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Validators.PatchFgsAssetAttributeCommandValidator/<>c__DisplayClass1_0/<<-ctor>b__5>d": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Validators.PatchFgsAssetAttributeCommandValidator/<>c__DisplayClass1_0/<<-ctor>b__5>d::MoveNext()": {
+          "Lines": {},
+          "Branches": [
+            {
+              "Line": 43,
+              "Offset": 52,
+              "EndOffset": 57,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 43,
+              "Offset": 52,
+              "EndOffset": 194,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributes\\Queries\\LookupAssetAttributes\\LookupAssetAttributesQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributes.Queries.LookupAssetAttributes.LookupAssetAttributesQuery": {
+        "System.Boolean Fgs.Asset.Application.Features.AssetAttributes.Queries.LookupAssetAttributes.LookupAssetAttributesQuery::get_ActiveOnly()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributes\\Queries\\LookupAssetAttributes\\LookupAssetAttributesQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributes.Queries.LookupAssetAttributes.LookupAssetAttributesQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Queries.LookupAssetAttributes.LookupAssetAttributesQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributes.IFgsAssetAttributeReadRepository)": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Queries.LookupAssetAttributes.LookupAssetAttributesQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Queries.LookupAssetAttributes.LookupAssetAttributesQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributes\\Queries\\ListAssetAttributes\\ListAssetAttributesQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributes.Queries.ListAssetAttributes.ListAssetAttributesQuery": {
+        "Fgs.Asset.Application.Common.AssetCrud.AssetListQuery Fgs.Asset.Application.Features.AssetAttributes.Queries.ListAssetAttributes.ListAssetAttributesQuery::get_Query()": {
+          "Lines": {
+            "9": 3
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributes\\Queries\\ListAssetAttributes\\ListAssetAttributesQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributes.Queries.ListAssetAttributes.ListAssetAttributesQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Queries.ListAssetAttributes.ListAssetAttributesQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributes.IFgsAssetAttributeReadRepository)": {
+          "Lines": {
+            "9": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Queries.ListAssetAttributes.ListAssetAttributesQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Queries.ListAssetAttributes.ListAssetAttributesQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "15": 1,
+            "16": 1,
+            "17": 1,
+            "18": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributes\\Queries\\GetFgsAssetAttributeById\\GetFgsAssetAttributeByIdQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributes.Queries.GetFgsAssetAttributeById.GetFgsAssetAttributeByIdQuery": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributes.Queries.GetFgsAssetAttributeById.GetFgsAssetAttributeByIdQuery::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributes\\Queries\\GetFgsAssetAttributeById\\GetFgsAssetAttributeByIdQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributes.Queries.GetFgsAssetAttributeById.GetFgsAssetAttributeByIdQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Queries.GetFgsAssetAttributeById.GetFgsAssetAttributeByIdQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributes.IFgsAssetAttributeReadRepository,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Queries.GetFgsAssetAttributeById.GetFgsAssetAttributeByIdQueryHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Queries.GetFgsAssetAttributeById.GetFgsAssetAttributeByIdQueryHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "Branches": [
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 280,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 303,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 469,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 0
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 553,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributes\\Dtos\\FgsAssetAttributeDtos.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributeSummaryDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributeSummaryDto::get_Id()": {
+          "Lines": {
+            "2": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributeDetailDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributeDetailDto::get_Id()": {
+          "Lines": {
+            "3": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributeLookupDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributeLookupDto::get_Id()": {
+          "Lines": {
+            "4": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributeCreateDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributeCreateDto::get_AssetTypeId()": {
+          "Lines": {
+            "5": 24
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributeUpdateDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributeUpdateDto::get_AssetTypeId()": {
+          "Lines": {
+            "6": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributePatchDto": {
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributePatchDto::get_AssetTypeId()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributeListFilters": {
+        "System.String Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributeListFilters::get_AttributeCode()": {
+          "Lines": {
+            "8": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributes\\Commands\\UpdateFgsAssetAttribute\\UpdateFgsAssetAttributeCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributes.Commands.UpdateFgsAssetAttribute.UpdateFgsAssetAttributeCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributes.Commands.UpdateFgsAssetAttribute.UpdateFgsAssetAttributeCommand::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributes\\Commands\\UpdateFgsAssetAttribute\\UpdateFgsAssetAttributeCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributes.Commands.UpdateFgsAssetAttribute.UpdateFgsAssetAttributeCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Commands.UpdateFgsAssetAttribute.UpdateFgsAssetAttributeCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributes.IFgsAssetAttributeWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Commands.UpdateFgsAssetAttribute.UpdateFgsAssetAttributeCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Commands.UpdateFgsAssetAttribute.UpdateFgsAssetAttributeCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributes\\Commands\\PatchFgsAssetAttribute\\PatchFgsAssetAttributeCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributes.Commands.PatchFgsAssetAttribute.PatchFgsAssetAttributeCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributes.Commands.PatchFgsAssetAttribute.PatchFgsAssetAttributeCommand::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributes\\Commands\\PatchFgsAssetAttribute\\PatchFgsAssetAttributeCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributes.Commands.PatchFgsAssetAttribute.PatchFgsAssetAttributeCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Commands.PatchFgsAssetAttribute.PatchFgsAssetAttributeCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributes.IFgsAssetAttributeWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Commands.PatchFgsAssetAttribute.PatchFgsAssetAttributeCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Commands.PatchFgsAssetAttribute.PatchFgsAssetAttributeCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributes\\Commands\\CreateFgsAssetAttribute\\CreateFgsAssetAttributeCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributes.Commands.CreateFgsAssetAttribute.CreateFgsAssetAttributeCommand": {
+        "Fgs.Asset.Application.Features.AssetAttributes.Dtos.FgsAssetAttributeCreateDto Fgs.Asset.Application.Features.AssetAttributes.Commands.CreateFgsAssetAttribute.CreateFgsAssetAttributeCommand::get_Dto()": {
+          "Lines": {
+            "7": 12
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributes\\Commands\\CreateFgsAssetAttribute\\CreateFgsAssetAttributeCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributes.Commands.CreateFgsAssetAttribute.CreateFgsAssetAttributeCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Commands.CreateFgsAssetAttribute.CreateFgsAssetAttributeCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributes.IFgsAssetAttributeWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 1,
+            "12": 1,
+            "13": 1,
+            "14": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributes.Commands.CreateFgsAssetAttribute.CreateFgsAssetAttributeCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributes.Commands.CreateFgsAssetAttribute.CreateFgsAssetAttributeCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 1,
+            "21": 1,
+            "22": 1,
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeOptions\\Validators\\FgsAssetAttributeOptionValidators.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Validators.CreateFgsAssetAttributeOptionCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Validators.CreateFgsAssetAttributeOptionCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeOptions.IFgsAssetAttributeOptionReadRepository)": {
+          "Lines": {
+            "9": 0,
+            "10": 0,
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Validators.UpdateFgsAssetAttributeOptionCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Validators.UpdateFgsAssetAttributeOptionCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeOptions.IFgsAssetAttributeOptionReadRepository)": {
+          "Lines": {
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Validators.PatchFgsAssetAttributeOptionCommandValidator": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Validators.PatchFgsAssetAttributeOptionCommandValidator::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeOptions.IFgsAssetAttributeOptionReadRepository)": {
+          "Lines": {
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Validators.PatchFgsAssetAttributeOptionCommandValidator/<>c__DisplayClass0_0/<<-ctor>b__2>d": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Validators.PatchFgsAssetAttributeOptionCommandValidator/<>c__DisplayClass0_0/<<-ctor>b__2>d::MoveNext()": {
+          "Lines": {},
+          "Branches": [
+            {
+              "Line": 36,
+              "Offset": 52,
+              "EndOffset": 57,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 36,
+              "Offset": 52,
+              "EndOffset": 194,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeOptions\\Queries\\LookupAssetAttributeOptions\\LookupAssetAttributeOptionsQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.LookupAssetAttributeOptions.LookupAssetAttributeOptionsQuery": {
+        "System.Boolean Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.LookupAssetAttributeOptions.LookupAssetAttributeOptionsQuery::get_ActiveOnly()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeOptions\\Queries\\LookupAssetAttributeOptions\\LookupAssetAttributeOptionsQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.LookupAssetAttributeOptions.LookupAssetAttributeOptionsQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.LookupAssetAttributeOptions.LookupAssetAttributeOptionsQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeOptions.IFgsAssetAttributeOptionReadRepository)": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.LookupAssetAttributeOptions.LookupAssetAttributeOptionsQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.LookupAssetAttributeOptions.LookupAssetAttributeOptionsQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeOptions\\Queries\\ListAssetAttributeOptions\\ListAssetAttributeOptionsQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.ListAssetAttributeOptions.ListAssetAttributeOptionsQuery": {
+        "Fgs.Asset.Application.Common.AssetCrud.AssetListQuery Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.ListAssetAttributeOptions.ListAssetAttributeOptionsQuery::get_Query()": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeOptions\\Queries\\ListAssetAttributeOptions\\ListAssetAttributeOptionsQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.ListAssetAttributeOptions.ListAssetAttributeOptionsQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.ListAssetAttributeOptions.ListAssetAttributeOptionsQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeOptions.IFgsAssetAttributeOptionReadRepository)": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.ListAssetAttributeOptions.ListAssetAttributeOptionsQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.ListAssetAttributeOptions.ListAssetAttributeOptionsQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeOptions\\Queries\\GetFgsAssetAttributeOptionById\\GetFgsAssetAttributeOptionByIdQuery.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.GetFgsAssetAttributeOptionById.GetFgsAssetAttributeOptionByIdQuery": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.GetFgsAssetAttributeOptionById.GetFgsAssetAttributeOptionByIdQuery::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeOptions\\Queries\\GetFgsAssetAttributeOptionById\\GetFgsAssetAttributeOptionByIdQueryHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.GetFgsAssetAttributeOptionById.GetFgsAssetAttributeOptionByIdQueryHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.GetFgsAssetAttributeOptionById.GetFgsAssetAttributeOptionByIdQueryHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeOptions.IFgsAssetAttributeOptionReadRepository,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.GetFgsAssetAttributeOptionById.GetFgsAssetAttributeOptionByIdQueryHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Queries.GetFgsAssetAttributeOptionById.GetFgsAssetAttributeOptionByIdQueryHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0
+          },
+          "Branches": [
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 280,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 303,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 469,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 0
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 553,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeOptions\\Dtos\\FgsAssetAttributeOptionDtos.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionSummaryDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionSummaryDto::get_Id()": {
+          "Lines": {
+            "2": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionDetailDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionDetailDto::get_Id()": {
+          "Lines": {
+            "3": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionLookupDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionLookupDto::get_Id()": {
+          "Lines": {
+            "4": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionCreateDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionCreateDto::get_AssetAttributeId()": {
+          "Lines": {
+            "5": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionUpdateDto": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionUpdateDto::get_AssetAttributeId()": {
+          "Lines": {
+            "6": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionPatchDto": {
+        "System.Nullable`1<System.Int64> Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionPatchDto::get_AssetAttributeId()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionListFilters": {
+        "System.String Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionListFilters::get_OptionCode()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeOptions\\Commands\\UpdateFgsAssetAttributeOption\\UpdateFgsAssetAttributeOptionCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.UpdateFgsAssetAttributeOption.UpdateFgsAssetAttributeOptionCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.UpdateFgsAssetAttributeOption.UpdateFgsAssetAttributeOptionCommand::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeOptions\\Commands\\UpdateFgsAssetAttributeOption\\UpdateFgsAssetAttributeOptionCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.UpdateFgsAssetAttributeOption.UpdateFgsAssetAttributeOptionCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.UpdateFgsAssetAttributeOption.UpdateFgsAssetAttributeOptionCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeOptions.IFgsAssetAttributeOptionWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.UpdateFgsAssetAttributeOption.UpdateFgsAssetAttributeOptionCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.UpdateFgsAssetAttributeOption.UpdateFgsAssetAttributeOptionCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeOptions\\Commands\\PatchFgsAssetAttributeOption\\PatchFgsAssetAttributeOptionCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.PatchFgsAssetAttributeOption.PatchFgsAssetAttributeOptionCommand": {
+        "System.Int64 Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.PatchFgsAssetAttributeOption.PatchFgsAssetAttributeOptionCommand::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeOptions\\Commands\\PatchFgsAssetAttributeOption\\PatchFgsAssetAttributeOptionCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.PatchFgsAssetAttributeOption.PatchFgsAssetAttributeOptionCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.PatchFgsAssetAttributeOption.PatchFgsAssetAttributeOptionCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeOptions.IFgsAssetAttributeOptionWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.PatchFgsAssetAttributeOption.PatchFgsAssetAttributeOptionCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.PatchFgsAssetAttributeOption.PatchFgsAssetAttributeOptionCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeOptions\\Commands\\CreateFgsAssetAttributeOption\\CreateFgsAssetAttributeOptionCommand.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.CreateFgsAssetAttributeOption.CreateFgsAssetAttributeOptionCommand": {
+        "Fgs.Asset.Application.Features.AssetAttributeOptions.Dtos.FgsAssetAttributeOptionCreateDto Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.CreateFgsAssetAttributeOption.CreateFgsAssetAttributeOptionCommand::get_Dto()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Features\\AssetAttributeOptions\\Commands\\CreateFgsAssetAttributeOption\\CreateFgsAssetAttributeOptionCommandHandler.cs": {
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.CreateFgsAssetAttributeOption.CreateFgsAssetAttributeOptionCommandHandler": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.CreateFgsAssetAttributeOption.CreateFgsAssetAttributeOptionCommandHandler::.ctor(Fgs.Asset.Application.Abstractions.AssetAttributeOptions.IFgsAssetAttributeOptionWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.CreateFgsAssetAttributeOption.CreateFgsAssetAttributeOptionCommandHandler/<Handle>d__4": {
+        "System.Void Fgs.Asset.Application.Features.AssetAttributeOptions.Commands.CreateFgsAssetAttributeOption.CreateFgsAssetAttributeOptionCommandHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\AssetService\\Fgs.Asset.Application\\Common\\AssetCrud\\AssetListQuery.cs": {
+      "Fgs.Asset.Application.Common.AssetCrud.AssetListQuery": {
+        "System.Int32 Fgs.Asset.Application.Common.AssetCrud.AssetListQuery::get_Page()": {
+          "Lines": {
+            "6": 0
+          },
+          "Branches": []
+        },
+        "System.Int32 Fgs.Asset.Application.Common.AssetCrud.AssetListQuery::get_PageSize()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Common.AssetCrud.AssetListQuery::get_SortBy()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        },
+        "Fgs.Foundation.Paging.SortDirection Fgs.Asset.Application.Common.AssetCrud.AssetListQuery::get_SortDirection()": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Asset.Application.Common.AssetCrud.AssetListQuery::get_Search()": {
+          "Lines": {
+            "10": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Boolean> Fgs.Asset.Application.Common.AssetCrud.AssetListQuery::get_IsActive()": {
+          "Lines": {
+            "11": 5
+          },
+          "Branches": []
+        },
+        "Fgs.Foundation.Paging.PagedQuery Fgs.Asset.Application.Common.AssetCrud.AssetListQuery::ToPagedQuery()": {
+          "Lines": {
+            "14": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Asset.Application.Common.AssetCrud.AssetListQuery::.ctor(System.Int32,System.Int32,System.String,Fgs.Foundation.Paging.SortDirection,System.String,System.Nullable`1<System.Boolean>)": {
+          "Lines": {
+            "5": 5
+          },
+          "Branches": []
+        }
+      }
+    }
+  }
+}

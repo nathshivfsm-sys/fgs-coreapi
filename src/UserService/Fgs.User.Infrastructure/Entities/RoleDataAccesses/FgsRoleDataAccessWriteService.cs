@@ -16,8 +16,8 @@ public sealed class FgsRoleDataAccessWriteService(
     ITenantContextAccessor tenantContextAccessor,
     IFgsUserContext userContext) : IFgsRoleDataAccessWriteService
 {
-    public async Task<FgsRoleDataAccessDetailDto> CreateAsync(
-        FgsRoleDataAccessCreateDto dto,
+    public async Task<IReadOnlyList<FgsRoleDataAccessDetailDto>> SyncAsync(
+        FgsRoleDataAccessSyncDto dto,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
@@ -30,52 +30,71 @@ public sealed class FgsRoleDataAccessWriteService(
             throw new KeyNotFoundException($"Role '{dto.FgsRoleId}' was not found.");
         }
 
-        var dataAccessExists = await context.FgsDataAccesses.AnyAsync(
-            d => d.Id == dto.FgsDataAccessId && d.TenantId == tenantId && d.CompanyId == companyId,
-            cancellationToken);
-        if (!dataAccessExists)
+        var desiredIds = (dto.FgsDataAccessIds ?? [])
+            .Distinct()
+            .ToList();
+
+        if (desiredIds.Count > 0)
         {
-            throw new KeyNotFoundException($"Data access '{dto.FgsDataAccessId}' was not found.");
+            var foundIds = await context.FgsDataAccesses
+                .Where(d => desiredIds.Contains(d.Id) && d.TenantId == tenantId && d.CompanyId == companyId)
+                .Select(d => d.Id)
+                .ToListAsync(cancellationToken);
+            var missing = desiredIds.Except(foundIds).ToList();
+            if (missing.Count > 0)
+            {
+                throw new KeyNotFoundException($"Data access '{missing[0]}' was not found.");
+            }
         }
 
-        var entity = new FgsRoleDataAccess
-        {
-            TenantId = tenantId,
-            CompanyId = companyId,
-            FgsRoleId = dto.FgsRoleId,
-            FgsDataAccessId = dto.FgsDataAccessId,
-            CreatedOn = DateTimeOffset.UtcNow,
-            CreatedBy = ResolveActor()
-        };
+        var existing = await context.FgsRoleDataAccesses
+            .Where(x => x.FgsRoleId == dto.FgsRoleId && x.TenantId == tenantId && x.CompanyId == companyId)
+            .ToListAsync(cancellationToken);
 
-        await context.FgsRoleDataAccesses.AddAsync(entity, cancellationToken);
-        try
+        var desiredSet = desiredIds.ToHashSet();
+        var existingByDataAccessId = existing.ToDictionary(x => x.FgsDataAccessId);
+
+        var toRemove = existing.Where(x => !desiredSet.Contains(x.FgsDataAccessId)).ToList();
+        if (toRemove.Count > 0)
         {
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateException ex) when (IsUniqueViolation(ex))
-        {
-            throw new InvalidOperationException("This data access profile is already assigned to the role.", ex);
+            context.FgsRoleDataAccesses.RemoveRange(toRemove);
         }
 
-        return new FgsRoleDataAccessDetailDto(
-            entity.Id,
-            entity.FgsRoleId,
-            entity.FgsDataAccessId,
-            entity.CreatedOn,
-            entity.CreatedBy);
-    }
+        var actor = ResolveActor();
+        var now = DateTimeOffset.UtcNow;
+        foreach (var dataAccessId in desiredIds)
+        {
+            if (existingByDataAccessId.ContainsKey(dataAccessId))
+            {
+                continue;
+            }
 
-    public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
-    {
-        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
-        var entity = await context.FgsRoleDataAccesses.FirstOrDefaultAsync(
-            x => x.Id == id && x.TenantId == tenantId && x.CompanyId == companyId,
-            cancellationToken)
-            ?? throw new KeyNotFoundException($"Role data access assignment '{id}' was not found.");
+            await context.FgsRoleDataAccesses.AddAsync(
+                new FgsRoleDataAccess
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    FgsRoleId = dto.FgsRoleId,
+                    FgsDataAccessId = dataAccessId,
+                    CreatedOn = now,
+                    CreatedBy = actor
+                },
+                cancellationToken);
+        }
 
-        context.FgsRoleDataAccesses.Remove(entity);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return await context.FgsRoleDataAccesses
+            .AsNoTracking()
+            .Where(x => x.FgsRoleId == dto.FgsRoleId && x.TenantId == tenantId && x.CompanyId == companyId)
+            .OrderBy(x => x.Id)
+            .Select(x => new FgsRoleDataAccessDetailDto(
+                x.Id,
+                x.FgsRoleId,
+                x.FgsDataAccessId,
+                x.CreatedOn,
+                x.CreatedBy))
+            .ToListAsync(cancellationToken);
     }
 
     private string ResolveActor() =>
@@ -83,9 +102,4 @@ public sealed class FgsRoleDataAccessWriteService(
         ?? userContext.DisplayName
         ?? userContext.UserId?.ToString()
         ?? "system";
-
-    private static bool IsUniqueViolation(DbUpdateException exception) =>
-        exception.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true
-        || exception.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true
-        || exception.InnerException?.Message.Contains("23505", StringComparison.Ordinal) == true;
 }

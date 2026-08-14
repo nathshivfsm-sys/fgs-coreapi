@@ -20,7 +20,7 @@ public sealed class FgsUserValidatorTests
     {
         var validator = CreateInviteValidator();
         var result = await validator.ValidateAsync(
-            new InviteFgsUserCommand([new FgsUserInviteDto("Jane", "", null, 1)]));
+            new InviteFgsUserCommand([new FgsUserInviteDto("Jane", "", null, [1L])]));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName.Contains("Email"));
@@ -45,7 +45,7 @@ public sealed class FgsUserValidatorTests
             CreateDateTime().Object);
 
         var result = await validator.ValidateAsync(
-            new InviteFgsUserCommand([new FgsUserInviteDto("Jane", "jane@example.com", null, 99)]));
+            new InviteFgsUserCommand([new FgsUserInviteDto("Jane", "jane@example.com", null, [99L])]));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.ErrorMessage.Contains("role", StringComparison.OrdinalIgnoreCase));
@@ -66,7 +66,7 @@ public sealed class FgsUserValidatorTests
             CreateDateTime().Object);
 
         var result = await validator.ValidateAsync(
-            new InviteFgsUserCommand([new FgsUserInviteDto("Jane", "jane@example.com", null, 1)]));
+            new InviteFgsUserCommand([new FgsUserInviteDto("Jane", "jane@example.com", null, [1L])]));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e =>
@@ -91,7 +91,7 @@ public sealed class FgsUserValidatorTests
             CreateDateTime().Object);
 
         var result = await validator.ValidateAsync(
-            new InviteFgsUserCommand([new FgsUserInviteDto("Jane", "jane@example.com", null, 5)]));
+            new InviteFgsUserCommand([new FgsUserInviteDto("Jane", "jane@example.com", null, [5L])]));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e =>
@@ -115,8 +115,8 @@ public sealed class FgsUserValidatorTests
         var result = await validator.ValidateAsync(
             new InviteFgsUserCommand(
             [
-                new FgsUserInviteDto("Jane", "jane@example.com", null, 5),
-                new FgsUserInviteDto("John", "john@example.com", null, 5)
+                new FgsUserInviteDto("Jane", "jane@example.com", null, [5L]),
+                new FgsUserInviteDto("John", "john@example.com", null, [5L])
             ]));
 
         result.IsValid.Should().BeFalse();
@@ -137,7 +137,7 @@ public sealed class FgsUserValidatorTests
 
         var validator = new UpdateFgsUserCommandValidator(roleRead.Object);
         var result = await validator.ValidateAsync(
-            new UpdateFgsUserCommand(userId, new FgsUserUpdateDto("Jane", null, 5, true)));
+            new UpdateFgsUserCommand(userId, new FgsUserUpdateDto("Jane", null, [5L], true)));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e =>

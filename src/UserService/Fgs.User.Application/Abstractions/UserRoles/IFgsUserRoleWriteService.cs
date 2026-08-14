@@ -4,7 +4,10 @@ namespace Fgs.User.Application.Abstractions.UserRoles;
 
 public interface IFgsUserRoleWriteService
 {
-    Task<FgsUserRoleDetailDto> CreateAsync(FgsUserRoleCreateDto dto, CancellationToken cancellationToken = default);
-
-    Task DeleteAsync(long id, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Syncs the user's roles to the given set (add missing, keep existing, remove extras).
+    /// </summary>
+    Task<IReadOnlyList<FgsUserRoleDetailDto>> SyncAsync(
+        FgsUserRoleSyncDto dto,
+        CancellationToken cancellationToken = default);
 }

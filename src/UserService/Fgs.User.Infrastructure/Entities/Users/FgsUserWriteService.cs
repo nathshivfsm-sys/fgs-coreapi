@@ -2,7 +2,6 @@ using Fgs.MultiTenancy;
 using Fgs.Persistence.Abstractions;
 using Fgs.Security.Abstractions;
 using Fgs.User.Application.Abstractions.Invitations;
-using Fgs.User.Application.Abstractions.Roles;
 using Fgs.User.Application.Abstractions.UserRoles;
 using Fgs.User.Application.Abstractions.Users;
 using Fgs.User.Application.Features.UserRoles.Dtos;
@@ -21,7 +20,6 @@ public sealed class FgsUserWriteService(
     ITenantContextAccessor tenantContextAccessor,
     IFgsUserContext userContext,
     IFgsUserReadRepository readRepository,
-    IFgsRoleReadRepository roleReadRepository,
     IFgsUserRoleWriteService userRoleWriteService,
     IUserInvitationIssuer invitationIssuer) : IFgsUserWriteService
 {
@@ -49,8 +47,11 @@ public sealed class FgsUserWriteService(
 
                 foreach (var dto in invites)
                 {
-                    _ = await roleReadRepository.GetByIdAsync(dto.RoleId, ct)
-                        ?? throw new KeyNotFoundException($"Role '{dto.RoleId}' was not found.");
+                    var roleIds = dto.RoleIds ?? [];
+                    if (roleIds.Count == 0)
+                    {
+                        throw new ArgumentException("At least one role is required for each invite.");
+                    }
 
                     var userId = Guid.NewGuid();
                     var entity = new FgsUser
@@ -79,7 +80,7 @@ public sealed class FgsUserWriteService(
                             ex);
                     }
 
-                    await userRoleWriteService.CreateAsync(new FgsUserRoleCreateDto(userId, dto.RoleId), ct);
+                    await userRoleWriteService.SyncAsync(new FgsUserRoleSyncDto(userId, roleIds), ct);
 
                     await invitationIssuer.IssueAsync(
                         new IssueInvitationRequest(
@@ -126,7 +127,7 @@ public sealed class FgsUserWriteService(
         entity.IsActive = dto.IsActive;
         StampForUpdate(entity);
 
-        await ReplaceRoleAsync(entity.Id, dto.RoleId, cancellationToken);
+        await ReplaceRolesAsync(entity.Id, dto.RoleIds, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return await RequireDetailAsync(entity.Id, cancellationToken);
@@ -157,9 +158,9 @@ public sealed class FgsUserWriteService(
 
         StampForUpdate(entity);
 
-        if (dto.RoleId.HasValue)
+        if (dto.RoleIds is not null)
         {
-            await ReplaceRoleAsync(entity.Id, dto.RoleId.Value, cancellationToken);
+            await ReplaceRolesAsync(entity.Id, dto.RoleIds, cancellationToken);
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -214,27 +215,12 @@ public sealed class FgsUserWriteService(
         return name ?? string.Empty;
     }
 
-    private async Task ReplaceRoleAsync(Guid userId, long roleId, CancellationToken cancellationToken)
+    private async Task ReplaceRolesAsync(
+        Guid userId,
+        IReadOnlyList<long> roleIds,
+        CancellationToken cancellationToken)
     {
-        _ = await roleReadRepository.GetByIdAsync(roleId, cancellationToken)
-            ?? throw new KeyNotFoundException($"Role '{roleId}' was not found.");
-
-        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
-        var existing = await context.FgsUserRoles
-            .Where(ur => ur.UserId == userId && ur.TenantId == tenantId && ur.CompanyId == companyId)
-            .ToListAsync(cancellationToken);
-
-        if (existing.Count == 1 && existing[0].FgsRoleId == roleId)
-        {
-            return;
-        }
-
-        foreach (var assignment in existing)
-        {
-            await userRoleWriteService.DeleteAsync(assignment.Id, cancellationToken);
-        }
-
-        await userRoleWriteService.CreateAsync(new FgsUserRoleCreateDto(userId, roleId), cancellationToken);
+        await userRoleWriteService.SyncAsync(new FgsUserRoleSyncDto(userId, roleIds), cancellationToken);
     }
 
     private async Task<FgsUser?> FindEntityAsync(Guid id, CancellationToken cancellationToken)
