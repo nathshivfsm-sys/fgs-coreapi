@@ -2,6 +2,8 @@
 
 This folder scaffolds production wiring. Do **not** put API keys in source, Dockerfiles, or committed task JSON.
 
+Apps use **OpenTelemetry → OTLP** for traces/metrics and **Serilog** (or FireLens) for logs. Datadog Agent sidecar receives OTLP on `4317`/`4318`.
+
 ## Secrets
 
 1. Store the Datadog API key in AWS Secrets Manager (e.g. `fgs/datadog/api-key`).
@@ -10,10 +12,10 @@ This folder scaffolds production wiring. Do **not** put API keys in source, Dock
 
 ## Patterns
 
-### Agent sidecar (recommended for APM + DogStatsD)
+### Agent sidecar (recommended for OTLP traces + metrics)
 
-- Application container: set `Datadog__AgentHost=localhost` (or sidecar hostname), `Datadog__Env`, `Datadog__Version`.
-- Sidecar: official Datadog Agent image with `DD_API_KEY` from Secrets Manager, `DD_APM_NON_LOCAL_TRAFFIC=true`, `DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true`.
+- Application container: set `Observability__OtlpEndpoint=http://localhost:4317` (or sidecar hostname), `Observability__Env`, `Observability__Version`. Keep `DD_LLMOBS_ENABLED=false`.
+- Sidecar: official Datadog Agent image with `DD_API_KEY` from Secrets Manager, OTLP receivers enabled, `DD_APM_NON_LOCAL_TRAFFIC=true`, and **`DD_LLMOBS_ENABLED=false`** (Datadog LLM Observability / AI off).
 
 ### FireLens / Fluent Bit (logs)
 
@@ -23,3 +25,5 @@ This folder scaffolds production wiring. Do **not** put API keys in source, Dock
 ## Sample fragments
 
 See `ecs-task-definition.fragment.json` for environment/secret shape. Merge into real service task definitions per environment.
+
+See also [docs/observability/DATADOG.md](../../../docs/observability/DATADOG.md).

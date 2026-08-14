@@ -113,6 +113,32 @@ public sealed class CredentialSectionMapperTests
     }
 
     [Fact]
+    public void TryMap_DatadogKey_MapsToDatadogApiKey()
+    {
+        CredentialSectionMapper.TryMap("Global:DATADOG:ApiKey", out var key, out _).Should().BeTrue();
+        key.Should().Be("Datadog:ApiKey");
+    }
+
+    [Fact]
+    public void TryResolveValue_DatadogKey_ReturnsApiKey()
+    {
+        var values = new Dictionary<string, string>
+        {
+            ["Global:DATADOG:ApiKey"] = "dd-api-key",
+            ["Global:DATADOG:Site"] = "datadoghq.com"
+        };
+
+        CredentialSectionMapper.TryResolveValue(
+                "Global:DATADOG:ApiKey",
+                "Datadog:ApiKey",
+                values,
+                out var resolved)
+            .Should().BeTrue();
+
+        resolved.Should().Be("dd-api-key");
+    }
+
+    [Fact]
     public void Filter_KeepsOnlyRequiredProviders()
     {
         var values = new Dictionary<string, string>

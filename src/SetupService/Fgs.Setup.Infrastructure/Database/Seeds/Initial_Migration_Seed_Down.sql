@@ -28,7 +28,7 @@ WHERE ("CountryCode", "StateProvinceCode") IN (
 );
 
 DELETE FROM glo."GloCredentialProviderType"
-WHERE "ProviderCode" IN ('RABBITMQ', 'AWS', 'ENTRA_EXTERNAL_ID', 'SENDGRID');
+WHERE "ProviderCode" IN ('RABBITMQ', 'AWS', 'ENTRA_EXTERNAL_ID', 'SENDGRID', 'DATADOG');
 
 DELETE FROM glo."GloCountry"
 WHERE "CountryCode" IN (

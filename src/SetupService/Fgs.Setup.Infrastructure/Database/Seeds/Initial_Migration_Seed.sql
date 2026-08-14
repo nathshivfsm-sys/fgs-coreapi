@@ -415,6 +415,15 @@ FROM (
             TRUE
         ),
         (
+            'DATADOG',
+            'Datadog',
+            '[
+                {"key":"ApiKey","label":"API Key","type":"password","required":true,"sensitive":true},
+                {"key":"Site","label":"Site (e.g. datadoghq.com)","type":"text","required":false}
+            ]',
+            TRUE
+        ),
+        (
             'TWILIO',
             'Twilio',
             '[
@@ -575,6 +584,15 @@ FROM (
                 {"key":"ApiKey","label":"API Key","type":"password","required":true,"sensitive":true},
                 {"key":"FromAddress","label":"From Address","type":"text","required":true},
                 {"key":"FromName","label":"From Name","type":"text","required":true}
+            ]',
+            TRUE
+        ),
+        (
+            'DATADOG',
+            'Datadog',
+            '[
+                {"key":"ApiKey","label":"API Key","type":"password","required":true,"sensitive":true},
+                {"key":"Site","label":"Site (e.g. datadoghq.com)","type":"text","required":false}
             ]',
             TRUE
         ),

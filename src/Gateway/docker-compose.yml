@@ -14,7 +14,8 @@ x-service-network: &service-network
     - fgs-private
   restart: unless-stopped
 
-x-datadog-env: &datadog-env
+# Testing: Datadog/OTLP on for setup-service + user-service only; off for all other APIs.
+x-datadog-env-on: &datadog-env-on
   Datadog__Enabled: "true"
   Datadog__ApiKey: ${DD_API_KEY:-}
   Datadog__Site: ${DD_SITE:-datadoghq.com}
@@ -25,6 +26,34 @@ x-datadog-env: &datadog-env
   Datadog__Version: ${DD_VERSION:-0.0.0}
   Datadog__EnableApm: "true"
   Datadog__EnableRuntimeMetrics: "true"
+  Observability__Enabled: "true"
+  Observability__OtlpEndpoint: http://datadog-agent:4317
+  Observability__Env: ${DD_ENV:-local}
+  Observability__Version: ${DD_VERSION:-0.0.0}
+  Observability__EnableTracing: "true"
+  Observability__EnableMetrics: "true"
+  Observability__EnableRuntimeMetrics: "true"
+  DD_LLMOBS_ENABLED: "false"
+
+x-datadog-env-off: &datadog-env-off
+  Datadog__Enabled: "false"
+  Datadog__ApiKey: ""
+  Datadog__Site: ${DD_SITE:-datadoghq.com}
+  Datadog__AgentHost: ""
+  Datadog__AgentPort: "8126"
+  Datadog__DogStatsDPort: "8125"
+  Datadog__Env: ${DD_ENV:-local}
+  Datadog__Version: ${DD_VERSION:-0.0.0}
+  Datadog__EnableApm: "false"
+  Datadog__EnableRuntimeMetrics: "false"
+  Observability__Enabled: "false"
+  Observability__OtlpEndpoint: ""
+  Observability__Env: ${DD_ENV:-local}
+  Observability__Version: ${DD_VERSION:-0.0.0}
+  Observability__EnableTracing: "false"
+  Observability__EnableMetrics: "false"
+  Observability__EnableRuntimeMetrics: "false"
+  DD_LLMOBS_ENABLED: "false"
 
 x-credential-consumer-env: &credential-consumer-env
   ASPNETCORE_ENVIRONMENT: Production
@@ -35,7 +64,7 @@ x-credential-consumer-env: &credential-consumer-env
   Redis__Enabled: "true"
   # Production disables Swagger unless Enabled=true; without it /swagger/* falls through to JWT fallback (401).
   Swagger__Enabled: "true"
-  <<: *datadog-env
+  <<: *datadog-env-off
 
 x-depends-on-setup: &depends-on-setup
   setup-service:
@@ -89,6 +118,7 @@ services:
     restart: unless-stopped
 
   # Datadog Agent — set DD_API_KEY (same value as Datadog:ApiKey / Datadog__ApiKey)
+  # Apps export OpenTelemetry traces/metrics via OTLP to :4317; Serilog still uses Datadog Logs API when ApiKey is set.
   datadog-agent:
     image: gcr.io/datadoghq/agent:7.64.0
     <<: *service-network
@@ -101,16 +131,23 @@ services:
       DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
       DD_LOGS_ENABLED: "false"
       DD_PROCESS_AGENT_ENABLED: "false"
+      DD_LLMOBS_ENABLED: "false"
       DD_HOSTNAME: fgs-local-datadog
+      DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_GRPC_ENDPOINT: "0.0.0.0:4317"
+      DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_HTTP_ENDPOINT: "0.0.0.0:4318"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./logs:/var/log/nginx:ro
     expose:
       - "8126"
       - "8125"
+      - "4317"
+      - "4318"
     ports:
       - "127.0.0.1:8126:8126"
       - "127.0.0.1:8125:8125/udp"
+      - "127.0.0.1:4317:4317"
+      - "127.0.0.1:4318:4318"
 
   # Tier 1 ? credential authority (bootstrap ConnectionStrings:FgsSetup from mounted appsettings)
   setup-service:
@@ -119,7 +156,7 @@ services:
       context: ../..
       dockerfile: src/Gateway/docker/setup-service.Dockerfile
     environment:
-      <<: *datadog-env
+      <<: *datadog-env-on
       ASPNETCORE_ENVIRONMENT: Production
       CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
       Swagger__Enabled: "true"
@@ -179,6 +216,17 @@ services:
       dockerfile: src/Gateway/docker/user-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      # Override shared off defaults — Datadog on for user-service only (with setup-service).
+      Datadog__Enabled: "true"
+      Datadog__ApiKey: ${DD_API_KEY:-}
+      Datadog__AgentHost: datadog-agent
+      Datadog__EnableApm: "true"
+      Datadog__EnableRuntimeMetrics: "true"
+      Observability__Enabled: "true"
+      Observability__OtlpEndpoint: http://datadog-agent:4317
+      Observability__EnableTracing: "true"
+      Observability__EnableMetrics: "true"
+      Observability__EnableRuntimeMetrics: "true"
       Swagger__RoutePrefix: swagger/user
       CredentialConsumer__ServiceName: fgs-user-service
       CredentialConsumer__RequiredProviders__0: DATABASE

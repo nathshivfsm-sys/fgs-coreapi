@@ -22,6 +22,7 @@ public static class SerilogHostExtensions
     public static WebApplicationBuilder AddFgsSerilog(
         this WebApplicationBuilder builder,
         string serviceName,
+        ObservabilityOptions observabilityOptions,
         DatadogOptions datadogOptions)
     {
         builder.Services.AddHttpContextAccessor();
@@ -37,8 +38,8 @@ public static class SerilogHostExtensions
                 .Enrich.WithThreadId()
                 .Enrich.WithProperty("Service", serviceName)
                 .Enrich.WithProperty("ServiceName", serviceName)
-                .Enrich.WithProperty("Environment", datadogOptions.Env)
-                .Enrich.WithProperty("Version", datadogOptions.Version)
+                .Enrich.WithProperty("Environment", observabilityOptions.Env)
+                .Enrich.WithProperty("Version", observabilityOptions.Version)
                 .Enrich.With(services.GetRequiredService<FgsLogEnricher>())
                 .Destructure.With<SensitiveDataDestructuringPolicy>()
                 .WriteTo.Console(new RenderedCompactJsonFormatter());
@@ -54,7 +55,7 @@ public static class SerilogHostExtensions
                     source: "csharp",
                     service: serviceName,
                     host: Environment.MachineName,
-                    tags: [$"env:{datadogOptions.Env}", $"version:{datadogOptions.Version}"],
+                    tags: [$"env:{observabilityOptions.Env}", $"version:{observabilityOptions.Version}"],
                     configuration: config,
                     logLevel: LogEventLevel.Information);
             }

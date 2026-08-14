@@ -1,4 +1,4 @@
-using Datadog.Trace;
+using System.Diagnostics;
 using Fgs.Foundation.Correlation;
 using Fgs.MultiTenancy;
 using Fgs.Security.Abstractions;
@@ -47,14 +47,14 @@ public sealed class FgsLogEnricher(IHttpContextAccessor httpContextAccessor) : I
 
     private static void EnrichTrace(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
     {
-        var span = Tracer.Instance?.ActiveScope?.Span;
-        if (span is null)
+        var activity = Activity.Current;
+        if (activity is null)
         {
             return;
         }
 
-        Add(logEvent, propertyFactory, "TraceId", span.TraceId.ToString());
-        Add(logEvent, propertyFactory, "SpanId", span.SpanId.ToString());
+        Add(logEvent, propertyFactory, "TraceId", activity.TraceId.ToString());
+        Add(logEvent, propertyFactory, "SpanId", activity.SpanId.ToString());
     }
 
     private static string? ResolveCorrelationId(HttpContext httpContext)

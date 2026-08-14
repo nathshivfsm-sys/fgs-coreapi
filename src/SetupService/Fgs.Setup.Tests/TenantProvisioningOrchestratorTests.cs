@@ -42,6 +42,7 @@ public sealed class TenantProvisioningOrchestratorTests
 
         var orchestrator = new TenantProvisioningOrchestrator(
             userTenantClient.Object,
+            CreateUserCompanyClientMock().Object,
             fileTenantClient.Object,
             seedingEngine.Object,
             context,
@@ -69,6 +70,7 @@ public sealed class TenantProvisioningOrchestratorTests
 
         var orchestrator = new TenantProvisioningOrchestrator(
             CreateUserTenantClientMock().Object,
+            CreateUserCompanyClientMock().Object,
             CreateFileTenantClientMock().Object,
             seedingEngine.Object,
             context,
@@ -101,6 +103,7 @@ public sealed class TenantProvisioningOrchestratorTests
 
         var orchestrator = new TenantProvisioningOrchestrator(
             userTenantClient.Object,
+            CreateUserCompanyClientMock().Object,
             fileTenantClient.Object,
             seedingEngine.Object,
             context,
@@ -139,10 +142,17 @@ public sealed class TenantProvisioningOrchestratorTests
             .ReturnsAsync(ApiResponse<TenantDto>.Ok(new TenantDto(10, "ACME", "Acme", TenantStatusIds.Pending, null)));
         mock.Setup(c => c.UpdateStatusAsync(10, It.IsAny<UpdateTenantStatusRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ApiResponse<object>.Ok(new object()));
-        mock.Setup(c => c.GetCompaniesAsync(10, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ApiResponse<IReadOnlyList<TenantCompanyDto>>.Ok([new TenantCompanyDto(1, 10, 1, Guid.NewGuid(), "ACME", "Acme", true)]));
         mock.Setup(c => c.UpdateStorageBucketAsync(10, It.IsAny<UpdateTenantStorageBucketRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ApiResponse<object>.Ok(new object()));
+        return mock;
+    }
+
+    private static Mock<IUserCompanyClient> CreateUserCompanyClientMock()
+    {
+        var mock = new Mock<IUserCompanyClient>();
+        mock.Setup(c => c.GetCompaniesAsync(10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponse<IReadOnlyList<TenantCompanyDto>>.Ok(
+                [new TenantCompanyDto(1, 10, 1, Guid.NewGuid(), "ACME", "Acme", true)]));
         return mock;
     }
 

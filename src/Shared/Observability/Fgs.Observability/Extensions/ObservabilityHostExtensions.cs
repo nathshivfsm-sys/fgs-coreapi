@@ -14,43 +14,51 @@ namespace Fgs.Observability.Extensions;
 public static class ObservabilityHostExtensions
 {
     /// <summary>
-    /// Configures shared Serilog (JSON), Datadog APM, DogStatsD metrics, and health checks.
+    /// Configures shared Serilog (JSON), OpenTelemetry traces/metrics (OTLP), and health checks.
+    /// Datadog remains the local/prod log sink and OTLP backend via agent when configured.
     /// </summary>
     public static WebApplicationBuilder AddFgsObservability(
         this WebApplicationBuilder builder,
         string? serviceName = null)
     {
-        var options = builder.Configuration.GetSection(DatadogOptions.SectionName).Get<DatadogOptions>()
-            ?? new DatadogOptions();
+        var (observability, datadog) = ObservabilityOptionsResolver.Resolve(
+            builder.Configuration,
+            serviceName);
 
-        var resolvedServiceName = serviceName
-            ?? options.ServiceName
-            ?? "fgs-service";
+        var resolvedServiceName = observability.ServiceName ?? "fgs-service";
 
-        options.ServiceName = resolvedServiceName;
-        builder.Services.Configure<DatadogOptions>(builder.Configuration.GetSection(DatadogOptions.SectionName));
+        builder.Services.Configure<ObservabilityOptions>(
+            builder.Configuration.GetSection(ObservabilityOptions.SectionName));
+        builder.Services.Configure<DatadogOptions>(
+            builder.Configuration.GetSection(DatadogOptions.SectionName));
+        builder.Services.PostConfigure<ObservabilityOptions>(o => ApplyResolved(o, observability));
         builder.Services.PostConfigure<DatadogOptions>(o =>
         {
-            o.ServiceName ??= resolvedServiceName;
-            if (string.IsNullOrWhiteSpace(o.ServiceName))
+            o.ServiceName = resolvedServiceName;
+            o.Env = observability.Env;
+            o.Version = observability.Version;
+            if (string.IsNullOrWhiteSpace(o.ApiKey))
             {
-                o.ServiceName = resolvedServiceName;
+                o.ApiKey = datadog.ApiKey;
             }
         });
 
-        builder.AddFgsSerilog(resolvedServiceName, options);
-        DatadogTracing.Configure(resolvedServiceName, options);
+        builder.AddFgsSerilog(resolvedServiceName, observability, datadog);
+        builder.Services.AddFgsOpenTelemetry(observability);
 
         builder.Services.AddHealthChecks();
-        builder.Services.TryAddSingleton<IFgsMetrics, NoOpFgsMetrics>();
-        if (options.Enabled && !string.IsNullOrWhiteSpace(options.AgentHost))
+        builder.Services.RemoveAll<IFgsMetrics>();
+        if (observability.Enabled && observability.EnableMetrics)
         {
-            builder.Services.RemoveAll<IFgsMetrics>();
-            builder.Services.AddSingleton<IFgsMetrics, DogStatsDFgsMetrics>();
+            builder.Services.AddSingleton<IFgsMetrics, OpenTelemetryFgsMetrics>();
+        }
+        else
+        {
+            builder.Services.AddSingleton<IFgsMetrics, NoOpFgsMetrics>();
         }
 
         builder.Services.TryAddEnumerable(
-            ServiceDescriptor.Singleton<IStartupFilter, DatadogSpanTagStartupFilter>());
+            ServiceDescriptor.Singleton<IStartupFilter, ActivitySpanTagStartupFilter>());
 
         return builder;
     }
@@ -63,28 +71,47 @@ public static class ObservabilityHostExtensions
         IConfiguration configuration,
         string? serviceName = null)
     {
-        var options = configuration.GetSection(DatadogOptions.SectionName).Get<DatadogOptions>()
-            ?? new DatadogOptions();
+        var (observability, _) = ObservabilityOptionsResolver.Resolve(configuration, serviceName);
 
-        var resolvedServiceName = serviceName
-            ?? options.ServiceName
-            ?? "fgs-service";
-
-        options.ServiceName = resolvedServiceName;
+        services.Configure<ObservabilityOptions>(configuration.GetSection(ObservabilityOptions.SectionName));
         services.Configure<DatadogOptions>(configuration.GetSection(DatadogOptions.SectionName));
-        DatadogTracing.Configure(resolvedServiceName, options);
+        services.PostConfigure<ObservabilityOptions>(o => ApplyResolved(o, observability));
+        services.AddFgsOpenTelemetry(observability);
 
         services.AddHealthChecks();
-        services.TryAddSingleton<IFgsMetrics, NoOpFgsMetrics>();
-        if (options.Enabled && !string.IsNullOrWhiteSpace(options.AgentHost))
+        services.RemoveAll<IFgsMetrics>();
+        if (observability.Enabled && observability.EnableMetrics)
         {
-            services.RemoveAll<IFgsMetrics>();
-            services.AddSingleton<IFgsMetrics, DogStatsDFgsMetrics>();
+            services.AddSingleton<IFgsMetrics, OpenTelemetryFgsMetrics>();
         }
+        else
+        {
+            services.AddSingleton<IFgsMetrics, NoOpFgsMetrics>();
+        }
+
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IStartupFilter, ActivitySpanTagStartupFilter>());
 
         return services;
     }
 
+    public static IApplicationBuilder UseFgsActivitySpanTags(this IApplicationBuilder app) =>
+        app.UseMiddleware<ActivitySpanTagMiddleware>();
+
+    /// <summary>Obsolete alias for <see cref="UseFgsActivitySpanTags"/>.</summary>
+    [Obsolete("Use UseFgsActivitySpanTags instead.")]
     public static IApplicationBuilder UseFgsDatadogSpanTags(this IApplicationBuilder app) =>
-        app.UseMiddleware<DatadogSpanTagMiddleware>();
+        app.UseFgsActivitySpanTags();
+
+    private static void ApplyResolved(ObservabilityOptions target, ObservabilityOptions resolved)
+    {
+        target.ServiceName = resolved.ServiceName;
+        target.Env = resolved.Env;
+        target.Version = resolved.Version;
+        target.Enabled = resolved.Enabled;
+        target.EnableTracing = resolved.EnableTracing;
+        target.EnableMetrics = resolved.EnableMetrics;
+        target.EnableRuntimeMetrics = resolved.EnableRuntimeMetrics;
+        target.OtlpEndpoint = resolved.OtlpEndpoint;
+    }
 }
