@@ -14,12 +14,61 @@ x-service-network: &service-network
     - fgs-private
   restart: unless-stopped
 
+# Testing: Datadog logs-only for setup-service + user-service; off for all other APIs.
+# No agent/OTLP — Serilog ships logs via Datadog Logs API when DD_API_KEY (or credential ApiKey) is set.
+x-datadog-env-on: &datadog-env-on
+  Datadog__Enabled: "true"
+  Datadog__ApiKey: ${DD_API_KEY:-}
+  Datadog__Site: ${DD_SITE:-datadoghq.com}
+  Datadog__AgentHost: ""
+  Datadog__AgentPort: "8126"
+  Datadog__DogStatsDPort: "8125"
+  Datadog__Env: ${DD_ENV:-local}
+  Datadog__Version: ${DD_VERSION:-0.0.0}
+  Datadog__EnableApm: "false"
+  Datadog__EnableRuntimeMetrics: "false"
+  Datadog__EnableLlmObs: "false"
+  Observability__Enabled: "false"
+  Observability__OtlpEndpoint: ""
+  Observability__Env: ${DD_ENV:-local}
+  Observability__Version: ${DD_VERSION:-0.0.0}
+  Observability__EnableTracing: "false"
+  Observability__EnableMetrics: "false"
+  Observability__EnableRuntimeMetrics: "false"
+  DD_LLMOBS_ENABLED: "false"
+
+x-datadog-env-off: &datadog-env-off
+  Datadog__Enabled: "false"
+  Datadog__ApiKey: ""
+  Datadog__Site: ${DD_SITE:-datadoghq.com}
+  Datadog__AgentHost: ""
+  Datadog__AgentPort: "8126"
+  Datadog__DogStatsDPort: "8125"
+  Datadog__Env: ${DD_ENV:-local}
+  Datadog__Version: ${DD_VERSION:-0.0.0}
+  Datadog__EnableApm: "false"
+  Datadog__EnableRuntimeMetrics: "false"
+  Datadog__EnableLlmObs: "false"
+  Observability__Enabled: "false"
+  Observability__OtlpEndpoint: ""
+  Observability__Env: ${DD_ENV:-local}
+  Observability__Version: ${DD_VERSION:-0.0.0}
+  Observability__EnableTracing: "false"
+  Observability__EnableMetrics: "false"
+  Observability__EnableRuntimeMetrics: "false"
+  DD_LLMOBS_ENABLED: "false"
+
+# ASPNETCORE_ENVIRONMENT is set here (orchestration), not in Dockerfiles — same image promotes across envs.
 x-credential-consumer-env: &credential-consumer-env
-  ASPNETCORE_ENVIRONMENT: Production
+  ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
   SetupService__BaseUrl: http://setup-service:5004
   CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+  # Seed Redis for Redis-first credential bootstrap (snapshot published by Setup).
+  Redis__ConnectionString: redis:6379
+  Redis__Enabled: "true"
   # Production disables Swagger unless Enabled=true; without it /swagger/* falls through to JWT fallback (401).
   Swagger__Enabled: "true"
+  <<: *datadog-env-off
 
 x-depends-on-setup: &depends-on-setup
   setup-service:
@@ -72,28 +121,39 @@ services:
       - fgs-private
     restart: unless-stopped
 
-  # Datadog Agent — set DD_API_KEY (match Datadog:ApiKey in appsettings when verifying the UI)
+  # Datadog Agent — optional (profile). Local default is logs-only without this container.
+  # Start with: docker compose --profile datadog-agent up -d datadog-agent
+  # Then point Observability__OtlpEndpoint / Datadog__AgentHost at datadog-agent and set DD_API_KEY.
   datadog-agent:
+    profiles: ["datadog-agent"]
     image: gcr.io/datadoghq/agent:7.64.0
     <<: *service-network
     environment:
       DD_API_KEY: ${DD_API_KEY:-}
       DD_SITE: ${DD_SITE:-datadoghq.com}
+      DD_ENV: ${DD_ENV:-local}
       DD_APM_ENABLED: "true"
       DD_APM_NON_LOCAL_TRAFFIC: "true"
       DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
       DD_LOGS_ENABLED: "false"
       DD_PROCESS_AGENT_ENABLED: "false"
+      DD_LLMOBS_ENABLED: "false"
       DD_HOSTNAME: fgs-local-datadog
+      DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_GRPC_ENDPOINT: "0.0.0.0:4317"
+      DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_HTTP_ENDPOINT: "0.0.0.0:4318"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./logs:/var/log/nginx:ro
     expose:
       - "8126"
       - "8125"
+      - "4317"
+      - "4318"
     ports:
       - "127.0.0.1:8126:8126"
       - "127.0.0.1:8125:8125/udp"
+      - "127.0.0.1:4317:4317"
+      - "127.0.0.1:4318:4318"
 
   # Tier 1 ? credential authority (bootstrap ConnectionStrings:FgsSetup from mounted appsettings)
   setup-service:
@@ -102,7 +162,8 @@ services:
       context: ../..
       dockerfile: src/Gateway/docker/setup-service.Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      <<: *datadog-env-on
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/setup
@@ -161,6 +222,19 @@ services:
       dockerfile: src/Gateway/docker/user-service.Dockerfile
     environment:
       <<: *credential-consumer-env
+      # Override shared off defaults — Datadog logs-only for user-service (with setup-service).
+      Datadog__Enabled: "true"
+      Datadog__ApiKey: ${DD_API_KEY:-}
+      Datadog__AgentHost: ""
+      Datadog__EnableApm: "false"
+      Datadog__EnableRuntimeMetrics: "false"
+      Datadog__EnableLlmObs: "false"
+      Observability__Enabled: "false"
+      Observability__OtlpEndpoint: ""
+      Observability__EnableTracing: "false"
+      Observability__EnableMetrics: "false"
+      Observability__EnableRuntimeMetrics: "false"
+      DD_LLMOBS_ENABLED: "false"
       Swagger__RoutePrefix: swagger/user
       CredentialConsumer__ServiceName: fgs-user-service
       CredentialConsumer__RequiredProviders__0: DATABASE

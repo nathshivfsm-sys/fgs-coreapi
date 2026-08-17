@@ -48,7 +48,7 @@ public static class DependencyInjection
             "UserService:BaseUrl",
             "http://user-service:5001");
 
-        services.AddDbContext<FgsFileDbContext>((sp, options) =>
+        services.AddFgsDbContext<FgsFileDbContext>((sp, options) =>
         {
             var connectionString = ConnectionStringResolver.ResolveRequired(
                 sp.GetRequiredService<IConfiguration>(),

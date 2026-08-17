@@ -149,6 +149,7 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
                 FROM {JobTypeCategorySql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "JobTypeId" = @JobTypeId AND "JobCategoryId" = @JobCategoryId
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

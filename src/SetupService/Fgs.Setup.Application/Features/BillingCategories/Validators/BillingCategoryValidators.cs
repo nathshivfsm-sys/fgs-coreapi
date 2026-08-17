@@ -64,14 +64,14 @@ public sealed class PatchBillingCategoryCommandValidator : AbstractValidator<Pat
     public PatchBillingCategoryCommandValidator(IBillingCategoryReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.BillingCategoryType).NotEmpty();
-        RuleFor(x => x.Dto.BillingCategoryType).MaximumLength(2);
-        RuleFor(x => x.Dto.BillingCategoryType).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("BillingCategoryType must be uppercase.");
+        RuleFor(x => x.Dto.BillingCategoryType).NotEmpty().When(x => x.Dto.BillingCategoryType is not null);
+        RuleFor(x => x.Dto.BillingCategoryType).MaximumLength(2).When(x => x.Dto.BillingCategoryType is not null);
+        RuleFor(x => x.Dto.BillingCategoryType).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("BillingCategoryType must be uppercase.").When(x => x.Dto.BillingCategoryType is not null);
         RuleFor(x => x.Dto).MustAsync(async (command, dto, cancellationToken) =>
                 !await readRepository.ExistsByBillingCategoryTypeAndBillingCategoryNameAsync(dto.BillingCategoryType!, dto.BillingCategoryName!, command.Id, cancellationToken))
-            .WithMessage("A billing category with this combination already exists.");
-        RuleFor(x => x.Dto.BillingCategoryName).NotEmpty();
-        RuleFor(x => x.Dto.BillingCategoryName).MaximumLength(100);
+            .WithMessage("A billing category with this combination already exists.").When(x => x.Dto.BillingCategoryType is not null && x.Dto.BillingCategoryName is not null);
+        RuleFor(x => x.Dto.BillingCategoryName).NotEmpty().When(x => x.Dto.BillingCategoryName is not null);
+        RuleFor(x => x.Dto.BillingCategoryName).MaximumLength(100).When(x => x.Dto.BillingCategoryName is not null);
 
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
 

@@ -1509,6 +1509,76 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsNonWorkingDate", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Primary key identity of the non-working date record.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company identifier within the tenant owning this non-working date.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User identifier that created the non-working date record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time the non-working date record was created.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the non-working date is active and should be considered when determining business availability and scheduling.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Name identifying the non-working date, such as New Year's Day, Thanksgiving, Company Holiday, or Emergency Closure.");
+
+                    b.Property<DateOnly>("NonWorkingDate")
+                        .HasColumnType("date")
+                        .HasComment("Calendar date on which the company does not operate under its normal working schedule.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant identifier owning this non-working date.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User identifier that last updated the non-working date record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the non-working date record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "NonWorkingDate")
+                        .HasName("UQ_FgsNonWorkingDate_TenantId_CompanyId_NonWorkingDate");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsNonWorkingDate_TenantId_CompanyId_IsActive");
+
+                    b.ToTable("FgsNonWorkingDate", "setup", t =>
+                        {
+                            t.HasComment("Stores tenant/company specific calendar dates on which normal business operations are not scheduled.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsPriceBook", b =>
                 {
                     b.Property<long>("Id")
@@ -8592,6 +8662,16 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsLeadStatus_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsNonWorkingDate", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsNonWorkingDate_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsPriceBook", b =>

@@ -14,6 +14,10 @@ public sealed record FgsRoleDataAccessDetailDto(
     DateTimeOffset CreatedOn,
     string CreatedBy);
 
-public sealed record FgsRoleDataAccessCreateDto(long FgsRoleId, long FgsDataAccessId);
+/// <summary>
+/// Sync payload: the role's data-access set becomes exactly <see cref="FgsDataAccessIds"/>.
+/// Missing IDs are added, matching IDs are kept, DB rows not in the list are removed.
+/// Empty list clears all data-access assignments for the role.
+/// </summary>
+public sealed record FgsRoleDataAccessSyncDto(long FgsRoleId, IReadOnlyList<long> FgsDataAccessIds);
 
-public sealed record FgsRoleDataAccessListFilters(long? FgsRoleId = null, long? FgsDataAccessId = null);

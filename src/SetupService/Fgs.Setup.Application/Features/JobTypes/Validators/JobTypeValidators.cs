@@ -64,18 +64,18 @@ public sealed class PatchJobTypeCommandValidator : AbstractValidator<PatchJobTyp
     public PatchJobTypeCommandValidator(IJobTypeReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.JobTypeCode).NotEmpty();
-        RuleFor(x => x.Dto.JobTypeCode).MaximumLength(50);
-        RuleFor(x => x.Dto.JobTypeCode).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("JobTypeCode must be uppercase.");
+        RuleFor(x => x.Dto.JobTypeCode).NotEmpty().When(x => x.Dto.JobTypeCode is not null);
+        RuleFor(x => x.Dto.JobTypeCode).MaximumLength(50).When(x => x.Dto.JobTypeCode is not null);
+        RuleFor(x => x.Dto.JobTypeCode).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("JobTypeCode must be uppercase.").When(x => x.Dto.JobTypeCode is not null);
         RuleFor(x => x.Dto.JobTypeCode).MustAsync(async (command, code, cancellationToken) =>
                 !await readRepository.ExistsByJobTypeCodeAsync(code!, command.Id, cancellationToken))
-            .WithMessage("A job type with this code already exists.");
-        RuleFor(x => x.Dto.Name).NotEmpty();
-        RuleFor(x => x.Dto.Name).MaximumLength(200);
+            .WithMessage("A job type with this code already exists.").When(x => x.Dto.JobTypeCode is not null);
+        RuleFor(x => x.Dto.Name).NotEmpty().When(x => x.Dto.Name is not null);
+        RuleFor(x => x.Dto.Name).MaximumLength(200).When(x => x.Dto.Name is not null);
         RuleFor(x => x.Dto.Name).MustAsync(async (command, name, cancellationToken) =>
                 !await readRepository.ExistsByNameAsync(name!, command.Id, cancellationToken))
-            .WithMessage("An active job type with this name already exists.");
-        RuleFor(x => x.Dto.UsedFor).GreaterThanOrEqualTo((short)1);
+            .WithMessage("An active job type with this name already exists.").When(x => x.Dto.Name is not null);
+        RuleFor(x => x.Dto.UsedFor).GreaterThanOrEqualTo((short)1).When(x => x.Dto.UsedFor.HasValue);
         RuleFor(x => x.Dto.BusinessUnit).MaximumLength(100).When(x => x.Dto.BusinessUnit is not null);
         RuleFor(x => x.Dto.BackgroundColor).MaximumLength(20).When(x => x.Dto.BackgroundColor is not null);
         RuleFor(x => x.Dto.TextColor).MaximumLength(20).When(x => x.Dto.TextColor is not null);

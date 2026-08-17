@@ -31,8 +31,6 @@ public sealed class FgsInventoryItemWriteService : IFgsInventoryItemWriteService
         var entity = MapCreateEntity(dto);
         _auditHelper.StampForCreate(entity);
         await _context.FgsInventoryItems.AddAsync(entity, cancellationToken);
-        await SyncAlternatesAsync(entity, dto.Alternates ?? [], cancellationToken);
-        await SyncDependenciesAsync(entity, dto.Dependencies ?? [], cancellationToken);
         await SaveChangesAsync(cancellationToken);
         return MapToDetail(entity);
     }
@@ -47,8 +45,6 @@ public sealed class FgsInventoryItemWriteService : IFgsInventoryItemWriteService
 
         ApplyUpdate(entity, dto);
         _auditHelper.StampForUpdate(entity);
-        await SyncAlternatesAsync(entity, dto.Alternates ?? [], cancellationToken);
-        await SyncDependenciesAsync(entity, dto.Dependencies ?? [], cancellationToken);
         await SaveChangesAsync(cancellationToken);
         return MapToDetail(entity);
     }
@@ -58,94 +54,13 @@ public sealed class FgsInventoryItemWriteService : IFgsInventoryItemWriteService
         FgsInventoryItemPatchDto dto,
         CancellationToken cancellationToken = default)
     {
-        var includeChildren = dto.Alternates is not null || dto.Dependencies is not null;
-        var entity = await FindEntityAsync(id, includeChildren, cancellationToken)
+        var entity = await FindEntityAsync(id, includeChildren: true, cancellationToken)
             ?? throw new KeyNotFoundException($"Inventory item '{id}' was not found.");
 
         ApplyPatch(entity, dto);
         _auditHelper.StampForUpdate(entity);
-
-        if (dto.Alternates is not null)
-        {
-            await SyncAlternatesAsync(entity, dto.Alternates, cancellationToken);
-        }
-
-        if (dto.Dependencies is not null)
-        {
-            await SyncDependenciesAsync(entity, dto.Dependencies, cancellationToken);
-        }
-
         await SaveChangesAsync(cancellationToken);
-
-        if (dto.Alternates is null)
-        {
-            await _context.Entry(entity).Collection(e => e.Alternates).LoadAsync(cancellationToken);
-        }
-
-        if (dto.Dependencies is null)
-        {
-            await _context.Entry(entity).Collection(e => e.Dependencies).LoadAsync(cancellationToken);
-        }
-
         return MapToDetail(entity);
-    }
-
-    private async Task SyncAlternatesAsync(
-        FgsInventoryItem item,
-        IReadOnlyList<FgsInventoryItemAlternateDto> alternates,
-        CancellationToken cancellationToken)
-    {
-        if (!_context.Entry(item).Collection(i => i.Alternates).IsLoaded && item.Id != 0)
-        {
-            await _context.Entry(item).Collection(i => i.Alternates).LoadAsync(cancellationToken);
-        }
-
-        InventoryChildCollectionSync.Sync(
-            _context,
-            item.Alternates,
-            alternates,
-            dto => dto.Id,
-            _ => new FgsInventoryItemAlternate { InventoryItemId = item.Id },
-            (entity, dto, _) =>
-            {
-                entity.AlternateInventoryItemId = dto.AlternateInventoryItemId;
-                entity.PriorityOrder = dto.PriorityOrder;
-                entity.Notes = TrimOrNull(dto.Notes);
-                entity.IsActive = dto.IsActive;
-            },
-            entity => _auditHelper.StampForCreate(entity, entity),
-            _auditHelper.StampForUpdate,
-            $"Inventory item alternate '{{0}}' was not found on inventory item '{item.Id}'.");
-    }
-
-    private async Task SyncDependenciesAsync(
-        FgsInventoryItem item,
-        IReadOnlyList<FgsInventoryItemDependencyDto> dependencies,
-        CancellationToken cancellationToken)
-    {
-        if (!_context.Entry(item).Collection(i => i.Dependencies).IsLoaded && item.Id != 0)
-        {
-            await _context.Entry(item).Collection(i => i.Dependencies).LoadAsync(cancellationToken);
-        }
-
-        InventoryChildCollectionSync.Sync(
-            _context,
-            item.Dependencies,
-            dependencies,
-            dto => dto.Id,
-            _ => new FgsInventoryItemDependency { InventoryItemId = item.Id },
-            (entity, dto, _) =>
-            {
-                entity.DependentInventoryItemId = dto.DependentInventoryItemId;
-                entity.Quantity = dto.Quantity;
-                entity.IsRequired = dto.IsRequired;
-                entity.Notes = TrimOrNull(dto.Notes);
-                entity.DisplayOrder = dto.DisplayOrder;
-                entity.IsActive = dto.IsActive;
-            },
-            entity => _auditHelper.StampForCreate(entity, entity),
-            _auditHelper.StampForUpdate,
-            $"Inventory item dependency '{{0}}' was not found on inventory item '{item.Id}'.");
     }
 
     private async Task<FgsInventoryItem?> FindEntityAsync(
@@ -172,23 +87,6 @@ public sealed class FgsInventoryItemWriteService : IFgsInventoryItemWriteService
         }
         catch (DbUpdateException ex) when (IsUniqueViolation(ex))
         {
-            var message = ex.InnerException?.Message ?? string.Empty;
-            if (message.Contains("AlternateInventoryItemId", StringComparison.OrdinalIgnoreCase)
-                || message.Contains("FgsInventoryItemAlternate", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidOperationException(
-                    "This alternate inventory item is already linked to the inventory item.",
-                    ex);
-            }
-
-            if (message.Contains("DependentInventoryItemId", StringComparison.OrdinalIgnoreCase)
-                || message.Contains("FgsInventoryItemDependency", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidOperationException(
-                    "This dependent inventory item is already linked to the inventory item.",
-                    ex);
-            }
-
             throw new InvalidOperationException(
                 "An inventory item with the same code already exists.",
                 ex);

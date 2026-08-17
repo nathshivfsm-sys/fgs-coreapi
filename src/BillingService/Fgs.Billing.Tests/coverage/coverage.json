@@ -1,0 +1,1741 @@
+{
+  "Fgs.Billing.Application.dll": {
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\DependencyInjection.cs": {
+      "Fgs.Billing.Application.DependencyInjection": {
+        "Microsoft.Extensions.DependencyInjection.IServiceCollection Fgs.Billing.Application.DependencyInjection::AddFgsBillingApplication(Microsoft.Extensions.DependencyInjection.IServiceCollection)": {
+          "Lines": {
+            "10": 1,
+            "11": 1,
+            "12": 1,
+            "13": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Features\\Invoices\\Validators\\FgsInvoiceValidators.cs": {
+      "Fgs.Billing.Application.Features.Invoices.Validators.CreateFgsInvoiceCommandValidator": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Validators.CreateFgsInvoiceCommandValidator::.ctor(Fgs.Billing.Application.Abstractions.Invoices.IFgsInvoiceReadRepository)": {
+          "Lines": {
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 2,
+            "15": 2,
+            "16": 2,
+            "18": 4,
+            "19": 2,
+            "20": 2,
+            "21": 2,
+            "22": 2,
+            "23": 2,
+            "24": 2,
+            "25": 2,
+            "26": 2,
+            "27": 2,
+            "28": 2,
+            "29": 2,
+            "30": 2,
+            "31": 2,
+            "32": 2,
+            "33": 2,
+            "34": 2,
+            "35": 2,
+            "36": 2,
+            "37": 2,
+            "38": 2,
+            "39": 2,
+            "40": 4,
+            "41": 2
+          },
+          "Branches": [
+            {
+              "Line": 24,
+              "Offset": 332,
+              "EndOffset": 334,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 2
+            },
+            {
+              "Line": 24,
+              "Offset": 332,
+              "EndOffset": 356,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 2
+            }
+          ]
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Validators.UpdateFgsInvoiceCommandValidator": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Validators.UpdateFgsInvoiceCommandValidator::.ctor(Fgs.Billing.Application.Abstractions.Invoices.IFgsInvoiceReadRepository)": {
+          "Lines": {
+            "46": 1,
+            "47": 1,
+            "48": 1,
+            "49": 1,
+            "50": 1,
+            "51": 1,
+            "52": 1,
+            "54": 2,
+            "55": 1,
+            "56": 1,
+            "57": 1,
+            "58": 1,
+            "59": 1,
+            "60": 1,
+            "61": 1,
+            "62": 1,
+            "63": 1,
+            "64": 1,
+            "65": 1,
+            "66": 1,
+            "67": 1,
+            "68": 1,
+            "69": 1,
+            "70": 1,
+            "71": 1,
+            "72": 1,
+            "73": 1,
+            "74": 1,
+            "75": 1,
+            "76": 2,
+            "77": 1
+          },
+          "Branches": [
+            {
+              "Line": 60,
+              "Offset": 332,
+              "EndOffset": 334,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 60,
+              "Offset": 332,
+              "EndOffset": 356,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 1
+            }
+          ]
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Validators.PatchFgsInvoiceCommandValidator": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Validators.PatchFgsInvoiceCommandValidator::.ctor(Fgs.Billing.Application.Abstractions.Invoices.IFgsInvoiceReadRepository)": {
+          "Lines": {
+            "82": 0,
+            "83": 0,
+            "84": 0,
+            "85": 0,
+            "86": 0,
+            "87": 0,
+            "88": 0,
+            "90": 0,
+            "91": 0,
+            "92": 0,
+            "93": 0,
+            "94": 0,
+            "95": 0,
+            "96": 0,
+            "97": 0,
+            "98": 0,
+            "99": 0,
+            "100": 0,
+            "101": 0,
+            "102": 0,
+            "103": 0,
+            "104": 0,
+            "105": 0,
+            "106": 0,
+            "107": 0,
+            "108": 0,
+            "109": 0,
+            "110": 0,
+            "111": 0,
+            "112": 0,
+            "113": 0,
+            "114": 0,
+            "115": 0
+          },
+          "Branches": [
+            {
+              "Line": 97,
+              "Offset": 406,
+              "EndOffset": 408,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 97,
+              "Offset": 406,
+              "EndOffset": 430,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Features\\Invoices\\Queries\\LookupFgsInvoices\\LookupFgsInvoicesQuery.cs": {
+      "Fgs.Billing.Application.Features.Invoices.Queries.LookupFgsInvoices.LookupFgsInvoicesQuery": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Queries.LookupFgsInvoices.LookupFgsInvoicesQuery::.ctor()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Features\\Invoices\\Queries\\LookupFgsInvoices\\LookupFgsInvoicesQueryHandler.cs": {
+      "Fgs.Billing.Application.Features.Invoices.Queries.LookupFgsInvoices.LookupFgsInvoicesQueryHandler": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Queries.LookupFgsInvoices.LookupFgsInvoicesQueryHandler::.ctor(Fgs.Billing.Application.Abstractions.Invoices.IFgsInvoiceReadRepository,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Queries.LookupFgsInvoices.LookupFgsInvoicesQueryHandler/<>c__DisplayClass4_0": {
+        "System.Threading.Tasks.Task`1<System.Collections.Generic.IReadOnlyList`1<Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLookupDto>> Fgs.Billing.Application.Features.Invoices.Queries.LookupFgsInvoices.LookupFgsInvoicesQueryHandler/<>c__DisplayClass4_0::<Handle>b__0()": {
+          "Lines": {
+            "30": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Queries.LookupFgsInvoices.LookupFgsInvoicesQueryHandler/<Handle>d__4": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Queries.LookupFgsInvoices.LookupFgsInvoicesQueryHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "28": 0,
+            "29": 0,
+            "31": 0,
+            "33": 0,
+            "34": 0
+          },
+          "Branches": [
+            {
+              "Line": 33,
+              "Offset": 312,
+              "EndOffset": 314,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 33,
+              "Offset": 312,
+              "EndOffset": 320,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Features\\Invoices\\Queries\\ListFgsInvoices\\ListFgsInvoicesQuery.cs": {
+      "Fgs.Billing.Application.Features.Invoices.Queries.ListFgsInvoices.ListFgsInvoicesQuery": {
+        "Fgs.Billing.Application.Common.BillingCrud.BillingListQuery Fgs.Billing.Application.Features.Invoices.Queries.ListFgsInvoices.ListFgsInvoicesQuery::get_Query()": {
+          "Lines": {
+            "10": 1
+          },
+          "Branches": []
+        },
+        "Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceListFilters Fgs.Billing.Application.Features.Invoices.Queries.ListFgsInvoices.ListFgsInvoicesQuery::get_Filters()": {
+          "Lines": {
+            "11": 2
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Billing.Application.Features.Invoices.Queries.ListFgsInvoices.ListFgsInvoicesQuery::.ctor(Fgs.Billing.Application.Common.BillingCrud.BillingListQuery,Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceListFilters)": {
+          "Lines": {
+            "9": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Features\\Invoices\\Queries\\ListFgsInvoices\\ListFgsInvoicesQueryHandler.cs": {
+      "Fgs.Billing.Application.Features.Invoices.Queries.ListFgsInvoices.ListFgsInvoicesQueryHandler": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Queries.ListFgsInvoices.ListFgsInvoicesQueryHandler::.ctor(Fgs.Billing.Application.Abstractions.Invoices.IFgsInvoiceReadRepository)": {
+          "Lines": {
+            "9": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Queries.ListFgsInvoices.ListFgsInvoicesQueryHandler/<Handle>d__2": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Queries.ListFgsInvoices.ListFgsInvoicesQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "15": 1,
+            "16": 1,
+            "17": 1,
+            "18": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Features\\Invoices\\Queries\\GetFgsInvoiceById\\GetFgsInvoiceByIdQuery.cs": {
+      "Fgs.Billing.Application.Features.Invoices.Queries.GetFgsInvoiceById.GetFgsInvoiceByIdQuery": {
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Queries.GetFgsInvoiceById.GetFgsInvoiceByIdQuery::get_Id()": {
+          "Lines": {
+            "7": 7
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Features\\Invoices\\Queries\\GetFgsInvoiceById\\GetFgsInvoiceByIdQueryHandler.cs": {
+      "Fgs.Billing.Application.Features.Invoices.Queries.GetFgsInvoiceById.GetFgsInvoiceByIdQueryHandler": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Queries.GetFgsInvoiceById.GetFgsInvoiceByIdQueryHandler::.ctor(Fgs.Billing.Application.Abstractions.Invoices.IFgsInvoiceReadRepository,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor)": {
+          "Lines": {
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Queries.GetFgsInvoiceById.GetFgsInvoiceByIdQueryHandler/<Handle>d__4": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Queries.GetFgsInvoiceById.GetFgsInvoiceByIdQueryHandler/<Handle>d__4::MoveNext()": {
+          "Lines": {
+            "20": 2,
+            "21": 2,
+            "22": 2,
+            "23": 2,
+            "24": 2,
+            "25": 2,
+            "26": 2,
+            "28": 2,
+            "29": 2,
+            "30": 0,
+            "31": 0,
+            "34": 2,
+            "35": 2,
+            "36": 1,
+            "37": 1,
+            "38": 1,
+            "39": 1,
+            "42": 1,
+            "43": 1,
+            "44": 2
+          },
+          "Branches": [
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 280,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 29,
+              "Offset": 278,
+              "EndOffset": 303,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 2
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 469,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 35,
+              "Offset": 467,
+              "EndOffset": 553,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 1
+            }
+          ]
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Features\\Invoices\\Dtos\\FgsInvoiceDtos.cs": {
+      "Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceSummaryDto": {
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceSummaryDto::get_Id()": {
+          "Lines": {
+            "4": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceSummaryDto::get_InvoiceNumber()": {
+          "Lines": {
+            "5": 0
+          },
+          "Branches": []
+        },
+        "System.Int16 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceSummaryDto::get_InvoiceTypeId()": {
+          "Lines": {
+            "6": 0
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceSummaryDto::get_CustomerId()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceSummaryDto::get_ServiceLocationId()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        },
+        "System.DateOnly Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceSummaryDto::get_InvoiceDate()": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceSummaryDto::get_DueDate()": {
+          "Lines": {
+            "10": 0
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceSummaryDto::get_InvoiceTotal()": {
+          "Lines": {
+            "11": 0
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceSummaryDto::get_BalanceDue()": {
+          "Lines": {
+            "12": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceSummaryDto::get_IsApproved()": {
+          "Lines": {
+            "13": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceSummaryDto::get_IsPosted()": {
+          "Lines": {
+            "14": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceSummaryDto::.ctor(System.Int64,System.String,System.Int16,System.Int64,System.Int64,System.DateOnly,System.Nullable`1<System.DateOnly>,System.Decimal,System.Decimal,System.Boolean,System.Boolean)": {
+          "Lines": {
+            "3": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLineDto": {
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLineDto::get_Id()": {
+          "Lines": {
+            "17": 0
+          },
+          "Branches": []
+        },
+        "System.Int32 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLineDto::get_LineNumber()": {
+          "Lines": {
+            "18": 0
+          },
+          "Branches": []
+        },
+        "System.Int32 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLineDto::get_BillingCategoryId()": {
+          "Lines": {
+            "19": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLineDto::get_ItemCode()": {
+          "Lines": {
+            "20": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLineDto::get_ItemDescription()": {
+          "Lines": {
+            "21": 0
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLineDto::get_Quantity()": {
+          "Lines": {
+            "22": 0
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLineDto::get_UnitPrice()": {
+          "Lines": {
+            "23": 0
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLineDto::get_ExtendedPrice()": {
+          "Lines": {
+            "24": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLineDto::get_IsTaxable()": {
+          "Lines": {
+            "25": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLineDto::.ctor(System.Int64,System.Int32,System.Int32,System.String,System.String,System.Decimal,System.Decimal,System.Decimal,System.Boolean)": {
+          "Lines": {
+            "16": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto": {
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_Id()": {
+          "Lines": {
+            "28": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_InvoiceNumber()": {
+          "Lines": {
+            "29": 2
+          },
+          "Branches": []
+        },
+        "System.Int16 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_InvoiceTypeId()": {
+          "Lines": {
+            "30": 0
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_CustomerId()": {
+          "Lines": {
+            "31": 1
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_ServiceLocationId()": {
+          "Lines": {
+            "32": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_WorkOrderId()": {
+          "Lines": {
+            "33": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_ProjectId()": {
+          "Lines": {
+            "34": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_ServiceAgreementId()": {
+          "Lines": {
+            "35": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_MaintenanceVisitId()": {
+          "Lines": {
+            "36": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_ServiceJobNum()": {
+          "Lines": {
+            "37": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_IsAgreementBilling()": {
+          "Lines": {
+            "38": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_IsRecurringInvoice()": {
+          "Lines": {
+            "39": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_RecurringScheduleId()": {
+          "Lines": {
+            "40": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_WorkOrderNumber()": {
+          "Lines": {
+            "41": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_JobTypeId()": {
+          "Lines": {
+            "42": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_LeadEmployeeId()": {
+          "Lines": {
+            "43": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_CustomerPONumber()": {
+          "Lines": {
+            "44": 0
+          },
+          "Branches": []
+        },
+        "System.DateOnly Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_InvoiceDate()": {
+          "Lines": {
+            "45": 0
+          },
+          "Branches": []
+        },
+        "System.DateOnly Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_AccountingDate()": {
+          "Lines": {
+            "46": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_DueDate()": {
+          "Lines": {
+            "47": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_NetTermId()": {
+          "Lines": {
+            "48": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_PreferredPaymentMethodId()": {
+          "Lines": {
+            "49": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_LaborPricingMatrixId()": {
+          "Lines": {
+            "50": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_MaterialPricingMatrixId()": {
+          "Lines": {
+            "51": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_OtherPricingMatrixId()": {
+          "Lines": {
+            "52": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_GLBreak1Id()": {
+          "Lines": {
+            "53": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_GLBreak2Id()": {
+          "Lines": {
+            "54": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_TaxingAuthorityJson()": {
+          "Lines": {
+            "55": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_BillToAddressJson()": {
+          "Lines": {
+            "56": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_ServiceLocationAddressJson()": {
+          "Lines": {
+            "57": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_CompanyAddressJson()": {
+          "Lines": {
+            "58": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_InvoiceTemplateId()": {
+          "Lines": {
+            "59": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_IsSigned()": {
+          "Lines": {
+            "60": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateTime> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_SignedOn()": {
+          "Lines": {
+            "61": 0
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_InvoiceSubtotal()": {
+          "Lines": {
+            "62": 0
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_TotalDiscount()": {
+          "Lines": {
+            "63": 0
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_TaxableAmount()": {
+          "Lines": {
+            "64": 0
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_TotalTax()": {
+          "Lines": {
+            "65": 0
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_InvoiceTotal()": {
+          "Lines": {
+            "66": 0
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_AppliedAmount()": {
+          "Lines": {
+            "67": 0
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_BalanceDue()": {
+          "Lines": {
+            "68": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_IsApproved()": {
+          "Lines": {
+            "69": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_ApprovedBy()": {
+          "Lines": {
+            "70": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateTime> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_ApprovedOn()": {
+          "Lines": {
+            "71": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_IsPosted()": {
+          "Lines": {
+            "72": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_PostedBy()": {
+          "Lines": {
+            "73": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateTime> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_PostedOn()": {
+          "Lines": {
+            "74": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_InvoiceBatchId()": {
+          "Lines": {
+            "75": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_ExternalAccountingId()": {
+          "Lines": {
+            "76": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_ExternalAccountingSyncToken()": {
+          "Lines": {
+            "77": 0
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.IReadOnlyList`1<Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLineDto> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::get_Lines()": {
+          "Lines": {
+            "78": 2
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceDetailDto::.ctor(System.Int64,System.String,System.Int16,System.Int64,System.Int64,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.String,System.Boolean,System.Boolean,System.Nullable`1<System.Int64>,System.String,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int64>,System.String,System.DateOnly,System.DateOnly,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int32>,System.String,System.String,System.String,System.String,System.Nullable`1<System.Int64>,System.Boolean,System.Nullable`1<System.DateTime>,System.Decimal,System.Decimal,System.Decimal,System.Decimal,System.Decimal,System.Decimal,System.Decimal,System.Boolean,System.Nullable`1<System.Int64>,System.Nullable`1<System.DateTime>,System.Boolean,System.Nullable`1<System.Int64>,System.Nullable`1<System.DateTime>,System.Nullable`1<System.Int64>,System.String,System.String,System.Collections.Generic.IReadOnlyList`1<Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLineDto>)": {
+          "Lines": {
+            "27": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLookupDto": {
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLookupDto::get_Id()": {
+          "Lines": {
+            "81": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLookupDto::get_InvoiceNumber()": {
+          "Lines": {
+            "82": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceLookupDto::.ctor(System.Int64,System.String)": {
+          "Lines": {
+            "80": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto": {
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_InvoiceNumber()": {
+          "Lines": {
+            "85": 8
+          },
+          "Branches": []
+        },
+        "System.Int16 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_InvoiceTypeId()": {
+          "Lines": {
+            "86": 3
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_CustomerId()": {
+          "Lines": {
+            "87": 3
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_ServiceLocationId()": {
+          "Lines": {
+            "88": 3
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_WorkOrderId()": {
+          "Lines": {
+            "89": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_ProjectId()": {
+          "Lines": {
+            "90": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_ServiceAgreementId()": {
+          "Lines": {
+            "91": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_MaintenanceVisitId()": {
+          "Lines": {
+            "92": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_ServiceJobNum()": {
+          "Lines": {
+            "93": 3
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_IsAgreementBilling()": {
+          "Lines": {
+            "94": 1
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_IsRecurringInvoice()": {
+          "Lines": {
+            "95": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_RecurringScheduleId()": {
+          "Lines": {
+            "96": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_WorkOrderNumber()": {
+          "Lines": {
+            "97": 3
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_JobTypeId()": {
+          "Lines": {
+            "98": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_LeadEmployeeId()": {
+          "Lines": {
+            "99": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_CustomerPONumber()": {
+          "Lines": {
+            "100": 3
+          },
+          "Branches": []
+        },
+        "System.DateOnly Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_InvoiceDate()": {
+          "Lines": {
+            "101": 1
+          },
+          "Branches": []
+        },
+        "System.DateOnly Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_AccountingDate()": {
+          "Lines": {
+            "102": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_DueDate()": {
+          "Lines": {
+            "103": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_NetTermId()": {
+          "Lines": {
+            "104": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_PreferredPaymentMethodId()": {
+          "Lines": {
+            "105": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_LaborPricingMatrixId()": {
+          "Lines": {
+            "106": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_MaterialPricingMatrixId()": {
+          "Lines": {
+            "107": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_OtherPricingMatrixId()": {
+          "Lines": {
+            "108": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_GLBreak1Id()": {
+          "Lines": {
+            "109": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_GLBreak2Id()": {
+          "Lines": {
+            "110": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_TaxingAuthorityJson()": {
+          "Lines": {
+            "111": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_BillToAddressJson()": {
+          "Lines": {
+            "112": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_ServiceLocationAddressJson()": {
+          "Lines": {
+            "113": 1
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_CompanyAddressJson()": {
+          "Lines": {
+            "114": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_InvoiceTemplateId()": {
+          "Lines": {
+            "115": 1
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_InvoiceSubtotal()": {
+          "Lines": {
+            "116": 3
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_TotalDiscount()": {
+          "Lines": {
+            "117": 3
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_TaxableAmount()": {
+          "Lines": {
+            "118": 3
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_TotalTax()": {
+          "Lines": {
+            "119": 3
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_InvoiceTotal()": {
+          "Lines": {
+            "120": 3
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::get_BalanceDue()": {
+          "Lines": {
+            "121": 6
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto::.ctor(System.String,System.Int16,System.Int64,System.Int64,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.String,System.Boolean,System.Boolean,System.Nullable`1<System.Int64>,System.String,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int64>,System.String,System.DateOnly,System.DateOnly,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int32>,System.String,System.String,System.String,System.String,System.Nullable`1<System.Int64>,System.Decimal,System.Decimal,System.Decimal,System.Decimal,System.Decimal,System.Decimal)": {
+          "Lines": {
+            "84": 3
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto": {
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_InvoiceNumber()": {
+          "Lines": {
+            "124": 3
+          },
+          "Branches": []
+        },
+        "System.Int16 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_InvoiceTypeId()": {
+          "Lines": {
+            "125": 1
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_CustomerId()": {
+          "Lines": {
+            "126": 1
+          },
+          "Branches": []
+        },
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_ServiceLocationId()": {
+          "Lines": {
+            "127": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_WorkOrderId()": {
+          "Lines": {
+            "128": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_ProjectId()": {
+          "Lines": {
+            "129": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_ServiceAgreementId()": {
+          "Lines": {
+            "130": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_MaintenanceVisitId()": {
+          "Lines": {
+            "131": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_ServiceJobNum()": {
+          "Lines": {
+            "132": 1
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_IsAgreementBilling()": {
+          "Lines": {
+            "133": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_IsRecurringInvoice()": {
+          "Lines": {
+            "134": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_RecurringScheduleId()": {
+          "Lines": {
+            "135": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_WorkOrderNumber()": {
+          "Lines": {
+            "136": 1
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_JobTypeId()": {
+          "Lines": {
+            "137": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_LeadEmployeeId()": {
+          "Lines": {
+            "138": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_CustomerPONumber()": {
+          "Lines": {
+            "139": 1
+          },
+          "Branches": []
+        },
+        "System.DateOnly Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_InvoiceDate()": {
+          "Lines": {
+            "140": 0
+          },
+          "Branches": []
+        },
+        "System.DateOnly Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_AccountingDate()": {
+          "Lines": {
+            "141": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_DueDate()": {
+          "Lines": {
+            "142": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_NetTermId()": {
+          "Lines": {
+            "143": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_PreferredPaymentMethodId()": {
+          "Lines": {
+            "144": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_LaborPricingMatrixId()": {
+          "Lines": {
+            "145": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_MaterialPricingMatrixId()": {
+          "Lines": {
+            "146": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_OtherPricingMatrixId()": {
+          "Lines": {
+            "147": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_GLBreak1Id()": {
+          "Lines": {
+            "148": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_GLBreak2Id()": {
+          "Lines": {
+            "149": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_TaxingAuthorityJson()": {
+          "Lines": {
+            "150": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_BillToAddressJson()": {
+          "Lines": {
+            "151": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_ServiceLocationAddressJson()": {
+          "Lines": {
+            "152": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_CompanyAddressJson()": {
+          "Lines": {
+            "153": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_InvoiceTemplateId()": {
+          "Lines": {
+            "154": 0
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_InvoiceSubtotal()": {
+          "Lines": {
+            "155": 1
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_TotalDiscount()": {
+          "Lines": {
+            "156": 1
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_TaxableAmount()": {
+          "Lines": {
+            "157": 1
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_TotalTax()": {
+          "Lines": {
+            "158": 1
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_InvoiceTotal()": {
+          "Lines": {
+            "159": 1
+          },
+          "Branches": []
+        },
+        "System.Decimal Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::get_BalanceDue()": {
+          "Lines": {
+            "160": 2
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceUpdateDto::.ctor(System.String,System.Int16,System.Int64,System.Int64,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.String,System.Boolean,System.Boolean,System.Nullable`1<System.Int64>,System.String,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int64>,System.String,System.DateOnly,System.DateOnly,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int32>,System.String,System.String,System.String,System.String,System.Nullable`1<System.Int64>,System.Decimal,System.Decimal,System.Decimal,System.Decimal,System.Decimal,System.Decimal)": {
+          "Lines": {
+            "123": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto": {
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_InvoiceNumber()": {
+          "Lines": {
+            "163": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int16> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_InvoiceTypeId()": {
+          "Lines": {
+            "164": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_CustomerId()": {
+          "Lines": {
+            "165": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_ServiceLocationId()": {
+          "Lines": {
+            "166": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_WorkOrderId()": {
+          "Lines": {
+            "167": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_ProjectId()": {
+          "Lines": {
+            "168": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_ServiceAgreementId()": {
+          "Lines": {
+            "169": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_MaintenanceVisitId()": {
+          "Lines": {
+            "170": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_ServiceJobNum()": {
+          "Lines": {
+            "171": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Boolean> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_IsAgreementBilling()": {
+          "Lines": {
+            "172": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Boolean> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_IsRecurringInvoice()": {
+          "Lines": {
+            "173": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_RecurringScheduleId()": {
+          "Lines": {
+            "174": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_WorkOrderNumber()": {
+          "Lines": {
+            "175": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_JobTypeId()": {
+          "Lines": {
+            "176": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_LeadEmployeeId()": {
+          "Lines": {
+            "177": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_CustomerPONumber()": {
+          "Lines": {
+            "178": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_InvoiceDate()": {
+          "Lines": {
+            "179": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_AccountingDate()": {
+          "Lines": {
+            "180": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.DateOnly> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_DueDate()": {
+          "Lines": {
+            "181": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_NetTermId()": {
+          "Lines": {
+            "182": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_PreferredPaymentMethodId()": {
+          "Lines": {
+            "183": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_LaborPricingMatrixId()": {
+          "Lines": {
+            "184": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_MaterialPricingMatrixId()": {
+          "Lines": {
+            "185": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_OtherPricingMatrixId()": {
+          "Lines": {
+            "186": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_GLBreak1Id()": {
+          "Lines": {
+            "187": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_GLBreak2Id()": {
+          "Lines": {
+            "188": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_TaxingAuthorityJson()": {
+          "Lines": {
+            "189": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_BillToAddressJson()": {
+          "Lines": {
+            "190": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_ServiceLocationAddressJson()": {
+          "Lines": {
+            "191": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_CompanyAddressJson()": {
+          "Lines": {
+            "192": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_InvoiceTemplateId()": {
+          "Lines": {
+            "193": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Decimal> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_InvoiceSubtotal()": {
+          "Lines": {
+            "194": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Decimal> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_TotalDiscount()": {
+          "Lines": {
+            "195": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Decimal> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_TaxableAmount()": {
+          "Lines": {
+            "196": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Decimal> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_TotalTax()": {
+          "Lines": {
+            "197": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Decimal> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_InvoiceTotal()": {
+          "Lines": {
+            "198": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Decimal> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::get_BalanceDue()": {
+          "Lines": {
+            "199": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoicePatchDto::.ctor(System.String,System.Nullable`1<System.Int16>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.String,System.Nullable`1<System.Boolean>,System.Nullable`1<System.Boolean>,System.Nullable`1<System.Int64>,System.String,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int64>,System.String,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.DateOnly>,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int64>,System.Nullable`1<System.Int32>,System.Nullable`1<System.Int32>,System.String,System.String,System.String,System.String,System.Nullable`1<System.Int64>,System.Nullable`1<System.Decimal>,System.Nullable`1<System.Decimal>,System.Nullable`1<System.Decimal>,System.Nullable`1<System.Decimal>,System.Nullable`1<System.Decimal>,System.Nullable`1<System.Decimal>)": {
+          "Lines": {
+            "162": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceListFilters": {
+        "System.String Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceListFilters::get_InvoiceNumber()": {
+          "Lines": {
+            "202": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int64> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceListFilters::get_CustomerId()": {
+          "Lines": {
+            "203": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Boolean> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceListFilters::get_IsPosted()": {
+          "Lines": {
+            "204": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Boolean> Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceListFilters::get_IsApproved()": {
+          "Lines": {
+            "205": 1
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceListFilters::.ctor(System.String,System.Nullable`1<System.Int64>,System.Nullable`1<System.Boolean>,System.Nullable`1<System.Boolean>)": {
+          "Lines": {
+            "201": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Features\\Invoices\\Commands\\UpdateFgsInvoice\\UpdateFgsInvoiceCommand.cs": {
+      "Fgs.Billing.Application.Features.Invoices.Commands.UpdateFgsInvoice.UpdateFgsInvoiceCommand": {
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Commands.UpdateFgsInvoice.UpdateFgsInvoiceCommand::get_Id()": {
+          "Lines": {
+            "7": 20
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Features\\Invoices\\Commands\\UpdateFgsInvoice\\UpdateFgsInvoiceCommandHandler.cs": {
+      "Fgs.Billing.Application.Features.Invoices.Commands.UpdateFgsInvoice.UpdateFgsInvoiceCommandHandler": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Commands.UpdateFgsInvoice.UpdateFgsInvoiceCommandHandler::.ctor(Fgs.Billing.Application.Abstractions.Invoices.IFgsInvoiceWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor,Microsoft.Extensions.Logging.ILogger`1<Fgs.Billing.Application.Features.Invoices.Commands.UpdateFgsInvoice.UpdateFgsInvoiceCommandHandler>)": {
+          "Lines": {
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Commands.UpdateFgsInvoice.UpdateFgsInvoiceCommandHandler/<Handle>d__5": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Commands.UpdateFgsInvoice.UpdateFgsInvoiceCommandHandler/<Handle>d__5::MoveNext()": {
+          "Lines": {
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Features\\Invoices\\Commands\\PatchFgsInvoice\\PatchFgsInvoiceCommand.cs": {
+      "Fgs.Billing.Application.Features.Invoices.Commands.PatchFgsInvoice.PatchFgsInvoiceCommand": {
+        "System.Int64 Fgs.Billing.Application.Features.Invoices.Commands.PatchFgsInvoice.PatchFgsInvoiceCommand::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Features\\Invoices\\Commands\\PatchFgsInvoice\\PatchFgsInvoiceCommandHandler.cs": {
+      "Fgs.Billing.Application.Features.Invoices.Commands.PatchFgsInvoice.PatchFgsInvoiceCommandHandler": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Commands.PatchFgsInvoice.PatchFgsInvoiceCommandHandler::.ctor(Fgs.Billing.Application.Abstractions.Invoices.IFgsInvoiceWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor,Microsoft.Extensions.Logging.ILogger`1<Fgs.Billing.Application.Features.Invoices.Commands.PatchFgsInvoice.PatchFgsInvoiceCommandHandler>)": {
+          "Lines": {
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Commands.PatchFgsInvoice.PatchFgsInvoiceCommandHandler/<Handle>d__5": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Commands.PatchFgsInvoice.PatchFgsInvoiceCommandHandler/<Handle>d__5::MoveNext()": {
+          "Lines": {
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Features\\Invoices\\Commands\\CreateFgsInvoice\\CreateFgsInvoiceCommand.cs": {
+      "Fgs.Billing.Application.Features.Invoices.Commands.CreateFgsInvoice.CreateFgsInvoiceCommand": {
+        "Fgs.Billing.Application.Features.Invoices.Dtos.FgsInvoiceCreateDto Fgs.Billing.Application.Features.Invoices.Commands.CreateFgsInvoice.CreateFgsInvoiceCommand::get_Dto()": {
+          "Lines": {
+            "7": 38
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Features\\Invoices\\Commands\\CreateFgsInvoice\\CreateFgsInvoiceCommandHandler.cs": {
+      "Fgs.Billing.Application.Features.Invoices.Commands.CreateFgsInvoice.CreateFgsInvoiceCommandHandler": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Commands.CreateFgsInvoice.CreateFgsInvoiceCommandHandler::.ctor(Fgs.Billing.Application.Abstractions.Invoices.IFgsInvoiceWriteService,Fgs.Foundation.Caching.Abstractions.ICacheService,Fgs.MultiTenancy.ITenantContextAccessor,Microsoft.Extensions.Logging.ILogger`1<Fgs.Billing.Application.Features.Invoices.Commands.CreateFgsInvoice.CreateFgsInvoiceCommandHandler>)": {
+          "Lines": {
+            "12": 1,
+            "13": 1,
+            "14": 1,
+            "15": 1,
+            "16": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fgs.Billing.Application.Features.Invoices.Commands.CreateFgsInvoice.CreateFgsInvoiceCommandHandler/<Handle>d__5": {
+        "System.Void Fgs.Billing.Application.Features.Invoices.Commands.CreateFgsInvoice.CreateFgsInvoiceCommandHandler/<Handle>d__5::MoveNext()": {
+          "Lines": {
+            "22": 1,
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 1,
+            "28": 1,
+            "29": 1,
+            "30": 1,
+            "31": 1,
+            "32": 1,
+            "33": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\SourceCode\\FGS\\src\\BillingService\\Fgs.Billing.Application\\Common\\BillingCrud\\BillingListQuery.cs": {
+      "Fgs.Billing.Application.Common.BillingCrud.BillingListQuery": {
+        "System.Int32 Fgs.Billing.Application.Common.BillingCrud.BillingListQuery::get_Page()": {
+          "Lines": {
+            "6": 0
+          },
+          "Branches": []
+        },
+        "System.Int32 Fgs.Billing.Application.Common.BillingCrud.BillingListQuery::get_PageSize()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Common.BillingCrud.BillingListQuery::get_SortBy()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        },
+        "Fgs.Foundation.Paging.SortDirection Fgs.Billing.Application.Common.BillingCrud.BillingListQuery::get_SortDirection()": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        },
+        "System.String Fgs.Billing.Application.Common.BillingCrud.BillingListQuery::get_Search()": {
+          "Lines": {
+            "10": 1
+          },
+          "Branches": []
+        },
+        "Fgs.Foundation.Paging.PagedQuery Fgs.Billing.Application.Common.BillingCrud.BillingListQuery::ToPagedQuery()": {
+          "Lines": {
+            "13": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fgs.Billing.Application.Common.BillingCrud.BillingListQuery::.ctor(System.Int32,System.Int32,System.String,Fgs.Foundation.Paging.SortDirection,System.String)": {
+          "Lines": {
+            "5": 1
+          },
+          "Branches": []
+        }
+      }
+    }
+  }
+}

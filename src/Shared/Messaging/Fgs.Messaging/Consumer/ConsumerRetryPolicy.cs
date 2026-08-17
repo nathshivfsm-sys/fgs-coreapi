@@ -66,7 +66,7 @@ public sealed class ConsumerRetryPolicy(
             DeliveryMode = DeliveryModes.Persistent,
             MessageId = originalProperties.MessageId ?? messageId,
             CorrelationId = originalProperties.CorrelationId ?? correlationId,
-            Headers = new Dictionary<string, object?> { ["x-retry-count"] = retryCount + 1 }
+            Headers = BuildRetryHeaders(originalProperties.Headers, retryCount + 1)
         };
 
         try
@@ -102,6 +102,20 @@ public sealed class ConsumerRetryPolicy(
             byte[] bytes when int.TryParse(Encoding.UTF8.GetString(bytes), out var parsed) => parsed,
             _ => 0
         };
+    }
+
+    /// <summary>
+    /// Copies original headers and sets/overrides <c>x-retry-count</c>.
+    /// </summary>
+    internal static Dictionary<string, object?> BuildRetryHeaders(
+        IDictionary<string, object?>? originalHeaders,
+        int nextRetryCount)
+    {
+        var headers = originalHeaders is null
+            ? new Dictionary<string, object?>()
+            : new Dictionary<string, object?>(originalHeaders);
+        headers["x-retry-count"] = nextRetryCount;
+        return headers;
     }
 }
 

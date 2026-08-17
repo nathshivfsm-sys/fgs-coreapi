@@ -3,12 +3,26 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 
 namespace Fgs.Persistence.Extensions;
 
 public static class EntityFrameworkExtensions
 {
+    /// <summary>
+    /// Registers a DbContext with <see cref="ServiceLifetime.Scoped"/> options so connection
+    /// strings from credential snapshots are re-resolved on each scope (request) after hot-reload.
+    /// </summary>
+    public static IServiceCollection AddFgsDbContext<TContext>(
+        this IServiceCollection services,
+        Action<IServiceProvider, DbContextOptionsBuilder> optionsAction)
+        where TContext : DbContext =>
+        services.AddDbContext<TContext>(
+            optionsAction,
+            contextLifetime: ServiceLifetime.Scoped,
+            optionsLifetime: ServiceLifetime.Scoped);
+
     public static DbContextOptionsBuilder UseFgsNpgsql(
         this DbContextOptionsBuilder options,
         string connectionString,

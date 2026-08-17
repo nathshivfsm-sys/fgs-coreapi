@@ -10,11 +10,6 @@ public interface IUserTenantClient
     [Get("/api/v1/tenant/{tenantId}")]
     Task<Fgs.Contracts.Api.ApiResponse<TenantDto>> GetTenantAsync(long tenantId, CancellationToken cancellationToken = default);
 
-    [Get("/api/v1/tenant/{tenantId}/companies")]
-    Task<Fgs.Contracts.Api.ApiResponse<IReadOnlyList<TenantCompanyDto>>> GetCompaniesAsync(
-        long tenantId,
-        CancellationToken cancellationToken = default);
-
     [Patch("/api/v1/tenant/{tenantId}/status")]
     Task<Fgs.Contracts.Api.ApiResponse<object>> UpdateStatusAsync(
         long tenantId,

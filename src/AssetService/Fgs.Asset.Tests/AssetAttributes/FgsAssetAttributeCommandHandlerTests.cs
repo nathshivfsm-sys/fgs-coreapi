@@ -11,7 +11,6 @@ using Fgs.Security.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Fgs.MultiTenancy.Persistence;
 using Moq;
 namespace Fgs.Asset.Tests.AssetAttributes;
 public sealed class FgsAssetAttributeCommandHandlerTests

@@ -27,19 +27,19 @@ public sealed record FgsUserInviteDto(
     string DisplayName,
     string Email,
     string? PhoneNumber,
-    long RoleId,
+    IReadOnlyList<long> RoleIds,
     AuthenticationMethod AuthenticationMethod = AuthenticationMethod.PasswordOrEmailOtp);
 
 public sealed record FgsUserUpdateDto(
     string DisplayName,
     string? PhoneNumber,
-    long RoleId,
+    IReadOnlyList<long> RoleIds,
     bool IsActive);
 
 public sealed record FgsUserPatchDto(
     string? DisplayName,
     string? PhoneNumber,
-    long? RoleId,
+    IReadOnlyList<long>? RoleIds,
     bool? IsActive);
 
 public sealed record FgsUserListFilters(

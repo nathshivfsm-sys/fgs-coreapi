@@ -238,7 +238,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"invoiceNumber\": \"Invoice\",\n  \"invoiceTypeId\": 1,\n  \"customerId\": {{customerId}},\n  \"serviceLocationId\": {{serviceLocationId}},\n  \"workOrderId\": null,\n  \"projectId\": null,\n  \"serviceAgreementId\": null,\n  \"maintenanceVisitId\": null,\n  \"serviceJobNum\": null,\n  \"isAgreementBilling\": true,\n  \"isRecurringInvoice\": true,\n  \"recurringScheduleId\": null,\n  \"workOrderNumber\": null,\n  \"jobTypeId\": null,\n  \"leadEmployeeId\": null,\n  \"customerPONumber\": null,\n  \"invoiceDate\": \"2026-06-21\",\n  \"accountingDate\": \"2026-06-21\",\n  \"dueDate\": null,\n  \"netTermId\": null,\n  \"preferredPaymentMethodId\": null,\n  \"laborPricingMatrixId\": null,\n  \"materialPricingMatrixId\": null,\n  \"otherPricingMatrixId\": null,\n  \"gLBreak1Id\": null,\n  \"gLBreak2Id\": null,\n  \"taxingAuthorityJson\": null,\n  \"billToAddressJson\": null,\n  \"serviceLocationAddressJson\": null,\n  \"companyAddressJson\": null,\n  \"invoiceTemplateId\": null,\n  \"invoiceSubtotal\": 0.00,\n  \"totalDiscount\": 0.00,\n  \"taxableAmount\": 100.00,\n  \"totalTax\": 0.00,\n  \"invoiceTotal\": 0.00,\n  \"balanceDue\": 0.00\n}",
+                                                                   "raw":  "{\n  \"invoiceNumber\": \"Invoice\",\n  \"invoiceTypeId\": 1,\n  \"customerId\": {{customerId}},\n  \"serviceLocationId\": {{serviceLocationId}},\n  \"workOrderId\": {{workOrderId}},\n  \"projectId\": {{projectId}},\n  \"serviceAgreementId\": {{serviceAgreementId}},\n  \"maintenanceVisitId\": {{maintenanceVisitId}},\n  \"serviceJobNum\": \"Invoice\",\n  \"isAgreementBilling\": true,\n  \"isRecurringInvoice\": true,\n  \"recurringScheduleId\": {{recurringScheduleId}},\n  \"workOrderNumber\": \"Invoice\",\n  \"jobTypeId\": {{jobTypeId}},\n  \"leadEmployeeId\": {{leadEmployeeId}},\n  \"customerPONumber\": \"Invoice\",\n  \"invoiceDate\": \"2026-06-21\",\n  \"accountingDate\": \"2026-06-21\",\n  \"dueDate\": \"2026-06-21\",\n  \"netTermId\": {{netTermId}},\n  \"preferredPaymentMethodId\": {{preferredPaymentMethodId}},\n  \"laborPricingMatrixId\": {{laborPricingMatrixId}},\n  \"materialPricingMatrixId\": {{materialPricingMatrixId}},\n  \"otherPricingMatrixId\": {{otherPricingMatrixId}},\n  \"gLBreak1Id\": {{gLBreak1Id}},\n  \"gLBreak2Id\": {{gLBreak2Id}},\n  \"taxingAuthorityJson\": \"Invoice\",\n  \"billToAddressJson\": \"Invoice\",\n  \"serviceLocationAddressJson\": \"Invoice\",\n  \"companyAddressJson\": \"Invoice\",\n  \"invoiceTemplateId\": {{invoiceTemplateId}},\n  \"invoiceSubtotal\": 0.00,\n  \"totalDiscount\": 0.00,\n  \"taxableAmount\": 100.00,\n  \"totalTax\": 0.00,\n  \"invoiceTotal\": 0.00,\n  \"balanceDue\": 0.00\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -263,8 +263,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"invoiceId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"invoiceId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -313,7 +314,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"invoiceNumber\": \"Invoice\",\n  \"invoiceTypeId\": 1,\n  \"customerId\": {{customerId}},\n  \"serviceLocationId\": {{serviceLocationId}},\n  \"workOrderId\": null,\n  \"projectId\": null,\n  \"serviceAgreementId\": null,\n  \"maintenanceVisitId\": null,\n  \"serviceJobNum\": null,\n  \"isAgreementBilling\": true,\n  \"isRecurringInvoice\": true,\n  \"recurringScheduleId\": null,\n  \"workOrderNumber\": null,\n  \"jobTypeId\": null,\n  \"leadEmployeeId\": null,\n  \"customerPONumber\": null,\n  \"invoiceDate\": \"2026-06-21\",\n  \"accountingDate\": \"2026-06-21\",\n  \"dueDate\": null,\n  \"netTermId\": null,\n  \"preferredPaymentMethodId\": null,\n  \"laborPricingMatrixId\": null,\n  \"materialPricingMatrixId\": null,\n  \"otherPricingMatrixId\": null,\n  \"gLBreak1Id\": null,\n  \"gLBreak2Id\": null,\n  \"taxingAuthorityJson\": null,\n  \"billToAddressJson\": null,\n  \"serviceLocationAddressJson\": null,\n  \"companyAddressJson\": null,\n  \"invoiceTemplateId\": null,\n  \"invoiceSubtotal\": 0.00,\n  \"totalDiscount\": 0.00,\n  \"taxableAmount\": 100.00,\n  \"totalTax\": 0.00,\n  \"invoiceTotal\": 0.00,\n  \"balanceDue\": 0.00\n}",
+                                                                   "raw":  "{\n  \"invoiceNumber\": \"Invoice\",\n  \"invoiceTypeId\": 1,\n  \"customerId\": {{customerId}},\n  \"serviceLocationId\": {{serviceLocationId}},\n  \"workOrderId\": {{workOrderId}},\n  \"projectId\": {{projectId}},\n  \"serviceAgreementId\": {{serviceAgreementId}},\n  \"maintenanceVisitId\": {{maintenanceVisitId}},\n  \"serviceJobNum\": \"Invoice\",\n  \"isAgreementBilling\": true,\n  \"isRecurringInvoice\": true,\n  \"recurringScheduleId\": {{recurringScheduleId}},\n  \"workOrderNumber\": \"Invoice\",\n  \"jobTypeId\": {{jobTypeId}},\n  \"leadEmployeeId\": {{leadEmployeeId}},\n  \"customerPONumber\": \"Invoice\",\n  \"invoiceDate\": \"2026-06-21\",\n  \"accountingDate\": \"2026-06-21\",\n  \"dueDate\": \"2026-06-21\",\n  \"netTermId\": {{netTermId}},\n  \"preferredPaymentMethodId\": {{preferredPaymentMethodId}},\n  \"laborPricingMatrixId\": {{laborPricingMatrixId}},\n  \"materialPricingMatrixId\": {{materialPricingMatrixId}},\n  \"otherPricingMatrixId\": {{otherPricingMatrixId}},\n  \"gLBreak1Id\": {{gLBreak1Id}},\n  \"gLBreak2Id\": {{gLBreak2Id}},\n  \"taxingAuthorityJson\": \"Invoice\",\n  \"billToAddressJson\": \"Invoice\",\n  \"serviceLocationAddressJson\": \"Invoice\",\n  \"companyAddressJson\": \"Invoice\",\n  \"invoiceTemplateId\": {{invoiceTemplateId}},\n  \"invoiceSubtotal\": 0.00,\n  \"totalDiscount\": 0.00,\n  \"taxableAmount\": 100.00,\n  \"totalTax\": 0.00,\n  \"invoiceTotal\": 0.00,\n  \"balanceDue\": 0.00\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -373,7 +374,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"invoiceNumber\": null,\n  \"invoiceTypeId\": null\n}",
+                                                                   "raw":  "{\n  \"invoiceNumber\": \"Invoice\",\n  \"invoiceTypeId\": {{invoiceTypeId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -406,7 +407,7 @@
                  "description":  "Billing invoice catalog via {{gatewayUrl}}/api/v1/invoice.",
                  "name":  "FGS BillingService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "0119413b-3169-4254-b5b7-9f6928fcba91"
+                 "_postman_id":  "248007b4-9d95-4dd9-9bf9-faa993cce0a3"
              },
     "event":  [
                   {

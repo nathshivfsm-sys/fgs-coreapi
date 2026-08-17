@@ -34,7 +34,7 @@ public static class DependencyInjection
     public static IServiceCollection AddFgsAssetInfrastructure(this IServiceCollection services, ConfigurationManager configuration)
     {
         services.AddFgsStandardInfrastructure(configuration, "fgs-asset-service", "DATABASE");
-        services.AddDbContext<FgsAssetDbContext>((sp, options) =>
+        services.AddFgsDbContext<FgsAssetDbContext>((sp, options) =>
         {
             var appConfiguration = sp.GetRequiredService<IConfiguration>();
             var credentialProvider = sp.GetService<ICredentialConfigurationProvider>();

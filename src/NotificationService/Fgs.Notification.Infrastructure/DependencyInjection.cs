@@ -56,7 +56,7 @@ public static class DependencyInjection
 
         services.AddHttpClient(nameof(TwilioSmsProvider));
 
-        services.AddDbContext<FgsNotificationDbContext>((sp, options) =>
+        services.AddFgsDbContext<FgsNotificationDbContext>((sp, options) =>
         {
             var connectionString = ConnectionStringResolver.ResolveRequired(
                 sp.GetRequiredService<IConfiguration>(),

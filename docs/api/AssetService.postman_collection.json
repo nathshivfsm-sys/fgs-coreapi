@@ -265,8 +265,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetAttributeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetAttributeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -338,8 +339,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetAttributeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetAttributeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -411,8 +413,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetAttributeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetAttributeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -484,8 +487,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetAttributeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetAttributeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -557,8 +561,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetAttributeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetAttributeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -630,8 +635,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetAttributeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetAttributeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -703,8 +709,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetAttributeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetAttributeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -753,7 +760,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"attributeCode\": \"SERIAL\",\n  \"attributeName\": \"Serial Number\",\n  \"inputType\": \"TEXT\",\n  \"defaultOptionId\": null,\n  \"defaultValueText\": null,\n  \"defaultValueInteger\": 1,\n  \"defaultValueDecimal\": null,\n  \"defaultValueDate\": null,\n  \"defaultValueBoolean\": true,\n  \"isRequired\": true,\n  \"isSearchable\": true,\n  \"displayOrder\": 1\n}",
+                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"attributeCode\": \"SERIAL\",\n  \"attributeName\": \"Serial Number\",\n  \"inputType\": \"TEXT\",\n  \"defaultOptionId\": {{defaultOptionId}},\n  \"defaultValueText\": \"Serial Number\",\n  \"defaultValueInteger\": 1,\n  \"defaultValueDecimal\": 0.00,\n  \"defaultValueDate\": \"2026-06-21\",\n  \"defaultValueBoolean\": true,\n  \"isRequired\": true,\n  \"isSearchable\": true,\n  \"displayOrder\": 1\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -813,7 +820,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"attributeName\": \"Updated Serial Number\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"attributeName\": \"Serial Number\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1100,8 +1107,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetAttributeOptionId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetAttributeOptionId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1210,7 +1218,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"optionName\": \"Updated Option 1\",\n  \"displayOrder\": null,\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"optionName\": \"Option 1\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1458,7 +1466,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetId\": {{assetId}},\n  \"assetAttributeId\": {{assetAttributeId}},\n  \"optionId\": null,\n  \"valueText\": null,\n  \"valueInteger\": 1,\n  \"valueDecimal\": null,\n  \"valueDate\": null,\n  \"valueBoolean\": true\n}",
+                                                                   "raw":  "{\n  \"assetId\": {{assetId}},\n  \"assetAttributeId\": {{assetAttributeId}},\n  \"optionId\": {{optionId}},\n  \"valueText\": \"Asset Attribute Value\",\n  \"valueInteger\": 1,\n  \"valueDecimal\": 0.00,\n  \"valueDate\": \"2026-06-21\",\n  \"valueBoolean\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1483,8 +1491,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetAttributeValueId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetAttributeValueId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1533,7 +1542,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetId\": {{assetId}},\n  \"assetAttributeId\": {{assetAttributeId}},\n  \"optionId\": null,\n  \"valueText\": null,\n  \"valueInteger\": 1,\n  \"valueDecimal\": null,\n  \"valueDate\": null,\n  \"valueBoolean\": true\n}",
+                                                                   "raw":  "{\n  \"assetId\": {{assetId}},\n  \"assetAttributeId\": {{assetAttributeId}},\n  \"optionId\": {{optionId}},\n  \"valueText\": \"Asset Attribute Value\",\n  \"valueInteger\": 1,\n  \"valueDecimal\": 0.00,\n  \"valueDate\": \"2026-06-21\",\n  \"valueBoolean\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1593,7 +1602,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetId\": null,\n  \"assetAttributeId\": null\n}",
+                                                                   "raw":  "{\n  \"assetId\": {{assetId}},\n  \"assetAttributeId\": {{assetAttributeId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1855,7 +1864,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetNumber\": \"Primary Asset\",\n  \"serviceLocationId\": null,\n  \"unitNumber\": null,\n  \"assetTypeId\": null,\n  \"assetManufacturerId\": null,\n  \"assetModelId\": null,\n  \"assetDescription\": null,\n  \"customerAssetNumber\": null,\n  \"customerAssetName\": null,\n  \"manufacturerName\": null,\n  \"modelNumber\": null,\n  \"serialNumber\": null,\n  \"manufactureDate\": \"2024-03-15\",\n  \"installDate\": \"2024-03-15\",\n  \"installedWorkOrderId\": null,\n  \"isInstalledByCompany\": true,\n  \"isOurInstallation\": true,\n  \"assetStatusId\": {{assetStatusId}}\n}",
+                                                                   "raw":  "{\n  \"assetNumber\": \"Primary Asset\",\n  \"serviceLocationId\": {{serviceLocationId}},\n  \"unitNumber\": \"Primary Asset\",\n  \"assetLocation\": \"Primary Asset\",\n  \"assetTypeId\": {{assetTypeId}},\n  \"assetManufacturerId\": {{assetManufacturerId}},\n  \"assetModelId\": {{assetModelId}},\n  \"assetDescription\": \"Primary Asset asset description\",\n  \"customerAssetNumber\": \"Primary Asset\",\n  \"customerAssetName\": \"Primary Asset\",\n  \"manufacturerName\": \"Acme Manufacturing\",\n  \"modelNumber\": \"Primary Asset\",\n  \"serialNumber\": \"Primary Asset\",\n  \"manufactureDate\": \"2024-03-15\",\n  \"installDate\": \"2024-03-15\",\n  \"installedWorkOrderId\": {{installedWorkOrderId}},\n  \"isInstalledByCompany\": true,\n  \"isOurInstallation\": true,\n  \"assetStatusId\": {{assetStatusId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1880,8 +1889,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -1930,7 +1940,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetNumber\": \"Primary Asset\",\n  \"serviceLocationId\": null,\n  \"unitNumber\": null,\n  \"assetTypeId\": null,\n  \"assetManufacturerId\": null,\n  \"assetModelId\": null,\n  \"assetDescription\": null,\n  \"customerAssetNumber\": null,\n  \"customerAssetName\": null,\n  \"manufacturerName\": null,\n  \"modelNumber\": null,\n  \"serialNumber\": null,\n  \"manufactureDate\": \"2024-03-15\",\n  \"installDate\": \"2024-03-15\",\n  \"installedWorkOrderId\": null,\n  \"isInstalledByCompany\": true,\n  \"isOurInstallation\": true,\n  \"assetStatusId\": {{assetStatusId}}\n}",
+                                                                   "raw":  "{\n  \"assetNumber\": \"Primary Asset\",\n  \"serviceLocationId\": {{serviceLocationId}},\n  \"unitNumber\": \"Primary Asset\",\n  \"assetLocation\": \"Primary Asset\",\n  \"assetTypeId\": {{assetTypeId}},\n  \"assetManufacturerId\": {{assetManufacturerId}},\n  \"assetModelId\": {{assetModelId}},\n  \"assetDescription\": \"Primary Asset asset description\",\n  \"customerAssetNumber\": \"Primary Asset\",\n  \"customerAssetName\": \"Primary Asset\",\n  \"manufacturerName\": \"Acme Manufacturing\",\n  \"modelNumber\": \"Primary Asset\",\n  \"serialNumber\": \"Primary Asset\",\n  \"manufactureDate\": \"2024-03-15\",\n  \"installDate\": \"2024-03-15\",\n  \"installedWorkOrderId\": {{installedWorkOrderId}},\n  \"isInstalledByCompany\": true,\n  \"isOurInstallation\": true,\n  \"assetStatusId\": {{assetStatusId}}\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -1990,7 +2000,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetDescription\": \"Updated Primary Asset\",\n  \"customerAssetName\": \"Updated Primary Asset\",\n  \"manufacturerName\": \"Updated Primary Asset\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"assetDescription\": \"Updated Primary Asset\",\n  \"customerAssetName\": \"Updated Primary Asset\",\n  \"manufacturerName\": \"Acme Manufacturing\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2271,8 +2281,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetManufacturerId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetManufacturerId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -2381,7 +2392,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Carrier\",\n  \"description\": \"Updated Carrier\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Carrier\",\n  \"description\": \"HVAC equipment manufacturer\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2643,7 +2654,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"assetManufacturerId\": {{assetManufacturerId}},\n  \"modelNumber\": \"24ACC Comfort\",\n  \"modelDescription\": \"24ACC Comfort\"\n}",
+                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"assetManufacturerId\": {{assetManufacturerId}},\n  \"modelNumber\": \"24ACC Comfort\",\n  \"modelDescription\": \"24ACC Comfort model description\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -2668,8 +2679,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetModelId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetModelId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -2718,7 +2730,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"assetManufacturerId\": {{assetManufacturerId}},\n  \"modelNumber\": \"24ACC Comfort\",\n  \"modelDescription\": \"24ACC Comfort\"\n}",
+                                                                   "raw":  "{\n  \"assetTypeId\": {{assetTypeId}},\n  \"assetManufacturerId\": {{assetManufacturerId}},\n  \"modelNumber\": \"24ACC Comfort\",\n  \"modelDescription\": \"24ACC Comfort model description\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3059,8 +3071,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetStatusId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetStatusId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3169,7 +3182,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated Active\",\n  \"description\": \"Updated Active\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"Active\",\n  \"description\": \"Asset is installed and active\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3450,8 +3463,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetTypeId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetTypeId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3560,7 +3574,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"name\": \"Updated HVAC Unit\",\n  \"description\": \"Updated HVAC Unit\",\n  \"isActive\": true\n}",
+                                                                   "raw":  "{\n  \"name\": \"HVAC Unit\",\n  \"description\": \"Heating and cooling asset type\",\n  \"isActive\": true\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3808,7 +3822,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetId\": {{assetId}},\n  \"warrantyType\": \"OEM\",\n  \"warrantyProvider\": null,\n  \"warrantyNumber\": null,\n  \"registrationNumber\": null,\n  \"startDate\": \"2026-06-21\",\n  \"endDate\": \"2026-06-21\",\n  \"coverageDescription\": null\n}",
+                                                                   "raw":  "{\n  \"assetId\": {{assetId}},\n  \"warrantyType\": \"OEM\",\n  \"warrantyProvider\": \"OEM Warranty\",\n  \"warrantyNumber\": \"OEM Warranty\",\n  \"registrationNumber\": \"OEM Warranty\",\n  \"startDate\": \"2026-06-21\",\n  \"endDate\": \"2026-06-21\",\n  \"coverageDescription\": \"OEM Warranty coverage description\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3833,8 +3847,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"assetWarrantyId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"assetWarrantyId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -3883,7 +3898,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"assetId\": {{assetId}},\n  \"warrantyType\": \"OEM\",\n  \"warrantyProvider\": null,\n  \"warrantyNumber\": null,\n  \"registrationNumber\": null,\n  \"startDate\": \"2026-06-21\",\n  \"endDate\": \"2026-06-21\",\n  \"coverageDescription\": null\n}",
+                                                                   "raw":  "{\n  \"assetId\": {{assetId}},\n  \"warrantyType\": \"OEM\",\n  \"warrantyProvider\": \"OEM Warranty\",\n  \"warrantyNumber\": \"OEM Warranty\",\n  \"registrationNumber\": \"OEM Warranty\",\n  \"startDate\": \"2026-06-21\",\n  \"endDate\": \"2026-06-21\",\n  \"coverageDescription\": \"OEM Warranty coverage description\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -3976,7 +3991,7 @@
                  "description":  "Asset catalog APIs via {{gatewayUrl}}/api/v1/{asset*}. Attribute Create scenarios cover each inputType.",
                  "name":  "FGS AssetService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "eef5190b-c60e-49f9-9322-e676a1eb9a11"
+                 "_postman_id":  "2e2459fa-46b9-47a3-af0a-adffad30afb5"
              },
     "event":  [
                   {

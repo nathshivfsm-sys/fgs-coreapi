@@ -5,6 +5,7 @@ internal static class CredentialSectionMapper
     private static readonly (string Prefix, string Section)[] ProviderSections =
     [
         ("Global:SENDGRID:", "SendGrid:"),
+        ("Global:DATADOG:", "Datadog:"),
         ("Global:ENTRA_EXTERNAL_ID:", "EntraExternalId:"),
         ("Global:AWS:", "AwsCredentials:"),
         ("Global:RABBITMQ:", "RabbitMq:"),

@@ -18,9 +18,7 @@ COPY src/Shared/MultiTenancy/Fgs.MultiTenancy/Fgs.MultiTenancy.csproj src/Shared
 COPY src/Shared/Foundation/Fgs.Foundation/Fgs.Foundation.csproj src/Shared/Foundation/Fgs.Foundation/
 COPY src/Shared/Observability/Fgs.Observability/Fgs.Observability.csproj src/Shared/Observability/Fgs.Observability/
 COPY src/Shared/Credentials/Fgs.Credentials/Fgs.Credentials.csproj src/Shared/Credentials/Fgs.Credentials/
-COPY src/AuditService/Fgs.Audit.Domain/Fgs.Audit.Domain.csproj src/AuditService/Fgs.Audit.Domain/
-COPY src/AuditService/Fgs.Audit.Application/Fgs.Audit.Application.csproj src/AuditService/Fgs.Audit.Application/
-COPY src/AuditService/Fgs.Audit.Infrastructure/Fgs.Audit.Infrastructure.csproj src/AuditService/Fgs.Audit.Infrastructure/
+
 COPY src/SetupService/Fgs.Setup.API/Fgs.Setup.API.csproj src/SetupService/Fgs.Setup.API/
 COPY src/SetupService/Fgs.Setup.Application/Fgs.Setup.Application.csproj src/SetupService/Fgs.Setup.Application/
 COPY src/SetupService/Fgs.Setup.Domain/Fgs.Setup.Domain.csproj src/SetupService/Fgs.Setup.Domain/
@@ -30,7 +28,6 @@ RUN --mount=type=cache,target=/root/.nuget/packages \
     /usr/local/bin/restore-with-retry.sh src/SetupService/Fgs.Setup.API/Fgs.Setup.API.csproj
 
 COPY src/Shared/ src/Shared/
-COPY src/AuditService/ src/AuditService/
 COPY src/SetupService/ src/SetupService/
 
 WORKDIR /src/src/SetupService/Fgs.Setup.API
@@ -43,7 +40,6 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:5004 \
-    ASPNETCORE_ENVIRONMENT=Production \
     DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_EnableDiagnostics=0
 

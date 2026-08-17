@@ -273,70 +273,86 @@ namespace Fgs.Billing.Infrastructure.Database.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasComment("Unique identifier for the invoice batch.");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
 
                     b.Property<DateOnly>("BatchDate")
-                        .HasColumnType("date");
+                        .HasColumnType("date")
+                        .HasComment("Date assigned to the invoice batch.");
 
                     b.Property<string>("BatchNumber")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique batch number used to identify the invoice batch within the tenant and company.");
 
                     b.Property<long?>("ClosedBy")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the user who closed the invoice batch.");
 
                     b.Property<DateTime?>("ClosedOn")
-                        .HasColumnType("timestamp");
+                        .HasColumnType("timestamp")
+                        .HasComment("Date and time when the invoice batch was closed.");
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
-                        .HasColumnOrder(2);
+                        .HasColumnOrder(2)
+                        .HasComment("Identifies the company within the tenant that owns the invoice batch.");
 
                     b.Property<long>("CreatedBy")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the user who created the invoice batch.");
 
                     b.Property<DateTime>("CreatedOn")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp")
-                        .HasDefaultValueSql("now()");
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time when the invoice batch was created.");
 
                     b.Property<int>("InvoiceCount")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(0);
+                        .HasDefaultValue(0)
+                        .HasComment("Number of invoices included in the batch.");
 
                     b.Property<decimal>("InvoiceSubtotal")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("numeric(18,2)")
-                        .HasDefaultValue(0m);
+                        .HasDefaultValue(0m)
+                        .HasComment("Sum of the subtotals for all invoices included in the batch before tax.");
 
                     b.Property<decimal>("InvoiceTotal")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("numeric(18,2)")
-                        .HasDefaultValue(0m);
+                        .HasDefaultValue(0m)
+                        .HasComment("Total invoice amount across all invoices included in the batch, including applicable taxes.");
 
                     b.Property<bool>("IsClosed")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the invoice batch has been closed and is no longer available for further batch processing.");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
-                        .HasColumnOrder(1);
+                        .HasColumnOrder(1)
+                        .HasComment("Identifies the tenant that owns the invoice batch.");
 
                     b.Property<decimal>("TotalTax")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("numeric(18,2)")
-                        .HasDefaultValue(0m);
+                        .HasDefaultValue(0m)
+                        .HasComment("Total tax amount across all invoices included in the batch.");
 
                     b.Property<long?>("UpdatedBy")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the user who last updated the invoice batch.");
 
                     b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("timestamp");
+                        .HasColumnType("timestamp")
+                        .HasComment("Date and time when the invoice batch was last updated.");
 
                     b.HasKey("Id");
 
@@ -350,126 +366,159 @@ namespace Fgs.Billing.Infrastructure.Database.Migrations
                         .IsUnique()
                         .HasDatabaseName("UX_FgsInvoiceBatch_TenantCompany_BatchNumber");
 
-                    b.ToTable("FgsInvoiceBatch", "billing");
+                    b.ToTable("FgsInvoiceBatch", "billing", t =>
+                        {
+                            t.HasComment("Stores invoice batch records used to group and summarize invoices for a tenant and company.");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.Billing.Domain.Entities.FgsInvoiceDetail", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasComment("Unique identifier for the invoice detail line.");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
 
                     b.Property<string>("AddedSource")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Identifies the source or mechanism through which the invoice line was added to the invoice.");
 
                     b.Property<int>("BillingCategoryId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasComment("Identifies the billing category that determines the type and behavior of the invoice line, such as Labor, Service, Equipment, Material, or Other.");
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
-                        .HasColumnOrder(2);
+                        .HasColumnOrder(2)
+                        .HasComment("Identifies the company within the tenant that owns the invoice detail.");
 
                     b.Property<long>("CreatedBy")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the user who created the invoice detail line.");
 
                     b.Property<DateTime>("CreatedOn")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp")
-                        .HasDefaultValueSql("now()");
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time when the invoice detail line was created.");
 
                     b.Property<decimal>("ExtendedCost")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("numeric(18,2)")
-                        .HasDefaultValue(0m);
+                        .HasDefaultValue(0m)
+                        .HasComment("Total cost of the invoice line calculated from the applicable quantity and unit cost.");
 
                     b.Property<decimal>("ExtendedPrice")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("numeric(18,2)")
-                        .HasDefaultValue(0m);
+                        .HasDefaultValue(0m)
+                        .HasComment("Total sales price of the invoice line calculated from the applicable quantity and unit price.");
 
                     b.Property<int?>("GLBreak1Id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasComment("Identifies the first general ledger break or accounting classification assigned to the invoice line.");
 
                     b.Property<int?>("GLBreak2Id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasComment("Identifies the second general ledger break or accounting classification assigned to the invoice line.");
 
                     b.Property<long?>("InventoryItemId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the inventory item associated with the invoice detail when the line represents an inventory item.");
 
                     b.Property<long>("InvoiceId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the invoice to which this detail line belongs.");
 
                     b.Property<bool>("IsInventory")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the invoice line represents an inventory item.");
 
                     b.Property<bool>("IsTaxable")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the invoice line is subject to applicable sales tax calculation.");
 
                     b.Property<string>("ItemCode")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Code identifying the service, material, equipment, or other item associated with the invoice line.");
 
                     b.Property<string>("ItemDescription")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasComment("Description of the item, service, labor, or charge displayed on the invoice.");
 
                     b.Property<int?>("LaborRateTypeId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasComment("Identifies the labor rate type used to determine labor pricing when the invoice line is a labor item.");
 
                     b.Property<string>("LineAddedFrom")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Identifies the type of source document or transaction from which the invoice line was added, such as an Estimate or Work Order.");
 
                     b.Property<long?>("LineAddedFromId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the specific source record from which the invoice line was added.");
 
                     b.Property<int>("LineNumber")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasComment("Sequential line number used to identify and order the detail lines within an invoice.");
 
                     b.Property<string>("MasterPartNum")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Master part number associated with the item when applicable.");
 
                     b.Property<long?>("ParentLineId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the parent invoice detail line when this line is associated with another invoice line, such as a child or related line.");
 
                     b.Property<long?>("PriceBookItemId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the Price Book item from which the invoice line was selected or populated, when applicable.");
 
                     b.Property<decimal>("Quantity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("numeric(18,4)")
-                        .HasDefaultValue(1m);
+                        .HasDefaultValue(1m)
+                        .HasComment("Quantity used to calculate the extended cost and extended sales price of the invoice line. For labor, this represents the number of hours.");
 
                     b.Property<long?>("TechnicianId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the technician associated with the invoice line, when applicable.");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
-                        .HasColumnOrder(1);
+                        .HasColumnOrder(1)
+                        .HasComment("Identifies the tenant that owns the invoice detail.");
 
                     b.Property<decimal>("UnitCost")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("numeric(18,4)")
-                        .HasDefaultValue(0m);
+                        .HasDefaultValue(0m)
+                        .HasComment("Cost per unit, hour, or other quantity basis for the invoice line.");
 
                     b.Property<decimal>("UnitPrice")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("numeric(18,4)")
-                        .HasDefaultValue(0m);
+                        .HasDefaultValue(0m)
+                        .HasComment("Sales price per unit, hour, or other quantity basis for the invoice line.");
 
                     b.Property<long?>("UpdatedBy")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the user who last updated the invoice detail line.");
 
                     b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("timestamp");
+                        .HasColumnType("timestamp")
+                        .HasComment("Date and time when the invoice detail line was last updated.");
 
                     b.HasKey("Id");
 
@@ -484,7 +533,10 @@ namespace Fgs.Billing.Infrastructure.Database.Migrations
                     b.HasIndex("TenantId", "CompanyId", "InvoiceId", "LineNumber")
                         .HasDatabaseName("IX_FgsInvoiceDetail_InvoiceId_LineNumber");
 
-                    b.ToTable("FgsInvoiceDetail", "billing");
+                    b.ToTable("FgsInvoiceDetail", "billing", t =>
+                        {
+                            t.HasComment("Stores individual invoice line items, including labor, service, equipment, material, and other billable items, along with pricing, cost, tax, accounting, technician, and source information.");
+                        });
                 });
 
             modelBuilder.Entity("Fgs.Billing.Domain.Entities.FgsInvoicePaymentApplication", b =>

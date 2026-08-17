@@ -51,8 +51,8 @@ public sealed class PatchFgsTagCommandValidator : AbstractValidator<PatchFgsTagC
         RuleFor(x => x.Id).GreaterThan(0);
         RuleFor(x => x.Dto.TagCode).MaximumLength(50).When(x => x.Dto.TagCode is not null);
         RuleFor(x => x.Dto.TagCode).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("TagCode must be uppercase.").When(x => x.Dto.TagCode is not null);
-        RuleFor(x => x.Dto.Name).NotEmpty();
-        RuleFor(x => x.Dto.Name).MaximumLength(100);
+        RuleFor(x => x.Dto.Name).NotEmpty().When(x => x.Dto.Name is not null);
+        RuleFor(x => x.Dto.Name).MaximumLength(100).When(x => x.Dto.Name is not null);
 
         RuleFor(x => x.Dto.BackgroundColor).MaximumLength(20).When(x => x.Dto.BackgroundColor is not null);
         RuleFor(x => x.Dto.TextColor).MaximumLength(20).When(x => x.Dto.TextColor is not null);

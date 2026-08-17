@@ -1,5 +1,6 @@
 using Fgs.User.Application.Features.ServiceSetups.Commands.PatchFgsTenantServiceSetup;
 using Fgs.User.Application.Features.ServiceSetups.Commands.UpdateFgsTenantServiceSetup;
+using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 using FluentValidation;
 
@@ -28,6 +29,12 @@ public sealed class UpdateFgsTenantServiceSetupCommandValidator : AbstractValida
         RuleFor(x => x.Dto.PONumberPrefix).MaximumLength(20);
         RuleFor(x => x.Dto.WorkOrderNumberPrefix).MaximumLength(20);
         RuleFor(x => x.Dto.InvoiceBatchNumberFormat).MaximumLength(200);
+        RuleFor(x => x.Dto.EstimateRevisionCreationMode)
+            .NotEmpty()
+            .MaximumLength(50)
+            .Must(IsValidEstimateRevisionCreationMode)
+            .WithMessage(
+                "EstimateRevisionCreationMode must be OnDemand or OnPostSignatureChange.");
         RuleFor(x => x.Dto)
             .Must(d => !d.OTStartTime.HasValue || !d.OTEndTime.HasValue || d.OTEndTime > d.OTStartTime)
             .WithMessage("OTEndTime must be greater than OTStartTime.");
@@ -35,6 +42,10 @@ public sealed class UpdateFgsTenantServiceSetupCommandValidator : AbstractValida
             .Must(d => !d.DTStartTime.HasValue || !d.DTEndTime.HasValue || d.DTEndTime > d.DTStartTime)
             .WithMessage("DTEndTime must be greater than DTStartTime.");
     }
+
+    private static bool IsValidEstimateRevisionCreationMode(string value) =>
+        value.Equals(EstimateRevisionCreationModes.OnDemand, StringComparison.Ordinal)
+        || value.Equals(EstimateRevisionCreationModes.OnPostSignatureChange, StringComparison.Ordinal);
 }
 
 public sealed class PatchFgsTenantServiceSetupCommandValidator : AbstractValidator<PatchFgsTenantServiceSetupCommand>
@@ -63,5 +74,13 @@ public sealed class PatchFgsTenantServiceSetupCommandValidator : AbstractValidat
         RuleFor(x => x.Dto.PONumberPrefix).MaximumLength(20).When(x => x.Dto.PONumberPrefix is not null);
         RuleFor(x => x.Dto.WorkOrderNumberPrefix).MaximumLength(20).When(x => x.Dto.WorkOrderNumberPrefix is not null);
         RuleFor(x => x.Dto.InvoiceBatchNumberFormat).MaximumLength(200).When(x => x.Dto.InvoiceBatchNumberFormat is not null);
+        RuleFor(x => x.Dto.EstimateRevisionCreationMode)
+            .MaximumLength(50)
+            .Must(v => v is null
+                || v.Equals(EstimateRevisionCreationModes.OnDemand, StringComparison.Ordinal)
+                || v.Equals(EstimateRevisionCreationModes.OnPostSignatureChange, StringComparison.Ordinal))
+            .WithMessage(
+                "EstimateRevisionCreationMode must be OnDemand or OnPostSignatureChange.")
+            .When(x => x.Dto.EstimateRevisionCreationMode is not null);
     }
 }

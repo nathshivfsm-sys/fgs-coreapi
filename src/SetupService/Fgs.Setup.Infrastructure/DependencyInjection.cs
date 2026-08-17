@@ -1,4 +1,5 @@
 using Fgs.Contracts.Clients;
+using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using Fgs.Credentials.Options;
 using Fgs.Foundation.Caching.Options;
@@ -55,6 +56,9 @@ using Fgs.Setup.Application.Abstractions.SetupTaxes;
 using Fgs.Setup.Application.Abstractions.SetupTechSkillLevels;
 using Fgs.Setup.Application.Abstractions.SetupTimeSlots;
 using Fgs.Setup.Application.Abstractions.SetupZones;
+using Fgs.Setup.Application.Abstractions.NonWorkingDates;
+using Fgs.Setup.Application.Abstractions.PriceBooks;
+using Fgs.Setup.Application.Abstractions.PriceBookItems;
 using Fgs.Setup.Application.Abstractions.Tags;
 using Fgs.Setup.Application.Abstractions.VehicleMaintenances;
 using Fgs.Setup.Application.Abstractions.Employees;
@@ -80,6 +84,9 @@ using Fgs.Setup.Infrastructure.Persistence.SetupTaxes;
 using Fgs.Setup.Infrastructure.Persistence.SetupTechSkillLevels;
 using Fgs.Setup.Infrastructure.Persistence.SetupTimeSlots;
 using Fgs.Setup.Infrastructure.Persistence.SetupZones;
+using Fgs.Setup.Infrastructure.Persistence.NonWorkingDates;
+using Fgs.Setup.Infrastructure.Persistence.PriceBooks;
+using Fgs.Setup.Infrastructure.Persistence.PriceBookItems;
 using Fgs.Setup.Infrastructure.Persistence.Tags;
 using Fgs.Setup.Infrastructure.Persistence.VehicleMaintenances;
 using Fgs.Setup.Infrastructure.Persistence.Vehicles;
@@ -130,9 +137,11 @@ public static class DependencyInjection
         services.Configure<TenantProvisioningOptions>(configuration.GetSection(TenantProvisioningOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
 
-        var connectionString = FgsSetupConnectionString.ResolveRequired(configuration);
-        services.AddDbContext<FgsSetupDbContext>((_, options) =>
+        services.AddFgsDbContext<FgsSetupDbContext>((sp, options) =>
         {
+            var connectionString = FgsSetupConnectionString.ResolveRequired(
+                sp.GetRequiredService<IConfiguration>(),
+                sp.GetService<ICredentialConfigurationProvider>());
             options.UseFgsNpgsql(
                 connectionString,
                 "__EFMigrationsHistory",
@@ -154,6 +163,11 @@ public static class DependencyInjection
         }
 
         services.AddFgsInternalServiceRefitClient<IUserTenantClient>(
+            configuration,
+            "UserService:BaseUrl",
+            "http://user-service:5001");
+
+        services.AddFgsInternalServiceRefitClient<IUserCompanyClient>(
             configuration,
             "UserService:BaseUrl",
             "http://user-service:5001");
@@ -180,6 +194,12 @@ public static class DependencyInjection
         services.AddScoped<IFgsSalesActivityOutcomeWriteService, FgsSalesActivityOutcomeWriteService>();
         services.AddScoped<IFgsSetupZoneReadRepository, FgsSetupZoneReadRepository>();
         services.AddScoped<IFgsSetupZoneWriteService, FgsSetupZoneWriteService>();
+        services.AddScoped<IFgsNonWorkingDateReadRepository, FgsNonWorkingDateReadRepository>();
+        services.AddScoped<IFgsNonWorkingDateWriteService, FgsNonWorkingDateWriteService>();
+        services.AddScoped<IFgsPriceBookReadRepository, FgsPriceBookReadRepository>();
+        services.AddScoped<IFgsPriceBookWriteService, FgsPriceBookWriteService>();
+        services.AddScoped<IFgsPriceBookItemReadRepository, FgsPriceBookItemReadRepository>();
+        services.AddScoped<IFgsPriceBookItemWriteService, FgsPriceBookItemWriteService>();
         services.AddScoped<IFgsSetupTechSkillLevelReadRepository, FgsSetupTechSkillLevelReadRepository>();
         services.AddScoped<IFgsSetupTechSkillLevelWriteService, FgsSetupTechSkillLevelWriteService>();
         services.AddScoped<IFgsSetupLaborRateTypeReadRepository, FgsSetupLaborRateTypeReadRepository>();
@@ -256,7 +276,9 @@ public static class DependencyInjection
         services.AddScoped<IFgsUniversalMatrixAddOnWriteService, FgsUniversalMatrixAddOnWriteService>();
         services.AddSingleton<ITenantSeedDatabaseConnectionFactory>(sp =>
             new TenantSeedDatabaseConnectionFactory(
-                connectionString,
+                () => FgsSetupConnectionString.ResolveRequired(
+                    sp.GetRequiredService<IConfiguration>(),
+                    sp.GetService<ICredentialConfigurationProvider>()),
                 sp.GetRequiredService<IOptions<TenantProvisioningOptions>>()));
         services.AddScoped<ITenantDataSeedingEngine, TenantDataSeedingEngine>();
         services.AddScoped<ITenantProvisioningOrchestrator, TenantProvisioningOrchestrator>();

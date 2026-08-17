@@ -16,8 +16,8 @@ public sealed class FgsUserRoleWriteService(
     ITenantContextAccessor tenantContextAccessor,
     IFgsUserContext userContext) : IFgsUserRoleWriteService
 {
-    public async Task<FgsUserRoleDetailDto> CreateAsync(
-        FgsUserRoleCreateDto dto,
+    public async Task<IReadOnlyList<FgsUserRoleDetailDto>> SyncAsync(
+        FgsUserRoleSyncDto dto,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
@@ -30,47 +30,66 @@ public sealed class FgsUserRoleWriteService(
             throw new KeyNotFoundException($"User '{dto.UserId}' was not found.");
         }
 
-        var roleExists = await context.FgsRoles.AnyAsync(
-            r => r.Id == dto.FgsRoleId && r.TenantId == tenantId && r.CompanyId == companyId,
-            cancellationToken);
-        if (!roleExists)
+        var desiredIds = (dto.FgsRoleIds ?? [])
+            .Distinct()
+            .ToList();
+
+        if (desiredIds.Count > 0)
         {
-            throw new KeyNotFoundException($"Role '{dto.FgsRoleId}' was not found.");
+            var foundIds = await context.FgsRoles
+                .Where(r => desiredIds.Contains(r.Id) && r.TenantId == tenantId && r.CompanyId == companyId)
+                .Select(r => r.Id)
+                .ToListAsync(cancellationToken);
+            var missing = desiredIds.Except(foundIds).ToList();
+            if (missing.Count > 0)
+            {
+                throw new KeyNotFoundException($"Role '{missing[0]}' was not found.");
+            }
         }
 
-        var entity = new FgsUserRole
-        {
-            TenantId = tenantId,
-            CompanyId = companyId,
-            UserId = dto.UserId,
-            FgsRoleId = dto.FgsRoleId,
-            CreatedOn = DateTimeOffset.UtcNow,
-            CreatedBy = ResolveActor()
-        };
+        var existing = await context.FgsUserRoles
+            .Where(x => x.UserId == dto.UserId && x.TenantId == tenantId && x.CompanyId == companyId)
+            .ToListAsync(cancellationToken);
 
-        await context.FgsUserRoles.AddAsync(entity, cancellationToken);
-        try
+        var desiredSet = desiredIds.ToHashSet();
+        var existingByRoleId = existing.ToDictionary(x => x.FgsRoleId);
+
+        var toRemove = existing.Where(x => !desiredSet.Contains(x.FgsRoleId)).ToList();
+        if (toRemove.Count > 0)
         {
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateException ex) when (IsUniqueViolation(ex))
-        {
-            throw new InvalidOperationException("This role is already assigned to the user.", ex);
+            context.FgsUserRoles.RemoveRange(toRemove);
         }
 
-        return new FgsUserRoleDetailDto(entity.Id, entity.UserId, entity.FgsRoleId, entity.CreatedOn, entity.CreatedBy);
-    }
+        var actor = ResolveActor();
+        var now = DateTimeOffset.UtcNow;
+        foreach (var roleId in desiredIds)
+        {
+            if (existingByRoleId.ContainsKey(roleId))
+            {
+                continue;
+            }
 
-    public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
-    {
-        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
-        var entity = await context.FgsUserRoles.FirstOrDefaultAsync(
-            x => x.Id == id && x.TenantId == tenantId && x.CompanyId == companyId,
-            cancellationToken)
-            ?? throw new KeyNotFoundException($"User role assignment '{id}' was not found.");
+            await context.FgsUserRoles.AddAsync(
+                new FgsUserRole
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    UserId = dto.UserId,
+                    FgsRoleId = roleId,
+                    CreatedOn = now,
+                    CreatedBy = actor
+                },
+                cancellationToken);
+        }
 
-        context.FgsUserRoles.Remove(entity);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return await context.FgsUserRoles
+            .AsNoTracking()
+            .Where(x => x.UserId == dto.UserId && x.TenantId == tenantId && x.CompanyId == companyId)
+            .OrderBy(x => x.Id)
+            .Select(x => new FgsUserRoleDetailDto(x.Id, x.UserId, x.FgsRoleId, x.CreatedOn, x.CreatedBy))
+            .ToListAsync(cancellationToken);
     }
 
     private string ResolveActor() =>
@@ -78,9 +97,4 @@ public sealed class FgsUserRoleWriteService(
         ?? userContext.DisplayName
         ?? userContext.UserId?.ToString()
         ?? "system";
-
-    private static bool IsUniqueViolation(DbUpdateException exception) =>
-        exception.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true
-        || exception.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true
-        || exception.InnerException?.Message.Contains("23505", StringComparison.Ordinal) == true;
 }

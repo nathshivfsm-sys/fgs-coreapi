@@ -68,17 +68,17 @@ public sealed class PatchFgsSalesDispositionReasonCommandValidator : AbstractVal
     public PatchFgsSalesDispositionReasonCommandValidator(IFgsSalesDispositionReasonReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.DispositionReasonCode).NotEmpty();
-        RuleFor(x => x.Dto.DispositionReasonCode).MaximumLength(50);
-        RuleFor(x => x.Dto.DispositionReasonCode).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("DispositionReasonCode must be uppercase.");
+        RuleFor(x => x.Dto.DispositionReasonCode).NotEmpty().When(x => x.Dto.DispositionReasonCode is not null);
+        RuleFor(x => x.Dto.DispositionReasonCode).MaximumLength(50).When(x => x.Dto.DispositionReasonCode is not null);
+        RuleFor(x => x.Dto.DispositionReasonCode).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("DispositionReasonCode must be uppercase.").When(x => x.Dto.DispositionReasonCode is not null);
         RuleFor(x => x.Dto.DispositionReasonCode).MustAsync(async (command, code, cancellationToken) =>
                 !await readRepository.ExistsByDispositionReasonCodeAsync(code!, command.Id, cancellationToken))
-            .WithMessage("A sales disposition reason with this code already exists.");
-        RuleFor(x => x.Dto.DispositionReasonName).NotEmpty();
-        RuleFor(x => x.Dto.DispositionReasonName).MaximumLength(100);
+            .WithMessage("A sales disposition reason with this code already exists.").When(x => x.Dto.DispositionReasonCode is not null);
+        RuleFor(x => x.Dto.DispositionReasonName).NotEmpty().When(x => x.Dto.DispositionReasonName is not null);
+        RuleFor(x => x.Dto.DispositionReasonName).MaximumLength(100).When(x => x.Dto.DispositionReasonName is not null);
         RuleFor(x => x.Dto.DispositionReasonName).MustAsync(async (command, name, cancellationToken) =>
                 !await readRepository.ExistsByDispositionReasonNameAsync(name!, command.Id, cancellationToken))
-            .WithMessage("An active sales disposition reason with this name already exists.");
+            .WithMessage("An active sales disposition reason with this name already exists.").When(x => x.Dto.DispositionReasonName is not null);
         RuleFor(x => x.Dto.Description).MaximumLength(255).When(x => x.Dto.Description is not null);
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
 

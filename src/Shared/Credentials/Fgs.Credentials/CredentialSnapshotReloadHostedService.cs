@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 namespace Fgs.Credentials;
 
 /// <summary>
-/// After HTTP bootstrap, listens for Redis credential-change signals and refreshes the in-memory holder.
+/// After bootstrap, listens for Redis credential-change signals and refreshes the in-memory holder.
 /// </summary>
 public sealed class CredentialSnapshotReloadHostedService(
     ICredentialSnapshotRedisCache snapshotCache,

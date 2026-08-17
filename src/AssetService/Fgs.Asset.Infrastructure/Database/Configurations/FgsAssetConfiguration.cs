@@ -29,6 +29,9 @@ internal sealed class FgsAssetConfiguration : IEntityTypeConfiguration<Domain.En
         entity.Property(e => e.UnitNumber).HasMaxLength(50)
             .HasComment(
                 "Apartment, suite, unit, condo, office, bay, or other sub-location identifier within the service location where the asset is installed. Examples: Apt 1205, Suite 400, Unit 8B, Bay 12.");
+        entity.Property(e => e.AssetLocation).HasMaxLength(200)
+            .HasComment(
+                "Physical location of the asset within the service location or unit, such as Roof - Northeast Corner, Mechanical Room, 2nd Floor West Wing, or Basement.");
         entity.Property(e => e.AssetTypeId).HasComment("Optional catalog asset type reference.");
         entity.Property(e => e.AssetManufacturerId).HasComment("Optional catalog manufacturer reference.");
         entity.Property(e => e.AssetModelId).HasComment("Optional catalog model reference.");

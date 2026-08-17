@@ -162,6 +162,7 @@ internal sealed class FgsSetupCommunicationTemplateReadRepository : IFgsSetupCom
                 FROM {FgsSetupCommunicationTemplateSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "CommunicationChannel" = @CommunicationChannel AND "TemplateType" = @TemplateType AND "Code" = @Code
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

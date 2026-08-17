@@ -9,6 +9,7 @@ internal class FgsAssetSummaryRow
     public string AssetNumber { get; set; } = null!;
     public long? ServiceLocationId { get; set; }
     public string? UnitNumber { get; set; }
+    public string? AssetLocation { get; set; }
     public long? AssetTypeId { get; set; }
     public long? AssetManufacturerId { get; set; }
     public long? AssetModelId { get; set; }
@@ -33,6 +34,7 @@ internal class FgsAssetSummaryRow
             AssetNumber,
             ServiceLocationId,
             UnitNumber,
+            AssetLocation,
             AssetTypeId,
             AssetManufacturerId,
             AssetModelId,
@@ -60,6 +62,7 @@ internal sealed class FgsAssetDetailRow : FgsAssetSummaryRow
             AssetNumber,
             ServiceLocationId,
             UnitNumber,
+            AssetLocation,
             AssetTypeId,
             AssetManufacturerId,
             AssetModelId,

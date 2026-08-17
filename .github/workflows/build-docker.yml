@@ -1,0 +1,367 @@
+# Build images for nginx (gateway), user-service, and setup-service.
+#
+# ECR is optional. Leave vars.PUSH_TO_ECR unset/false to build-only (pipeline test).
+# Set vars.PUSH_TO_ECR=true after ECR + OIDC exist to push:
+#   :<channel>  :<version>-<channel>  :<version>-<channel>-<sha>
+#
+# Version-driven releases:
+#   - Bump <Version> in Fgs.Setup.API.csproj  → builds setup
+#   - Bump <Version> in Fgs.User.API.csproj   → builds user
+#   - Bump src/Gateway/VERSION               → builds nginx
+#   - workflow_dispatch + force_all          → rebuild all (manual only; default false)
+# Tests must pass before the image is built. Failed tests fail the job (no image).
+#
+# Required later for push:
+#   vars.PUSH_TO_ECR=true
+#   vars.AWS_REGION
+#   vars.AWS_ROLE_TO_ASSUME
+#   vars.ECR_SETUP_REPO / ECR_USER_REPO / ECR_GATEWAY_REPO (optional names)
+
+name: Build Docker images
+
+on:
+  push:
+    branches: [dev, test, main]
+  pull_request:
+    branches: [dev, test, main]
+  workflow_dispatch:
+    inputs:
+      force_all:
+        description: Build all images even if versions did not change
+        type: boolean
+        default: false
+
+concurrency:
+  group: build-docker-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  ECR_SETUP_REPO: ${{ vars.ECR_SETUP_REPO || 'fgs-setup-service' }}
+  ECR_USER_REPO: ${{ vars.ECR_USER_REPO || 'fgs-user-service' }}
+  ECR_GATEWAY_REPO: ${{ vars.ECR_GATEWAY_REPO || 'fgs-gateway' }}
+  # false until ECR exists — workflow still builds images on the runner.
+  PUSH_TO_ECR: ${{ vars.PUSH_TO_ECR || 'false' }}
+
+jobs:
+  changes:
+    name: Detect version changes
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      has_builds: ${{ steps.set-matrix.outputs.has_builds }}
+      short_sha: ${{ steps.meta.outputs.short_sha }}
+      push_images: ${{ steps.meta.outputs.push_images }}
+      channel: ${{ steps.meta.outputs.channel }}
+      git_ref: ${{ steps.meta.outputs.git_ref }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Resolve metadata
+        id: meta
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          GIT_SHA: ${{ github.sha }}
+          BASE_REF: ${{ github.base_ref }}
+          REF_NAME: ${{ github.ref_name }}
+          PUSH_TO_ECR: ${{ env.PUSH_TO_ECR }}
+        run: |
+          SHORT_SHA=$(echo "$GIT_SHA" | cut -c1-12)
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            GIT_REF="$BASE_REF"
+          else
+            GIT_REF="$REF_NAME"
+          fi
+
+          case "$GIT_REF" in
+            dev) CHANNEL=dev ;;
+            test) CHANNEL=test ;;
+            main) CHANNEL=prod ;;
+            *) echo "Unsupported branch: $GIT_REF" >&2; exit 1 ;;
+          esac
+
+          PUSH_IMAGES=false
+          if [ "$PUSH_TO_ECR" = "true" ] && [ "$EVENT_NAME" != "pull_request" ]; then
+            PUSH_IMAGES=true
+          fi
+
+          echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "push_images=${PUSH_IMAGES}" >> "$GITHUB_OUTPUT"
+          echo "channel=${CHANNEL}" >> "$GITHUB_OUTPUT"
+          echo "git_ref=${GIT_REF}" >> "$GITHUB_OUTPUT"
+
+      - name: Detect version bumps
+        id: set-matrix
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          FORCE_ALL_INPUT: ${{ github.event_name == 'workflow_dispatch' && inputs.force_all || 'false' }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+          SHORT_SHA: ${{ steps.meta.outputs.short_sha }}
+          CHANNEL: ${{ steps.meta.outputs.channel }}
+        run: |
+          python3 <<'PY'
+          import json, os, re, subprocess, pathlib
+
+          def git_show(ref: str, path: str) -> str | None:
+              if not ref or re.fullmatch(r"0+", ref):
+                  return None
+              result = subprocess.run(
+                  ["git", "show", f"{ref}:{path}"],
+                  capture_output=True,
+                  text=True,
+              )
+              return result.stdout if result.returncode == 0 else None
+
+          def parse_csproj_version(text: str | None) -> str | None:
+              if not text:
+                  return None
+              match = re.search(r"<Version>\s*([^<]+?)\s*</Version>", text)
+              return match.group(1).strip() if match else None
+
+          def parse_plain_version(text: str | None) -> str | None:
+              if not text:
+                  return None
+              line = text.strip().splitlines()
+              return line[0].strip() if line else None
+
+          def current_csproj_version(path: str) -> str:
+              text = pathlib.Path(path).read_text(encoding="utf-8")
+              version = parse_csproj_version(text)
+              if not version:
+                  raise SystemExit(f"Missing <Version> in {path}")
+              return version
+
+          def current_plain_version(path: str) -> str:
+              version = parse_plain_version(pathlib.Path(path).read_text(encoding="utf-8"))
+              if not version:
+                  raise SystemExit(f"Empty version file: {path}")
+              return version
+
+          force = os.environ.get("FORCE_ALL_INPUT", "false").lower() == "true"
+          short_sha = os.environ["SHORT_SHA"]
+          channel = os.environ["CHANNEL"]
+          base_sha = os.environ.get("BASE_SHA") or ""
+          if not base_sha or re.fullmatch(r"0+", base_sha):
+              parent = subprocess.run(
+                  ["git", "rev-parse", "HEAD^"],
+                  capture_output=True,
+                  text=True,
+              )
+              base_sha = parent.stdout.strip() if parent.returncode == 0 else ""
+          catalog = [
+              {
+                  "service": "setup",
+                  "context": ".",
+                  "file": "src/Gateway/docker/setup-service.Dockerfile",
+                  "repo_env": "ECR_SETUP_REPO",
+                  "version_file": "src/SetupService/Fgs.Setup.API/Fgs.Setup.API.csproj",
+                  "version_kind": "csproj",
+                  "test_project": "src/SetupService/Fgs.Setup.Tests/Fgs.Setup.Tests.csproj",
+              },
+              {
+                  "service": "user",
+                  "context": ".",
+                  "file": "src/Gateway/docker/user-service.Dockerfile",
+                  "repo_env": "ECR_USER_REPO",
+                  "version_file": "src/UserService/Fgs.User.API/Fgs.User.API.csproj",
+                  "version_kind": "csproj",
+                  "test_project": "src/UserService/Fgs.User.Tests/Fgs.User.Tests.csproj",
+              },
+              {
+                  "service": "nginx",
+                  "context": "src/Gateway",
+                  "file": "src/Gateway/Dockerfile.prod",
+                  "repo_env": "ECR_GATEWAY_REPO",
+                  "version_file": "src/Gateway/VERSION",
+                  "version_kind": "plain",
+                  "test_project": "",
+              },
+          ]
+
+          items = []
+          decisions = []
+          for item in catalog:
+              path = item["version_file"]
+              if item["version_kind"] == "csproj":
+                  head_version = current_csproj_version(path)
+                  base_version = parse_csproj_version(git_show(base_sha, path))
+              else:
+                  head_version = current_plain_version(path)
+                  base_version = parse_plain_version(git_show(base_sha, path))
+
+              version_changed = head_version != base_version
+              selected = force or version_changed
+              decisions.append(
+                  f"{item['service']}: base={base_version or '(none)'} head={head_version} "
+                  f"changed={version_changed} selected={selected}"
+              )
+              if not selected:
+                  continue
+              items.append(
+                  {
+                      "service": item["service"],
+                      "context": item["context"],
+                      "file": item["file"],
+                      "repo_env": item["repo_env"],
+                      "test_project": item["test_project"],
+                      "version": head_version,
+                      "channel": channel,
+                      "version_channel_tag": f"{head_version}-{channel}",
+                      "version_sha_tag": f"{head_version}-{channel}-{short_sha}",
+                  }
+              )
+
+          print("force_all=", force)
+          print("base_sha=", base_sha)
+          print("\n".join(decisions))
+          matrix = {"include": items}
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"matrix={json.dumps(matrix)}\n")
+              fh.write(f"has_builds={'true' if items else 'false'}\n")
+          print(json.dumps(matrix, indent=2))
+          PY
+
+  build:
+    name: Build ${{ matrix.service }} ${{ matrix.version }} (${{ matrix.channel }})
+    needs: changes
+    if: needs.changes.outputs.has_builds == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.changes.outputs.matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        if: matrix.test_project != ''
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Run tests
+        if: matrix.test_project != ''
+        run: |
+          set -euo pipefail
+          echo "Running tests: ${{ matrix.test_project }}"
+          dotnet test "${{ matrix.test_project }}" \
+            --configuration Release \
+            --nologo \
+            --logger "trx;LogFileName=${{ matrix.service }}-tests.trx" \
+            --logger "console;verbosity=normal" \
+            --results-directory TestResults
+          echo "All tests passed for ${{ matrix.service }}."
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Resolve repository name
+        id: repo
+        env:
+          REPO_ENV: ${{ matrix.repo_env }}
+          ECR_SETUP_REPO: ${{ env.ECR_SETUP_REPO }}
+          ECR_USER_REPO: ${{ env.ECR_USER_REPO }}
+          ECR_GATEWAY_REPO: ${{ env.ECR_GATEWAY_REPO }}
+        run: |
+          case "$REPO_ENV" in
+            ECR_SETUP_REPO) echo "name=${ECR_SETUP_REPO}" >> "$GITHUB_OUTPUT" ;;
+            ECR_USER_REPO) echo "name=${ECR_USER_REPO}" >> "$GITHUB_OUTPUT" ;;
+            ECR_GATEWAY_REPO) echo "name=${ECR_GATEWAY_REPO}" >> "$GITHUB_OUTPUT" ;;
+            *) echo "Unknown repo_env: $REPO_ENV" >&2; exit 1 ;;
+          esac
+
+      - name: Configure AWS credentials (OIDC)
+        if: needs.changes.outputs.push_images == 'true'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        if: needs.changes.outputs.push_images == 'true'
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Resolve image tags
+        id: tags
+        env:
+          PUSH_IMAGES: ${{ needs.changes.outputs.push_images }}
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          REPO: ${{ steps.repo.outputs.name }}
+          VERSION: ${{ matrix.version }}
+          CHANNEL: ${{ matrix.channel }}
+          VERSION_CHANNEL: ${{ matrix.version_channel_tag }}
+          VERSION_SHA: ${{ matrix.version_sha_tag }}
+          SERVICE: ${{ matrix.service }}
+        run: |
+          if [ "$PUSH_IMAGES" = "true" ]; then
+            IMAGE="${REGISTRY}/${REPO}"
+            {
+              echo "image=${IMAGE}"
+              echo "tags<<EOF"
+              echo "${IMAGE}:${CHANNEL}"
+              echo "${IMAGE}:${VERSION_CHANNEL}"
+              echo "${IMAGE}:${VERSION_SHA}"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            {
+              echo "image=local/${SERVICE}"
+              echo "tags<<EOF"
+              echo "local/${SERVICE}:${VERSION_CHANNEL}"
+              echo "local/${SERVICE}:${VERSION_SHA}"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build image
+        id: docker
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          push: ${{ needs.changes.outputs.push_images == 'true' }}
+          load: ${{ needs.changes.outputs.push_images != 'true' }}
+          tags: ${{ steps.tags.outputs.tags }}
+          build-args: |
+            SERVICE_VERSION=${{ matrix.version }}
+          labels: |
+            org.opencontainers.image.version=${{ matrix.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=fgs-${{ matrix.service }}
+          cache-from: type=gha,scope=${{ matrix.service }}-${{ matrix.channel }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}-${{ matrix.channel }}
+          provenance: false
+
+      - name: Verify local image
+        if: needs.changes.outputs.push_images != 'true'
+        run: |
+          echo "Built images:"
+          docker image ls --filter "reference=local/${{ matrix.service }}*"
+          docker image inspect "local/${{ matrix.service }}:${{ matrix.version_channel_tag }}" --format '{{.Id}} {{.RepoTags}} {{.Size}}'
+
+      - name: Summary
+        run: |
+          {
+            echo "### ${{ matrix.service }}"
+            echo "- Branch: \`${{ needs.changes.outputs.git_ref }}\`"
+            echo "- Channel: \`${{ matrix.channel }}\`"
+            echo "- Version: \`${{ matrix.version }}\`"
+            echo "- Tests: \`${{ matrix.test_project || 'n/a (nginx)' }}\`"
+            echo "- Dockerfile: \`${{ matrix.file }}\`"
+            echo "- Push to ECR: \`${{ needs.changes.outputs.push_images }}\`"
+            echo "- Image: \`${{ steps.tags.outputs.image }}\`"
+            echo "- Digest: \`${{ steps.docker.outputs.digest }}\`"
+            echo "- Tags:"
+            echo '```'
+            echo "${{ steps.tags.outputs.tags }}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

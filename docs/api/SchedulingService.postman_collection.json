@@ -198,7 +198,7 @@
                                                                      }
                                                                  ],
                                                       "body":  {
-                                                                   "raw":  "{\n  \"sourceTypeId\": 1,\n  \"sourceId\": {{sourceId}},\n  \"crewId\": null,\n  \"customerContactName\": null,\n  \"serviceDate\": \"2026-06-21\",\n  \"scheduledTime\": \"Appointment\",\n  \"estimatedHours\": 0.00,\n  \"appointmentStatusId\": 1,\n  \"customerApprovedOn\": null\n}",
+                                                                   "raw":  "{\n  \"sourceTypeId\": 1,\n  \"sourceId\": {{sourceId}},\n  \"crewId\": {{crewId}},\n  \"customerContactName\": \"Appointment\",\n  \"serviceDate\": \"2026-06-21\",\n  \"scheduledTime\": \"Appointment\",\n  \"estimatedHours\": 0.00,\n  \"appointmentStatusId\": 1,\n  \"customerApprovedOn\": \"Appointment\"\n}",
                                                                    "options":  {
                                                                                    "raw":  {
                                                                                                "language":  "json"
@@ -223,8 +223,9 @@
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const body = pm.response.json();",
-                                                                                    "if (body.success \u0026\u0026 body.data \u0026\u0026 body.data.id) {",
-                                                                                    "  pm.environment.set(\"appointmentId\", String(body.data.id));",
+                                                                                    "if (body.success \u0026\u0026 body.data) {",
+                                                                                    "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                    "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"appointmentId\", String(row.id));",
                                                                                     "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
@@ -246,7 +247,7 @@
                  "description":  "Scheduling appointments via {{gatewayUrl}}/api/v1/appointment.",
                  "name":  "FGS SchedulingService",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "76c486cc-d3d0-4b22-8b53-4efc4128596d"
+                 "_postman_id":  "3a109451-0ef0-49a5-8b37-272b9a3929c7"
              },
     "event":  [
                   {

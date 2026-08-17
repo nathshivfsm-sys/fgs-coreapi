@@ -76,6 +76,7 @@ public sealed class FgsTenantServiceSetupWriteService(
         entity.PONumberPrefix = TrimOrNull(dto.PONumberPrefix);
         entity.WorkOrderNumberPrefix = TrimOrNull(dto.WorkOrderNumberPrefix);
         entity.InvoiceBatchNumberFormat = TrimOrNull(dto.InvoiceBatchNumberFormat);
+        entity.EstimateRevisionCreationMode = NormalizeEstimateRevisionCreationMode(dto.EstimateRevisionCreationMode);
         entity.IsActive = dto.IsActive;
     }
 
@@ -206,6 +207,12 @@ public sealed class FgsTenantServiceSetupWriteService(
             entity.InvoiceBatchNumberFormat = TrimOrNull(dto.InvoiceBatchNumberFormat);
         }
 
+        if (dto.EstimateRevisionCreationMode is not null)
+        {
+            entity.EstimateRevisionCreationMode =
+                NormalizeEstimateRevisionCreationMode(dto.EstimateRevisionCreationMode);
+        }
+
         if (dto.IsActive.HasValue)
         {
             entity.IsActive = dto.IsActive.Value;
@@ -222,6 +229,8 @@ public sealed class FgsTenantServiceSetupWriteService(
         userContext.UserId?.ToString() ?? "system";
 
     private static string NormalizeBillHours(string value) => value.Trim().ToUpperInvariant();
+
+    private static string NormalizeEstimateRevisionCreationMode(string value) => value.Trim();
 
     private static string? TrimOrNull(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();
@@ -255,5 +264,6 @@ public sealed class FgsTenantServiceSetupWriteService(
             entity.PONumberPrefix,
             entity.WorkOrderNumberPrefix,
             entity.InvoiceBatchNumberFormat,
+            entity.EstimateRevisionCreationMode,
             entity.IsActive);
 }

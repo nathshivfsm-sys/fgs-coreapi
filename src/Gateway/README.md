@@ -75,14 +75,14 @@ Windows: `C:\Windows\System32\drivers\etc\hosts`. Linux/macOS: `/etc/hosts`. Reg
 | `/api/v1/invite/*` | `user-service:5001` | |
 | `/api/v1/signup/*` | `user-service:5001` | |
 | `/api/v1/dashboard` | `user-service:5001` | |
-| `/api/v1/(role\|permission\|dataaccess\|…\|apiwebhooksubscription)` | `user-service:5001` | Identity catalog / API management |
+| `/api/v1/(role\|permission\|dataaccess\|…\|apiwebhooksubscription\|company)` | `user-service:5001` | Identity catalog / API management / company CRUD |
 | `/api/v1/internal/users/*` | `user-service:5001` | Internal auth-profile |
 | `/api/v1/notification/*` | `notification-service:5002` | e.g. `POST …/notification/dispatch` |
 | `/api/v1/credential/*` | `setup-service:5004` | Credential admin |
 | `/api/v1/communication-template/*` | `setup-service:5004` | Templates for Notification |
 | `/api/v1/tenantprovisioning` | S2S only (Consumer→Setup) | Public gateway returns 403; not proxied |
 | `/api/v1/tenant/{id}/companies/{id}/businesstype` | S2S only (BFF→Setup) | Public gateway returns 403; not proxied |
-| `/api/v1/tenant/{id}/companies*` | `user-service:5001` | Tenant company management |
+| `/api/v1/company/*` | `user-service:5001` | Company CRUD |
 | `/api/v1/tenant/{id}/bucket` | `file-service:5005` | Bucket provisioning |
 | `/api/v1/tenant/*` (other) | `user-service:5001` | Tenant CRUD |
 | `/api/v1/attachment/*` | `file-service:5005` | Attachments |
@@ -251,7 +251,7 @@ Each API container mounts the **same** files you edit for local `dotnet run`:
 | Service Agreement | `src/ServiceAgreementService/Fgs.ServiceAgreement.API/appsettings.json` + `appsettings.Development.json` |
 | Communication | `src/CommunicationService/Fgs.Communication.API/appsettings.json` + `appsettings.Development.json` |
 
-Containers use `ASPNETCORE_ENVIRONMENT=Production` and mount Setup `appsettings.json` (connection string + AWS/KMS bootstrap live there for Setup only until Secrets Manager). Redis is still set via Compose (`Redis__ConnectionString=redis:6379`) so the container reaches the Compose Redis service.
+Containers do **not** bake `ASPNETCORE_ENVIRONMENT` into the image. Compose sets `ASPNETCORE_ENVIRONMENT` (default `Development`; override with the env var). Mount Setup `appsettings.json` for local bootstrap only — on AWS use Secrets Manager / task env. Redis is set via Compose (`Redis__ConnectionString=redis:6379`) so the container reaches the Compose Redis service.
 
 ## Scale Services Locally
 

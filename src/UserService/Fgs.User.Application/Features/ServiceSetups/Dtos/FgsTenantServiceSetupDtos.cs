@@ -30,6 +30,7 @@ public sealed record FgsTenantServiceSetupDetailDto(
     string? PONumberPrefix,
     string? WorkOrderNumberPrefix,
     string? InvoiceBatchNumberFormat,
+    string EstimateRevisionCreationMode,
     bool IsActive);
 
 public sealed record FgsTenantServiceSetupUpdateDto(
@@ -58,6 +59,7 @@ public sealed record FgsTenantServiceSetupUpdateDto(
     string? PONumberPrefix,
     string? WorkOrderNumberPrefix,
     string? InvoiceBatchNumberFormat,
+    string EstimateRevisionCreationMode,
     bool IsActive);
 
 public sealed record FgsTenantServiceSetupPatchDto(
@@ -86,4 +88,5 @@ public sealed record FgsTenantServiceSetupPatchDto(
     string? PONumberPrefix = null,
     string? WorkOrderNumberPrefix = null,
     string? InvoiceBatchNumberFormat = null,
+    string? EstimateRevisionCreationMode = null,
     bool? IsActive = null);

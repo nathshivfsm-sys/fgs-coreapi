@@ -152,6 +152,7 @@ internal sealed class FgsSalesActivityOutcomeReadRepository : IFgsSalesActivityO
                 FROM {FgsSalesActivityOutcomeSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "OutcomeCode" = @OutcomeCode
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

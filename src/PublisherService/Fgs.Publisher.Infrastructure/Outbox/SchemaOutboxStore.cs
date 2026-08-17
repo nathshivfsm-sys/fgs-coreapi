@@ -13,20 +13,31 @@ public sealed partial class SchemaOutboxStore : ISchemaOutboxSource
     private const string StatusFailed = "Failed";
     private static readonly TimeSpan StaleProcessingThreshold = TimeSpan.FromMinutes(2);
 
-    private readonly string _connectionString;
+    private readonly Func<string> _connectionStringFactory;
     private readonly string _qualifiedTable;
 
+    public SchemaOutboxStore(
+        string sourceKey,
+        Func<string> connectionStringFactory,
+        string schema,
+        string table)
+    {
+        SourceKey = sourceKey;
+        _connectionStringFactory = connectionStringFactory
+            ?? throw new ArgumentNullException(nameof(connectionStringFactory));
+        ValidateIdentifier(schema, nameof(schema));
+        ValidateIdentifier(table, nameof(table));
+        _qualifiedTable = $"{schema}.\"{table}\"";
+    }
+
+    /// <summary>Backward-compatible constructor for tests and callers with a fixed connection string.</summary>
     public SchemaOutboxStore(
         string sourceKey,
         string connectionString,
         string schema,
         string table)
+        : this(sourceKey, () => connectionString, schema, table)
     {
-        SourceKey = sourceKey;
-        _connectionString = connectionString;
-        ValidateIdentifier(schema, nameof(schema));
-        ValidateIdentifier(table, nameof(table));
-        _qualifiedTable = $"{schema}.\"{table}\"";
     }
 
     public string SourceKey { get; }
@@ -43,7 +54,7 @@ public sealed partial class SchemaOutboxStore : ISchemaOutboxSource
         var now = DateTimeOffset.UtcNow;
         var staleBefore = now.Subtract(StaleProcessingThreshold);
 
-        await using var connection = new NpgsqlConnection(_connectionString);
+        await using var connection = new NpgsqlConnection(_connectionStringFactory());
         await connection.OpenAsync(cancellationToken);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
@@ -175,7 +186,7 @@ public sealed partial class SchemaOutboxStore : ISchemaOutboxSource
         CancellationToken cancellationToken,
         params NpgsqlParameter[] parameters)
     {
-        await using var connection = new NpgsqlConnection(_connectionString);
+        await using var connection = new NpgsqlConnection(_connectionStringFactory());
         await connection.OpenAsync(cancellationToken);
         await using var command = new NpgsqlCommand(sql, connection);
         command.Parameters.AddRange(parameters);

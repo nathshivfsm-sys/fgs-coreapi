@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
@@ -12,6 +13,7 @@ public sealed class CredentialSnapshotRedisCache : ICredentialSnapshotRedisCache
     };
 
     private readonly CredentialConfigurationHolder _holder;
+    private readonly IConfiguration? _configuration;
     private readonly ILogger<CredentialSnapshotRedisCache> _logger;
     private readonly SemaphoreSlim _connectLock = new(1, 1);
     private readonly SemaphoreSlim _reloadLock = new(1, 1);
@@ -21,10 +23,12 @@ public sealed class CredentialSnapshotRedisCache : ICredentialSnapshotRedisCache
 
     public CredentialSnapshotRedisCache(
         CredentialConfigurationHolder holder,
-        ILogger<CredentialSnapshotRedisCache> logger)
+        ILogger<CredentialSnapshotRedisCache> logger,
+        IConfiguration? configuration = null)
     {
         _holder = holder;
         _logger = logger;
+        _configuration = configuration;
     }
 
     public async Task PublishAsync(
@@ -35,7 +39,8 @@ public sealed class CredentialSnapshotRedisCache : ICredentialSnapshotRedisCache
         if (db is null)
         {
             _logger.LogWarning(
-                "Skipping credential snapshot publish: Redis connection string is not available in loaded credentials.");
+                "Skipping credential snapshot publish: Redis connection string is not available "
+                + "(set Global:REDIS:ConnectionString, Redis:ConnectionString, or ConnectionStrings:Redis).");
             return;
         }
 
@@ -78,7 +83,8 @@ public sealed class CredentialSnapshotRedisCache : ICredentialSnapshotRedisCache
         if (multiplexer is null)
         {
             _logger.LogWarning(
-                "Credential snapshot Redis subscription not started: Redis connection string is not available.");
+                "Credential snapshot Redis subscription not started: Redis connection string is not available "
+                + "(set Global:REDIS:ConnectionString, Redis:ConnectionString, or ConnectionStrings:Redis).");
             return;
         }
 
@@ -153,7 +159,7 @@ public sealed class CredentialSnapshotRedisCache : ICredentialSnapshotRedisCache
 
     private async Task<IConnectionMultiplexer?> GetMultiplexerAsync(CancellationToken cancellationToken)
     {
-        var connectionString = ResolveRedisConnectionString(_holder.Values);
+        var connectionString = ResolveRedisConnectionString(_holder.Values, _configuration);
         if (string.IsNullOrWhiteSpace(connectionString))
         {
             return null;
@@ -169,7 +175,7 @@ public sealed class CredentialSnapshotRedisCache : ICredentialSnapshotRedisCache
         await _connectLock.WaitAsync(cancellationToken);
         try
         {
-            connectionString = ResolveRedisConnectionString(_holder.Values);
+            connectionString = ResolveRedisConnectionString(_holder.Values, _configuration);
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 return null;
@@ -198,7 +204,13 @@ public sealed class CredentialSnapshotRedisCache : ICredentialSnapshotRedisCache
         }
     }
 
-    internal static string? ResolveRedisConnectionString(IReadOnlyDictionary<string, string> values)
+    /// <summary>
+    /// Prefer the credential snapshot value, then bootstrap seed from configuration
+    /// (<c>Redis:ConnectionString</c> / <c>ConnectionStrings:Redis</c>) for cold start.
+    /// </summary>
+    internal static string? ResolveRedisConnectionString(
+        IReadOnlyDictionary<string, string> values,
+        IConfiguration? configuration = null)
     {
         if (values.TryGetValue("Global:REDIS:ConnectionString", out var connectionString)
             && !string.IsNullOrWhiteSpace(connectionString))
@@ -206,7 +218,19 @@ public sealed class CredentialSnapshotRedisCache : ICredentialSnapshotRedisCache
             return connectionString;
         }
 
-        return null;
+        if (configuration is null)
+        {
+            return null;
+        }
+
+        var fromRedisSection = configuration["Redis:ConnectionString"];
+        if (!string.IsNullOrWhiteSpace(fromRedisSection))
+        {
+            return fromRedisSection;
+        }
+
+        var fromConnectionStrings = configuration.GetConnectionString("Redis");
+        return string.IsNullOrWhiteSpace(fromConnectionStrings) ? null : fromConnectionStrings;
     }
 
     private static string NormalizeConnectionString(string connectionString)

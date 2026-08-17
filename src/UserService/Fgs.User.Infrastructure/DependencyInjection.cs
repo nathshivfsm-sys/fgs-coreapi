@@ -88,7 +88,7 @@ public static class DependencyInjection
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
         services.Configure<SignupLocaleOptions>(configuration.GetSection(SignupLocaleOptions.SectionName));
 
-        services.AddDbContext<FgsUserDbContext>((sp, options) =>
+        services.AddFgsDbContext<FgsUserDbContext>((sp, options) =>
         {
             var appConfiguration = sp.GetRequiredService<IConfiguration>();
             var credentialProvider = sp.GetService<ICredentialConfigurationProvider>();
@@ -105,7 +105,7 @@ public static class DependencyInjection
         services.AddSingleton<IUserReadConnectionFactory, FgsUserReadConnectionFactory>();
         services.AddScoped(typeof(IUserReadRepository<>), typeof(UserDapperReadRepository<>));
         services.AddScoped(typeof(IUserWriteRepository<>), typeof(UserEfWriteRepository<>));
-        services.AddScoped<ITenantCompanyDetailsReadQuery, TenantCompanyDetailsReadQuery>();
+        services.AddScoped<ICompanyDetailsReadQuery, CompanyDetailsReadQuery>();
         services.AddScoped<IUserRoleCodesReadQuery, UserRoleCodesReadQuery>();
         services.AddScoped<IUserAuthorizationReadQuery, UserAuthorizationReadQuery>();
         services.AddScoped<IInvitationReadQuery, InvitationReadQuery>();

@@ -1548,6 +1548,14 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<bool>("EnableRulesManagement")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("EstimateRevisionCreationMode")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasDefaultValue("OnDemand")
+                        .HasComment("Controls when estimate revisions are created. Valid values: OnDemand = user manually creates a revision; OnPostSignatureChange = automatically creates a revision when a signed estimate is changed.");
+
                     b.Property<string>("InvoiceBatchNumberFormat")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -1614,6 +1622,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.ToTable("FgsTenantServiceSetup", "tenant", t =>
                         {
                             t.HasCheckConstraint("CK_FgsTenantServiceSetup_DTRange", "\"DTStartTime\" IS NULL OR \"DTEndTime\" IS NULL OR \"DTEndTime\" > \"DTStartTime\"");
+
+                            t.HasCheckConstraint("CK_FgsTenantServiceSetup_EstimateRevisionCreationMode", "\"EstimateRevisionCreationMode\" IN ('OnDemand', 'OnPostSignatureChange')");
 
                             t.HasCheckConstraint("CK_FgsTenantServiceSetup_OTRange", "\"OTStartTime\" IS NULL OR \"OTEndTime\" IS NULL OR \"OTEndTime\" > \"OTStartTime\"");
 

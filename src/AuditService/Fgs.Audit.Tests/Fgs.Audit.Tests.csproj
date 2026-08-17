@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <CollectCoverage>true</CollectCoverage>
@@ -7,30 +6,25 @@
     <Include>[Fgs.Audit.Application]*</Include>
     <ExcludeByFile>**/Migrations/**/*.cs</ExcludeByFile>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
   </ItemGroup>
-
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="8.6.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.8" />
     <PackageReference Include="Moq" Version="4.20.72" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Fgs.Audit.Application\Fgs.Audit.Application.csproj" />
     <ProjectReference Include="..\Fgs.Audit.Infrastructure\Fgs.Audit.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Shared\Contracts\Fgs.Contracts\Fgs.Contracts.csproj" />
     <ProjectReference Include="..\..\Shared\MultiTenancy\Fgs.MultiTenancy\Fgs.MultiTenancy.csproj" />
   </ItemGroup>
-
 </Project>

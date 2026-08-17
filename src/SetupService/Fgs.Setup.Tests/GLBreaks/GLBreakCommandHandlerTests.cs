@@ -122,7 +122,7 @@ public sealed class GLBreakCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
 
-        var entity = await context.FgsSetupGLBreaks.SingleAsync();
+        var entity = await context.FgsSetupGLBreaks.IgnoreQueryFilters().SingleAsync();
         entity.IsActive.Should().BeFalse();
     }
 

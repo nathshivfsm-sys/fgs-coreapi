@@ -59,8 +59,8 @@ public sealed record FgsInventoryItemDependencyDetailDto(
     bool IsActive);
 
 /// <summary>
-/// Nested alternate on create/update/patch. Omit <see cref="Id"/> (or null) to insert; supply Id to update.
-/// Omitted existing alternates are removed on create/update (and on patch when Alternates is provided).
+/// Alternate relationship row. Omit <see cref="Id"/> (or null) to insert; supply Id to update.
+/// Omitted existing rows are removed on full-replace create/update.
 /// </summary>
 public sealed record FgsInventoryItemAlternateDto(
     long? Id,
@@ -70,8 +70,8 @@ public sealed record FgsInventoryItemAlternateDto(
     bool IsActive = true);
 
 /// <summary>
-/// Nested dependency on create/update/patch. Omit <see cref="Id"/> (or null) to insert; supply Id to update.
-/// Omitted existing dependencies are removed on create/update (and on patch when Dependencies is provided).
+/// Dependency relationship row. Omit <see cref="Id"/> (or null) to insert; supply Id to update.
+/// Omitted existing rows are removed on full-replace create/update.
 /// </summary>
 public sealed record FgsInventoryItemDependencyDto(
     long? Id,
@@ -81,6 +81,14 @@ public sealed record FgsInventoryItemDependencyDto(
     string? Notes = null,
     short DisplayOrder = 1,
     bool IsActive = true);
+
+public sealed record FgsInventoryItemAlternateReplaceDto(
+    long InventoryItemId,
+    IReadOnlyList<FgsInventoryItemAlternateDto> Items);
+
+public sealed record FgsInventoryItemDependencyReplaceDto(
+    long InventoryItemId,
+    IReadOnlyList<FgsInventoryItemDependencyDto> Items);
 
 public sealed record FgsInventoryItemCreateDto(
     long InventoryItemTypeId,
@@ -100,9 +108,7 @@ public sealed record FgsInventoryItemCreateDto(
     decimal StandardUnitCost = 0m,
     decimal SalesPrice = 0m,
     long? InventoryCategoryId = null,
-    long? InventorySubCategoryId = null,
-    IReadOnlyList<FgsInventoryItemAlternateDto>? Alternates = null,
-    IReadOnlyList<FgsInventoryItemDependencyDto>? Dependencies = null);
+    long? InventorySubCategoryId = null);
 
 public sealed record FgsInventoryItemUpdateDto(
     long InventoryItemTypeId,
@@ -122,9 +128,7 @@ public sealed record FgsInventoryItemUpdateDto(
     decimal StandardUnitCost,
     decimal SalesPrice,
     long? InventoryCategoryId,
-    long? InventorySubCategoryId,
-    IReadOnlyList<FgsInventoryItemAlternateDto>? Alternates = null,
-    IReadOnlyList<FgsInventoryItemDependencyDto>? Dependencies = null);
+    long? InventorySubCategoryId);
 
 public sealed record FgsInventoryItemPatchDto(
     long? InventoryItemTypeId,
@@ -145,9 +149,7 @@ public sealed record FgsInventoryItemPatchDto(
     decimal? SalesPrice,
     bool? IsActive,
     long? InventoryCategoryId,
-    long? InventorySubCategoryId,
-    IReadOnlyList<FgsInventoryItemAlternateDto>? Alternates = null,
-    IReadOnlyList<FgsInventoryItemDependencyDto>? Dependencies = null);
+    long? InventorySubCategoryId);
 
 public sealed record FgsInventoryItemListFilters(
     string? ItemCode = null,

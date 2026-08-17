@@ -189,6 +189,7 @@ internal sealed class BillingCategoryReadRepository : IBillingCategoryReadReposi
                 FROM {BillingCategorySql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "BillingCategoryType" = @BillingCategoryType AND "BillingCategoryName" = @BillingCategoryName
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

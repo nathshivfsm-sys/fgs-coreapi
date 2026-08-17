@@ -147,6 +147,7 @@ internal sealed class FgsSetupDescriptionReadRepository : IFgsSetupDescriptionRe
                 FROM {FgsSetupDescriptionSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "DescriptionTypeCode" = @DescriptionTypeCode
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

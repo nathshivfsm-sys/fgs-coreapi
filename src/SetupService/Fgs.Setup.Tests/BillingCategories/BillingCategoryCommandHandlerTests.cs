@@ -79,7 +79,7 @@ public sealed class BillingCategoryCommandHandlerTests
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
-        (await context.FgsBillingCategories.SingleAsync()).IsActive.Should().BeFalse();
+        (await context.FgsBillingCategories.IgnoreQueryFilters().SingleAsync()).IsActive.Should().BeFalse();
     }
 
     private static ITenantContextAccessor CreateTenantContextAccessor() =>

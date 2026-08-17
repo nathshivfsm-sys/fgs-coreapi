@@ -15,8 +15,9 @@ internal static class CredentialSnapshotApplier
             CredentialConfigurationFilter.Filter(values, requiredProviders),
             StringComparer.OrdinalIgnoreCase);
 
-        // Always keep Redis (snapshot pub/sub) and Entra (JWT bearer) even when not listed
-        // in RequiredProviders — most API hosts register AddFgsApiSecurity.
+        // Always keep Redis (snapshot pub/sub), Entra (JWT bearer), and Datadog (log shipping)
+        // even when not listed in RequiredProviders — most API hosts register AddFgsApiSecurity
+        // and shared observability.
         foreach (var (key, value) in values)
         {
             if (IsPlatformAuthOrDistributionKey(key))
@@ -32,5 +33,6 @@ internal static class CredentialSnapshotApplier
 
     private static bool IsPlatformAuthOrDistributionKey(string key) =>
         key.StartsWith("Global:REDIS:", StringComparison.OrdinalIgnoreCase)
-        || key.StartsWith("Global:ENTRA_EXTERNAL_ID:", StringComparison.OrdinalIgnoreCase);
+        || key.StartsWith("Global:ENTRA_EXTERNAL_ID:", StringComparison.OrdinalIgnoreCase)
+        || key.StartsWith("Global:DATADOG:", StringComparison.OrdinalIgnoreCase);
 }

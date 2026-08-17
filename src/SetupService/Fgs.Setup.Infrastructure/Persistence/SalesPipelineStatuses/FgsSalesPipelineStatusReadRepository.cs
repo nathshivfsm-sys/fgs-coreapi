@@ -152,6 +152,7 @@ internal sealed class FgsSalesPipelineStatusReadRepository : IFgsSalesPipelineSt
                 FROM {FgsSalesPipelineStatusSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "StatusCode" = @StatusCode
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

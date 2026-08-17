@@ -182,6 +182,7 @@ internal sealed class FgsUniversalMatrixItemReadRepository : IFgsUniversalMatrix
                 FROM {FgsUniversalMatrixItemSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "UniversalPricingServiceId" = @UniversalPricingServiceId
                   AND "ItemName" = @ItemName
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}

@@ -22,7 +22,7 @@ public static class DependencyInjection
     {
         services.AddFgsStandardInfrastructure(configuration, "fgs-crm-service", "DATABASE");
 
-        services.AddDbContext<FgsCrmDbContext>((sp, options) =>
+        services.AddFgsDbContext<FgsCrmDbContext>((sp, options) =>
         {
             var connectionString = ConnectionStringResolver.ResolveRequired(
                 sp.GetRequiredService<IConfiguration>(),

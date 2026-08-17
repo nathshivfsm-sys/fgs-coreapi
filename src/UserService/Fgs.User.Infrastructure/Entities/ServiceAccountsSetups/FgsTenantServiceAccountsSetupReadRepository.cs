@@ -11,9 +11,17 @@ internal sealed class FgsTenantServiceAccountsSetupReadRepository(
     IUserReadConnectionFactory connectionFactory,
     ITenantContextAccessor tenantContextAccessor) : IFgsTenantServiceAccountsSetupReadRepository
 {
-    public async Task<FgsTenantServiceAccountsSetupDetailDto?> GetCurrentAsync(CancellationToken cancellationToken = default)
+    public Task<FgsTenantServiceAccountsSetupDetailDto?> GetCurrentAsync(CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        return GetByTenantCompanyAsync(tenantId, companyId, cancellationToken);
+    }
+
+    public async Task<FgsTenantServiceAccountsSetupDetailDto?> GetByTenantCompanyAsync(
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken = default)
+    {
         var sql = $"""
             SELECT {FgsTenantServiceAccountsSetupSql.SelectDetailColumns}
             FROM {FgsTenantServiceAccountsSetupSql.Table}

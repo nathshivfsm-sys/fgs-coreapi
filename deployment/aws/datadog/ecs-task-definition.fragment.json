@@ -1,17 +1,21 @@
 {
-  "comment": "Merge into Fargate task definitions. Replace secret ARNs. Do not commit real keys.",
+  "comment": "Merge into Fargate task definitions. Replace secret ARNs. Do not commit real keys. Apps export OTLP to the Datadog agent sidecar; LLM Observability stays off.",
   "containerDefinitions": [
     {
       "name": "fgs-service",
       "environment": [
+        { "name": "Observability__Enabled", "value": "true" },
+        { "name": "Observability__OtlpEndpoint", "value": "http://localhost:4317" },
+        { "name": "Observability__Env", "value": "prod" },
+        { "name": "Observability__EnableTracing", "value": "true" },
+        { "name": "Observability__EnableMetrics", "value": "true" },
+        { "name": "Observability__EnableRuntimeMetrics", "value": "true" },
         { "name": "Datadog__Enabled", "value": "true" },
         { "name": "Datadog__AgentHost", "value": "localhost" },
-        { "name": "Datadog__AgentPort", "value": "8126" },
-        { "name": "Datadog__DogStatsDPort", "value": "8125" },
         { "name": "Datadog__Site", "value": "datadoghq.com" },
         { "name": "Datadog__Env", "value": "prod" },
-        { "name": "Datadog__EnableApm", "value": "true" },
-        { "name": "DD_LOGS_INJECTION", "value": "true" }
+        { "name": "Datadog__EnableLlmObs", "value": "false" },
+        { "name": "DD_LLMOBS_ENABLED", "value": "false" }
       ],
       "secrets": [
         {
@@ -51,6 +55,9 @@
         { "name": "DD_APM_ENABLED", "value": "true" },
         { "name": "DD_APM_NON_LOCAL_TRAFFIC", "value": "true" },
         { "name": "DD_DOGSTATSD_NON_LOCAL_TRAFFIC", "value": "true" },
+        { "name": "DD_LLMOBS_ENABLED", "value": "false" },
+        { "name": "DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_GRPC_ENDPOINT", "value": "0.0.0.0:4317" },
+        { "name": "DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_HTTP_ENDPOINT", "value": "0.0.0.0:4318" },
         { "name": "ECS_FARGATE", "value": "true" }
       ],
       "secrets": [

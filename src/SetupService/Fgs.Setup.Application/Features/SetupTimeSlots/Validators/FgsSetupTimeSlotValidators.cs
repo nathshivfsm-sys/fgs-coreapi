@@ -63,19 +63,20 @@ public sealed class PatchFgsSetupTimeSlotCommandValidator : AbstractValidator<Pa
         RuleFor(x => x.Dto.FgsSetupZoneId).MustAsync(async (command, value, cancellationToken) =>
                 !value.HasValue || await readRepository.ExistsZoneIdAsync(value.Value, cancellationToken))
             .WithMessage("The specified zone was not found.").When(x => x.Dto.FgsSetupZoneId.HasValue);
-        RuleFor(x => x.Dto.Code).NotEmpty();
-        RuleFor(x => x.Dto.Code).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("Code must be uppercase.");
+        RuleFor(x => x.Dto.Code).NotEmpty().When(x => x.Dto.Code is not null);
+        RuleFor(x => x.Dto.Code).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("Code must be uppercase.").When(x => x.Dto.Code is not null);
         RuleFor(x => x.Dto.Code).MustAsync(async (command, code, cancellationToken) =>
                 !await readRepository.ExistsByCodeAsync(code!, command.Id, cancellationToken))
-            .WithMessage("A time slot with this code already exists.");
-        RuleFor(x => x.Dto.Name).NotEmpty();
+            .WithMessage("A time slot with this code already exists.").When(x => x.Dto.Code is not null);
+        RuleFor(x => x.Dto.Name).NotEmpty().When(x => x.Dto.Name is not null);
 
 
 
 
 
 
-        RuleFor(x => x.Dto).Must(dto => dto.EndTime > dto.BeginTime)
-            .WithMessage("EndTime must be greater than BeginTime.");
+        RuleFor(x => x.Dto).Must(dto => dto.EndTime!.Value > dto.BeginTime!.Value)
+            .WithMessage("EndTime must be greater than BeginTime.")
+            .When(x => x.Dto.BeginTime.HasValue && x.Dto.EndTime.HasValue);
     }
 }

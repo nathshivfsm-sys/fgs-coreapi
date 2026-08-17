@@ -46,10 +46,10 @@ public sealed class PatchFgsSetupLaborRateTypeCommandValidator : AbstractValidat
     public PatchFgsSetupLaborRateTypeCommandValidator(IFgsSetupLaborRateTypeReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.Name).NotEmpty();
+        RuleFor(x => x.Dto.Name).NotEmpty().When(x => x.Dto.Name is not null);
         RuleFor(x => x.Dto.Name).MustAsync(async (command, name, cancellationToken) =>
                 !await readRepository.ExistsByNameAsync(name!, command.Id, cancellationToken))
-            .WithMessage("An active labor rate type with this name already exists.");
+            .WithMessage("An active labor rate type with this name already exists.").When(x => x.Dto.Name is not null);
 
         RuleFor(x => x.Dto.SortOrder).GreaterThanOrEqualTo(0).When(x => x.Dto.SortOrder.HasValue);
 
