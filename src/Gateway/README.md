@@ -251,7 +251,7 @@ Each API container mounts the **same** files you edit for local `dotnet run`:
 | Service Agreement | `src/ServiceAgreementService/Fgs.ServiceAgreement.API/appsettings.json` + `appsettings.Development.json` |
 | Communication | `src/CommunicationService/Fgs.Communication.API/appsettings.json` + `appsettings.Development.json` |
 
-Containers use `ASPNETCORE_ENVIRONMENT=Production` and mount Setup `appsettings.json` (connection string + AWS/KMS bootstrap live there for Setup only until Secrets Manager). Redis is still set via Compose (`Redis__ConnectionString=redis:6379`) so the container reaches the Compose Redis service.
+Containers do **not** bake `ASPNETCORE_ENVIRONMENT` into the image. Compose sets `ASPNETCORE_ENVIRONMENT` (default `Development`; override with the env var). Mount Setup `appsettings.json` for local bootstrap only — on AWS use Secrets Manager / task env. Redis is set via Compose (`Redis__ConnectionString=redis:6379`) so the container reaches the Compose Redis service.
 
 ## Scale Services Locally
 

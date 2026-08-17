@@ -58,8 +58,9 @@ x-datadog-env-off: &datadog-env-off
   Observability__EnableRuntimeMetrics: "false"
   DD_LLMOBS_ENABLED: "false"
 
+# ASPNETCORE_ENVIRONMENT is set here (orchestration), not in Dockerfiles — same image promotes across envs.
 x-credential-consumer-env: &credential-consumer-env
-  ASPNETCORE_ENVIRONMENT: Production
+  ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
   SetupService__BaseUrl: http://setup-service:5004
   CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
   # Seed Redis for Redis-first credential bootstrap (snapshot published by Setup).
@@ -162,7 +163,7 @@ services:
       dockerfile: src/Gateway/docker/setup-service.Dockerfile
     environment:
       <<: *datadog-env-on
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/setup
