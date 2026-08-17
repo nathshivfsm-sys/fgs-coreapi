@@ -1,6 +1,7 @@
 using Fgs.User.Application.Features.ServiceSetups.Commands.UpdateFgsTenantServiceSetup;
 using Fgs.User.Application.Features.ServiceSetups.Dtos;
 using Fgs.User.Application.Features.ServiceSetups.Validators;
+using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
 
 namespace Fgs.User.Tests.Application;
@@ -56,5 +57,6 @@ public sealed class FgsTenantServiceSetupValidatorTests
             null,
             null,
             null,
+            EstimateRevisionCreationModes.OnDemand,
             true);
 }

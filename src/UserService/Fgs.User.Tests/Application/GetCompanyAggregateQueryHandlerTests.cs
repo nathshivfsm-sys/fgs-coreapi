@@ -182,6 +182,7 @@ public sealed class GetCompanyAggregateQueryHandlerTests
             null,
             null,
             null,
+            EstimateRevisionCreationModes.OnDemand,
             true);
         var serviceSetupRepo = new Mock<IFgsTenantServiceSetupReadRepository>();
         serviceSetupRepo.Setup(r => r.GetByTenantCompanyAsync(10, 1, It.IsAny<CancellationToken>()))

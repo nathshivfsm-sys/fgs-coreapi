@@ -9,7 +9,26 @@ internal class FgsTenantServiceSetupConfiguration : IEntityTypeConfiguration<Fgs
 {
     public void Configure(EntityTypeBuilder<FgsTenantServiceSetup> entity)
     {
-        entity.ToTable("FgsTenantServiceSetup");
+        entity.ToTable(
+            "FgsTenantServiceSetup",
+            t =>
+            {
+                t.HasCheckConstraint(
+                    "CK_FgsTenantServiceSetup_WorkLocationRadius",
+                    "\"WorkLocationRadiusForAutoArrive\" IS NULL OR \"WorkLocationRadiusForAutoArrive\" >= 0");
+                t.HasCheckConstraint(
+                    "CK_FgsTenantServiceSetup_OTRange",
+                    "\"OTStartTime\" IS NULL OR \"OTEndTime\" IS NULL OR \"OTEndTime\" > \"OTStartTime\"");
+                t.HasCheckConstraint(
+                    "CK_FgsTenantServiceSetup_DTRange",
+                    "\"DTStartTime\" IS NULL OR \"DTEndTime\" IS NULL OR \"DTEndTime\" > \"DTStartTime\"");
+                t.HasCheckConstraint(
+                    "CK_FgsTenantServiceSetup_TimeCardOptionId",
+                    "\"TimeCardOptionId\" IN (1, 2, 3, 4)");
+                t.HasCheckConstraint(
+                    "CK_FgsTenantServiceSetup_EstimateRevisionCreationMode",
+                    "\"EstimateRevisionCreationMode\" IN ('OnDemand', 'OnPostSignatureChange')");
+            });
         entity.HasKey(e => new { e.TenantId, e.CompanyId });
         entity.Property(e => e.TenantId).HasColumnOrder(0);
         entity.Property(e => e.CompanyId).HasColumnOrder(1);
@@ -24,22 +43,13 @@ internal class FgsTenantServiceSetupConfiguration : IEntityTypeConfiguration<Fgs
         entity.Property(e => e.PONumberPrefix).HasMaxLength(20);
         entity.Property(e => e.WorkOrderNumberPrefix).HasMaxLength(20);
         entity.Property(e => e.InvoiceBatchNumberFormat).HasMaxLength(200);
+        entity.Property(e => e.EstimateRevisionCreationMode)
+            .HasMaxLength(50)
+            .IsRequired()
+            .HasDefaultValue(EstimateRevisionCreationModes.OnDemand)
+            .HasComment(
+                "Controls when estimate revisions are created. Valid values: OnDemand = user manually creates a revision; OnPostSignatureChange = automatically creates a revision when a signed estimate is changed.");
         entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
-        entity.ToTable(t =>
-        {
-            t.HasCheckConstraint(
-                "CK_FgsTenantServiceSetup_WorkLocationRadius",
-                "\"WorkLocationRadiusForAutoArrive\" IS NULL OR \"WorkLocationRadiusForAutoArrive\" >= 0");
-            t.HasCheckConstraint(
-                "CK_FgsTenantServiceSetup_OTRange",
-                "\"OTStartTime\" IS NULL OR \"OTEndTime\" IS NULL OR \"OTEndTime\" > \"OTStartTime\"");
-            t.HasCheckConstraint(
-                "CK_FgsTenantServiceSetup_DTRange",
-                "\"DTStartTime\" IS NULL OR \"DTEndTime\" IS NULL OR \"DTEndTime\" > \"DTStartTime\"");
-            t.HasCheckConstraint(
-                "CK_FgsTenantServiceSetup_TimeCardOptionId",
-                "\"TimeCardOptionId\" IN (1, 2, 3, 4)");
-        });
     }
 }
