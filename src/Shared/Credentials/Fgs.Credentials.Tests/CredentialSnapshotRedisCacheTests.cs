@@ -85,6 +85,31 @@ public sealed class CredentialSnapshotApplierTests
         holder.Values.Should().ContainKey("Global:ENTRA_EXTERNAL_ID:PasswordUserFlow");
         holder.Values.Should().NotContainKey("Global:SENDGRID:ApiKey");
     }
+
+    [Fact]
+    public void Apply_AlwaysRetainsDatadogKeysEvenWhenNotRequired()
+    {
+        var holder = new CredentialConfigurationHolder();
+        var notifier = new CredentialOptionsChangeNotifier();
+
+        var count = CredentialSnapshotApplier.Apply(
+            holder,
+            notifier,
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Global:DATABASE:FgsUser"] = "Host=db",
+                ["Global:DATADOG:ApiKey"] = "dd-api-key",
+                ["Global:DATADOG:Site"] = "us5.datadoghq.com",
+                ["Global:SENDGRID:ApiKey"] = "sg-key"
+            },
+            ["DATABASE"]);
+
+        count.Should().Be(3);
+        holder.Values.Should().ContainKey("Global:DATABASE:FgsUser");
+        holder.Values.Should().ContainKey("Global:DATADOG:ApiKey");
+        holder.Values.Should().ContainKey("Global:DATADOG:Site");
+        holder.Values.Should().NotContainKey("Global:SENDGRID:ApiKey");
+    }
 }
 
 public sealed class CredentialSnapshotRedisCacheTests

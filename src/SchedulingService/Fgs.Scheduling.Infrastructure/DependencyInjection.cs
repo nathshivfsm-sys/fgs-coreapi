@@ -20,7 +20,7 @@ public static class DependencyInjection
     {
         services.AddFgsStandardInfrastructure(configuration, "fgs-scheduling-service", "DATABASE");
 
-        services.AddDbContext<FgsSchedulingDbContext>((sp, options) =>
+        services.AddFgsDbContext<FgsSchedulingDbContext>((sp, options) =>
         {
             var connectionString = ConnectionStringResolver.ResolveRequired(
                 sp.GetRequiredService<IConfiguration>(),

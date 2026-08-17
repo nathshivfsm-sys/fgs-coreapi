@@ -32,5 +32,10 @@ public sealed class DatadogOptions
 
     public bool EnableRuntimeMetrics { get; set; } = true;
 
+    /// <summary>
+    /// Datadog LLM Observability / AI. Always forced off via <c>DD_LLMOBS_ENABLED=false</c>; keep false.
+    /// </summary>
+    public bool EnableLlmObs { get; set; }
+
     public string? ServiceName { get; set; }
 }

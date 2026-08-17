@@ -174,7 +174,6 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
                 FROM {FgsEmployeeSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
-                  AND "IsActive" = TRUE
                   AND LOWER("EmployeeNumber") = LOWER(@EmployeeNumber)
                   {excludeClause})
             """;
@@ -206,7 +205,6 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
                 FROM {FgsEmployeeSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
-                  AND "IsActive" = TRUE
                   AND "UserId" = @UserId
                   {excludeClause})
             """;

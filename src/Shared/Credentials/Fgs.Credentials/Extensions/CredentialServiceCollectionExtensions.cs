@@ -157,6 +157,8 @@ public static class CredentialServiceCollectionExtensions
 
     public static void RegisterCredentialOptionsChangeSource<TOptions>(IServiceCollection services)
         where TOptions : class =>
-        services.AddSingleton<Microsoft.Extensions.Options.IOptionsChangeTokenSource<TOptions>,
-            CredentialOptionsChangeTokenSource<TOptions>>();
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<
+                Microsoft.Extensions.Options.IOptionsChangeTokenSource<TOptions>,
+                CredentialOptionsChangeTokenSource<TOptions>>());
 }

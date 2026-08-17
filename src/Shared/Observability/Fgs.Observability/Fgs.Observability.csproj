@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\..\Contracts\Fgs.Contracts\Fgs.Contracts.csproj" />
+    <ProjectReference Include="..\..\Credentials\Fgs.Credentials\Fgs.Credentials.csproj" />
     <ProjectReference Include="..\..\Foundation\Fgs.Foundation\Fgs.Foundation.csproj" />
     <ProjectReference Include="..\..\MultiTenancy\Fgs.MultiTenancy\Fgs.MultiTenancy.csproj" />
     <ProjectReference Include="..\..\Security\Fgs.Security\Fgs.Security.csproj" />

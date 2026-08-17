@@ -22,10 +22,10 @@ APIs (ILogger / IFgsMetrics)
 
 ## Local (Docker Desktop)
 
-**Testing split:** in `src/Gateway/docker-compose.yml`, Datadog/OTLP is **on** only for `setup-service` and `user-service`; all other APIs use `x-datadog-env-off` (`Datadog__Enabled` / `Observability__Enabled` false, empty ApiKey/OTLP).
+**Default: logs-only (no agent).** In `src/Gateway/docker-compose.yml`, `setup-service` and `user-service` use `x-datadog-env-on` (Serilog → Datadog Logs API; OTLP/agent off). All other APIs use `x-datadog-env-off`. The `datadog-agent` service is behind Compose profile `datadog-agent` and does not start with a normal `docker compose up`.
 
 1. Ensure Setup seed includes `DATADOG` (`Initial_Migration_Seed.sql`), or run `tools/seed_datadog_dev_credential.py` for DEV.
-2. Create a **Global** Datadog credential in **dev** only (via Credential API / Postman), e.g.:
+2. Set `DD_API_KEY` for Serilog at process start (compose `Datadog__ApiKey`), **or** create a **Global** Datadog credential in **dev** (via Credential API / Postman). Prefer `DD_API_KEY` for local logs-only so the sink attaches at startup:
 
 ```json
 {
@@ -40,29 +40,32 @@ APIs (ILogger / IFgsMetrics)
 ```
 
    That maps to `Datadog:ApiKey` / `Datadog:Site` via credential distribution (`Global:DATADOG:*`).
-3. Set agent key for the Datadog Agent container: `DD_API_KEY` (same value as the credential ApiKey).
-4. From `src/Gateway`:
+3. From `src/Gateway`:
 
 ```bash
-docker compose up -d datadog-agent
+# Logs only (default) — set DD_API_KEY in the environment or a local .env
 docker compose up -d
 ```
 
 Apps send:
 
-- **Traces / metrics (OTLP)** → `http://datadog-agent:4317` (`Observability:OtlpEndpoint`, or derived from `Datadog:AgentHost`) — from appsettings/compose
-- **Logs** → Datadog Logs API when `Datadog:ApiKey` is supplied by the **credential snapshot** (Serilog), plus JSON console
+- **Logs** → Datadog Logs API when `Datadog:ApiKey` is set (`DD_API_KEY` / credential), plus JSON console
+- **Traces / metrics** → off by default. Optional agent: `docker compose --profile datadog-agent up -d datadog-agent`, then enable OTLP/`AgentHost` on the services you want.
 
 Empty `ApiKey` / empty `OtlpEndpoint` (and no `AgentHost`) keeps the process healthy; nothing is exported.
 
-**LLM Observability / Datadog AI is disabled:** `DD_LLMOBS_ENABLED=false` on the agent and all app containers.
+**Credential hot-reload (Datadog logs):** updating the Global `DATADOG` credential republishes the Redis snapshot. Consumers always retain `Global:DATADOG:*` (even when `DATADOG` is not in `RequiredProviders`), refresh `DatadogOptions`, and the Serilog Datadog sink rebuilds on the next log when `ApiKey` changes. Keep `DD_SITE` in Compose/env to pin the intake region (e.g. `us5.datadoghq.com`).
+
+**Credential hot-reload (DATABASE connection strings):** DbContexts use scoped options (`AddFgsDbContext`) so each request re-resolves the connection string from the credential holder. Dapper read factories and publisher outbox stores resolve on each open/claim as well.
+
+**LLM Observability / Datadog AI is disabled everywhere:** `AddFgsObservability` forces `DD_LLMOBS_ENABLED=false` and `Datadog:EnableLlmObs=false`. Compose/ECS also set `DD_LLMOBS_ENABLED=false` on app and agent containers.
 
 ### Config split (dev)
 
 | Source | Keys |
 |--------|------|
-| **Credential table (Global DATADOG)** | `ApiKey`, optional `Site` |
-| **appsettings / compose** | `Observability:*`, `Datadog:Enabled`, `AgentHost`, toggles, `DD_LLMOBS_ENABLED` |
+| **Credential table (Global DATADOG)** / `DD_API_KEY` | `ApiKey` (hot-reloads into Serilog sink after snapshot pub/sub), optional `Site` |
+| **appsettings / compose** | `Observability:*`, `Datadog:Enabled`, `AgentHost`, toggles, `EnableLlmObs` (always false), `DD_LLMOBS_ENABLED`; `DD_SITE` pins intake region (e.g. `us5.datadoghq.com`) |
 
 ## Configuration
 
@@ -85,6 +88,7 @@ Empty `ApiKey` / empty `OtlpEndpoint` (and no `AgentHost`) keeps the process hea
 | `Site` | e.g. `datadoghq.com` |
 | `AgentHost` | If `Observability:OtlpEndpoint` is empty → `http://{AgentHost}:4317` |
 | `Env` / `Version` / `EnableApm` / `EnableRuntimeMetrics` | Fallbacks when Observability keys are unset |
+| `EnableLlmObs` | Always `false`; `AddFgsObservability` also forces `DD_LLMOBS_ENABLED=false` |
 
 ## Log facets
 

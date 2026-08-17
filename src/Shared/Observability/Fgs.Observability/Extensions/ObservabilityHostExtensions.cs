@@ -1,4 +1,6 @@
 using Fgs.Contracts.Observability;
+using Fgs.Credentials;
+using Fgs.Credentials.Extensions;
 using Fgs.Observability.Logging;
 using Fgs.Observability.Metrics;
 using Fgs.Observability.Options;
@@ -25,6 +27,9 @@ public static class ObservabilityHostExtensions
             builder.Configuration,
             serviceName);
 
+        DisableDatadogLlmObservability();
+        datadog.EnableLlmObs = false;
+
         var resolvedServiceName = observability.ServiceName ?? "fgs-service";
 
         builder.Services.Configure<ObservabilityOptions>(
@@ -37,11 +42,19 @@ public static class ObservabilityHostExtensions
             o.ServiceName = resolvedServiceName;
             o.Env = observability.Env;
             o.Version = observability.Version;
+            o.EnableLlmObs = false;
             if (string.IsNullOrWhiteSpace(o.ApiKey))
             {
                 o.ApiKey = datadog.ApiKey;
             }
         });
+
+        // When credential distribution is registered, refresh DatadogOptions after snapshot reload.
+        if (builder.Services.Any(d => d.ServiceType == typeof(CredentialOptionsChangeNotifier)))
+        {
+            CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<DatadogOptions>(
+                builder.Services);
+        }
 
         builder.AddFgsSerilog(resolvedServiceName, observability, datadog);
         builder.Services.AddFgsOpenTelemetry(observability);
@@ -73,9 +86,19 @@ public static class ObservabilityHostExtensions
     {
         var (observability, _) = ObservabilityOptionsResolver.Resolve(configuration, serviceName);
 
+        DisableDatadogLlmObservability();
+
         services.Configure<ObservabilityOptions>(configuration.GetSection(ObservabilityOptions.SectionName));
         services.Configure<DatadogOptions>(configuration.GetSection(DatadogOptions.SectionName));
         services.PostConfigure<ObservabilityOptions>(o => ApplyResolved(o, observability));
+        services.PostConfigure<DatadogOptions>(o => o.EnableLlmObs = false);
+
+        if (services.Any(d => d.ServiceType == typeof(CredentialOptionsChangeNotifier)))
+        {
+            CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<DatadogOptions>(
+                services);
+        }
+
         services.AddFgsOpenTelemetry(observability);
 
         services.AddHealthChecks();
@@ -102,6 +125,9 @@ public static class ObservabilityHostExtensions
     [Obsolete("Use UseFgsActivitySpanTags instead.")]
     public static IApplicationBuilder UseFgsDatadogSpanTags(this IApplicationBuilder app) =>
         app.UseFgsActivitySpanTags();
+
+    private static void DisableDatadogLlmObservability() =>
+        Environment.SetEnvironmentVariable("DD_LLMOBS_ENABLED", "false");
 
     private static void ApplyResolved(ObservabilityOptions target, ObservabilityOptions resolved)
     {

@@ -52,14 +52,13 @@ public static class DependencyInjection
             var sources = sourceOptions.GetEnabledSources()
                 .Select(source =>
                 {
-                    var connectionString = ConnectionStringResolver.ResolveRequired(
-                        config,
-                        source.ResolveConnectionStringName(),
-                        credentialProvider: credentialProvider);
-
+                    var connectionStringName = source.ResolveConnectionStringName();
                     return (ISchemaOutboxSource)new SchemaOutboxStore(
                         source.SourceKey,
-                        connectionString,
+                        () => ConnectionStringResolver.ResolveRequired(
+                            config,
+                            connectionStringName,
+                            credentialProvider: credentialProvider),
                         source.Schema,
                         source.Table);
                 })

@@ -88,7 +88,7 @@ public static class DependencyInjection
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
         services.Configure<SignupLocaleOptions>(configuration.GetSection(SignupLocaleOptions.SectionName));
 
-        services.AddDbContext<FgsUserDbContext>((sp, options) =>
+        services.AddFgsDbContext<FgsUserDbContext>((sp, options) =>
         {
             var appConfiguration = sp.GetRequiredService<IConfiguration>();
             var credentialProvider = sp.GetService<ICredentialConfigurationProvider>();

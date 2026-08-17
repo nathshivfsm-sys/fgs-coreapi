@@ -14,25 +14,27 @@ x-service-network: &service-network
     - fgs-private
   restart: unless-stopped
 
-# Testing: Datadog/OTLP on for setup-service + user-service only; off for all other APIs.
+# Testing: Datadog logs-only for setup-service + user-service; off for all other APIs.
+# No agent/OTLP — Serilog ships logs via Datadog Logs API when DD_API_KEY (or credential ApiKey) is set.
 x-datadog-env-on: &datadog-env-on
   Datadog__Enabled: "true"
   Datadog__ApiKey: ${DD_API_KEY:-}
   Datadog__Site: ${DD_SITE:-datadoghq.com}
-  Datadog__AgentHost: datadog-agent
+  Datadog__AgentHost: ""
   Datadog__AgentPort: "8126"
   Datadog__DogStatsDPort: "8125"
   Datadog__Env: ${DD_ENV:-local}
   Datadog__Version: ${DD_VERSION:-0.0.0}
-  Datadog__EnableApm: "true"
-  Datadog__EnableRuntimeMetrics: "true"
-  Observability__Enabled: "true"
-  Observability__OtlpEndpoint: http://datadog-agent:4317
+  Datadog__EnableApm: "false"
+  Datadog__EnableRuntimeMetrics: "false"
+  Datadog__EnableLlmObs: "false"
+  Observability__Enabled: "false"
+  Observability__OtlpEndpoint: ""
   Observability__Env: ${DD_ENV:-local}
   Observability__Version: ${DD_VERSION:-0.0.0}
-  Observability__EnableTracing: "true"
-  Observability__EnableMetrics: "true"
-  Observability__EnableRuntimeMetrics: "true"
+  Observability__EnableTracing: "false"
+  Observability__EnableMetrics: "false"
+  Observability__EnableRuntimeMetrics: "false"
   DD_LLMOBS_ENABLED: "false"
 
 x-datadog-env-off: &datadog-env-off
@@ -46,6 +48,7 @@ x-datadog-env-off: &datadog-env-off
   Datadog__Version: ${DD_VERSION:-0.0.0}
   Datadog__EnableApm: "false"
   Datadog__EnableRuntimeMetrics: "false"
+  Datadog__EnableLlmObs: "false"
   Observability__Enabled: "false"
   Observability__OtlpEndpoint: ""
   Observability__Env: ${DD_ENV:-local}
@@ -117,9 +120,11 @@ services:
       - fgs-private
     restart: unless-stopped
 
-  # Datadog Agent — set DD_API_KEY (same value as Datadog:ApiKey / Datadog__ApiKey)
-  # Apps export OpenTelemetry traces/metrics via OTLP to :4317; Serilog still uses Datadog Logs API when ApiKey is set.
+  # Datadog Agent — optional (profile). Local default is logs-only without this container.
+  # Start with: docker compose --profile datadog-agent up -d datadog-agent
+  # Then point Observability__OtlpEndpoint / Datadog__AgentHost at datadog-agent and set DD_API_KEY.
   datadog-agent:
+    profiles: ["datadog-agent"]
     image: gcr.io/datadoghq/agent:7.64.0
     <<: *service-network
     environment:
@@ -216,17 +221,19 @@ services:
       dockerfile: src/Gateway/docker/user-service.Dockerfile
     environment:
       <<: *credential-consumer-env
-      # Override shared off defaults — Datadog on for user-service only (with setup-service).
+      # Override shared off defaults — Datadog logs-only for user-service (with setup-service).
       Datadog__Enabled: "true"
       Datadog__ApiKey: ${DD_API_KEY:-}
-      Datadog__AgentHost: datadog-agent
-      Datadog__EnableApm: "true"
-      Datadog__EnableRuntimeMetrics: "true"
-      Observability__Enabled: "true"
-      Observability__OtlpEndpoint: http://datadog-agent:4317
-      Observability__EnableTracing: "true"
-      Observability__EnableMetrics: "true"
-      Observability__EnableRuntimeMetrics: "true"
+      Datadog__AgentHost: ""
+      Datadog__EnableApm: "false"
+      Datadog__EnableRuntimeMetrics: "false"
+      Datadog__EnableLlmObs: "false"
+      Observability__Enabled: "false"
+      Observability__OtlpEndpoint: ""
+      Observability__EnableTracing: "false"
+      Observability__EnableMetrics: "false"
+      Observability__EnableRuntimeMetrics: "false"
+      DD_LLMOBS_ENABLED: "false"
       Swagger__RoutePrefix: swagger/user
       CredentialConsumer__ServiceName: fgs-user-service
       CredentialConsumer__RequiredProviders__0: DATABASE

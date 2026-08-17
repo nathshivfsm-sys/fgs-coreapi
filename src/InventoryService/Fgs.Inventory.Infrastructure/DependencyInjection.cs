@@ -53,7 +53,7 @@ public static class DependencyInjection
     {
         services.AddFgsStandardInfrastructure(configuration, "fgs-inventory-service", "DATABASE");
 
-        services.AddDbContext<FgsInventoryDbContext>((sp, options) =>
+        services.AddFgsDbContext<FgsInventoryDbContext>((sp, options) =>
         {
             var connectionString = ConnectionStringResolver.ResolveRequired(
                 sp.GetRequiredService<IConfiguration>(),

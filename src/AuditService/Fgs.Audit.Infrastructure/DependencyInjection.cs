@@ -21,7 +21,7 @@ public static class DependencyInjection
     {
         services.AddFgsStandardInfrastructure(configuration, "fgs-audit-service", "DATABASE");
 
-        services.AddDbContext<FgsAuditDbContext>((sp, options) =>
+        services.AddFgsDbContext<FgsAuditDbContext>((sp, options) =>
         {
             var connectionString = ConnectionStringResolver.ResolveRequired(
                 sp.GetRequiredService<IConfiguration>(),

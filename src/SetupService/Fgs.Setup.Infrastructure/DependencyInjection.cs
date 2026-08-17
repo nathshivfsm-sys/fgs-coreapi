@@ -1,4 +1,5 @@
 using Fgs.Contracts.Clients;
+using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using Fgs.Credentials.Options;
 using Fgs.Foundation.Caching.Options;
@@ -136,9 +137,11 @@ public static class DependencyInjection
         services.Configure<TenantProvisioningOptions>(configuration.GetSection(TenantProvisioningOptions.SectionName));
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
 
-        var connectionString = FgsSetupConnectionString.ResolveRequired(configuration);
-        services.AddDbContext<FgsSetupDbContext>((_, options) =>
+        services.AddFgsDbContext<FgsSetupDbContext>((sp, options) =>
         {
+            var connectionString = FgsSetupConnectionString.ResolveRequired(
+                sp.GetRequiredService<IConfiguration>(),
+                sp.GetService<ICredentialConfigurationProvider>());
             options.UseFgsNpgsql(
                 connectionString,
                 "__EFMigrationsHistory",
@@ -273,7 +276,9 @@ public static class DependencyInjection
         services.AddScoped<IFgsUniversalMatrixAddOnWriteService, FgsUniversalMatrixAddOnWriteService>();
         services.AddSingleton<ITenantSeedDatabaseConnectionFactory>(sp =>
             new TenantSeedDatabaseConnectionFactory(
-                connectionString,
+                () => FgsSetupConnectionString.ResolveRequired(
+                    sp.GetRequiredService<IConfiguration>(),
+                    sp.GetService<ICredentialConfigurationProvider>()),
                 sp.GetRequiredService<IOptions<TenantProvisioningOptions>>()));
         services.AddScoped<ITenantDataSeedingEngine, TenantDataSeedingEngine>();
         services.AddScoped<ITenantProvisioningOrchestrator, TenantProvisioningOrchestrator>();
