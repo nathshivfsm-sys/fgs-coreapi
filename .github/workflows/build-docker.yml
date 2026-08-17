@@ -9,6 +9,7 @@
 #   - Bump <Version> in Fgs.User.API.csproj   → builds user
 #   - Bump src/Gateway/VERSION               → builds nginx
 #   - workflow_dispatch + force_all          → rebuild all (manual only; default false)
+# Tests must pass before the image is built. Failed tests fail the job (no image).
 #
 # Required later for push:
 #   vars.PUSH_TO_ECR=true
@@ -163,6 +164,7 @@ jobs:
                   "repo_env": "ECR_SETUP_REPO",
                   "version_file": "src/SetupService/Fgs.Setup.API/Fgs.Setup.API.csproj",
                   "version_kind": "csproj",
+                  "test_project": "src/SetupService/Fgs.Setup.Tests/Fgs.Setup.Tests.csproj",
               },
               {
                   "service": "user",
@@ -171,6 +173,7 @@ jobs:
                   "repo_env": "ECR_USER_REPO",
                   "version_file": "src/UserService/Fgs.User.API/Fgs.User.API.csproj",
                   "version_kind": "csproj",
+                  "test_project": "src/UserService/Fgs.User.Tests/Fgs.User.Tests.csproj",
               },
               {
                   "service": "nginx",
@@ -179,6 +182,7 @@ jobs:
                   "repo_env": "ECR_GATEWAY_REPO",
                   "version_file": "src/Gateway/VERSION",
                   "version_kind": "plain",
+                  "test_project": "",
               },
           ]
 
@@ -207,6 +211,7 @@ jobs:
                       "context": item["context"],
                       "file": item["file"],
                       "repo_env": item["repo_env"],
+                      "test_project": item["test_project"],
                       "version": head_version,
                       "channel": channel,
                       "version_channel_tag": f"{head_version}-{channel}",
@@ -235,6 +240,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Setup .NET
+        if: matrix.test_project != ''
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Run tests
+        if: matrix.test_project != ''
+        run: |
+          set -euo pipefail
+          echo "Running tests: ${{ matrix.test_project }}"
+          dotnet test "${{ matrix.test_project }}" \
+            --configuration Release \
+            --nologo \
+            --logger "trx;LogFileName=${{ matrix.service }}-tests.trx" \
+            --logger "console;verbosity=normal" \
+            --results-directory TestResults
+          echo "All tests passed for ${{ matrix.service }}."
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -331,6 +355,7 @@ jobs:
             echo "- Branch: \`${{ needs.changes.outputs.git_ref }}\`"
             echo "- Channel: \`${{ matrix.channel }}\`"
             echo "- Version: \`${{ matrix.version }}\`"
+            echo "- Tests: \`${{ matrix.test_project || 'n/a (nginx)' }}\`"
             echo "- Dockerfile: \`${{ matrix.file }}\`"
             echo "- Push to ECR: \`${{ needs.changes.outputs.push_images }}\`"
             echo "- Image: \`${{ steps.tags.outputs.image }}\`"
