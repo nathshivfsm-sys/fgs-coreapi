@@ -1,0 +1,45 @@
+# Starts only when the gateway VERSION file changes.
+name: Build nginx
+
+on:
+  push:
+    branches: [dev, test, main]
+    paths:
+      - "src/Gateway/VERSION"
+      - ".github/workflows/build-nginx.yml"
+      - ".github/workflows/reusable-build-service.yml"
+  pull_request:
+    branches: [dev, test, main]
+    paths:
+      - "src/Gateway/VERSION"
+      - ".github/workflows/build-nginx.yml"
+      - ".github/workflows/reusable-build-service.yml"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Build even if VERSION did not change
+        type: boolean
+        default: false
+
+concurrency:
+  group: build-nginx-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-build-service.yml
+    with:
+      service: nginx
+      context: src/Gateway
+      dockerfile: src/Gateway/Dockerfile.prod
+      ecr_repository: ${{ vars.ECR_GATEWAY_REPO || 'fgs-gateway' }}
+      version_file: src/Gateway/VERSION
+      version_kind: plain
+      test_project: ""
+      force: ${{ github.event_name == 'workflow_dispatch' && inputs.force || false }}
+      caller_event: ${{ github.event_name }}
+    secrets: inherit

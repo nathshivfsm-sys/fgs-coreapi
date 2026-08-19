@@ -1,0 +1,45 @@
+# Starts only when Setup Service version changes.
+name: Build setup
+
+on:
+  push:
+    branches: [dev, test, main]
+    paths:
+      - "src/SetupService/Fgs.Setup.API/Fgs.Setup.API.csproj"
+      - ".github/workflows/build-setup.yml"
+      - ".github/workflows/reusable-build-service.yml"
+  pull_request:
+    branches: [dev, test, main]
+    paths:
+      - "src/SetupService/Fgs.Setup.API/Fgs.Setup.API.csproj"
+      - ".github/workflows/build-setup.yml"
+      - ".github/workflows/reusable-build-service.yml"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Build even if <Version> did not change
+        type: boolean
+        default: false
+
+concurrency:
+  group: build-setup-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-build-service.yml
+    with:
+      service: setup
+      context: .
+      dockerfile: src/Gateway/docker/setup-service.Dockerfile
+      ecr_repository: ${{ vars.ECR_SETUP_REPO || 'fgs-setup-service' }}
+      version_file: src/SetupService/Fgs.Setup.API/Fgs.Setup.API.csproj
+      version_kind: csproj
+      test_project: src/SetupService/Fgs.Setup.Tests/Fgs.Setup.Tests.csproj
+      force: ${{ github.event_name == 'workflow_dispatch' && inputs.force || false }}
+      caller_event: ${{ github.event_name }}
+    secrets: inherit

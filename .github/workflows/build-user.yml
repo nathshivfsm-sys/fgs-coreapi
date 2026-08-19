@@ -1,0 +1,45 @@
+# Starts only when User Service version changes.
+name: Build user
+
+on:
+  push:
+    branches: [dev, test, main]
+    paths:
+      - "src/UserService/Fgs.User.API/Fgs.User.API.csproj"
+      - ".github/workflows/build-user.yml"
+      - ".github/workflows/reusable-build-service.yml"
+  pull_request:
+    branches: [dev, test, main]
+    paths:
+      - "src/UserService/Fgs.User.API/Fgs.User.API.csproj"
+      - ".github/workflows/build-user.yml"
+      - ".github/workflows/reusable-build-service.yml"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Build even if <Version> did not change
+        type: boolean
+        default: false
+
+concurrency:
+  group: build-user-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-build-service.yml
+    with:
+      service: user
+      context: .
+      dockerfile: src/Gateway/docker/user-service.Dockerfile
+      ecr_repository: ${{ vars.ECR_USER_REPO || 'fgs-user-service' }}
+      version_file: src/UserService/Fgs.User.API/Fgs.User.API.csproj
+      version_kind: csproj
+      test_project: src/UserService/Fgs.User.Tests/Fgs.User.Tests.csproj
+      force: ${{ github.event_name == 'workflow_dispatch' && inputs.force || false }}
+      caller_event: ${{ github.event_name }}
+    secrets: inherit

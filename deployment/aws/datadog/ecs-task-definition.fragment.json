@@ -1,5 +1,5 @@
 {
-  "comment": "Merge into Fargate task definitions. Replace secret ARNs. Do not commit real keys. Apps export OTLP to the Datadog agent sidecar; LLM Observability stays off.",
+  "comment": "Sidecar-only fragment. App Datadog ApiKey comes from Setup Global DATADOG credential — do not set Datadog__ApiKey on the app container. Replace sidecar secret ARNs. Do not commit real keys. Apps export OTLP to the Datadog agent sidecar; LLM Observability stays off.",
   "containerDefinitions": [
     {
       "name": "fgs-service",
@@ -16,16 +16,6 @@
         { "name": "Datadog__Env", "value": "prod" },
         { "name": "Datadog__EnableLlmObs", "value": "false" },
         { "name": "DD_LLMOBS_ENABLED", "value": "false" }
-      ],
-      "secrets": [
-        {
-          "name": "Datadog__ApiKey",
-          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT:secret:fgs/datadog/api-key"
-        },
-        {
-          "name": "DD_API_KEY",
-          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT:secret:fgs/datadog/api-key"
-        }
       ],
       "logConfiguration": {
         "logDriver": "awsfirelens",
