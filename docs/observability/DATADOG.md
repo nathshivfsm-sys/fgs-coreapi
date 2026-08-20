@@ -129,4 +129,6 @@ Avoid high-cardinality tags (UserId, entity ids, RequestId).
 
 ## AWS ECS/Fargate
 
-See [deployment/aws/datadog/README.md](../../deployment/aws/datadog/README.md). Store `DD_API_KEY` in Secrets Manager. Prefer Agent sidecar with OTLP enabled; keep `DD_LLMOBS_ENABLED=false`.
+See [deployment/aws/datadog/README.md](../../deployment/aws/datadog/README.md). For logs-only, keep the key in Setup Global `DATADOG` (`glo.GloCredential`); do not inject `DD_API_KEY` on the app task. Secrets Manager is for a later Agent sidecar / FireLens only. Keep `DD_LLMOBS_ENABLED=false`.
+
+Credential distribution uses Redis. On the **dev** ECS stack, that is the Fargate service `redis:6379` in namespace `fgs-dev` (see [MANUAL_DEPLOY_NGINX_SETUP_USER.md](../../deployment/aws/manual-guide/MANUAL_DEPLOY_NGINX_SETUP_USER.md#a11-redis-and-rabbitmq-ecs-services)), not ElastiCache unless you opted out.

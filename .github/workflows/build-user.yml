@@ -1,0 +1,62 @@
+# Starts only when User Service version changes.
+# CI: build/test on PR; push image on merge to dev|test|main.
+# CD: auto-deploy to ECS on GitHub Environment `dev`; `qa`/`prod` wait for approval.
+name: Build user
+
+on:
+  push:
+    branches: [dev, test, main]
+    paths:
+      - "src/UserService/Fgs.User.API/Fgs.User.API.csproj"
+      - ".github/workflows/build-user.yml"
+  pull_request:
+    branches: [dev, test, main]
+    paths:
+      - "src/UserService/Fgs.User.API/Fgs.User.API.csproj"
+      - ".github/workflows/build-user.yml"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Build even if <Version> did not change
+        type: boolean
+        default: false
+      push_to_ecr:
+        description: Also push image to ECR (normally only on merge to dev/test/main)
+        type: boolean
+        default: false
+
+concurrency:
+  group: build-user-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-build-service.yml
+    with:
+      service: user
+      context: .
+      dockerfile: src/Gateway/docker/user-service.Dockerfile
+      ecr_repository: ${{ vars.ECR_REPO || 'fgs/dockers' }}
+      version_file: src/UserService/Fgs.User.API/Fgs.User.API.csproj
+      version_kind: csproj
+      test_project: src/UserService/Fgs.User.Tests/Fgs.User.Tests.csproj
+      force: ${{ github.event_name == 'workflow_dispatch' && inputs.force || false }}
+      push_to_ecr: ${{ github.event_name == 'workflow_dispatch' && inputs.push_to_ecr || false }}
+      caller_event: ${{ github.event_name }}
+    secrets: inherit
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.image_pushed == 'true'
+    uses: ./.github/workflows/reusable-deploy-ecs.yml
+    with:
+      ecs_service: user
+      image_tag_prefix: user
+      channel: ${{ needs.build.outputs.channel }}
+      github_environment: ${{ needs.build.outputs.github_environment }}
+      ecs_cluster: ${{ needs.build.outputs.ecs_cluster }}
+    secrets: inherit
