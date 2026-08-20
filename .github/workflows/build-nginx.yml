@@ -9,14 +9,11 @@ on:
     paths:
       - "src/Gateway/VERSION"
       - ".github/workflows/build-nginx.yml"
-      - ".github/workflows/reusable-build-service.yml"
-      - ".github/workflows/reusable-deploy-ecs.yml"
   pull_request:
     branches: [dev, test, main]
     paths:
       - "src/Gateway/VERSION"
       - ".github/workflows/build-nginx.yml"
-      - ".github/workflows/reusable-build-service.yml"
   workflow_dispatch:
     inputs:
       force:

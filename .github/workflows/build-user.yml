@@ -9,14 +9,11 @@ on:
     paths:
       - "src/UserService/Fgs.User.API/Fgs.User.API.csproj"
       - ".github/workflows/build-user.yml"
-      - ".github/workflows/reusable-build-service.yml"
-      - ".github/workflows/reusable-deploy-ecs.yml"
   pull_request:
     branches: [dev, test, main]
     paths:
       - "src/UserService/Fgs.User.API/Fgs.User.API.csproj"
       - ".github/workflows/build-user.yml"
-      - ".github/workflows/reusable-build-service.yml"
   workflow_dispatch:
     inputs:
       force:
