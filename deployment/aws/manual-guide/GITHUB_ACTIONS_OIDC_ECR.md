@@ -2,7 +2,7 @@
 
 Short setup for the FGS **dev** stack. CI pushes Setup, User, and nginx images into **one** ECR repository (`fgs/dockers`) using **OIDC**. Do **not** store `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY` in GitHub.
 
-Full deploy runbook: [MANUAL_DEPLOY_NGINX_SETUP_USER.md](MANUAL_DEPLOY_NGINX_SETUP_USER.md) (sections A6.3 and B1).
+Full deploy runbook: [MANUAL_DEPLOY_NGINX_SETUP_USER.md](MANUAL_DEPLOY_NGINX_SETUP_USER.md) (sections A6.3 and B1). CD after push: [GITHUB_ACTIONS_CD_ECS.md](GITHUB_ACTIONS_CD_ECS.md).
 
 ---
 
@@ -120,12 +120,24 @@ Replace `ACCOUNT` (example `286093098927`) and use region `us-east-1`:
       "Resource": [
         "arn:aws:ecr:us-east-1:286093098927:repository/fgs/dockers"
       ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecs:UpdateService",
+        "ecs:DescribeServices",
+        "ecs:DescribeClusters",
+        "ecs:DescribeTaskDefinition",
+        "ecs:ListTasks",
+        "ecs:DescribeTasks"
+      ],
+      "Resource": "*"
     }
   ]
 }
 ```
 
-Name the policy e.g. `ecr-push-fgs-dockers`. Save.
+Name the policy e.g. `ecr-ecs-github-actions`. Save. (Needed for CI push and CD deploy.)
 
 The ECR repository **`fgs/dockers`** must already exist in that region.
 
@@ -160,14 +172,14 @@ Do **not** create:
 
 Workflows already request `permissions: id-token: write` for OIDC.
 
-`PUSH_TO_ECR` is **on by default** in `.github/workflows/reusable-build-service.yml`. Set the variable to `false` only if you want CI to build without publishing.
+`PUSH_TO_ECR` defaults to allowing publish. Images go to ECR **only on merge** (`push` to `dev` / `test` / `main`). Pull requests and normal **Run workflow** builds do **not** push. For a manual publish, run the workflow with **push_to_ecr** = true. Set repo variable `PUSH_TO_ECR=false` to disable all publishes.
 
 ---
 
 ## Step 7 — Prove the connection
 
 1. Confirm workflows are on the branch you run (`dev` / `test` / `main`).
-2. GitHub → **Actions** → **Build setup** (or user / nginx) → **Run workflow** → branch `dev` → **force** = true.
+2. GitHub → **Actions** → **Build setup** (or user / nginx) → **Run workflow** → branch `dev` → set **force** and **push_to_ecr** = true (manual publish). Normal merges push automatically without this.
 3. On success, open **ECR** → **Repositories** → **`fgs/dockers`** → **Images**.
 
 Expected tags:
@@ -190,7 +202,7 @@ Pull requests **build only**; they do not push to ECR.
 | --- | --- |
 | `AssumeRoleWithWebIdentity` denied | Trust `sub` does not match this repo, or OIDC provider missing |
 | Login OK, push fails | Inline policy Resource ARN wrong, or repo name is not `fgs/dockers` |
-| Build OK, no image in ECR | Missing `AWS_ROLE_TO_ASSUME`, or `PUSH_TO_ECR=false`, or only a PR ran |
+| Build OK, no image in ECR | Expected on PR / manual run without push_to_ecr; or missing `AWS_ROLE_TO_ASSUME`; or `PUSH_TO_ECR=false` |
 | Empty Repositories list | Wrong region, or repository `fgs/dockers` was never created |
 | Registry host only, no repo | `….amazonaws.com` alone is the registry host — open **Repositories** and create **`fgs/dockers`** |
 

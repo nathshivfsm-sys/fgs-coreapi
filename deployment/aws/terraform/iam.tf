@@ -62,6 +62,19 @@ resource "aws_iam_role_policy" "github_actions_ecr" {
         ]
         Resource = [aws_ecr_repository.app.arn]
       },
+      {
+        Sid    = "EcsDeploy"
+        Effect = "Allow"
+        Action = [
+          "ecs:UpdateService",
+          "ecs:DescribeServices",
+          "ecs:DescribeClusters",
+          "ecs:DescribeTaskDefinition",
+          "ecs:ListTasks",
+          "ecs:DescribeTasks",
+        ]
+        Resource = "*"
+      },
     ]
   })
 }

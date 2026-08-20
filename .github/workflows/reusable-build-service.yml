@@ -6,7 +6,8 @@
 #   to the shared repo (vars.ECR_REPO, default fgs/dockers). Tags are service-prefixed
 #   (setup-dev, user-dev, nginx-dev) so images do not overwrite each other.
 # Set repo Actions variables: AWS_REGION, AWS_ROLE_TO_ASSUME, optional ECR_REPO.
-# Pull requests build only (no push). Push/workflow_dispatch on dev|test|main push to ECR.
+# ECR push only on push (merge) to dev|test|main — not on pull_request.
+# workflow_dispatch builds locally unless input push_to_ecr=true.
 
 name: Reusable service image build
 
@@ -40,10 +41,34 @@ on:
         required: false
         type: boolean
         default: false
+      push_to_ecr:
+        required: false
+        type: boolean
+        default: false
+        description: When caller_event is workflow_dispatch, set true to publish to ECR
       caller_event:
         required: true
         type: string
         description: github.event_name from the caller (push, pull_request, workflow_dispatch)
+    outputs:
+      push_images:
+        description: Whether this run intended to publish (merge to channel branch)
+        value: ${{ jobs.resolve.outputs.push_images }}
+      image_pushed:
+        description: True only when a new image was actually pushed to ECR
+        value: ${{ jobs.build.outputs.image_pushed }}
+      channel:
+        description: Image channel tag suffix (dev, test, prod)
+        value: ${{ jobs.resolve.outputs.channel }}
+      version:
+        description: Service version that was built
+        value: ${{ jobs.resolve.outputs.version }}
+      github_environment:
+        description: GitHub Environment for CD (dev, qa, prod)
+        value: ${{ jobs.resolve.outputs.github_environment }}
+      ecs_cluster:
+        description: Default ECS cluster name for this channel
+        value: ${{ jobs.resolve.outputs.ecs_cluster }}
 
 permissions:
   contents: read
@@ -51,8 +76,7 @@ permissions:
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
-  # Default true: branch push and workflow_dispatch publish to ECR.
-  # Set repo variable PUSH_TO_ECR=false only to build without publishing.
+  # Kill switch: set repo variable PUSH_TO_ECR=false to never publish (even on merge).
   PUSH_TO_ECR: ${{ vars.PUSH_TO_ECR || 'true' }}
 
 jobs:
@@ -66,6 +90,8 @@ jobs:
       git_ref: ${{ steps.meta.outputs.git_ref }}
       short_sha: ${{ steps.meta.outputs.short_sha }}
       push_images: ${{ steps.meta.outputs.push_images }}
+      github_environment: ${{ steps.meta.outputs.github_environment }}
+      ecs_cluster: ${{ steps.meta.outputs.ecs_cluster }}
       version_channel_tag: ${{ steps.detect.outputs.version_channel_tag }}
       version_sha_tag: ${{ steps.detect.outputs.version_sha_tag }}
     steps:
@@ -82,6 +108,7 @@ jobs:
           BASE_REF: ${{ github.base_ref }}
           REF_NAME: ${{ github.ref_name }}
           PUSH_TO_ECR: ${{ env.PUSH_TO_ECR }}
+          DISPATCH_PUSH: ${{ inputs.push_to_ecr }}
         run: |
           SHORT_SHA=$(echo "$GIT_SHA" | cut -c1-12)
           if [ "$EVENT_NAME" = "pull_request" ]; then
@@ -91,14 +118,23 @@ jobs:
           fi
 
           case "$GIT_REF" in
-            dev) CHANNEL=dev ;;
-            test) CHANNEL=test ;;
-            main) CHANNEL=prod ;;
+            dev) CHANNEL=dev; GH_ENV=dev; CLUSTER=fgs-dev ;;
+            test) CHANNEL=test; GH_ENV=qa; CLUSTER=fgs-test ;;
+            main) CHANNEL=prod; GH_ENV=prod; CLUSTER=fgs-prod ;;
             *) echo "Unsupported branch: $GIT_REF" >&2; exit 1 ;;
           esac
 
+          # Publish only when a PR is merged (push) to dev|test|main.
+          # pull_request → build/test only.
+          # workflow_dispatch → build only unless push_to_ecr input is true.
           PUSH_IMAGES=false
-          if [ "$EVENT_NAME" != "pull_request" ] && [ "$PUSH_TO_ECR" != "false" ]; then
+          if [ "$PUSH_TO_ECR" = "false" ]; then
+            PUSH_IMAGES=false
+          elif [ "$EVENT_NAME" = "push" ]; then
+            case "$GIT_REF" in
+              dev|test|main) PUSH_IMAGES=true ;;
+            esac
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$DISPATCH_PUSH" = "true" ]; then
             PUSH_IMAGES=true
           fi
 
@@ -106,6 +142,8 @@ jobs:
           echo "push_images=${PUSH_IMAGES}" >> "$GITHUB_OUTPUT"
           echo "channel=${CHANNEL}" >> "$GITHUB_OUTPUT"
           echo "git_ref=${GIT_REF}" >> "$GITHUB_OUTPUT"
+          echo "github_environment=${GH_ENV}" >> "$GITHUB_OUTPUT"
+          echo "ecs_cluster=${CLUSTER}" >> "$GITHUB_OUTPUT"
 
       - name: Detect version bump
         id: detect
@@ -183,6 +221,8 @@ jobs:
     needs: resolve
     if: needs.resolve.outputs.should_build == 'true'
     runs-on: ubuntu-latest
+    outputs:
+      image_pushed: ${{ steps.mark.outputs.image_pushed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -287,6 +327,11 @@ jobs:
           echo "Built images:"
           docker image ls --filter "reference=local/${{ inputs.service }}*"
           docker image inspect "local/${{ inputs.service }}:${{ needs.resolve.outputs.version_channel_tag }}" --format '{{.Id}} {{.RepoTags}} {{.Size}}'
+
+      - name: Mark image pushed
+        id: mark
+        if: needs.resolve.outputs.push_images == 'true'
+        run: echo "image_pushed=true" >> "$GITHUB_OUTPUT"
 
       - name: Summary
         run: |

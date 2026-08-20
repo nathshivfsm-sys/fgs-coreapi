@@ -659,7 +659,7 @@ Do this **once** after the shared ECR repo ([A4](#a4-amazon-ecr-one-shared-image
 | `ECR_REPO` | `fgs/dockers` (optional; workflow default) |
 
 3. Do **not** add `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`. OIDC is enough. Workflows already have `permissions: id-token: write`.
-4. `PUSH_TO_ECR` is **on by default** in `.github/workflows/reusable-build-service.yml`. Set it to `false` only if you want CI to build without publishing.
+4. Images are pushed to ECR **only when a PR is merged** (`push` to `dev` / `test` / `main`). Pull requests **build and test only**. Manual **Run workflow** does not push unless you enable **push_to_ecr**. Set repo variable `PUSH_TO_ECR=false` to disable all publishes.
 5. Confirm the IAM trust `sub` is `repo:<owner>/<repo>:*` for **this** repository (wrong org/repo name is the usual `Not authorized to perform sts:AssumeRoleWithWebIdentity` error).
 6. Confirm the role can `ecr:PutImage` on `arn:aws:ecr:REGION:ACCOUNT:repository/fgs/dockers`.
 
@@ -674,7 +674,8 @@ Do this **once** after the shared ECR repo ([A4](#a4-amazon-ecr-one-shared-image
 Shared job: `.github/workflows/reusable-build-service.yml`
 
 - **Pull request:** build + tests only (no ECR login, no push).
-- **Push to `dev` / `test` / `main` or Run workflow:** login with OIDC, then `docker/build-push-action` with `push: true`.
+- **Merge to `dev` / `test` / `main` (`push` event):** login with OIDC, then push to ECR, then **CD** deploys to ECS (`dev` auto; `qa` / `prod` need GitHub Environment approval — see [GITHUB_ACTIONS_CD_ECS.md](GITHUB_ACTIONS_CD_ECS.md)).
+- **Run workflow:** build only, unless you check **push_to_ecr** (then deploy follows if the image was pushed).
 - Channel tags: `dev` -> `setup-dev` / `user-dev` / `nginx-dev` (and `*-test`, `*-prod`).
 
 ## B3. Version bump (this is what triggers a build)
@@ -963,7 +964,7 @@ Redeploying Setup or User does **not** require an nginx config change while disc
 
 | Symptom | Likely cause |
 | --- | --- |
-| Actions build OK, no image in ECR | Missing `AWS_ROLE_TO_ASSUME`, IAM trust `sub` wrong, or `PUSH_TO_ECR=false` |
+| Actions build OK, no image in ECR | Expected on PR / Run workflow without push_to_ecr; or missing `AWS_ROLE_TO_ASSUME`; or `PUSH_TO_ECR=false` |
 | Task `CannotPullContainerError` | Public IP off and no NAT; execution role missing ECR; or Redis/RabbitMQ cannot pull `public.ecr.aws` |
 | Task running, health fail | Wrong port, app crash, RDS SG, missing `ConnectionStrings__FgsSetup` |
 | ALB target unhealthy | nginx still redirecting :80 -> https; missing command override; wrong health path |
