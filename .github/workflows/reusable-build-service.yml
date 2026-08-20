@@ -1,5 +1,12 @@
-# Reusable build job. Called by per-service workflows (build-setup.yml, …).
+# Reusable build + ECR push. Called by build-setup.yml, build-user.yml, build-nginx.yml.
 # Do not add `on: push` here — callers own triggers so only one service runs.
+#
+# Connectivity (no long-lived AWS keys):
+#   GitHub OIDC → IAM role vars.AWS_ROLE_TO_ASSUME → ecr:GetAuthorizationToken + push
+#   to the shared repo (vars.ECR_REPO, default fgs/dockers). Tags are service-prefixed
+#   (setup-dev, user-dev, nginx-dev) so images do not overwrite each other.
+# Set repo Actions variables: AWS_REGION, AWS_ROLE_TO_ASSUME, optional ECR_REPO.
+# Pull requests build only (no push). Push/workflow_dispatch on dev|test|main push to ECR.
 
 name: Reusable service image build
 
@@ -44,7 +51,9 @@ permissions:
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
-  PUSH_TO_ECR: ${{ vars.PUSH_TO_ECR || 'false' }}
+  # Default true: branch push and workflow_dispatch publish to ECR.
+  # Set repo variable PUSH_TO_ECR=false only to build without publishing.
+  PUSH_TO_ECR: ${{ vars.PUSH_TO_ECR || 'true' }}
 
 jobs:
   resolve:
@@ -89,7 +98,7 @@ jobs:
           esac
 
           PUSH_IMAGES=false
-          if [ "$PUSH_TO_ECR" = "true" ] && [ "$EVENT_NAME" != "pull_request" ]; then
+          if [ "$EVENT_NAME" != "pull_request" ] && [ "$PUSH_TO_ECR" != "false" ]; then
             PUSH_IMAGES=true
           fi
 
@@ -200,7 +209,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Configure AWS credentials (OIDC)
+      - name: Require GitHub OIDC role for ECR
+        if: needs.resolve.outputs.push_images == 'true'
+        env:
+          ROLE: ${{ vars.AWS_ROLE_TO_ASSUME }}
+        run: |
+          if [ -z "$ROLE" ]; then
+            echo "::error::Set GitHub Actions variable AWS_ROLE_TO_ASSUME to the IAM role ARN (fgs-dev-github-actions). See deployment/aws/manual-guide/MANUAL_DEPLOY_NGINX_SETUP_USER.md part B1."
+            exit 1
+          fi
+
+      - name: Configure AWS credentials (GitHub OIDC)
         if: needs.resolve.outputs.push_images == 'true'
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -228,9 +247,9 @@ jobs:
             {
               echo "image=${IMAGE}"
               echo "tags<<EOF"
-              echo "${IMAGE}:${CHANNEL}"
-              echo "${IMAGE}:${VERSION_CHANNEL}"
-              echo "${IMAGE}:${VERSION_SHA}"
+              echo "${IMAGE}:${SERVICE}-${CHANNEL}"
+              echo "${IMAGE}:${SERVICE}-${VERSION_CHANNEL}"
+              echo "${IMAGE}:${SERVICE}-${VERSION_SHA}"
               echo "EOF"
             } >> "$GITHUB_OUTPUT"
           else
@@ -243,7 +262,7 @@ jobs:
             } >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Build image
+      - name: Build and push image to ECR
         id: docker
         uses: docker/build-push-action@v7
         with:
@@ -279,6 +298,7 @@ jobs:
             echo "- Tests: \`${{ inputs.test_project || 'n/a' }}\`"
             echo "- Dockerfile: \`${{ inputs.dockerfile }}\`"
             echo "- Push to ECR: \`${{ needs.resolve.outputs.push_images }}\`"
+            echo "- ECR repository: \`${{ inputs.ecr_repository }}\`"
             echo "- Image: \`${{ steps.tags.outputs.image }}\`"
             echo "- Digest: \`${{ steps.docker.outputs.digest }}\`"
             echo "- Tags:"

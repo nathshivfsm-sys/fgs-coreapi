@@ -34,16 +34,9 @@ output "rabbitmq_secret_arn" {
   description = "Plaintext password for RABBITMQ_DEFAULT_PASS / RabbitMq__Password."
 }
 
-output "ecr_setup_repository_url" {
-  value = aws_ecr_repository.setup.repository_url
-}
-
-output "ecr_user_repository_url" {
-  value = aws_ecr_repository.user.repository_url
-}
-
-output "ecr_gateway_repository_url" {
-  value = aws_ecr_repository.gateway.repository_url
+output "ecr_repository_url" {
+  value       = aws_ecr_repository.app.repository_url
+  description = "Shared ECR repo. Tags: setup-<channel>, user-<channel>, nginx-<channel>."
 }
 
 output "github_actions_role_arn" {
@@ -54,11 +47,8 @@ output "github_actions_role_arn" {
 output "github_actions_vars" {
   description = "GitHub repository variables to set after apply."
   value = {
-    AWS_REGION          = var.aws_region
-    AWS_ROLE_TO_ASSUME  = aws_iam_role.github_actions.arn
-    PUSH_TO_ECR         = "true"
-    ECR_SETUP_REPO      = aws_ecr_repository.setup.name
-    ECR_USER_REPO       = aws_ecr_repository.user.name
-    ECR_GATEWAY_REPO    = aws_ecr_repository.gateway.name
+    AWS_REGION         = var.aws_region
+    AWS_ROLE_TO_ASSUME = aws_iam_role.github_actions.arn
+    ECR_REPO           = aws_ecr_repository.app.name
   }
 }

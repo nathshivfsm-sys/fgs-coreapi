@@ -6,14 +6,14 @@ locals {
   name_prefix = "fgs-${var.environment}"
   namespace   = "fgs-${var.environment}"
 
-  ecr_lifecycle_keep_10 = jsonencode({
+  ecr_lifecycle_keep_60 = jsonencode({
     rules = [{
       rulePriority = 1
-      description  = "Keep last 20 images"
+      description  = "Keep last 60 images (shared repo for setup/user/nginx)"
       selection = {
         tagStatus   = "any"
         countType   = "imageCountMoreThan"
-        countNumber = 20
+        countNumber = 60
       }
       action = { type = "expire" }
     }]
@@ -25,8 +25,9 @@ locals {
 
   github_oidc_arn = var.create_github_oidc_provider ? aws_iam_openid_connect_provider.github[0].arn : var.github_oidc_provider_arn
 
-  setup_image   = "${aws_ecr_repository.setup.repository_url}:${var.image_tag}"
-  gateway_image = "${aws_ecr_repository.gateway.repository_url}:${var.image_tag}"
+  # Shared ECR repo; service is in the tag (setup-dev, nginx-dev, …).
+  setup_image   = "${aws_ecr_repository.app.repository_url}:setup-${var.image_tag}"
+  gateway_image = "${aws_ecr_repository.app.repository_url}:nginx-${var.image_tag}"
 
   redis_connection = var.create_redis_rabbitmq ? "redis:6379" : var.redis_connection_string
 

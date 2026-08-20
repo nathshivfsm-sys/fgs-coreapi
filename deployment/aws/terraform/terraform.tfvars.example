@@ -9,7 +9,8 @@ github_repo = "fgs-coreapi"
 # First apply: create ECR + IAM + ALB only, then push images, then set true.
 create_ecs_services = false
 
-image_tag     = "dev"
+image_tag             = "dev"
+# ecr_repository_name = "fgs/dockers"
 desired_count = 1
 
 create_vpc = true

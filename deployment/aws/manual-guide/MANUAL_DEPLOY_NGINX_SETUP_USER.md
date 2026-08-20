@@ -1,4 +1,4 @@
-# Manual AWS deploy — nginx, Setup, User, Redis, RabbitMQ (**dev**)
+﻿# Manual AWS deploy  -  nginx, Setup, User, Redis, RabbitMQ (**dev**)
 
 Dev infrastructure for nginx, Setup, User, Redis, and RabbitMQ on ECS Fargate: VPC, ECR, IAM, cluster, Service Connect, ALB, then images and services.
 
@@ -46,10 +46,10 @@ flowchart LR
 | Gateway | `fgs-gateway` :80 behind ALB, 256 CPU / 512 MB |
 | Redis | **`redis:6379`**, 256 CPU / 512 MB, Fargate On-Demand |
 | RabbitMQ | **`rabbitmq:5672`**, 512 CPU / 1024 MB, Fargate On-Demand |
-| ECR | `fgs-setup-service`, `fgs-user-service`, `fgs-gateway` |
-| Image tag | `:dev` (pipeline channel for the `dev` branch) |
+| ECR | one repo `fgs/dockers` (tags `setup-dev`, `user-dev`, `nginx-dev`) |
+| Image tag | `setup-dev` / `user-dev` / `nginx-dev` (channel for the `dev` branch) |
 | Entry URL | `http://<alb-dns>/nginx-health` |
-| HTTPS | Optional later (ACM) — HTTP is enough until you have a domain |
+| HTTPS | Optional later (ACM)  -  HTTP is enough until you have a domain |
 
 Reuse existing **RDS (PostgreSQL)**. This guide **creates Redis and RabbitMQ** as ECS services (same pattern as local `docker compose`). Do not add NAT, extra APIs, or a Datadog Agent sidecar for this slice.
 
@@ -61,16 +61,16 @@ Build is not deploy. Pushing to ECR does not start a container until an ECS **se
 
 ## Order of work
 
-1. **Network** — VPC, **two public subnets**, security groups (including ALB, Redis, RabbitMQ). Open existing RDS. **No NAT** (tasks use a public IP to pull images).
-2. **Registry** — three ECR repositories ([A4](#a4-amazon-ecr-required-image-repositories)).
-3. **Identity** — ECS execution role, ECS task role, GitHub OIDC role.
-4. **Logs** — CloudWatch log groups, retention **14 days**.
-5. **Cluster** — ECS Fargate, namespace `fgs-dev`.
-6. **Redis + RabbitMQ** — Fargate services in that namespace ([A11](#a11-redis-and-rabbitmq-ecs-services)).
-7. **ALB** — target group health `/nginx-health`.
-8. **Images** — GitHub Actions (or local Docker) → ECR.
-9. **Tasks + services** — Setup, then User, then nginx (attached to the ALB).
-10. **Prove it** — `http://<alb-dns>/nginx-health`.
+1. **Network**  -  VPC, **two public subnets**, security groups (including ALB, Redis, RabbitMQ). Open existing RDS. **No NAT** (tasks use a public IP to pull images).
+2. **Registry**  -  one ECR repository `fgs/dockers` ([A4](#a4-amazon-ecr-one-shared-image-repository)).
+3. **Identity**  -  ECS execution role, ECS task role, GitHub OIDC role.
+4. **Logs**  -  CloudWatch log groups, retention **14 days**.
+5. **Cluster**  -  ECS Fargate, namespace `fgs-dev`.
+6. **Redis + RabbitMQ**  -  Fargate services in that namespace ([A11](#a11-redis-and-rabbitmq-ecs-services)).
+7. **ALB**  -  target group health `/nginx-health`.
+8. **Images**  -  GitHub Actions (or local Docker) -> ECR.
+9. **Tasks + services**  -  Setup, then User, then nginx (attached to the ALB).
+10. **Prove it**  -  `http://<alb-dns>/nginx-health`.
 
 HTTPS ([A10](#a10-https-certificate-acm--alb)) is optional. You do **not** install nginx on EC2.
 
@@ -78,7 +78,7 @@ HTTPS ([A10](#a10-https-certificate-acm--alb)) is optional. You do **not** insta
 
 ## Estimated monthly cost (dev stack)
 
-Figures are **list prices for US East (N. Virginia / `us-east-1`)**, Linux/x86 Fargate, rounded. Other regions cost more. Confirm in the [AWS Pricing Calculator](https://calculator.aws/). **Not a quote** — AWS can change rates.
+Figures are **list prices for US East (N. Virginia / `us-east-1`)**, Linux/x86 Fargate, rounded. Other regions cost more. Confirm in the [AWS Pricing Calculator](https://calculator.aws/). **Not a quote**  -  AWS can change rates.
 
 **Assumptions:** services run **24/7**; one task each of Setup (0.5 vCPU / 1 GB), User (0.5 vCPU / 1 GB), nginx (0.25 vCPU / 0.5 GB), Redis (0.25 vCPU / 0.5 GB), RabbitMQ (0.5 vCPU / 1 GB); one ALB; no NAT; existing RDS **not** included.
 
@@ -88,45 +88,45 @@ Fargate rates used: **$0.04048 / vCPU-hour** and **$0.004445 / GB-hour**. ALB: *
 | --- | --- |
 | Fargate (Setup + User + nginx + Redis + RabbitMQ) | **~$72** |
 | Public IPv4 on the five tasks (`$0.005`/hour each) | **~$18** |
-| Application Load Balancer (hourly + light LCU) | **~$16–18** |
-| ECR storage (three app images) | **~$0–1** |
-| CloudWatch Logs (14-day retention) | **~$3–6** |
-| Secrets Manager (RabbitMQ password; plus Setup DB if you store it) | **~$0.40–1** |
+| Application Load Balancer (hourly + light LCU) | **~$16-18** |
+| ECR storage (three app images) | **~$0-1** |
+| CloudWatch Logs (14-day retention) | **~$3-6** |
+| Secrets Manager (RabbitMQ password; plus Setup DB if you store it) | **~$0.40-1** |
 | VPC, IAM, ECS cluster, Service Connect, ACM | **$0** extra |
-| **Total this guide (new AWS spend)** | **about $100–120 / month** |
+| **Total this guide (new AWS spend)** | **about $100-120 / month** |
 
 **Not in the total (already in your account):** hosted PostgreSQL, KMS, Datadog.
 
-This is **cheaper than** Amazon ElastiCache + Amazon MQ for the same slice (those managed services are typically ~$40–80 extra on their own for the smallest nodes). Redis/RabbitMQ here are **single Fargate tasks**, not Multi-AZ.
+This is **cheaper than** Amazon ElastiCache + Amazon MQ for the same slice (those managed services are typically ~$40-80 extra on their own for the smallest nodes). Redis/RabbitMQ here are **single Fargate tasks**, not Multi-AZ.
 
 **How the Fargate figure is built**
 
 | Task | Size | $/hour |
 | --- | --- | --- |
-| Setup | 0.5 vCPU, 1 GB | ≈ $0.025 |
-| User | 0.5 vCPU, 1 GB | ≈ $0.025 |
-| nginx | 0.25 vCPU, 0.5 GB | ≈ $0.012 |
-| Redis | 0.25 vCPU, 0.5 GB | ≈ $0.012 |
-| RabbitMQ | 0.5 vCPU, 1 GB | ≈ $0.025 |
-| **All five** | | **≈ $0.099 / hour** |
+| Setup | 0.5 vCPU, 1 GB | â‰ˆ $0.025 |
+| User | 0.5 vCPU, 1 GB | â‰ˆ $0.025 |
+| nginx | 0.25 vCPU, 0.5 GB | â‰ˆ $0.012 |
+| Redis | 0.25 vCPU, 0.5 GB | â‰ˆ $0.012 |
+| RabbitMQ | 0.5 vCPU, 1 GB | â‰ˆ $0.025 |
+| **All five** | | **â‰ˆ $0.099 / hour** |
 
-730 hours/month × $0.099 ≈ **$72**.
+730 hours/month Ã -  $0.099 â‰ˆ **$72**.
 
 ---
 
-# Part A — AWS dependencies (console)
+# Part A  -  AWS dependencies (console)
 
 Sign in to [AWS Console](https://console.aws.amazon.com/). Top-right: pick the **region** you will use for everything in this guide (ECR, ECS, ALB, IAM roles are global but used from that region).
 
-Suggested names below use environment **dev** (`fgs-dev-…`).
+Suggested names below use environment **dev** (`fgs-dev-...`).
 
 ## A1. VPC and subnets
 
-**Skip this if you already have a VPC with at least two public subnets** (two Availability Zones, route `0.0.0.0/0` to an Internet Gateway). Write down `vpc-…` and two `subnet-…` IDs.
+**Skip this if you already have a VPC with at least two public subnets** (two Availability Zones, route `0.0.0.0/0` to an Internet Gateway). Write down `vpc-...` and two `subnet-...` IDs.
 
 Otherwise:
 
-1. Open **VPC** → **Your VPCs** → **Create VPC**.
+1. Open **VPC** -> **Your VPCs** -> **Create VPC**.
 2. Choose **VPC and more**.
 3. Name tag: `fgs-dev`.
 4. IPv4 CIDR: `10.80.0.0/16` (or another unused CIDR).
@@ -146,7 +146,7 @@ You need:
 
 ## A2. Security groups
 
-**VPC** → **Security groups** → **Create security group**. Create **six**.
+**VPC** -> **Security groups** -> **Create security group**. Create **six**.
 
 ### `fgs-dev-alb`
 
@@ -190,7 +190,7 @@ Inbound:
 | Type | Port | Source |
 | --- | --- | --- |
 | Custom TCP | 5672 | VPC CIDR (AMQP) |
-| Custom TCP | 15672 | VPC CIDR (management UI — **not** on the ALB) |
+| Custom TCP | 15672 | VPC CIDR (management UI  -  **not** on the ALB) |
 
 Outbound: all.
 
@@ -204,78 +204,68 @@ On the **RDS** security group, add inbound from the Fargate task SGs (or the VPC
 | --- | --- | --- |
 | PostgreSQL (Setup DB) | 5432 | `fgs-dev-setup` (also allow `fgs-dev-user` if User talks to Postgres directly) |
 
-Redis and RabbitMQ are **new ECS services** in this guide ([A11](#a11-redis-and-rabbitmq-ecs-services)), not extra SGs on an existing cache/broker. If you already have ElastiCache / Amazon MQ and prefer those, skip A11 and allow **6379** / **5671–5672** from `fgs-dev-setup` and `fgs-dev-user` instead.
+Redis and RabbitMQ are **new ECS services** in this guide ([A11](#a11-redis-and-rabbitmq-ecs-services)), not extra SGs on an existing cache/broker. If you already have ElastiCache / Amazon MQ and prefer those, skip A11 and allow **6379** / **5671-5672** from `fgs-dev-setup` and `fgs-dev-user` instead.
 
 If RDS is in **another region or another VPC**, you need peering / TGW / public RDS with a tight SG. Same-VPC same-region is the simple path.
 
-## A4. Amazon ECR (required image repositories)
+## A4. Amazon ECR (one shared image repository)
 
-Create these **before** you build or start ECS tasks. ECR is only storage for Docker images. It is **not** an ECS service and **not** a running container.
+Create this **before** you build or start ECS tasks. ECR is only storage for Docker images. It is **not** an ECS service and **not** a running container.
 
-You need **three private repositories** (one per image). Dev/test/prod are **tags** (`:dev`, `:test`, `:prod`), not extra repos. This guide uses **`:dev`**.
+Use **one private repository** for Setup, User, and nginx. Services are distinguished by **tags** (not separate repos):
 
-| Repository name | Image | Dockerfile |
+| Tag on `dev` | Image | Dockerfile |
 | --- | --- | --- |
-| `fgs-setup-service` | Setup API | `src/Gateway/docker/setup-service.Dockerfile` |
-| `fgs-user-service` | User API | `src/Gateway/docker/user-service.Dockerfile` |
-| `fgs-gateway` | nginx | `src/Gateway/Dockerfile.prod` |
+| `setup-dev` | Setup API | `src/Gateway/docker/setup-service.Dockerfile` |
+| `user-dev` | User API | `src/Gateway/docker/user-service.Dockerfile` |
+| `nginx-dev` | nginx | `src/Gateway/Dockerfile.prod` |
 
-Names must match GitHub Actions defaults (`ECR_SETUP_REPO`, `ECR_USER_REPO`, `ECR_GATEWAY_REPO`).
+Also pushed: `setup-<version>-dev`, `setup-<version>-dev-<sha>` (same pattern for `user` / `nginx`). Channel tags for `test` / `main` are `*-test` and `*-prod`.
+
+GitHub Actions variable `ECR_REPO` defaults to `fgs/dockers`.
 
 ![Create ECR repository](images/03-console-ecr-create.png)
 
-### A4.1 Create `fgs-setup-service`
+### A4.1 Create repository `fgs/dockers`
 
 1. Top-right: confirm the **same region** as ECS (for example `us-east-1`).
-2. Open **Amazon ECR** → **Private registry** → **Repositories**.
+2. Open **Amazon ECR** -> **Private registry** -> **Repositories**.
 3. **Create repository**.
 4. Visibility: **Private**.
-5. Repository name: `fgs-setup-service` (no extra prefix unless you want one; do not use `fgs-dev/fgs-setup-service` unless you also change the workflow variable).
-6. Tag immutability: **Disabled** (so tag `:dev` can be overwritten on each build).
-7. Image scan on push: **Enabled** (optional; small extra wait, no extra repo cost).
+5. Repository name: `fgs/dockers` (do not use a different path unless you also change `ECR_REPO`).
+6. Tag immutability: **Disabled** (so `setup-dev` can be overwritten on each build).
+7. Image scan on push: **Enabled** (optional).
 8. Encryption: **AES-256** (default) is fine.
 9. **Create**.
-10. Open the repository → copy **URI**:
-    `ACCOUNT.dkr.ecr.REGION.amazonaws.com/fgs-setup-service`
+10. Open the repository -> copy **URI**:
+    `ACCOUNT.dkr.ecr.REGION.amazonaws.com/fgs/dockers`
 
-### A4.2 Create `fgs-user-service`
+The registry host alone (`ACCOUNT.dkr.ecr.REGION.amazonaws.com`) is not a repository. You must see **`fgs`** under Repositories.
 
-Repeat A4.1 with repository name **`fgs-user-service`**. Copy its URI.
+### A4.2 Lifecycle (limit stored images)
 
-### A4.3 Create `fgs-gateway`
-
-Repeat A4.1 with repository name **`fgs-gateway`**. Copy its URI.
-
-### A4.4 Lifecycle (limit stored images)
-
-For each of the three repositories:
-
-1. Open the repository → **Lifecycle policy** → **Create rule** (or **Edit**).
+1. Open `fgs` -> **Lifecycle policy** -> **Create rule**.
 2. Rule priority: `1`.
 3. Image status: **Any**.
-4. Match criteria: **Image count more than** `20`.
+4. Match criteria: **Image count more than** `60` (shared repo holds three services).
 5. Action: **Expire**.
 6. Save.
 
-This deletes old images automatically so unused layers do not pile up.
+### A4.3 Confirm before the first push
 
-### A4.5 Confirm before the first push
+**Repositories** should list **`fgs/dockers`**. The **Images** tab is empty until Part B. Empty is expected.
 
-**Repositories** should list all three. Each **Images** tab is empty until Part B (Actions or `docker push`). Empty is expected.
-
-Optional CLI (same region, same names):
+Optional CLI:
 
 ```powershell
-aws ecr create-repository --repository-name fgs-setup-service --image-scanning-configuration scanOnPush=true --region YOUR_REGION
-aws ecr create-repository --repository-name fgs-user-service --image-scanning-configuration scanOnPush=true --region YOUR_REGION
-aws ecr create-repository --repository-name fgs-gateway --image-scanning-configuration scanOnPush=true --region YOUR_REGION
+aws ecr create-repository --repository-name fgs/dockers --image-scanning-configuration scanOnPush=true --region YOUR_REGION
 ```
 
-If a name already exists, skip that command. Then continue to IAM (A6.3 GitHub role must allow push to **all three** ARNs).
+If the name already exists, skip. Then continue to IAM (A6.3 GitHub role must allow push to `arn:aws:ecr:REGION:ACCOUNT:repository/fgs/dockers`).
 
 ---
 
-**CloudWatch** → **Log groups** → **Create log group** (retention **14 days**):
+**CloudWatch** -> **Log groups** -> **Create log group** (retention **14 days**):
 
 | Name | Retention |
 | --- | --- |
@@ -291,12 +281,12 @@ Open **IAM**. You need three roles.
 
 ![IAM execution, task, and GitHub OIDC](images/06-console-iam-oidc.png)
 
-### A6.1 ECS task execution role — `fgs-dev-ecs-execution`
+### A6.1 ECS task execution role  -  `fgs-dev-ecs-execution`
 
 Used by ECS **to start** the task (pull image, write logs, read secrets into env).
 
-1. **Roles** → **Create role**.
-2. Trusted entity: **AWS service** → **Elastic Container Service** → use case **Elastic Container Service Task**.
+1. **Roles** -> **Create role**.
+2. Trusted entity: **AWS service** -> **Elastic Container Service** -> use case **Elastic Container Service Task**.
 3. Attach managed policy **AmazonECSTaskExecutionRolePolicy**.
 4. Name: `fgs-dev-ecs-execution`.
 5. After create, **Add inline policy** so ECS can inject Secrets Manager values (Setup DB if used, and the RabbitMQ password):
@@ -319,9 +309,9 @@ Used by ECS **to start** the task (pull image, write logs, read secrets into env
 }
 ```
 
-### A6.2 ECS task role — `fgs-dev-ecs-task`
+### A6.2 ECS task role  -  `fgs-dev-ecs-task`
 
-Used by the **application** at runtime (Setup credential vault, KMS). **Do not** put `AKIA…` keys in the task. The task role is enough when `AwsCredentials__EnableLocalProfileFallback=false`.
+Used by the **application** at runtime (Setup credential vault, KMS). **Do not** put `AKIA...` keys in the task. The task role is enough when `AwsCredentials__EnableLocalProfileFallback=false`.
 
 1. Create role, same trust as above (`ecs-tasks.amazonaws.com`).
 2. Inline policy (tighten later):
@@ -351,15 +341,39 @@ Used by the **application** at runtime (Setup credential vault, KMS). **Do not**
 
 ### A6.3 GitHub Actions OIDC (so CI can push images)
 
-1. **IAM** → **Identity providers** → **Add provider**.
+1. **IAM** -> **Identity providers** -> **Add provider**.
 2. Provider type: **OpenID Connect**.
-3. Provider URL: `https://token.actions.githubusercontent.com` → **Get thumbprint**.
+3. Provider URL: `https://token.actions.githubusercontent.com` -> **Get thumbprint**.
 4. Audience: `sts.amazonaws.com`.
 5. Add provider (skip if it already exists).
-6. **Create role** → **Web identity** → that provider, audience `sts.amazonaws.com`.
+6. **Create role** -> **Web identity** -> that provider, audience `sts.amazonaws.com`.
 7. Name: `fgs-dev-github-actions`.
-8. Trust policy `sub` should look like `repo:nathshivfsm-sys/fgs-coreapi:*` (your org/repo).
-9. Permissions: `ecr:GetAuthorizationToken` on `*`, and push/pull on the three repository ARNs:
+8. Trust policy (replace ACCOUNT, keep your org/repo). Edit the role -> **Trust relationships**:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::ACCOUNT:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+        },
+        "StringLike": {
+          "token.actions.githubusercontent.com:sub": "repo:nathshivfsm-sys/fgs-coreapi:*"
+        }
+      }
+    }
+  ]
+}
+```
+
+9. Permissions: `ecr:GetAuthorizationToken` on `*`, and push/pull on the shared repository ARN:
 
 ```json
 {
@@ -384,20 +398,18 @@ Used by the **application** at runtime (Setup credential vault, KMS). **Do not**
         "ecr:DescribeImages"
       ],
       "Resource": [
-        "arn:aws:ecr:REGION:ACCOUNT:repository/fgs-setup-service",
-        "arn:aws:ecr:REGION:ACCOUNT:repository/fgs-user-service",
-        "arn:aws:ecr:REGION:ACCOUNT:repository/fgs-gateway"
+        "arn:aws:ecr:REGION:ACCOUNT:repository/fgs/dockers"
       ]
     }
   ]
 }
 ```
 
-Copy the role ARN. You will paste it into GitHub as `AWS_ROLE_TO_ASSUME`.
+Copy the role ARN (`arn:aws:iam::ACCOUNT:role/fgs-dev-github-actions`). Next: GitHub variables in [B1](#b1-connect-github-actions-to-ecr).
 
 ## A7. Optional: Secrets Manager for Setup DB and RabbitMQ
 
-**Secrets Manager** → **Store a new secret** → **Other type of secret**.
+**Secrets Manager** -> **Store a new secret** -> **Other type of secret**.
 
 ### Setup DB (if the connection string is not baked elsewhere)
 
@@ -421,7 +433,7 @@ Do **not** put the RabbitMQ password in git or in this guide.
 
 ## A8. ECS cluster and Service Connect namespace
 
-1. Open **Elastic Container Service** → **Clusters** → **Create cluster**.
+1. Open **Elastic Container Service** -> **Clusters** -> **Create cluster**.
 2. Cluster name: `fgs-dev`.
 3. Infrastructure: **AWS Fargate**.
 4. Monitoring: Container Insights **off** unless you need it (extra CloudWatch cost).
@@ -430,7 +442,7 @@ Do **not** put the RabbitMQ password in git or in this guide.
 
 ![Create ECS cluster](images/04-console-ecs-cluster.png)
 
-If the namespace wizard is missing: **Cloud Map** → **Namespaces** → **Create namespace** → instance discovery **API calls** → name `fgs-dev`. Then edit the cluster’s Service Connect default to that namespace.
+If the namespace wizard is missing: **Cloud Map** -> **Namespaces** -> **Create namespace** -> instance discovery **API calls** -> name `fgs-dev`. Then edit the cluster's Service Connect default to that namespace.
 
 ## A9. Application Load Balancer
 
@@ -438,13 +450,13 @@ Create the ALB **before** the nginx ECS service (the service registers into the 
 
 The ALB still bills while it exists. Do **not** delete it unless you are tearing down the environment.
 
-1. **EC2** → **Load Balancers** → **Create** → **Application Load Balancer**.
+1. **EC2** -> **Load Balancers** -> **Create** -> **Application Load Balancer**.
 2. Name: `fgs-dev-gw`.
 3. Scheme: **Internet-facing**.
 4. IP address type: IPv4.
 5. VPC: your VPC. Mappings: **both public subnets**.
 6. Security group: `fgs-dev-alb`.
-7. Listeners: HTTP **80** → a **new target group**:
+7. Listeners: HTTP **80** -> a **new target group**:
    - Name: `fgs-dev-gw`
    - Target type: **IP** (required for Fargate)
    - Protocol: HTTP, port **80**
@@ -458,7 +470,7 @@ Use `http://<alb-dns>` for this environment. For **HTTPS**, continue to [A10](#a
 
 ![ALB health check and Service Connect aliases](images/08-console-alb-service-connect.png)
 
-## A10. HTTPS certificate (ACM → DNS → ALB)
+## A10. HTTPS certificate (ACM -> DNS -> ALB)
 
 Optional. HTTP on the ALB is enough until you have a domain. ACM is free; you need a domain you control.
 
@@ -466,9 +478,9 @@ Optional. HTTP on the ALB is enough until you have a domain. ACM is free; you ne
 
 | Path | Certificate? |
 | --- | --- |
-| Browser / Postman → ALB | **Yes** (ACM), if you want `https://` |
-| ALB → nginx :80 | No (HTTP inside the VPC) |
-| nginx → `setup-service:5004` / `user-service:5001` | No |
+| Browser / Postman -> ALB | **Yes** (ACM), if you want `https://` |
+| ALB -> nginx :80 | No (HTTP inside the VPC) |
+| nginx -> `setup-service:5004` / `user-service:5001` | No |
 
 ACM is **free** for certs attached to an ALB. You need a **domain you control** (for example `dev.fsm.com` or `developer.fsm.com`). ACM will not issue a trusted cert for the raw `*.elb.amazonaws.com` ALB name.
 
@@ -477,7 +489,7 @@ You can stay HTTP-only until the domain and cert are ready. Suggested names: `de
 ### A10.1 Request the certificate
 
 1. Open **AWS Certificate Manager** in the **same region as the ALB** (for example `us-east-1`).
-2. **Request certificate** → **Request a public certificate**.
+2. **Request certificate** -> **Request a public certificate**.
 3. Domain names, for example:
    - `dev.fsm.com`
    - optional: `*.dev.fsm.com` if you want a wildcard
@@ -500,24 +512,24 @@ Do **not** download the private key. ACM keeps it. You only use the certificate 
 
 | DNS | Type | Name | Value |
 | --- | --- | --- | --- |
-| Route 53 | **A — Alias** | `dev.fsm.com` | the ALB `fgs-dev-gw` |
-| Other DNS | **CNAME** | `dev.fsm.com` | ALB DNS, e.g. `fgs-dev-gw-….elb.amazonaws.com` |
+| Route 53 | **A  -  Alias** | `dev.fsm.com` | the ALB `fgs-dev-gw` |
+| Other DNS | **CNAME** | `dev.fsm.com` | ALB DNS, e.g. `fgs-dev-gw-....elb.amazonaws.com` |
 
 ### A10.4 Attach the certificate to the ALB
 
-1. **EC2** → **Load Balancers** → `fgs-dev-gw`.
+1. **EC2** -> **Load Balancers** -> `fgs-dev-gw`.
 2. **Add listener**: protocol **HTTPS**, port **443**.
-3. Certificate source: **From ACM** → the certificate you just issued.
+3. Certificate source: **From ACM** -> the certificate you just issued.
 4. Default action: **Forward** to target group `fgs-dev-gw` (nginx :80).
 5. On the HTTP **80** listener: **Redirect** to HTTPS 443 (optional but recommended once HTTPS works).
 
-After that, use `https://dev.fsm.com`. Nginx stays on HTTP :80; the ALB terminates TLS. Keep the nginx **command override** from [C3](#c3-nginx--task-definition-fgs-dev-gateway) so `site.prod.conf` does not 301 `:80` → `:443` and loop through the ALB.
+After that, use `https://dev.fsm.com`. Nginx stays on HTTP :80; the ALB terminates TLS. Keep the nginx **command override** from [C3](#c3-nginx--task-definition-fgs-dev-gateway) so `site.prod.conf` does not 301 `:80` -> `:443` and loop through the ALB.
 
 Confirm security group `fgs-dev-alb` already allows inbound **443** (created in [A2](#a2-security-groups)).
 
 ### A10.5 If you do not have a domain yet
 
-Buy or transfer one (Route 53 or any registrar), create a hosted zone, then do A10.1–A10.4. There is no trusted public HTTPS without a domain.
+Buy or transfer one (Route 53 or any registrar), create a hosted zone, then do A10.1-A10.4. There is no trusted public HTTPS without a domain.
 
 ### A10.6 What not to do
 
@@ -545,9 +557,9 @@ Images (linux/amd64):
 | Redis | `public.ecr.aws/docker/library/redis:7-alpine` |
 | RabbitMQ | `public.ecr.aws/docker/library/rabbitmq:4-management-alpine` |
 
-### A11.1 Redis — task definition `fgs-dev-redis`
+### A11.1 Redis  -  task definition `fgs-dev-redis`
 
-**ECS** → **Task definitions** → **Create new task definition**.
+**ECS** -> **Task definitions** -> **Create new task definition**.
 
 | Field | Value |
 | --- | --- |
@@ -563,7 +575,7 @@ Images (linux/amd64):
 
 Create the task definition.
 
-**Clusters** → `fgs-dev` → **Create service**:
+**Clusters** -> `fgs-dev` -> **Create service**:
 
 | Field | Value |
 | --- | --- |
@@ -582,7 +594,7 @@ Create the task definition.
 
 Create. Wait until the task is **running** and the health check passes (logs show `PONG` / no restart loop).
 
-### A11.2 RabbitMQ — task definition `fgs-dev-rabbitmq`
+### A11.2 RabbitMQ  -  task definition `fgs-dev-rabbitmq`
 
 | Field | Value |
 | --- | --- |
@@ -621,24 +633,51 @@ Do not register port **15672** on the ALB. Management stays inside the VPC.
 
 ---
 
-# Part B — Prepare the image and put it in ECR
+# Part B  -  Connect GitHub to ECR and push images
 
-## B1. GitHub Actions variables
+GitHub Actions never stores long-lived AWS access keys. The runner requests a short GitHub OIDC token, AWS STS exchanges it for the IAM role from [A6.3](#a63-github-actions-oidc-so-ci-can-push-images), then Docker logs in to ECR and **pushes** the image.
 
-Repo **Settings** → **Secrets and variables** → **Actions** → **Variables**:
+```text
+git push (dev / test / main)
+  -> GitHub Actions (Build setup | Build user | Build nginx)
+  -> OIDC assume role AWS_ROLE_TO_ASSUME
+  -> docker login to ACCOUNT.dkr.ecr.REGION.amazonaws.com
+  -> docker push  .../fgs/dockers:setup-dev  (also user-dev, nginx-dev)
+```
+
+## B1. Connect GitHub Actions to ECR
+
+Do this **once** after the shared ECR repo ([A4](#a4-amazon-ecr-one-shared-image-repository)) and the IAM role ([A6.3](#a63-github-actions-oidc-so-ci-can-push-images)) exist.
+
+1. Open the GitHub repo -> **Settings** -> **Secrets and variables** -> **Actions** -> **Variables** -> **New repository variable**.
+2. Create:
 
 | Variable | Value |
 | --- | --- |
-| `AWS_REGION` | your region, e.g. `us-east-1` |
-| `AWS_ROLE_TO_ASSUME` | ARN of `fgs-dev-github-actions` |
-| `PUSH_TO_ECR` | `true` |
-| `ECR_SETUP_REPO` | `fgs-setup-service` (optional; this is the default) |
-| `ECR_USER_REPO` | `fgs-user-service` |
-| `ECR_GATEWAY_REPO` | `fgs-gateway` |
+| `AWS_REGION` | Same region as ECR, e.g. `us-east-1` |
+| `AWS_ROLE_TO_ASSUME` | `arn:aws:iam::ACCOUNT:role/fgs-dev-github-actions` |
+| `ECR_REPO` | `fgs/dockers` (optional; workflow default) |
 
-Workflows already request `id-token: write` for OIDC. No long-lived AWS keys in GitHub.
+3. Do **not** add `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`. OIDC is enough. Workflows already have `permissions: id-token: write`.
+4. `PUSH_TO_ECR` is **on by default** in `.github/workflows/reusable-build-service.yml`. Set it to `false` only if you want CI to build without publishing.
+5. Confirm the IAM trust `sub` is `repo:<owner>/<repo>:*` for **this** repository (wrong org/repo name is the usual `Not authorized to perform sts:AssumeRoleWithWebIdentity` error).
+6. Confirm the role can `ecr:PutImage` on `arn:aws:ecr:REGION:ACCOUNT:repository/fgs/dockers`.
 
-## B2. Version bump (this is what triggers a build)
+## B2. What the YAML does (push to ECR)
+
+| Workflow | Dockerfile | ECR image (on `dev`) |
+| --- | --- | --- |
+| `build-setup.yml` | `src/Gateway/docker/setup-service.Dockerfile` | `.../fgs/dockers:setup-dev`, `setup-<ver>-dev`, `setup-<ver>-dev-<sha>` |
+| `build-user.yml` | `src/Gateway/docker/user-service.Dockerfile` | `.../fgs/dockers:user-dev`, ... |
+| `build-nginx.yml` | `src/Gateway/Dockerfile.prod` | `.../fgs/dockers:nginx-dev`, ... |
+
+Shared job: `.github/workflows/reusable-build-service.yml`
+
+- **Pull request:** build + tests only (no ECR login, no push).
+- **Push to `dev` / `test` / `main` or Run workflow:** login with OIDC, then `docker/build-push-action` with `push: true`.
+- Channel tags: `dev` -> `setup-dev` / `user-dev` / `nginx-dev` (and `*-test`, `*-prod`).
+
+## B3. Version bump (this is what triggers a build)
 
 | Service | File | What to change |
 | --- | --- | --- |
@@ -646,25 +685,25 @@ Workflows already request `id-token: write` for OIDC. No long-lived AWS keys in 
 | User | `src/UserService/Fgs.User.API/Fgs.User.API.csproj` | `<Version>` |
 | nginx | `src/Gateway/VERSION` | plain `1.0.0` style |
 
-Commit to `dev` (or **Actions** → workflow → **Run workflow** with **force**).
+Commit to `dev` (or **Actions** -> workflow -> **Run workflow** with **force**).
 
 Workflows:
 
-- **Build setup** — `.github/workflows/build-setup.yml`
-- **Build user** — `.github/workflows/build-user.yml`
-- **Build nginx** — `.github/workflows/build-nginx.yml`
+- **Build setup**  -  `.github/workflows/build-setup.yml`
+- **Build user**  -  `.github/workflows/build-user.yml`
+- **Build nginx**  -  `.github/workflows/build-nginx.yml`
 
-On success with `PUSH_TO_ECR=true`, ECR has:
+On success, ECR has:
 
 ```text
-ACCOUNT.dkr.ecr.REGION.amazonaws.com/fgs-setup-service:dev
-ACCOUNT.dkr.ecr.REGION.amazonaws.com/fgs-user-service:dev
-ACCOUNT.dkr.ecr.REGION.amazonaws.com/fgs-gateway:dev
+ACCOUNT.dkr.ecr.REGION.amazonaws.com/fgs/dockers:setup-dev
+ACCOUNT.dkr.ecr.REGION.amazonaws.com/fgs/dockers:user-dev
+ACCOUNT.dkr.ecr.REGION.amazonaws.com/fgs/dockers:nginx-dev
 ```
 
-Open **ECR** → repository → **Images** and confirm the tags.
+Open **ECR** -> repository -> **Images** and confirm the tags.
 
-## B3. Manual image build (if you are not using Actions)
+## B4. Manual image build (if you are not using Actions)
 
 Install Docker Desktop and AWS CLI. From a PowerShell prompt (repo root). Replace `ACCOUNT` and `REGION`.
 
@@ -676,27 +715,27 @@ aws ecr get-login-password --region $REGION |
 
 # Setup
 docker build -f src/Gateway/docker/setup-service.Dockerfile `
-  -t "$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/fgs-setup-service:dev" .
-docker push "$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/fgs-setup-service:dev"
+  -t "$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/fgs/dockers:setup-dev" .
+docker push "$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/fgs/dockers:setup-dev"
 
 # User
 docker build -f src/Gateway/docker/user-service.Dockerfile `
-  -t "$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/fgs-user-service:dev" .
-docker push "$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/fgs-user-service:dev"
+  -t "$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/fgs/dockers:user-dev" .
+docker push "$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/fgs/dockers:user-dev"
 
 # nginx (context is src/Gateway, not repo root)
 docker build -f src/Gateway/Dockerfile.prod `
-  -t "$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/fgs-gateway:dev" src/Gateway
-docker push "$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/fgs-gateway:dev"
+  -t "$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/fgs/dockers:nginx-dev" src/Gateway
+docker push "$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/fgs/dockers:nginx-dev"
 ```
 
 Images must be **linux/amd64** (Fargate X86_64 in this guide). On Apple Silicon add `--platform linux/amd64`.
 
 ---
 
-# Part C — Task definitions and ECS services (the running containers)
+# Part C  -  Task definitions and ECS services (the running containers)
 
-**ECS** → **Task definitions** → **Create new task definition**.
+**ECS** -> **Task definitions** -> **Create new task definition**.
 
 Shared settings for app tasks (Setup / User / nginx):
 
@@ -717,18 +756,18 @@ On **Create service**, use **Fargate** (On-Demand). Desired tasks: **1** (servic
 
 Redis and RabbitMQ must already be **running** ([A11](#a11-redis-and-rabbitmq-ecs-services)). Then create **Setup**, then **User**, then **nginx**.
 
-## C1. Setup — task definition `fgs-dev-setup`
+## C1. Setup  -  task definition `fgs-dev-setup`
 
 | Field | Value |
 | --- | --- |
 | CPU / memory | **512 / 1024** |
 | Container name | `setup` |
-| Image URI | `…/fgs-setup-service:dev` |
+| Image URI | `.../fgs/dockers:setup-dev` |
 | Port mapping | **5004**, TCP, name **`setup-http`**, app protocol HTTP |
 | Health check | `CMD-SHELL`, `curl -fsS http://localhost:5004/health \|\| exit 1`, start period 60s |
 | Log group | `/ecs/fgs-dev/setup`, stream prefix `setup` |
 
-**Environment** (plain text — no API keys):
+**Environment** (plain text  -  no API keys):
 
 | Name | Value |
 | --- | --- |
@@ -765,7 +804,7 @@ Create the task definition.
 
 ### Setup service
 
-**Clusters** → `fgs-dev` → **Create service**.
+**Clusters** -> `fgs-dev` -> **Create service**.
 
 | Field | Value |
 | --- | --- |
@@ -775,7 +814,7 @@ Create the task definition.
 | Capacity provider | **FARGATE** (On-Demand) |
 | Subnets | **both public subnets** |
 | Security group | `fgs-dev-setup` |
-| Public IP | **Turned on** (for ECR pull without NAT — do not add a NAT gateway) |
+| Public IP | **Turned on** (for ECR pull without NAT  -  do not add a NAT gateway) |
 | Load balancer | **None** |
 | Service Connect | **Turned on**, namespace `fgs-dev` |
 | Port name | `setup-http` |
@@ -784,7 +823,7 @@ Create the task definition.
 
 Create. Wait until running + healthy in **Logs** (`/health` must succeed).
 
-## C2. User — task definition `fgs-dev-user`
+## C2. User  -  task definition `fgs-dev-user`
 
 Same pattern as Setup.
 
@@ -792,7 +831,7 @@ Same pattern as Setup.
 | --- | --- |
 | CPU / memory | **512 / 1024** |
 | Container name | `user` |
-| Image URI | `…/fgs-user-service:dev` |
+| Image URI | `.../fgs/dockers:user-dev` |
 | Port mapping | **5001**, name **`user-http`**, HTTP |
 | Health check | `curl -fsS http://localhost:5001/health` |
 | Log group | `/ecs/fgs-dev/user` |
@@ -829,15 +868,15 @@ Service:
 
 Create after Setup is healthy.
 
-## C3. nginx — task definition `fgs-dev-gateway`
+## C3. nginx  -  task definition `fgs-dev-gateway`
 
-The image (`Dockerfile.prod`) listens on **443** with cert files and redirects **80 → https**. The ALB terminates TLS (or HTTP) and forwards to nginx **:80**, so **override the container command** to serve APIs on HTTP :80 and avoid a redirect loop.
+The image (`Dockerfile.prod`) listens on **443** with cert files and redirects **80 -> https**. The ALB terminates TLS (or HTTP) and forwards to nginx **:80**, so **override the container command** to serve APIs on HTTP :80 and avoid a redirect loop.
 
 | Field | Value |
 | --- | --- |
 | CPU / memory | **256 / 512** |
 | Container name | `gateway` |
-| Image URI | `…/fgs-gateway:dev` |
+| Image URI | `.../fgs/dockers:nginx-dev` |
 | Port mapping | **80**, name **`nginx-http`**, HTTP |
 | Health check | `curl -fsS http://localhost/nginx-health` |
 | Log group | `/ecs/fgs-dev/gateway` |
@@ -866,9 +905,9 @@ Create. Target group should show **healthy** once `/nginx-health` returns 200.
 
 ---
 
-# Part D — Prove the end-to-end path
+# Part D  -  Prove the end-to-end path
 
-ALB DNS is on the load balancer page (`fgs-dev-gw-….elb.amazonaws.com`).
+ALB DNS is on the load balancer page (`fgs-dev-gw-....elb.amazonaws.com`).
 
 ```text
 http://<alb-dns>/nginx-health
@@ -880,22 +919,22 @@ Then, through nginx (paths from `api-v1-routes.prod.conf`):
 
 | Check | Example |
 | --- | --- |
-| Setup | `http://<alb-dns>/api/v1/…` (catalog / credential routes that proxy to `setup_service`) |
+| Setup | `http://<alb-dns>/api/v1/...` (catalog / credential routes that proxy to `setup_service`) |
 | User | `http://<alb-dns>/api/v1/auth/` (proxies to `user_service`) |
 
 If nginx is healthy but APIs fail:
 
-1. ECS → service → **Service Connect** — confirm `setup-service` and `user-service`.
-2. CloudWatch logs for `setup` / `user` — DB SG, Redis, credential key mismatch.
-3. nginx logs — `upstream timed out` means DNS or SG; `connect() failed` to `127.0.0.1:9` means that route is for a service you have not deployed yet.
+1. ECS -> service -> **Service Connect**  -  confirm `setup-service` and `user-service`.
+2. CloudWatch logs for `setup` / `user`  -  DB SG, Redis, credential key mismatch.
+3. nginx logs  -  `upstream timed out` means DNS or SG; `connect() failed` to `127.0.0.1:9` means that route is for a service you have not deployed yet.
 
 ---
 
-# Part E — Everyday release (after the first time)
+# Part E  -  Everyday release (after the first time)
 
 1. Bump `<Version>` (or `src/Gateway/VERSION`).
-2. Merge to `dev` → Actions builds and overwrites the channel tag in ECR (`:dev`).
-3. ECS → service → **Update** → **Force new deployment** if the service already points at that tag, **or** register a new task-definition revision with a pin tag like `1.0.1-dev`.
+2. Merge to `dev` -> Actions builds and overwrites the channel tags in ECR (`setup-dev`, `user-dev`, `nginx-dev`).
+3. ECS -> service -> **Update** -> **Force new deployment** if the service already points at that tag, **or** register a new task-definition revision with a pin tag like `setup-1.0.1-dev`.
 
 Redeploying Setup or User does **not** require an nginx config change while discovery stays `setup-service:5004` and `user-service:5001`.
 
@@ -903,17 +942,17 @@ Redeploying Setup or User does **not** require an nginx config change while disc
 
 # Checklist
 
-- [ ] VPC + **2** public subnets + IGW — **no NAT**
+- [ ] VPC + **2** public subnets + IGW  -  **no NAT**
 - [ ] SGs: ALB, gateway, setup, user, redis, rabbitmq
 - [ ] RDS SG allows Setup (existing Postgres)
 - [ ] Redis + RabbitMQ services running (`redis:6379`, `rabbitmq:5672`)
-- [ ] ECR: `fgs-setup-service`, `fgs-user-service`, `fgs-gateway` (A4)
+- [ ] ECR: one repo `fgs/dockers` (A4)
 - [ ] IAM: execution, task, GitHub OIDC
 - [ ] Log groups, **14-day** retention
 - [ ] Cluster `fgs-dev` + namespace `fgs-dev`
 - [ ] ALB `fgs-dev-gw` + TG health `/nginx-health`
-- [ ] GitHub `AWS_ROLE_TO_ASSUME` + `PUSH_TO_ECR=true`
-- [ ] Images in ECR (`:dev`)
+- [ ] GitHub variables: `AWS_REGION`, `AWS_ROLE_TO_ASSUME` (ECR push is on by default)
+- [ ] Images in ECR (`setup-dev`, `user-dev`, `nginx-dev`)
 - [ ] Setup, User, gateway, redis, rabbitmq on Fargate, desired **1** (always on)
 - [ ] `http://<alb-dns>/nginx-health` = 200
 - [ ] Datadog key only in Setup credential table
@@ -924,16 +963,16 @@ Redeploying Setup or User does **not** require an nginx config change while disc
 
 | Symptom | Likely cause |
 | --- | --- |
-| Actions build OK, no image in ECR | `PUSH_TO_ECR` not `true`, or OIDC role ARN / trust `sub` wrong |
+| Actions build OK, no image in ECR | Missing `AWS_ROLE_TO_ASSUME`, IAM trust `sub` wrong, or `PUSH_TO_ECR=false` |
 | Task `CannotPullContainerError` | Public IP off and no NAT; execution role missing ECR; or Redis/RabbitMQ cannot pull `public.ecr.aws` |
 | Task running, health fail | Wrong port, app crash, RDS SG, missing `ConnectionStrings__FgsSetup` |
-| ALB target unhealthy | nginx still redirecting :80 → https; missing command override; wrong health path |
+| ALB target unhealthy | nginx still redirecting :80 -> https; missing command override; wrong health path |
 | HTTPS browser warning / cert pending | ACM not **Issued**; DNS CNAME missing; domain not pointing at the ALB |
-| HTTPS redirect loop | nginx `site.prod.conf` 301 to 443 while ALB already terminates TLS — use the C3 command override |
+| HTTPS redirect loop | nginx `site.prod.conf` 301 to 443 while ALB already terminates TLS  -  use the C3 command override |
 | nginx 502 on Setup routes | Setup not in namespace, or DNS not `setup-service` |
 | User 502 | User not registered as `user-service:5001` |
 | Datadog logs missing | Global `DATADOG` credential missing/wrong; or you set empty `Datadog__ApiKey` on the task and overrode the table |
-| User cannot boot | Redis unreachable (`redis:6379`) or `InternalServiceKey` ≠ Setup |
+| User cannot boot | Redis unreachable (`redis:6379`) or `InternalServiceKey` â‰  Setup |
 | Setup cannot talk to broker | RabbitMQ not healthy, wrong `RabbitMq__Password`, or Service Connect name not `rabbitmq` |
 
 ---

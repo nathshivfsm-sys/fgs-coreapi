@@ -60,11 +60,7 @@ resource "aws_iam_role_policy" "github_actions_ecr" {
           "ecr:DescribeRepositories",
           "ecr:DescribeImages",
         ]
-        Resource = [
-          aws_ecr_repository.setup.arn,
-          aws_ecr_repository.user.arn,
-          aws_ecr_repository.gateway.arn,
-        ]
+        Resource = [aws_ecr_repository.app.arn]
       },
     ]
   })

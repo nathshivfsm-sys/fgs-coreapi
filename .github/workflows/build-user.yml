@@ -1,4 +1,5 @@
 # Starts only when User Service version changes.
+# Pushes linux/amd64 image to shared ECR repo (tag user-<channel>; see reusable-build-service.yml).
 name: Build user
 
 on:
@@ -36,7 +37,7 @@ jobs:
       service: user
       context: .
       dockerfile: src/Gateway/docker/user-service.Dockerfile
-      ecr_repository: ${{ vars.ECR_USER_REPO || 'fgs-user-service' }}
+      ecr_repository: ${{ vars.ECR_REPO || 'fgs/dockers' }}
       version_file: src/UserService/Fgs.User.API/Fgs.User.API.csproj
       version_kind: csproj
       test_project: src/UserService/Fgs.User.Tests/Fgs.User.Tests.csproj

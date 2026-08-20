@@ -1,4 +1,5 @@
 # Starts only when Setup Service version changes.
+# Pushes linux/amd64 image to shared ECR repo (tag setup-<channel>; see reusable-build-service.yml).
 name: Build setup
 
 on:
@@ -36,7 +37,7 @@ jobs:
       service: setup
       context: .
       dockerfile: src/Gateway/docker/setup-service.Dockerfile
-      ecr_repository: ${{ vars.ECR_SETUP_REPO || 'fgs-setup-service' }}
+      ecr_repository: ${{ vars.ECR_REPO || 'fgs/dockers' }}
       version_file: src/SetupService/Fgs.Setup.API/Fgs.Setup.API.csproj
       version_kind: csproj
       test_project: src/SetupService/Fgs.Setup.Tests/Fgs.Setup.Tests.csproj

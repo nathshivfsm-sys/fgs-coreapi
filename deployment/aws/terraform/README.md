@@ -8,7 +8,7 @@ Do **not** create RDS. Datadog `ApiKey` stays in Setup `glo.GloCredential`.
 
 | Piece | Dev behavior |
 | --- | --- |
-| ECR | `fgs-setup-service`, `fgs-user-service`, `fgs-gateway` |
+| ECR | one repo `fgs/dockers` (tags `setup-dev`, `user-dev`, `nginx-dev`) |
 | Cluster | `fgs-dev` |
 | Service Connect | `setup-service:5004`, `redis:6379`, `rabbitmq:5672` |
 | Gateway | nginx :80 behind ALB |
@@ -34,7 +34,7 @@ terraform apply
 4. Copy `github_actions_role_arn` into GitHub **Actions variables**:
    - `AWS_ROLE_TO_ASSUME` = output ARN
    - `AWS_REGION` = your region
-   - `PUSH_TO_ECR` = `true`
+   Workflows push to ECR on `dev` / `test` / `main` by default (set `PUSH_TO_ECR=false` only to skip publish).
 5. Confirm the Datadog API key is in Setup `glo.GloCredential` (provider `DATADOG`, Global scope).
 6. Build images (branch `dev` → tag `:dev`) and wait for **Build setup** / **Build nginx** (and **Build user** from the console runbook).
 7. Set `create_ecs_services = true`, `terraform apply` again.

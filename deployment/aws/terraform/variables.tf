@@ -34,9 +34,15 @@ variable "github_oidc_provider_arn" {
   default     = ""
 }
 
+variable "ecr_repository_name" {
+  type        = string
+  description = "Single private ECR repository for Setup, User, and nginx images (tags are service-prefixed)."
+  default     = "fgs/dockers"
+}
+
 variable "image_tag" {
   type        = string
-  description = "ECR image tag to run (build pipeline channel: dev, test, or prod)."
+  description = "Channel suffix for image tags (dev, test, or prod). Tasks pull setup-<tag> and nginx-<tag>."
   default     = "dev"
 }
 
