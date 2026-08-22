@@ -85,10 +85,11 @@ sudo bash fgs/deployment/aws/ec2/bootstrap-ec2.sh
 Then edit config:
 
 ```bash
-sudo nano /opt/fgs/config/setup-appsettings.json   # RDS connection string for Setup
-sudo nano /opt/fgs/config/user-appsettings.json    # RDS connection string for User
+sudo nano /opt/fgs/config/setup-appsettings.json   # FgsSetup RDS only
 sudo nano /opt/fgs/.env                            # RABBITMQ_PASSWORD (broker boot — must match GloCredential)
 ```
+
+Ensure **`glo.GloCredential`** includes `Global:DATABASE:FgsUser`, `Global:REDIS`, `Global:RABBITMQ`, etc. User-service does **not** use a connection string file on EC2.
 
 ### RabbitMQ credentials (GloCredential vs `.env`)
 

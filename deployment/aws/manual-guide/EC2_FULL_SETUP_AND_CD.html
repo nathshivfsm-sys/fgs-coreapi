@@ -449,11 +449,7 @@ sudo bash deployment/aws/ec2/bootstrap-ec2.sh
 </tr>
 <tr>
 <td><code>/opt/fgs/config/setup-appsettings.json</code></td>
-<td>Setup DB connection (bootstrap placeholder)</td>
-</tr>
-<tr>
-<td><code>/opt/fgs/config/user-appsettings.json</code></td>
-<td>User DB connection (bootstrap placeholder)</td>
+<td><strong>FgsSetup</strong> RDS connection only (bootstrap to reach credential store)</td>
 </tr>
 <tr>
 <td><code>/opt/fgs/.env</code></td>
@@ -461,7 +457,8 @@ sudo bash deployment/aws/ec2/bootstrap-ec2.sh
 </tr>
 </tbody>
 </table>
-<h3 id="104-edit-setup-appsettingsjson">10.4 Edit <code>setup-appsettings.json</code></h3>
+<p>User-service uses <strong>appsettings baked into the Docker image</strong> plus credentials from Setup (<code>CredentialConsumer</code>). Do <strong>not</strong> put <code>FgsUser</code> on the EC2 host.</p>
+<h3 id="104-edit-setup-appsettingsjson-fgssetup-only">10.4 Edit <code>setup-appsettings.json</code> (FgsSetup only)</h3>
 <pre><code class="language-bash">sudo nano /opt/fgs/config/setup-appsettings.json
 </code></pre>
 <p>Example:</p>
@@ -472,17 +469,40 @@ sudo bash deployment/aws/ec2/bootstrap-ec2.sh
 }
 </code></pre>
 <p>Setup uses this to reach RDS <strong>before</strong> loading other credentials from <code>GloCredential</code>.</p>
-<h3 id="105-edit-user-appsettingsjson">10.5 Edit <code>user-appsettings.json</code></h3>
-<pre><code class="language-bash">sudo nano /opt/fgs/config/user-appsettings.json
-</code></pre>
-<p>Example:</p>
-<pre><code class="language-json">{
-  &quot;ConnectionStrings&quot;: {
-    &quot;FgsUser&quot;: &quot;Host=your-rds.region.rds.amazonaws.com;Port=5432;Database=fgs_user;Username=...;Password=...&quot;
-  }
-}
-</code></pre>
-<p>User-service bootstraps DB access from this file, then loads other credentials from Setup.</p>
+<h3 id="105-credentials-in-gloglocredential-not-on-ec2-disk">10.5 Credentials in <code>glo.GloCredential</code> (not on EC2 disk)</h3>
+<p>Store in Setup database (via Setup admin / seed / migration). User and other services read these through <strong>Setup credential distribution</strong> — same as local dev.</p>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>Keys (examples)</th>
+<th>Used by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DATABASE</code></td>
+<td><code>FgsUser</code>, <code>FgsUserReadOnly</code>, …</td>
+<td>user-service</td>
+</tr>
+<tr>
+<td><code>REDIS</code></td>
+<td><code>ConnectionString</code> = <code>redis:6379</code>, <code>Enabled</code> = true</td>
+<td>setup, user, …</td>
+</tr>
+<tr>
+<td><code>RABBITMQ</code></td>
+<td><code>Username</code>, <code>Password</code> (must match <code>.env</code> broker boot)</td>
+<td>setup</td>
+</tr>
+<tr>
+<td><code>ENTRA_EXTERNAL_ID</code>, <code>AWS</code>, …</td>
+<td>per provider schema</td>
+<td>user-service</td>
+</tr>
+</tbody>
+</table>
+<p>Do <strong>not</strong> create <code>/opt/fgs/config/user-appsettings.json</code> on EC2.</p>
 <h3 id="106-edit-optfgsenv">10.6 Edit <code>/opt/fgs/.env</code></h3>
 <pre><code class="language-bash">sudo nano /opt/fgs/.env
 </code></pre>
@@ -677,8 +697,8 @@ docker logs $(docker ps -qf name=nginx) --tail 50
 <h3 id="ec2-bootstrap-one-time">EC2 bootstrap (one time)</h3>
 <ul>
 <li>[ ] <code>bootstrap-ec2.sh</code> run</li>
-<li>[ ] <code>setup-appsettings.json</code> — real FgsSetup connection string</li>
-<li>[ ] <code>user-appsettings.json</code> — real FgsUser connection string</li>
+<li>[ ] <code>setup-appsettings.json</code> — <strong>FgsSetup</strong> connection string only</li>
+<li>[ ] <code>GloCredential</code> — FgsUser, REDIS, RABBITMQ, etc. in Setup database</li>
 <li>[ ] <code>.env</code> — <code>RABBITMQ_PASSWORD</code> matches GloCredential RABBITMQ</li>
 <li>[ ] Images in ECR (<code>setup-dev</code>, <code>user-dev</code>, <code>nginx-dev</code>)</li>
 <li>[ ] All containers running and healthy</li>

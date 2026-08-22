@@ -308,11 +308,12 @@ Copy these files to the instance, then run bootstrap from that folder:
 | `/opt/fgs/deploy-service.sh` | Pull one ECR image + restart one container |
 | `/opt/fgs/docker-compose.ec2.yml` | Stack definition |
 | `/opt/fgs/nginx-http-only-entrypoint.sh` | Nginx entrypoint |
-| `/opt/fgs/config/setup-appsettings.json` | Setup DB connection (bootstrap placeholder) |
-| `/opt/fgs/config/user-appsettings.json` | User DB connection (bootstrap placeholder) |
+| `/opt/fgs/config/setup-appsettings.json` | **FgsSetup** RDS connection only (bootstrap to reach credential store) |
 | `/opt/fgs/.env` | Host env (RabbitMQ broker boot, ASP.NET env, etc.) |
 
-### 10.4 Edit `setup-appsettings.json`
+User-service uses **appsettings baked into the Docker image** plus credentials from Setup (`CredentialConsumer`). Do **not** put `FgsUser` on the EC2 host.
+
+### 10.4 Edit `setup-appsettings.json` (FgsSetup only)
 
 ```bash
 sudo nano /opt/fgs/config/setup-appsettings.json
@@ -330,23 +331,18 @@ Example:
 
 Setup uses this to reach RDS **before** loading other credentials from `GloCredential`.
 
-### 10.5 Edit `user-appsettings.json`
+### 10.5 Credentials in `glo.GloCredential` (not on EC2 disk)
 
-```bash
-sudo nano /opt/fgs/config/user-appsettings.json
-```
+Store in Setup database (via Setup admin / seed / migration). User and other services read these through **Setup credential distribution** — same as local dev.
 
-Example:
+| Provider | Keys (examples) | Used by |
+| --- | --- | --- |
+| `DATABASE` | `FgsUser`, `FgsUserReadOnly`, … | user-service |
+| `REDIS` | `ConnectionString` = `redis:6379`, `Enabled` = true | setup, user, … |
+| `RABBITMQ` | `Username`, `Password` (must match `.env` broker boot) | setup |
+| `ENTRA_EXTERNAL_ID`, `AWS`, … | per provider schema | user-service |
 
-```json
-{
-  "ConnectionStrings": {
-    "FgsUser": "Host=your-rds.region.rds.amazonaws.com;Port=5432;Database=fgs_user;Username=...;Password=..."
-  }
-}
-```
-
-User-service bootstraps DB access from this file, then loads other credentials from Setup.
+Do **not** create `/opt/fgs/config/user-appsettings.json` on EC2.
 
 ### 10.6 Edit `/opt/fgs/.env`
 
@@ -580,8 +576,8 @@ Common issues:
 ### EC2 bootstrap (one time)
 
 - [ ] `bootstrap-ec2.sh` run
-- [ ] `setup-appsettings.json` — real FgsSetup connection string
-- [ ] `user-appsettings.json` — real FgsUser connection string
+- [ ] `setup-appsettings.json` — **FgsSetup** connection string only
+- [ ] `GloCredential` — FgsUser, REDIS, RABBITMQ, etc. in Setup database
 - [ ] `.env` — `RABBITMQ_PASSWORD` matches GloCredential RABBITMQ
 - [ ] Images in ECR (`setup-dev`, `user-dev`, `nginx-dev`)
 - [ ] All containers running and healthy

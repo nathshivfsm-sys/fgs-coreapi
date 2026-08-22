@@ -2,11 +2,8 @@
 # (updated by deploy-service.sh). First-time bootstrap: see GITHUB_ACTIONS_CD_EC2.md
 #
 # Credentials:
-#   - RabbitMQ broker boot: RABBITMQ_USER / RABBITMQ_PASSWORD in .env (rabbitmq service only).
-#     Must match glo.GloCredential Global:RABBITMQ Username/Password (or ConnectionUri).
-#   - Setup RabbitMq user/password: loaded from GloCredential at startup — do not set RabbitMq__*
-#     on setup-service (env would override the table; same pattern as Datadog on ECS).
-#   - Setup still needs RabbitMq__HostName/Port here unless Global:RABBITMQ:ConnectionUri is set.
+#   - Setup DB bootstrap: only ConnectionStrings:FgsSetup in setup-appsettings.json on the host.
+#   - User DB, Redis, RabbitMQ auth, etc.: glo.GloCredential (Setup) — not in EC2 config files.
 
 name: fgs-ec2
 
@@ -57,12 +54,10 @@ services:
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/setup
       UserService__BaseUrl: http://user-service:5001
-      # Non-secret broker address (or set Global:RABBITMQ:ConnectionUri in GloCredential instead).
+      # Non-secret broker address (credentials from GloCredential; password only in .env for broker boot).
       RabbitMq__HostName: rabbitmq
       RabbitMq__Port: "5672"
       RabbitMq__SslEnabled: "false"
-      Redis__ConnectionString: redis:6379
-      Redis__Enabled: "true"
       Datadog__Enabled: "false"
       Observability__Enabled: "false"
     volumes:
@@ -96,12 +91,8 @@ services:
       CredentialConsumer__RequiredProviders__3: REDIS
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/user
-      Redis__ConnectionString: redis:6379
-      Redis__Enabled: "true"
       Datadog__Enabled: "false"
       Observability__Enabled: "false"
-    volumes:
-      - ${FGS_CONFIG_DIR:-./config}/user-appsettings.json:/app/appsettings.json:ro
     depends_on:
       redis:
         condition: service_healthy
