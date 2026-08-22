@@ -1,11 +1,12 @@
 # Reusable build + ECR push. Called by build-setup.yml, build-user.yml, build-nginx.yml.
 # Do not add `on: push` here — callers own triggers so only one service runs.
 #
-# Connectivity (no long-lived AWS keys):
-#   GitHub OIDC → IAM role vars.AWS_ROLE_TO_ASSUME → ecr:GetAuthorizationToken + push
-#   to the shared repo (vars.ECR_REPO, default fgs/dockers). Tags are service-prefixed
-#   (setup-dev, user-dev, nginx-dev) so images do not overwrite each other.
-# Set repo Actions variables: AWS_REGION, AWS_ROLE_TO_ASSUME, optional ECR_REPO.
+# AWS auth (prefer OIDC; access keys are a fallback):
+#   1) Secrets AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY → IAM user keys
+#   2) Else vars.AWS_ROLE_TO_ASSUME → GitHub OIDC role
+# ECR: vars.ECR_REPO (default fgs/dockers). Tags are service-prefixed
+#   (setup-dev, user-dev, nginx-dev).
+# Set vars: AWS_REGION, and either OIDC role or access-key secrets.
 # ECR push only on push (merge) to dev|test|main — not on pull_request.
 # workflow_dispatch builds locally unless input push_to_ecr=true.
 
@@ -249,18 +250,31 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Require GitHub OIDC role for ECR
+      - name: Require AWS auth for ECR
         if: needs.resolve.outputs.push_images == 'true'
         env:
           ROLE: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
         run: |
-          if [ -z "$ROLE" ]; then
-            echo "::error::Set GitHub Actions variable AWS_ROLE_TO_ASSUME to the IAM role ARN (fgs-dev-github-actions). See deployment/aws/manual-guide/MANUAL_DEPLOY_NGINX_SETUP_USER.md part B1."
+          if [ -n "$ACCESS_KEY" ]; then
+            echo "Using IAM access keys (AWS_ACCESS_KEY_ID secret)."
+          elif [ -n "$ROLE" ]; then
+            echo "Using GitHub OIDC role: $ROLE"
+          else
+            echo "::error::Set secrets AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY, or variable AWS_ROLE_TO_ASSUME (OIDC)."
             exit 1
           fi
 
+      - name: Configure AWS credentials (access keys)
+        if: needs.resolve.outputs.push_images == 'true' && secrets.AWS_ACCESS_KEY_ID != ''
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Configure AWS credentials (GitHub OIDC)
-        if: needs.resolve.outputs.push_images == 'true'
+        if: needs.resolve.outputs.push_images == 'true' && secrets.AWS_ACCESS_KEY_ID == ''
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}

@@ -165,10 +165,18 @@ In the GitHub repo: **Settings** → **Secrets and variables** → **Actions** �
 | `AWS_ROLE_TO_ASSUME` | Role ARN from Step 5 |
 | `ECR_REPO` | `fgs/dockers` |
 
-Do **not** create:
+Do **not** create `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` unless OIDC is blocked. Prefer `AWS_ROLE_TO_ASSUME`.
 
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
+### Access-key fallback (optional)
+
+If OIDC keep failing, create an IAM user with ECR (+ ECS for CD) permissions, then add **Secrets** (not Variables):
+
+| Secret | Value |
+| --- | --- |
+| `AWS_ACCESS_KEY_ID` | IAM access key id |
+| `AWS_SECRET_ACCESS_KEY` | IAM secret access key |
+
+Workflows use access keys when `AWS_ACCESS_KEY_ID` is set; otherwise they use OIDC. Remove the secrets when OIDC works again.
 
 Workflows already request `permissions: id-token: write` for OIDC.
 

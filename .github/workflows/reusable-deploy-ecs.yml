@@ -1,7 +1,8 @@
 # Force a new ECS deployment so Fargate pulls the latest mutable channel tag
 # (setup-dev, user-test, nginx-prod, …) from the shared ECR repo.
 #
-# Called after CI pushes an image. Uses GitHub Environments:
+# AWS auth: secrets AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY, else OIDC vars.AWS_ROLE_TO_ASSUME.
+# GitHub Environments:
 #   dev  → no required reviewers (auto-deploy)
 #   qa   → required reviewers (test branch / channel test)
 #   prod → required reviewers (main branch / channel prod)
@@ -45,16 +46,30 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.github_environment }}
     steps:
-      - name: Require GitHub OIDC role
+      - name: Require AWS auth
         env:
           ROLE: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
         run: |
-          if [ -z "$ROLE" ]; then
-            echo "::error::Set AWS_ROLE_TO_ASSUME (repo or environment variable)."
+          if [ -n "$ACCESS_KEY" ]; then
+            echo "Using IAM access keys."
+          elif [ -n "$ROLE" ]; then
+            echo "Using GitHub OIDC role."
+          else
+            echo "::error::Set secrets AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY, or variable AWS_ROLE_TO_ASSUME."
             exit 1
           fi
 
+      - name: Configure AWS credentials (access keys)
+        if: ${{ secrets.AWS_ACCESS_KEY_ID != '' }}
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Configure AWS credentials (OIDC)
+        if: ${{ secrets.AWS_ACCESS_KEY_ID == '' }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
