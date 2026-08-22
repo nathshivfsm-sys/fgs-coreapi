@@ -2,10 +2,11 @@
 # Pull one service image from ECR and recreate the container.
 # Usage: deploy-service.sh <compose-service> <channel> [ecr-repo] [aws-region]
 # Example: deploy-service.sh setup-service dev fgs/dockers us-east-1
+# Services: redis, rabbitmq, setup-service, user-service, nginx
 
 set -euo pipefail
 
-COMPOSE_SERVICE="${1:?compose service (setup-service, user-service, nginx)}"
+COMPOSE_SERVICE="${1:?compose service (redis, rabbitmq, setup-service, user-service, nginx)}"
 CHANNEL="${2:?channel (dev, test, prod)}"
 ECR_REPO="${3:-fgs/dockers}"
 AWS_REGION="${4:-us-east-1}"
@@ -49,6 +50,8 @@ upsert_env FGS_ECR_REPO "$ECR_REPO"
 upsert_env FGS_SETUP_IMAGE "${REGISTRY}/${ECR_REPO}:setup-${CHANNEL}"
 upsert_env FGS_USER_IMAGE "${REGISTRY}/${ECR_REPO}:user-${CHANNEL}"
 upsert_env FGS_NGINX_IMAGE "${REGISTRY}/${ECR_REPO}:nginx-${CHANNEL}"
+upsert_env FGS_REDIS_IMAGE "${REGISTRY}/${ECR_REPO}:redis-${CHANNEL}"
+upsert_env FGS_RABBITMQ_IMAGE "${REGISTRY}/${ECR_REPO}:rabbitmq-${CHANNEL}"
 
 echo "Deploying ${COMPOSE_SERVICE} (channel ${CHANNEL})"
 docker compose -f "$COMPOSE_FILE" pull "$COMPOSE_SERVICE"

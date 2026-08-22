@@ -12,9 +12,22 @@ x-app-network: &app-network
     - fgs-private
   restart: unless-stopped
 
+# Logs-only Datadog (Serilog → Datadog Logs API). ApiKey from glo.GloCredential Global:DATADOG.
+x-datadog-env: &datadog-env
+  Datadog__Enabled: "true"
+  Datadog__Site: ${DD_SITE:-datadoghq.com}
+  Datadog__Env: ${DD_ENV:-dev}
+  Datadog__Version: ${DD_VERSION:-}
+  Datadog__AgentHost: ""
+  Datadog__EnableApm: "false"
+  Datadog__EnableRuntimeMetrics: "false"
+  Datadog__EnableLlmObs: "false"
+  Observability__Enabled: "false"
+  DD_LLMOBS_ENABLED: "false"
+
 services:
   redis:
-    image: redis:7-alpine
+    image: ${FGS_REDIS_IMAGE:?set FGS_REDIS_IMAGE in .env}
     hostname: redis
     <<: *app-network
     volumes:
@@ -27,7 +40,7 @@ services:
       start_period: 10s
 
   rabbitmq:
-    image: rabbitmq:4-management-alpine
+    image: ${FGS_RABBITMQ_IMAGE:?set FGS_RABBITMQ_IMAGE in .env}
     hostname: rabbitmq
     <<: *app-network
     # Broker init only — not read from Setup credential table. Password must match GloCredential RABBITMQ.
@@ -58,8 +71,7 @@ services:
       RabbitMq__HostName: rabbitmq
       RabbitMq__Port: "5672"
       RabbitMq__SslEnabled: "false"
-      Datadog__Enabled: "false"
-      Observability__Enabled: "false"
+      <<: *datadog-env
     volumes:
       - ${FGS_CONFIG_DIR:-./config}/setup-appsettings.json:/app/appsettings.json:ro
     depends_on:
@@ -91,8 +103,7 @@ services:
       CredentialConsumer__RequiredProviders__3: REDIS
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/user
-      Datadog__Enabled: "false"
-      Observability__Enabled: "false"
+      <<: *datadog-env
     depends_on:
       redis:
         condition: service_healthy
