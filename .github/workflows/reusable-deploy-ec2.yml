@@ -4,10 +4,7 @@
 # AWS auth: secrets AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY, else OIDC vars.AWS_ROLE_TO_ASSUME.
 # GitHub variable (per environment): EC2_INSTANCE_ID — target instance i-xxxxxxxx
 #
-# GitHub Environments:
-#   dev  → no required reviewers (auto-deploy)
-#   qa   → required reviewers (test branch)
-#   prod → required reviewers (main branch)
+# GitHub Environment: dev only (auto-deploy, no required reviewers).
 
 name: Reusable EC2 deploy
 
@@ -26,11 +23,11 @@ on:
       channel:
         required: true
         type: string
-        description: Image channel (dev, test, prod)
+        description: Image channel (dev)
       github_environment:
         required: true
         type: string
-        description: GitHub Environment name (dev, qa, prod)
+        description: GitHub Environment name (dev)
       image_tag_prefix:
         required: true
         type: string

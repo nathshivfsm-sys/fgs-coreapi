@@ -41,7 +41,8 @@ li { margin: 0.25em 0; }
 </head>
 <body>
 <h1 id="fgs-ec2-full-setup-bootstrap-cd-and-initial-testing">FGS EC2 — Full setup, bootstrap, CD, and initial testing</h1>
-<p>Complete runbook: create one EC2 instance, configure GitHub/AWS, bootstrap the host once, then deploy Setup / User / nginx from ECR via the CD pipeline.</p>
+<p>Complete runbook for <strong><code>dev</code> only</strong>: one EC2 instance, configure GitHub/AWS, bootstrap once, deploy Setup / User / nginx from ECR via CD.</p>
+<p><strong>Scope:</strong> test/main branches and qa/prod GitHub Environments are <strong>not</strong> configured yet — add them when you expand beyond dev.</p>
 <p><strong>Region example:</strong> <code>us-east-1</code><br />
 <strong>Account example:</strong> <code>286093098927</code><br />
 <strong>ECR repository:</strong> <code>fgs/dockers</code><br />
@@ -358,7 +359,7 @@ GitHub Actions (merge to dev)
 <tbody>
 <tr>
 <td>Required reviewers</td>
-<td><strong>None</strong> (auto-deploy on merge to <code>dev</code>)</td>
+<td><strong>None</strong> (skip for now — auto-deploy)</td>
 </tr>
 <tr>
 <td>Environment variable <code>EC2_INSTANCE_ID</code></td>
@@ -366,7 +367,7 @@ GitHub Actions (merge to dev)
 </tr>
 </tbody>
 </table>
-<p>Optional environment variables:</p>
+<p>Optional environment variable:</p>
 <table>
 <thead>
 <tr>
@@ -378,28 +379,6 @@ GitHub Actions (merge to dev)
 <tr>
 <td><code>FGS_COMPOSE_DIR</code></td>
 <td><code>/opt/fgs</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="94-environments-for-testmain-later">9.4 Environments for test/main (later)</h3>
-<table>
-<thead>
-<tr>
-<th>Branch</th>
-<th>GitHub Environment</th>
-<th>Approval</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>test</code></td>
-<td><code>qa</code></td>
-<td>Required reviewers + <code>EC2_INSTANCE_ID</code></td>
-</tr>
-<tr>
-<td><code>main</code></td>
-<td><code>prod</code></td>
-<td>Required reviewers + <code>EC2_INSTANCE_ID</code></td>
 </tr>
 </tbody>
 </table>
@@ -584,16 +563,16 @@ docker compose -f docker-compose.ec2.yml up -d redis rabbitmq
 <hr />
 <h2 id="13-cd-flow-every-release-after-bootstrap">13. CD flow (every release after bootstrap)</h2>
 <pre><code class="language-text">1. Developer bumps service version (csproj or Gateway/VERSION)
-2. PR merged to dev | test | main
+2. PR merged to dev
 3. GitHub Actions — build job:
      - Run tests (setup/user)
      - docker build
-     - docker push to ECR (only on merge, not on PR)
+     - docker push to ECR (only on merge to dev, not on PR)
 4. GitHub Actions — deploy job (if image_pushed):
-     - Uses GitHub Environment (dev / qa / prod)
+     - GitHub Environment: dev (no approval)
      - AWS auth (access keys or OIDC)
      - SSM SendCommand to EC2_INSTANCE_ID:
-         sudo /opt/fgs/deploy-service.sh &lt;service&gt; &lt;channel&gt; fgs/dockers us-east-1
+         sudo /opt/fgs/deploy-service.sh &lt;service&gt; dev fgs/dockers us-east-1
 5. EC2: docker pull + docker compose up -d --no-deps &lt;service&gt;
 </code></pre>
 <table>
@@ -602,7 +581,7 @@ docker compose -f docker-compose.ec2.yml up -d redis rabbitmq
 <th>Branch</th>
 <th>Channel tag</th>
 <th>GitHub Environment</th>
-<th>Deploy approval</th>
+<th>Deploy</th>
 </tr>
 </thead>
 <tbody>
@@ -611,18 +590,6 @@ docker compose -f docker-compose.ec2.yml up -d redis rabbitmq
 <td><code>*-dev</code></td>
 <td><code>dev</code></td>
 <td>Auto</td>
-</tr>
-<tr>
-<td><code>test</code></td>
-<td><code>*-test</code></td>
-<td><code>qa</code></td>
-<td>Manual approval</td>
-</tr>
-<tr>
-<td><code>main</code></td>
-<td><code>*-prod</code></td>
-<td><code>prod</code></td>
-<td>Manual approval</td>
 </tr>
 </tbody>
 </table>
@@ -721,7 +688,7 @@ docker logs $(docker ps -qf name=nginx) --tail 50
 <li>[ ] <code>/nginx-health</code> → 200</li>
 <li>[ ] Setup / User health endpoints OK</li>
 <li>[ ] ALB health check passing</li>
-<li>[ ] CD deploy job succeeds on test merge</li>
+<li>[ ] CD deploy job succeeds on merge to <code>dev</code></li>
 </ul>
 <hr />
 <h2 id="16-reference-repo-files">16. Reference — repo files</h2>

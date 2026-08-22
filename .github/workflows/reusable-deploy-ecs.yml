@@ -1,11 +1,8 @@
 # Force a new ECS deployment so Fargate pulls the latest mutable channel tag
-# (setup-dev, user-test, nginx-prod, …) from the shared ECR repo.
+# (setup-dev, …) from the shared ECR repo.
 #
-# AWS auth: secrets AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY, else OIDC vars.AWS_ROLE_TO_ASSUME.
-# GitHub Environments:
-#   dev  → no required reviewers (auto-deploy)
-#   qa   → required reviewers (test branch / channel test)
-#   prod → required reviewers (main branch / channel prod)
+# Note: build workflows currently target EC2 (dev only). This ECS workflow remains
+# for optional/future use.
 
 name: Reusable ECS deploy
 

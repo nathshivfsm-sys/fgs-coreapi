@@ -2,18 +2,16 @@
 
 Deploys the shared ECR image (`fgs/dockers`) to a Docker host on EC2 after CI pushes a new channel tag.
 
+**Scope:** `dev` branch only for now. Test/main and qa/prod environments can be added later.
+
 | Git branch | Image channel | GitHub Environment | Approval | Example tags |
 | --- | --- | --- | --- | --- |
 | `dev` | `dev` | `dev` | **None** (auto) | `setup-dev`, `user-dev`, `nginx-dev` |
-| `test` | `test` | `qa` | **Required** | `setup-test`, … |
-| `main` | `prod` | `prod` | **Required** | `setup-prod`, … |
 
 Flow:
 
 ```text
-Merge PR → Build + push ECR → Deploy job (SSM → EC2)
-  dev  → starts immediately
-  qa / prod → waits for reviewer approval in GitHub
+Merge PR to dev → Build + push ECR → Deploy job (SSM → EC2) starts immediately
 ```
 
 PR builds do **not** push or deploy.
@@ -126,21 +124,25 @@ docker compose -f docker-compose.ec2.yml ps
 
 ## 3. GitHub configuration
 
-### Environments
+### Environment `dev`
 
-Same as ECS CD — create `dev`, `qa`, `prod` with reviewers on `qa` and `prod`.
+1. **Settings** → **Environments** → **New environment** → name: **`dev`**
+2. Do **not** add required reviewers (auto-deploy).
+3. Add environment variable:
 
-### Variables
+| Variable | Value |
+| --- | --- |
+| `EC2_INSTANCE_ID` | Your EC2 instance ID `i-xxxxxxxx` |
+
+### Variables (repository)
 
 | Variable | Where | Value |
 | --- | --- | --- |
 | `AWS_REGION` | Repo | `us-east-1` |
 | `ECR_REPO` | Repo | `fgs/dockers` |
 | `AWS_ROLE_TO_ASSUME` | Repo (OIDC) or use access-key secrets | IAM role ARN |
-| `EC2_INSTANCE_ID` | **Per environment** (`dev`, `qa`, `prod`) | `i-xxxxxxxx` for that stack's EC2 |
-| `FGS_COMPOSE_DIR` | Optional | `/opt/fgs` (default) |
-
-Set `EC2_INSTANCE_ID` on each GitHub Environment so dev/test/prod can target different instances.
+| `EC2_INSTANCE_ID` | **Environment `dev`** | `i-xxxxxxxx` |
+| `FGS_COMPOSE_DIR` | Optional (repo or env) | `/opt/fgs` (default) |
 
 ### Secrets (if using access keys instead of OIDC)
 
@@ -213,7 +215,7 @@ Nginx on EC2 listens on **port 80 only** (TLS terminated at ALB). The entrypoint
 
 | Symptom | Fix |
 | --- | --- |
-| `Set GitHub variable EC2_INSTANCE_ID` | Add `EC2_INSTANCE_ID` on the GitHub Environment (`dev`, `qa`, or `prod`). |
+| `Set GitHub variable EC2_INSTANCE_ID` | Add `EC2_INSTANCE_ID` on GitHub Environment **`dev`**. |
 | SSM `AccessDenied` on SendCommand | Add SSM permissions to the GitHub Actions IAM role; confirm EC2 has SSM agent + `AmazonSSMManagedInstanceCore`. |
 | SSM command `Failed` | In AWS Console → Systems Manager → Run Command → view stdout/stderr. Often missing `/opt/fgs/deploy-service.sh` or bad `.env`. |
 | `Cannot perform StartSession` | Instance not registered with SSM — check instance profile and outbound HTTPS (443) to SSM endpoints. |

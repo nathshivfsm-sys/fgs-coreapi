@@ -1,6 +1,8 @@
 # FGS EC2 — Full setup, bootstrap, CD, and initial testing
 
-Complete runbook: create one EC2 instance, configure GitHub/AWS, bootstrap the host once, then deploy Setup / User / nginx from ECR via the CD pipeline.
+Complete runbook for **`dev` only**: one EC2 instance, configure GitHub/AWS, bootstrap once, deploy Setup / User / nginx from ECR via CD.
+
+**Scope:** test/main branches and qa/prod GitHub Environments are **not** configured yet — add them when you expand beyond dev.
 
 **Region example:** `us-east-1`  
 **Account example:** `286093098927`  
@@ -253,21 +255,14 @@ Optional: `PUSH_TO_ECR` = `true` (default behaviour).
 
 | Setting | Value |
 | --- | --- |
-| Required reviewers | **None** (auto-deploy on merge to `dev`) |
+| Required reviewers | **None** (skip for now — auto-deploy) |
 | Environment variable `EC2_INSTANCE_ID` | Your instance ID `i-...` |
 
-Optional environment variables:
+Optional environment variable:
 
 | Variable | Default |
 | --- | --- |
 | `FGS_COMPOSE_DIR` | `/opt/fgs` |
-
-### 9.4 Environments for test/main (later)
-
-| Branch | GitHub Environment | Approval |
-| --- | --- | --- |
-| `test` | `qa` | Required reviewers + `EC2_INSTANCE_ID` |
-| `main` | `prod` | Required reviewers + `EC2_INSTANCE_ID` |
 
 ---
 
@@ -453,24 +448,22 @@ docker compose -f docker-compose.ec2.yml up -d redis rabbitmq
 
 ```text
 1. Developer bumps service version (csproj or Gateway/VERSION)
-2. PR merged to dev | test | main
+2. PR merged to dev
 3. GitHub Actions — build job:
      - Run tests (setup/user)
      - docker build
-     - docker push to ECR (only on merge, not on PR)
+     - docker push to ECR (only on merge to dev, not on PR)
 4. GitHub Actions — deploy job (if image_pushed):
-     - Uses GitHub Environment (dev / qa / prod)
+     - GitHub Environment: dev (no approval)
      - AWS auth (access keys or OIDC)
      - SSM SendCommand to EC2_INSTANCE_ID:
-         sudo /opt/fgs/deploy-service.sh <service> <channel> fgs/dockers us-east-1
+         sudo /opt/fgs/deploy-service.sh <service> dev fgs/dockers us-east-1
 5. EC2: docker pull + docker compose up -d --no-deps <service>
 ```
 
-| Branch | Channel tag | GitHub Environment | Deploy approval |
+| Branch | Channel tag | GitHub Environment | Deploy |
 | --- | --- | --- | --- |
 | `dev` | `*-dev` | `dev` | Auto |
-| `test` | `*-test` | `qa` | Manual approval |
-| `main` | `*-prod` | `prod` | Manual approval |
 
 **PR builds:** compile and test only — **no ECR push, no deploy**.
 
@@ -598,7 +591,7 @@ Common issues:
 - [ ] `/nginx-health` → 200
 - [ ] Setup / User health endpoints OK
 - [ ] ALB health check passing
-- [ ] CD deploy job succeeds on test merge
+- [ ] CD deploy job succeeds on merge to `dev`
 
 ---
 

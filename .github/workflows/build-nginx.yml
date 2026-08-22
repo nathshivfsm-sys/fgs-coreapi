@@ -1,16 +1,16 @@
 # Starts only when the gateway VERSION file changes.
-# CI: build on PR; push image on merge to dev|test|main.
-# CD: auto-deploy to EC2 on GitHub Environment `dev`; `qa`/`prod` wait for approval.
+# CI: build on PR; push image on merge to dev.
+# CD: auto-deploy to EC2 (GitHub Environment dev).
 name: Build nginx
 
 on:
   push:
-    branches: [dev, test, main]
+    branches: [dev]
     paths:
       - "src/Gateway/VERSION"
       - ".github/workflows/build-nginx.yml"
   pull_request:
-    branches: [dev, test, main]
+    branches: [dev]
     paths:
       - "src/Gateway/VERSION"
       - ".github/workflows/build-nginx.yml"
@@ -21,7 +21,7 @@ on:
         type: boolean
         default: false
       push_to_ecr:
-        description: Also push image to ECR (normally only on merge to dev/test/main)
+        description: Also push image to ECR (normally only on merge to dev)
         type: boolean
         default: false
 
