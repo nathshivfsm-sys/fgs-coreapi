@@ -1,5 +1,12 @@
 # FGS stack on a single EC2 host. Images come from ECR via /opt/fgs/.env
 # (updated by deploy-service.sh). First-time bootstrap: see GITHUB_ACTIONS_CD_EC2.md
+#
+# Credentials:
+#   - RabbitMQ broker boot: RABBITMQ_USER / RABBITMQ_PASSWORD in .env (rabbitmq service only).
+#     Must match glo.GloCredential Global:RABBITMQ Username/Password (or ConnectionUri).
+#   - Setup RabbitMq user/password: loaded from GloCredential at startup — do not set RabbitMq__*
+#     on setup-service (env would override the table; same pattern as Datadog on ECS).
+#   - Setup still needs RabbitMq__HostName/Port here unless Global:RABBITMQ:ConnectionUri is set.
 
 name: fgs-ec2
 
@@ -26,9 +33,10 @@ services:
     image: rabbitmq:4-management-alpine
     hostname: rabbitmq
     <<: *app-network
+    # Broker init only — not read from Setup credential table. Password must match GloCredential RABBITMQ.
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-fgs}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?set RABBITMQ_PASSWORD in .env}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?set RABBITMQ_PASSWORD in .env — must match GloCredential RABBITMQ}
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
@@ -49,10 +57,9 @@ services:
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/setup
       UserService__BaseUrl: http://user-service:5001
+      # Non-secret broker address (or set Global:RABBITMQ:ConnectionUri in GloCredential instead).
       RabbitMq__HostName: rabbitmq
       RabbitMq__Port: "5672"
-      RabbitMq__UserName: ${RABBITMQ_USER:-fgs}
-      RabbitMq__Password: ${RABBITMQ_PASSWORD}
       RabbitMq__SslEnabled: "false"
       Redis__ConnectionString: redis:6379
       Redis__Enabled: "true"

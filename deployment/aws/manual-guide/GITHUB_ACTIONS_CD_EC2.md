@@ -89,8 +89,21 @@ Then edit config:
 ```bash
 sudo nano /opt/fgs/config/setup-appsettings.json   # RDS connection string for Setup
 sudo nano /opt/fgs/config/user-appsettings.json    # RDS connection string for User
-sudo nano /opt/fgs/.env                            # RABBITMQ_PASSWORD, ASPNETCORE_ENVIRONMENT
+sudo nano /opt/fgs/.env                            # RABBITMQ_PASSWORD (broker boot — must match GloCredential)
 ```
+
+### RabbitMQ credentials (GloCredential vs `.env`)
+
+| Where | Purpose |
+| --- | --- |
+| **`glo.GloCredential` `Global:RABBITMQ`** | Setup reads **Username** / **Password** (or **ConnectionUri**) at startup |
+| **`/opt/fgs/.env` `RABBITMQ_USER` / `RABBITMQ_PASSWORD`** | RabbitMQ **container** boot only (`RABBITMQ_DEFAULT_*`) |
+
+The password in `.env` must **match** the password stored in `GloCredential` so the broker and Setup agree.
+
+Setup **does not** get `RabbitMq__UserName` / `RabbitMq__Password` from compose (env would override the credential table). Compose still sets `RabbitMq__HostName=rabbitmq` unless you use `Global:RABBITMQ:ConnectionUri` (e.g. `amqp://fgs:pass@rabbitmq:5672/`).
+
+User-service loads RabbitMQ (and other providers) from Setup via credential distribution — no RabbitMQ env on that container.
 
 **First deploy** (pull all three images and start the stack):
 
