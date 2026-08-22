@@ -10,4 +10,5 @@ src/Gateway/certs/*.crt
 src/Gateway/nginx-1.30.0/
 
 src/UserService/Fgs.User.API/appsettings*.json
+src/SetupService/Fgs.Setup.API/appsettings*.json
 src/JobService/Fgs.Job.API/appsettings*.json

@@ -43,6 +43,7 @@ systemctl enable --now docker 2>/dev/null || true
 echo "==> Creating $FGS_DIR"
 mkdir -p "$FGS_DIR/config"
 install -m 0755 "$SCRIPT_DIR/deploy-service.sh" "$FGS_DIR/deploy-service.sh"
+# Also install EC2 nginx entrypoint from repo (dev: HTTP + Swagger for setup/user).
 install -m 0755 "$SCRIPT_DIR/nginx-http-only-entrypoint.sh" "$FGS_DIR/nginx-http-only-entrypoint.sh"
 install -m 0644 "$SCRIPT_DIR/docker-compose.ec2.yml" "$FGS_DIR/docker-compose.ec2.yml"
 
@@ -77,7 +78,7 @@ echo "  1. Edit $FGS_DIR/config/setup-appsettings.json — FgsSetup RDS connecti
 echo "  2. Ensure glo.GloCredential has Global:DATABASE:FgsUser, Global:REDIS, Global:RABBITMQ, etc."
 echo "  3. Ensure RABBITMQ_USER/PASSWORD in $FGS_DIR/.env matches GloCredential RABBITMQ (broker boot)"
 echo "  4. Edit $FGS_DIR/.env (ASPNETCORE_ENVIRONMENT if needed)"
-echo "  5. Set GitHub variable EC2_INSTANCE_ID to this instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null || echo '<instance-id>')"
+echo "  5. Set GitHub repository variable EC2_INSTANCE_ID to this instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null || echo '<instance-id>')"
 echo "  6. Merge to dev — CI pushes ECR image and CD runs deploy-service.sh via SSM"
 echo "  7. First full stack: cd $FGS_DIR && ./deploy-service.sh setup-service dev && ./deploy-service.sh user-service dev && ./deploy-service.sh nginx dev"
 echo "     Or: docker compose -f docker-compose.ec2.yml up -d  (after .env has image URIs)"

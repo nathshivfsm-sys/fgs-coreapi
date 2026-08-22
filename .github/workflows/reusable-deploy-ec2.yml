@@ -2,9 +2,8 @@
 # Pulls the channel tag from ECR and recreates the docker-compose service.
 #
 # AWS auth: secrets AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY, else OIDC vars.AWS_ROLE_TO_ASSUME.
-# GitHub variable (per environment): EC2_INSTANCE_ID — target instance i-xxxxxxxx
-#
-# GitHub Environment: dev only (auto-deploy, no required reviewers).
+# GitHub repository variable: EC2_INSTANCE_ID — target instance i-xxxxxxxx
+#   (Settings → Secrets and variables → Actions → Variables; no GitHub Environment required)
 
 name: Reusable EC2 deploy
 
@@ -42,9 +41,8 @@ env:
 
 jobs:
   deploy:
-    name: Deploy ${{ inputs.compose_service }} → ${{ inputs.github_environment }}
+    name: Deploy ${{ inputs.compose_service }} (${{ inputs.channel }})
     runs-on: ubuntu-latest
-    environment: ${{ inputs.github_environment }}
     steps:
       - name: Require AWS auth
         id: auth
@@ -90,7 +88,7 @@ jobs:
           set -euo pipefail
 
           if [ -z "$INSTANCE_ID" ]; then
-            echo "::error::Set GitHub variable EC2_INSTANCE_ID on environment '${{ inputs.github_environment }}'."
+            echo "::error::Set repository variable EC2_INSTANCE_ID (Settings → Secrets and variables → Actions → Variables)."
             exit 1
           fi
 
@@ -154,7 +152,7 @@ jobs:
 
           {
             echo "### Deploy ${COMPOSE_SERVICE}"
-            echo "- Environment: \`${{ inputs.github_environment }}\`"
+            echo "- Channel: \`${CHANNEL}\`"
             echo "- EC2 instance: \`${INSTANCE_ID}\`"
             echo "- Compose service: \`${COMPOSE_SERVICE}\`"
             echo "- Expected ECR tag: \`${ECR_REPO}:${IMAGE_TAG}\`"

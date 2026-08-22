@@ -1,6 +1,6 @@
 # Starts only when User Service version changes.
 # CI: build/test on PR; push image on merge to dev.
-# CD: auto-deploy to EC2 (GitHub Environment dev).
+# CD: auto-deploy to EC2 (repository variable EC2_INSTANCE_ID).
 name: Build user
 
 on:

@@ -32,7 +32,11 @@ COPY src/SetupService/ src/SetupService/
 
 WORKDIR /src/src/SetupService/Fgs.Setup.API
 RUN --mount=type=cache,target=/root/.nuget/packages \
-    dotnet publish Fgs.Setup.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
+    dotnet publish Fgs.Setup.API.csproj -c Release --no-restore -o /app/publish \
+      /p:UseAppHost=false \
+      /p:DebugType=none \
+      /p:DebugSymbols=false \
+      /p:GenerateDocumentationFile=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 RUN apk add --no-cache curl ca-certificates && update-ca-certificates

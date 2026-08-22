@@ -1,6 +1,6 @@
 # Starts only when the gateway VERSION file changes.
 # CI: build on PR; push image on merge to dev.
-# CD: auto-deploy to EC2 (GitHub Environment dev).
+# CD: auto-deploy to EC2 (repository variable EC2_INSTANCE_ID).
 name: Build nginx
 
 on:
