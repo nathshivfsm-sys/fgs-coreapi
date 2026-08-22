@@ -1,0 +1,139 @@
+# FGS stack on a single EC2 host. Images come from ECR via /opt/fgs/.env
+# (updated by deploy-service.sh). First-time bootstrap: see GITHUB_ACTIONS_CD_EC2.md
+
+name: fgs-ec2
+
+x-app-network: &app-network
+  networks:
+    - fgs-private
+  restart: unless-stopped
+
+services:
+  redis:
+    image: redis:7-alpine
+    hostname: redis
+    <<: *app-network
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    hostname: rabbitmq
+    <<: *app-network
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-fgs}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?set RABBITMQ_PASSWORD in .env}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 6
+      start_period: 40s
+
+  setup-service:
+    image: ${FGS_SETUP_IMAGE:?set FGS_SETUP_IMAGE in .env}
+    hostname: setup-service
+    <<: *app-network
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:5004
+      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      Swagger__Enabled: "true"
+      Swagger__RoutePrefix: swagger/setup
+      UserService__BaseUrl: http://user-service:5001
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Port: "5672"
+      RabbitMq__UserName: ${RABBITMQ_USER:-fgs}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD}
+      RabbitMq__SslEnabled: "false"
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+      Datadog__Enabled: "false"
+      Observability__Enabled: "false"
+    volumes:
+      - ${FGS_CONFIG_DIR:-./config}/setup-appsettings.json:/app/appsettings.json:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    expose:
+      - "5004"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5004/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  user-service:
+    image: ${FGS_USER_IMAGE:?set FGS_USER_IMAGE in .env}
+    hostname: user-service
+    <<: *app-network
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      SetupService__BaseUrl: http://setup-service:5004
+      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      CredentialConsumer__ServiceName: fgs-user-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: ENTRA_EXTERNAL_ID
+      CredentialConsumer__RequiredProviders__2: AWS
+      CredentialConsumer__RequiredProviders__3: REDIS
+      Swagger__Enabled: "true"
+      Swagger__RoutePrefix: swagger/user
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+      Datadog__Enabled: "false"
+      Observability__Enabled: "false"
+    volumes:
+      - ${FGS_CONFIG_DIR:-./config}/user-appsettings.json:/app/appsettings.json:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+    expose:
+      - "5001"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  nginx:
+    image: ${FGS_NGINX_IMAGE:?set FGS_NGINX_IMAGE in .env}
+    <<: *app-network
+    # ALB terminates TLS and forwards HTTP — same pattern as ECS gateway_start in Terraform.
+    entrypoint: ["/bin/sh", "/opt/fgs/nginx-http-only-entrypoint.sh"]
+    volumes:
+      - ./nginx-http-only-entrypoint.sh:/opt/fgs/nginx-http-only-entrypoint.sh:ro
+    ports:
+      - "80:80"
+    depends_on:
+      setup-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost/nginx-health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+networks:
+  fgs-private:
+    driver: bridge
+
+volumes:
+  redis-data:
+  rabbitmq-data:

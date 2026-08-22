@@ -1,0 +1,165 @@
+# Deploy one service on EC2 via AWS Systems Manager (no SSH keys).
+# Pulls the channel tag from ECR and recreates the docker-compose service.
+#
+# AWS auth: secrets AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY, else OIDC vars.AWS_ROLE_TO_ASSUME.
+# GitHub variable (per environment): EC2_INSTANCE_ID — target instance i-xxxxxxxx
+#
+# GitHub Environments:
+#   dev  → no required reviewers (auto-deploy)
+#   qa   → required reviewers (test branch)
+#   prod → required reviewers (main branch)
+
+name: Reusable EC2 deploy
+
+on:
+  workflow_call:
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: false
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+    inputs:
+      compose_service:
+        required: true
+        type: string
+        description: Docker Compose service name (setup-service, user-service, nginx)
+      channel:
+        required: true
+        type: string
+        description: Image channel (dev, test, prod)
+      github_environment:
+        required: true
+        type: string
+        description: GitHub Environment name (dev, qa, prod)
+      image_tag_prefix:
+        required: true
+        type: string
+        description: ECR tag prefix (setup, user, nginx)
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.compose_service }} → ${{ inputs.github_environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.github_environment }}
+    steps:
+      - name: Require AWS auth
+        id: auth
+        env:
+          ROLE: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        run: |
+          if [ -n "$ACCESS_KEY" ]; then
+            echo "Using IAM access keys."
+            echo "use_access_keys=true" >> "$GITHUB_OUTPUT"
+          elif [ -n "$ROLE" ]; then
+            echo "Using GitHub OIDC role."
+            echo "use_access_keys=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Set secrets AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY, or variable AWS_ROLE_TO_ASSUME."
+            exit 1
+          fi
+
+      - name: Configure AWS credentials (access keys)
+        if: steps.auth.outputs.use_access_keys == 'true'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure AWS credentials (OIDC)
+        if: steps.auth.outputs.use_access_keys == 'false'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy via SSM
+        env:
+          INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
+          COMPOSE_SERVICE: ${{ inputs.compose_service }}
+          CHANNEL: ${{ inputs.channel }}
+          TAG_PREFIX: ${{ inputs.image_tag_prefix }}
+          ECR_REPO: ${{ vars.ECR_REPO || 'fgs/dockers' }}
+          FGS_DIR: ${{ vars.FGS_COMPOSE_DIR || '/opt/fgs' }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$INSTANCE_ID" ]; then
+            echo "::error::Set GitHub variable EC2_INSTANCE_ID on environment '${{ inputs.github_environment }}'."
+            exit 1
+          fi
+
+          IMAGE_TAG="${TAG_PREFIX}-${CHANNEL}"
+          REMOTE_CMD="sudo ${FGS_DIR}/deploy-service.sh ${COMPOSE_SERVICE} ${CHANNEL} ${ECR_REPO} ${AWS_REGION}"
+
+          echo "Instance=$INSTANCE_ID Service=$COMPOSE_SERVICE ImageTag=$IMAGE_TAG"
+          echo "Remote: $REMOTE_CMD"
+
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --comment "FGS deploy ${COMPOSE_SERVICE} ${IMAGE_TAG}" \
+            --parameters "commands=[\"${REMOTE_CMD}\"]" \
+            --query 'Command.CommandId' \
+            --output text)
+
+          echo "SSM CommandId=$COMMAND_ID"
+
+          for attempt in $(seq 1 36); do
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id "$INSTANCE_ID" \
+              --query 'Status' \
+              --output text 2>/dev/null || echo "Pending")
+
+            echo "Attempt $attempt: $STATUS"
+
+            case "$STATUS" in
+              Success)
+                aws ssm get-command-invocation \
+                  --command-id "$COMMAND_ID" \
+                  --instance-id "$INSTANCE_ID" \
+                  --query 'StandardOutputContent' \
+                  --output text
+                break
+                ;;
+              Failed|Cancelled|TimedOut)
+                echo "::error::SSM deploy failed ($STATUS)"
+                aws ssm get-command-invocation \
+                  --command-id "$COMMAND_ID" \
+                  --instance-id "$INSTANCE_ID" \
+                  --output json
+                exit 1
+                ;;
+            esac
+
+            sleep 10
+          done
+
+          FINAL=$(aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$INSTANCE_ID" \
+            --query 'Status' \
+            --output text)
+
+          if [ "$FINAL" != "Success" ]; then
+            echo "::error::SSM deploy did not complete in time (status: $FINAL)"
+            exit 1
+          fi
+
+          {
+            echo "### Deploy ${COMPOSE_SERVICE}"
+            echo "- Environment: \`${{ inputs.github_environment }}\`"
+            echo "- EC2 instance: \`${INSTANCE_ID}\`"
+            echo "- Compose service: \`${COMPOSE_SERVICE}\`"
+            echo "- Expected ECR tag: \`${ECR_REPO}:${IMAGE_TAG}\`"
+            echo "- Method: SSM → deploy-service.sh"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,6 +1,6 @@
 # Starts only when User Service version changes.
 # CI: build/test on PR; push image on merge to dev|test|main.
-# CD: auto-deploy to ECS on GitHub Environment `dev`; `qa`/`prod` wait for approval.
+# CD: auto-deploy to EC2 on GitHub Environment `dev`; `qa`/`prod` wait for approval.
 name: Build user
 
 on:
@@ -52,11 +52,10 @@ jobs:
   deploy:
     needs: build
     if: needs.build.outputs.image_pushed == 'true'
-    uses: ./.github/workflows/reusable-deploy-ecs.yml
+    uses: ./.github/workflows/reusable-deploy-ec2.yml
     with:
-      ecs_service: user
+      compose_service: user-service
       image_tag_prefix: user
       channel: ${{ needs.build.outputs.channel }}
       github_environment: ${{ needs.build.outputs.github_environment }}
-      ecs_cluster: ${{ needs.build.outputs.ecs_cluster }}
     secrets: inherit
