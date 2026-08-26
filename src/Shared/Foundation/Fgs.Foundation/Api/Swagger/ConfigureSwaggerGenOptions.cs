@@ -41,8 +41,6 @@ internal sealed class ConfigureSwaggerGenOptions : IConfigureOptions<SwaggerGenO
             [new OpenApiSecuritySchemeReference("Bearer", document)] = []
         });
 
-        options.OperationFilter<TenantCompanyHeaderOperationFilter>();
-
         if (_swagger.XmlCommentsAssembly is not null)
         {
             var xmlFile = $"{_swagger.XmlCommentsAssembly.GetName().Name}.xml";
