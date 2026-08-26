@@ -1,6 +1,9 @@
 #!/bin/sh
 # Serve nginx on :80 only (ALB terminates TLS). Mirrors gateway_start in deployment/aws/terraform/locals.tf
+# Writes swagger routes at runtime so older nginx images without swagger-routes.ec2.conf still work.
 set -eu
+
+mkdir -p /etc/nginx/conf.d/includes
 
 cat > /etc/nginx/conf.d/includes/upstreams.prod.conf << 'UP'
 upstream setup_service {
@@ -20,6 +23,65 @@ upstream scheduling_service { server 127.0.0.1:9; }
 upstream billing_service { server 127.0.0.1:9; }
 upstream service_agreement_service { server 127.0.0.1:9; }
 UP
+
+# Always write EC2 swagger routes (setup + user) so image need not contain this file.
+cat > /etc/nginx/conf.d/includes/swagger-routes.ec2.conf << 'SWAGGER'
+location = /swagger {
+    return 308 /swagger/;
+}
+
+location = /swagger/index.html {
+    default_type text/html;
+    alias /etc/nginx/conf.d/includes/swagger-index.html;
+}
+
+location = /swagger/ {
+    return 308 /swagger/index.html;
+}
+
+location = /swagger/setup {
+    return 308 /swagger/setup/;
+}
+
+location /swagger/setup/ {
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $swagger_upstream setup-service:5004;
+    proxy_pass http://$swagger_upstream$request_uri;
+    include /etc/nginx/proxy_params.conf;
+    proxy_cache off;
+    proxy_buffering off;
+    add_header Cache-Control "no-store" always;
+}
+
+location = /swagger/user {
+    return 308 /swagger/user/;
+}
+
+location /swagger/user/ {
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $swagger_upstream user-service:5001;
+    proxy_pass http://$swagger_upstream$request_uri;
+    include /etc/nginx/proxy_params.conf;
+    proxy_cache off;
+    proxy_buffering off;
+    add_header Cache-Control "no-store" always;
+}
+SWAGGER
+
+# Minimal index if image has no swagger-index.html
+if [ ! -f /etc/nginx/conf.d/includes/swagger-index.html ]; then
+  cat > /etc/nginx/conf.d/includes/swagger-index.html << 'IDX'
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>FGS Swagger</title></head>
+<body>
+  <h1>FGS API docs</h1>
+  <ul>
+    <li><a href="/swagger/setup/">Setup</a></li>
+    <li><a href="/swagger/user/">User</a></li>
+  </ul>
+</body></html>
+IDX
+fi
 
 cat > /etc/nginx/conf.d/site.conf << 'SITE'
 include /etc/nginx/conf.d/includes/upstreams.prod.conf;
