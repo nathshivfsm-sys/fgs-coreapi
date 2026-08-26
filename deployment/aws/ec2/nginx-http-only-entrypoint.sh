@@ -13,7 +13,7 @@ upstream setup_service {
 }
 upstream user_service { server user-service:5001 max_fails=3 fail_timeout=10s; keepalive 32; }
 upstream notification_service { server 127.0.0.1:9; }
-upstream bff_service { server 127.0.0.1:9; }
+upstream bff_service { server bff-service:5003 max_fails=3 fail_timeout=10s; keepalive 32; }
 upstream file_service { server 127.0.0.1:9; }
 upstream audit_service { server 127.0.0.1:9; }
 upstream inventory_service { server 127.0.0.1:9; }
@@ -24,7 +24,7 @@ upstream billing_service { server 127.0.0.1:9; }
 upstream service_agreement_service { server 127.0.0.1:9; }
 UP
 
-# Always write EC2 swagger routes (setup + user) so image need not contain this file.
+# Always write EC2 swagger routes (setup + user + bff) so image need not contain this file.
 cat > /etc/nginx/conf.d/includes/swagger-routes.ec2.conf << 'SWAGGER'
 location = /swagger {
     return 308 /swagger/;
@@ -66,6 +66,20 @@ location /swagger/user/ {
     proxy_buffering off;
     add_header Cache-Control "no-store" always;
 }
+
+location = /swagger/bff {
+    return 308 /swagger/bff/;
+}
+
+location /swagger/bff/ {
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $swagger_upstream bff-service:5003;
+    proxy_pass http://$swagger_upstream$request_uri;
+    include /etc/nginx/proxy_params.conf;
+    proxy_cache off;
+    proxy_buffering off;
+    add_header Cache-Control "no-store" always;
+}
 SWAGGER
 
 # Minimal index if image has no swagger-index.html
@@ -78,6 +92,7 @@ if [ ! -f /etc/nginx/conf.d/includes/swagger-index.html ]; then
   <ul>
     <li><a href="/swagger/setup/">Setup</a></li>
     <li><a href="/swagger/user/">User</a></li>
+    <li><a href="/swagger/bff/">BFF</a></li>
   </ul>
 </body></html>
 IDX

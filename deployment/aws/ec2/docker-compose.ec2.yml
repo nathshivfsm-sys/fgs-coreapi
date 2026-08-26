@@ -126,6 +126,39 @@ services:
       retries: 5
       start_period: 90s
 
+  bff-service:
+    image: ${FGS_BFF_IMAGE:?set FGS_BFF_IMAGE in .env}
+    hostname: bff-service
+    <<: *app-network
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      SetupService__BaseUrl: http://setup-service:5004
+      UserService__BaseUrl: http://user-service:5001
+      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      CredentialConsumer__ServiceName: fgs-bff-service
+      CredentialConsumer__RequiredProviders__0: ENTRA_EXTERNAL_ID
+      CredentialConsumer__RequiredProviders__1: REDIS
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+      Swagger__Enabled: "true"
+      Swagger__RoutePrefix: swagger/bff
+      <<: *datadog-env
+    depends_on:
+      redis:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    expose:
+      - "5003"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5003/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
   nginx:
     image: ${FGS_NGINX_IMAGE:?set FGS_NGINX_IMAGE in .env}
     <<: *app-network
@@ -139,6 +172,8 @@ services:
       setup-service:
         condition: service_healthy
       user-service:
+        condition: service_healthy
+      bff-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost/nginx-health"]

@@ -2,6 +2,20 @@
 
 Production-ready NGINX reverse proxy setup for the local .NET 10 microservices stack. NGINX is the only public entry point; service containers are reachable only on the shared Docker network.
 
+## Local Docker Desktop vs EC2
+
+Use **this folder** for day-to-day development on Docker Desktop. Do **not** run `deployment/aws/ec2/docker-compose.ec2.yml` on your laptop.
+
+| | **Local (this README)** | **EC2 AWS dev** |
+| --- | --- | --- |
+| Directory | `src/Gateway/` | `deployment/aws/ec2/` → `/opt/fgs/` on instance |
+| Command | `docker compose up --build` | `deploy-service.sh` after CI push |
+| Compose | `docker-compose.yml` | `docker-compose.ec2.yml` |
+| Project name | `fgs-local` | `fgs-ec2` |
+| Images | Build from `docker/*.Dockerfile` | Pull from ECR |
+
+EC2 guide: [deployment/aws/ec2/README.md](../../deployment/aws/ec2/README.md)
+
 ## Folder Structure
 
 ```text
@@ -57,7 +71,7 @@ RabbitMQ runs in this Compose file for **PublisherService** and **ConsumerServic
 
 ## Routes
 
-NGINX listens on `https://developer.fsm.com` (host ports `80` / `443`). Keep `conf.d/includes/api-v1-routes*.conf` in sync with `[FgsVersionedRoute]` templates under each `*/Controllers` folder (`scripts/Compare-ApiRoutes.ps1`).
+NGINX listens on `https://developer.fsm.com` (host ports `80` / `443`). Keep `conf.d/includes/api-v1-routes*.conf` and `api-v1-service-prefix-routes.conf` in sync with `[FgsVersionedRoute]` templates under each `*/Controllers` folder (`scripts/Compare-ApiRoutes.ps1`).
 
 Map the hostname locally before first run (Administrator / root):
 
@@ -69,6 +83,7 @@ Windows: `C:\Windows\System32\drivers\etc\hosts`. Linux/macOS: `/etc/hosts`. Reg
 
 | Public route | Upstream | Notes |
 | --- | --- | --- |
+| `/{service-name}/api/v1/...` | per service | **EC2 / production only** — e.g. `/setup-service/api/v1/billingcategory/lookup` (`api-v1-service-prefix-routes.conf`) |
 | `/api/v1/auth/*` | `user-service:5001` | Entra token, refresh, me, callback |
 | `/api/v1/bff/*` | `bff-service:5003` | Signup orchestration + GraphQL (`/api/v1/bff/graphql`) |
 | `/api/v1/login/*` | `user-service:5001` | |
@@ -90,6 +105,18 @@ Windows: `C:\Windows\System32\drivers\etc\hosts`. Linux/macOS: `/etc/hosts`. Reg
 | `/api/v1/(inventory-location\|truck-stock-template\|vendor)/*` | `inventory-service:5012` | Inventory catalog |
 | `/api/v1/(assettype\|…\|assetwarranty)/*` | `asset-service:5015` | Asset catalog |
 | `/api/v1/(billingcategory\|…\|zone)/*` | `setup-service:5004` | Setup catalog (includes universal pricing matrix) |
+
+**Service-prefixed URLs (EC2 / production nginx only)** — local Docker Desktop keeps flat `/api/v1/...`:
+
+| Example | Service |
+| --- | --- |
+| `/setup-service/api/v1/billingcategory/lookup` | Setup |
+| `/user-service/api/v1/user/lookup` | User |
+| `/bff-service/api/v1/bff/signup` | BFF |
+
+Docker Compose service names match the URL prefix. Config: `conf.d/includes/api-v1-service-prefix-routes.conf` (included from `api-v1-routes.prod.conf` only).
+
+**Local dev** uses flat routes only, e.g. `https://developer.fsm.com/api/v1/billingcategory/lookup`.
 
 Publisher and Consumer are on the private Docker network only (no public API routes).
 
@@ -169,9 +196,9 @@ Inter-service Refit clients use **direct container DNS and ports** on the `fgs-p
 
 Public-facing URLs (OAuth, invites, dashboard) use the NGINX gateway at `https://developer.fsm.com`.
 
-## Run Locally
+## Run Locally (Docker Desktop)
 
-From `C:\SourceCode\FGS\src\Gateway`:
+From `C:\SourceCode\FGS\src\Gateway` only — not from `deployment/aws/ec2/`.
 
 ```powershell
 .\scripts\generate-local-cert.ps1

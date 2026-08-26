@@ -1,5 +1,9 @@
 name: fgs-local
 
+# Local Docker Desktop ONLY — not for EC2/AWS.
+# EC2 dev host: deployment/aws/ec2/docker-compose.ec2.yml (project fgs-ec2, ECR images, /opt/fgs).
+# See src/Gateway/README.md and deployment/aws/ec2/README.md
+#
 # Startup order:
 #   1. rabbitmq, redis
 #   2. setup-service  ? credential authority

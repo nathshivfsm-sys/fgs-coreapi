@@ -1,4 +1,4 @@
-# Reusable build + ECR push. Called by build-setup.yml, build-user.yml, build-nginx.yml.
+# Reusable build + ECR push. Called by build-setup.yml, build-user.yml, build-bff.yml, build-nginx.yml.
 # Do not add `on: push` here — callers own triggers so only one service runs.
 #
 # AWS auth (prefer OIDC; access keys are a fallback):

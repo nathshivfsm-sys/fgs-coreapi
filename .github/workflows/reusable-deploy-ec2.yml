@@ -18,7 +18,7 @@ on:
       compose_service:
         required: true
         type: string
-        description: Docker Compose service name (redis, rabbitmq, setup-service, user-service, nginx)
+        description: Docker Compose service name (redis, rabbitmq, setup-service, user-service, bff-service, nginx)
       channel:
         required: true
         type: string
@@ -30,7 +30,7 @@ on:
       image_tag_prefix:
         required: true
         type: string
-        description: ECR tag prefix (redis, rabbitmq, setup, user, nginx)
+        description: ECR tag prefix (redis, rabbitmq, setup, user, bff, nginx)
 
 permissions:
   contents: read
