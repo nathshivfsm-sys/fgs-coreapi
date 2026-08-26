@@ -52,3 +52,28 @@ output "github_actions_vars" {
     ECR_REPO           = aws_ecr_repository.app.name
   }
 }
+
+output "ec2_instance_role_name" {
+  value       = var.create_ec2_iam ? aws_iam_role.ec2[0].name : null
+  description = "Attach this IAM role (via instance profile) to the FGS EC2 host."
+}
+
+output "ec2_instance_profile_name" {
+  value       = var.create_ec2_iam ? aws_iam_instance_profile.ec2[0].name : null
+  description = "EC2 instance profile name (SSM + ECR pull)."
+}
+
+output "ec2_instance_profile_arn" {
+  value       = var.create_ec2_iam ? aws_iam_instance_profile.ec2[0].arn : null
+  description = "EC2 instance profile ARN."
+}
+
+output "ssm_session_operator_policy_arn" {
+  value       = var.create_ssm_session_operator_policy ? aws_iam_policy.ssm_session_operator[0].arn : null
+  description = "Attach to IAM users who run aws ssm start-session / Session Manager console."
+}
+
+output "github_actions_user_name" {
+  value       = var.create_github_actions_user ? aws_iam_user.github_actions[0].name : null
+  description = "IAM user for access-key CI/CD when create_github_actions_user is true."
+}

@@ -152,24 +152,44 @@ No GitHub **Environment** is required for CD; deploy reads `EC2_INSTANCE_ID` fro
 
 The CI/CD role needs ECR push **and** SSM send-command permissions.
 
-Terraform (`deployment/aws/terraform/iam.tf`) adds `Ec2DeployViaSsm` when you apply. If you manage IAM manually, add:
+Terraform (`deployment/aws/terraform/iam.tf`) creates:
+
+| Resource | Permissions |
+| --- | --- |
+| `fgs-<env>-github-actions` (OIDC role) | ECR push + SSM SendCommand (CD) |
+| `fgs-<env>-ec2-role` + instance profile | `AmazonSSMManagedInstanceCore` + ECR pull |
+| `fgs-<env>-ssm-session-operator` (policy) | StartSession / DescribeSessions for operators |
+
+If you manage IAM manually, add:
 
 ```json
 {
-  "Sid": "Ec2DeployViaSsm",
-  "Effect": "Allow",
-  "Action": [
-    "ssm:SendCommand",
-    "ssm:GetCommandInvocation",
-    "ssm:ListCommands",
-    "ssm:ListCommandInvocations"
-  ],
-  "Resource": [
-    "arn:aws:ssm:us-east-1::document/AWS-RunShellScript",
-    "arn:aws:ec2:us-east-1:*:instance/*"
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Ec2DeployViaSsm",
+      "Effect": "Allow",
+      "Action": "ssm:SendCommand",
+      "Resource": [
+        "arn:aws:ssm:us-east-1::document/AWS-RunShellScript",
+        "arn:aws:ec2:us-east-1:ACCOUNT_ID:instance/*"
+      ]
+    },
+    {
+      "Sid": "SsmCommandResults",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetCommandInvocation",
+        "ssm:ListCommands",
+        "ssm:ListCommandInvocations"
+      ],
+      "Resource": "*"
+    }
   ]
 }
 ```
+
+Replace `ACCOUNT_ID` with your AWS account ID. Do **not** add Session Manager (`StartSession`, etc.) on the GitHub CD user — that is only for interactive shells on your laptop.
 
 ---
 

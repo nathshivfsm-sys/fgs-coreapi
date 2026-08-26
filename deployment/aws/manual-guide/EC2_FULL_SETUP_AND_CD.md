@@ -149,16 +149,21 @@ Use an IAM user with access keys (or OIDC role — see `GITHUB_ACTIONS_OIDC_ECR.
     {
       "Sid": "Ec2DeployViaSsm",
       "Effect": "Allow",
+      "Action": "ssm:SendCommand",
+      "Resource": [
+        "arn:aws:ssm:us-east-1::document/AWS-RunShellScript",
+        "arn:aws:ec2:us-east-1:ACCOUNT_ID:instance/*"
+      ]
+    },
+    {
+      "Sid": "SsmCommandResults",
+      "Effect": "Allow",
       "Action": [
-        "ssm:SendCommand",
         "ssm:GetCommandInvocation",
         "ssm:ListCommands",
         "ssm:ListCommandInvocations"
       ],
-      "Resource": [
-        "arn:aws:ssm:us-east-1::document/AWS-RunShellScript",
-        "arn:aws:ec2:us-east-1:*:instance/*"
-      ]
+      "Resource": "*"
     }
   ]
 }

@@ -220,3 +220,21 @@ variable "create_ecs_services" {
   description = "Create Setup + nginx Fargate services. Set false for ECR/IAM/VPC-only first apply, then push images and set true. Redis/RabbitMQ use create_redis_rabbitmq."
   default     = false
 }
+
+variable "create_ec2_iam" {
+  type        = bool
+  description = "Create EC2 instance role/profile with AmazonSSMManagedInstanceCore + ECR pull for docker-compose hosts."
+  default     = true
+}
+
+variable "create_github_actions_user" {
+  type        = bool
+  description = "Create IAM user with same CI/CD policy as the OIDC role (for AWS_ACCESS_KEY_ID secrets). Prefer OIDC when possible."
+  default     = false
+}
+
+variable "create_ssm_session_operator_policy" {
+  type        = bool
+  description = "Create attachable IAM policy for interactive Session Manager (StartSession / DescribeSessions) on operator users."
+  default     = true
+}

@@ -41,3 +41,12 @@ kms_key_arn = ""
 # If this account already has GitHub OIDC:
 # create_github_oidc_provider = false
 # github_oidc_provider_arn    = "arn:aws:iam::ACCOUNT:oidc-provider/token.actions.githubusercontent.com"
+
+# EC2 docker-compose host: SSM Online + ECR pull (fgs-<env>-ec2-role / -ec2-profile)
+create_ec2_iam = true
+
+# Access-key CI/CD user (optional; prefer OIDC role AWS_ROLE_TO_ASSUME)
+create_github_actions_user = false
+
+# Attachable policy for laptop/console Session Manager
+create_ssm_session_operator_policy = true
