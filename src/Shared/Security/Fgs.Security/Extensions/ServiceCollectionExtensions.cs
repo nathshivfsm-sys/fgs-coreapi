@@ -26,7 +26,7 @@ public static class ServiceCollectionExtensions
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options => ConfigureJwtBearerFromConfiguration(options, configuration));
 
-        services.AddFgsAuthorization(configuration);
+        services.AddFgsAuthorization();
         return services;
     }
 
@@ -34,28 +34,6 @@ public static class ServiceCollectionExtensions
         JwtBearerOptions options,
         IConfiguration configuration)
     {
-        if (FgsAuthenticationDisable.IsEnabled(configuration))
-        {
-            // Drop bearer tokens so invalid Graph JWTs do not fail the request.
-            options.Events = new JwtBearerEvents
-            {
-                OnMessageReceived = context =>
-                {
-                    context.Token = null;
-                    return Task.CompletedTask;
-                }
-            };
-            options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-            {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = false,
-                ValidateIssuerSigningKey = false,
-                RequireSignedTokens = false
-            };
-            return;
-        }
-
         var entraOptions = configuration
                                .GetSection(EntraExternalIdAuthOptions.SectionName)
                                .Get<EntraExternalIdAuthOptions>()

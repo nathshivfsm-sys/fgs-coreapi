@@ -66,8 +66,6 @@ services:
       CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/setup
-      # TEMP: disable JWT for API debugging (ignored when ASPNETCORE_ENVIRONMENT=Production).
-      Authentication__DisableTokenValidation: "true"
       UserService__BaseUrl: http://user-service:5001
       # Non-secret broker address (credentials from GloCredential; password only in .env for broker boot).
       RabbitMq__HostName: rabbitmq
