@@ -1,9 +1,12 @@
-# FGS stack on a single EC2 host. Images come from ECR via /opt/fgs/.env
-# (updated by deploy-service.sh). First-time bootstrap: see GITHUB_ACTIONS_CD_EC2.md
+# EC2 / AWS dev host ONLY — not for local Docker Desktop.
+# Local dev: use src/Gateway/docker-compose.yml (project name fgs-local, builds from source).
+#
+# Run on EC2 at /opt/fgs after bootstrap-ec2.sh. Images from ECR via .env (deploy-service.sh).
+# See deployment/aws/ec2/README.md and manual-guide/GITHUB_ACTIONS_CD_EC2.md
 #
 # Credentials:
-#   - Setup DB bootstrap: only ConnectionStrings:FgsSetup in setup-appsettings.json on the host.
-#   - User DB, Redis, RabbitMQ auth, etc.: glo.GloCredential (Setup) — not in EC2 config files.
+#   - Setup DB bootstrap: only ConnectionStrings:FgsSetup in /opt/fgs/config/setup-appsettings.json
+#   - User DB, Redis, RabbitMQ auth, etc.: glo.GloCredential (Setup) — not in EC2 config files
 
 name: fgs-ec2
 
@@ -71,6 +74,9 @@ services:
       RabbitMq__HostName: rabbitmq
       RabbitMq__Port: "5672"
       RabbitMq__SslEnabled: "false"
+      # Compose Redis on fgs-private network (overrides GloCredential localhost / ECS hostnames).
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
       <<: *datadog-env
     volumes:
       - ${FGS_CONFIG_DIR:-./config}/setup-appsettings.json:/app/appsettings.json:ro
@@ -101,6 +107,8 @@ services:
       CredentialConsumer__RequiredProviders__1: ENTRA_EXTERNAL_ID
       CredentialConsumer__RequiredProviders__2: AWS
       CredentialConsumer__RequiredProviders__3: REDIS
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/user
       <<: *datadog-env
