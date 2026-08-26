@@ -32,7 +32,6 @@ public static class DependencyInjection
             typeof(RedisCacheOptions));
 
         services.AddFgsEntraAuthentication(configuration);
-        services.AddFgsAuthorization();
         services.AddFgsActiveUserValidation(configuration);
         services.AddFgsUserAuthProfileClient(configuration);
 
