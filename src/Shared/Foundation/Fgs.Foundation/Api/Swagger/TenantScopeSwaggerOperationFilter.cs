@@ -1,36 +1,53 @@
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Fgs.Foundation.Api.Swagger;
 
 /// <summary>
-/// Adds tenant scope headers to every Swagger operation so Try-it-out sends X-Tenant-Id and X-Company-Id.
+/// Adds optional tenant scope headers in Swagger for operations that require tenant context.
+/// Skips auth, signup, invite, and paths listed in <c>TenantScope:SkipPathPrefixes</c>.
+/// Registered for every service via <see cref="ConfigureSwaggerGenOptions" />.
 /// </summary>
-internal sealed class TenantScopeSwaggerOperationFilter : IOperationFilter
+internal sealed class TenantScopeSwaggerOperationFilter(IConfiguration configuration) : IOperationFilter
 {
+    private readonly IReadOnlyList<string> _skipPathPrefixes =
+        TenantScopeSwaggerRules.ResolveSkipPathPrefixes(configuration);
+
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
+        if (TenantScopeSwaggerRules.ShouldSkipTenantScopeHeaders(
+                context.ApiDescription.RelativePath,
+                context.MethodInfo,
+                _skipPathPrefixes))
+        {
+            return;
+        }
+
         operation.Parameters ??= [];
 
         AddHeaderIfMissing(
             operation.Parameters,
             FgsApiHeaders.TenantId,
-            "Tenant identifier for multi-tenant scope.",
-            example: 52);
+            "Tenant identifier for multi-tenant scope (required for tenant-scoped operations).",
+            example: 52,
+            required: false);
 
         AddHeaderIfMissing(
             operation.Parameters,
             FgsApiHeaders.CompanyId,
-            "Company identifier within the tenant.",
-            example: 1);
+            "Company identifier within the tenant (required for company-scoped operations).",
+            example: 1,
+            required: false);
     }
 
     private static void AddHeaderIfMissing(
         IList<IOpenApiParameter> parameters,
         string name,
         string description,
-        long example)
+        long example,
+        bool required)
     {
         if (parameters.Any(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)))
         {
@@ -41,7 +58,7 @@ internal sealed class TenantScopeSwaggerOperationFilter : IOperationFilter
         {
             Name = name,
             In = ParameterLocation.Header,
-            Required = true,
+            Required = required,
             Description = description,
             Schema = new OpenApiSchema
             {

@@ -1,18 +1,10 @@
+using Fgs.Foundation.Api;
+
 namespace Fgs.Security.Authorization;
 
 public sealed class TenantScopeOptions
 {
-    public const string SectionName = "TenantScope";
+    public const string SectionName = FgsTenantScopeDefaults.ConfigurationSection;
 
-    public string[] SkipPathPrefixes { get; set; } =
-    [
-        "/api/v1/login",
-        "/api/v1/auth",
-        "/api/v1/signup",
-        "/api/v1/bff/signup",
-        "/api/v1/invitations",
-        "/api/v1/internal",
-        "/health",
-        "/swagger"
-    ];
+    public string[] SkipPathPrefixes { get; set; } = [.. FgsTenantScopeDefaults.SkipPathPrefixes];
 }
