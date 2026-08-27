@@ -2135,6 +2135,432 @@ function Add-AttachmentEnhancementsToFolder {
     return $Folder
 }
 
+$script:Ec2ServicePrefixes = @{
+    UserService  = 'user-service'
+    SetupService = 'setup-service'
+    BffService   = 'bff-service'
+}
+
+$script:Ec2GatewayUrl = 'http://100.54.14.213'
+$script:LocalGatewayUrl = 'https://developer.fsm.com'
+
+$script:MasterLocalServiceOrder = @(
+    'UserService'
+    'BffService'
+    'SetupService'
+    'NotificationService'
+    'FileService'
+    'AuditService'
+    'AssetService'
+    'InventoryService'
+    'CrmService'
+    'BillingService'
+    'SchedulingService'
+    'ServiceAgreementService'
+)
+
+$script:MasterEc2ServiceOrder = @(
+    'UserService'
+    'SetupService'
+    'BffService'
+)
+
+function Copy-PostmanObjectDeep {
+    param($Object)
+    if ($null -eq $Object) { return $null }
+    return ($Object | ConvertTo-Json -Depth 100 | ConvertFrom-Json)
+}
+
+function Convert-PostmanUrlToEc2Prefix {
+    param(
+        $Url,
+        [string]$ServicePrefix
+    )
+
+    if ($null -eq $Url) { return $Url }
+
+    if ($Url -is [string]) {
+        if ($Url -match '\{\{gatewayUrl\}\}/api/v1/') {
+            return $Url -replace '(\{\{gatewayUrl\}\})/api/v1/', "`$1/$ServicePrefix/api/v1/"
+        }
+        return $Url
+    }
+
+    if ($Url.raw) {
+        $Url.raw = Convert-PostmanUrlToEc2Prefix -Url ([string]$Url.raw) -ServicePrefix $ServicePrefix
+    }
+
+    if ($Url.path -and @($Url.path).Count -gt 0 -and $Url.path[0] -eq 'api') {
+        $Url.path = @($ServicePrefix) + @($Url.path)
+    }
+
+    return $Url
+}
+
+function Convert-PostmanItemsToEc2Recursive {
+    param(
+        $Items,
+        [string]$ServicePrefix
+    )
+
+    foreach ($item in @($Items)) {
+        if ($item.request -and $item.request.url) {
+            $item.request.url = Convert-PostmanUrlToEc2Prefix -Url $item.request.url -ServicePrefix $ServicePrefix
+        }
+        if ($item.item) {
+            Convert-PostmanItemsToEc2Recursive -Items $item.item -ServicePrefix $ServicePrefix
+        }
+    }
+}
+
+function Convert-PostmanUrlToEc2Gateway {
+    param(
+        $Url,
+        [string]$GatewayUrl = $script:Ec2GatewayUrl
+    )
+
+    if ($null -eq $Url) { return $Url }
+
+    if ($Url -is [string]) {
+        return $Url -replace '\{\{gatewayUrl\}\}', $GatewayUrl
+    }
+
+    if ($Url.raw) {
+        $Url.raw = ([string]$Url.raw) -replace '\{\{gatewayUrl\}\}', $GatewayUrl
+    }
+    if ($Url.host -and @($Url.host).Count -gt 0 -and [string]$Url.host[0] -eq '{{gatewayUrl}}') {
+        $Url.host = @($GatewayUrl)
+    }
+
+    return $Url
+}
+
+function Convert-PostmanItemsToEc2GatewayRecursive {
+    param(
+        $Items,
+        [string]$GatewayUrl = $script:Ec2GatewayUrl
+    )
+
+    foreach ($item in @($Items)) {
+        if ($item.request -and $item.request.url) {
+            $item.request.url = Convert-PostmanUrlToEc2Gateway -Url $item.request.url -GatewayUrl $GatewayUrl
+        }
+        if ($item.item) {
+            Convert-PostmanItemsToEc2GatewayRecursive -Items $item.item -GatewayUrl $GatewayUrl
+        }
+    }
+}
+
+function Convert-PostmanItemsToEc2Gateway {
+    param(
+        [array]$Items,
+        [string]$GatewayUrl = $script:Ec2GatewayUrl
+    )
+
+    $cloned = Copy-PostmanObjectDeep $Items
+    Convert-PostmanItemsToEc2GatewayRecursive -Items $cloned -GatewayUrl $GatewayUrl
+    return @($cloned)
+}
+
+function Convert-PostmanItemsToEc2 {
+    param(
+        [array]$Items,
+        [string]$ServicePrefix
+    )
+
+    $cloned = Copy-PostmanObjectDeep $Items
+    Convert-PostmanItemsToEc2Recursive -Items $cloned -ServicePrefix $ServicePrefix
+    return @($cloned)
+}
+
+function New-ServiceFolderFromCollection {
+    param(
+        [string]$ServiceKey,
+        $Collection,
+        [string]$Description = $null,
+        [string]$DisplayName = $null
+    )
+
+    $folderName = if ($DisplayName) {
+        $DisplayName
+    }
+    elseif ($ServiceKey -match '^FGS ') {
+        $ServiceKey
+    }
+    else {
+        "FGS $ServiceKey"
+    }
+    $folderDescription = if ($Description) { $Description } else { $Collection.info.description }
+
+    return @{
+        name        = $folderName
+        description = $folderDescription
+        item        = @($Collection.item)
+    }
+}
+
+function Split-UserServiceAuthItems {
+    param([array]$Items)
+
+    $authItems = @()
+    $apiItems = @()
+    foreach ($item in @($Items)) {
+        if ($item.name -match '^00 - Authentication Flow$|^01 - UI Login Flow$') {
+            $authItems += $item
+        }
+        else {
+            $apiItems += $item
+        }
+    }
+
+    return @{
+        Auth = $authItems
+        Api  = $apiItems
+    }
+}
+
+function New-PostmanCollectionShell {
+    param(
+        [string]$Name,
+        [string]$Description,
+        [string]$CollectionId = $null
+    )
+
+    return @{
+        info = @{
+            _postman_id = if ($CollectionId) { $CollectionId } else { New-PostmanUuid }
+            name        = $Name
+            description = $Description
+            schema      = 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json'
+        }
+        variable = @(
+            @{ key = 'apiVersion'; value = 'v1' }
+        )
+        auth = @{
+            type   = 'bearer'
+            bearer = @(@{ key = 'token'; value = '{{accessToken}}'; type = 'string' })
+        }
+        event = @(
+            @{
+                listen = 'prerequest'
+                script = @{
+                    type = 'text/javascript'
+                    exec = @(
+                        "if (pm.environment.get('tenantId')) {",
+                        "  pm.request.headers.upsert({ key: 'X-Tenant-Id', value: pm.environment.get('tenantId') });",
+                        "  pm.request.headers.upsert({ key: 'X-Company-Id', value: pm.environment.get('companyId') });",
+                        "}"
+                    )
+                }
+            }
+        )
+    }
+}
+
+function Build-Ec2CollectionItems {
+    param(
+        [hashtable]$GeneratedCollections,
+        [hashtable]$CuratedCollections
+    )
+
+    $userPrefix = $script:Ec2ServicePrefixes['UserService']
+    $authChildren = @()
+
+    if ($CuratedCollections.ContainsKey('EntraToken')) {
+        $entra = $CuratedCollections['EntraToken']
+        $ec2EntraItems = Convert-PostmanItemsToEc2 -Items @($entra.item) -ServicePrefix $userPrefix
+        $authChildren += @{
+            name        = 'Entra Token (Existing User)'
+            description = ($entra.info.description + "`n`nEC2: verify endpoint uses /user-service/api/v1/... prefix. Register redirectUri in Entra only after HTTPS is available.")
+            item        = $ec2EntraItems
+        }
+    }
+
+    $userSplit = $null
+    if ($GeneratedCollections.ContainsKey('UserService')) {
+        $userSource = $GeneratedCollections['UserService']
+        $userEc2Items = Convert-PostmanItemsToEc2 -Items @($userSource.item) -ServicePrefix $userPrefix
+        $userSplit = Split-UserServiceAuthItems -Items $userEc2Items
+        foreach ($authItem in @($userSplit.Auth)) {
+            $authChildren += $authItem
+        }
+    }
+
+    $items = @(
+        @{
+            name        = '00 - Authentication & Token'
+            description = 'Run onboarding (signup + invite) or Entra token flow before protected APIs. Select environment **FGS Globals (EC2 Dev)**.'
+            item        = $authChildren
+        }
+    )
+
+    if ($null -ne $userSplit) {
+        $items += @{
+            name        = 'User Service'
+            description = ($GeneratedCollections['UserService'].info.description + "`n`nEC2 gateway paths use /$userPrefix/api/v1/... prefix.")
+            item        = @($userSplit.Api)
+        }
+    }
+
+    foreach ($serviceKey in @('SetupService', 'BffService')) {
+        $prefix = $script:Ec2ServicePrefixes[$serviceKey]
+        $displayName = ($serviceKey -replace 'Service$', ' Service')
+        if ($serviceKey -eq 'BffService') { $displayName = 'BFF Service' }
+
+        if ($serviceKey -eq 'BffService' -and $CuratedCollections.ContainsKey('BffService')) {
+            $source = $CuratedCollections['BffService']
+            $items += @{
+                name        = $displayName
+                description = ($source.info.description + "`n`nEC2 gateway paths use /$prefix/api/v1/... prefix.")
+                item        = (Convert-PostmanItemsToEc2 -Items @($source.item) -ServicePrefix $prefix)
+            }
+            continue
+        }
+
+        if ($GeneratedCollections.ContainsKey($serviceKey)) {
+            $source = $GeneratedCollections[$serviceKey]
+            $items += @{
+                name        = $displayName
+                description = ($source.info.description + "`n`nEC2 gateway paths use /$prefix/api/v1/... prefix.")
+                item        = (Convert-PostmanItemsToEc2 -Items @($source.item) -ServicePrefix $prefix)
+            }
+        }
+    }
+
+    return $items
+}
+
+function Finalize-Ec2CollectionItems {
+    param([array]$Items)
+
+    return Convert-PostmanItemsToEc2Gateway -Items (Copy-PostmanObjectDeep $Items) -GatewayUrl $script:Ec2GatewayUrl
+}
+
+function Finalize-LocalCollectionItems {
+    param([array]$Items)
+
+    return Convert-PostmanItemsToEc2Gateway -Items (Copy-PostmanObjectDeep $Items) -GatewayUrl $script:LocalGatewayUrl
+}
+
+function Build-LocalCollectionItems {
+    param(
+        [hashtable]$GeneratedCollections,
+        [hashtable]$CuratedCollections
+    )
+
+    $authChildren = @()
+
+    if ($CuratedCollections.ContainsKey('EntraToken')) {
+        $entra = $CuratedCollections['EntraToken']
+        $authChildren += @{
+            name        = 'Entra Token (Existing User)'
+            description = $entra.info.description
+            item        = @($entra.item)
+        }
+    }
+
+    $userSplit = $null
+    if ($GeneratedCollections.ContainsKey('UserService')) {
+        $userSplit = Split-UserServiceAuthItems -Items @($GeneratedCollections['UserService'].item)
+        foreach ($authItem in @($userSplit.Auth)) {
+            $authChildren += $authItem
+        }
+    }
+
+    $items = @(
+        @{
+            name        = '00 - Authentication & Token'
+            description = 'Run onboarding (signup + invite) or Entra token flow before protected APIs.'
+            item        = $authChildren
+        }
+    )
+
+    if ($null -ne $userSplit) {
+        $items += @{
+            name        = 'User Service'
+            description = $GeneratedCollections['UserService'].info.description
+            item        = @($userSplit.Api)
+        }
+    }
+
+    foreach ($serviceKey in $script:MasterLocalServiceOrder) {
+        if ($serviceKey -eq 'UserService') { continue }
+
+        $displayName = ($serviceKey -replace 'Service$', ' Service')
+        if ($serviceKey -eq 'BffService') { $displayName = 'BFF Service' }
+
+        if ($serviceKey -eq 'BffService' -and $CuratedCollections.ContainsKey('BffService')) {
+            $source = $CuratedCollections['BffService']
+            $items += @{
+                name        = $displayName
+                description = $source.info.description
+                item        = @($source.item)
+            }
+            continue
+        }
+
+        if ($GeneratedCollections.ContainsKey($serviceKey)) {
+            $source = $GeneratedCollections[$serviceKey]
+            $items += @{
+                name        = $displayName
+                description = $source.info.description
+                item        = @($source.item)
+            }
+        }
+    }
+
+    return $items
+}
+
+function New-LocalCollection {
+    param(
+        [hashtable]$GeneratedCollections,
+        [hashtable]$CuratedCollections
+    )
+
+    $shell = New-PostmanCollectionShell -Name 'FGS Local Docker' -Description @"
+Local Docker Compose gateway at $($script:LocalGatewayUrl).
+
+Collection URLs use the local gateway directly. Import **FGS Globals** environment from docs/api/local/ for secrets.
+
+Run **00 - Authentication & Token** before protected APIs.
+"@
+    $shell.variable = @(
+        @{ key = 'apiVersion'; value = 'v1' }
+        @{ key = 'gatewayUrl'; value = $script:LocalGatewayUrl }
+    )
+    $localItems = Build-LocalCollectionItems -GeneratedCollections $GeneratedCollections -CuratedCollections $CuratedCollections
+    $shell.item = Finalize-LocalCollectionItems -Items $localItems
+    return $shell
+}
+
+function New-Ec2Collection {
+    param(
+        [hashtable]$GeneratedCollections,
+        [hashtable]$CuratedCollections
+    )
+
+    $shell = New-PostmanCollectionShell -Name 'FGS EC2 Dev' -Description @"
+EC2 dev deployment at $($script:Ec2GatewayUrl).
+
+Collection URLs use the EC2 gateway directly (not {{gatewayUrl}}). Service-prefixed nginx routes:
+- /user-service/api/v1/...
+- /setup-service/api/v1/...
+- /bff-service/api/v1/...
+
+Import **FGS Globals (EC2 Dev)** for secrets (accessToken, entraClientSecret, redirectUri, tenantId).
+
+Run **00 - Authentication & Token** before protected APIs.
+"@
+    $shell.variable = @(
+        @{ key = 'apiVersion'; value = 'v1' }
+        @{ key = 'gatewayUrl'; value = $script:Ec2GatewayUrl }
+    )
+    $ec2Items = Build-Ec2CollectionItems -GeneratedCollections $GeneratedCollections -CuratedCollections $CuratedCollections
+    $shell.item = Finalize-Ec2CollectionItems -Items $ec2Items
+    return $shell
+}
+
 function New-Collection {
     param(
         [string]$ServiceName,
@@ -2203,14 +2629,20 @@ $serviceConfigs = @(
 )
 
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
+$localDir = Join-Path $OutputDir 'local'
+$ec2Dir = Join-Path $OutputDir 'ec2'
+$sourcesDir = Join-Path $OutputDir 'sources'
+New-Item -ItemType Directory -Force -Path $localDir, $ec2Dir, $sourcesDir | Out-Null
 
 Write-Host "Building DTO registry from Application layer..."
 $script:DtoRegistry = Build-DtoRegistry -Root $RepoRoot
 Write-Host "  Loaded $($script:DtoRegistry.Count) DTO types"
 
+$generatedCollections = @{}
+
 foreach ($svc in $serviceConfigs) {
     if ($svc.SkipGenerate) {
-        Write-Host "Skip $($svc.Key): curated collection (docs/api/$($svc.Key).postman_collection.json)"
+        Write-Host "Skip $($svc.Key): curated collection (docs/api/sources/$($svc.Key).postman_collection.json)"
         continue
     }
 
@@ -2244,38 +2676,75 @@ foreach ($svc in $serviceConfigs) {
         }
     }
 
-    $outFile = Join-Path $OutputDir "$($svc.Key).postman_collection.json"
     if ($folders.Count -eq 0) {
-        if (Test-Path $outFile) {
-            Remove-Item -Path $outFile -Force
-            Write-Host "Removed empty collection $outFile"
-        }
-        else {
-            Write-Host "Skip $($svc.Key): no non-health controllers"
-        }
+        Write-Host "Skip $($svc.Key): no non-health controllers"
         continue
     }
 
     $includeAuth = ($svc.Key -eq 'UserService')
     $collection = New-Collection -ServiceName $svc.Key -Description $svc.Desc -Folders $folders -IncludeAuthFlow:$includeAuth
-    $collection | ConvertTo-Json -Depth 100 | Set-Content -Path $outFile -Encoding UTF8
-    Write-Host "Generated $outFile ($($folders.Count) controllers)"
+    $generatedCollections[$svc.Key] = $collection
+    Write-Host "Built $($svc.Key) in memory ($($folders.Count) controllers)"
 }
 
-# Remove stale health-only / empty collections no longer generated.
-$staleCollections = @(
-    'PublisherService'
-    'ConsumerService'
-    'CommunicationService'
-    'IntegrationService'
-    'ReportingService'
-)
-foreach ($name in $staleCollections) {
-    $stalePath = Join-Path $OutputDir "$name.postman_collection.json"
-    if (Test-Path $stalePath) {
-        Remove-Item -Path $stalePath -Force
-        Write-Host "Removed stale collection $stalePath"
+Write-Host "Loading curated source collections..."
+$curatedCollections = @{}
+$curatedFiles = @{
+    BffService = 'BffService.postman_collection.json'
+    EntraToken = 'FGS-Entra-Token.postman_collection.json'
+}
+foreach ($entry in $curatedFiles.GetEnumerator()) {
+    $curatedPath = Join-Path $sourcesDir $entry.Value
+    if (Test-Path $curatedPath) {
+        $curatedCollections[$entry.Key] = Get-Content -Path $curatedPath -Raw | ConvertFrom-Json
+        Write-Host "  Loaded curated $($entry.Key) from sources/$($entry.Value)"
+    }
+    else {
+        Write-Warning "Curated collection not found: $curatedPath"
     }
 }
 
-Write-Host "Done. Import FGS-Globals.postman_environment.json and select it in Postman."
+$localCollection = New-LocalCollection -GeneratedCollections $generatedCollections -CuratedCollections $curatedCollections
+$localCollectionPath = Join-Path $localDir 'FGS.postman_collection.json'
+$localCollection | ConvertTo-Json -Depth 100 | Set-Content -Path $localCollectionPath -Encoding UTF8
+Write-Host "Generated $localCollectionPath"
+
+$ec2Collection = New-Ec2Collection -GeneratedCollections $generatedCollections -CuratedCollections $curatedCollections
+$ec2CollectionPath = Join-Path $ec2Dir 'FGS.postman_collection.json'
+$ec2Collection | ConvertTo-Json -Depth 100 | Set-Content -Path $ec2CollectionPath -Encoding UTF8
+Write-Host "Generated $ec2CollectionPath"
+
+$legacyRootFiles = @(
+    'FGS.postman_collection.json'
+    'FGS-EC2.postman_collection.json'
+    'FGS-Globals.postman_environment.json'
+    'FGS-Globals-EC2.postman_environment.json'
+    'FGS-Postman-Import.zip'
+    'BffService.postman_collection.json'
+    'FGS-Entra-Token.postman_collection.json'
+    'UserService.postman_collection.json'
+    'SetupService.postman_collection.json'
+    'NotificationService.postman_collection.json'
+    'FileService.postman_collection.json'
+    'AuditService.postman_collection.json'
+    'AssetService.postman_collection.json'
+    'InventoryService.postman_collection.json'
+    'CrmService.postman_collection.json'
+    'BillingService.postman_collection.json'
+    'SchedulingService.postman_collection.json'
+    'ServiceAgreementService.postman_collection.json'
+    'PublisherService.postman_collection.json'
+    'ConsumerService.postman_collection.json'
+    'CommunicationService.postman_collection.json'
+    'IntegrationService.postman_collection.json'
+    'ReportingService.postman_collection.json'
+)
+foreach ($name in $legacyRootFiles) {
+    $legacyPath = Join-Path $OutputDir $name
+    if (Test-Path $legacyPath) {
+        Remove-Item -Path $legacyPath -Force
+        Write-Host "Removed legacy $name"
+    }
+}
+
+Write-Host "Done. Import docs/api/local/ or docs/api/ec2/ (collection + environment in each folder)."

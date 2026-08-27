@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1",
+  "workspace": {
+    "name": "FGS Local Docker"
+  },
+  "entities": {
+    "collections": [
+      "../FGS.postman_collection.json"
+    ],
+    "environments": [
+      "../FGS-Globals.postman_environment.json"
+    ]
+  }
+}
