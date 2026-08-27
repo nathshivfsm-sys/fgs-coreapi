@@ -489,10 +489,11 @@
                                                                                    "host":  [
                                                                                                 "https://developer.fsm.com"
                                                                                             ],
-                                                                                   "raw":  "https://developer.fsm.com/api/v1/login",
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/auth/login",
                                                                                    "path":  [
                                                                                                 "api",
                                                                                                 "v1",
+                                                                                                "auth",
                                                                                                 "login"
                                                                                             ]
                                                                                },
@@ -2493,6 +2494,49 @@
                                                                    }
                                                    },
                                                    {
+                                                       "name":  "StartLogin",
+                                                       "request":  {
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/auth/login",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "auth",
+                                                                                                "login"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "StartLogin",
+                                                                       "method":  "POST",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "body":  {
+                                                                                    "raw":  "{}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                },
+                                                                                    "mode":  "raw"
+                                                                                },
+                                                                       "auth":  {
+                                                                                    "type":  "noauth"
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
                                                        "name":  "GetMe",
                                                        "request":  {
                                                                        "method":  "GET",
@@ -3811,48 +3855,6 @@
                                                        "name":  "Start",
                                                        "request":  {
                                                                        "method":  "GET",
-                                                                       "url":  {
-                                                                                   "query":  [
-                                                                                                 {
-                                                                                                     "key":  "token",
-                                                                                                     "description":  "",
-                                                                                                     "value":  "{{inviteToken}}"
-                                                                                                 }
-                                                                                             ],
-                                                                                   "host":  [
-                                                                                                "https://developer.fsm.com"
-                                                                                            ],
-                                                                                   "raw":  "https://developer.fsm.com/api/v1/invite/start?token={{inviteToken}}",
-                                                                                   "path":  [
-                                                                                                "api",
-                                                                                                "v1",
-                                                                                                "invite",
-                                                                                                "start"
-                                                                                            ]
-                                                                               },
-                                                                       "description":  "Start",
-                                                                       "header":  [
-                                                                                      {
-                                                                                          "key":  "Accept",
-                                                                                          "type":  "text",
-                                                                                          "value":  "application/json"
-                                                                                      }
-                                                                                  ],
-                                                                       "auth":  {
-                                                                                    "type":  "noauth"
-                                                                                }
-                                                                   }
-                                                   }
-                                               ]
-                                  },
-                                  {
-                                      "description":  "LoginController - login",
-                                      "name":  "LoginController",
-                                      "item":  [
-                                                   {
-                                                       "name":  "Start",
-                                                       "request":  {
-                                                                       "method":  "POST",
                                                                        "url":  {
                                                                                    "query":  [
                                                                                                  {
@@ -39353,7 +39355,7 @@
                  "description":  "Local Docker Compose gateway at https://developer.fsm.com.\r\n\r\nCollection URLs use the local gateway directly. Import **FGS Globals** environment from docs/api/local/ for secrets.\r\n\r\nRun **00 - Authentication \u0026 Token** before protected APIs.",
                  "name":  "FGS Local Docker",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "c7d4dc57-253e-4b4b-91d6-e5b4ea4198f8"
+                 "_postman_id":  "40e24813-69b1-4a57-b1a1-4144c0f97feb"
              },
     "event":  [
                   {

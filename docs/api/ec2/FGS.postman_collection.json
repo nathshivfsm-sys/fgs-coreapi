@@ -492,11 +492,12 @@
                                                                                    "host":  [
                                                                                                 "http://100.54.14.213"
                                                                                             ],
-                                                                                   "raw":  "http://100.54.14.213/user-service/api/v1/login",
+                                                                                   "raw":  "http://100.54.14.213/user-service/api/v1/auth/login",
                                                                                    "path":  [
                                                                                                 "user-service",
                                                                                                 "api",
                                                                                                 "v1",
+                                                                                                "auth",
                                                                                                 "login"
                                                                                             ]
                                                                                },
@@ -2528,6 +2529,50 @@
                                                                    }
                                                    },
                                                    {
+                                                       "name":  "StartLogin",
+                                                       "request":  {
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "http://100.54.14.213"
+                                                                                            ],
+                                                                                   "raw":  "http://100.54.14.213/user-service/api/v1/auth/login",
+                                                                                   "path":  [
+                                                                                                "user-service",
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "auth",
+                                                                                                "login"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "StartLogin",
+                                                                       "method":  "POST",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "body":  {
+                                                                                    "raw":  "{}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                },
+                                                                                    "mode":  "raw"
+                                                                                },
+                                                                       "auth":  {
+                                                                                    "type":  "noauth"
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
                                                        "name":  "GetMe",
                                                        "request":  {
                                                                        "method":  "GET",
@@ -3868,49 +3913,6 @@
                                                        "name":  "Start",
                                                        "request":  {
                                                                        "method":  "GET",
-                                                                       "url":  {
-                                                                                   "query":  [
-                                                                                                 {
-                                                                                                     "key":  "token",
-                                                                                                     "description":  "",
-                                                                                                     "value":  "{{inviteToken}}"
-                                                                                                 }
-                                                                                             ],
-                                                                                   "host":  [
-                                                                                                "http://100.54.14.213"
-                                                                                            ],
-                                                                                   "raw":  "http://100.54.14.213/user-service/api/v1/invite/start?token={{inviteToken}}",
-                                                                                   "path":  [
-                                                                                                "user-service",
-                                                                                                "api",
-                                                                                                "v1",
-                                                                                                "invite",
-                                                                                                "start"
-                                                                                            ]
-                                                                               },
-                                                                       "description":  "Start",
-                                                                       "header":  [
-                                                                                      {
-                                                                                          "key":  "Accept",
-                                                                                          "type":  "text",
-                                                                                          "value":  "application/json"
-                                                                                      }
-                                                                                  ],
-                                                                       "auth":  {
-                                                                                    "type":  "noauth"
-                                                                                }
-                                                                   }
-                                                   }
-                                               ]
-                                  },
-                                  {
-                                      "description":  "LoginController - login",
-                                      "name":  "LoginController",
-                                      "item":  [
-                                                   {
-                                                       "name":  "Start",
-                                                       "request":  {
-                                                                       "method":  "POST",
                                                                        "url":  {
                                                                                    "query":  [
                                                                                                  {
@@ -27516,7 +27518,7 @@
                  "description":  "EC2 dev deployment at http://100.54.14.213.\r\n\r\nCollection URLs use the EC2 gateway directly (not {{gatewayUrl}}). Service-prefixed nginx routes:\r\n- /user-service/api/v1/...\r\n- /setup-service/api/v1/...\r\n- /bff-service/api/v1/...\r\n\r\nImport **FGS Globals (EC2 Dev)** for secrets (accessToken, entraClientSecret, redirectUri, tenantId).\r\n\r\nRun **00 - Authentication \u0026 Token** before protected APIs.",
                  "name":  "FGS EC2 Dev",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "1da3ab44-5bed-4804-9bdc-3fe813b12454"
+                 "_postman_id":  "c298ceca-de82-4549-946d-13ac8efefea1"
              },
     "event":  [
                   {

@@ -84,9 +84,8 @@ Windows: `C:\Windows\System32\drivers\etc\hosts`. Linux/macOS: `/etc/hosts`. Reg
 | Public route | Upstream | Notes |
 | --- | --- | --- |
 | `/{service-name}/api/v1/...` | per service | **EC2 / production only** — e.g. `/setup-service/api/v1/billingcategory/lookup` (`api-v1-service-prefix-routes.conf`) |
-| `/api/v1/auth/*` | `user-service:5001` | Entra token, refresh, me, callback |
+| `/api/v1/auth/*` | `user-service:5001` | Login, me, token, refresh, Entra callback, connector |
 | `/api/v1/bff/*` | `bff-service:5003` | Signup orchestration + GraphQL (`/api/v1/bff/graphql`) |
-| `/api/v1/login/*` | `user-service:5001` | |
 | `/api/v1/invite/*` | `user-service:5001` | |
 | `/api/v1/signup/*` | `user-service:5001` | |
 | `/api/v1/dashboard` | `user-service:5001` | |

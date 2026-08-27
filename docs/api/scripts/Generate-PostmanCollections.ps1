@@ -1386,7 +1386,7 @@ function New-UiLoginFlowFolder {
 }
 '@
 
-    $startLogin = New-PostmanRequest -Name '1. Start Login' -Method POST -Url '{{gatewayUrl}}/api/v1/login' -UseAuth $false -Body $loginBody
+    $startLogin = New-PostmanRequest -Name '1. Start Login' -Method POST -Url '{{gatewayUrl}}/api/v1/auth/login' -UseAuth $false -Body $loginBody
     $startLogin.request.description = 'POST with active platform user email. Copy data.redirectUrl and open in browser. Callback state is user:{userId}.'
 
     $loginCallback = New-PostmanRequest -Name '3. Entra Login Callback' -Method GET -Url '{{gatewayUrl}}/api/v1/auth/entra/callback?code={{authCode}}&state=user:{{loginUserId}}' -UseAuth $false

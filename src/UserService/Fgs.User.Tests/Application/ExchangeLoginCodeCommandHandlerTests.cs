@@ -99,4 +99,104 @@ public sealed class ExchangeLoginCodeCommandHandlerTests
         result.StatusCode.Should().Be(ApiStatusCodes.BadRequest);
         result.Errors.Should().Contain(AuthErrorMessages.PkceStateExpired);
     }
+
+    [Fact]
+    public async Task Handle_WithInvalidState_ReturnsBadRequest()
+    {
+        var handler = new ExchangeLoginCodeCommandHandler(
+            new EfUnitOfWork<FgsUserDbContext>(await TestDbContextFactory.CreateAndInitializeAsync()),
+            Mock.Of<IEntraExternalIdService>(),
+            new EmailNormalizer(),
+            Mock.Of<ILoginPkceStore>(),
+            TestUserRepositories.ProfileBuilder(),
+            Mock.Of<IUserAuthProfileStore>());
+
+        var result = await handler.Handle(new ExchangeLoginCodeCommand("code", "invalid-state"), CancellationToken.None);
+
+        result.Success.Should().BeFalse();
+        result.StatusCode.Should().Be(ApiStatusCodes.BadRequest);
+        result.Errors.Should().Contain(AuthErrorMessages.InvalidLoginOAuthState);
+    }
+
+    [Fact]
+    public async Task Handle_WhenEntraExchangeFails_ReturnsUnauthorized()
+    {
+        var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        var userId = Guid.NewGuid();
+        context.FgsUsers.Add(new FgsUser
+        {
+            Id = userId,
+            TenantId = 1,
+            CompanyId = 1,
+            Email = "user@test.com",
+            DisplayName = "User",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        await context.SaveChangesAsync();
+
+        var state = $"{OAuthStatePrefixes.UserLogin}{userId}";
+        var pkceStore = new Mock<ILoginPkceStore>();
+        pkceStore.Setup(s => s.TakeAsync(state, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new LoginPkceState("verifier", "https://localhost/callback", userId));
+
+        var entra = new Mock<IEntraExternalIdService>();
+        entra.Setup(s => s.ExchangeLoginCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("exchange failed"));
+
+        var handler = new ExchangeLoginCodeCommandHandler(
+            new EfUnitOfWork<FgsUserDbContext>(context),
+            entra.Object,
+            new EmailNormalizer(),
+            pkceStore.Object,
+            TestUserRepositories.ProfileBuilder(),
+            Mock.Of<IUserAuthProfileStore>());
+
+        var result = await handler.Handle(new ExchangeLoginCodeCommand("code", state), CancellationToken.None);
+
+        result.Success.Should().BeFalse();
+        result.StatusCode.Should().Be(ApiStatusCodes.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Handle_WhenEmailMismatch_ReturnsBadRequest()
+    {
+        var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        var userId = Guid.NewGuid();
+        context.FgsUsers.Add(new FgsUser
+        {
+            Id = userId,
+            TenantId = 1,
+            CompanyId = 1,
+            Email = "user@test.com",
+            DisplayName = "User",
+            EntraObjectId = "oid-123",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        await context.SaveChangesAsync();
+
+        var state = $"{OAuthStatePrefixes.UserLogin}{userId}";
+        var pkceStore = new Mock<ILoginPkceStore>();
+        pkceStore.Setup(s => s.TakeAsync(state, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new LoginPkceState("verifier", "https://localhost/callback", userId));
+
+        var entra = new Mock<IEntraExternalIdService>();
+        entra.Setup(s => s.ExchangeLoginCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EntraTokenResult("access", "oid-123", "other@test.com", "Other", "refresh", "id", 3600, "Bearer"));
+
+        var handler = new ExchangeLoginCodeCommandHandler(
+            new EfUnitOfWork<FgsUserDbContext>(context),
+            entra.Object,
+            new EmailNormalizer(),
+            pkceStore.Object,
+            TestUserRepositories.ProfileBuilder(),
+            Mock.Of<IUserAuthProfileStore>());
+
+        var result = await handler.Handle(new ExchangeLoginCodeCommand("code", state), CancellationToken.None);
+
+        result.Success.Should().BeFalse();
+        result.StatusCode.Should().Be(ApiStatusCodes.BadRequest);
+        result.Errors.Should().Contain(AuthErrorMessages.EntraEmailMismatch);
+    }
 }
