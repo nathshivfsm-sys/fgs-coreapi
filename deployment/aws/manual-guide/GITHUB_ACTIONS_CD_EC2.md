@@ -89,7 +89,7 @@ sudo nano /opt/fgs/config/setup-appsettings.json   # FgsSetup RDS only
 sudo nano /opt/fgs/.env                            # RABBITMQ_PASSWORD (broker boot — must match GloCredential)
 ```
 
-Ensure **`glo.GloCredential`** includes `Global:DATABASE:FgsUser`, `Global:REDIS`, `Global:RABBITMQ`, etc. User-service does **not** use a connection string file on EC2.
+Ensure **`glo.GloCredential`** includes `Global:DATABASE` keys (`FgsUser`, `FgsAudit`, `FgsNotification`, `FgsSetup`, and publisher outbox keys such as `FgsCrm` / `FgsInventory` when those DBs exist), plus `Global:REDIS`, `Global:RABBITMQ`, `Global:SENDGRID`, `Global:ENTRA_EXTERNAL_ID`, etc. Services other than Setup do **not** use connection string files on EC2.
 
 ### RabbitMQ credentials (GloCredential vs `.env`)
 
@@ -104,13 +104,19 @@ Setup **does not** get `RabbitMq__UserName` / `RabbitMq__Password` from compose 
 
 User-service loads RabbitMQ (and other providers) from Setup via credential distribution — no RabbitMQ env on that container.
 
-**First deploy** (pull all three images and start the stack):
+**First deploy** (pull images and start the stack in dependency order):
 
 ```bash
 cd /opt/fgs
+sudo ./deploy-service.sh redis dev
+sudo ./deploy-service.sh rabbitmq dev
 sudo ./deploy-service.sh setup-service dev
+sudo ./deploy-service.sh audit-service dev
 sudo ./deploy-service.sh user-service dev
 sudo ./deploy-service.sh bff-service dev
+sudo ./deploy-service.sh notification-service dev
+sudo ./deploy-service.sh publisher-service dev
+sudo ./deploy-service.sh consumer-service dev
 sudo ./deploy-service.sh nginx dev
 ```
 
@@ -199,8 +205,12 @@ Replace `ACCOUNT_ID` with your AWS account ID. Do **not** add Session Manager (`
 | Workflow | Build trigger | Deploy target |
 | --- | --- | --- |
 | `build-setup.yml` | `Fgs.Setup.API.csproj` version bump | `setup-service` on EC2 |
+| `build-audit.yml` | `Fgs.Audit.API.csproj` version bump | `audit-service` on EC2 |
 | `build-user.yml` | `Fgs.User.API.csproj` version bump | `user-service` on EC2 |
 | `build-bff.yml` | `Fgs.Bff.API.csproj` version bump | `bff-service` on EC2 |
+| `build-notification.yml` | `Fgs.Notification.API.csproj` version bump | `notification-service` on EC2 |
+| `build-publisher.yml` | `Fgs.Publisher.API.csproj` version bump | `publisher-service` on EC2 |
+| `build-consumer.yml` | `Fgs.Consumer.API.csproj` version bump | `consumer-service` on EC2 |
 | `build-nginx.yml` | `src/Gateway/VERSION` bump | `nginx` on EC2 |
 
 Reusable deploy: `.github/workflows/reusable-deploy-ec2.yml`

@@ -22,12 +22,16 @@ Application Load Balancer (optional, port 80/443)
    ▼
 EC2 instance (single host, e.g. dev-rabbitmq)
    │
-   ├── redis          (Docker)
-   ├── rabbitmq       (Docker — password from /opt/fgs/.env)
-   ├── setup-service  (ECR tag setup-dev)
-   ├── user-service   (ECR tag user-dev)
-   ├── bff-service    (ECR tag bff-dev)
-   └── nginx          (ECR tag nginx-dev, port 80)
+   ├── redis               (Docker)
+   ├── rabbitmq            (Docker — password from /opt/fgs/.env)
+   ├── setup-service       (ECR tag setup-dev)
+   ├── audit-service       (ECR tag audit-dev)
+   ├── user-service        (ECR tag user-dev)
+   ├── bff-service         (ECR tag bff-dev)
+   ├── notification-service (ECR tag notification-dev)
+   ├── publisher-service   (ECR tag publisher-dev)
+   ├── consumer-service    (ECR tag consumer-dev)
+   └── nginx               (ECR tag nginx-dev, port 80)
 
 GitHub Actions (merge to dev)
    ├── Build → push ECR
@@ -38,7 +42,7 @@ GitHub Actions (merge to dev)
 | --- | --- |
 | EC2 instances | **1** (all services as containers) |
 | ECR repositories | **1** (`fgs/dockers`) |
-| Image tags per channel | `setup-dev`, `user-dev`, `bff-dev`, `nginx-dev` |
+| Image tags per channel | `setup-dev`, `audit-dev`, `user-dev`, `bff-dev`, `notification-dev`, `publisher-dev`, `consumer-dev`, `nginx-dev`, `redis-dev`, `rabbitmq-dev` |
 
 ---
 
@@ -52,7 +56,7 @@ Before you start, ensure you have:
 | GitHub repo admin | Secrets, variables, environments |
 | RDS (or Postgres) | Connection strings for Setup and User databases |
 | `glo.GloCredential` data | Global RABBITMQ username/password (Setup reads at startup) |
-| GitHub Actions workflows | On `dev` branch: `build-setup.yml`, `build-user.yml`, `build-bff.yml`, `build-nginx.yml`, `reusable-deploy-ec2.yml` |
+| GitHub Actions workflows | On `dev` branch: `build-setup.yml`, `build-audit.yml`, `build-user.yml`, `build-bff.yml`, `build-notification.yml`, `build-publisher.yml`, `build-consumer.yml`, `build-nginx.yml`, `reusable-deploy-ec2.yml` |
 
 ---
 
@@ -343,10 +347,11 @@ Store in Setup database (via Setup admin / seed / migration). User and other ser
 
 | Provider | Keys (examples) | Used by |
 | --- | --- | --- |
-| `DATABASE` | `FgsUser`, `FgsUserReadOnly`, … | user-service |
-| `REDIS` | `ConnectionString` = `redis:6379`, `Enabled` = true | setup, user, … |
-| `RABBITMQ` | `Username`, `Password` (must match `.env` broker boot) | setup |
-| `ENTRA_EXTERNAL_ID`, `AWS`, … | per provider schema | user-service |
+| `DATABASE` | `FgsUser`, `FgsAudit`, `FgsNotification`, `FgsSetup`, … | user, audit, notification, publisher (outbox) |
+| `REDIS` | `ConnectionString` = `redis:6379`, `Enabled` = true | setup, user, bff, consumer, … |
+| `RABBITMQ` | `Username`, `Password` (must match `.env` broker boot) | setup, publisher, consumer |
+| `SENDGRID` | API key / from address | notification-service |
+| `ENTRA_EXTERNAL_ID`, `AWS`, … | per provider schema | user, bff, publisher |
 
 Do **not** create `/opt/fgs/config/user-appsettings.json` on EC2.
 
@@ -421,9 +426,9 @@ Verify in **ECR** → `fgs/dockers` → **Images** tags exist.
 
 Merge version bumps to `dev`. Each workflow runs deploy via SSM.
 
-Deploy order (dependencies): **setup** → **user** → **nginx**.
+Deploy order (dependencies): **redis → rabbitmq → setup → audit → user → bff → notification → publisher → consumer → nginx**.
 
-If user deploy runs before setup image exists, wait for setup deploy first, then re-run user workflow if needed.
+If a dependent service deploys before its upstream image exists, wait for the upstream deploy, then re-run the dependent workflow if needed.
 
 ### Option B — Manual first start (all services at once)
 
@@ -431,9 +436,15 @@ On the instance:
 
 ```bash
 cd /opt/fgs
+sudo ./deploy-service.sh redis dev fgs/dockers us-east-1
+sudo ./deploy-service.sh rabbitmq dev fgs/dockers us-east-1
 sudo ./deploy-service.sh setup-service dev fgs/dockers us-east-1
+sudo ./deploy-service.sh audit-service dev fgs/dockers us-east-1
 sudo ./deploy-service.sh user-service dev fgs/dockers us-east-1
 sudo ./deploy-service.sh bff-service dev fgs/dockers us-east-1
+sudo ./deploy-service.sh notification-service dev fgs/dockers us-east-1
+sudo ./deploy-service.sh publisher-service dev fgs/dockers us-east-1
+sudo ./deploy-service.sh consumer-service dev fgs/dockers us-east-1
 sudo ./deploy-service.sh nginx dev fgs/dockers us-east-1
 ```
 
@@ -585,9 +596,9 @@ Common issues:
 
 - [ ] `bootstrap-ec2.sh` run
 - [ ] `setup-appsettings.json` — **FgsSetup** connection string only
-- [ ] `GloCredential` — FgsUser, REDIS, RABBITMQ, etc. in Setup database
+- [ ] `GloCredential` — FgsUser, FgsAudit, FgsNotification, FgsSetup, REDIS, RABBITMQ, SENDGRID, ENTRA_EXTERNAL_ID, etc.
 - [ ] `.env` — `RABBITMQ_PASSWORD` matches GloCredential RABBITMQ
-- [ ] Images in ECR (`setup-dev`, `user-dev`, `nginx-dev`)
+- [ ] Images in ECR (`setup-dev`, `audit-dev`, `user-dev`, `bff-dev`, `notification-dev`, `publisher-dev`, `consumer-dev`, `nginx-dev`)
 - [ ] All containers running and healthy
 
 ### Testing
@@ -604,7 +615,12 @@ Common issues:
 | Path | Role |
 | --- | --- |
 | `.github/workflows/build-setup.yml` | CI/CD for Setup |
+| `.github/workflows/build-audit.yml` | CI/CD for Audit |
 | `.github/workflows/build-user.yml` | CI/CD for User |
+| `.github/workflows/build-bff.yml` | CI/CD for BFF |
+| `.github/workflows/build-notification.yml` | CI/CD for Notification |
+| `.github/workflows/build-publisher.yml` | CI/CD for Publisher |
+| `.github/workflows/build-consumer.yml` | CI/CD for Consumer |
 | `.github/workflows/build-nginx.yml` | CI/CD for nginx |
 | `.github/workflows/reusable-build-service.yml` | Shared build + ECR push |
 | `.github/workflows/reusable-deploy-ec2.yml` | SSM deploy to EC2 |

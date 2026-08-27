@@ -18,7 +18,7 @@ on:
       compose_service:
         required: true
         type: string
-        description: Docker Compose service name (redis, rabbitmq, setup-service, user-service, bff-service, nginx)
+        description: Docker Compose service name (redis, rabbitmq, setup-service, audit-service, user-service, bff-service, notification-service, publisher-service, consumer-service, nginx)
       channel:
         required: true
         type: string
