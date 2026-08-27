@@ -24,14 +24,14 @@ COPY src/SetupService/Fgs.Setup.Application/Fgs.Setup.Application.csproj src/Set
 COPY src/SetupService/Fgs.Setup.Domain/Fgs.Setup.Domain.csproj src/SetupService/Fgs.Setup.Domain/
 COPY src/SetupService/Fgs.Setup.Infrastructure/Fgs.Setup.Infrastructure.csproj src/SetupService/Fgs.Setup.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/SetupService/Fgs.Setup.API/Fgs.Setup.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/SetupService/ src/SetupService/
 
 WORKDIR /src/src/SetupService/Fgs.Setup.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Setup.API.csproj -c Release --no-restore -o /app/publish \
       /p:UseAppHost=false \
       /p:DebugType=none \
@@ -50,6 +50,6 @@ ENV ASPNETCORE_URLS=http://+:5004 \
 EXPOSE 5004
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=5 \
-    CMD curl -fsS http://localhost:5004/health || exit 1
+    CMD curl -fsS -H "Host: setup-service:5004" http://127.0.0.1:5004/health || exit 1
 
 ENTRYPOINT ["dotnet", "Fgs.Setup.API.dll"]

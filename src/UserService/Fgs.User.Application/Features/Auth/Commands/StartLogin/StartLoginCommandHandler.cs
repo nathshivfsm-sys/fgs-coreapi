@@ -73,9 +73,7 @@ public sealed class StartLoginCommandHandler(
                 ApiStatusCodes.Forbidden);
         }
 
-        var redirectUri = configuration[ConfigurationKeys.EntraExternalId.LoginRedirectUri]
-            ?? configuration["EntraExternalId:LoginRedirectUri"]
-            ?? "https://localhost:3000/auth/callback";
+        var redirectUri = ApplicationPublicUrlResolver.ResolveLoginRedirect(configuration);
 
         var state = $"{OAuthStatePrefixes.UserLogin}{user.Id}";
         var (codeVerifier, codeChallenge) = EntraExternalIdPkce.CreatePair();

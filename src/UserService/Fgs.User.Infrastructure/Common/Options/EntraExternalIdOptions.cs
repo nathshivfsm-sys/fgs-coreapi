@@ -24,7 +24,7 @@ public sealed class EntraExternalIdOptions
     /// <summary>
     /// SPA-hosted login callback URI used only for returning-user login (Option A).
     /// </summary>
-    public string LoginRedirectUri { get; set; } = "https://localhost:3000/auth/callback";
+    public string LoginRedirectUri { get; set; } = ApplicationUrlDefaults.EntraCallbackRedirect;
 
     public string Scopes { get; set; } = "openid profile email offline_access";
 

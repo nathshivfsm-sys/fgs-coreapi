@@ -24,14 +24,14 @@ COPY src/CrmService/Fgs.Crm.Application/Fgs.Crm.Application.csproj src/CrmServic
 COPY src/CrmService/Fgs.Crm.Domain/Fgs.Crm.Domain.csproj src/CrmService/Fgs.Crm.Domain/
 COPY src/CrmService/Fgs.Crm.Infrastructure/Fgs.Crm.Infrastructure.csproj src/CrmService/Fgs.Crm.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/CrmService/Fgs.Crm.API/Fgs.Crm.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/CrmService/ src/CrmService/
 
 WORKDIR /src/src/CrmService/Fgs.Crm.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Crm.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final

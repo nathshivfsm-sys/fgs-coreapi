@@ -34,7 +34,8 @@ setup_db_connection_string = ""
 # rabbitmq_host              = ""
 # rabbitmq_connection_uri    = ""
 
-kms_key_arn = ""
+# EC2 docker-compose host: SSM Online + ECR pull + KMS decrypt for Setup credentials
+kms_key_arn = "arn:aws:kms:us-east-1:286093098927:key/8ad55556-fcb0-4dd7-8ed1-4de526a38a78"
 
 # Datadog ApiKey lives in Setup glo.GloCredential. Do not set Datadog__ApiKey on the task.
 

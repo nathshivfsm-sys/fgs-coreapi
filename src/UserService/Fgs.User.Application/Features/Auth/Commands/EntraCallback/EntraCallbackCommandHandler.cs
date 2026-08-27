@@ -59,8 +59,7 @@ public sealed class EntraCallbackCommandHandler : IRequestHandler<EntraCallbackC
                 ApiStatusCodes.BadRequest);
         }
 
-        var redirectUri = _configuration[ConfigurationKeys.EntraExternalId.RedirectUri]
-            ?? ApplicationUrlDefaults.EntraCallbackRedirect;
+        var redirectUri = ApplicationPublicUrlResolver.ResolveEntraCallbackRedirect(_configuration);
 
         EntraTokenResult entraUser;
         try
@@ -126,8 +125,7 @@ public sealed class EntraCallbackCommandHandler : IRequestHandler<EntraCallbackC
                         await EnqueueTenantProvisionRequestedAsync(invitation, ct);
                     }
 
-                    var dashboardUrl = _configuration[ConfigurationKeys.Application.DashboardUrl]
-                        ?? ApplicationUrlDefaults.Dashboard;
+                    var dashboardUrl = ApplicationPublicUrlResolver.ResolveDashboardUrl(_configuration);
 
                     return new EntraCallbackResultDto(entraUser.AccessToken, dashboardUrl);
                 },

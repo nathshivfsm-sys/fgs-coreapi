@@ -150,8 +150,10 @@ OAuth and invitation URLs are exposed through the gateway (register the same val
 | Setting | Local gateway value |
 | --- | --- |
 | `EntraExternalId:RedirectUri` | `https://developer.fsm.com/api/v1/auth/entra/callback` (signup/invite API callback) |
-| `EntraExternalId:LoginRedirectUri` | SPA login callback (e.g. `https://localhost:3000/auth/callback`) |
+| `EntraExternalId:LoginRedirectUri` | Same gateway callback as invite (or SPA if you register it in Entra) |
 | `Invitation:InviteBaseUrl` | `https://developer.fsm.com/api/v1/invite/start` |
+| `Application:PublicBaseUrl` | **Preferred** — gateway origin per environment (`https://developer.fsm.com` local, EC2 IP/ALB). |
+| `Application:PublicServicePath` | **EC2 only** — e.g. `user-service` → `/user-service/api/v1/invite/start`. Empty locally (flat `/api/v1/...`). |
 
 Both upstreams use `least_conn`, keepalive connections, passive health checks with `max_fails` and `fail_timeout`, and Docker health checks against each service's `/health` endpoint.
 

@@ -174,6 +174,29 @@ resource "aws_iam_role_policy" "ec2_ecr_pull" {
   })
 }
 
+# Setup decrypts glo.GloCredential via KMS at startup. Without this, EC2 compose
+# loads 0 credentials (503 on /credential/resolved) while local Docker often uses
+# explicit AwsCredentials keys in appsettings instead of the instance profile.
+resource "aws_iam_role_policy" "ec2_kms_decrypt" {
+  count = var.create_ec2_iam && var.kms_key_arn != "" ? 1 : 0
+  name  = "kms-decrypt-credentials"
+  role  = aws_iam_role.ec2[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid    = "KmsDecryptCredentials"
+      Effect = "Allow"
+      Action = [
+        "kms:Decrypt",
+        "kms:GenerateDataKey",
+        "kms:DescribeKey",
+      ]
+      Resource = [var.kms_key_arn]
+    }]
+  })
+}
+
 resource "aws_iam_instance_profile" "ec2" {
   count = var.create_ec2_iam ? 1 : 0
   name  = "${local.name_prefix}-ec2-profile"

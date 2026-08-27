@@ -110,6 +110,7 @@ User-service loads RabbitMQ (and other providers) from Setup via credential dist
 cd /opt/fgs
 sudo ./deploy-service.sh setup-service dev
 sudo ./deploy-service.sh user-service dev
+sudo ./deploy-service.sh bff-service dev
 sudo ./deploy-service.sh nginx dev
 ```
 
@@ -199,6 +200,7 @@ Replace `ACCOUNT_ID` with your AWS account ID. Do **not** add Session Manager (`
 | --- | --- | --- |
 | `build-setup.yml` | `Fgs.Setup.API.csproj` version bump | `setup-service` on EC2 |
 | `build-user.yml` | `Fgs.User.API.csproj` version bump | `user-service` on EC2 |
+| `build-bff.yml` | `Fgs.Bff.API.csproj` version bump | `bff-service` on EC2 |
 | `build-nginx.yml` | `src/Gateway/VERSION` bump | `nginx` on EC2 |
 
 Reusable deploy: `.github/workflows/reusable-deploy-ec2.yml`

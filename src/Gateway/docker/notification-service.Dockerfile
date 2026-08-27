@@ -24,14 +24,14 @@ COPY src/NotificationService/Fgs.Notification.Application/Fgs.Notification.Appli
 COPY src/NotificationService/Fgs.Notification.Domain/Fgs.Notification.Domain.csproj src/NotificationService/Fgs.Notification.Domain/
 COPY src/NotificationService/Fgs.Notification.Infrastructure/Fgs.Notification.Infrastructure.csproj src/NotificationService/Fgs.Notification.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/NotificationService/Fgs.Notification.API/Fgs.Notification.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/NotificationService/ src/NotificationService/
 
 WORKDIR /src/src/NotificationService/Fgs.Notification.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Notification.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final

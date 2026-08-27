@@ -24,14 +24,14 @@ COPY src/ReportingService/Fgs.Reporting.Application/Fgs.Reporting.Application.cs
 COPY src/ReportingService/Fgs.Reporting.Domain/Fgs.Reporting.Domain.csproj src/ReportingService/Fgs.Reporting.Domain/
 COPY src/ReportingService/Fgs.Reporting.Infrastructure/Fgs.Reporting.Infrastructure.csproj src/ReportingService/Fgs.Reporting.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/ReportingService/Fgs.Reporting.API/Fgs.Reporting.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/ReportingService/ src/ReportingService/
 
 WORKDIR /src/src/ReportingService/Fgs.Reporting.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Reporting.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final

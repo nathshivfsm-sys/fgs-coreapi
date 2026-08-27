@@ -39,8 +39,7 @@ public sealed class StartInvitationCommandHandler(
             return new StartInvitationResult(false, null, InvitationErrorMessages.InvalidToken);
         }
 
-        var redirectUri = configuration[ConfigurationKeys.EntraExternalId.RedirectUri]
-            ?? ApplicationUrlDefaults.EntraCallbackRedirect;
+        var redirectUri = ApplicationPublicUrlResolver.ResolveEntraCallbackRedirect(configuration);
 
         var user = await unitOfWork.Repository<FgsUser>()
             .FirstOrDefaultIgnoreFiltersAsync(u => u.Id == matched.UserId, cancellationToken);

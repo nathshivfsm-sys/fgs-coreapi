@@ -26,6 +26,7 @@ EC2 instance (single host, e.g. dev-rabbitmq)
    ├── rabbitmq       (Docker — password from /opt/fgs/.env)
    ├── setup-service  (ECR tag setup-dev)
    ├── user-service   (ECR tag user-dev)
+   ├── bff-service    (ECR tag bff-dev)
    └── nginx          (ECR tag nginx-dev, port 80)
 
 GitHub Actions (merge to dev)
@@ -37,7 +38,7 @@ GitHub Actions (merge to dev)
 | --- | --- |
 | EC2 instances | **1** (all services as containers) |
 | ECR repositories | **1** (`fgs/dockers`) |
-| Image tags per channel | `setup-dev`, `user-dev`, `nginx-dev` |
+| Image tags per channel | `setup-dev`, `user-dev`, `bff-dev`, `nginx-dev` |
 
 ---
 
@@ -51,7 +52,7 @@ Before you start, ensure you have:
 | GitHub repo admin | Secrets, variables, environments |
 | RDS (or Postgres) | Connection strings for Setup and User databases |
 | `glo.GloCredential` data | Global RABBITMQ username/password (Setup reads at startup) |
-| GitHub Actions workflows | On `dev` branch: `build-setup.yml`, `build-user.yml`, `build-nginx.yml`, `reusable-deploy-ec2.yml` |
+| GitHub Actions workflows | On `dev` branch: `build-setup.yml`, `build-user.yml`, `build-bff.yml`, `build-nginx.yml`, `reusable-deploy-ec2.yml` |
 
 ---
 
@@ -432,6 +433,7 @@ On the instance:
 cd /opt/fgs
 sudo ./deploy-service.sh setup-service dev fgs/dockers us-east-1
 sudo ./deploy-service.sh user-service dev fgs/dockers us-east-1
+sudo ./deploy-service.sh bff-service dev fgs/dockers us-east-1
 sudo ./deploy-service.sh nginx dev fgs/dockers us-east-1
 ```
 
@@ -552,6 +554,7 @@ docker logs $(docker ps -qf name=nginx) --tail 50
 Common issues:
 
 - Setup unhealthy → wrong RDS string in `setup-appsettings.json`
+- Setup `Loaded 0 credential` / 503 on `/credential/resolved` → EC2 role needs `kms:Decrypt` on the credential CMK, or add `AwsCredentials` to `setup-appsettings.json` (local Docker uses access keys)
 - RabbitMQ connection failed → `.env` password ≠ `GloCredential` RABBITMQ
 - ECR pull denied → EC2 instance role missing ECR policy
 - CD SSM failed → missing `EC2_INSTANCE_ID` or SSM permissions on GitHub IAM user

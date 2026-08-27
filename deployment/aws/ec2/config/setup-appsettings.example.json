@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "FgsSetup": "Host=YOUR_RDS_HOST;Port=5432;Database=fgs_dev_db;Username=YOUR_USER;Password=YOUR_PASSWORD"
+  }
+}

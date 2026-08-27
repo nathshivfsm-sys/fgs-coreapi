@@ -31,8 +31,7 @@ public sealed class EntraLoginCallbackCommandHandler(
                 ApiStatusCodes.BadRequest);
         }
 
-        var redirectUri = configuration[ConfigurationKeys.EntraExternalId.RedirectUri]
-            ?? ApplicationUrlDefaults.EntraCallbackRedirect;
+        var redirectUri = ApplicationPublicUrlResolver.ResolveLoginRedirect(configuration);
 
         EntraTokenResult entraUser;
         try
@@ -76,8 +75,7 @@ public sealed class EntraLoginCallbackCommandHandler(
         var profile = await profileBuilder.BuildAsync(user, cancellationToken);
         await profileStore.SetAsync(UserAuthProfileMapper.ToDto(profile), cancellationToken);
 
-        var dashboardUrl = configuration[ConfigurationKeys.Application.DashboardUrl]
-            ?? ApplicationUrlDefaults.Dashboard;
+        var dashboardUrl = ApplicationPublicUrlResolver.ResolveDashboardUrl(configuration);
 
         return ApiResponse<EntraLoginCallbackResultDto>.Ok(
             new EntraLoginCallbackResultDto(entraUser.AccessToken, dashboardUrl));

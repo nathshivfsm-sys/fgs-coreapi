@@ -24,14 +24,14 @@ COPY src/CommunicationService/Fgs.Communication.Application/Fgs.Communication.Ap
 COPY src/CommunicationService/Fgs.Communication.Domain/Fgs.Communication.Domain.csproj src/CommunicationService/Fgs.Communication.Domain/
 COPY src/CommunicationService/Fgs.Communication.Infrastructure/Fgs.Communication.Infrastructure.csproj src/CommunicationService/Fgs.Communication.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/CommunicationService/Fgs.Communication.API/Fgs.Communication.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/CommunicationService/ src/CommunicationService/
 
 WORKDIR /src/src/CommunicationService/Fgs.Communication.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Communication.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final

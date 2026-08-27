@@ -24,14 +24,14 @@ COPY src/BillingService/Fgs.Billing.Application/Fgs.Billing.Application.csproj s
 COPY src/BillingService/Fgs.Billing.Domain/Fgs.Billing.Domain.csproj src/BillingService/Fgs.Billing.Domain/
 COPY src/BillingService/Fgs.Billing.Infrastructure/Fgs.Billing.Infrastructure.csproj src/BillingService/Fgs.Billing.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/BillingService/Fgs.Billing.API/Fgs.Billing.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/BillingService/ src/BillingService/
 
 WORKDIR /src/src/BillingService/Fgs.Billing.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Billing.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final

@@ -24,14 +24,14 @@ COPY src/AuditService/Fgs.Audit.Application/Fgs.Audit.Application.csproj src/Aud
 COPY src/AuditService/Fgs.Audit.Domain/Fgs.Audit.Domain.csproj src/AuditService/Fgs.Audit.Domain/
 COPY src/AuditService/Fgs.Audit.Infrastructure/Fgs.Audit.Infrastructure.csproj src/AuditService/Fgs.Audit.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/AuditService/Fgs.Audit.API/Fgs.Audit.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/AuditService/ src/AuditService/
 
 WORKDIR /src/src/AuditService/Fgs.Audit.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Audit.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final

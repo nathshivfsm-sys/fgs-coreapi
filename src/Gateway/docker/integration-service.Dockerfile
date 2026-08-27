@@ -24,14 +24,14 @@ COPY src/IntegrationService/Fgs.Integration.Application/Fgs.Integration.Applicat
 COPY src/IntegrationService/Fgs.Integration.Domain/Fgs.Integration.Domain.csproj src/IntegrationService/Fgs.Integration.Domain/
 COPY src/IntegrationService/Fgs.Integration.Infrastructure/Fgs.Integration.Infrastructure.csproj src/IntegrationService/Fgs.Integration.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/IntegrationService/Fgs.Integration.API/Fgs.Integration.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/IntegrationService/ src/IntegrationService/
 
 WORKDIR /src/src/IntegrationService/Fgs.Integration.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Integration.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final

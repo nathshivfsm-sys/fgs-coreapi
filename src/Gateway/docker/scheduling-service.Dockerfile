@@ -24,14 +24,14 @@ COPY src/SchedulingService/Fgs.Scheduling.Application/Fgs.Scheduling.Application
 COPY src/SchedulingService/Fgs.Scheduling.Domain/Fgs.Scheduling.Domain.csproj src/SchedulingService/Fgs.Scheduling.Domain/
 COPY src/SchedulingService/Fgs.Scheduling.Infrastructure/Fgs.Scheduling.Infrastructure.csproj src/SchedulingService/Fgs.Scheduling.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/SchedulingService/Fgs.Scheduling.API/Fgs.Scheduling.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/SchedulingService/ src/SchedulingService/
 
 WORKDIR /src/src/SchedulingService/Fgs.Scheduling.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Scheduling.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final

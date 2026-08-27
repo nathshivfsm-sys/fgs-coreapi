@@ -24,14 +24,14 @@ COPY src/FileService/Fgs.File.Application/Fgs.File.Application.csproj src/FileSe
 COPY src/FileService/Fgs.File.Domain/Fgs.File.Domain.csproj src/FileService/Fgs.File.Domain/
 COPY src/FileService/Fgs.File.Infrastructure/Fgs.File.Infrastructure.csproj src/FileService/Fgs.File.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/FileService/Fgs.File.API/Fgs.File.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/FileService/ src/FileService/
 
 WORKDIR /src/src/FileService/Fgs.File.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.File.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final

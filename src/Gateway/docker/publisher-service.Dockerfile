@@ -24,14 +24,14 @@ COPY src/PublisherService/Fgs.Publisher.Application/Fgs.Publisher.Application.cs
 COPY src/PublisherService/Fgs.Publisher.Domain/Fgs.Publisher.Domain.csproj src/PublisherService/Fgs.Publisher.Domain/
 COPY src/PublisherService/Fgs.Publisher.Infrastructure/Fgs.Publisher.Infrastructure.csproj src/PublisherService/Fgs.Publisher.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/PublisherService/Fgs.Publisher.API/Fgs.Publisher.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/PublisherService/ src/PublisherService/
 
 WORKDIR /src/src/PublisherService/Fgs.Publisher.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Publisher.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final

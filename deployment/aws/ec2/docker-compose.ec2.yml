@@ -111,6 +111,10 @@ services:
       Redis__Enabled: "true"
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/user
+      # Public gateway origin for invite emails + Entra redirect_uri (overrides GloCredential localhost).
+      Application__PublicBaseUrl: ${FGS_PUBLIC_BASE_URL:?set FGS_PUBLIC_BASE_URL in .env}
+      # EC2 uses service-prefixed routes: /user-service/api/v1/...
+      Application__PublicServicePath: ${FGS_PUBLIC_SERVICE_PATH:-user-service}
       <<: *datadog-env
     depends_on:
       redis:

@@ -245,6 +245,9 @@ services:
       CredentialConsumer__RequiredProviders__1: ENTRA_EXTERNAL_ID
       CredentialConsumer__RequiredProviders__2: AWS
       CredentialConsumer__RequiredProviders__3: REDIS
+      # Local gateway public origin (invite + Entra callback). Flat /api/v1/... (no service prefix).
+      Application__PublicBaseUrl: ${FGS_PUBLIC_BASE_URL:-https://developer.fsm.com}
+      Application__PublicServicePath: ${FGS_PUBLIC_SERVICE_PATH:-}
     depends_on:
       redis:
         condition: service_healthy
