@@ -2136,12 +2136,15 @@ function Add-AttachmentEnhancementsToFolder {
 }
 
 $script:Ec2ServicePrefixes = @{
-    UserService  = 'user-service'
-    SetupService = 'setup-service'
-    BffService   = 'bff-service'
+    UserService         = 'user-service'
+    SetupService        = 'setup-service'
+    BffService          = 'bff-service'
+    NotificationService = 'notification-service'
+    FileService         = 'file-service'
+    AuditService        = 'audit-service'
 }
 
-$script:Ec2GatewayUrl = 'http://100.54.14.213'
+$script:Ec2GatewayUrl = 'http://44.195.19.15'
 $script:LocalGatewayUrl = 'https://developer.fsm.com'
 
 $script:MasterLocalServiceOrder = @(
@@ -2163,6 +2166,9 @@ $script:MasterEc2ServiceOrder = @(
     'UserService'
     'SetupService'
     'BffService'
+    'NotificationService'
+    'FileService'
+    'AuditService'
 )
 
 function Copy-PostmanObjectDeep {
@@ -2402,16 +2408,23 @@ function Build-Ec2CollectionItems {
         }
     }
 
-    foreach ($serviceKey in @('SetupService', 'BffService')) {
+    foreach ($serviceKey in $script:MasterEc2ServiceOrder) {
+        if ($serviceKey -eq 'UserService') { continue }
+
         $prefix = $script:Ec2ServicePrefixes[$serviceKey]
         $displayName = ($serviceKey -replace 'Service$', ' Service')
         if ($serviceKey -eq 'BffService') { $displayName = 'BFF Service' }
+
+        $ec2Note = "`n`nEC2 gateway paths use /$prefix/api/v1/... prefix."
+        if ($serviceKey -in @('NotificationService', 'AuditService')) {
+            $ec2Note += ' Public nginx returns 403 for these S2S routes; use Docker-network calls or internalServiceKey only when the gateway allows them.'
+        }
 
         if ($serviceKey -eq 'BffService' -and $CuratedCollections.ContainsKey('BffService')) {
             $source = $CuratedCollections['BffService']
             $items += @{
                 name        = $displayName
-                description = ($source.info.description + "`n`nEC2 gateway paths use /$prefix/api/v1/... prefix.")
+                description = ($source.info.description + $ec2Note)
                 item        = (Convert-PostmanItemsToEc2 -Items @($source.item) -ServicePrefix $prefix)
             }
             continue
@@ -2421,7 +2434,7 @@ function Build-Ec2CollectionItems {
             $source = $GeneratedCollections[$serviceKey]
             $items += @{
                 name        = $displayName
-                description = ($source.info.description + "`n`nEC2 gateway paths use /$prefix/api/v1/... prefix.")
+                description = ($source.info.description + $ec2Note)
                 item        = (Convert-PostmanItemsToEc2 -Items @($source.item) -ServicePrefix $prefix)
             }
         }
@@ -2547,8 +2560,11 @@ Collection URLs use the EC2 gateway directly (not {{gatewayUrl}}). Service-prefi
 - /user-service/api/v1/...
 - /setup-service/api/v1/...
 - /bff-service/api/v1/...
+- /notification-service/api/v1/... (S2S; public gateway 403)
+- /file-service/api/v1/...
+- /audit-service/api/v1/... (S2S; public gateway 403)
 
-Import **FGS Globals (EC2 Dev)** for secrets (accessToken, entraClientSecret, redirectUri, tenantId).
+Import **FGS Globals (EC2 Dev)** for secrets (accessToken, entraClientSecret, redirectUri, tenantId, internalServiceKey).
 
 Run **00 - Authentication & Token** before protected APIs.
 "@

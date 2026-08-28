@@ -2408,6 +2408,49 @@
                                       "name":  "AuthController",
                                       "item":  [
                                                    {
+                                                       "name":  "StartLogin",
+                                                       "request":  {
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/auth/login",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "auth",
+                                                                                                "login"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "StartLogin",
+                                                                       "method":  "POST",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "body":  {
+                                                                                    "raw":  "{}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                },
+                                                                                    "mode":  "raw"
+                                                                                },
+                                                                       "auth":  {
+                                                                                    "type":  "noauth"
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
                                                        "name":  "EntraCallback",
                                                        "request":  {
                                                                        "method":  "GET",
@@ -2481,49 +2524,6 @@
                                                                                   ],
                                                                        "body":  {
                                                                                     "raw":  "{ \"email\": \"{{signupEmail}}\", \"objectId\": null }",
-                                                                                    "options":  {
-                                                                                                    "raw":  {
-                                                                                                                "language":  "json"
-                                                                                                            }
-                                                                                                },
-                                                                                    "mode":  "raw"
-                                                                                },
-                                                                       "auth":  {
-                                                                                    "type":  "noauth"
-                                                                                }
-                                                                   }
-                                                   },
-                                                   {
-                                                       "name":  "StartLogin",
-                                                       "request":  {
-                                                                       "url":  {
-                                                                                   "host":  [
-                                                                                                "https://developer.fsm.com"
-                                                                                            ],
-                                                                                   "raw":  "https://developer.fsm.com/api/v1/auth/login",
-                                                                                   "path":  [
-                                                                                                "api",
-                                                                                                "v1",
-                                                                                                "auth",
-                                                                                                "login"
-                                                                                            ]
-                                                                               },
-                                                                       "description":  "StartLogin",
-                                                                       "method":  "POST",
-                                                                       "header":  [
-                                                                                      {
-                                                                                          "key":  "Accept",
-                                                                                          "type":  "text",
-                                                                                          "value":  "application/json"
-                                                                                      },
-                                                                                      {
-                                                                                          "key":  "Content-Type",
-                                                                                          "type":  "text",
-                                                                                          "value":  "application/json"
-                                                                                      }
-                                                                                  ],
-                                                                       "body":  {
-                                                                                    "raw":  "{}",
                                                                                     "options":  {
                                                                                                     "raw":  {
                                                                                                                 "language":  "json"
@@ -39355,7 +39355,7 @@
                  "description":  "Local Docker Compose gateway at https://developer.fsm.com.\r\n\r\nCollection URLs use the local gateway directly. Import **FGS Globals** environment from docs/api/local/ for secrets.\r\n\r\nRun **00 - Authentication \u0026 Token** before protected APIs.",
                  "name":  "FGS Local Docker",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "40e24813-69b1-4a57-b1a1-4144c0f97feb"
+                 "_postman_id":  "27a1439e-2cfd-4ed8-9461-e9a1092d51a8"
              },
     "event":  [
                   {

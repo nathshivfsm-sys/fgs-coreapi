@@ -7,7 +7,7 @@ docs/api/
 ├── local/          ← Docker Desktop (https://developer.fsm.com)
 │   ├── FGS.postman_collection.json
 │   └── FGS-Globals.postman_environment.json
-├── ec2/            ← EC2 dev (http://100.54.14.213)
+├── ec2/            ← EC2 dev (http://44.195.19.15)
 │   ├── FGS.postman_collection.json
 │   └── FGS-Globals.postman_environment.json
 ├── sources/        ← Curated inputs for the generator (BFF, Entra token)
@@ -59,9 +59,12 @@ FGS Local Docker / FGS EC2 Dev
 │   ├── 00 - Authentication Flow
 │   └── 01 - UI Login Flow
 ├── User Service
-├── BFF Service        (EC2 only)
+├── BFF Service
 ├── Setup Service
-└── … (local includes all services; EC2 includes user + setup + bff)
+├── Notification Service   (EC2 + local; public gateway 403 — S2S)
+├── File Service
+├── Audit Service          (EC2 + local; public gateway 403 — S2S)
+└── … (local also includes asset, inventory, crm, billing, …)
 ```
 
 ## URL patterns
@@ -69,7 +72,7 @@ FGS Local Docker / FGS EC2 Dev
 | Target | Gateway (baked into collection) | Example |
 |--------|----------------------------------|---------|
 | Local | `https://developer.fsm.com` | `/api/v1/billingcategory` |
-| EC2 | `http://100.54.14.213` | `/setup-service/api/v1/billingcategory` |
+| EC2 | `http://44.195.19.15` | `/setup-service/api/v1/billingcategory` |
 
 Environments hold secrets (`accessToken`, `tenantId`, `redirectUri`, etc.), not gateway URLs.
 
@@ -89,8 +92,9 @@ Environment files in `local/` and `ec2/` are maintained manually (not overwritte
 
 ## EC2 notes
 
-- Only **setup**, **user**, and **bff** are in the EC2 collection.
-- Entra `redirectUri`: `http://100.54.14.213/user-service/api/v1/auth/entra/callback`
+- EC2 collection: **user**, **setup**, **bff**, **notification**, **file**, **audit**.
+- Publisher / consumer have health-only APIs — use Swagger `/swagger/publisher/` and `/swagger/consumer/` on the host.
+- Entra `redirectUri`: `http://44.195.19.15/user-service/api/v1/auth/entra/callback`
 - Production Entra requires **HTTPS** for redirect URIs.
 
-See also: [Entra API Connector setup](../entra-api-connector-setup.md)
+See also: [Entra API Connector setup](../entra-api-connector-setup.md) · [Display Name prefill](../entra-display-name-prefill.md) · [UI branding](../entra-ui-branding.md)
