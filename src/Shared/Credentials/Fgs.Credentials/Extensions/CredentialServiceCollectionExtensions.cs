@@ -11,6 +11,7 @@ using Fgs.Security.UserAuth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.Credentials.Extensions;
 
@@ -89,6 +90,11 @@ public static class CredentialServiceCollectionExtensions
         string setupDefaultBaseUrl = "http://setup-service:5004",
         bool registerSetupClient = true)
     {
+        if (configuration is ConfigurationManager configurationManager)
+        {
+            configurationManager.ApplyFgsAwsCredentialEnvironmentVariables();
+        }
+
         services.Configure<CredentialDistributionOptions>(
             configuration.GetSection(CredentialDistributionOptions.SectionName));
         services.Configure<CredentialConsumerOptions>(
@@ -150,9 +156,64 @@ public static class CredentialServiceCollectionExtensions
             configuration,
             baseUrlConfigurationKey,
             defaultBaseUrl,
-            builder => builder.AddHttpMessageHandler<InternalServiceKeyDelegatingHandler>());
+            builder =>
+            {
+                builder.AddHttpMessageHandler<InternalServiceKeyDelegatingHandler>();
+                // Also stamp DefaultRequestHeaders so S2S calls work even if a handler
+                // in the pipeline fails to run (matches explicit [Header] usage on ISetupClient).
+                builder.ConfigureHttpClient((sp, client) =>
+                    ApplyInternalServiceDefaultHeaders(client, sp, configuration));
+            });
 
         return services;
+    }
+
+    private static void ApplyInternalServiceDefaultHeaders(
+        HttpClient client,
+        IServiceProvider sp,
+        IConfiguration configuration)
+    {
+        var distribution = sp.GetService<IOptions<CredentialDistributionOptions>>()?.Value;
+        var serviceKey = FirstNonEmpty(
+            distribution?.InternalServiceKey,
+            configuration[$"{CredentialDistributionOptions.SectionName}:InternalServiceKey"],
+            Environment.GetEnvironmentVariable("CredentialDistribution__InternalServiceKey"),
+            Environment.GetEnvironmentVariable("CREDENTIAL_DISTRIBUTION_KEY"));
+
+        if (!string.IsNullOrWhiteSpace(serviceKey)
+            && !client.DefaultRequestHeaders.Contains(InternalServiceHeaders.ServiceKey))
+        {
+            client.DefaultRequestHeaders.TryAddWithoutValidation(
+                InternalServiceHeaders.ServiceKey,
+                serviceKey);
+        }
+
+        var consumer = sp.GetService<IOptions<CredentialConsumerOptions>>()?.Value;
+        var serviceName = FirstNonEmpty(
+            consumer?.ServiceName,
+            configuration[$"{CredentialConsumerOptions.SectionName}:ServiceName"],
+            Environment.GetEnvironmentVariable("CredentialConsumer__ServiceName"));
+
+        if (!string.IsNullOrWhiteSpace(serviceName)
+            && !client.DefaultRequestHeaders.Contains(InternalServiceHeaders.ServiceName))
+        {
+            client.DefaultRequestHeaders.TryAddWithoutValidation(
+                InternalServiceHeaders.ServiceName,
+                serviceName);
+        }
+    }
+
+    private static string? FirstNonEmpty(params string?[] values)
+    {
+        foreach (var value in values)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value.Trim();
+            }
+        }
+
+        return null;
     }
 
     public static void RegisterCredentialOptionsChangeSource<TOptions>(IServiceCollection services)
