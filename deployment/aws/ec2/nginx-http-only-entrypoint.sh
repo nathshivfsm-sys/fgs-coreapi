@@ -12,10 +12,10 @@ upstream setup_service {
   keepalive 32;
 }
 upstream user_service { server user-service:5001 max_fails=3 fail_timeout=10s; keepalive 32; }
-upstream notification_service { server notification-service:5002 max_fails=3 fail_timeout=10s; keepalive 32; }
+upstream notification_service { server 127.0.0.1:9; }
 upstream bff_service { server bff-service:5003 max_fails=3 fail_timeout=10s; keepalive 32; }
 upstream file_service { server 127.0.0.1:9; }
-upstream audit_service { server audit-service:5008 max_fails=3 fail_timeout=10s; keepalive 32; }
+upstream audit_service { server 127.0.0.1:9; }
 upstream inventory_service { server 127.0.0.1:9; }
 upstream asset_service { server 127.0.0.1:9; }
 upstream crm_service { server 127.0.0.1:9; }

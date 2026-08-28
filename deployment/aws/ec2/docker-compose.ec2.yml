@@ -325,13 +325,9 @@ services:
     depends_on:
       setup-service:
         condition: service_healthy
-      audit-service:
-        condition: service_healthy
       user-service:
         condition: service_healthy
       bff-service:
-        condition: service_healthy
-      notification-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost/nginx-health"]
