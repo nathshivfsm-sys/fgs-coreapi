@@ -12,6 +12,7 @@ var hostOptions = builder.AddFgsApiHost(options =>
     options.SwaggerTitle = "FGS Consumer Service";
     options.SwaggerDescription = "Integration event consumers.";
     options.XmlCommentsAssembly = typeof(Program).Assembly;
+    options.UseMultiTenancy = true;
     options.UseAuthenticationPipeline = false;
 });
 

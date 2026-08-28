@@ -197,6 +197,16 @@ resource "aws_iam_role_policy" "ec2_kms_decrypt" {
   })
 }
 
+# File Service (and similar) need S3 when using the instance profile
+# (no explicit AccessKeyId/SecretAccessKey in glo.GloCredential AWS).
+resource "aws_iam_role_policy" "ec2_s3_all" {
+  count = var.create_ec2_iam ? 1 : 0
+  name  = "s3-all-buckets"
+  role  = aws_iam_role.ec2[0].id
+
+  policy = file("${path.module}/../iam-fgs-s3-all-buckets-policy.json")
+}
+
 resource "aws_iam_instance_profile" "ec2" {
   count = var.create_ec2_iam ? 1 : 0
   name  = "${local.name_prefix}-ec2-profile"
