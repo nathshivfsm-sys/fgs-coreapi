@@ -29,6 +29,7 @@ EC2 instance (single host, e.g. dev-rabbitmq)
    ├── user-service        (ECR tag user-dev)
    ├── bff-service         (ECR tag bff-dev)
    ├── notification-service (ECR tag notification-dev)
+   ├── file-service         (ECR tag file-dev)
    ├── publisher-service   (ECR tag publisher-dev)
    ├── consumer-service    (ECR tag consumer-dev)
    └── nginx               (ECR tag nginx-dev, port 80)
@@ -42,7 +43,7 @@ GitHub Actions (merge to dev)
 | --- | --- |
 | EC2 instances | **1** (all services as containers) |
 | ECR repositories | **1** (`fgs/dockers`) |
-| Image tags per channel | `setup-dev`, `audit-dev`, `user-dev`, `bff-dev`, `notification-dev`, `publisher-dev`, `consumer-dev`, `nginx-dev`, `redis-dev`, `rabbitmq-dev` |
+| Image tags per channel | `setup-dev`, `audit-dev`, `user-dev`, `bff-dev`, `notification-dev`, `file-dev`, `publisher-dev`, `consumer-dev`, `nginx-dev`, `redis-dev`, `rabbitmq-dev` |
 
 ---
 
@@ -56,7 +57,7 @@ Before you start, ensure you have:
 | GitHub repo admin | Secrets, variables, environments |
 | RDS (or Postgres) | Connection strings for Setup and User databases |
 | `glo.GloCredential` data | Global RABBITMQ username/password (Setup reads at startup) |
-| GitHub Actions workflows | On `dev` branch: `build-setup.yml`, `build-audit.yml`, `build-user.yml`, `build-bff.yml`, `build-notification.yml`, `build-publisher.yml`, `build-consumer.yml`, `build-nginx.yml`, `reusable-deploy-ec2.yml` |
+| GitHub Actions workflows | On `dev` branch: `build-setup.yml`, `build-audit.yml`, `build-user.yml`, `build-bff.yml`, `build-notification.yml`, `build-file.yml`, `build-publisher.yml`, `build-consumer.yml`, `build-nginx.yml`, `reusable-deploy-ec2.yml` |
 
 ---
 
@@ -598,7 +599,7 @@ Common issues:
 - [ ] `setup-appsettings.json` — **FgsSetup** connection string only
 - [ ] `GloCredential` — FgsUser, FgsAudit, FgsNotification, FgsSetup, REDIS, RABBITMQ, SENDGRID, ENTRA_EXTERNAL_ID, etc.
 - [ ] `.env` — `RABBITMQ_PASSWORD` matches GloCredential RABBITMQ
-- [ ] Images in ECR (`setup-dev`, `audit-dev`, `user-dev`, `bff-dev`, `notification-dev`, `publisher-dev`, `consumer-dev`, `nginx-dev`)
+- [ ] Images in ECR (`setup-dev`, `audit-dev`, `user-dev`, `bff-dev`, `notification-dev`, `file-dev`, `publisher-dev`, `consumer-dev`, `nginx-dev`)
 - [ ] All containers running and healthy
 
 ### Testing
@@ -619,6 +620,7 @@ Common issues:
 | `.github/workflows/build-user.yml` | CI/CD for User |
 | `.github/workflows/build-bff.yml` | CI/CD for BFF |
 | `.github/workflows/build-notification.yml` | CI/CD for Notification |
+| `.github/workflows/build-file.yml` | CI/CD for File |
 | `.github/workflows/build-publisher.yml` | CI/CD for Publisher |
 | `.github/workflows/build-consumer.yml` | CI/CD for Consumer |
 | `.github/workflows/build-nginx.yml` | CI/CD for nginx |

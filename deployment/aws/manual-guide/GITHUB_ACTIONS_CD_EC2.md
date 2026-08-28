@@ -209,6 +209,7 @@ Replace `ACCOUNT_ID` with your AWS account ID. Do **not** add Session Manager (`
 | `build-user.yml` | `Fgs.User.API.csproj` version bump | `user-service` on EC2 |
 | `build-bff.yml` | `Fgs.Bff.API.csproj` version bump | `bff-service` on EC2 |
 | `build-notification.yml` | `Fgs.Notification.API.csproj` version bump | `notification-service` on EC2 |
+| `build-file.yml` | `Fgs.File.API.csproj` version bump | `file-service` on EC2 |
 | `build-publisher.yml` | `Fgs.Publisher.API.csproj` version bump | `publisher-service` on EC2 |
 | `build-consumer.yml` | `Fgs.Consumer.API.csproj` version bump | `consumer-service` on EC2 |
 | `build-nginx.yml` | `src/Gateway/VERSION` bump | `nginx` on EC2 |

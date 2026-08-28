@@ -38,6 +38,7 @@ sudo /opt/fgs/deploy-service.sh audit-service dev
 sudo /opt/fgs/deploy-service.sh user-service dev
 sudo /opt/fgs/deploy-service.sh bff-service dev
 sudo /opt/fgs/deploy-service.sh notification-service dev
+sudo /opt/fgs/deploy-service.sh file-service dev
 sudo /opt/fgs/deploy-service.sh publisher-service dev
 sudo /opt/fgs/deploy-service.sh consumer-service dev
 sudo /opt/fgs/deploy-service.sh nginx dev
@@ -51,6 +52,7 @@ docker compose -f docker-compose.ec2.yml ps
 docker logs fgs-ec2-setup-service-1 --tail 100
 docker logs fgs-ec2-audit-service-1 --tail 100
 docker logs fgs-ec2-notification-service-1 --tail 100
+docker logs fgs-ec2-file-service-1 --tail 100
 docker logs fgs-ec2-publisher-service-1 --tail 100
 docker logs fgs-ec2-consumer-service-1 --tail 100
 ```

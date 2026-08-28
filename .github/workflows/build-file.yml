@@ -1,0 +1,61 @@
+# Starts only when File Service version changes.
+# CI: build/test on PR; push image on merge to dev.
+# CD: auto-deploy to EC2 (repository variable EC2_INSTANCE_ID).
+name: Build file
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - "src/FileService/Fgs.File.API/Fgs.File.API.csproj"
+      - ".github/workflows/build-file.yml"
+  pull_request:
+    branches: [dev]
+    paths:
+      - "src/FileService/Fgs.File.API/Fgs.File.API.csproj"
+      - ".github/workflows/build-file.yml"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Build even if <Version> did not change
+        type: boolean
+        default: false
+      push_to_ecr:
+        description: Also push image to ECR (normally only on merge to dev)
+        type: boolean
+        default: false
+
+concurrency:
+  group: build-file-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-build-service.yml
+    with:
+      service: file
+      context: .
+      dockerfile: src/Gateway/docker/file-service.Dockerfile
+      ecr_repository: ${{ vars.ECR_REPO || 'fgs/dockers' }}
+      version_file: src/FileService/Fgs.File.API/Fgs.File.API.csproj
+      version_kind: csproj
+      test_project: src/FileService/Fgs.File.Tests/Fgs.File.Tests.csproj
+      force: ${{ github.event_name == 'workflow_dispatch' && inputs.force || false }}
+      push_to_ecr: ${{ github.event_name == 'workflow_dispatch' && inputs.push_to_ecr || false }}
+      caller_event: ${{ github.event_name }}
+    secrets: inherit
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.image_pushed == 'true'
+    uses: ./.github/workflows/reusable-deploy-ec2.yml
+    with:
+      compose_service: file-service
+      image_tag_prefix: file
+      channel: ${{ needs.build.outputs.channel }}
+      github_environment: ${{ needs.build.outputs.github_environment }}
+    secrets: inherit
