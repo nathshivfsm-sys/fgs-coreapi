@@ -6,6 +6,7 @@ using Fgs.Foundation.Time;
 using Fgs.User.Application.Abstractions.Users;
 using Fgs.User.Application.Features.Roles.Dtos;
 using Fgs.User.Application.Features.Users.Commands.InviteFgsUser;
+using Fgs.User.Application.Features.Users.Commands.ResendFgsUserInvite;
 using Fgs.User.Application.Features.Users.Commands.UpdateFgsUser;
 using Fgs.User.Application.Features.Users.Dtos;
 using Fgs.User.Application.Features.Users.Validators;
@@ -158,6 +159,36 @@ public sealed class FgsUserValidatorTests
         userRead.Setup(r => r.ExistsByEmailAsync(It.IsAny<string>(), null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         return userRead;
+    }
+
+    [Fact]
+    public async Task ResendInviteValidator_WhenUserAlreadyAccepted_Fails()
+    {
+        var userId = Guid.NewGuid();
+        var userRead = new Mock<IFgsUserReadRepository>();
+        userRead.Setup(r => r.HasAcceptedInvitationAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var validator = new ResendFgsUserInviteCommandValidator(userRead.Object);
+        var result = await validator.ValidateAsync(new ResendFgsUserInviteCommand(userId));
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e =>
+            e.ErrorMessage.Contains("already accepted", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task ResendInviteValidator_WhenUserPending_Succeeds()
+    {
+        var userId = Guid.NewGuid();
+        var userRead = new Mock<IFgsUserReadRepository>();
+        userRead.Setup(r => r.HasAcceptedInvitationAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        var validator = new ResendFgsUserInviteCommandValidator(userRead.Object);
+        var result = await validator.ValidateAsync(new ResendFgsUserInviteCommand(userId));
+
+        result.IsValid.Should().BeTrue();
     }
 
     private static Mock<IFgsRoleReadRepository> CreateRoleReadMock()

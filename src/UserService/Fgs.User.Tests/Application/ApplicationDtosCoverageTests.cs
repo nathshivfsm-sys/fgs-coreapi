@@ -11,6 +11,8 @@ using Fgs.User.Application.Features.Permissions.Dtos;
 using Fgs.User.Application.Features.PublicEndpoints.Dtos;
 using Fgs.User.Application.Features.RoleDataAccesses.Dtos;
 using Fgs.User.Application.Features.RolePermissions.Dtos;
+using Fgs.User.Application.Features.RoleMenus.Dtos;
+using Fgs.User.Application.Features.TenantMenus.Dtos;
 using Fgs.User.Application.Features.Roles.Dtos;
 using Fgs.User.Application.Features.ServiceAccountsSetups.Dtos;
 using Fgs.User.Application.Features.ServiceSetups.Dtos;
@@ -77,6 +79,42 @@ public sealed class ApplicationDtosCoverageTests
 
         var rolePermission = new FgsRolePermissionDetailDto(1, 1, 2, DateTimeOffset.UtcNow, "t");
         (rolePermission with { FgsPermissionId = 3 }).FgsRoleId.Should().Be(1);
+
+        var roleMenu = new FgsRoleMenuDetailDto(1, 10, 100, 1, true, DateTimeOffset.UtcNow, "t");
+        roleMenu.Id.Should().Be(1);
+        roleMenu.RoleId.Should().Be(10);
+        roleMenu.MenuId.Should().Be(100);
+        roleMenu.DisplayOrder.Should().Be(1);
+        roleMenu.IsActive.Should().BeTrue();
+        roleMenu.CreatedBy.Should().Be("t");
+        (roleMenu with { DisplayOrder = 2 }).DisplayOrder.Should().Be(2);
+        var roleMenuSync = new FgsRoleMenuSyncDto(10, [new FgsRoleMenuSyncItemDto(100, 1, true)]);
+        (roleMenuSync with { RoleId = 11 }).Items.Should().ContainSingle(x => x.MenuId == 100);
+
+        var tenantMenu = new FgsTenantMenuDetailDto(1, 100, 1, true, DateTimeOffset.UtcNow, "t");
+        tenantMenu.Id.Should().Be(1);
+        tenantMenu.MenuId.Should().Be(100);
+        tenantMenu.DisplayOrder.Should().Be(1);
+        tenantMenu.IsActive.Should().BeTrue();
+        tenantMenu.CreatedBy.Should().Be("t");
+        (tenantMenu with { IsActive = false }).IsActive.Should().BeFalse();
+        var tenantMenuSync = new FgsTenantMenuSyncDto([new FgsTenantMenuSyncItemDto(100, 1)]);
+        (tenantMenuSync with { Items = [new FgsTenantMenuSyncItemDto(101, 2)] }).Items
+            .Should().ContainSingle(x => x.MenuId == 101);
+
+        var rolePermissionSummary = new FgsRolePermissionSummaryDto(1, 1, 2, DateTimeOffset.UtcNow, "t");
+        (rolePermissionSummary with { FgsPermissionId = 3 }).FgsRoleId.Should().Be(1);
+        rolePermissionSummary.Id.Should().Be(1);
+        rolePermissionSummary.CreatedBy.Should().Be("t");
+
+        var roleDataAccessSummary = new FgsRoleDataAccessSummaryDto(1, 1, 2, DateTimeOffset.UtcNow, "t");
+        (roleDataAccessSummary with { FgsDataAccessId = 3 }).FgsRoleId.Should().Be(1);
+        roleDataAccessSummary.Id.Should().Be(1);
+        roleDataAccessSummary.CreatedBy.Should().Be("t");
+
+        var userRoleSummary = new FgsUserRoleSummaryDto(1, Guid.NewGuid(), 2, DateTimeOffset.UtcNow, "t");
+        (userRoleSummary with { FgsRoleId = 3 }).CreatedBy.Should().Be("t");
+        userRoleSummary.Id.Should().Be(1);
 
         var roleDataAccess = new FgsRoleDataAccessDetailDto(1, 1, 2, DateTimeOffset.UtcNow, "t");
         (roleDataAccess with { FgsDataAccessId = 3 }).FgsRoleId.Should().Be(1);
