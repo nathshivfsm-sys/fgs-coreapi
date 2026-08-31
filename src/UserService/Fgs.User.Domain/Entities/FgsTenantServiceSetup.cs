@@ -67,5 +67,10 @@ public class FgsTenantServiceSetup : FgsEntityBase, ITenantCompanyScoped
     /// </summary>
     public string EstimateRevisionCreationMode { get; set; } = EstimateRevisionCreationModes.OnDemand;
 
+    /// <summary>
+    /// Controls whether maintenance schedule calls are automatically booked.
+    /// </summary>
+    public bool AutoBookMaintenanceScheduleCalls { get; set; }
+
     public bool IsActive { get; set; } = true;
 }

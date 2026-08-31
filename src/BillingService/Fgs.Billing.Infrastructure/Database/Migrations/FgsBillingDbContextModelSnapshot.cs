@@ -213,6 +213,10 @@ namespace Fgs.Billing.Infrastructure.Database.Migrations
                         .HasColumnType("bigint")
                         .HasColumnOrder(1);
 
+                    b.Property<long?>("TermsConditionVersionId")
+                        .HasColumnType("bigint")
+                        .HasComment("Reference to the specific terms and conditions version used by the invoice.");
+
                     b.Property<decimal>("TotalDiscount")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("numeric(18,2)")

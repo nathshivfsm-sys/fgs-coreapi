@@ -104,6 +104,8 @@ public class FgsInvoice : ITenantCompanyScoped
 
     public long? InvoiceBatchId { get; set; }
 
+    public long? TermsConditionVersionId { get; set; }
+
     public string? ExternalAccountingId { get; set; }
 
     public string? ExternalAccountingSyncToken { get; set; }

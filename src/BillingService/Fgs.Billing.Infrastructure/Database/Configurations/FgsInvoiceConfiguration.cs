@@ -42,6 +42,8 @@ internal sealed class FgsInvoiceConfiguration : IEntityTypeConfiguration<FgsInvo
         entity.Property(e => e.ApprovedOn).HasColumnType("timestamp");
         entity.Property(e => e.IsPosted).HasDefaultValue(false);
         entity.Property(e => e.PostedOn).HasColumnType("timestamp");
+        entity.Property(e => e.TermsConditionVersionId)
+            .HasComment("Reference to the specific terms and conditions version used by the invoice.");
         entity.Property(e => e.CreatedOn).IsRequired().HasColumnType("timestamp").HasDefaultValueSql("now()");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamp");
         entity.Property(e => e.RowVersion).HasDefaultValue(1L);

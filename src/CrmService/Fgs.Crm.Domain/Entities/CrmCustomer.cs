@@ -64,5 +64,7 @@ public class CrmCustomer : FgsEntityBase, ITenantCompanyScoped
 
     public string? ExternalVersion { get; set; }
 
+    public bool IsPreferredCustomer { get; set; }
+
     public bool IsActive { get; set; } = true;
 }

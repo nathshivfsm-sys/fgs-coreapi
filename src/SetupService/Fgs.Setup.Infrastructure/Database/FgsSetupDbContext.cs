@@ -229,6 +229,10 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<GloRole> GloRoles => Set<GloRole>();
 
+    public DbSet<GloMenu> GloMenus => Set<GloMenu>();
+
+    public DbSet<GloRoleMenu> GloRoleMenus => Set<GloRoleMenu>();
+
     public DbSet<GloSetupDescriptionType> GloSetupDescriptionTypes => Set<GloSetupDescriptionType>();
 
     public DbSet<GloSetupLaborRateType> GloSetupLaborRateTypes => Set<GloSetupLaborRateType>();
@@ -252,6 +256,11 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsSetupServiceAgreementTemplateCoverage> FgsSetupServiceAgreementTemplateCoverages =>
         Set<FgsSetupServiceAgreementTemplateCoverage>();
+
+    public DbSet<FgsTermsCondition> FgsTermsConditions => Set<FgsTermsCondition>();
+
+    public DbSet<FgsEntityDefaultTermsCondition> FgsEntityDefaultTermsConditions =>
+        Set<FgsEntityDefaultTermsCondition>();
 
     public DbSet<FgsLocation> FgsLocations => Set<FgsLocation>();
 

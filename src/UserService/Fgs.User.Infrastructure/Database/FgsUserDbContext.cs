@@ -29,6 +29,8 @@ public class FgsUserDbContext : FgsTenantFilteredDbContext
     public DbSet<FgsInvitation> FgsInvitations => Set<FgsInvitation>();
     public DbSet<FgsPermission> FgsPermissions => Set<FgsPermission>();
     public DbSet<FgsRolePermission> FgsRolePermissions => Set<FgsRolePermission>();
+    public DbSet<FgsTenantMenu> FgsTenantMenus => Set<FgsTenantMenu>();
+    public DbSet<FgsRoleMenu> FgsRoleMenus => Set<FgsRoleMenu>();
     public DbSet<FgsDataAccess> FgsDataAccesses => Set<FgsDataAccess>();
     public DbSet<FgsDataAccessScope> FgsDataAccessScopes => Set<FgsDataAccessScope>();
     public DbSet<FgsRoleDataAccess> FgsRoleDataAccesses => Set<FgsRoleDataAccess>();

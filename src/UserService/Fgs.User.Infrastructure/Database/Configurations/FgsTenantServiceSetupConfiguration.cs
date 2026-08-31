@@ -49,6 +49,10 @@ internal class FgsTenantServiceSetupConfiguration : IEntityTypeConfiguration<Fgs
             .HasDefaultValue(EstimateRevisionCreationModes.OnDemand)
             .HasComment(
                 "Controls when estimate revisions are created. Valid values: OnDemand = user manually creates a revision; OnPostSignatureChange = automatically creates a revision when a signed estimate is changed.");
+        entity.Property(e => e.AutoBookMaintenanceScheduleCalls)
+            .HasDefaultValue(false)
+            .HasComment(
+                "Controls whether maintenance schedule calls are automatically booked. TRUE = maintenance schedule calls are automatically booked; FALSE = maintenance schedule calls must be booked manually.");
         entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
     }

@@ -724,6 +724,74 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsEntityDefaultTermsCondition", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Surrogate primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company within the tenant for which the default terms and conditions are configured.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("UTC timestamp when the record was created.");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasComment("Entity type to which the default terms and conditions version applies, such as Invoice, Estimate, WorkAuthorization, or Signature.");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasComment("Indicates whether the default entity terms and conditions mapping is active.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant that owns the entity terms and conditions configuration.");
+
+                    b.Property<long>("TermsConditionId")
+                        .HasColumnType("bigint")
+                        .HasComment("Reference to the specific terms and conditions version that is the default for the entity type.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("UTC timestamp when the record was last updated.");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "EntityType")
+                        .HasName("UQ_FgsEntityDefaultTermsCondition");
+
+                    b.HasIndex("TermsConditionId")
+                        .HasDatabaseName("IX_FgsEntityDefaultTermsCondition_TermsConditionId");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsEntityDefaultTermsCondition_TenantId_CompanyId");
+
+                    b.ToTable("FgsEntityDefaultTermsCondition", "setup", t =>
+                        {
+                            t.HasComment("Stores the default terms and conditions version assigned to each supported entity type for a tenant and company.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsEntityTag", b =>
                 {
                     b.Property<long>("Id")
@@ -4449,6 +4517,83 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsTermsCondition", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Surrogate primary key.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasComment("Code identifying the terms and conditions definition. Multiple versions can exist for the same code.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company within the tenant that owns the terms and conditions.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that created the record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("UTC timestamp when the record was created.");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasComment("Indicates whether the terms and conditions version is active.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasComment("Display name of the terms and conditions.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant that owns the terms and conditions.");
+
+                    b.Property<string>("TermsText")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasComment("Complete terms and conditions text for this version.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or process that last updated the record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("UTC timestamp when the record was last updated.");
+
+                    b.Property<int>("VersionNumber")
+                        .HasColumnType("integer")
+                        .HasComment("Sequential version number of the terms and conditions.");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "Code", "VersionNumber")
+                        .HasName("UQ_FgsTermsCondition");
+
+                    b.HasIndex("TenantId", "CompanyId", "Code")
+                        .HasDatabaseName("IX_FgsTermsCondition_TenantId_CompanyId_Code");
+
+                    b.ToTable("FgsTermsCondition", "setup", t =>
+                        {
+                            t.HasComment("Stores terms and conditions definitions and their versions for use across estimates, invoices, work authorizations, signatures, and other business entities.");
+
+                            t.HasCheckConstraint("CK_FgsTermsCondition_VersionNumber", "\"VersionNumber\" > 0");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalMatrixAddOn", b =>
                 {
                     b.Property<long>("Id")
@@ -6615,6 +6760,87 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.ToTable("GloMasterEntityType", "glo");
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloMenu", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasComment("Unique identifier for the menu item.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("timezone('utc', now())")
+                        .HasComment("UTC timestamp when the menu item was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Description of the menu item and its purpose.");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("UI icon identifier associated with the menu item.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the menu item is currently active and available for tenant configuration.");
+
+                    b.Property<string>("MenuCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique system-defined code identifying the menu item.");
+
+                    b.Property<string>("MenuType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Defines the type of menu item, such as a menu group or navigable page.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Display name of the menu item shown to users.");
+
+                    b.Property<int?>("ParentMenuId")
+                        .HasColumnType("integer")
+                        .HasComment("References the parent menu item when this menu is a child item; NULL for top-level menus.");
+
+                    b.Property<string>("Route")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Application route used to navigate to the menu item when applicable.");
+
+                    b.Property<short>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)0)
+                        .HasComment("Determines the display order of the menu item within its parent menu.");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("MenuCode")
+                        .HasName("UX_GloMenu_MenuCode");
+
+                    b.HasIndex("ParentMenuId");
+
+                    b.ToTable("GloMenu", "glo", t =>
+                        {
+                            t.HasComment("Global master definition of application menus and navigation items available across the FSM platform.");
+
+                            t.HasCheckConstraint("CK_GloMenu_MenuCode_NotEmpty", "length(trim(\"MenuCode\")) > 0");
+
+                            t.HasCheckConstraint("CK_GloMenu_Name_NotEmpty", "length(trim(\"Name\")) > 0");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloOutboxMessage", b =>
                 {
                     b.Property<long>("Id")
@@ -6913,6 +7139,44 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                             t.HasCheckConstraint("CK_GloRole_Name_NotEmpty", "length(trim(\"Name\")) > 0");
 
                             t.HasCheckConstraint("CK_GloRole_RoleCode_NotEmpty", "length(trim(\"RoleCode\")) > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloRoleMenu", b =>
+                {
+                    b.Property<short>("RoleId")
+                        .HasColumnType("smallint")
+                        .HasComment("References the global standard role to which the menu item is assigned.");
+
+                    b.Property<int>("MenuId")
+                        .HasColumnType("integer")
+                        .HasComment("References the global menu item assigned to the role.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("timezone('utc', now())")
+                        .HasComment("UTC timestamp when the role-to-menu assignment was created.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether this default role-to-menu assignment is active and should be included when seeding tenant role menu assignments.");
+
+                    b.Property<short>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)0)
+                        .HasComment("Determines the display order of the menu item for the role.");
+
+                    b.HasKey("RoleId", "MenuId");
+
+                    b.HasIndex("MenuId");
+
+                    b.ToTable("GloRoleMenu", "glo", t =>
+                        {
+                            t.HasComment("Global default mapping of standard roles to menu items used to seed tenant role menu assignments during onboarding.");
                         });
                 });
 
@@ -8541,6 +8805,25 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasConstraintName("FK_FgsEmployeeTechnicianProfile_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsEntityDefaultTermsCondition", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTermsCondition", "TermsCondition")
+                        .WithMany()
+                        .HasForeignKey("TermsConditionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEntityDefaultTermsCondition_FgsTermsCondition_TermsConditionId");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsEntityDefaultTermsCondition_FgsTenantCompanyCache_TenantId_CompanyId");
+
+                    b.Navigation("TermsCondition");
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsEntityTag", b =>
                 {
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTag", null)
@@ -9145,6 +9428,16 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasConstraintName("FK_FgsTagEntityType_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsTermsCondition", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsTermsCondition_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsUniversalMatrixAddOn", b =>
                 {
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
@@ -9363,6 +9656,38 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasConstraintName("FK_GloJobTypeCategory_GloBusinessType_BusinessTypeId");
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloMenu", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.GloMenu", "ParentMenu")
+                        .WithMany("ChildMenus")
+                        .HasForeignKey("ParentMenuId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_GloMenu_ParentMenu");
+
+                    b.Navigation("ParentMenu");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloRoleMenu", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.GloMenu", "Menu")
+                        .WithMany()
+                        .HasForeignKey("MenuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_GloRoleMenu_Menu");
+
+                    b.HasOne("Fgs.Setup.Domain.Entities.GloRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_GloRoleMenu_Role");
+
+                    b.Navigation("Menu");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloSeedTableColumnMapping", b =>
                 {
                     b.HasOne("Fgs.Setup.Domain.Entities.GloSeedTableMapping", "SeedTableMapping")
@@ -9467,6 +9792,11 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloCredentialProviderType", b =>
                 {
                     b.Navigation("Credentials");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloMenu", b =>
+                {
+                    b.Navigation("ChildMenus");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.GloSeedTableMapping", b =>
