@@ -138,6 +138,10 @@ public sealed class CredentialController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    /// <summary>
+    /// Decrypts and returns credential payload. Allowed only when
+    /// <c>AwsCredentials:EnableTestSecretEndpoint</c> is true and the host is Development.
+    /// </summary>
     [HttpGet("{id}/resolve")]
     [ProducesResponseType(typeof(ApiResponse<CredentialSecretDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]

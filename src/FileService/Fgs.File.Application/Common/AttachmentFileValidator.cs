@@ -12,7 +12,67 @@ public static class AttachmentFileValidator
     }
 
     public static bool IsAllowedContentType(string contentType, AttachmentValidationOptions options) =>
-        options.AllowedContentTypes.Contains(contentType, StringComparer.OrdinalIgnoreCase);
+        options.AllowedContentTypes.Contains(NormalizeMediaType(contentType), StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Clients (Swagger UI, some browsers/Postman) often send <c>application/octet-stream</c>
+    /// for binary uploads. Prefer an explicit media type; otherwise map from the file extension.
+    /// </summary>
+    public static string ResolveContentType(string? contentType, string fileName)
+    {
+        var normalized = NormalizeMediaType(contentType);
+        if (!string.IsNullOrWhiteSpace(normalized)
+            && !normalized.Equals("application/octet-stream", StringComparison.OrdinalIgnoreCase))
+        {
+            return normalized;
+        }
+
+        return MapContentTypeFromExtension(fileName) ?? normalized ?? "application/octet-stream";
+    }
+
+    public static string NormalizeMediaType(string? contentType)
+    {
+        if (string.IsNullOrWhiteSpace(contentType))
+        {
+            return string.Empty;
+        }
+
+        var mediaType = contentType.Split(';', 2)[0].Trim();
+        return mediaType;
+    }
+
+    public static string? MapContentTypeFromExtension(string fileName)
+    {
+        var ext = Path.GetExtension(fileName);
+        if (string.IsNullOrWhiteSpace(ext))
+        {
+            return null;
+        }
+
+        return ext.ToLowerInvariant() switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            ".gif" => "image/gif",
+            ".bmp" => "image/bmp",
+            ".svg" => "image/svg+xml",
+            ".pdf" => "application/pdf",
+            ".doc" => "application/msword",
+            ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".xls" => "application/vnd.ms-excel",
+            ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ".ppt" => "application/vnd.ms-powerpoint",
+            ".pptx" => "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            ".zip" => "application/zip",
+            ".mp4" => "video/mp4",
+            ".mp3" => "audio/mpeg",
+            ".wav" => "audio/wav",
+            ".txt" => "text/plain",
+            ".csv" => "text/csv",
+            _ => null
+        };
+    }
 
     public static bool HasValidMagicBytes(ReadOnlySpan<byte> header, string contentType)
     {

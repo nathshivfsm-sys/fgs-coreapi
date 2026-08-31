@@ -7,6 +7,20 @@ namespace Fgs.File.Tests;
 public sealed class AttachmentDeletionTagsTests
 {
     [Fact]
+    public void ResolveContentType_MapsPngWhenOctetStream()
+    {
+        var resolved = AttachmentFileValidator.ResolveContentType("application/octet-stream", "logo.png");
+        Assert.Equal("image/png", resolved);
+    }
+
+    [Fact]
+    public void ResolveContentType_StripsCharsetParameter()
+    {
+        var resolved = AttachmentFileValidator.ResolveContentType("image/png; charset=utf-8", "logo.png");
+        Assert.Equal("image/png", resolved);
+    }
+
+    [Fact]
     public void IsActive_ReturnsFalseWhenDeletedTagPresent()
     {
         Assert.False(AttachmentDeletionTags.IsActive(["category:invoice", "deleted"]));

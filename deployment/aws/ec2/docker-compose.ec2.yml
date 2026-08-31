@@ -67,6 +67,8 @@ services:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ASPNETCORE_URLS: http://+:5004
       CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      # Allows GET /api/v1/credential/{id}/resolve (JWT). Keep ASPNETCORE_ENVIRONMENT=Development.
+      AwsCredentials__EnableTestSecretEndpoint: "true"
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/setup
       UserService__BaseUrl: http://user-service:5001

@@ -14,7 +14,7 @@ public sealed class UploadAttachmentCommandValidator : AbstractValidator<UploadA
 
         RuleFor(x => x.OriginalFileName).NotEmpty().MaximumLength(500);
         RuleFor(x => x.ContentType).NotEmpty().Must(ct => AttachmentFileValidator.IsAllowedContentType(ct, options))
-            .WithMessage("Unsupported content type.");
+            .WithMessage(x => $"Unsupported content type '{x.ContentType}'.");
         RuleFor(x => x.OriginalFileName).Must(name => AttachmentFileValidator.IsAllowedExtension(name, options))
             .WithMessage("Unsupported file extension.");
         RuleFor(x => x.FileSizeBytes).GreaterThan(0);
