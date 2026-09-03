@@ -90,7 +90,7 @@ internal sealed class FgsNonWorkingDateReadRepository(
             TenantId = tenantId,
             CompanyId = companyId,
             IsActive = paging.IsActive,
-            NonWorkingDate = filters.NonWorkingDate,
+            NonWorkingDate = filters.NonWorkingDate?.ToDateTime(TimeOnly.MinValue),
             Name = string.IsNullOrWhiteSpace(filters.Name) ? null : $"%{filters.Name.Trim()}%",
             Search = string.IsNullOrWhiteSpace(paging.Search) ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
@@ -158,7 +158,7 @@ internal sealed class FgsNonWorkingDateReadRepository(
                 {
                     TenantId = tenantId,
                     CompanyId = companyId,
-                    NonWorkingDate = nonWorkingDate,
+                    NonWorkingDate = nonWorkingDate.ToDateTime(TimeOnly.MinValue),
                     ExcludeId = excludeId
                 },
                 cancellationToken: cancellationToken));
