@@ -1,0 +1,16 @@
+---
+description: C# naming and project conventions
+globs: "**/*.cs"
+alwaysApply: false
+---
+
+# C# conventions
+
+- Target `net10.0`, nullable on, file-scoped namespaces, primary constructors where neighbors use them.
+- Types: `Fgs*` tenant entities, `Glo*` global catalog, `Crm*` CRM.
+- Records for commands/queries/DTOs; sealed handlers.
+- Audit: `CreatedOn`/`CreatedBy`/`UpdatedOn`/`UpdatedBy` (`DateTimeOffset`). Not `CreatedAt`.
+- Soft delete: `IsActive`, not `DeletedOn`.
+- IDs: tenant/company `long`; users often `Guid`.
+- Handlers must not use `DbContext`. Use Application abstractions implemented in Infrastructure.
+- Log structured properties; do not log tokens/PII secrets.

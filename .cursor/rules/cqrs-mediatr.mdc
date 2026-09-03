@@ -1,0 +1,19 @@
+---
+description: MediatR feature folder layout and handlers
+globs: "**/*.Application/**/*.cs"
+alwaysApply: false
+---
+
+# CQRS
+
+Layout: `Features/{Area}/{Commands|Queries}/{UseCase}/{UseCase}Command|Query.cs` + `*Handler.cs` + optional `*Validator.cs`.
+
+```csharp
+public sealed record CreateXCommand(XCreateDto Dto) : IRequest<ApiResponse<XDetailDto>>;
+```
+
+- Register via `AddFgsApplicationLayer` / `AddFgsFoundation` (`ValidationBehavior`, `LoggingBehavior`).
+- FluentValidation `AbstractValidator<T>` on commands; pipeline throws `ValidationException`.
+- HTTP handlers return `ApiResponse<T>`. Consumer handlers may return `Task`.
+- Writes: `I{Entity}WriteService` + `IUnitOfWork`. Reads: dedicated `I{Entity}ReadRepository` (Setup uses Dapper).
+- Clone `TechTrades` (Setup) or `Users` (User) or `Assets` (Asset).

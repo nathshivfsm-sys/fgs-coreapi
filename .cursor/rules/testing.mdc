@@ -1,0 +1,15 @@
+---
+description: Unit test layout and tooling
+globs: "**/*.Tests/**/*.cs"
+alwaysApply: false
+---
+
+# Testing
+
+- xUnit + Moq + FluentAssertions. No Testcontainers / WebApplicationFactory in this repo.
+- Mirror features: `*ValidatorTests`, `*CommandHandlerTests`, `*QueryHandlerTests`.
+- Mock Application abstractions; do not spin real Postgres/RabbitMQ in unit tests.
+- EF InMemory only if an existing test in that project already does.
+- Run the service `*.Tests` project after changes. User Application has Coverlet line threshold 90.
+- There is no integration-test host yet — do not invent one unless asked.
+- Details: [docs/ai/testing.md](../../docs/ai/testing.md).

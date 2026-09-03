@@ -1,0 +1,15 @@
+---
+description: REST controller and response envelope conventions
+globs: "**/*Controller.cs"
+alwaysApply: false
+---
+
+# APIs
+
+- Route: `[ApiVersion(FgsApiVersions.V1)]` + `[FgsVersionedRoute("singular")]` → `/api/v1/{segment}`.
+- Envelope: `ApiResponse<T>` (`Fgs.Contracts.Api`). Prefer `FgsApiControllerBase` + `FromApiResponse` (User/File/Audit). Many Setup/Asset/Inventory controllers still use `ControllerBase` + `StatusCode(response.StatusCode, response)` — **match the file you are editing**.
+- New controllers: use `FgsApiControllerBase`.
+- List: `page`, `pageSize`, `sortBy`, `sortDirection`, `search`, `bool? isActive`. Lookup: `GET .../lookup`.
+- Mutations: `[RequirePermission(FgsPermissionCodes.*)]`. POSTs that must be retry-safe: `[Idempotent]`.
+- Public/S2S: `[AllowAnonymous]` only where neighbors do; S2S still uses `X-FGS-Internal-Service-Key`.
+- After a new public route, update `src/Gateway/conf.d/includes/api-v1-routes.conf` (and prod twin). See [docs/ai/api-conventions.md](../../docs/ai/api-conventions.md).

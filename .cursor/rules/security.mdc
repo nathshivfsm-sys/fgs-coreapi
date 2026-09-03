@@ -1,0 +1,14 @@
+---
+description: Entra JWT, permissions, and credentials
+alwaysApply: true
+---
+
+# Security
+
+- AuthN: Microsoft Entra External ID JWT (`AddFgsEntraAuthentication`). No platform-issued JWT.
+- Fallback policy: authenticated user. `[AllowAnonymous]` only on invite/signup/auth/internal-key endpoints that already do so.
+- AuthZ: `[RequirePermission(FgsPermissionCodes.*)]`. `TENANT_ADMIN` bypasses. Missing profile on internal-key calls is allowed (S2S).
+- S2S: `X-FGS-Internal-Service-Key`, not a second JWT.
+- Secrets: `glo.GloCredential` (+ optional AWS Secrets Manager). Distributed via Redis snapshot `fgs:credentials:snapshot`. Do not put Entra/RabbitMQ secrets in git.
+- New permissions: add code + seed in UserService `FgsPermission_Seed.sql`.
+- Details: [docs/ai/authentication.md](../../docs/ai/authentication.md), [docs/ai/authorization.md](../../docs/ai/authorization.md).
