@@ -20,11 +20,12 @@ public sealed class EntraExternalIdRefitServiceTests
             Scopes = "openid profile email"
         });
 
-        var url = service.BuildAuthorizationUrl(invitationId.ToString(), "https://localhost/callback");
+        var url = service.BuildAuthorizationUrl(invitationId.ToString(), "https://localhost/callback", "challenge");
 
         url.Should().Contain("client_id=client-id");
         url.Should().Contain($"state={invitationId}");
         url.Should().Contain("redirect_uri=");
+        url.Should().Contain("code_challenge=challenge");
     }
 
     [Fact]
@@ -42,6 +43,7 @@ public sealed class EntraExternalIdRefitServiceTests
         var url = service.BuildAuthorizationUrl(
             Guid.NewGuid().ToString(),
             "https://localhost/callback",
+            "challenge",
             "admin@test.com");
 
         url.Should().StartWith("https://example.ciamlogin.com/tenant-id/oauth2/v2.0/authorize?");
@@ -64,6 +66,7 @@ public sealed class EntraExternalIdRefitServiceTests
         var url = service.BuildAuthorizationUrl(
             Guid.NewGuid().ToString(),
             "https://localhost/callback",
+            "challenge",
             "admin@test.com");
 
         url.Should().Contain("login_hint=admin%40test.com");
@@ -84,6 +87,7 @@ public sealed class EntraExternalIdRefitServiceTests
         var url = service.BuildAuthorizationUrl(
             Guid.NewGuid().ToString(),
             "https://localhost/callback",
+            "challenge",
             "admin@test.com",
             forceSignup: true);
 
@@ -106,6 +110,7 @@ public sealed class EntraExternalIdRefitServiceTests
         var url = service.BuildAuthorizationUrl(
             Guid.NewGuid().ToString(),
             "https://localhost/callback",
+            "challenge",
             "admin@test.com");
 
         url.Should().NotContain("prompt=");
@@ -127,6 +132,7 @@ public sealed class EntraExternalIdRefitServiceTests
         var url = service.BuildAuthorizationUrl(
             Guid.NewGuid().ToString(),
             "https://localhost/callback",
+            "challenge",
             "admin@test.com",
             forceSignup: true,
             userFlow: "Fgs_SignUpSignIn_Pwd");

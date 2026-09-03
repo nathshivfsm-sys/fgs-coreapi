@@ -84,11 +84,10 @@ Windows: `C:\Windows\System32\drivers\etc\hosts`. Linux/macOS: `/etc/hosts`. Reg
 | Public route | Upstream | Notes |
 | --- | --- | --- |
 | `/{service-name}/api/v1/...` | per service | **EC2 / production only** — e.g. `/setup-service/api/v1/billingcategory/lookup` (`api-v1-service-prefix-routes.conf`) |
-| `/api/v1/auth/*` | `user-service:5001` | Login, me, token, refresh, Entra callback, connector |
+| `/api/v1/auth/*` | `user-service:5001` | Login, me, token, refresh, Entra connector |
 | `/api/v1/bff/*` | `bff-service:5003` | Signup orchestration + GraphQL (`/api/v1/bff/graphql`) |
 | `/api/v1/invite/*` | `user-service:5001` | |
 | `/api/v1/signup/*` | `user-service:5001` | |
-| `/api/v1/dashboard` | `user-service:5001` | |
 | `/api/v1/(role\|permission\|dataaccess\|…\|apiwebhooksubscription\|company)` | `user-service:5001` | Identity catalog / API management / company CRUD |
 | `/api/v1/internal/users/*` | `user-service:5001` | Internal auth-profile |
 | `/api/v1/notification/*` | `notification-service:5002` | e.g. `POST …/notification/dispatch` |
@@ -144,14 +143,14 @@ Each service uses its own connection string (`FgsUser`, `FgsSetup`, `FgsFile`, e
 
 Generate EF SQL scripts: [`scripts/generate-migration-sql.ps1`](../../scripts/generate-migration-sql.ps1).
 
-OAuth and invitation URLs are exposed through the gateway (register the same values in Microsoft Entra):
+OAuth and invitation URLs are exposed through the gateway (register the SPA callback in Microsoft Entra):
 
-| Setting | Local gateway value |
+| Setting | Local / example value |
 | --- | --- |
-| `EntraExternalId:RedirectUri` | `https://developer.fsm.com/api/v1/auth/entra/callback` (signup/invite API callback) |
-| `EntraExternalId:LoginRedirectUri` | Same gateway callback as invite (or SPA if you register it in Entra) |
+| `Application:UiAuthCallbackUrl` | SPA Entra redirect, e.g. `https://app.example.com/auth/callback` (login + invite/signup) |
+| `EntraExternalId:LoginRedirectUri` | Fallback if `UiAuthCallbackUrl` unset (same SPA URL) |
 | `Invitation:InviteBaseUrl` | `https://developer.fsm.com/api/v1/invite/start` |
-| `Application:PublicBaseUrl` | **Preferred** — gateway origin per environment (`https://developer.fsm.com` local, EC2 IP/ALB). |
+| `Application:PublicBaseUrl` | **Preferred** — API gateway origin (`https://developer.fsm.com` local, EC2 IP/ALB). Used for invite/API deep links, not Entra redirect. |
 | `Application:PublicServicePath` | **EC2 only** — e.g. `user-service` → `/user-service/api/v1/invite/start`. Empty locally (flat `/api/v1/...`). |
 
 Both upstreams use `least_conn`, keepalive connections, passive health checks with `max_fails` and `fail_timeout`, and Docker health checks against each service's `/health` endpoint.
@@ -195,7 +194,7 @@ Inter-service Refit clients use **direct container DNS and ports** on the `fgs-p
 | Publisher | `IFgsClaimsClient` | `http://user-service:5001` |
 | Domain scaffolds | Direct container DNS | `http://crm-service:5009`, `http://scheduling-service:5010`, `http://billing-service:5011`, `http://inventory-service:5012`, `http://reporting-service:5013`, `http://integration-service:5014`, `http://asset-service:5015`, `http://service-agreement-service:5016`, `http://communication-service:5017` |
 
-Public-facing URLs (OAuth, invites, dashboard) use the NGINX gateway at `https://developer.fsm.com`.
+Public-facing URLs (OAuth SPA callback, invites, APIs) use the NGINX gateway at `https://developer.fsm.com` for API routes; Entra redirects to the configured UI auth callback.
 
 ## Run Locally (Docker Desktop)
 

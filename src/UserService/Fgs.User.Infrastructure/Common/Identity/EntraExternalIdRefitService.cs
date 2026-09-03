@@ -17,10 +17,11 @@ public sealed class EntraExternalIdRefitService(
     public string BuildAuthorizationUrl(
         string state,
         string redirectUri,
+        string codeChallenge,
         string? loginHint = null,
         bool forceSignup = false,
         string? userFlow = null) =>
-        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge: null, forceSignup, userFlow);
+        BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge, forceSignup, userFlow);
 
     public string BuildLoginAuthorizationUrl(
         string state,
@@ -29,22 +30,6 @@ public sealed class EntraExternalIdRefitService(
         string? loginHint = null,
         string? userFlow = null) =>
         BuildAuthorizeUrl(state, redirectUri, loginHint, codeChallenge, forceSignup: false, userFlow);
-
-    public Task<EntraTokenResult> ExchangeCodeAsync(
-        string code,
-        string redirectUri,
-        CancellationToken cancellationToken = default) =>
-        ExchangeAsync(
-            new Dictionary<string, string>
-            {
-                ["grant_type"] = "authorization_code",
-                ["client_id"] = _options.ClientId,
-                ["client_secret"] = _options.ClientSecret,
-                ["code"] = code,
-                ["redirect_uri"] = redirectUri,
-                ["scope"] = _options.Scopes
-            },
-            cancellationToken);
 
     public Task<EntraTokenResult> ExchangeLoginCodeAsync(
         string code,

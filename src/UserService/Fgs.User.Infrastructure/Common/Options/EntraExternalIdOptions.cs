@@ -1,4 +1,3 @@
-using Fgs.Contracts.Api;
 using Fgs.User.Application.Common;
 
 namespace Fgs.User.Infrastructure.Common.Options;
@@ -16,15 +15,15 @@ public sealed class EntraExternalIdOptions
     public string Authority { get; set; } = "https://login.microsoftonline.com";
 
     /// <summary>
-    /// Must exactly match the redirect URI registered in Entra and used in both authorize and token requests
-    /// for the signup/invite callback (API-hosted).
+    /// Legacy credential key; prefer <c>Application:UiAuthCallbackUrl</c> / <see cref="LoginRedirectUri"/>.
+    /// Must match the SPA redirect URI registered in Entra when used.
     /// </summary>
-    public string RedirectUri { get; set; } = ApplicationUrlDefaults.EntraCallbackRedirect;
+    public string RedirectUri { get; set; } = ApplicationUrlDefaults.UiAuthCallback;
 
     /// <summary>
-    /// SPA-hosted login callback URI used only for returning-user login (Option A).
+    /// SPA-hosted OAuth callback URI for login and invite/signup (PKCE).
     /// </summary>
-    public string LoginRedirectUri { get; set; } = ApplicationUrlDefaults.EntraCallbackRedirect;
+    public string LoginRedirectUri { get; set; } = ApplicationUrlDefaults.UiAuthCallback;
 
     public string Scopes { get; set; } = "openid profile email offline_access";
 
@@ -42,4 +41,3 @@ public sealed class EntraExternalIdOptions
     /// </summary>
     public string PasswordUserFlow { get; set; } = string.Empty;
 }
-

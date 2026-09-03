@@ -94,7 +94,7 @@ Environment files in `local/` and `ec2/` are maintained manually (not overwritte
 
 - EC2 collection: **user**, **setup**, **bff**, **notification**, **file**, **audit**.
 - Publisher / consumer have health-only APIs — use Swagger `/swagger/publisher/` and `/swagger/consumer/` on the host.
-- Entra `redirectUri`: `http://44.195.19.15/user-service/api/v1/auth/entra/callback`
+- Entra `redirectUri` (SPA): configure `Application:UiAuthCallbackUrl` (e.g. `https://app.example.com/auth/callback`)
 - Production Entra requires **HTTPS** for redirect URIs.
 
 See also: [Entra API Connector setup](../entra-api-connector-setup.md) · [Display Name prefill](../entra-display-name-prefill.md) · [UI branding](../entra-ui-branding.md)

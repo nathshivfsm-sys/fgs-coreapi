@@ -3,38 +3,31 @@ using Microsoft.Extensions.Configuration;
 namespace Fgs.User.Application.Common;
 
 /// <summary>
-/// Resolves public gateway URLs per environment.
-/// Prefer <c>Application:PublicBaseUrl</c> (compose/env) over credential-backed Entra RedirectUri
-/// so local vs EC2 do not share a hardcoded localhost callback.
+/// Resolves public gateway and UI URLs per environment.
+/// Entra OAuth redirect uses <c>Application:UiAuthCallbackUrl</c> (SPA), not the API gateway path.
 /// Optional <c>Application:PublicServicePath</c> inserts the Docker service name
-/// (EC2: <c>/user-service/api/v1/...</c>; local: flat <c>/api/v1/...</c>).
+/// (EC2: <c>/user-service/api/v1/...</c>; local: flat <c>/api/v1/...</c>) for API deep links only.
 /// </summary>
 public static class ApplicationPublicUrlResolver
 {
-    public static string ResolveEntraCallbackRedirect(IConfiguration configuration) =>
-        ResolveFromPublicBase(configuration, ApplicationUrlDefaults.EntraCallbackPath)
-        ?? FirstNonEmpty(
-            configuration[ConfigurationKeys.EntraExternalId.RedirectUri],
-            ApplicationUrlDefaults.EntraCallbackRedirect)!;
-
-    public static string ResolveLoginRedirect(IConfiguration configuration) =>
-        ResolveFromPublicBase(configuration, ApplicationUrlDefaults.EntraCallbackPath)
-        ?? FirstNonEmpty(
+    public static string ResolveUiAuthCallbackUrl(IConfiguration configuration) =>
+        FirstNonEmpty(
+            configuration[ConfigurationKeys.Application.UiAuthCallbackUrl],
             configuration[ConfigurationKeys.EntraExternalId.LoginRedirectUri],
             configuration[ConfigurationKeys.EntraExternalId.RedirectUri],
-            ApplicationUrlDefaults.EntraCallbackRedirect)!;
+            ApplicationUrlDefaults.UiAuthCallback)!;
+
+    /// <summary>
+    /// Entra authorize/token redirect URI for login and invite/signup (SPA callback).
+    /// </summary>
+    public static string ResolveLoginRedirect(IConfiguration configuration) =>
+        ResolveUiAuthCallbackUrl(configuration);
 
     public static string ResolveInviteBaseUrl(IConfiguration configuration) =>
         ResolveFromPublicBase(configuration, ApplicationUrlDefaults.InviteStartPath)
         ?? FirstNonEmpty(
             configuration[ConfigurationKeys.Invitation.InviteBaseUrl],
             ApplicationUrlDefaults.InviteStart)!;
-
-    public static string ResolveDashboardUrl(IConfiguration configuration) =>
-        ResolveFromPublicBase(configuration, ApplicationUrlDefaults.DashboardPath)
-        ?? FirstNonEmpty(
-            configuration[ConfigurationKeys.Application.DashboardUrl],
-            ApplicationUrlDefaults.Dashboard)!;
 
     private static string? ResolveFromPublicBase(IConfiguration configuration, string path)
     {

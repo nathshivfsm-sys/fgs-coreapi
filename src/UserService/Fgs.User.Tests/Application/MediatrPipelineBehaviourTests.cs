@@ -1,7 +1,8 @@
+using Fgs.Contracts.Api;
 using Fgs.Foundation.Behaviors;
-using Fgs.User.Application.Features.Auth.Commands.EntraCallback;
+using Fgs.User.Application.Features.Auth.Commands.ExchangeLoginCode;
+using Fgs.User.Application.Features.Auth.Dtos;
 using FluentValidation;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -12,12 +13,12 @@ public sealed class MediatrPipelineBehaviourTests
     [Fact]
     public async Task ValidationBehavior_WhenValidationFails_ThrowsValidationException()
     {
-        var validators = new IValidator<EntraCallbackCommand>[] { new EntraCallbackCommandValidator() };
-        var behavior = new ValidationBehavior<EntraCallbackCommand, string>(validators);
+        var validators = new IValidator<ExchangeLoginCodeCommand>[] { new ExchangeLoginCodeCommandValidator() };
+        var behavior = new ValidationBehavior<ExchangeLoginCodeCommand, ApiResponse<LoginProfileDto>>(validators);
 
         var act = () => behavior.Handle(
-            new EntraCallbackCommand(string.Empty, string.Empty),
-            () => Task.FromResult("ok"),
+            new ExchangeLoginCodeCommand(string.Empty, string.Empty),
+            () => Task.FromResult(ApiResponse<LoginProfileDto>.Ok(null!)),
             CancellationToken.None);
 
         await act.Should().ThrowAsync<ValidationException>();
@@ -26,28 +27,30 @@ public sealed class MediatrPipelineBehaviourTests
     [Fact]
     public async Task ValidationBehavior_WhenNoValidators_CallsNext()
     {
-        var behavior = new ValidationBehavior<EntraCallbackCommand, string>([]);
+        var behavior = new ValidationBehavior<ExchangeLoginCodeCommand, ApiResponse<LoginProfileDto>>([]);
 
+        var expected = ApiResponse<LoginProfileDto>.Ok(null!);
         var result = await behavior.Handle(
-            new EntraCallbackCommand("code", Guid.NewGuid().ToString()),
-            () => Task.FromResult("ok"),
+            new ExchangeLoginCodeCommand("code", Guid.NewGuid().ToString()),
+            () => Task.FromResult(expected),
             CancellationToken.None);
 
-        result.Should().Be("ok");
+        result.Should().Be(expected);
     }
 
     [Fact]
     public async Task LoggingBehavior_LogsAndReturnsResponse()
     {
-        var logger = new Mock<ILogger<LoggingBehavior<EntraCallbackCommand, string>>>();
-        var behavior = new LoggingBehavior<EntraCallbackCommand, string>(logger.Object);
+        var logger = new Mock<ILogger<LoggingBehavior<ExchangeLoginCodeCommand, ApiResponse<LoginProfileDto>>>>();
+        var behavior = new LoggingBehavior<ExchangeLoginCodeCommand, ApiResponse<LoginProfileDto>>(logger.Object);
 
+        var expected = ApiResponse<LoginProfileDto>.Ok(null!);
         var result = await behavior.Handle(
-            new EntraCallbackCommand("code", Guid.NewGuid().ToString()),
-            () => Task.FromResult("ok"),
+            new ExchangeLoginCodeCommand("code", Guid.NewGuid().ToString()),
+            () => Task.FromResult(expected),
             CancellationToken.None);
 
-        result.Should().Be("ok");
+        result.Should().Be(expected);
         logger.Verify(
             x => x.Log(
                 LogLevel.Information,
@@ -61,11 +64,11 @@ public sealed class MediatrPipelineBehaviourTests
     [Fact]
     public async Task LoggingBehavior_WhenNextThrows_Rethrows()
     {
-        var logger = new Mock<ILogger<LoggingBehavior<EntraCallbackCommand, string>>>();
-        var behavior = new LoggingBehavior<EntraCallbackCommand, string>(logger.Object);
+        var logger = new Mock<ILogger<LoggingBehavior<ExchangeLoginCodeCommand, ApiResponse<LoginProfileDto>>>>();
+        var behavior = new LoggingBehavior<ExchangeLoginCodeCommand, ApiResponse<LoginProfileDto>>(logger.Object);
 
         var act = () => behavior.Handle(
-            new EntraCallbackCommand("code", Guid.NewGuid().ToString()),
+            new ExchangeLoginCodeCommand("code", Guid.NewGuid().ToString()),
             () => throw new InvalidOperationException("boom"),
             CancellationToken.None);
 

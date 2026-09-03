@@ -2,19 +2,17 @@ namespace Fgs.User.Application.Common;
 
 /// <summary>
 /// Fallback URLs when configuration values are not set.
-/// Prefer <see cref="ApplicationPublicUrlResolver"/> with <c>Application:PublicBaseUrl</c> per environment.
+/// Prefer <see cref="ApplicationPublicUrlResolver"/> with <c>Application:PublicBaseUrl</c> /
+/// <c>Application:UiAuthCallbackUrl</c> per environment.
 /// </summary>
 public static class ApplicationUrlDefaults
 {
-    public const string EntraCallbackPath = "/api/v1/auth/entra/callback";
-
-    public const string DashboardPath = "/api/v1/dashboard";
-
     public const string InviteStartPath = "/api/v1/invite/start";
 
-    public const string EntraCallbackRedirect = "https://developer.fsm.com" + EntraCallbackPath;
-
-    public const string Dashboard = "https://developer.fsm.com" + DashboardPath;
+    /// <summary>
+    /// SPA Entra OAuth redirect fallback when no UI callback is configured.
+    /// </summary>
+    public const string UiAuthCallback = "https://developer.fsm.com/auth/callback";
 
     public const string InviteStart = "https://developer.fsm.com" + InviteStartPath;
 }

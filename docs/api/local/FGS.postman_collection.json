@@ -5,7 +5,7 @@
                      "name":  "00 - Authentication \u0026 Token",
                      "item":  [
                                   {
-                                      "description":  "Obtain Entra tokens for an **already registered** user.\n\nRedirect URI: `https://developer.fsm.com/api/v1/auth/entra/callback` (same as FGS app registration â€” `redirectUri` in **FGS Globals**).\n\n## Recommended â€” Manual browser flow\n1. Select **FGS Globals (Local)** environment.\n2. Set `entraUserEmail`, `entraClientSecret`.\n3. Ensure gateway is running on `https://developer.fsm.com`.\n4. Run **Manual browser flow â†’ 1. Copy sign-in URL to console** â†’ **Send**.\n5. Open **View â†’ Show Postman Console**, copy URL into Chrome/Edge, sign in.\n6. Browser redirects to the FGS callback. **Copy `code=` from the address bar** (ignore any error JSON on the page).\n7. Paste into environment variable `authCode`.\n8. Run **2. Exchange Authorization Code** â†’ `accessToken` is set automatically.\n9. Use other FGS collections (FileService, SetupService, etc.).\n\n## Token lifetime\nAccess tokens ~60 min. `offline_access` returns a **refresh token** â€” run **3. Refresh Access Token** to renew.",
+                                      "description":  "Obtain Entra tokens for an **already registered** user.\n\nRedirect URI: SPA auth callback from **FGS Globals** `redirectUri` (must match `Application:UiAuthCallbackUrl`, e.g. `https://developer.fsm.com/auth/callback`).\n\n## Recommended â€” Manual browser flow\n1. Select **FGS Globals (Local)** environment.\n2. Set `entraUserEmail`, `entraClientSecret`.\n3. Ensure gateway is running on `https://developer.fsm.com`.\n4. Run **Manual browser flow â†’ 1. Copy sign-in URL to console** â†’ **Send**.\n5. Open **View â†’ Show Postman Console**, copy URL into Chrome/Edge, sign in.\n6. Browser redirects to the SPA callback. **Copy `code=` from the address bar**.\n7. Paste into environment variable `authCode`.\n8. Run **2. Exchange Authorization Code** â†’ `accessToken` is set automatically.\n9. Use other FGS collections (FileService, SetupService, etc.).\n\n## Token lifetime\nAccess tokens ~60 min. `offline_access` returns a **refresh token** â€” run **3. Refresh Access Token** to renew.",
                                       "name":  "Entra Token (Existing User)",
                                       "item":  [
                                                    {
@@ -19,7 +19,7 @@
 
                                                                                                    ],
                                                                                         "url":  "https://postman-echo.com/get",
-                                                                                        "description":  "**Use Manual browser flow** (folder below).\n\nThe FGS redirect URI is `https://developer.fsm.com/api/v1/auth/entra/callback`. After Entra login the browser lands on that URL with `?code=...` in the address bar.\n\nThe FGS callback page may show an error JSON (it expects an invitation `state` for onboarding). That is OK â€” **copy the `code` from the URL** before the page loads or from the address bar, set `authCode`, then run **2. Exchange Authorization Code**.\n\nPostman **Get New Access Token** (collection Authorization tab) does **not** auto-return when using the FGS callback URL â€” use the manual flow instead."
+                                                                                        "description":  "**Use Manual browser flow** (folder below).\n\nThe FGS redirect URI is `https://developer.fsm.com/auth/callback`. After Entra login the browser lands on that URL with `?code=...` in the address bar.\n\nthe SPA callback page may show an error JSON (it expects an invitation `state` for onboarding). That is OK â€” **copy the `code` from the URL** before the page loads or from the address bar, set `authCode`, then run **2. Exchange Authorization Code**.\n\nPostman **Get New Access Token** (collection Authorization tab) does **not** auto-return when using the SPA callback URL â€” use the manual flow instead."
                                                                                     },
                                                                         "event":  [
                                                                                       {
@@ -275,7 +275,7 @@
                                                ]
                                   },
                                   {
-                                      "description":  "Run in order. Step 3 is manual: sign up in Entra with signupEmail, then set authCode.",
+                                      "description":  "Run in order. Step 3 is manual: sign up in Entra with signupEmail, copy code+state from SPA callback, set authCode and invitationId.",
                                       "name":  "00 - Authentication Flow",
                                       "item":  [
                                                    {
@@ -343,7 +343,7 @@
                                                                                                 "start"
                                                                                             ]
                                                                                },
-                                                                       "description":  "Disable Follow Redirects. Copy Entra URL from Location header, open in browser, sign up, paste auth code into environment.",
+                                                                       "description":  "Disable Follow Redirects. Copy Entra URL from Location header, open in browser. Entra redirects to SPA (UiAuthCallbackUrl).",
                                                                        "method":  "GET",
                                                                        "header":  [
                                                                                       {
@@ -364,81 +364,55 @@
                                                                        "url":  {
                                                                                    "raw":  "(open Location URL from step 2)"
                                                                                },
-                                                                       "description":  "Sign up with signupEmail. Copy code from callback into authCode.",
+                                                                       "description":  "Sign up with signupEmail. Copy code and state from SPA callback into authCode and invitationId.",
                                                                        "auth":  {
                                                                                     "type":  "noauth"
                                                                                 }
                                                                    }
                                                    },
                                                    {
+                                                       "name":  "4. Exchange Entra Code",
                                                        "request":  {
-                                                                       "body":  {
-                                                                                    "urlencoded":  [
-                                                                                                       {
-                                                                                                           "key":  "grant_type",
-                                                                                                           "value":  "authorization_code"
-                                                                                                       },
-                                                                                                       {
-                                                                                                           "key":  "client_id",
-                                                                                                           "value":  "{{entraClientId}}"
-                                                                                                       },
-                                                                                                       {
-                                                                                                           "key":  "client_secret",
-                                                                                                           "value":  "{{entraClientSecret}}"
-                                                                                                       },
-                                                                                                       {
-                                                                                                           "key":  "code",
-                                                                                                           "value":  "{{authCode}}"
-                                                                                                       },
-                                                                                                       {
-                                                                                                           "key":  "redirect_uri",
-                                                                                                           "value":  "{{redirectUri}}"
-                                                                                                       },
-                                                                                                       {
-                                                                                                           "key":  "scope",
-                                                                                                           "value":  "openid profile email offline_access"
-                                                                                                       }
-                                                                                                   ],
-                                                                                    "mode":  "urlencoded"
-                                                                                },
-                                                                       "description":  "Run after browser sign-up. Set authCode from callback URL.",
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/auth/entra/token",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "auth",
+                                                                                                "entra",
+                                                                                                "token"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "SPA lands on UiAuthCallbackUrl with code+state (invitation Guid). POSTs here to finalize invite and return LoginProfile.",
+                                                                       "method":  "POST",
                                                                        "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
                                                                                       {
                                                                                           "key":  "Content-Type",
                                                                                           "type":  "text",
-                                                                                          "value":  "application/x-www-form-urlencoded"
+                                                                                          "value":  "application/json"
                                                                                       }
                                                                                   ],
-                                                                       "method":  "POST",
+                                                                       "body":  {
+                                                                                    "raw":  "{\r\n  \"code\": \"{{authCode}}\",\r\n  \"state\": \"{{invitationId}}\"\r\n}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                },
+                                                                                    "mode":  "raw"
+                                                                                },
                                                                        "auth":  {
                                                                                     "type":  "noauth"
-                                                                                },
-                                                                       "url":  {
-                                                                                   "host":  [
-                                                                                                "{{entraAuthority}}"
-                                                                                            ],
-                                                                                   "raw":  "{{entraAuthority}}/{{entraTenantId}}/oauth2/v2.0/token",
-                                                                                   "path":  [
-                                                                                                "{{entraTenantId}}",
-                                                                                                "oauth2",
-                                                                                                "v2.0",
-                                                                                                "token"
-                                                                                            ]
-                                                                               }
-                                                                   },
-                                                       "name":  "4. Entra Token Exchange",
-                                                       "event":  [
-                                                                     {
-                                                                         "script":  {
-                                                                                        "exec":  [
-                                                                                                     "const body = pm.response.json();",
-                                                                                                     "if (body.access_token) pm.environment.set(\"accessToken\", body.access_token);"
-                                                                                                 ],
-                                                                                        "type":  "text/javascript"
-                                                                                    },
-                                                                         "listen":  "test"
-                                                                     }
-                                                                 ]
+                                                                                }
+                                                                   }
                                                    },
                                                    {
                                                        "name":  "5. Auth Me",
@@ -479,7 +453,7 @@
                                                ]
                                   },
                                   {
-                                      "description":  "UI login: validates active user and returns Entra redirect URL (no invitation).",
+                                      "description":  "UI login: validates active user and returns Entra redirect URL (no invitation). Entra redirects to SPA; SPA calls /auth/entra/token.",
                                       "name":  "01 - UI Login Flow",
                                       "item":  [
                                                    {
@@ -497,7 +471,7 @@
                                                                                                 "login"
                                                                                             ]
                                                                                },
-                                                                       "description":  "POST with active platform user email. Copy data.redirectUrl and open in browser. Callback state is user:{userId}.",
+                                                                       "description":  "POST with active platform user email. Copy data.redirectUrl and open in browser. Callback state is userlogin:{userId}.",
                                                                        "method":  "POST",
                                                                        "header":  [
                                                                                       {
@@ -532,49 +506,51 @@
                                                                        "url":  {
                                                                                    "raw":  "(open redirectUrl from step 1)"
                                                                                },
-                                                                       "description":  "Sign in with the same email. Copy code from callback; set loginUserId from state if needed.",
+                                                                       "description":  "Sign in with the same email. Copy code and state from SPA callback query.",
                                                                        "auth":  {
                                                                                     "type":  "noauth"
                                                                                 }
                                                                    }
                                                    },
                                                    {
-                                                       "name":  "3. Entra Login Callback",
+                                                       "name":  "3. Exchange Entra Code",
                                                        "request":  {
                                                                        "url":  {
-                                                                                   "query":  [
-                                                                                                 {
-                                                                                                     "key":  "code",
-                                                                                                     "description":  "",
-                                                                                                     "value":  "{{authCode}}"
-                                                                                                 },
-                                                                                                 {
-                                                                                                     "key":  "state",
-                                                                                                     "description":  "",
-                                                                                                     "value":  "user:{{loginUserId}}"
-                                                                                                 }
-                                                                                             ],
                                                                                    "host":  [
                                                                                                 "https://developer.fsm.com"
                                                                                             ],
-                                                                                   "raw":  "https://developer.fsm.com/api/v1/auth/entra/callback?code={{authCode}}\u0026state=user:{{loginUserId}}",
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/auth/entra/token",
                                                                                    "path":  [
                                                                                                 "api",
                                                                                                 "v1",
                                                                                                 "auth",
                                                                                                 "entra",
-                                                                                                "callback"
+                                                                                                "token"
                                                                                             ]
                                                                                },
-                                                                       "description":  "Invitation-free callback. state must be user:{platformUserId}.",
-                                                                       "method":  "GET",
+                                                                       "description":  "SPA lands on UiAuthCallbackUrl with code+state, then POSTs here for LoginProfile (access + refresh).",
+                                                                       "method":  "POST",
                                                                        "header":  [
                                                                                       {
                                                                                           "key":  "Accept",
                                                                                           "type":  "text",
                                                                                           "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
                                                                                       }
                                                                                   ],
+                                                                       "body":  {
+                                                                                    "raw":  "{\r\n  \"code\": \"{{authCode}}\",\r\n  \"state\": \"userlogin:{{loginUserId}}\"\r\n}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                },
+                                                                                    "mode":  "raw"
+                                                                                },
                                                                        "auth":  {
                                                                                     "type":  "noauth"
                                                                                 }
@@ -621,7 +597,7 @@
                               ]
                  },
                  {
-                     "description":  "Company onboarding, UI login, Entra auth, active-user cache, dashboard, and tenant admin APIs via {{gatewayUrl}}.",
+                     "description":  "Company onboarding, UI login, Entra auth, active-user cache, and tenant admin APIs via {{gatewayUrl}}.",
                      "name":  "User Service",
                      "item":  [
                                   {
@@ -2410,6 +2386,7 @@
                                                    {
                                                        "name":  "StartLogin",
                                                        "request":  {
+                                                                       "method":  "POST",
                                                                        "url":  {
                                                                                    "host":  [
                                                                                                 "https://developer.fsm.com"
@@ -2423,63 +2400,6 @@
                                                                                             ]
                                                                                },
                                                                        "description":  "StartLogin",
-                                                                       "method":  "POST",
-                                                                       "header":  [
-                                                                                      {
-                                                                                          "key":  "Accept",
-                                                                                          "type":  "text",
-                                                                                          "value":  "application/json"
-                                                                                      },
-                                                                                      {
-                                                                                          "key":  "Content-Type",
-                                                                                          "type":  "text",
-                                                                                          "value":  "application/json"
-                                                                                      }
-                                                                                  ],
-                                                                       "body":  {
-                                                                                    "raw":  "{}",
-                                                                                    "options":  {
-                                                                                                    "raw":  {
-                                                                                                                "language":  "json"
-                                                                                                            }
-                                                                                                },
-                                                                                    "mode":  "raw"
-                                                                                },
-                                                                       "auth":  {
-                                                                                    "type":  "noauth"
-                                                                                }
-                                                                   }
-                                                   },
-                                                   {
-                                                       "name":  "EntraCallback",
-                                                       "request":  {
-                                                                       "method":  "GET",
-                                                                       "url":  {
-                                                                                   "query":  [
-                                                                                                 {
-                                                                                                     "key":  "code",
-                                                                                                     "description":  "",
-                                                                                                     "value":  "{{authCode}}"
-                                                                                                 },
-                                                                                                 {
-                                                                                                     "key":  "state",
-                                                                                                     "description":  "",
-                                                                                                     "value":  "{{invitationId}}"
-                                                                                                 }
-                                                                                             ],
-                                                                                   "host":  [
-                                                                                                "https://developer.fsm.com"
-                                                                                            ],
-                                                                                   "raw":  "https://developer.fsm.com/api/v1/auth/entra/callback?code={{authCode}}\u0026state={{invitationId}}",
-                                                                                   "path":  [
-                                                                                                "api",
-                                                                                                "v1",
-                                                                                                "auth",
-                                                                                                "entra",
-                                                                                                "callback"
-                                                                                            ]
-                                                                               },
-                                                                       "description":  "EntraCallback",
                                                                        "header":  [
                                                                                       {
                                                                                           "key":  "Accept",
@@ -2613,7 +2533,7 @@
                                                                                       }
                                                                                   ],
                                                                        "body":  {
-                                                                                    "raw":  "{}",
+                                                                                    "raw":  "{\r\n  \"code\": \"{{authCode}}\",\r\n  \"state\": \"{{invitationId}}\"\r\n}",
                                                                                     "options":  {
                                                                                                     "raw":  {
                                                                                                                 "language":  "json"
@@ -2629,6 +2549,7 @@
                                                    {
                                                        "name":  "Refresh",
                                                        "request":  {
+                                                                       "method":  "POST",
                                                                        "url":  {
                                                                                    "host":  [
                                                                                                 "https://developer.fsm.com"
@@ -2642,28 +2563,13 @@
                                                                                             ]
                                                                                },
                                                                        "description":  "Refresh",
-                                                                       "method":  "POST",
                                                                        "header":  [
                                                                                       {
                                                                                           "key":  "Accept",
                                                                                           "type":  "text",
                                                                                           "value":  "application/json"
-                                                                                      },
-                                                                                      {
-                                                                                          "key":  "Content-Type",
-                                                                                          "type":  "text",
-                                                                                          "value":  "application/json"
                                                                                       }
                                                                                   ],
-                                                                       "body":  {
-                                                                                    "raw":  "{}",
-                                                                                    "options":  {
-                                                                                                    "raw":  {
-                                                                                                                "language":  "json"
-                                                                                                            }
-                                                                                                },
-                                                                                    "mode":  "raw"
-                                                                                },
                                                                        "auth":  {
                                                                                     "type":  "noauth"
                                                                                 }
@@ -3029,47 +2935,6 @@
                                                                                                    }
                                                                                                ],
                                                                                     "type":  "bearer"
-                                                                                }
-                                                                   }
-                                                   }
-                                               ]
-                                  },
-                                  {
-                                      "description":  "DashboardController - dashboard",
-                                      "name":  "DashboardController",
-                                      "item":  [
-                                                   {
-                                                       "name":  "Get",
-                                                       "request":  {
-                                                                       "method":  "GET",
-                                                                       "url":  {
-                                                                                   "query":  [
-                                                                                                 {
-                                                                                                     "key":  "token",
-                                                                                                     "description":  "",
-                                                                                                     "value":  "{{accessToken}}"
-                                                                                                 }
-                                                                                             ],
-                                                                                   "host":  [
-                                                                                                "https://developer.fsm.com"
-                                                                                            ],
-                                                                                   "raw":  "https://developer.fsm.com/api/v1/dashboard?token={{accessToken}}",
-                                                                                   "path":  [
-                                                                                                "api",
-                                                                                                "v1",
-                                                                                                "dashboard"
-                                                                                            ]
-                                                                               },
-                                                                       "description":  "Get",
-                                                                       "header":  [
-                                                                                      {
-                                                                                          "key":  "Accept",
-                                                                                          "type":  "text",
-                                                                                          "value":  "application/json"
-                                                                                      }
-                                                                                  ],
-                                                                       "auth":  {
-                                                                                    "type":  "noauth"
                                                                                 }
                                                                    }
                                                    }
@@ -5195,6 +5060,117 @@
                                                ]
                                   },
                                   {
+                                      "description":  "RoleMenuController - rolemenu",
+                                      "name":  "RoleMenuController",
+                                      "item":  [
+                                                   {
+                                                       "name":  "GetByRoleId",
+                                                       "request":  {
+                                                                       "method":  "GET",
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/rolemenu/{{roleId}}",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "rolemenu",
+                                                                                                "{{roleId}}"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "GetByRoleId",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      }
+                                                                                  ],
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "name":  "Sync",
+                                                       "request":  {
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/rolemenu",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "rolemenu"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "Sync",
+                                                                       "method":  "PUT",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "body":  {
+                                                                                    "raw":  "{\n  \"roleId\": {{roleId}},\n  \"items\": [{\n  \"menuId\": 1,\n  \"displayOrder\": 1,\n  \"isActive\": true\n}]\n}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                },
+                                                                                    "mode":  "raw"
+                                                                                },
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
+                                                                                }
+                                                                   }
+                                                   }
+                                               ]
+                                  },
+                                  {
                                       "description":  "RolePermissionController - rolepermission",
                                       "name":  "RolePermissionController",
                                       "item":  [
@@ -6010,6 +5986,116 @@
                                                                                 },
                                                                        "auth":  {
                                                                                     "type":  "noauth"
+                                                                                }
+                                                                   }
+                                                   }
+                                               ]
+                                  },
+                                  {
+                                      "description":  "TenantMenuController - tenantmenu",
+                                      "name":  "TenantMenuController",
+                                      "item":  [
+                                                   {
+                                                       "name":  "List",
+                                                       "request":  {
+                                                                       "method":  "GET",
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/tenantmenu",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "tenantmenu"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "List",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      }
+                                                                                  ],
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "name":  "Sync",
+                                                       "request":  {
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/tenantmenu",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "tenantmenu"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "Sync",
+                                                                       "method":  "PUT",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "body":  {
+                                                                                    "raw":  "{\n  \"items\": [{\n  \"menuId\": 1,\n  \"displayOrder\": 1,\n  \"isActive\": true\n}]\n}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                },
+                                                                                    "mode":  "raw"
+                                                                                },
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
                                                                                 }
                                                                    }
                                                    }
@@ -9465,6 +9551,398 @@
                                                                                   ],
                                                                        "body":  {
                                                                                     "raw":  "{\n  \"displayName\": \"Alex Rivera\",\n  \"legalFirstName\": \"Alex\",\n  \"legalMiddleName\": \"A\",\n  \"legalLastName\": \"Rivera\"\n}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                },
+                                                                                    "mode":  "raw"
+                                                                                },
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
+                                                                                }
+                                                                   }
+                                                   }
+                                               ]
+                                  },
+                                  {
+                                      "description":  "EntityDefaultTermsConditionController - entitydefaulttermscondition",
+                                      "name":  "EntityDefaultTermsConditionController",
+                                      "item":  [
+                                                   {
+                                                       "name":  "GetById",
+                                                       "request":  {
+                                                                       "method":  "GET",
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/entitydefaulttermscondition/{{entityDefaultTermsConditionId}}",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "entitydefaulttermscondition",
+                                                                                                "{{entityDefaultTermsConditionId}}"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "GetById",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      }
+                                                                                  ],
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "name":  "List",
+                                                       "request":  {
+                                                                       "method":  "GET",
+                                                                       "url":  {
+                                                                                   "query":  [
+                                                                                                 {
+                                                                                                     "key":  "page",
+                                                                                                     "description":  "Page number (1-based). Default: 1.",
+                                                                                                     "value":  "{{page}}"
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "key":  "pageSize",
+                                                                                                     "description":  "Items per page (1-100). Default: 25.",
+                                                                                                     "value":  "{{pageSize}}"
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "key":  "sortBy",
+                                                                                                     "description":  "Property to sort by (entity-specific). Optional.",
+                                                                                                     "value":  "{{sortBy}}",
+                                                                                                     "disabled":  true
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "key":  "sortDirection",
+                                                                                                     "description":  "Sort direction: Asc or Desc. Default: Asc.",
+                                                                                                     "value":  "{{sortDirection}}",
+                                                                                                     "disabled":  true
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "key":  "search",
+                                                                                                     "description":  "Free-text search across searchable fields. Optional.",
+                                                                                                     "value":  "{{search}}",
+                                                                                                     "disabled":  true
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "key":  "isActive",
+                                                                                                     "description":  "Filter by active records. Default: true.",
+                                                                                                     "value":  "true"
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "key":  "entityType",
+                                                                                                     "description":  "Optional entityType filter.",
+                                                                                                     "value":  "",
+                                                                                                     "disabled":  true
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "key":  "termsConditionId",
+                                                                                                     "description":  "Optional termsConditionId filter.",
+                                                                                                     "value":  "",
+                                                                                                     "disabled":  true
+                                                                                                 }
+                                                                                             ],
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/entitydefaulttermscondition",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "entitydefaulttermscondition"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "List",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      }
+                                                                                  ],
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "name":  "Lookup",
+                                                       "request":  {
+                                                                       "method":  "GET",
+                                                                       "url":  {
+                                                                                   "query":  [
+                                                                                                 {
+                                                                                                     "key":  "activeOnly",
+                                                                                                     "description":  "Optional activeOnly filter.",
+                                                                                                     "value":  "",
+                                                                                                     "disabled":  true
+                                                                                                 }
+                                                                                             ],
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/entitydefaulttermscondition/lookup",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "entitydefaulttermscondition",
+                                                                                                "lookup"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "Lookup",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      }
+                                                                                  ],
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "request":  {
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/entitydefaulttermscondition",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "entitydefaulttermscondition"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "Create",
+                                                                       "method":  "POST",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "body":  {
+                                                                                    "raw":  "{\n  \"entityType\": \"Entity Default Terms Condition\",\n  \"termsConditionId\": {{termsConditionId}}\n}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                },
+                                                                                    "mode":  "raw"
+                                                                                },
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
+                                                                                }
+                                                                   },
+                                                       "name":  "Create",
+                                                       "event":  [
+                                                                     {
+                                                                         "script":  {
+                                                                                        "exec":  [
+                                                                                                     "const body = pm.response.json();",
+                                                                                                     "if (body.success \u0026\u0026 body.data) {",
+                                                                                                     "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                                     "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"entityDefaultTermsConditionId\", String(row.id));",
+                                                                                                     "}"
+                                                                                                 ],
+                                                                                        "type":  "text/javascript"
+                                                                                    },
+                                                                         "listen":  "test"
+                                                                     }
+                                                                 ]
+                                                   },
+                                                   {
+                                                       "name":  "Update",
+                                                       "request":  {
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/entitydefaulttermscondition/{{entityDefaultTermsConditionId}}",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "entitydefaulttermscondition",
+                                                                                                "{{entityDefaultTermsConditionId}}"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "Update",
+                                                                       "method":  "PUT",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "body":  {
+                                                                                    "raw":  "{\n  \"entityType\": \"Entity Default Terms Condition\",\n  \"termsConditionId\": {{termsConditionId}}\n}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                },
+                                                                                    "mode":  "raw"
+                                                                                },
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "name":  "Patch",
+                                                       "request":  {
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/entitydefaulttermscondition/{{entityDefaultTermsConditionId}}",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "entitydefaulttermscondition",
+                                                                                                "{{entityDefaultTermsConditionId}}"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "Patch",
+                                                                       "method":  "PATCH",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "body":  {
+                                                                                    "raw":  "{\n  \"isActive\": true\n}",
                                                                                     "options":  {
                                                                                                     "raw":  {
                                                                                                                 "language":  "json"
@@ -22185,6 +22663,398 @@
                                                                                 },
                                                                        "auth":  {
                                                                                     "type":  "noauth"
+                                                                                }
+                                                                   }
+                                                   }
+                                               ]
+                                  },
+                                  {
+                                      "description":  "TermsConditionController - termscondition",
+                                      "name":  "TermsConditionController",
+                                      "item":  [
+                                                   {
+                                                       "name":  "GetById",
+                                                       "request":  {
+                                                                       "method":  "GET",
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/termscondition/{{termsConditionId}}",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "termscondition",
+                                                                                                "{{termsConditionId}}"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "GetById",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      }
+                                                                                  ],
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "name":  "List",
+                                                       "request":  {
+                                                                       "method":  "GET",
+                                                                       "url":  {
+                                                                                   "query":  [
+                                                                                                 {
+                                                                                                     "key":  "page",
+                                                                                                     "description":  "Page number (1-based). Default: 1.",
+                                                                                                     "value":  "{{page}}"
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "key":  "pageSize",
+                                                                                                     "description":  "Items per page (1-100). Default: 25.",
+                                                                                                     "value":  "{{pageSize}}"
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "key":  "sortBy",
+                                                                                                     "description":  "Property to sort by (entity-specific). Optional.",
+                                                                                                     "value":  "{{sortBy}}",
+                                                                                                     "disabled":  true
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "key":  "sortDirection",
+                                                                                                     "description":  "Sort direction: Asc or Desc. Default: Asc.",
+                                                                                                     "value":  "{{sortDirection}}",
+                                                                                                     "disabled":  true
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "key":  "search",
+                                                                                                     "description":  "Free-text search across searchable fields. Optional.",
+                                                                                                     "value":  "{{search}}",
+                                                                                                     "disabled":  true
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "key":  "isActive",
+                                                                                                     "description":  "Filter by active records. Default: true.",
+                                                                                                     "value":  "true"
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "key":  "code",
+                                                                                                     "description":  "Optional code filter.",
+                                                                                                     "value":  "",
+                                                                                                     "disabled":  true
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "key":  "name",
+                                                                                                     "description":  "Optional name filter.",
+                                                                                                     "value":  "",
+                                                                                                     "disabled":  true
+                                                                                                 }
+                                                                                             ],
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/termscondition",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "termscondition"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "List",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      }
+                                                                                  ],
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "name":  "Lookup",
+                                                       "request":  {
+                                                                       "method":  "GET",
+                                                                       "url":  {
+                                                                                   "query":  [
+                                                                                                 {
+                                                                                                     "key":  "activeOnly",
+                                                                                                     "description":  "Optional activeOnly filter.",
+                                                                                                     "value":  "",
+                                                                                                     "disabled":  true
+                                                                                                 }
+                                                                                             ],
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/termscondition/lookup",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "termscondition",
+                                                                                                "lookup"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "Lookup",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      }
+                                                                                  ],
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "request":  {
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/termscondition",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "termscondition"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "Create",
+                                                                       "method":  "POST",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "body":  {
+                                                                                    "raw":  "{\n  \"code\": \"TC\",\n  \"name\": \"Terms Condition\",\n  \"versionNumber\": 1,\n  \"termsText\": \"Terms Condition\"\n}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                },
+                                                                                    "mode":  "raw"
+                                                                                },
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
+                                                                                }
+                                                                   },
+                                                       "name":  "Create",
+                                                       "event":  [
+                                                                     {
+                                                                         "script":  {
+                                                                                        "exec":  [
+                                                                                                     "const body = pm.response.json();",
+                                                                                                     "if (body.success \u0026\u0026 body.data) {",
+                                                                                                     "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                                                                                                     "  if (row \u0026\u0026 row.id != null) pm.environment.set(\"termsConditionId\", String(row.id));",
+                                                                                                     "}"
+                                                                                                 ],
+                                                                                        "type":  "text/javascript"
+                                                                                    },
+                                                                         "listen":  "test"
+                                                                     }
+                                                                 ]
+                                                   },
+                                                   {
+                                                       "name":  "Update",
+                                                       "request":  {
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/termscondition/{{termsConditionId}}",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "termscondition",
+                                                                                                "{{termsConditionId}}"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "Update",
+                                                                       "method":  "PUT",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "body":  {
+                                                                                    "raw":  "{\n  \"code\": \"TC\",\n  \"name\": \"Terms Condition\",\n  \"versionNumber\": 1,\n  \"termsText\": \"Terms Condition\"\n}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                },
+                                                                                    "mode":  "raw"
+                                                                                },
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "name":  "Patch",
+                                                       "request":  {
+                                                                       "url":  {
+                                                                                   "host":  [
+                                                                                                "https://developer.fsm.com"
+                                                                                            ],
+                                                                                   "raw":  "https://developer.fsm.com/api/v1/termscondition/{{termsConditionId}}",
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "v1",
+                                                                                                "termscondition",
+                                                                                                "{{termsConditionId}}"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "Patch",
+                                                                       "method":  "PATCH",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Accept",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Tenant-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{tenantId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "X-Company-Id",
+                                                                                          "type":  "text",
+                                                                                          "value":  "{{companyId}}"
+                                                                                      },
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "type":  "text",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "body":  {
+                                                                                    "raw":  "{\n  \"name\": \"Terms Condition\",\n  \"isActive\": true\n}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                },
+                                                                                    "mode":  "raw"
+                                                                                },
+                                                                       "auth":  {
+                                                                                    "bearer":  [
+                                                                                                   {
+                                                                                                       "key":  "token",
+                                                                                                       "type":  "string",
+                                                                                                       "value":  "{{accessToken}}"
+                                                                                                   }
+                                                                                               ],
+                                                                                    "type":  "bearer"
                                                                                 }
                                                                    }
                                                    }
@@ -39355,7 +40225,7 @@
                  "description":  "Local Docker Compose gateway at https://developer.fsm.com.\r\n\r\nCollection URLs use the local gateway directly. Import **FGS Globals** environment from docs/api/local/ for secrets.\r\n\r\nRun **00 - Authentication \u0026 Token** before protected APIs.",
                  "name":  "FGS Local Docker",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-                 "_postman_id":  "27a1439e-2cfd-4ed8-9461-e9a1092d51a8"
+                 "_postman_id":  "0739ea40-c80b-423b-824f-77e447bd1e47"
              },
     "event":  [
                   {

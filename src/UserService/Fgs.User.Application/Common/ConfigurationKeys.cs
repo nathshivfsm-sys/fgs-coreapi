@@ -35,7 +35,11 @@ public static class ConfigurationKeys
         /// </summary>
         public const string PublicServicePath = $"{Section}:PublicServicePath";
 
-        public const string DashboardUrl = $"{Section}:DashboardUrl";
+        /// <summary>
+        /// SPA URL registered as the Entra External ID OAuth redirect URI
+        /// (login + invite/signup), e.g. https://app.example.com/auth/callback.
+        /// </summary>
+        public const string UiAuthCallbackUrl = $"{Section}:UiAuthCallbackUrl";
     }
 
     public static class Invitation

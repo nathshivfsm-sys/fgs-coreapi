@@ -14,7 +14,7 @@
 |-------|---------|
 | `POST /api/v1/signup/company` | Identity signup |
 | `GET /api/v1/invite/start` | Invite → Entra |
-| `POST /api/v1/auth/login`, `.../entra/callback`, `.../refresh` | Auth flows |
+| `POST /api/v1/auth/login`, `.../entra/token`, `.../refresh` | Auth flows |
 | `POST /api/v1/auth/entra/connector` | Entra API Connector |
 | `GET /api/v1/internal/users/auth-profile` | S2S profile |
 

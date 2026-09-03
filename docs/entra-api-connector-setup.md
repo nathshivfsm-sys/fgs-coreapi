@@ -27,7 +27,7 @@ Configure the `Fgs_SignUpSignIn` user flow so Entra embeds `tenant_id` and `comp
      - `tenant_id`
      - `company_id`
 
-5. **Redirect URI** (unchanged): `https://<gateway-host>/api/v1/auth/entra/callback`
+5. **Redirect URI**: SPA auth callback registered in Entra (e.g. `https://<ui-host>/auth/callback`). Must match `Application:UiAuthCallbackUrl`.
 
 ## Connector behavior
 

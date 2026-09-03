@@ -1,5 +1,4 @@
 using Fgs.User.Application.Features.Auth.Commands.EntraApiConnector;
-using Fgs.User.Application.Features.Auth.Commands.EntraLoginCallback;
 using Fgs.User.Application.Features.Auth.Commands.ExchangeLoginCode;
 using Fgs.User.Application.Features.Auth.Commands.RefreshAuthToken;
 using Fgs.User.Application.Features.Auth.Commands.StartLogin;
@@ -22,30 +21,6 @@ public sealed class AuthValidatorTests
     {
         var validator = new StartLoginCommandValidator();
         var result = validator.TestValidate(new StartLoginCommand("user@test.com"));
-        result.ShouldNotHaveAnyValidationErrors();
-    }
-
-    [Fact]
-    public void EntraLoginCallbackValidator_RejectsEmptyCode()
-    {
-        var validator = new EntraLoginCallbackCommandValidator();
-        var result = validator.TestValidate(new EntraLoginCallbackCommand(string.Empty, "state"));
-        result.ShouldHaveValidationErrorFor(x => x.Code);
-    }
-
-    [Fact]
-    public void EntraLoginCallbackValidator_RejectsEmptyState()
-    {
-        var validator = new EntraLoginCallbackCommandValidator();
-        var result = validator.TestValidate(new EntraLoginCallbackCommand("code", string.Empty));
-        result.ShouldHaveValidationErrorFor(x => x.State);
-    }
-
-    [Fact]
-    public void EntraLoginCallbackValidator_AcceptsValidPayload()
-    {
-        var validator = new EntraLoginCallbackCommandValidator();
-        var result = validator.TestValidate(new EntraLoginCallbackCommand("code", "state"));
         result.ShouldNotHaveAnyValidationErrors();
     }
 

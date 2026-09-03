@@ -16,6 +16,7 @@ public sealed class StartInvitationCommandHandler(
     IUnitOfWork unitOfWork,
     IInvitationTokenService tokenService,
     IEntraExternalIdService entraService,
+    ILoginPkceStore loginPkceStore,
     IDateTimeProvider dateTime,
     IConfiguration configuration) : IRequestHandler<StartInvitationCommand, StartInvitationResult>
 {
@@ -39,7 +40,7 @@ public sealed class StartInvitationCommandHandler(
             return new StartInvitationResult(false, null, InvitationErrorMessages.InvalidToken);
         }
 
-        var redirectUri = ApplicationPublicUrlResolver.ResolveEntraCallbackRedirect(configuration);
+        var redirectUri = ApplicationPublicUrlResolver.ResolveLoginRedirect(configuration);
 
         var user = await unitOfWork.Repository<FgsUser>()
             .FirstOrDefaultIgnoreFiltersAsync(u => u.Id == matched.UserId, cancellationToken);
@@ -47,13 +48,12 @@ public sealed class StartInvitationCommandHandler(
 
         if (matched.Status == InvitationStatus.Accepted)
         {
-            // Already verified — send to Entra sign-in (no prompt=create).
-            var loginUrl = entraService.BuildAuthorizationUrl(
-                matched.Id.ToString(),
+            var loginUrl = await BuildAuthorizeAsync(
+                matched,
                 redirectUri,
-                matched.Email,
                 forceSignup: false,
-                userFlow: userFlow);
+                userFlow,
+                cancellationToken);
             return new StartInvitationResult(true, loginUrl, null);
         }
 
@@ -70,14 +70,36 @@ public sealed class StartInvitationCommandHandler(
             return new StartInvitationResult(false, null, InvitationErrorMessages.Expired);
         }
 
-        // Pending invite — force Entra signup page so new users don't land on sign-in.
-        var authorizeUrl = entraService.BuildAuthorizationUrl(
-            matched.Id.ToString(),
+        var authorizeUrl = await BuildAuthorizeAsync(
+            matched,
             redirectUri,
-            matched.Email,
             forceSignup: true,
-            userFlow: userFlow);
+            userFlow,
+            cancellationToken);
         return new StartInvitationResult(true, authorizeUrl, null);
+    }
+
+    private async Task<string> BuildAuthorizeAsync(
+        FgsInvitation invitation,
+        string redirectUri,
+        bool forceSignup,
+        string userFlow,
+        CancellationToken cancellationToken)
+    {
+        var state = invitation.Id.ToString();
+        var (codeVerifier, codeChallenge) = EntraExternalIdPkce.CreatePair();
+        await loginPkceStore.SaveAsync(
+            state,
+            new LoginPkceState(codeVerifier, redirectUri, invitation.UserId),
+            cancellationToken);
+
+        return entraService.BuildAuthorizationUrl(
+            state,
+            redirectUri,
+            codeChallenge,
+            invitation.Email,
+            forceSignup,
+            userFlow);
     }
 
     private string ResolveUserFlow(AuthenticationMethod method) =>
