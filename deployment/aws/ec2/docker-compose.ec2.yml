@@ -64,6 +64,7 @@ services:
     hostname: setup-service
     <<: *app-network
     environment:
+      <<: *datadog-env
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ASPNETCORE_URLS: http://+:5004
       CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
@@ -79,7 +80,6 @@ services:
       # Compose Redis on fgs-private network (overrides GloCredential localhost / ECS hostnames).
       Redis__ConnectionString: redis:6379
       Redis__Enabled: "true"
-      <<: *datadog-env
     volumes:
       - ${FGS_CONFIG_DIR:-./config}/setup-appsettings.json:/app/appsettings.json:ro
     depends_on:
@@ -101,6 +101,7 @@ services:
     hostname: user-service
     <<: *app-network
     environment:
+      <<: *datadog-env
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       SetupService__BaseUrl: http://setup-service:5004
       CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
@@ -121,7 +122,6 @@ services:
       Application__PublicServicePath: ${FGS_PUBLIC_SERVICE_PATH:-user-service}
       # SPA Entra OAuth callback (must match Entra redirect URI registration).
       Application__UiAuthCallbackUrl: ${FGS_UI_AUTH_CALLBACK_URL:?set FGS_UI_AUTH_CALLBACK_URL in .env}
-      <<: *datadog-env
     depends_on:
       redis:
         condition: service_healthy
@@ -143,6 +143,7 @@ services:
     hostname: bff-service
     <<: *app-network
     environment:
+      <<: *datadog-env
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       SetupService__BaseUrl: http://setup-service:5004
       UserService__BaseUrl: http://user-service:5001
@@ -154,7 +155,6 @@ services:
       Redis__Enabled: "true"
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/bff
-      <<: *datadog-env
     depends_on:
       redis:
         condition: service_healthy
@@ -176,6 +176,7 @@ services:
     hostname: audit-service
     <<: *app-network
     environment:
+      <<: *datadog-env
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       SetupService__BaseUrl: http://setup-service:5004
       CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
@@ -186,7 +187,6 @@ services:
       Redis__Enabled: "true"
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/audit
-      <<: *datadog-env
     depends_on:
       redis:
         condition: service_healthy
@@ -208,6 +208,7 @@ services:
     hostname: notification-service
     <<: *app-network
     environment:
+      <<: *datadog-env
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       SetupService__BaseUrl: http://setup-service:5004
       UserService__BaseUrl: http://user-service:5001
@@ -220,7 +221,6 @@ services:
       Redis__Enabled: "true"
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/notification
-      <<: *datadog-env
     depends_on:
       redis:
         condition: service_healthy
@@ -246,6 +246,7 @@ services:
     hostname: file-service
     <<: *app-network
     environment:
+      <<: *datadog-env
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       SetupService__BaseUrl: http://setup-service:5004
       UserService__BaseUrl: http://user-service:5001
@@ -259,7 +260,6 @@ services:
       FileService__PublicBaseUrl: ${FGS_PUBLIC_BASE_URL:?set FGS_PUBLIC_BASE_URL in .env}
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/file
-      <<: *datadog-env
     depends_on:
       redis:
         condition: service_healthy
@@ -283,6 +283,7 @@ services:
     hostname: consumer-service
     <<: *app-network
     environment:
+      <<: *datadog-env
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       SetupService__BaseUrl: http://setup-service:5004
       NotificationService__BaseUrl: http://notification-service:5002
@@ -296,7 +297,6 @@ services:
       Redis__Enabled: "true"
       Swagger__Enabled: "true"
       Swagger__RoutePrefix: swagger/consumer
-      <<: *datadog-env
     depends_on:
       redis:
         condition: service_healthy
