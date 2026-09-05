@@ -8,7 +8,9 @@ public sealed class RabbitMqOptions
 
     /// <summary>
     /// Optional full AMQP URI (e.g. <c>amqps://user:pass@broker.mq.region.on.aws:5671</c>).
-    /// When set, overrides <see cref="HostName"/> and <see cref="Port"/> for the broker address.
+    /// When set, supplies broker credentials and address. If the URI host is loopback
+    /// (<c>localhost</c> / <c>127.0.0.1</c>) and <see cref="HostName"/> is a non-loopback
+    /// value (e.g. compose <c>rabbitmq</c>), the URI host is rewritten to <see cref="HostName"/>.
     /// </summary>
     public string? ConnectionUri { get; set; }
 

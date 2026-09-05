@@ -331,7 +331,25 @@ Expect: `https://v40ch9rg-4200.usw3.devtunnels.ms/auth/callback`
 | `/opt/fgs/.env` `RABBITMQ_USER` / `RABBITMQ_PASSWORD` | RabbitMQ **container** boot (`RABBITMQ_DEFAULT_*`) |
 | `glo.GloCredential` `Global:RABBITMQ` | Setup reads Username/Password (or ConnectionUri) at startup |
 
-**Passwords must match.** Compose sets `RabbitMq__HostName=rabbitmq` for Setup; it does **not** inject `RabbitMq__Password` from `.env` (that would override the credential table).
+**Passwords must match.** Compose sets `RabbitMq__HostName=rabbitmq` for app services; it does **not** inject `RabbitMq__Password` from `.env` (that would override the credential table). Prefer **Username/Password only** in `GloCredential` (no `ConnectionUri`). If `ConnectionUri` still uses `localhost`, either remove it or set host to `rabbitmq`; until then, services also rewrite loopback URI hosts to compose `HostName` at connect time.
+
+**Clean localhost ConnectionUri (Setup Swagger or script):**
+
+1. List credentials → open global `RABBITMQ` → PUT payload with Username/Password only (no `ConnectionUri`), password = `/opt/fgs/.env` `RABBITMQ_PASSWORD`.
+2. Or from a machine with Setup JWT:
+
+```powershell
+$env:RABBITMQ_PASSWORD = "<same-as-broker>"
+.\tools\credential-migration\post-credentials.ps1 -BaseUrl http://<public-host>/setup-service -UpdateRabbitMqOnly
+```
+
+3. Recreate consumers of the snapshot:
+
+```bash
+sudo /opt/fgs/deploy-service.sh setup-service dev
+sudo /opt/fgs/deploy-service.sh user-service dev
+sudo /opt/fgs/deploy-service.sh consumer-service dev
+```
 
 ### 6.4 Credentials in RDS (`glo.GloCredential`)
 

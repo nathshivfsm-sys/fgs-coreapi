@@ -13,7 +13,7 @@ Migrate secrets from legacy `appsettings.json` values into Setup Service `GloCre
 | Script | Purpose |
 |--------|---------|
 | [`seed-provider-types.sql`](seed-provider-types.sql) | Idempotent `GloCredentialProviderType` INSERT/UPDATE + cache sync |
-| [`post-credentials.ps1`](post-credentials.ps1) | Upserts all global credentials (POST if missing, PUT if present). `-UpdateDatabaseOnly` / `-UpdateAwsOnly` / `-UpdateRedisOnly` upsert a single provider. |
+| [`post-credentials.ps1`](post-credentials.ps1) | Upserts all global credentials (POST if missing, PUT if present). `-UpdateDatabaseOnly` / `-UpdateAwsOnly` / `-UpdateRedisOnly` / `-UpdateRabbitMqOnly` upsert a single provider. |
 
 ```powershell
 # Seed provider types (requires psql or Docker)
@@ -31,6 +31,11 @@ docker run --rm -e PGPASSWORD -v "${PWD}/seed-provider-types.sql:/seed.sql:ro" p
 
 # Update shared Redis cache settings (all services)
 .\post-credentials.ps1 -BaseUrl http://localhost:5071 -UpdateRedisOnly
+
+# Clean RabbitMQ credential: Username/Password only (drops localhost ConnectionUri)
+# Password must match Docker/EC2 broker boot (.env RABBITMQ_PASSWORD).
+$env:RABBITMQ_PASSWORD = "<same-as-broker>"
+.\post-credentials.ps1 -BaseUrl http://localhost:5071 -UpdateRabbitMqOnly
 
 # Create only the REDIS credential (after seed-provider-types.sql)
 .\post-credentials.ps1 -BaseUrl http://localhost:5071 -RedisOnly
@@ -77,6 +82,8 @@ For a single named connection, either use `ConnectionString` + `ConnectionString
 
 ### RabbitMQ
 
+Use **Username** + **Password** only for Docker/EC2. Omit `ConnectionUri` so compose `RabbitMq__HostName=rabbitmq` is used. A `ConnectionUri` of `amqp://…@localhost:5672/…` breaks containers.
+
 ```json
 {
   "scope": "Global",
@@ -85,6 +92,15 @@ For a single named connection, either use `ConnectionString` + `ConnectionString
   "payload": "{\"Username\":\"fgs\",\"Password\":\"<from-appsettings>\"}"
 }
 ```
+
+To remove a bad localhost `ConnectionUri` from an existing credential (JWT + SetupEdit required):
+
+```powershell
+$env:RABBITMQ_PASSWORD = "<same-as-/opt/fgs/.env>"
+.\post-credentials.ps1 -BaseUrl http://<host>/setup-service -UpdateRabbitMqOnly
+```
+
+Then recreate app services so they reload the Redis credential snapshot.
 
 ### Redis (shared cache for all services)
 
