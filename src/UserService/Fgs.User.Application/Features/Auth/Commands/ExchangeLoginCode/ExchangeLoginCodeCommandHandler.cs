@@ -44,7 +44,7 @@ public sealed class ExchangeLoginCodeCommandHandler(
         ExchangeLoginCodeCommand request,
         CancellationToken cancellationToken)
     {
-        if (TryParseUserLoginState(request.State, out var loginUserId))
+        if (OAuthStatePrefixes.TryParseUserLoginState(request.State, out var loginUserId))
         {
             return await HandleLoginAsync(request, loginUserId, cancellationToken);
         }
@@ -279,16 +279,5 @@ public sealed class ExchangeLoginCodeCommandHandler(
             routingKey: IntegrationEventRoutingKeys.TenantProvisionRequested,
             createdBy: SignupConstants.ToGloCreatedBy(tenant.CreatedBy),
             cancellationToken: cancellationToken);
-    }
-
-    private static bool TryParseUserLoginState(string state, out Guid userId)
-    {
-        userId = default;
-        if (!state.StartsWith(OAuthStatePrefixes.UserLogin, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        return Guid.TryParse(state[OAuthStatePrefixes.UserLogin.Length..], out userId);
     }
 }

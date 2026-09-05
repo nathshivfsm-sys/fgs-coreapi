@@ -75,7 +75,7 @@ public sealed class StartLoginCommandHandler(
 
         var redirectUri = ApplicationPublicUrlResolver.ResolveLoginRedirect(configuration);
 
-        var state = $"{OAuthStatePrefixes.UserLogin}{user.Id}";
+        var state = OAuthStatePrefixes.CreateUserLoginState(user.Id);
         var (codeVerifier, codeChallenge) = EntraExternalIdPkce.CreatePair();
         await loginPkceStore.SaveAsync(
             state,

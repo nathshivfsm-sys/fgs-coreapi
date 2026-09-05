@@ -29,7 +29,7 @@ public sealed class StartLoginCommandHandlerTests
         var entraMock = new Mock<IEntraExternalIdService>();
         entraMock
             .Setup(s => s.BuildLoginAuthorizationUrl(
-                $"{OAuthStatePrefixes.UserLogin}{userId}",
+                It.Is<string>(st => st.StartsWith($"{OAuthStatePrefixes.UserLogin}{userId:D}:", StringComparison.Ordinal)),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 "ACTIVE@TEST.COM",
@@ -44,7 +44,7 @@ public sealed class StartLoginCommandHandlerTests
         result.Data!.RedirectUrl.Should().Be("https://login.example/authorize");
         pkceStore.Verify(
             s => s.SaveAsync(
-                $"{OAuthStatePrefixes.UserLogin}{userId}",
+                It.Is<string>(st => st.StartsWith($"{OAuthStatePrefixes.UserLogin}{userId:D}:", StringComparison.Ordinal)),
                 It.IsAny<LoginPkceState>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -125,7 +125,7 @@ public sealed class StartLoginCommandHandlerTests
         var entraMock = new Mock<IEntraExternalIdService>();
         entraMock
             .Setup(s => s.BuildLoginAuthorizationUrl(
-                $"{OAuthStatePrefixes.UserLogin}{userId}",
+                It.Is<string>(st => st.StartsWith($"{OAuthStatePrefixes.UserLogin}{userId:D}:", StringComparison.Ordinal)),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 "PWD@TEST.COM",
@@ -140,7 +140,7 @@ public sealed class StartLoginCommandHandlerTests
         result.Data!.RedirectUrl.Should().Be("https://login.example/pwd");
         entraMock.Verify(
             s => s.BuildLoginAuthorizationUrl(
-                $"{OAuthStatePrefixes.UserLogin}{userId}",
+                It.Is<string>(st => st.StartsWith($"{OAuthStatePrefixes.UserLogin}{userId:D}:", StringComparison.Ordinal)),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 "PWD@TEST.COM",
