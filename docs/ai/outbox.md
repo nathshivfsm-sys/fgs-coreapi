@@ -6,10 +6,15 @@ Within one unit of work:
 2. `IOutboxWriter.EnqueueAsync(...)`
 3. `SaveChanges`
 
-**PublisherService** runs `AddFgsOutboxProcessor` (`OutboxPollingBackgroundService`) and reads configured `OutboxSources` (cross-schema read — intentional publisher exception).
+Owning APIs run a service-owned outbox worker via `AddFgsOutboxPublisher` (registers `OutboxPollingBackgroundService` for that service’s own table(s) only). Default transport is RabbitMQ through `IIntegrationEventPublisher` (`RabbitMqIntegrationEventPublisher`); swap with `OutboxPublisherBuilder.UsePublisher<T>()` (e.g. SQS) without changing writers.
 
-## Writers present
+## Workers present
 
-User (`TenantOutboxMessage`), Setup (`GloOutboxMessage` / `SetupOutboxMessage`), Inventory (`InventoryOutboxMessage`). CRM has outbox entity; wire writer only if following Inventory/User pattern.
+| Service | Outbox table(s) | Worker |
+|---------|-----------------|--------|
+| User | `TenantOutboxMessage` | `AddFgsOutboxPublisher` in API |
+| Setup | `GloOutboxMessage`, `SetupOutboxMessage` | `AddFgsOutboxPublisher` in API |
+| Inventory | `InventoryOutboxMessage` | `AddFgsOutboxPublisher` in API |
+| CRM | outbox entity exists | **no** worker yet |
 
-Do not call `IRabbitMqPublisher` from API request threads for domain events.
+Same-transaction writers (`IOutboxWriter` + `SaveChanges`) are unchanged. Do not call the broker publisher from API request threads for domain events — enqueue to the outbox instead.

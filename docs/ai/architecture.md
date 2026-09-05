@@ -5,8 +5,9 @@ Multi-tenant FSM backend on **.NET 10**, microservices, Clean Architecture per s
 ```text
 Client → NGINX (Gateway) → BFF (orchestration) and/or owning APIs
                          → Application (Features) → Infrastructure
-                         → Outbox → Publisher → RabbitMQ → Consumer
+                         → Outbox → service worker → RabbitMQ → Consumer
 ```
+
 
 ## Layers (typical service)
 
@@ -18,7 +19,8 @@ Client → NGINX (Gateway) → BFF (orchestration) and/or owning APIs
 | `*.Infrastructure` | EF, Dapper, Refit, messaging adapters |
 | `*.Tests` | xUnit |
 
-BFF has no Domain. Publisher/Consumer are workers with health HTTP.
+BFF has no Domain. Consumer is a dedicated worker with health HTTP; owning APIs host an in-process outbox `BackgroundService`.
+
 
 ## Shared libraries
 

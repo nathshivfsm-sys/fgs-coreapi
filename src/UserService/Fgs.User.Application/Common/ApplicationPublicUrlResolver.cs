@@ -13,6 +13,8 @@ public static class ApplicationPublicUrlResolver
     public static string ResolveUiAuthCallbackUrl(IConfiguration configuration) =>
         FirstNonEmpty(
             configuration[ConfigurationKeys.Application.UiAuthCallbackUrl],
+            configuration["FGS_UI_AUTH_CALLBACK_URL"],
+            Environment.GetEnvironmentVariable("FGS_UI_AUTH_CALLBACK_URL"),
             configuration[ConfigurationKeys.EntraExternalId.LoginRedirectUri],
             configuration[ConfigurationKeys.EntraExternalId.RedirectUri],
             ApplicationUrlDefaults.UiAuthCallback)!;

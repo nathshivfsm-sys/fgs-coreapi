@@ -16,19 +16,93 @@ public sealed class FgsRoleMenuWriteService(
     ITenantContextAccessor tenantContextAccessor,
     IFgsUserContext userContext) : IFgsRoleMenuWriteService
 {
+    public async Task<FgsRoleMenuDetailDto> CreateAsync(
+        FgsRoleMenuCreateDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        await EnsureRoleExistsAsync(dto.RoleId, tenantId, companyId, cancellationToken);
+
+        var now = DateTimeOffset.UtcNow;
+        var actor = ResolveActor();
+        var entity = new FgsRoleMenu
+        {
+            TenantId = tenantId,
+            CompanyId = companyId,
+            RoleId = dto.RoleId,
+            MenuId = dto.MenuId,
+            DisplayOrder = dto.DisplayOrder,
+            IsActive = true,
+            CreatedOn = now,
+            CreatedBy = actor
+        };
+
+        await context.FgsRoleMenus.AddAsync(entity, cancellationToken);
+        await SaveChangesAsync(cancellationToken);
+        return MapToDetail(entity);
+    }
+
+    public async Task<FgsRoleMenuDetailDto> UpdateAsync(
+        long id,
+        FgsRoleMenuUpdateDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        var entity = await FindEntityAsync(id, tenantId, companyId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Role menu '{id}' was not found.");
+
+        await EnsureRoleExistsAsync(dto.RoleId, tenantId, companyId, cancellationToken);
+
+        entity.RoleId = dto.RoleId;
+        entity.MenuId = dto.MenuId;
+        entity.DisplayOrder = dto.DisplayOrder;
+        StampForUpdate(entity);
+
+        await SaveChangesAsync(cancellationToken);
+        return MapToDetail(entity);
+    }
+
+    public async Task<FgsRoleMenuDetailDto> PatchAsync(
+        long id,
+        FgsRoleMenuPatchDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        var entity = await FindEntityAsync(id, tenantId, companyId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Role menu '{id}' was not found.");
+
+        if (dto.RoleId.HasValue)
+        {
+            await EnsureRoleExistsAsync(dto.RoleId.Value, tenantId, companyId, cancellationToken);
+            entity.RoleId = dto.RoleId.Value;
+        }
+
+        if (dto.MenuId.HasValue)
+        {
+            entity.MenuId = dto.MenuId.Value;
+        }
+
+        if (dto.DisplayOrder.HasValue)
+        {
+            entity.DisplayOrder = dto.DisplayOrder.Value;
+        }
+
+        if (dto.IsActive.HasValue)
+        {
+            entity.IsActive = dto.IsActive.Value;
+        }
+
+        StampForUpdate(entity);
+        await SaveChangesAsync(cancellationToken);
+        return MapToDetail(entity);
+    }
+
     public async Task<IReadOnlyList<FgsRoleMenuDetailDto>> SyncAsync(
         FgsRoleMenuSyncDto dto,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
-
-        var roleExists = await context.FgsRoles.AnyAsync(
-            r => r.Id == dto.RoleId && r.TenantId == tenantId && r.CompanyId == companyId,
-            cancellationToken);
-        if (!roleExists)
-        {
-            throw new KeyNotFoundException($"Role '{dto.RoleId}' was not found.");
-        }
+        await EnsureRoleExistsAsync(dto.RoleId, tenantId, companyId, cancellationToken);
 
         var desiredItems = (dto.Items ?? [])
             .GroupBy(x => x.MenuId)
@@ -76,22 +150,59 @@ public sealed class FgsRoleMenuWriteService(
                 cancellationToken);
         }
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await SaveChangesAsync(cancellationToken);
 
         return await context.FgsRoleMenus
             .AsNoTracking()
             .Where(x => x.RoleId == dto.RoleId && x.TenantId == tenantId && x.CompanyId == companyId)
             .OrderBy(x => x.DisplayOrder)
             .ThenBy(x => x.Id)
-            .Select(x => new FgsRoleMenuDetailDto(
-                x.Id,
-                x.RoleId,
-                x.MenuId,
-                x.DisplayOrder,
-                x.IsActive,
-                x.CreatedOn,
-                x.CreatedBy))
+            .Select(x => MapToDetail(x))
             .ToListAsync(cancellationToken);
+    }
+
+    private async Task EnsureRoleExistsAsync(
+        long roleId,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var roleExists = await context.FgsRoles.AnyAsync(
+            r => r.Id == roleId && r.TenantId == tenantId && r.CompanyId == companyId,
+            cancellationToken);
+        if (!roleExists)
+        {
+            throw new KeyNotFoundException($"Role '{roleId}' was not found.");
+        }
+    }
+
+    private async Task<FgsRoleMenu?> FindEntityAsync(
+        long id,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken) =>
+        await context.FgsRoleMenus.FirstOrDefaultAsync(
+            x => x.Id == id && x.TenantId == tenantId && x.CompanyId == companyId,
+            cancellationToken);
+
+    private async Task SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+        {
+            throw new InvalidOperationException(
+                "A role menu with the same RoleId and MenuId already exists.",
+                ex);
+        }
+    }
+
+    private void StampForUpdate(FgsRoleMenu entity)
+    {
+        entity.UpdatedOn = DateTimeOffset.UtcNow;
+        entity.UpdatedBy = ResolveActor();
     }
 
     private string ResolveActor() =>
@@ -99,4 +210,19 @@ public sealed class FgsRoleMenuWriteService(
         ?? userContext.DisplayName
         ?? userContext.UserId?.ToString()
         ?? "system";
+
+    private static bool IsUniqueViolation(DbUpdateException exception) =>
+        exception.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true
+        || exception.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true
+        || exception.InnerException?.Message.Contains("23505", StringComparison.Ordinal) == true;
+
+    private static FgsRoleMenuDetailDto MapToDetail(FgsRoleMenu entity) =>
+        new(
+            entity.Id,
+            entity.RoleId,
+            entity.MenuId,
+            entity.DisplayOrder,
+            entity.IsActive,
+            entity.CreatedOn,
+            entity.CreatedBy);
 }

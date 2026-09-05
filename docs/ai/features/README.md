@@ -17,6 +17,6 @@
 | [scheduling.md](scheduling.md) | Scheduling |
 | [service-agreements.md](service-agreements.md) | ServiceAgreement |
 | [bff-orchestration.md](bff-orchestration.md) | Bff |
-| [messaging-workers.md](messaging-workers.md) | Publisher / Consumer |
+| [messaging-workers.md](messaging-workers.md) | Outbox workers / Consumer |
 
 Scaffold-only (no feature doc): Reporting, Integration, Communication.

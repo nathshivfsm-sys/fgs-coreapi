@@ -12,7 +12,7 @@ Clone `ProcessTenantProvisionRequestedCommandHandler` and wiring in `Fgs.Consume
 1. Add routing key/exchange in `Fgs.Contracts` if missing.
 2. Application command under `Fgs.Consumer.Application/Features/{Area}/Commands/Process{Event}/` — handler returns `Task` (not `ApiResponse`).
 3. Call other services via existing Refit clients (`ISetupClient`, `INotificationDispatchClient`, `IAuditClient`). Do not open their databases.
-4. Register subscription (queue, exchange, routing key, DLQ) in Consumer DI + `appsettings.json` (and Publisher declarations if needed).
+4. Register subscription (queue, exchange, routing key, DLQ) in Consumer DI + `appsettings.json`.
 5. Idempotency is framework Redis — do not add an inbox table.
 6. Tests for the process command handler.
 

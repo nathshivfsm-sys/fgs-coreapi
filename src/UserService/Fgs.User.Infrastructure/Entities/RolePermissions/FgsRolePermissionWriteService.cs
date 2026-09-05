@@ -16,19 +16,69 @@ public sealed class FgsRolePermissionWriteService(
     ITenantContextAccessor tenantContextAccessor,
     IFgsUserContext userContext) : IFgsRolePermissionWriteService
 {
+    public async Task<FgsRolePermissionDetailDto> CreateAsync(
+        FgsRolePermissionCreateDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        await EnsureRoleExistsAsync(dto.FgsRoleId, tenantId, companyId, cancellationToken);
+        await EnsurePermissionExistsAsync(dto.FgsPermissionId, cancellationToken);
+
+        var entity = new FgsRolePermission
+        {
+            TenantId = tenantId,
+            CompanyId = companyId,
+            FgsRoleId = dto.FgsRoleId,
+            FgsPermissionId = dto.FgsPermissionId,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = ResolveActor()
+        };
+
+        await context.FgsRolePermissions.AddAsync(entity, cancellationToken);
+        await SaveChangesAsync(cancellationToken);
+        return MapToDetail(entity);
+    }
+
+    public async Task<FgsRolePermissionDetailDto> UpdateAsync(
+        long id,
+        FgsRolePermissionUpdateDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var entity = await FindEntityAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Role-permission assignment '{id}' was not found.");
+
+        await EnsurePermissionExistsAsync(dto.FgsPermissionId, cancellationToken);
+
+        entity.FgsPermissionId = dto.FgsPermissionId;
+        await SaveChangesAsync(cancellationToken);
+        return MapToDetail(entity);
+    }
+
+    public async Task<FgsRolePermissionDetailDto> PatchAsync(
+        long id,
+        FgsRolePermissionPatchDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var entity = await FindEntityAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Role-permission assignment '{id}' was not found.");
+
+        if (dto.FgsPermissionId.HasValue)
+        {
+            await EnsurePermissionExistsAsync(dto.FgsPermissionId.Value, cancellationToken);
+            entity.FgsPermissionId = dto.FgsPermissionId.Value;
+        }
+
+        await SaveChangesAsync(cancellationToken);
+        return MapToDetail(entity);
+    }
+
     public async Task<IReadOnlyList<FgsRolePermissionDetailDto>> SyncAsync(
         FgsRolePermissionSyncDto dto,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
 
-        var roleExists = await context.FgsRoles.AnyAsync(
-            r => r.Id == dto.FgsRoleId && r.TenantId == tenantId && r.CompanyId == companyId,
-            cancellationToken);
-        if (!roleExists)
-        {
-            throw new KeyNotFoundException($"Role '{dto.FgsRoleId}' was not found.");
-        }
+        await EnsureRoleExistsAsync(dto.FgsRoleId, tenantId, companyId, cancellationToken);
 
         var desiredIds = (dto.FgsPermissionIds ?? [])
             .Distinct()
@@ -82,19 +132,62 @@ public sealed class FgsRolePermissionWriteService(
                 cancellationToken);
         }
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await SaveChangesAsync(cancellationToken);
 
         return await context.FgsRolePermissions
             .AsNoTracking()
             .Where(x => x.FgsRoleId == dto.FgsRoleId && x.TenantId == tenantId && x.CompanyId == companyId)
             .OrderBy(x => x.Id)
-            .Select(x => new FgsRolePermissionDetailDto(
-                x.Id,
-                x.FgsRoleId,
-                x.FgsPermissionId,
-                x.CreatedOn,
-                x.CreatedBy))
+            .Select(x => MapToDetail(x))
             .ToListAsync(cancellationToken);
+    }
+
+    private async Task EnsureRoleExistsAsync(
+        long roleId,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var roleExists = await context.FgsRoles.AnyAsync(
+            r => r.Id == roleId && r.TenantId == tenantId && r.CompanyId == companyId,
+            cancellationToken);
+        if (!roleExists)
+        {
+            throw new KeyNotFoundException($"Role '{roleId}' was not found.");
+        }
+    }
+
+    private async Task EnsurePermissionExistsAsync(long permissionId, CancellationToken cancellationToken)
+    {
+        var permissionExists = await context.FgsPermissions.AnyAsync(
+            p => p.Id == permissionId,
+            cancellationToken);
+        if (!permissionExists)
+        {
+            throw new KeyNotFoundException($"Permission '{permissionId}' was not found.");
+        }
+    }
+
+    private async Task<FgsRolePermission?> FindEntityAsync(long id, CancellationToken cancellationToken)
+    {
+        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        return await context.FgsRolePermissions.FirstOrDefaultAsync(
+            x => x.Id == id && x.TenantId == tenantId && x.CompanyId == companyId,
+            cancellationToken);
+    }
+
+    private async Task SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+        {
+            throw new InvalidOperationException(
+                "A role-permission assignment with this FgsRoleId and FgsPermissionId already exists.",
+                ex);
+        }
     }
 
     private string ResolveActor() =>
@@ -102,4 +195,12 @@ public sealed class FgsRolePermissionWriteService(
         ?? userContext.DisplayName
         ?? userContext.UserId?.ToString()
         ?? "system";
+
+    private static bool IsUniqueViolation(DbUpdateException exception) =>
+        exception.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true
+        || exception.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true
+        || exception.InnerException?.Message.Contains("23505", StringComparison.Ordinal) == true;
+
+    private static FgsRolePermissionDetailDto MapToDetail(FgsRolePermission entity) =>
+        new(entity.Id, entity.FgsRoleId, entity.FgsPermissionId, entity.CreatedOn, entity.CreatedBy);
 }

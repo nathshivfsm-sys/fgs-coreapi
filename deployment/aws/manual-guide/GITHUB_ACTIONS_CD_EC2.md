@@ -89,7 +89,7 @@ sudo nano /opt/fgs/config/setup-appsettings.json   # FgsSetup RDS only
 sudo nano /opt/fgs/.env                            # RABBITMQ_PASSWORD (broker boot — must match GloCredential)
 ```
 
-Ensure **`glo.GloCredential`** includes `Global:DATABASE` keys (`FgsUser`, `FgsAudit`, `FgsNotification`, `FgsSetup`, and publisher outbox keys such as `FgsCrm` / `FgsInventory` when those DBs exist), plus `Global:REDIS`, `Global:RABBITMQ`, `Global:SENDGRID`, `Global:ENTRA_EXTERNAL_ID`, etc. Services other than Setup do **not** use connection string files on EC2.
+Ensure **`glo.GloCredential`** includes `Global:DATABASE` keys (`FgsUser`, `FgsAudit`, `FgsNotification`, `FgsSetup`, and outbox-owning service DBs such as `FgsInventory` when those DBs exist), plus `Global:REDIS`, `Global:RABBITMQ`, `Global:SENDGRID`, `Global:ENTRA_EXTERNAL_ID`, etc. Services other than Setup do **not** use connection string files on EC2.
 
 ### RabbitMQ credentials (GloCredential vs `.env`)
 
@@ -115,7 +115,6 @@ sudo ./deploy-service.sh audit-service dev
 sudo ./deploy-service.sh user-service dev
 sudo ./deploy-service.sh bff-service dev
 sudo ./deploy-service.sh notification-service dev
-sudo ./deploy-service.sh publisher-service dev
 sudo ./deploy-service.sh consumer-service dev
 sudo ./deploy-service.sh nginx dev
 ```
@@ -210,7 +209,6 @@ Replace `ACCOUNT_ID` with your AWS account ID. Do **not** add Session Manager (`
 | `build-bff.yml` | `Fgs.Bff.API.csproj` version bump | `bff-service` on EC2 |
 | `build-notification.yml` | `Fgs.Notification.API.csproj` version bump | `notification-service` on EC2 |
 | `build-file.yml` | `Fgs.File.API.csproj` version bump | `file-service` on EC2 |
-| `build-publisher.yml` | `Fgs.Publisher.API.csproj` version bump | `publisher-service` on EC2 |
 | `build-consumer.yml` | `Fgs.Consumer.API.csproj` version bump | `consumer-service` on EC2 |
 | `build-nginx.yml` | `src/Gateway/VERSION` bump | `nginx` on EC2 |
 

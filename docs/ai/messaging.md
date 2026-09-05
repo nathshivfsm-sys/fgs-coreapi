@@ -4,7 +4,7 @@ Broker: **RabbitMQ** (`Fgs.Messaging`).
 
 ## Exchanges (`IntegrationEventExchanges`)
 
-`fgs.user`, `tenant.events`, `setup.events`, `audit.events`, `inventory.events` (+ DLX variants in Publisher config).
+`fgs.user`, `tenant.events`, `setup.events`, `audit.events`, `inventory.events` (+ DLX variants in service RabbitMq config).
 
 ## Known queues (appsettings)
 
@@ -18,8 +18,7 @@ More routing keys exist in `IntegrationEventRoutingKeys` than have consumers yet
 
 ## Roles
 
-- Producing APIs: `IOutboxWriter` only
-- **PublisherService**: poll outbox → publish
+- Producing APIs: `IOutboxWriter` only on the request path; owning APIs run an in-process outbox `BackgroundService` (`AddFgsOutboxPublisher`)
 - **ConsumerService**: subscribe → MediatR process commands; Redis idempotency
 
 No Kafka. No inbox table.

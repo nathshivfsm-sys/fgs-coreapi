@@ -1522,11 +1522,21 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("timestamptz")
                         .HasComment("Date and time the tenant menu assignment was created.");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Description of the menu item and its purpose.");
+
                     b.Property<short>("DisplayOrder")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("smallint")
                         .HasDefaultValue((short)1)
                         .HasComment("Controls the display order of the menu item for the tenant company.");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("UI icon identifier associated with the menu item.");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -1534,9 +1544,36 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasDefaultValue(true)
                         .HasComment("Indicates whether the menu item is currently available to the tenant company.");
 
+                    b.Property<string>("MenuCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique system-defined code identifying the menu item (copied from global catalog).");
+
                     b.Property<int>("MenuId")
                         .HasColumnType("integer")
                         .HasComment("Global menu item assigned to the tenant company.");
+
+                    b.Property<string>("MenuType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Defines the type of menu item, such as a menu group or navigable page.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Display name of the menu item shown to users.");
+
+                    b.Property<int?>("ParentMenuId")
+                        .HasColumnType("integer")
+                        .HasComment("Global parent menu id when this item is nested; NULL for top-level menus.");
+
+                    b.Property<string>("Route")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Application route used to navigate to the menu item when applicable.");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
@@ -1557,6 +1594,10 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasIndex("TenantId", "CompanyId", "IsActive")
                         .HasDatabaseName("IX_FgsTenantMenu_TenantId_CompanyId_IsActive");
 
+                    b.HasIndex("TenantId", "CompanyId", "MenuCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsTenantMenu_TenantId_CompanyId_MenuCode");
+
                     b.HasIndex("TenantId", "CompanyId", "MenuId")
                         .IsUnique()
                         .HasDatabaseName("IX_FgsTenantMenu_TenantId_CompanyId_MenuId");
@@ -1564,6 +1605,12 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.ToTable("FgsTenantMenu", "identity", t =>
                         {
                             t.HasComment("Stores the menu items enabled for a company within a tenant based on the tenant subscription and available platform features.");
+
+                            t.HasCheckConstraint("CK_FgsTenantMenu_MenuCode_NotEmpty", "length(trim(\"MenuCode\")) > 0");
+
+                            t.HasCheckConstraint("CK_FgsTenantMenu_MenuType_NotEmpty", "length(trim(\"MenuType\")) > 0");
+
+                            t.HasCheckConstraint("CK_FgsTenantMenu_Name_NotEmpty", "length(trim(\"Name\")) > 0");
                         });
                 });
 

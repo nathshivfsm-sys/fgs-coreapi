@@ -12,7 +12,8 @@ src/
   InventoryService/ AssetService/
   BillingService/ CrmService/ SchedulingService/ ServiceAgreementService/
   ReportingService/ IntegrationService/ CommunicationService/  # mostly scaffold
-  PublisherService/ ConsumerService/                           # workers
+  ConsumerService/                                             # dedicated messaging worker
+
 docs/ai/                   # this knowledge base
 docs/architecture/         # human architecture notes
 docs/api/                  # Postman

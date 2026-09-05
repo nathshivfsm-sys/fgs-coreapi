@@ -37,6 +37,7 @@ using Fgs.Inventory.Infrastructure.VendorInventoryItems;
 using Fgs.Inventory.Infrastructure.Messaging;
 using Fgs.Inventory.Infrastructure.Vendors;
 using Fgs.Messaging.Abstractions;
+using Fgs.Messaging.Extensions;
 using Fgs.Messaging.Options;
 using Fgs.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +52,8 @@ public static class DependencyInjection
         this IServiceCollection services,
         ConfigurationManager configuration)
     {
-        services.AddFgsStandardInfrastructure(configuration, "fgs-inventory-service", "DATABASE");
+        services.AddFgsStandardInfrastructure(configuration, "fgs-inventory-service", "DATABASE", "RABBITMQ");
+        CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<RabbitMqOptions>(services);
 
         services.AddFgsDbContext<FgsInventoryDbContext>((sp, options) =>
         {
@@ -73,8 +75,20 @@ public static class DependencyInjection
         services.AddFgsPersistence<FgsInventoryDbContext>();
         services.AddFgsDbContextReadyCheck<FgsInventoryDbContext>();
 
-        services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
         services.AddScoped<IOutboxWriter, OutboxWriter>();
+        services.AddFgsOutboxPublisher(configuration, options =>
+        {
+            options.ClientProvidedName = "Fgs.Inventory";
+            options.AddSource(
+                sourceKey: "inventory",
+                schema: "inventory",
+                table: "InventoryOutboxMessage",
+                connectionStringFactory: sp => ConnectionStringResolver.ResolveRequired(
+                    sp.GetRequiredService<IConfiguration>(),
+                    ConnectionStringNames.FgsInventory,
+                    FgsInventoryConnectionString.EnvironmentVariable,
+                    sp.GetService<ICredentialConfigurationProvider>()));
+        });
 
         services.AddSingleton<IInventoryReadConnectionFactory, FgsInventoryReadConnectionFactory>();
         services.AddScoped<InventoryEntityAuditHelper>();

@@ -20,3 +20,14 @@ internal sealed class FgsRolePermissionRow
     public FgsRolePermissionDetailDto ToDetailDto() =>
         new(Id, FgsRoleId, FgsPermissionId, CreatedOn, CreatedBy);
 }
+
+internal sealed class FgsRolePermissionLookupRow
+{
+    public long Id { get; set; }
+
+    public long FgsRoleId { get; set; }
+
+    public long FgsPermissionId { get; set; }
+
+    public FgsRolePermissionLookupDto ToLookupDto() => new(Id, FgsRoleId, FgsPermissionId);
+}

@@ -16,7 +16,6 @@
 | Reporting | `reporting` | Scaffold | Health + cache stub |
 | Integration | `integration` | Scaffold | Health + payload entity |
 | Communication | — | Scaffold | Empty domain |
-| Publisher | — | Worker | Outbox → RabbitMQ |
 | Consumer | — | Worker | Event handlers via Refit |
 | Bff | — | Orchestrator | Signup + GraphQL stub; no domain DB |
 | Gateway | — | NGINX | Public edge |

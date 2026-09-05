@@ -60,6 +60,20 @@ public sealed class ApplicationPublicUrlResolverTests
     }
 
     [Fact]
+    public void ResolveUiAuthCallback_ReadsFgsEnvStyleKey()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["FGS_UI_AUTH_CALLBACK_URL"] = "https://v40ch9rg-4200.usw3.devtunnels.ms/auth/callback"
+            })
+            .Build();
+
+        ApplicationPublicUrlResolver.ResolveUiAuthCallbackUrl(configuration)
+            .Should().Be("https://v40ch9rg-4200.usw3.devtunnels.ms/auth/callback");
+    }
+
+    [Fact]
     public void ResolveUiAuthCallback_DoesNotUsePublicBaseApiPath()
     {
         var configuration = new ConfigurationBuilder()

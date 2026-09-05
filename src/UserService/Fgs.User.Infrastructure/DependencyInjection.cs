@@ -1,4 +1,5 @@
 using Fgs.Messaging.Abstractions;
+using Fgs.Messaging.Extensions;
 using Fgs.Messaging.Options;
 using Fgs.User.Infrastructure.Extensions;
 using Fgs.User.Application.Abstractions.Geo;
@@ -79,17 +80,17 @@ public static class DependencyInjection
             options =>
             {
                 options.ServiceName = "fgs-user-service";
-                options.RequiredProviders = ["DATABASE", "ENTRA_EXTERNAL_ID", "AWS", "REDIS"];
+                options.RequiredProviders = ["DATABASE", "ENTRA_EXTERNAL_ID", "AWS", "REDIS", "RABBITMQ"];
             },
             typeof(EntraExternalIdOptions),
             typeof(AwsCredentialsOptions),
-            typeof(RedisCacheOptions));
+            typeof(RedisCacheOptions),
+            typeof(RabbitMqOptions));
 
         services.AddFgsUserFacingSecurity(configuration);
         services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));
         services.AddScoped<IFgsUserProfileResolver, FgsUserProfileResolver>();
         services.Configure<EntraExternalIdOptions>(configuration.GetSection(EntraExternalIdOptions.SectionName));
-        services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
         services.Configure<SignupLocaleOptions>(configuration.GetSection(SignupLocaleOptions.SectionName));
 
         services.AddFgsDbContext<FgsUserDbContext>((sp, options) =>
@@ -152,6 +153,17 @@ public static class DependencyInjection
         services.AddScoped<IFgsApiWebhookSubscriptionReadRepository, FgsApiWebhookSubscriptionReadRepository>();
         services.AddScoped<IFgsApiWebhookSubscriptionWriteService, FgsApiWebhookSubscriptionWriteService>();
         services.AddScoped<IOutboxWriter, OutboxWriter>();
+        services.AddFgsOutboxPublisher(configuration, options =>
+        {
+            options.ClientProvidedName = "Fgs.User";
+            options.AddSource(
+                sourceKey: "tenant",
+                schema: "tenant",
+                table: "TenantOutboxMessage",
+                connectionStringFactory: sp => FgsUserConnectionString.ResolveRequired(
+                    sp.GetRequiredService<IConfiguration>(),
+                    sp.GetService<ICredentialConfigurationProvider>()));
+        });
         services.AddScoped<IAddressLocaleResolver, AddressLocaleResolver>();
         services.AddSingleton<IEmailNormalizer, EmailNormalizer>();
         services.AddSingleton<IInvitationTokenService, InvitationTokenService>();

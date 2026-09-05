@@ -44,7 +44,6 @@ EC2 (Docker Compose @ /opt/fgs)
    ├── bff-service        (:bff-dev)
    ├── notification-service
    ├── file-service
-   ├── publisher-service
    ├── consumer-service
    └── nginx              (:nginx-dev, host port 80)
 
@@ -292,11 +291,38 @@ CREDENTIAL_DISTRIBUTION_KEY=fgs-internal-credential-distribution-key
 FGS_PUBLIC_BASE_URL=http://YOUR_PUBLIC_HOST_OR_ALB
 FGS_PUBLIC_SERVICE_PATH=user-service
 
+# SPA Entra OAuth redirect_uri (must also be registered in Entra External ID)
+FGS_UI_AUTH_CALLBACK_URL=https://v40ch9rg-4200.usw3.devtunnels.ms/auth/callback
+
 DD_ENV=dev
 DD_SITE=datadoghq.com
 ```
 
 `deploy-service.sh` upserts `FGS_*_IMAGE` lines to channel tags when you deploy.
+
+### 6.2.1 Update SPA callback URL (SSM)
+
+1. Register the same URI in **Entra External ID** → App registration → Authentication → Redirect URIs (SPA):  
+   `https://v40ch9rg-4200.usw3.devtunnels.ms/auth/callback`
+2. SSM session:
+
+```bash
+aws ssm start-session --target INSTANCE_ID --region us-east-1
+```
+
+3. Edit host env and recreate user-service (picks up `Application__UiAuthCallbackUrl`):
+
+```bash
+sudo nano /opt/fgs/.env
+# set or update:
+# FGS_UI_AUTH_CALLBACK_URL=https://v40ch9rg-4200.usw3.devtunnels.ms/auth/callback
+
+cd /opt/fgs
+sudo docker compose -f docker-compose.ec2.yml up -d --no-deps --force-recreate user-service
+sudo docker compose -f docker-compose.ec2.yml exec user-service printenv Application__UiAuthCallbackUrl
+```
+
+Expect: `https://v40ch9rg-4200.usw3.devtunnels.ms/auth/callback`
 
 ### 6.3 RabbitMQ two-layer model
 
@@ -311,7 +337,7 @@ DD_SITE=datadoghq.com
 
 Ensure Global providers exist for consumers, including at least:
 
-- `DATABASE` — `FgsUser`, `FgsAudit`, `FgsNotification`, `FgsSetup`, publisher outbox DBs as needed  
+- `DATABASE` — `FgsUser`, `FgsAudit`, `FgsNotification`, `FgsSetup`, outbox-owning service DBs as needed  
 - `REDIS` — use host `redis:6379` on this compose network  
 - `RABBITMQ` — match `.env`  
 - `SENDGRID`, `ENTRA_EXTERNAL_ID`, `DATADOG`, `AWS`, etc.
@@ -330,7 +356,7 @@ aws ecr get-login-password --region us-east-1 \
 Registry is resolved via `aws ecr describe-repositories --repository-names fgs/dockers`.
 
 **Channel tags (dev):**  
-`setup-dev`, `audit-dev`, `user-dev`, `bff-dev`, `notification-dev`, `file-dev`, `publisher-dev`, `consumer-dev`, `nginx-dev`, `redis-dev`, `rabbitmq-dev`
+`setup-dev`, `audit-dev`, `user-dev`, `bff-dev`, `notification-dev`, `file-dev`, `consumer-dev`, `nginx-dev`, `redis-dev`, `rabbitmq-dev`
 
 CI also pushes immutable tags such as `setup-<version>-dev-<sha>` (see OIDC/ECR guides). Day-to-day EC2 deploy uses **channel** tags via `deploy-service.sh`.
 
@@ -352,7 +378,6 @@ sudo ./deploy-service.sh user-service dev
 sudo ./deploy-service.sh bff-service dev
 sudo ./deploy-service.sh notification-service dev
 sudo ./deploy-service.sh file-service dev
-sudo ./deploy-service.sh publisher-service dev
 sudo ./deploy-service.sh consumer-service dev
 sudo ./deploy-service.sh nginx dev
 ```
@@ -444,7 +469,6 @@ docker logs fgs-ec2-audit-service-1 --tail 100
 docker logs fgs-ec2-user-service-1 --tail 100
 docker logs fgs-ec2-notification-service-1 --tail 100
 docker logs fgs-ec2-file-service-1 --tail 100
-docker logs fgs-ec2-publisher-service-1 --tail 100
 docker logs fgs-ec2-consumer-service-1 --tail 100
 
 # or by name filter
@@ -592,12 +616,12 @@ sudo /opt/fgs/deploy-service.sh nginx dev
 - [ ] `bootstrap-ec2.sh` completed  
 - [ ] `/opt/fgs/docker-compose.ec2.yml`, `deploy-service.sh`, nginx entrypoint present  
 - [ ] `setup-appsettings.json` — FgsSetup only  
-- [ ] `.env` — RabbitMQ password matches GloCredential; `FGS_PUBLIC_BASE_URL` set  
+- [ ] `.env` — RabbitMQ password matches GloCredential; `FGS_PUBLIC_BASE_URL` and `FGS_UI_AUTH_CALLBACK_URL` set  
 - [ ] GloCredential providers populated in RDS  
 
 ### First deploy order
 
-- [ ] redis → rabbitmq → setup → audit → user → bff → notification → file → publisher → consumer → nginx  
+- [ ] redis → rabbitmq → setup → audit → user → bff → notification → file → consumer → nginx  
 
 ### Verify
 
@@ -633,7 +657,7 @@ curl -s -o /dev/null -w "%{http_code}\n" http://localhost/nginx-health
 ```
 
 **Compose services accepted by `deploy-service.sh`:**  
-`redis`, `rabbitmq`, `setup-service`, `audit-service`, `user-service`, `bff-service`, `notification-service`, `file-service`, `publisher-service`, `consumer-service`, `nginx`
+`redis`, `rabbitmq`, `setup-service`, `audit-service`, `user-service`, `bff-service`, `notification-service`, `file-service`, `consumer-service`, `nginx`
 
 ---
 
