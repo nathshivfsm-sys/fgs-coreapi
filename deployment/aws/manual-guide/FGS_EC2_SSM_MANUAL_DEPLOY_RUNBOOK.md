@@ -435,6 +435,23 @@ docker compose -f docker-compose.ec2.yml up -d redis rabbitmq
 | **Fresh host** (new/resized EC2) | New instance profile → SSM Online → bootstrap → restore `setup-appsettings.json` + `.env` → update GitHub `EC2_INSTANCE_ID` → full order §8.1 |
 | **Rollback** | Channel tags are mutable. Prefer pinning an immutable ECR tag in `/opt/fgs/.env` (e.g. `FGS_USER_IMAGE=…/fgs/dockers:user-<version>-dev-<sha>`), then `docker compose -f docker-compose.ec2.yml up -d --no-deps user-service`. Or redeploy a known-good build that retags `*-dev`. |
 
+### 8.4 Remove Publisher (one-time, hosts that still run it)
+
+Publisher is no longer in `docker-compose.ec2.yml`. After pushing updated EC2 files (`Push-Ec2Files.ps1` or git pull), stop any leftover container and drop the image env var:
+
+```bash
+cd /opt/fgs
+# If an old compose file still lists the service:
+docker compose -f docker-compose.ec2.yml stop publisher-service 2>/dev/null || true
+docker compose -f docker-compose.ec2.yml rm -f publisher-service 2>/dev/null || true
+# Or by container name:
+docker rm -f $(docker ps -aqf name=publisher-service) 2>/dev/null || true
+# Drop stale .env line (optional)
+sudo sed -i '/^FGS_PUBLISHER_IMAGE=/d' /opt/fgs/.env
+# Refresh nginx swagger (no /swagger/publisher)
+sudo ./deploy-service.sh nginx dev
+```
+
 ---
 
 ## 9. Restart, logs, health checks

@@ -3,11 +3,11 @@
 # Usage: deploy-service.sh <compose-service> <channel> [ecr-repo] [aws-region]
 # Example: deploy-service.sh setup-service dev fgs/dockers us-east-1
 # Services: redis, rabbitmq, setup-service, audit-service, user-service, bff-service,
-#           notification-service, file-service, publisher-service, consumer-service, nginx
+#           notification-service, file-service, consumer-service, nginx
 
 set -euo pipefail
 
-COMPOSE_SERVICE="${1:?compose service (redis, rabbitmq, setup-service, audit-service, user-service, bff-service, notification-service, file-service, publisher-service, consumer-service, nginx)}"
+COMPOSE_SERVICE="${1:?compose service (redis, rabbitmq, setup-service, audit-service, user-service, bff-service, notification-service, file-service, consumer-service, nginx)}"
 CHANNEL="${2:?channel (dev, test, prod)}"
 ECR_REPO="${3:-fgs/dockers}"
 AWS_REGION="${4:-us-east-1}"
@@ -54,7 +54,6 @@ upsert_env FGS_USER_IMAGE "${REGISTRY}/${ECR_REPO}:user-${CHANNEL}"
 upsert_env FGS_BFF_IMAGE "${REGISTRY}/${ECR_REPO}:bff-${CHANNEL}"
 upsert_env FGS_NOTIFICATION_IMAGE "${REGISTRY}/${ECR_REPO}:notification-${CHANNEL}"
 upsert_env FGS_FILE_IMAGE "${REGISTRY}/${ECR_REPO}:file-${CHANNEL}"
-upsert_env FGS_PUBLISHER_IMAGE "${REGISTRY}/${ECR_REPO}:publisher-${CHANNEL}"
 upsert_env FGS_CONSUMER_IMAGE "${REGISTRY}/${ECR_REPO}:consumer-${CHANNEL}"
 upsert_env FGS_NGINX_IMAGE "${REGISTRY}/${ECR_REPO}:nginx-${CHANNEL}"
 upsert_env FGS_REDIS_IMAGE "${REGISTRY}/${ECR_REPO}:redis-${CHANNEL}"

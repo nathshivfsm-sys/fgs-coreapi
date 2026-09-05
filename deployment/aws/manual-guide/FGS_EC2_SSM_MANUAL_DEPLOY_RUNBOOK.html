@@ -159,7 +159,6 @@ EC2 (Docker Compose @ /opt/fgs)
    ├── bff-service        (:bff-dev)
    ├── notification-service
    ├── file-service
-   ├── publisher-service
    ├── consumer-service
    └── nginx              (:nginx-dev, host port 80)
 
@@ -450,7 +449,7 @@ DD_SITE=datadoghq.com
 <h3 id="64-credentials-in-rds-gloglocredential">6.4 Credentials in RDS (<code>glo.GloCredential</code>)</h3>
 <p>Ensure Global providers exist for consumers, including at least:</p>
 <ul>
-<li><code>DATABASE</code> — <code>FgsUser</code>, <code>FgsAudit</code>, <code>FgsNotification</code>, <code>FgsSetup</code>, publisher outbox DBs as needed  </li>
+<li><code>DATABASE</code> — <code>FgsUser</code>, <code>FgsAudit</code>, <code>FgsNotification</code>, <code>FgsSetup</code>, outbox-owning service DBs as needed  </li>
 <li><code>REDIS</code> — use host <code>redis:6379</code> on this compose network  </li>
 <li><code>RABBITMQ</code> — match <code>.env</code>  </li>
 <li><code>SENDGRID</code>, <code>ENTRA_EXTERNAL_ID</code>, <code>DATADOG</code>, <code>AWS</code>, etc.</li>
@@ -463,7 +462,7 @@ DD_SITE=datadoghq.com
 </code></pre>
 <p>Registry is resolved via <code>aws ecr describe-repositories --repository-names fgs/dockers</code>.</p>
 <p><strong>Channel tags (dev):</strong><br />
-<code>setup-dev</code>, <code>audit-dev</code>, <code>user-dev</code>, <code>bff-dev</code>, <code>notification-dev</code>, <code>file-dev</code>, <code>publisher-dev</code>, <code>consumer-dev</code>, <code>nginx-dev</code>, <code>redis-dev</code>, <code>rabbitmq-dev</code></p>
+<code>setup-dev</code>, <code>audit-dev</code>, <code>user-dev</code>, <code>bff-dev</code>, <code>notification-dev</code>, <code>file-dev</code>, <code>consumer-dev</code>, <code>nginx-dev</code>, <code>redis-dev</code>, <code>rabbitmq-dev</code></p>
 <p>CI also pushes immutable tags such as <code>setup-&lt;version&gt;-dev-&lt;sha&gt;</code> (see OIDC/ECR guides). Day-to-day EC2 deploy uses <strong>channel</strong> tags via <code>deploy-service.sh</code>.</p>
 <p>Images must exist in ECR <strong>before</strong> first pull (merge to <code>dev</code> with version bumps, or workflow dispatch with push enabled).</p>
 <hr />
@@ -478,7 +477,6 @@ sudo ./deploy-service.sh user-service dev
 sudo ./deploy-service.sh bff-service dev
 sudo ./deploy-service.sh notification-service dev
 sudo ./deploy-service.sh file-service dev
-sudo ./deploy-service.sh publisher-service dev
 sudo ./deploy-service.sh consumer-service dev
 sudo ./deploy-service.sh nginx dev
 </code></pre>
@@ -554,6 +552,19 @@ docker compose -f docker-compose.ec2.yml up -d redis rabbitmq
 </tr>
 </tbody>
 </table>
+<h3 id="84-remove-publisher-one-time-hosts-that-still-run-it">8.4 Remove Publisher (one-time, hosts that still run it)</h3>
+<p>Publisher is no longer in <code>docker-compose.ec2.yml</code>. After pushing updated EC2 files (<code>Push-Ec2Files.ps1</code> or git pull), stop any leftover container and drop the image env var:</p>
+<pre><code class="language-bash">cd /opt/fgs
+# If an old compose file still lists the service:
+docker compose -f docker-compose.ec2.yml stop publisher-service 2&gt;/dev/null || true
+docker compose -f docker-compose.ec2.yml rm -f publisher-service 2&gt;/dev/null || true
+# Or by container name:
+docker rm -f $(docker ps -aqf name=publisher-service) 2&gt;/dev/null || true
+# Drop stale .env line (optional)
+sudo sed -i '/^FGS_PUBLISHER_IMAGE=/d' /opt/fgs/.env
+# Refresh nginx swagger (no /swagger/publisher)
+sudo ./deploy-service.sh nginx dev
+</code></pre>
 <hr />
 <h2 id="9-restart-logs-health-checks">9. Restart, logs, health checks</h2>
 <h3 id="91-status">9.1 Status</h3>
@@ -574,7 +585,6 @@ docker logs fgs-ec2-audit-service-1 --tail 100
 docker logs fgs-ec2-user-service-1 --tail 100
 docker logs fgs-ec2-notification-service-1 --tail 100
 docker logs fgs-ec2-file-service-1 --tail 100
-docker logs fgs-ec2-publisher-service-1 --tail 100
 docker logs fgs-ec2-consumer-service-1 --tail 100
 
 # or by name filter
@@ -746,7 +756,7 @@ docker compose -f docker-compose.ec2.yml ps user-service
 </ul>
 <h3 id="first-deploy-order">First deploy order</h3>
 <ul>
-<li>[ ] redis → rabbitmq → setup → audit → user → bff → notification → file → publisher → consumer → nginx  </li>
+<li>[ ] redis → rabbitmq → setup → audit → user → bff → notification → file → consumer → nginx  </li>
 </ul>
 <h3 id="verify">Verify</h3>
 <ul>
@@ -778,7 +788,7 @@ curl -s -o /dev/null -w &quot;%{http_code}\n&quot; http://localhost/nginx-health
 # .\deployment\aws\ec2\Push-Ec2Files.ps1 -InstanceId INSTANCE_ID
 </code></pre>
 <p><strong>Compose services accepted by <code>deploy-service.sh</code>:</strong><br />
-<code>redis</code>, <code>rabbitmq</code>, <code>setup-service</code>, <code>audit-service</code>, <code>user-service</code>, <code>bff-service</code>, <code>notification-service</code>, <code>file-service</code>, <code>publisher-service</code>, <code>consumer-service</code>, <code>nginx</code></p>
+<code>redis</code>, <code>rabbitmq</code>, <code>setup-service</code>, <code>audit-service</code>, <code>user-service</code>, <code>bff-service</code>, <code>notification-service</code>, <code>file-service</code>, <code>consumer-service</code>, <code>nginx</code></p>
 <hr />
 <p><em>Document generated from FGS repository deployment guides and scripts. Prefer the source files listed in the header if behavior and this runbook ever diverge.</em></p>
 </body>

@@ -6,7 +6,7 @@
 #   2) Else vars.AWS_ROLE_TO_ASSUME → GitHub OIDC role
 # ECR: vars.ECR_REPO (default fgs/dockers). Tags are service-prefixed
 #   (setup-dev, audit-dev, user-dev, bff-dev, notification-dev, file-dev,
-#    publisher-dev, consumer-dev, nginx-dev, redis-dev, rabbitmq-dev).
+#    consumer-dev, nginx-dev, redis-dev, rabbitmq-dev).
 # Set vars: AWS_REGION, and either OIDC role or access-key secrets.
 # ECR push only on push (merge) to dev — not on pull_request.
 # workflow_dispatch builds locally unless input push_to_ecr=true.

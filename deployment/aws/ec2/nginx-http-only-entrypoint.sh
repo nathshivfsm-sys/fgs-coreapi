@@ -123,20 +123,6 @@ location /swagger/notification/ {
     add_header Cache-Control "no-store" always;
 }
 
-location = /swagger/publisher {
-    return 308 /swagger/publisher/;
-}
-
-location /swagger/publisher/ {
-    resolver 127.0.0.11 valid=10s ipv6=off;
-    set $swagger_upstream publisher-service:5006;
-    proxy_pass http://$swagger_upstream$request_uri;
-    include /etc/nginx/proxy_params.conf;
-    proxy_cache off;
-    proxy_buffering off;
-    add_header Cache-Control "no-store" always;
-}
-
 location = /swagger/consumer {
     return 308 /swagger/consumer/;
 }
@@ -166,7 +152,6 @@ if [ ! -f /etc/nginx/conf.d/includes/swagger-index.html ]; then
     <li><a href="/swagger/file/">File</a></li>
     <li><a href="/swagger/audit/">Audit</a></li>
     <li><a href="/swagger/notification/">Notification</a></li>
-    <li><a href="/swagger/publisher/">Publisher</a></li>
     <li><a href="/swagger/consumer/">Consumer</a></li>
   </ul>
 </body></html>
