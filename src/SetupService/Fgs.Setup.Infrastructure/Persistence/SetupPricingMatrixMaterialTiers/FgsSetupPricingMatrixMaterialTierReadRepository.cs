@@ -48,7 +48,7 @@ internal sealed class FgsSetupPricingMatrixMaterialTierReadRepository(ISetupRead
 
     public Task<bool> ExistsPricingMatrixIdAsync(long id, CancellationToken ct = default) => ParentExistsAsync("FgsSetupPricingMatrix", id, ct);
     public Task<bool> ExistsByFromCostAsync(long matrixId, decimal fromCost, long? excludeId = null, CancellationToken ct = default) =>
-        ExistsAsync("\"PricingMatrixId\"=@ParentId AND \"FromCost\"=@Value" + (excludeId.HasValue ? " AND \"Id\"<>@ExcludeId" : ""), new { ParentId=matrixId, Value=fromCost, ExcludeId=excludeId }, ct);
+        ExistsAsync("\"PricingMatrixId\"=@ParentId AND \"FromCost\"=@Value AND \"IsActive\"=TRUE" + (excludeId.HasValue ? " AND \"Id\"<>@ExcludeId" : ""), new { ParentId=matrixId, Value=fromCost, ExcludeId=excludeId }, ct);
     public Task<bool> ExistsActiveOtherItemsForMatrixAsync(long matrixId, CancellationToken ct = default) =>
         ExistsInTableAsync("FgsSetupPricingMatrixOther", matrixId, ct);
 

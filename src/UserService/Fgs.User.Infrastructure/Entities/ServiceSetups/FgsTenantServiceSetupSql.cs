@@ -12,6 +12,6 @@ internal static class FgsTenantServiceSetupSql
         "BillHoursFromDispatchOrArrive", "SourceCodeRequiredOnWorkOrder", "SourceCodeRequiredOnServiceLocation",
         "BillToStartNumber", "POStartNumber", "QuoteStartNumber", "WorkOrderStartNumber",
         "InvoiceNumberPrefix", "QuoteNumberPrefix", "PONumberPrefix", "WorkOrderNumberPrefix",
-        "InvoiceBatchNumberFormat", "IsActive"
+        "InvoiceBatchNumberFormat", "EstimateRevisionCreationMode", "IsActive"
         """;
 }

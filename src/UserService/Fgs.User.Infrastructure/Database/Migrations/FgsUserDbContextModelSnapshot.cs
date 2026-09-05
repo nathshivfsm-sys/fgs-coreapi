@@ -1120,6 +1120,81 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRoleMenu", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Unique identifier for the role menu assignment.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company within the tenant that owns the role menu assignment.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that created the role menu assignment.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the role menu assignment was created.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the display order of the menu item for the role.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the role currently has access to the menu item.");
+
+                    b.Property<int>("MenuId")
+                        .HasColumnType("integer")
+                        .HasComment("Global menu item that the role is allowed to access.");
+
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint")
+                        .HasComment("Role that is granted access to the menu item.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant that owns the role menu assignment.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that last modified the role menu assignment.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the role menu assignment was last modified.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("TenantId", "CompanyId", "RoleId", "IsActive")
+                        .HasDatabaseName("IX_FgsRoleMenu_TenantId_CompanyId_RoleId_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "RoleId", "MenuId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsRoleMenu_TenantId_CompanyId_RoleId_MenuId");
+
+                    b.ToTable("FgsRoleMenu", "identity", t =>
+                        {
+                            t.HasComment("Stores the menu items assigned to each role within a tenant company and defines which navigation items the role can access.");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRolePermission", b =>
                 {
                     b.Property<long>("Id")
@@ -1423,6 +1498,122 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenantMenu", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0)
+                        .HasComment("Unique identifier for the tenant menu assignment.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Company within the tenant that receives the menu item.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that created the tenant menu assignment.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the tenant menu assignment was created.");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Description of the menu item and its purpose.");
+
+                    b.Property<short>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)1)
+                        .HasComment("Controls the display order of the menu item for the tenant company.");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("UI icon identifier associated with the menu item.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the menu item is currently available to the tenant company.");
+
+                    b.Property<string>("MenuCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Unique system-defined code identifying the menu item (copied from global catalog).");
+
+                    b.Property<int>("MenuId")
+                        .HasColumnType("integer")
+                        .HasComment("Global menu item assigned to the tenant company.");
+
+                    b.Property<string>("MenuType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Defines the type of menu item, such as a menu group or navigable page.");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Display name of the menu item shown to users.");
+
+                    b.Property<int?>("ParentMenuId")
+                        .HasColumnType("integer")
+                        .HasComment("Global parent menu id when this item is nested; NULL for top-level menus.");
+
+                    b.Property<string>("Route")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Application route used to navigate to the menu item when applicable.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Tenant that owns the menu assignment.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("User or system that last modified the tenant menu assignment.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("Date and time the tenant menu assignment was last modified.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsTenantMenu_TenantId_CompanyId_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "MenuCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsTenantMenu_TenantId_CompanyId_MenuCode");
+
+                    b.HasIndex("TenantId", "CompanyId", "MenuId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FgsTenantMenu_TenantId_CompanyId_MenuId");
+
+                    b.ToTable("FgsTenantMenu", "identity", t =>
+                        {
+                            t.HasComment("Stores the menu items enabled for a company within a tenant based on the tenant subscription and available platform features.");
+
+                            t.HasCheckConstraint("CK_FgsTenantMenu_MenuCode_NotEmpty", "length(trim(\"MenuCode\")) > 0");
+
+                            t.HasCheckConstraint("CK_FgsTenantMenu_MenuType_NotEmpty", "length(trim(\"MenuType\")) > 0");
+
+                            t.HasCheckConstraint("CK_FgsTenantMenu_Name_NotEmpty", "length(trim(\"Name\")) > 0");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenantServiceAccountsSetup", b =>
                 {
                     b.Property<long>("TenantId")
@@ -1512,6 +1703,12 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Property<int?>("AccountingIntegrationTypeId")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("AutoBookMaintenanceScheduleCalls")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Controls whether maintenance schedule calls are automatically booked. TRUE = maintenance schedule calls are automatically booked; FALSE = maintenance schedule calls must be booked manually.");
+
                     b.Property<string>("BillHoursFromDispatchOrArrive")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1547,6 +1744,14 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.Property<bool>("EnableRulesManagement")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("EstimateRevisionCreationMode")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasDefaultValue("OnDemand")
+                        .HasComment("Controls when estimate revisions are created. Valid values: OnDemand = user manually creates a revision; OnPostSignatureChange = automatically creates a revision when a signed estimate is changed.");
 
                     b.Property<string>("InvoiceBatchNumberFormat")
                         .HasMaxLength(200)
@@ -1614,6 +1819,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.ToTable("FgsTenantServiceSetup", "tenant", t =>
                         {
                             t.HasCheckConstraint("CK_FgsTenantServiceSetup_DTRange", "\"DTStartTime\" IS NULL OR \"DTEndTime\" IS NULL OR \"DTEndTime\" > \"DTStartTime\"");
+
+                            t.HasCheckConstraint("CK_FgsTenantServiceSetup_EstimateRevisionCreationMode", "\"EstimateRevisionCreationMode\" IN ('OnDemand', 'OnPostSignatureChange')");
 
                             t.HasCheckConstraint("CK_FgsTenantServiceSetup_OTRange", "\"OTStartTime\" IS NULL OR \"OTEndTime\" IS NULL OR \"OTEndTime\" > \"OTStartTime\"");
 
@@ -2032,6 +2239,25 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Navigation("FgsRole");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRoleMenu", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsRoleMenu_FgsRole");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsRoleMenu_FgsTenantCompanyCache");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsRolePermission", b =>
                 {
                     b.HasOne("Fgs.User.Domain.Entities.FgsPermission", "FgsPermission")
@@ -2058,6 +2284,16 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.Navigation("FgsPermission");
 
                     b.Navigation("FgsRole");
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenantMenu", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsTenantMenu_FgsTenantCompanyCache");
                 });
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsTenantServiceAccountsSetup", b =>

@@ -32,6 +32,7 @@ internal sealed class FgsTenantServiceSetupDetailRow
     public string? PONumberPrefix { get; set; }
     public string? WorkOrderNumberPrefix { get; set; }
     public string? InvoiceBatchNumberFormat { get; set; }
+    public string EstimateRevisionCreationMode { get; set; } = null!;
     public bool IsActive { get; set; }
 
     public FgsTenantServiceSetupDetailDto ToDto() =>
@@ -63,5 +64,6 @@ internal sealed class FgsTenantServiceSetupDetailRow
             PONumberPrefix,
             WorkOrderNumberPrefix,
             InvoiceBatchNumberFormat,
+            EstimateRevisionCreationMode,
             IsActive);
 }

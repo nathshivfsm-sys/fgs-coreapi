@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.Api;
+using Fgs.Contracts.Api;
 using Fgs.User.Application.Abstractions.UserRoles;
 using Fgs.User.Application.Features.UserRoles.Dtos;
 using MediatR;
@@ -16,7 +16,7 @@ public sealed class GetFgsUserRoleByIdQueryHandler(IFgsUserRoleReadRepository re
         if (result is null)
         {
             return ApiResponse<FgsUserRoleDetailDto>.Fail(
-                [$"User role assignment '{request.Id}' was not found."],
+                [$"User-role assignment '{request.Id}' was not found."],
                 ApiStatusCodes.NotFound);
         }
 

@@ -1,0 +1,15 @@
+---
+description: Tenant and company isolation
+alwaysApply: true
+---
+
+# Multi-tenancy
+
+- Headers: `X-Tenant-Id`, `X-Company-Id` (`long`). Resolver: `HeaderTenantResolver`.
+- After auth, `ActiveUserAuthorizationMiddleware` validates scope against the user profile (Entra `oid`) and sets `ITenantContext`.
+- JWT `tenant_id`/`company_id` claims exist but **are not** the primary resolver.
+- Users are **single company** (`FgsUser.CompanyId`). Cross-company: `TENANT_ADMIN` + header. There is no user–company membership table.
+- EF filters apply when `ITenantContextAccessor.Current` is set (`ITenantScoped` / `ITenantCompanyScoped` / `IsActive`).
+- Platform sentinel: tenant/company `0`.
+- Domain events and outbox rows should carry `TenantId` and `CompanyId`.
+- Details: [docs/ai/multi-tenancy.md](../../docs/ai/multi-tenancy.md).

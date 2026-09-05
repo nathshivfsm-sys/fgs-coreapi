@@ -1,4 +1,5 @@
 using Fgs.Contracts.Clients;
+using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
 using Fgs.Credentials.Options;
 using Fgs.Foundation.Caching.Options;
@@ -10,6 +11,7 @@ using Fgs.Setup.Application.Abstractions.TechTrades;
 using Fgs.Setup.Application.Abstractions.TitlesOfCourtesy;
 using Fgs.Setup.Infrastructure.Audit;
 using Fgs.Messaging.Abstractions;
+using Fgs.Messaging.Extensions;
 using Fgs.Messaging.Options;
 using Fgs.Setup.Application.Abstractions.Provisioning;
 using Fgs.Setup.Infrastructure.Common.Options;
@@ -44,6 +46,8 @@ using Fgs.Setup.Application.Abstractions.SetupDescriptions;
 using Fgs.Setup.Application.Abstractions.SetupLaborRateTypes;
 using Fgs.Setup.Application.Abstractions.SetupPaymentMethods;
 using Fgs.Setup.Application.Abstractions.SetupPaymentTerms;
+using Fgs.Setup.Application.Abstractions.TermsConditions;
+using Fgs.Setup.Application.Abstractions.EntityDefaultTermsConditions;
 using Fgs.Setup.Application.Abstractions.SetupPostalCodes;
 using Fgs.Setup.Application.Abstractions.SetupPricingMatrices;
 using Fgs.Setup.Application.Abstractions.SetupPricingMatrixLabors;
@@ -55,6 +59,9 @@ using Fgs.Setup.Application.Abstractions.SetupTaxes;
 using Fgs.Setup.Application.Abstractions.SetupTechSkillLevels;
 using Fgs.Setup.Application.Abstractions.SetupTimeSlots;
 using Fgs.Setup.Application.Abstractions.SetupZones;
+using Fgs.Setup.Application.Abstractions.NonWorkingDates;
+using Fgs.Setup.Application.Abstractions.PriceBooks;
+using Fgs.Setup.Application.Abstractions.PriceBookItems;
 using Fgs.Setup.Application.Abstractions.Tags;
 using Fgs.Setup.Application.Abstractions.VehicleMaintenances;
 using Fgs.Setup.Application.Abstractions.Employees;
@@ -69,6 +76,8 @@ using Fgs.Setup.Infrastructure.Persistence.SetupDescriptions;
 using Fgs.Setup.Infrastructure.Persistence.SetupLaborRateTypes;
 using Fgs.Setup.Infrastructure.Persistence.SetupPaymentMethods;
 using Fgs.Setup.Infrastructure.Persistence.SetupPaymentTerms;
+using Fgs.Setup.Infrastructure.Persistence.TermsConditions;
+using Fgs.Setup.Infrastructure.Persistence.EntityDefaultTermsConditions;
 using Fgs.Setup.Infrastructure.Persistence.SetupPostalCodes;
 using Fgs.Setup.Infrastructure.Persistence.SetupPricingMatrices;
 using Fgs.Setup.Infrastructure.Persistence.SetupPricingMatrixLabors;
@@ -80,6 +89,9 @@ using Fgs.Setup.Infrastructure.Persistence.SetupTaxes;
 using Fgs.Setup.Infrastructure.Persistence.SetupTechSkillLevels;
 using Fgs.Setup.Infrastructure.Persistence.SetupTimeSlots;
 using Fgs.Setup.Infrastructure.Persistence.SetupZones;
+using Fgs.Setup.Infrastructure.Persistence.NonWorkingDates;
+using Fgs.Setup.Infrastructure.Persistence.PriceBooks;
+using Fgs.Setup.Infrastructure.Persistence.PriceBookItems;
 using Fgs.Setup.Infrastructure.Persistence.Tags;
 using Fgs.Setup.Infrastructure.Persistence.VehicleMaintenances;
 using Fgs.Setup.Infrastructure.Persistence.Vehicles;
@@ -128,11 +140,12 @@ public static class DependencyInjection
         services.Configure<CredentialConsumerOptions>(options => options.ServiceName = "fgs-setup-service");
 
         services.Configure<TenantProvisioningOptions>(configuration.GetSection(TenantProvisioningOptions.SectionName));
-        services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
 
-        var connectionString = FgsSetupConnectionString.ResolveRequired(configuration);
-        services.AddDbContext<FgsSetupDbContext>((_, options) =>
+        services.AddFgsDbContext<FgsSetupDbContext>((sp, options) =>
         {
+            var connectionString = FgsSetupConnectionString.ResolveRequired(
+                sp.GetRequiredService<IConfiguration>(),
+                sp.GetService<ICredentialConfigurationProvider>());
             options.UseFgsNpgsql(
                 connectionString,
                 "__EFMigrationsHistory",
@@ -154,6 +167,11 @@ public static class DependencyInjection
         }
 
         services.AddFgsInternalServiceRefitClient<IUserTenantClient>(
+            configuration,
+            "UserService:BaseUrl",
+            "http://user-service:5001");
+
+        services.AddFgsInternalServiceRefitClient<IUserCompanyClient>(
             configuration,
             "UserService:BaseUrl",
             "http://user-service:5001");
@@ -180,6 +198,12 @@ public static class DependencyInjection
         services.AddScoped<IFgsSalesActivityOutcomeWriteService, FgsSalesActivityOutcomeWriteService>();
         services.AddScoped<IFgsSetupZoneReadRepository, FgsSetupZoneReadRepository>();
         services.AddScoped<IFgsSetupZoneWriteService, FgsSetupZoneWriteService>();
+        services.AddScoped<IFgsNonWorkingDateReadRepository, FgsNonWorkingDateReadRepository>();
+        services.AddScoped<IFgsNonWorkingDateWriteService, FgsNonWorkingDateWriteService>();
+        services.AddScoped<IFgsPriceBookReadRepository, FgsPriceBookReadRepository>();
+        services.AddScoped<IFgsPriceBookWriteService, FgsPriceBookWriteService>();
+        services.AddScoped<IFgsPriceBookItemReadRepository, FgsPriceBookItemReadRepository>();
+        services.AddScoped<IFgsPriceBookItemWriteService, FgsPriceBookItemWriteService>();
         services.AddScoped<IFgsSetupTechSkillLevelReadRepository, FgsSetupTechSkillLevelReadRepository>();
         services.AddScoped<IFgsSetupTechSkillLevelWriteService, FgsSetupTechSkillLevelWriteService>();
         services.AddScoped<IFgsSetupLaborRateTypeReadRepository, FgsSetupLaborRateTypeReadRepository>();
@@ -194,6 +218,10 @@ public static class DependencyInjection
         services.AddScoped<IFgsSetupPaymentMethodWriteService, FgsSetupPaymentMethodWriteService>();
         services.AddScoped<IFgsSetupPaymentTermReadRepository, FgsSetupPaymentTermReadRepository>();
         services.AddScoped<IFgsSetupPaymentTermWriteService, FgsSetupPaymentTermWriteService>();
+        services.AddScoped<IFgsTermsConditionReadRepository, FgsTermsConditionReadRepository>();
+        services.AddScoped<IFgsTermsConditionWriteService, FgsTermsConditionWriteService>();
+        services.AddScoped<IFgsEntityDefaultTermsConditionReadRepository, FgsEntityDefaultTermsConditionReadRepository>();
+        services.AddScoped<IFgsEntityDefaultTermsConditionWriteService, FgsEntityDefaultTermsConditionWriteService>();
         services.AddScoped<IFgsSetupDescriptionReadRepository, FgsSetupDescriptionReadRepository>();
         services.AddScoped<IFgsSetupDescriptionWriteService, FgsSetupDescriptionWriteService>();
         services.AddScoped<IFgsSetupTimeSlotReadRepository, FgsSetupTimeSlotReadRepository>();
@@ -256,18 +284,39 @@ public static class DependencyInjection
         services.AddScoped<IFgsUniversalMatrixAddOnWriteService, FgsUniversalMatrixAddOnWriteService>();
         services.AddSingleton<ITenantSeedDatabaseConnectionFactory>(sp =>
             new TenantSeedDatabaseConnectionFactory(
-                connectionString,
+                () => FgsSetupConnectionString.ResolveRequired(
+                    sp.GetRequiredService<IConfiguration>(),
+                    sp.GetService<ICredentialConfigurationProvider>()),
                 sp.GetRequiredService<IOptions<TenantProvisioningOptions>>()));
         services.AddScoped<ITenantDataSeedingEngine, TenantDataSeedingEngine>();
         services.AddScoped<ITenantProvisioningOrchestrator, TenantProvisioningOrchestrator>();
         services.AddScoped<ICompanyBusinessTypeService, CompanyBusinessTypeService>();
         services.AddScoped<IOutboxWriter, OutboxWriter>();
+        services.AddFgsOutboxPublisher(configuration, options =>
+        {
+            options.ClientProvidedName = "Fgs.Setup";
+            options.AddSource(
+                sourceKey: "glo",
+                schema: "glo",
+                table: "GloOutboxMessage",
+                connectionStringFactory: sp => FgsSetupConnectionString.ResolveRequired(
+                    sp.GetRequiredService<IConfiguration>(),
+                    sp.GetService<ICredentialConfigurationProvider>()));
+            options.AddSource(
+                sourceKey: "setup",
+                schema: "setup",
+                table: "SetupOutboxMessage",
+                connectionStringFactory: sp => FgsSetupConnectionString.ResolveRequired(
+                    sp.GetRequiredService<IConfiguration>(),
+                    sp.GetService<ICredentialConfigurationProvider>()));
+        });
         CredentialServiceCollectionExtensions.AddFgsCredentialConfigurationServices(
             services,
             configuration,
             configuration,
             registerCredentialStoreDbContext: false);
         CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<RedisCacheOptions>(services);
+        CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<RabbitMqOptions>(services);
 
         return services;
     }

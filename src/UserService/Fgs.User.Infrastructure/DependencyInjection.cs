@@ -1,4 +1,5 @@
 using Fgs.Messaging.Abstractions;
+using Fgs.Messaging.Extensions;
 using Fgs.Messaging.Options;
 using Fgs.User.Infrastructure.Extensions;
 using Fgs.User.Application.Abstractions.Geo;
@@ -22,6 +23,8 @@ using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.PublicEndpoints;
 using Fgs.User.Application.Abstractions.RoleDataAccesses;
 using Fgs.User.Application.Abstractions.RolePermissions;
+using Fgs.User.Application.Abstractions.RoleMenus;
+using Fgs.User.Application.Abstractions.TenantMenus;
 using Fgs.User.Application.Abstractions.Roles;
 using Fgs.User.Application.Abstractions.UserRoles;
 using Fgs.User.Application.Abstractions.ServiceSetups;
@@ -38,6 +41,8 @@ using Fgs.User.Infrastructure.Entities.Permissions;
 using Fgs.User.Infrastructure.Entities.PublicEndpoints;
 using Fgs.User.Infrastructure.Entities.RoleDataAccesses;
 using Fgs.User.Infrastructure.Entities.RolePermissions;
+using Fgs.User.Infrastructure.Entities.RoleMenus;
+using Fgs.User.Infrastructure.Entities.TenantMenus;
 using Fgs.User.Infrastructure.Entities.Roles;
 using Fgs.User.Infrastructure.Entities.UserRoles;
 using Fgs.User.Infrastructure.Entities.ServiceSetups;
@@ -75,20 +80,20 @@ public static class DependencyInjection
             options =>
             {
                 options.ServiceName = "fgs-user-service";
-                options.RequiredProviders = ["DATABASE", "ENTRA_EXTERNAL_ID", "AWS", "REDIS"];
+                options.RequiredProviders = ["DATABASE", "ENTRA_EXTERNAL_ID", "AWS", "REDIS", "RABBITMQ"];
             },
             typeof(EntraExternalIdOptions),
             typeof(AwsCredentialsOptions),
-            typeof(RedisCacheOptions));
+            typeof(RedisCacheOptions),
+            typeof(RabbitMqOptions));
 
         services.AddFgsUserFacingSecurity(configuration);
         services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));
         services.AddScoped<IFgsUserProfileResolver, FgsUserProfileResolver>();
         services.Configure<EntraExternalIdOptions>(configuration.GetSection(EntraExternalIdOptions.SectionName));
-        services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
         services.Configure<SignupLocaleOptions>(configuration.GetSection(SignupLocaleOptions.SectionName));
 
-        services.AddDbContext<FgsUserDbContext>((sp, options) =>
+        services.AddFgsDbContext<FgsUserDbContext>((sp, options) =>
         {
             var appConfiguration = sp.GetRequiredService<IConfiguration>();
             var credentialProvider = sp.GetService<ICredentialConfigurationProvider>();
@@ -105,7 +110,7 @@ public static class DependencyInjection
         services.AddSingleton<IUserReadConnectionFactory, FgsUserReadConnectionFactory>();
         services.AddScoped(typeof(IUserReadRepository<>), typeof(UserDapperReadRepository<>));
         services.AddScoped(typeof(IUserWriteRepository<>), typeof(UserEfWriteRepository<>));
-        services.AddScoped<ITenantCompanyDetailsReadQuery, TenantCompanyDetailsReadQuery>();
+        services.AddScoped<ICompanyDetailsReadQuery, CompanyDetailsReadQuery>();
         services.AddScoped<IUserRoleCodesReadQuery, UserRoleCodesReadQuery>();
         services.AddScoped<IUserAuthorizationReadQuery, UserAuthorizationReadQuery>();
         services.AddScoped<IInvitationReadQuery, InvitationReadQuery>();
@@ -129,6 +134,10 @@ public static class DependencyInjection
         services.AddScoped<IFgsTenantServiceAccountsSetupWriteService, FgsTenantServiceAccountsSetupWriteService>();
         services.AddScoped<IFgsRolePermissionReadRepository, FgsRolePermissionReadRepository>();
         services.AddScoped<IFgsRolePermissionWriteService, FgsRolePermissionWriteService>();
+        services.AddScoped<IFgsRoleMenuReadRepository, FgsRoleMenuReadRepository>();
+        services.AddScoped<IFgsRoleMenuWriteService, FgsRoleMenuWriteService>();
+        services.AddScoped<IFgsTenantMenuReadRepository, FgsTenantMenuReadRepository>();
+        services.AddScoped<IFgsTenantMenuWriteService, FgsTenantMenuWriteService>();
         services.AddScoped<IFgsRoleDataAccessReadRepository, FgsRoleDataAccessReadRepository>();
         services.AddScoped<IFgsRoleDataAccessWriteService, FgsRoleDataAccessWriteService>();
         services.AddScoped<IFgsPublicEndpointReadRepository, FgsPublicEndpointReadRepository>();
@@ -144,6 +153,17 @@ public static class DependencyInjection
         services.AddScoped<IFgsApiWebhookSubscriptionReadRepository, FgsApiWebhookSubscriptionReadRepository>();
         services.AddScoped<IFgsApiWebhookSubscriptionWriteService, FgsApiWebhookSubscriptionWriteService>();
         services.AddScoped<IOutboxWriter, OutboxWriter>();
+        services.AddFgsOutboxPublisher(configuration, options =>
+        {
+            options.ClientProvidedName = "Fgs.User";
+            options.AddSource(
+                sourceKey: "tenant",
+                schema: "tenant",
+                table: "TenantOutboxMessage",
+                connectionStringFactory: sp => FgsUserConnectionString.ResolveRequired(
+                    sp.GetRequiredService<IConfiguration>(),
+                    sp.GetService<ICredentialConfigurationProvider>()));
+        });
         services.AddScoped<IAddressLocaleResolver, AddressLocaleResolver>();
         services.AddSingleton<IEmailNormalizer, EmailNormalizer>();
         services.AddSingleton<IInvitationTokenService, InvitationTokenService>();

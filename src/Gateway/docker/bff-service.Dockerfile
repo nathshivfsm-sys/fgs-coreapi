@@ -23,14 +23,14 @@ COPY src/BffService/Fgs.Bff.API/Fgs.Bff.API.csproj src/BffService/Fgs.Bff.API/
 COPY src/BffService/Fgs.Bff.Application/Fgs.Bff.Application.csproj src/BffService/Fgs.Bff.Application/
 COPY src/BffService/Fgs.Bff.Infrastructure/Fgs.Bff.Infrastructure.csproj src/BffService/Fgs.Bff.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/BffService/Fgs.Bff.API/Fgs.Bff.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/BffService/ src/BffService/
 
 WORKDIR /src/src/BffService/Fgs.Bff.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Bff.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
@@ -39,13 +39,13 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:5003 \
-    ASPNETCORE_ENVIRONMENT=Production \
+    ASPNETCORE_ENVIRONMENT=Development \
     DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_EnableDiagnostics=0
 
 EXPOSE 5003
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=5 \
-    CMD curl -fsS http://localhost:5003/health || exit 1
+    CMD curl -fsS -H "Host: bff-service:5003" http://127.0.0.1:5003/health || exit 1
 
 ENTRYPOINT ["dotnet", "Fgs.Bff.API.dll"]

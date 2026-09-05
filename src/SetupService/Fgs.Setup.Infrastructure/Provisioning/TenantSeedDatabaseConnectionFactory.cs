@@ -1,23 +1,31 @@
 using System.Data.Common;
 using Fgs.Setup.Application.Abstractions.Provisioning;
+using Fgs.Setup.Infrastructure.Common.Options;
 using Microsoft.Extensions.Options;
 using Npgsql;
-using Fgs.Setup.Infrastructure.Common.Options;
 
 namespace Fgs.Setup.Infrastructure.Provisioning;
 
 internal sealed class TenantSeedDatabaseConnectionFactory : ITenantSeedDatabaseConnectionFactory
 {
-    private readonly string _baseConnectionString;
+    private readonly Func<string> _baseConnectionStringFactory;
     private readonly IReadOnlyDictionary<string, string> _databaseConnectionStrings;
+
+    public TenantSeedDatabaseConnectionFactory(
+        Func<string> baseConnectionStringFactory,
+        IOptions<TenantProvisioningOptions>? options = null)
+    {
+        _baseConnectionStringFactory = baseConnectionStringFactory
+            ?? throw new ArgumentNullException(nameof(baseConnectionStringFactory));
+        _databaseConnectionStrings = options?.Value.DatabaseConnectionStrings
+            ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    }
 
     public TenantSeedDatabaseConnectionFactory(
         string baseConnectionString,
         IOptions<TenantProvisioningOptions>? options = null)
+        : this(() => baseConnectionString, options)
     {
-        _baseConnectionString = baseConnectionString;
-        _databaseConnectionStrings = options?.Value.DatabaseConnectionStrings
-            ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     }
 
     public string ResolveDatabaseName(string? configuredDatabaseName, string defaultDatabaseName) =>
@@ -42,7 +50,7 @@ internal sealed class TenantSeedDatabaseConnectionFactory : ITenantSeedDatabaseC
             return overrideConnectionString;
         }
 
-        var builder = new NpgsqlConnectionStringBuilder(_baseConnectionString)
+        var builder = new NpgsqlConnectionStringBuilder(_baseConnectionStringFactory())
         {
             Database = databaseName
         };

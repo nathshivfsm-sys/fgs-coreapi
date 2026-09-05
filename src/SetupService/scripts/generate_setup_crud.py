@@ -1383,17 +1383,11 @@ def allowed_sort(cfg: EntityConfig) -> list[str]:
     return cols
 
 
-def default_order_sql(cfg: EntityConfig) -> str:
-    return 'ORDER BY \\"Id\\" {dir}'
-
-
 def generate_sql(cfg: EntityConfig) -> None:
     sort_cols = list(dict.fromkeys(allowed_sort(cfg)))
     table_cs = cfg.table.replace('"', '\\"')
-    default_order = default_order_sql(cfg)
-    sort_col = resolve_sort_field(cfg)
-    sort_col_check = sort_col or "DisplayOrder"
     content = f"""using Fgs.Foundation.Paging;
+using Fgs.Setup.Infrastructure.Common;
 
 namespace {infra_namespace(cfg)};
 
@@ -1419,18 +1413,7 @@ internal static class {sql_class(cfg)}
     }};
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)
-    {{
-        var dir = direction == SortDirection.Desc ? "DESC" : "ASC";
-        if (string.IsNullOrWhiteSpace(sortBy) || !AllowedSortColumns.Contains(sortBy))
-        {{
-            return $"{default_order}";
-        }}
-
-        var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));
-        return column.Equals("{sort_col_check}", StringComparison.OrdinalIgnoreCase)
-            ? $"{default_order}"
-            : $"ORDER BY \\"{{column}}\\" {{dir}}";
-    }}
+        => SetupSqlOrderBy.Resolve(sortBy, direction, AllowedSortColumns);
 }}
 """
     write(infra_path(cfg) / f"{sql_class(cfg)}.cs", content)
@@ -1773,6 +1756,7 @@ def exists_impl(cfg: EntityConfig) -> str:
                 FROM {{{sql_class(cfg)}.Table}}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "{cf}" = @{cf}
                   {{(excludeId.HasValue ? "AND \\"Id\\" <> @ExcludeId" : string.Empty)}}
             )
@@ -1844,6 +1828,7 @@ def exists_impl(cfg: EntityConfig) -> str:
                 FROM {{{sql_class(cfg)}.Table}}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND {where_parts}
                   {{(excludeId.HasValue ? "AND \\"Id\\" <> @ExcludeId" : string.Empty)}}
             )
@@ -2129,14 +2114,19 @@ internal sealed class {pf}LookupRow
 def field_validation(field: Field, cfg: EntityConfig, mode: str) -> str:
     prop = f"x => x.Dto.{field.name}"
     rules = []
-    patch_when = f".When(x => x.Dto.{field.name} is not null)" if mode == "patch" and field.cs_type == "string?" else ""
-    patch_when_val = f".When(x => x.Dto.{field.name}.HasValue)" if mode == "patch" and field.cs_type in ("short?", "int?", "long?", "bool?", "decimal?", "Guid?", "DateOnly?", "TimeSpan?") else patch_when
+    patch_when = f".When(x => x.Dto.{field.name} is not null)" if mode == "patch" and field.cs_type.startswith("string") else ""
+    patch_when_val = (
+        f".When(x => x.Dto.{field.name}.HasValue)"
+        if mode == "patch"
+        and field.cs_type.rstrip("?") in ("short", "int", "long", "bool", "decimal", "Guid", "DateOnly", "TimeSpan")
+        else patch_when
+    )
 
     if mode != "patch" and field.required:
         if field.cs_type.startswith("string"):
             rules.append(f"        RuleFor({prop}).NotEmpty();")
-    elif mode == "patch" and field.required and field.cs_type.startswith("string") and not field.cs_type.endswith("?"):
-        rules.append(f"        RuleFor({prop}).NotEmpty(){patch_when};")
+    elif mode == "patch" and field.required and field.cs_type.startswith("string"):
+        rules.append(f"        RuleFor({prop}).NotEmpty().When(x => x.Dto.{field.name} is not null);")
 
     if field.max_length:
         rules.append(f"        RuleFor({prop}).MaximumLength({field.max_length}){patch_when_val or patch_when};")
@@ -2144,7 +2134,7 @@ def field_validation(field: Field, cfg: EntityConfig, mode: str) -> str:
     if field.uppercase:
         if mode == "patch":
             rules.append(
-                f'        RuleFor({prop}).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("{field.name} must be uppercase."){patch_when};'
+                f'        RuleFor({prop}).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("{field.name} must be uppercase.").When(x => x.Dto.{field.name} is not null);'
             )
         else:
             rules.append(
@@ -2194,9 +2184,19 @@ def field_validation(field: Field, cfg: EntityConfig, mode: str) -> str:
         method = composite_exists_method(cfg)
         args = composite_exists_args(cfg)
         ex = "command.Id" if mode != "create" else "null"
+        composite_when = ""
+        if mode == "patch":
+            conditions = []
+            for fname in cfg.unique_composite:
+                f = next(f for f in cfg.fields if f.name == fname)
+                if f.cs_type.startswith("string"):
+                    conditions.append(f"x.Dto.{fname} is not null")
+                else:
+                    conditions.append(f"x.Dto.{fname}.HasValue")
+            composite_when = ".When(x => " + " && ".join(conditions) + ")"
         rules.append(f"""        RuleFor(x => x.Dto).MustAsync(async (command, dto, cancellationToken) =>
                 !await readRepository.{method}({args}, {ex}, cancellationToken))
-            .WithMessage("A {cfg.display_name} with this combination already exists.");""")
+            .WithMessage("A {cfg.display_name} with this combination already exists."){composite_when};""")
 
     for fk_field, method, label in cfg.fk_checks:
         if field.name == fk_field:
@@ -2248,9 +2248,17 @@ def extra_validator_rules(cfg: EntityConfig, mode: str) -> str:
             rules.append("""        RuleFor(x => x.Dto).Must(dto => dto.AppliesToLead || dto.AppliesToOpportunity)
             .WithMessage("At least one of AppliesToLead or AppliesToOpportunity must be true.");""")
     if cfg.type_prefix == "FgsSetupTaxAuthority":
-        rules.append("""        RuleFor(x => x.Dto.TaxPercent).InclusiveBetween(0m, 100m);""")
+        if mode == "patch":
+            rules.append("""        RuleFor(x => x.Dto.TaxPercent).InclusiveBetween(0m, 100m).When(x => x.Dto.TaxPercent.HasValue);""")
+        else:
+            rules.append("""        RuleFor(x => x.Dto.TaxPercent).InclusiveBetween(0m, 100m);""")
     if cfg.type_prefix == "FgsSetupTimeSlot":
-        rules.append("""        RuleFor(x => x.Dto).Must(dto => dto.EndTime > dto.BeginTime)
+        if mode == "patch":
+            rules.append("""        RuleFor(x => x.Dto).Must(dto => dto.EndTime!.Value > dto.BeginTime!.Value)
+            .WithMessage("EndTime must be greater than BeginTime.")
+            .When(x => x.Dto.BeginTime.HasValue && x.Dto.EndTime.HasValue);""")
+        else:
+            rules.append("""        RuleFor(x => x.Dto).Must(dto => dto.EndTime > dto.BeginTime)
             .WithMessage("EndTime must be greater than BeginTime.");""")
     if cfg.type_prefix == "JobType":
         if mode == "patch":

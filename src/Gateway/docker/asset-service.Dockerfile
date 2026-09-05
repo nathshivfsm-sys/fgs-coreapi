@@ -24,14 +24,14 @@ COPY src/AssetService/Fgs.Asset.Application/Fgs.Asset.Application.csproj src/Ass
 COPY src/AssetService/Fgs.Asset.Domain/Fgs.Asset.Domain.csproj src/AssetService/Fgs.Asset.Domain/
 COPY src/AssetService/Fgs.Asset.Infrastructure/Fgs.Asset.Infrastructure.csproj src/AssetService/Fgs.Asset.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/AssetService/Fgs.Asset.API/Fgs.Asset.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/AssetService/ src/AssetService/
 
 WORKDIR /src/src/AssetService/Fgs.Asset.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Asset.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
@@ -40,7 +40,7 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:5015 \
-    ASPNETCORE_ENVIRONMENT=Production \
+    ASPNETCORE_ENVIRONMENT=Development \
     DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_EnableDiagnostics=0
 

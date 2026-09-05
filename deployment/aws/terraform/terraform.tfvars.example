@@ -1,0 +1,53 @@
+# Copy to terraform.tfvars (gitignored). Do not put live passwords or API keys in git.
+
+aws_region  = "us-east-1"
+environment = "dev"
+
+github_org  = "nathshivfsm-sys"
+github_repo = "fgs-coreapi"
+
+# First apply: create ECR + IAM + ALB only, then push images, then set true.
+create_ecs_services = false
+
+image_tag             = "dev"
+# ecr_repository_name = "fgs/dockers"
+desired_count = 1
+
+create_vpc = true
+# vpc_id            = "vpc-xxxxxxxx"
+# public_subnet_ids = ["subnet-aaa", "subnet-bbb"]
+
+enable_alb                = true
+use_fargate_spot          = false
+enable_container_insights = false
+log_retention_days        = 14
+
+acm_certificate_arn = ""
+
+aspnetcore_environment = "Development"
+
+create_redis_rabbitmq = true
+
+setup_db_connection_string = ""
+# Only when create_redis_rabbitmq = false:
+# redis_connection_string    = ""
+# rabbitmq_host              = ""
+# rabbitmq_connection_uri    = ""
+
+# EC2 docker-compose host: SSM Online + ECR pull + KMS decrypt for Setup credentials
+kms_key_arn = "arn:aws:kms:us-east-1:286093098927:key/8ad55556-fcb0-4dd7-8ed1-4de526a38a78"
+
+# Datadog ApiKey lives in Setup glo.GloCredential. Do not set Datadog__ApiKey on the task.
+
+# If this account already has GitHub OIDC:
+# create_github_oidc_provider = false
+# github_oidc_provider_arn    = "arn:aws:iam::ACCOUNT:oidc-provider/token.actions.githubusercontent.com"
+
+# EC2 docker-compose host: SSM Online + ECR pull (fgs-<env>-ec2-role / -ec2-profile)
+create_ec2_iam = true
+
+# Access-key CI/CD user (optional; prefer OIDC role AWS_ROLE_TO_ASSUME)
+create_github_actions_user = false
+
+# Attachable policy for laptop/console Session Manager
+create_ssm_session_operator_policy = true

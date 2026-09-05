@@ -13,7 +13,13 @@ RUN apk add --no-cache curl \
 
 COPY nginx.prod.conf /etc/nginx/nginx.conf
 COPY conf.d/site.prod.conf /etc/nginx/conf.d/site.conf
-COPY conf.d/includes/ /etc/nginx/conf.d/includes/
+COPY conf.d/includes/api-v1-routes.prod.conf /etc/nginx/conf.d/includes/
+COPY conf.d/includes/api-v1-service-prefix-routes.conf /etc/nginx/conf.d/includes/
+COPY conf.d/includes/upstreams.prod.conf /etc/nginx/conf.d/includes/
+COPY conf.d/includes/rate-limit.inc /etc/nginx/conf.d/includes/
+# Dev EC2 entrypoint includes swagger-routes.ec2.conf (setup + user only).
+COPY conf.d/includes/swagger-routes.ec2.conf /etc/nginx/conf.d/includes/
+COPY conf.d/includes/swagger-index.html /etc/nginx/conf.d/includes/
 COPY proxy_params.conf /etc/nginx/proxy_params.conf
 COPY cache_params.conf /etc/nginx/cache_params.conf
 

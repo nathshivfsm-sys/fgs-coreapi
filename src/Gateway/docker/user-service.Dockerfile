@@ -24,15 +24,19 @@ COPY src/UserService/Fgs.User.Application/Fgs.User.Application.csproj src/UserSe
 COPY src/UserService/Fgs.User.Domain/Fgs.User.Domain.csproj src/UserService/Fgs.User.Domain/
 COPY src/UserService/Fgs.User.Infrastructure/Fgs.User.Infrastructure.csproj src/UserService/Fgs.User.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/UserService/Fgs.User.API/Fgs.User.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/UserService/ src/UserService/
 
 WORKDIR /src/src/UserService/Fgs.User.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
-    dotnet publish Fgs.User.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
+    dotnet publish Fgs.User.API.csproj -c Release --no-restore -o /app/publish \
+      /p:UseAppHost=false \
+      /p:DebugType=none \
+      /p:DebugSymbols=false \
+      /p:GenerateDocumentationFile=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 RUN apk add --no-cache curl ca-certificates && update-ca-certificates
@@ -40,13 +44,12 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:5001 \
-    ASPNETCORE_ENVIRONMENT=Production \
     DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_EnableDiagnostics=0
 
 EXPOSE 5001
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=5 \
-    CMD curl -fsS http://localhost:5001/health || exit 1
+    CMD curl -fsS -H "Host: user-service:5001" http://127.0.0.1:5001/health || exit 1
 
 ENTRYPOINT ["dotnet", "Fgs.User.API.dll"]

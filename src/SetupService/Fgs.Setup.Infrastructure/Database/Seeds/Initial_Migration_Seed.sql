@@ -415,6 +415,15 @@ FROM (
             TRUE
         ),
         (
+            'DATADOG',
+            'Datadog',
+            '[
+                {"key":"ApiKey","label":"API Key","type":"password","required":true,"sensitive":true},
+                {"key":"Site","label":"Site (e.g. datadoghq.com)","type":"text","required":false}
+            ]',
+            TRUE
+        ),
+        (
             'TWILIO',
             'Twilio',
             '[
@@ -575,6 +584,15 @@ FROM (
                 {"key":"ApiKey","label":"API Key","type":"password","required":true,"sensitive":true},
                 {"key":"FromAddress","label":"From Address","type":"text","required":true},
                 {"key":"FromName","label":"From Name","type":"text","required":true}
+            ]',
+            TRUE
+        ),
+        (
+            'DATADOG',
+            'Datadog',
+            '[
+                {"key":"ApiKey","label":"API Key","type":"password","required":true,"sensitive":true},
+                {"key":"Site","label":"Site (e.g. datadoghq.com)","type":"text","required":false}
             ]',
             TRUE
         ),
@@ -1880,6 +1898,7 @@ FROM (
         ('TENANT_FgsTenantCompany_svc_cache', 'fgs_dev_db', 'tenant', 'FgsTenantCompany', 'fgs_dev_db', 'svc', 'FgsTenantCompanyCache', 11, 'Tenant company cache (svc)', true),
         ('TENANT_CrmServiceLocation_asset_cache', 'fgs_dev_db', 'crm', 'CrmServiceLocation', 'fgs_dev_db', 'asset', 'FgsServiceLocationCache', 12, 'Service location cache (asset)', true),
         ('ALL_GloRole', 'fgs_dev_db', 'glo', 'GloRole', 'fgs_dev_db', 'identity', 'FgsRole', 15, 'Tenant assignable roles (identity)', true),
+        ('ALL_GloMenu', 'fgs_dev_db', 'glo', 'GloMenu', 'fgs_dev_db', 'identity', 'FgsTenantMenu', 16, 'Tenant company menus (identity)', true),
         ('ALL_GloBillingCategory', 'fgs_dev_db', 'glo', 'GloBillingCategory', 'fgs_dev_db', 'setup', 'FgsBillingCategory', 100, 'Billing Category', true),
         ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', 'fgs_dev_db', 'glo', 'GloInventoryCategory', 'fgs_dev_db', 'inventory', 'FgsInventoryCategory', 105, 'Inventory Category', true),
         ('ALL_GloLeadSource', 'fgs_dev_db', 'glo', 'GloLeadSource', 'fgs_dev_db', 'setup', 'FgsLeadSource', 190, 'Lead Source', true),
@@ -2061,6 +2080,22 @@ INNER JOIN (
         ('ALL_GloRole', 'IsActive', 'IsActive', NULL, NULL, 8, true, true),
         ('ALL_GloRole', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 9, true, true),
         ('ALL_GloRole', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 10, false, true),
+
+        -- ALL_GloMenu -> identity.FgsTenantMenu
+        ('ALL_GloMenu', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloMenu', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloMenu', 'Id', 'MenuId', NULL, NULL, 3, true, true),
+        ('ALL_GloMenu', 'MenuCode', 'MenuCode', NULL, NULL, 4, true, true),
+        ('ALL_GloMenu', 'Name', 'Name', NULL, NULL, 5, true, true),
+        ('ALL_GloMenu', 'Description', 'Description', NULL, NULL, 6, false, true),
+        ('ALL_GloMenu', 'ParentMenuId', 'ParentMenuId', NULL, NULL, 7, false, true),
+        ('ALL_GloMenu', 'MenuType', 'MenuType', NULL, NULL, 8, true, true),
+        ('ALL_GloMenu', 'Route', 'Route', NULL, NULL, 9, false, true),
+        ('ALL_GloMenu', 'Icon', 'Icon', NULL, NULL, 10, false, true),
+        ('ALL_GloMenu', 'SortOrder', 'DisplayOrder', NULL, NULL, 11, true, true),
+        ('ALL_GloMenu', 'IsActive', 'IsActive', NULL, NULL, 12, true, true),
+        ('ALL_GloMenu', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 13, true, true),
+        ('ALL_GloMenu', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 14, false, true),
 
         -- ALL_GloBillingCategory -> FgsBillingCategory
         ('ALL_GloBillingCategory', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),

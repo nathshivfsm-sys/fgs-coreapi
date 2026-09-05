@@ -3,7 +3,7 @@ namespace Fgs.User.Application.Abstractions.Identity;
 public interface IEntraExternalIdService
 {
     /// <summary>
-    /// Builds the authorize URL for signup/invite (API callback redirect URI, no PKCE).
+    /// Builds the authorize URL for signup/invite or login (SPA redirect URI + PKCE S256).
     /// When <paramref name="forceSignup"/> is true, includes <c>prompt=create</c> so Entra External ID
     /// opens the account-creation page instead of the default sign-in experience.
     /// When <paramref name="userFlow"/> is set, it overrides the configured default for query <c>p</c>.
@@ -11,6 +11,7 @@ public interface IEntraExternalIdService
     string BuildAuthorizationUrl(
         string state,
         string redirectUri,
+        string codeChallenge,
         string? loginHint = null,
         bool forceSignup = false,
         string? userFlow = null);
@@ -27,15 +28,7 @@ public interface IEntraExternalIdService
         string? userFlow = null);
 
     /// <summary>
-    /// Exchanges an authorization code for signup/invite (no PKCE verifier).
-    /// </summary>
-    Task<EntraTokenResult> ExchangeCodeAsync(
-        string code,
-        string redirectUri,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Exchanges an authorization code for returning-user login (PKCE verifier required).
+    /// Exchanges an authorization code (PKCE verifier required).
     /// </summary>
     Task<EntraTokenResult> ExchangeLoginCodeAsync(
         string code,

@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <CollectCoverage>true</CollectCoverage>
@@ -7,7 +6,6 @@
     <Include>[Fgs.Inventory.Application]*</Include>
     <ExcludeByFile>**/Migrations/**/*.cs</ExcludeByFile>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="8.8.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.8" />
@@ -19,14 +17,11 @@
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Fgs.Inventory.Infrastructure\Fgs.Inventory.Infrastructure.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="FluentAssertions" />
   </ItemGroup>
-
 </Project>

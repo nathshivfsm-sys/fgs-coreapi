@@ -23,3 +23,11 @@ tmp-*.json
 /src/Gateway/logs/
 /src/Gateway/certs/*.crt
 /src/Gateway/certs/*.key
+/src/Gateway/.env
+**/.env
+**/.env.local
+/.tmp
+/tools/credential-migration/post-credentials.ps1
+/src/UserService/Fgs.User.Tests/coverage.cobertura.xml
+/docs/api/scripts/Generate-PostmanCollections.ps1
+/tools/credential-migration/post-credentials.ps1

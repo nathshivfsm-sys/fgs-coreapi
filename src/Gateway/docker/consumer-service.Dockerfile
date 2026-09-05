@@ -24,14 +24,14 @@ COPY src/ConsumerService/Fgs.Consumer.Application/Fgs.Consumer.Application.cspro
 COPY src/ConsumerService/Fgs.Consumer.Domain/Fgs.Consumer.Domain.csproj src/ConsumerService/Fgs.Consumer.Domain/
 COPY src/ConsumerService/Fgs.Consumer.Infrastructure/Fgs.Consumer.Infrastructure.csproj src/ConsumerService/Fgs.Consumer.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/ConsumerService/Fgs.Consumer.API/Fgs.Consumer.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/ConsumerService/ src/ConsumerService/
 
 WORKDIR /src/src/ConsumerService/Fgs.Consumer.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Consumer.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
@@ -40,7 +40,7 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:5007 \
-    ASPNETCORE_ENVIRONMENT=Production \
+    ASPNETCORE_ENVIRONMENT=Development \
     DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_EnableDiagnostics=0
 

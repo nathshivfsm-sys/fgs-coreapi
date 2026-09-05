@@ -1,4 +1,5 @@
 using Fgs.Foundation.Paging;
+using Fgs.Setup.Infrastructure.Common;
 
 namespace Fgs.Setup.Infrastructure.Persistence.Employees;
 
@@ -31,14 +32,10 @@ internal static class FgsEmployeeSql
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)
-    {
-        var dir = direction == SortDirection.Desc ? "DESC" : "ASC";
-        if (string.IsNullOrWhiteSpace(sortBy) || !AllowedSortColumns.Contains(sortBy))
-        {
-            return $"ORDER BY \"DisplayName\" {dir}";
-        }
+        => SetupSqlOrderBy.Resolve(
+            sortBy,
+            direction,
+            AllowedSortColumns,
+            defaultColumn: "DisplayName");
 
-        var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));
-        return $"ORDER BY \"{column}\" {dir}";
-    }
 }

@@ -1,4 +1,5 @@
 using Fgs.Foundation.Paging;
+using Fgs.Setup.Infrastructure.Common;
 
 namespace Fgs.Setup.Infrastructure.Persistence.VehicleMaintenances;
 
@@ -24,16 +25,6 @@ internal static class FgsVehicleMaintenanceSql
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)
-    {
-        var dir = direction == SortDirection.Desc ? "DESC" : "ASC";
-        if (string.IsNullOrWhiteSpace(sortBy) || !AllowedSortColumns.Contains(sortBy))
-        {
-            return $"ORDER BY \"Id\" {dir}";
-        }
+        => SetupSqlOrderBy.Resolve(sortBy, direction, AllowedSortColumns);
 
-        var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));
-        return column.Equals("DisplayOrder", StringComparison.OrdinalIgnoreCase)
-            ? $"ORDER BY \"ServiceDate\" {dir}"
-            : $"ORDER BY \"{column}\" {dir}";
-    }
 }

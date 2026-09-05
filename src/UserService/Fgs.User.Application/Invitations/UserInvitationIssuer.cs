@@ -41,6 +41,7 @@ public sealed class UserInvitationIssuer(
                 existing.MarkExpired();
                 existing.UpdatedOn = now;
                 existing.UpdatedBy = createdBy;
+                invitationRepo.Update(existing);
             }
         }
 
@@ -67,8 +68,7 @@ public sealed class UserInvitationIssuer(
 
         await invitationRepo.AddAsync(invitation, cancellationToken);
 
-        var inviteBaseUrl = configuration[ConfigurationKeys.Invitation.InviteBaseUrl]
-            ?? ApplicationUrlDefaults.InviteStart;
+        var inviteBaseUrl = ApplicationPublicUrlResolver.ResolveInviteBaseUrl(configuration);
         var inviteUrl = $"{inviteBaseUrl.TrimEnd('/')}?token={Uri.EscapeDataString(plainToken)}";
         var expirationHours = Math.Max(
             SignupConstants.MinimumExpirationHours,

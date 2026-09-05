@@ -26,5 +26,7 @@ while [ "$attempt" -le "$max_attempts" ]; do
   sleep_seconds=$((attempt * 15))
   echo "Restore failed; waiting ${sleep_seconds}s before retry..."
   sleep "$sleep_seconds"
+  # Parallel compose builds share the NuGet cache mount; clear partial downloads on retry.
+  dotnet nuget locals global-packages --clear >/dev/null 2>&1 || true
   attempt=$((attempt + 1))
 done

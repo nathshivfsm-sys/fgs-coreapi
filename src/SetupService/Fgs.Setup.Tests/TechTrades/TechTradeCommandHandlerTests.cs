@@ -95,7 +95,7 @@ public sealed class TechTradeCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
 
-        var entity = await context.FgsSetupTechTrades.SingleAsync();
+        var entity = await context.FgsSetupTechTrades.IgnoreQueryFilters().SingleAsync();
         entity.IsActive.Should().BeFalse();
     }
 

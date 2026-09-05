@@ -55,12 +55,12 @@ public sealed class PatchFgsSetupDescriptionCommandValidator : AbstractValidator
     public PatchFgsSetupDescriptionCommandValidator(IFgsSetupDescriptionReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.DescriptionTypeCode).NotEmpty();
+        RuleFor(x => x.Dto.DescriptionTypeCode).NotEmpty().When(x => x.Dto.DescriptionTypeCode is not null);
         RuleFor(x => x.Dto.DescriptionTypeCode).MustAsync(async (command, code, cancellationToken) =>
                 !await readRepository.ExistsByDescriptionTypeCodeAsync(code!, command.Id, cancellationToken))
-            .WithMessage("A setup description with this code already exists.");
+            .WithMessage("A setup description with this code already exists.").When(x => x.Dto.DescriptionTypeCode is not null);
         RuleFor(x => x.Dto.ShortNote).MaximumLength(30).When(x => x.Dto.ShortNote is not null);
-        RuleFor(x => x.Dto.Body).NotEmpty();
+        RuleFor(x => x.Dto.Body).NotEmpty().When(x => x.Dto.Body is not null);
         RuleFor(x => x.Dto.FgsSetupTechTradeId).MustAsync(async (command, value, cancellationToken) =>
                 !value.HasValue || await readRepository.ExistsTechTradeIdAsync(value.Value, cancellationToken))
             .WithMessage("The specified tech trade was not found.").When(x => x.Dto.FgsSetupTechTradeId.HasValue);

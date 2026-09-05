@@ -193,6 +193,7 @@ internal sealed class FgsSetupPricingMatrixReadRepository : IFgsSetupPricingMatr
                 FROM {FgsSetupPricingMatrixSql.Table} pm
                 WHERE pm."TenantId" = @TenantId
                   AND pm."CompanyId" = @CompanyId
+                  AND pm."IsActive" = TRUE
                   AND pm."Code" = @Code
                   AND (@ExcludeId IS NULL OR pm."Id" <> @ExcludeId)
             )

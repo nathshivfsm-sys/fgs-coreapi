@@ -1,0 +1,15 @@
+---
+description: PostgreSQL schemas, EF, and table naming
+globs: "**/*.{cs,sql}"
+alwaysApply: false
+---
+
+# Database
+
+- One schema owner per service. No cross-service writes (Setup still seeds `inventory` in places).
+- Schema map: [docs/ai/database.md](../../docs/ai/database.md).
+- Tables: PascalCase. Global `Glo*`. Tenant setup `FgsSetup*` or `Fgs*`. Do not create `FSGSetup*`.
+- Tenant rows: `TenantId` + `CompanyId`, implement `ITenantCompanyScoped`. Global: `GloEntityBase`, no tenant columns.
+- DbContext: inherit `FgsTenantFilteredDbContext`; register `AddFgsPersistence<TDbContext>()`; `UseFgsNpgsql`.
+- Migrations live in `{Service}.Infrastructure/Database/Migrations`. Use that service's design factory.
+- Reads in Setup: Dapper via `ISetupReadConnectionFactory` (`FgsSetupReadOnly`).

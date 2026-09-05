@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <ItemGroup>
     <ProjectReference Include="..\Fgs.File.Application\Fgs.File.Application.csproj" />
     <ProjectReference Include="..\Fgs.File.Infrastructure\Fgs.File.Infrastructure.csproj" />
@@ -7,17 +6,17 @@
     <ProjectReference Include="..\..\Shared\MultiTenancy\Fgs.MultiTenancy\Fgs.MultiTenancy.csproj" />
     <ProjectReference Include="..\..\Shared\Observability\Fgs.Observability\Fgs.Observability.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
   </PropertyGroup>
-
 </Project>

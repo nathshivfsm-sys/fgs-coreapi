@@ -1,0 +1,372 @@
+# Reusable build + ECR push. Called by build-setup.yml, build-user.yml, build-bff.yml, build-nginx.yml.
+# Do not add `on: push` here — callers own triggers so only one service runs.
+#
+# AWS auth (prefer OIDC; access keys are a fallback):
+#   1) Secrets AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY → IAM user keys
+#   2) Else vars.AWS_ROLE_TO_ASSUME → GitHub OIDC role
+# ECR: vars.ECR_REPO (default fgs/dockers). Tags are service-prefixed
+#   (setup-dev, audit-dev, user-dev, bff-dev, notification-dev, file-dev,
+#    publisher-dev, consumer-dev, nginx-dev, redis-dev, rabbitmq-dev).
+# Set vars: AWS_REGION, and either OIDC role or access-key secrets.
+# ECR push only on push (merge) to dev — not on pull_request.
+# workflow_dispatch builds locally unless input push_to_ecr=true.
+
+name: Reusable service image build
+
+on:
+  workflow_call:
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: false
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+    inputs:
+      service:
+        required: true
+        type: string
+      context:
+        required: true
+        type: string
+      dockerfile:
+        required: true
+        type: string
+      ecr_repository:
+        required: true
+        type: string
+      version_file:
+        required: true
+        type: string
+      version_kind:
+        required: true
+        type: string
+        description: csproj or plain
+      test_project:
+        required: false
+        type: string
+        default: ""
+      force:
+        required: false
+        type: boolean
+        default: false
+      push_to_ecr:
+        required: false
+        type: boolean
+        default: false
+        description: When caller_event is workflow_dispatch, set true to publish to ECR
+      caller_event:
+        required: true
+        type: string
+        description: github.event_name from the caller (push, pull_request, workflow_dispatch)
+    outputs:
+      push_images:
+        description: Whether this run intended to publish (merge to channel branch)
+        value: ${{ jobs.resolve.outputs.push_images }}
+      image_pushed:
+        description: True only when a new image was actually pushed to ECR
+        value: ${{ jobs.build.outputs.image_pushed }}
+      channel:
+        description: Image channel tag suffix (dev)
+        value: ${{ jobs.resolve.outputs.channel }}
+      version:
+        description: Service version that was built
+        value: ${{ jobs.resolve.outputs.version }}
+      github_environment:
+        description: GitHub Environment for CD (dev)
+        value: ${{ jobs.resolve.outputs.github_environment }}
+      ecs_cluster:
+        description: Default ECS cluster name for this channel
+        value: ${{ jobs.resolve.outputs.ecs_cluster }}
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  # Kill switch: set repo variable PUSH_TO_ECR=false to never publish (even on merge).
+  PUSH_TO_ECR: ${{ vars.PUSH_TO_ECR || 'true' }}
+
+jobs:
+  resolve:
+    name: Resolve ${{ inputs.service }} version
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.detect.outputs.should_build }}
+      version: ${{ steps.detect.outputs.version }}
+      channel: ${{ steps.meta.outputs.channel }}
+      git_ref: ${{ steps.meta.outputs.git_ref }}
+      short_sha: ${{ steps.meta.outputs.short_sha }}
+      push_images: ${{ steps.meta.outputs.push_images }}
+      github_environment: ${{ steps.meta.outputs.github_environment }}
+      ecs_cluster: ${{ steps.meta.outputs.ecs_cluster }}
+      version_channel_tag: ${{ steps.detect.outputs.version_channel_tag }}
+      version_sha_tag: ${{ steps.detect.outputs.version_sha_tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Resolve metadata
+        id: meta
+        env:
+          EVENT_NAME: ${{ inputs.caller_event }}
+          GIT_SHA: ${{ github.sha }}
+          BASE_REF: ${{ github.base_ref }}
+          REF_NAME: ${{ github.ref_name }}
+          PUSH_TO_ECR: ${{ env.PUSH_TO_ECR }}
+          DISPATCH_PUSH: ${{ inputs.push_to_ecr }}
+        run: |
+          SHORT_SHA=$(echo "$GIT_SHA" | cut -c1-12)
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            GIT_REF="$BASE_REF"
+          else
+            GIT_REF="$REF_NAME"
+          fi
+
+          case "$GIT_REF" in
+            dev) CHANNEL=dev; GH_ENV=dev; CLUSTER=fgs-dev ;;
+            *) echo "Unsupported branch: $GIT_REF (only dev is configured)" >&2; exit 1 ;;
+          esac
+
+          # Publish only when a PR is merged (push) to dev.
+          # pull_request → build/test only.
+          # workflow_dispatch → build only unless push_to_ecr input is true.
+          PUSH_IMAGES=false
+          if [ "$PUSH_TO_ECR" = "false" ]; then
+            PUSH_IMAGES=false
+          elif [ "$EVENT_NAME" = "push" ] && [ "$GIT_REF" = "dev" ]; then
+            PUSH_IMAGES=true
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$DISPATCH_PUSH" = "true" ]; then
+            PUSH_IMAGES=true
+          fi
+
+          echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "push_images=${PUSH_IMAGES}" >> "$GITHUB_OUTPUT"
+          echo "channel=${CHANNEL}" >> "$GITHUB_OUTPUT"
+          echo "git_ref=${GIT_REF}" >> "$GITHUB_OUTPUT"
+          echo "github_environment=${GH_ENV}" >> "$GITHUB_OUTPUT"
+          echo "ecs_cluster=${CLUSTER}" >> "$GITHUB_OUTPUT"
+
+      - name: Detect version bump
+        id: detect
+        env:
+          FORCE: ${{ inputs.force }}
+          VERSION_FILE: ${{ inputs.version_file }}
+          VERSION_KIND: ${{ inputs.version_kind }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          CHANNEL: ${{ steps.meta.outputs.channel }}
+          SHORT_SHA: ${{ steps.meta.outputs.short_sha }}
+          SERVICE: ${{ inputs.service }}
+        run: |
+          python3 <<'PY'
+          import os, re, subprocess, pathlib
+
+          def git_show(ref: str, path: str):
+              if not ref or re.fullmatch(r"0+", ref):
+                  return None
+              result = subprocess.run(
+                  ["git", "show", f"{ref}:{path}"],
+                  capture_output=True,
+                  text=True,
+              )
+              return result.stdout if result.returncode == 0 else None
+
+          def parse_csproj(text):
+              if not text:
+                  return None
+              match = re.search(r"<Version>\s*([^<]+?)\s*</Version>", text)
+              return match.group(1).strip() if match else None
+
+          def parse_plain(text):
+              if not text:
+                  return None
+              lines = text.strip().splitlines()
+              return lines[0].strip() if lines else None
+
+          path = os.environ["VERSION_FILE"]
+          kind = os.environ["VERSION_KIND"]
+          force = os.environ.get("FORCE", "false").lower() == "true"
+          base_sha = os.environ.get("BASE_SHA") or ""
+          if not base_sha or re.fullmatch(r"0+", base_sha):
+              parent = subprocess.run(["git", "rev-parse", "HEAD^"], capture_output=True, text=True)
+              base_sha = parent.stdout.strip() if parent.returncode == 0 else ""
+
+          head_text = pathlib.Path(path).read_text(encoding="utf-8")
+          base_text = git_show(base_sha, path)
+          if kind == "csproj":
+              head = parse_csproj(head_text)
+              base = parse_csproj(base_text)
+          else:
+              head = parse_plain(head_text)
+              base = parse_plain(base_text)
+
+          if not head:
+              raise SystemExit(f"Missing version in {path}")
+
+          changed = head != base
+          should_build = force or changed
+          channel = os.environ["CHANNEL"]
+          short_sha = os.environ["SHORT_SHA"]
+          print(
+              f"{os.environ['SERVICE']}: base={base or '(none)'} head={head} "
+              f"changed={changed} force={force} should_build={should_build}"
+          )
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"should_build={'true' if should_build else 'false'}\n")
+              fh.write(f"version={head}\n")
+              fh.write(f"version_channel_tag={head}-{channel}\n")
+              fh.write(f"version_sha_tag={head}-{channel}-{short_sha}\n")
+          PY
+
+  build:
+    name: Build ${{ inputs.service }}
+    needs: resolve
+    if: needs.resolve.outputs.should_build == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      image_pushed: ${{ steps.mark.outputs.image_pushed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        if: inputs.test_project != ''
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Run tests
+        if: inputs.test_project != ''
+        run: |
+          set -euo pipefail
+          echo "Running tests: ${{ inputs.test_project }}"
+          dotnet test "${{ inputs.test_project }}" \
+            --configuration Release \
+            --nologo \
+            --logger "trx;LogFileName=${{ inputs.service }}-tests.trx" \
+            --logger "console;verbosity=normal" \
+            --results-directory TestResults
+          echo "All tests passed for ${{ inputs.service }}."
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Require AWS auth for ECR
+        id: auth
+        if: needs.resolve.outputs.push_images == 'true'
+        env:
+          ROLE: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        run: |
+          if [ -n "$ACCESS_KEY" ]; then
+            echo "Using IAM access keys (AWS_ACCESS_KEY_ID secret)."
+            echo "use_access_keys=true" >> "$GITHUB_OUTPUT"
+          elif [ -n "$ROLE" ]; then
+            echo "Using GitHub OIDC role: $ROLE"
+            echo "use_access_keys=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Set secrets AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY, or variable AWS_ROLE_TO_ASSUME (OIDC)."
+            exit 1
+          fi
+
+      - name: Configure AWS credentials (access keys)
+        if: needs.resolve.outputs.push_images == 'true' && steps.auth.outputs.use_access_keys == 'true'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure AWS credentials (GitHub OIDC)
+        if: needs.resolve.outputs.push_images == 'true' && steps.auth.outputs.use_access_keys == 'false'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        if: needs.resolve.outputs.push_images == 'true'
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Resolve image tags
+        id: tags
+        env:
+          PUSH_IMAGES: ${{ needs.resolve.outputs.push_images }}
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          REPO: ${{ inputs.ecr_repository }}
+          CHANNEL: ${{ needs.resolve.outputs.channel }}
+          VERSION_CHANNEL: ${{ needs.resolve.outputs.version_channel_tag }}
+          VERSION_SHA: ${{ needs.resolve.outputs.version_sha_tag }}
+          SERVICE: ${{ inputs.service }}
+        run: |
+          if [ "$PUSH_IMAGES" = "true" ]; then
+            IMAGE="${REGISTRY}/${REPO}"
+            {
+              echo "image=${IMAGE}"
+              echo "tags<<EOF"
+              echo "${IMAGE}:${SERVICE}-${CHANNEL}"
+              echo "${IMAGE}:${SERVICE}-${VERSION_CHANNEL}"
+              echo "${IMAGE}:${SERVICE}-${VERSION_SHA}"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            {
+              echo "image=local/${SERVICE}"
+              echo "tags<<EOF"
+              echo "local/${SERVICE}:${VERSION_CHANNEL}"
+              echo "local/${SERVICE}:${VERSION_SHA}"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and push image to ECR
+        id: docker
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ inputs.context }}
+          file: ${{ inputs.dockerfile }}
+          push: ${{ needs.resolve.outputs.push_images == 'true' }}
+          load: ${{ needs.resolve.outputs.push_images != 'true' }}
+          tags: ${{ steps.tags.outputs.tags }}
+          build-args: |
+            SERVICE_VERSION=${{ needs.resolve.outputs.version }}
+          labels: |
+            org.opencontainers.image.version=${{ needs.resolve.outputs.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=fgs-${{ inputs.service }}
+          cache-from: type=gha,scope=${{ inputs.service }}-${{ needs.resolve.outputs.channel }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.service }}-${{ needs.resolve.outputs.channel }}
+          provenance: false
+
+      - name: Verify local image
+        if: needs.resolve.outputs.push_images != 'true'
+        run: |
+          echo "Built images:"
+          docker image ls --filter "reference=local/${{ inputs.service }}*"
+          docker image inspect "local/${{ inputs.service }}:${{ needs.resolve.outputs.version_channel_tag }}" --format '{{.Id}} {{.RepoTags}} {{.Size}}'
+
+      - name: Mark image pushed
+        id: mark
+        if: needs.resolve.outputs.push_images == 'true'
+        run: echo "image_pushed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Summary
+        run: |
+          {
+            echo "### ${{ inputs.service }}"
+            echo "- Branch: \`${{ needs.resolve.outputs.git_ref }}\`"
+            echo "- Channel: \`${{ needs.resolve.outputs.channel }}\`"
+            echo "- Version: \`${{ needs.resolve.outputs.version }}\`"
+            echo "- Tests: \`${{ inputs.test_project || 'n/a' }}\`"
+            echo "- Dockerfile: \`${{ inputs.dockerfile }}\`"
+            echo "- Push to ECR: \`${{ needs.resolve.outputs.push_images }}\`"
+            echo "- ECR repository: \`${{ inputs.ecr_repository }}\`"
+            echo "- Image: \`${{ steps.tags.outputs.image }}\`"
+            echo "- Digest: \`${{ steps.docker.outputs.digest }}\`"
+            echo "- Tags:"
+            echo '```'
+            echo "${{ steps.tags.outputs.tags }}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

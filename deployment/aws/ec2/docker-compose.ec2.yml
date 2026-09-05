@@ -1,0 +1,351 @@
+# EC2 / AWS dev host ONLY — not for local Docker Desktop.
+# Local dev: use src/Gateway/docker-compose.yml (project name fgs-local, builds from source).
+#
+# Run on EC2 at /opt/fgs after bootstrap-ec2.sh. Images from ECR via .env (deploy-service.sh).
+# See deployment/aws/ec2/README.md and manual-guide/GITHUB_ACTIONS_CD_EC2.md
+#
+# Credentials:
+#   - Setup DB bootstrap: only ConnectionStrings:FgsSetup in /opt/fgs/config/setup-appsettings.json
+#   - User DB, Redis, RabbitMQ auth, etc.: glo.GloCredential (Setup) — not in EC2 config files
+
+name: fgs-ec2
+
+x-app-network: &app-network
+  networks:
+    - fgs-private
+  restart: unless-stopped
+
+# Logs-only Datadog (Serilog → Datadog Logs API). ApiKey from glo.GloCredential Global:DATADOG.
+x-datadog-env: &datadog-env
+  Datadog__Enabled: "true"
+  Datadog__Site: ${DD_SITE:-datadoghq.com}
+  Datadog__Env: ${DD_ENV:-dev}
+  Datadog__Version: ${DD_VERSION:-}
+  Datadog__AgentHost: ""
+  Datadog__EnableApm: "false"
+  Datadog__EnableRuntimeMetrics: "false"
+  Datadog__EnableLlmObs: "false"
+  Observability__Enabled: "false"
+  DD_LLMOBS_ENABLED: "false"
+
+services:
+  redis:
+    image: ${FGS_REDIS_IMAGE:?set FGS_REDIS_IMAGE in .env}
+    hostname: redis
+    <<: *app-network
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+
+  rabbitmq:
+    image: ${FGS_RABBITMQ_IMAGE:?set FGS_RABBITMQ_IMAGE in .env}
+    hostname: rabbitmq
+    <<: *app-network
+    # Broker init only — not read from Setup credential table. Password must match GloCredential RABBITMQ.
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-fgs}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?set RABBITMQ_PASSWORD in .env — must match GloCredential RABBITMQ}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 6
+      start_period: 40s
+
+  setup-service:
+    image: ${FGS_SETUP_IMAGE:?set FGS_SETUP_IMAGE in .env}
+    hostname: setup-service
+    <<: *app-network
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:5004
+      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      # Allows GET /api/v1/credential/{id}/resolve (JWT). Keep ASPNETCORE_ENVIRONMENT=Development.
+      AwsCredentials__EnableTestSecretEndpoint: "true"
+      Swagger__Enabled: "true"
+      Swagger__RoutePrefix: swagger/setup
+      UserService__BaseUrl: http://user-service:5001
+      # Non-secret broker address (credentials from GloCredential; password only in .env for broker boot).
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Port: "5672"
+      RabbitMq__SslEnabled: "false"
+      # Compose Redis on fgs-private network (overrides GloCredential localhost / ECS hostnames).
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+      <<: *datadog-env
+    volumes:
+      - ${FGS_CONFIG_DIR:-./config}/setup-appsettings.json:/app/appsettings.json:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    expose:
+      - "5004"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://setup-service:5004/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  user-service:
+    image: ${FGS_USER_IMAGE:?set FGS_USER_IMAGE in .env}
+    hostname: user-service
+    <<: *app-network
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      SetupService__BaseUrl: http://setup-service:5004
+      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      CredentialConsumer__ServiceName: fgs-user-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: ENTRA_EXTERNAL_ID
+      CredentialConsumer__RequiredProviders__2: AWS
+      CredentialConsumer__RequiredProviders__3: REDIS
+      CredentialConsumer__RequiredProviders__4: RABBITMQ
+      RabbitMq__HostName: rabbitmq
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+      Swagger__Enabled: "true"
+      Swagger__RoutePrefix: swagger/user
+      # Public gateway origin for invite emails / API deep links (overrides GloCredential localhost).
+      Application__PublicBaseUrl: ${FGS_PUBLIC_BASE_URL:?set FGS_PUBLIC_BASE_URL in .env}
+      # EC2 uses service-prefixed routes: /user-service/api/v1/...
+      Application__PublicServicePath: ${FGS_PUBLIC_SERVICE_PATH:-user-service}
+      # SPA Entra OAuth callback (must match Entra redirect URI registration).
+      Application__UiAuthCallbackUrl: ${FGS_UI_AUTH_CALLBACK_URL:?set FGS_UI_AUTH_CALLBACK_URL in .env}
+      <<: *datadog-env
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+    expose:
+      - "5001"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://user-service:5001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  bff-service:
+    image: ${FGS_BFF_IMAGE:?set FGS_BFF_IMAGE in .env}
+    hostname: bff-service
+    <<: *app-network
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      SetupService__BaseUrl: http://setup-service:5004
+      UserService__BaseUrl: http://user-service:5001
+      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      CredentialConsumer__ServiceName: fgs-bff-service
+      CredentialConsumer__RequiredProviders__0: ENTRA_EXTERNAL_ID
+      CredentialConsumer__RequiredProviders__1: REDIS
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+      Swagger__Enabled: "true"
+      Swagger__RoutePrefix: swagger/bff
+      <<: *datadog-env
+    depends_on:
+      redis:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    expose:
+      - "5003"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://bff-service:5003/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  audit-service:
+    image: ${FGS_AUDIT_IMAGE:?set FGS_AUDIT_IMAGE in .env}
+    hostname: audit-service
+    <<: *app-network
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      SetupService__BaseUrl: http://setup-service:5004
+      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      CredentialConsumer__ServiceName: fgs-audit-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      RabbitMq__HostName: rabbitmq
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+      Swagger__Enabled: "true"
+      Swagger__RoutePrefix: swagger/audit
+      <<: *datadog-env
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+    expose:
+      - "5008"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://audit-service:5008/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  notification-service:
+    image: ${FGS_NOTIFICATION_IMAGE:?set FGS_NOTIFICATION_IMAGE in .env}
+    hostname: notification-service
+    <<: *app-network
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      SetupService__BaseUrl: http://setup-service:5004
+      UserService__BaseUrl: http://user-service:5001
+      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      CredentialConsumer__ServiceName: fgs-notification-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: SENDGRID
+      RabbitMq__HostName: rabbitmq
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+      Swagger__Enabled: "true"
+      Swagger__RoutePrefix: swagger/notification
+      <<: *datadog-env
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    expose:
+      - "5002"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://notification-service:5002/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  file-service:
+    image: ${FGS_FILE_IMAGE:?set FGS_FILE_IMAGE in .env}
+    hostname: file-service
+    <<: *app-network
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      SetupService__BaseUrl: http://setup-service:5004
+      UserService__BaseUrl: http://user-service:5001
+      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      CredentialConsumer__ServiceName: fgs-file-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: AWS
+      CredentialConsumer__RequiredProviders__2: ENTRA_EXTERNAL_ID
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+      FileService__PublicBaseUrl: ${FGS_PUBLIC_BASE_URL:?set FGS_PUBLIC_BASE_URL in .env}
+      Swagger__Enabled: "true"
+      Swagger__RoutePrefix: swagger/file
+      <<: *datadog-env
+    depends_on:
+      redis:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    expose:
+      - "5005"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://file-service:5005/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  consumer-service:
+    image: ${FGS_CONSUMER_IMAGE:?set FGS_CONSUMER_IMAGE in .env}
+    hostname: consumer-service
+    <<: *app-network
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      SetupService__BaseUrl: http://setup-service:5004
+      NotificationService__BaseUrl: http://notification-service:5002
+      AuditService__BaseUrl: http://audit-service:5008
+      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      CredentialConsumer__ServiceName: fgs-consumer-service
+      CredentialConsumer__RequiredProviders__0: RABBITMQ
+      CredentialConsumer__RequiredProviders__1: REDIS
+      RabbitMq__HostName: rabbitmq
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+      Swagger__Enabled: "true"
+      Swagger__RoutePrefix: swagger/consumer
+      <<: *datadog-env
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+    expose:
+      - "5007"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://consumer-service:5007/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  nginx:
+    image: ${FGS_NGINX_IMAGE:?set FGS_NGINX_IMAGE in .env}
+    <<: *app-network
+    # ALB terminates TLS and forwards HTTP — same pattern as ECS gateway_start in Terraform.
+    entrypoint: ["/bin/sh", "/opt/fgs/nginx-http-only-entrypoint.sh"]
+    volumes:
+      - ./nginx-http-only-entrypoint.sh:/opt/fgs/nginx-http-only-entrypoint.sh:ro
+    ports:
+      - "80:80"
+    depends_on:
+      setup-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      bff-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost/nginx-health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+networks:
+  fgs-private:
+    driver: bridge
+
+volumes:
+  redis-data:
+  rabbitmq-data:

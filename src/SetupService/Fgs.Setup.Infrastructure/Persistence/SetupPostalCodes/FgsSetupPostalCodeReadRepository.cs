@@ -147,6 +147,7 @@ internal sealed class FgsSetupPostalCodeReadRepository : IFgsSetupPostalCodeRead
                 FROM {FgsSetupPostalCodeSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "PostalCode" = @PostalCode
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

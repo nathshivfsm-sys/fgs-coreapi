@@ -19,7 +19,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fgs.Inventory.API.Controllers;
 
 /// <summary>
-/// Tenant-scoped inventory item catalog management (header, alternates, and dependencies in one request).
+/// Tenant-scoped inventory item catalog management.
+/// Alternates and dependencies are managed via inventoryitemalternate / inventoryitemdependency.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("inventoryitem")]

@@ -17,7 +17,7 @@ namespace Fgs.User.Tests.Application;
 public sealed class StartInvitationCommandHandlerTests
 {
     [Fact]
-    public async Task Handle_WithValidToken_ReturnsEntraRedirect()
+    public async Task Handle_WithValidToken_ReturnsEntraRedirectAndSavesPkce()
     {
         var tokenService = new InvitationTokenService();
         var plain = tokenService.GenerateToken();
@@ -26,63 +26,37 @@ public sealed class StartInvitationCommandHandlerTests
         var context = await TestDbContextFactory.CreateAndInitializeAsync();
         var invitationId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        context.FgsUsers.Add(new FgsUser
-        {
-            Id = userId,
-            TenantId = 1,
-            CompanyId = 1,
-            Email = "a@test.com",
-            DisplayName = "Acme Admin",
-            IsActive = true,
-            CreatedOn = DateTimeOffset.UtcNow
-        });
-        context.FgsInvitations.Add(new FgsInvitation
-        {
-            Id = invitationId,
-            UserId = userId,
-            TenantId = 1,
-            Email = "a@test.com",
-            TokenHash = hash,
-            Status = InvitationStatus.Pending,
-            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(1),
-            CreatedOn = DateTimeOffset.UtcNow
-        });
+        SeedUserAndInvite(context, invitationId, userId, "a@test.com", InvitationStatus.Pending, hash);
         await context.SaveChangesAsync();
 
         var entraMock = new Mock<IEntraExternalIdService>();
         entraMock
             .Setup(s => s.BuildAuthorizationUrl(
                 invitationId.ToString(),
+                "https://app.local/auth/callback",
                 It.IsAny<string>(),
                 "a@test.com",
                 true,
-                It.IsAny<string?>()))
+                "Fgs_SignUpSignIn_Pwd"))
             .Returns("https://login.example/authorize");
 
-        var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback",
-                [ConfigurationKeys.EntraExternalId.UserFlow] = "Fgs_SignUpSignIn",
-                [ConfigurationKeys.EntraExternalId.PasswordUserFlow] = "Fgs_SignUpSignIn_Pwd"
-            })
-            .Build();
-
-        var handler = new StartInvitationCommandHandler(
-            new EfUnitOfWork<FgsUserDbContext>(context),
-            tokenService,
-            entraMock.Object,
-            new DateTimeProvider(),
-            configuration);
+        var pkceStore = new Mock<ILoginPkceStore>();
+        var handler = CreateHandler(context, entraMock.Object, pkceStore.Object);
 
         var result = await handler.Handle(new StartInvitationCommand(plain), CancellationToken.None);
 
         result.Success.Should().BeTrue();
         result.RedirectUrl.Should().StartWith("https://login.example");
-        // Default AuthenticationMethod is PasswordOrEmailOtp → password user flow.
+        pkceStore.Verify(
+            s => s.SaveAsync(
+                invitationId.ToString(),
+                It.Is<LoginPkceState>(p => p.UserId == userId && p.RedirectUri == "https://app.local/auth/callback"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
         entraMock.Verify(
             s => s.BuildAuthorizationUrl(
                 invitationId.ToString(),
+                "https://app.local/auth/callback",
                 It.IsAny<string>(),
                 "a@test.com",
                 true,
@@ -129,39 +103,17 @@ public sealed class StartInvitationCommandHandlerTests
             .Setup(s => s.BuildAuthorizationUrl(
                 invitationId.ToString(),
                 It.IsAny<string>(),
+                It.IsAny<string>(),
                 "pwd@test.com",
                 true,
                 "Fgs_SignUpSignIn_Pwd"))
             .Returns("https://login.example/pwd");
 
-        var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback",
-                [ConfigurationKeys.EntraExternalId.UserFlow] = "Fgs_SignUpSignIn",
-                [ConfigurationKeys.EntraExternalId.PasswordUserFlow] = "Fgs_SignUpSignIn_Pwd"
-            })
-            .Build();
-
-        var handler = new StartInvitationCommandHandler(
-            new EfUnitOfWork<FgsUserDbContext>(context),
-            tokenService,
-            entraMock.Object,
-            new DateTimeProvider(),
-            configuration);
-
+        var handler = CreateHandler(context, entraMock.Object, Mock.Of<ILoginPkceStore>());
         var result = await handler.Handle(new StartInvitationCommand(plain), CancellationToken.None);
 
         result.Success.Should().BeTrue();
         result.RedirectUrl.Should().Be("https://login.example/pwd");
-        entraMock.Verify(
-            s => s.BuildAuthorizationUrl(
-                invitationId.ToString(),
-                It.IsAny<string>(),
-                "pwd@test.com",
-                true,
-                "Fgs_SignUpSignIn_Pwd"),
-            Times.Once);
     }
 
     [Fact]
@@ -203,25 +155,18 @@ public sealed class StartInvitationCommandHandlerTests
             .Setup(s => s.BuildAuthorizationUrl(
                 invitationId.ToString(),
                 It.IsAny<string>(),
+                It.IsAny<string>(),
                 "verified@test.com",
                 false,
-                It.IsAny<string?>()))
+                "Fgs_SignUpSignIn"))
             .Returns("https://login.example/signin");
 
-        var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback",
-                [ConfigurationKeys.EntraExternalId.UserFlow] = "Fgs_SignUpSignIn"
-            })
-            .Build();
-
-        var handler = new StartInvitationCommandHandler(
-            new EfUnitOfWork<FgsUserDbContext>(context),
-            tokenService,
+        var handler = CreateHandler(
+            context,
             entraMock.Object,
-            new DateTimeProvider(),
-            configuration);
+            Mock.Of<ILoginPkceStore>(),
+            userFlow: "Fgs_SignUpSignIn",
+            passwordUserFlow: null);
 
         var result = await handler.Handle(new StartInvitationCommand(plain), CancellationToken.None);
 
@@ -230,6 +175,7 @@ public sealed class StartInvitationCommandHandlerTests
         entraMock.Verify(
             s => s.BuildAuthorizationUrl(
                 invitationId.ToString(),
+                It.IsAny<string>(),
                 It.IsAny<string>(),
                 "verified@test.com",
                 false,
@@ -298,27 +244,7 @@ public sealed class StartInvitationCommandHandlerTests
         var context = await TestDbContextFactory.CreateAndInitializeAsync(accessor);
         var invitationId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        context.FgsUsers.Add(new FgsUser
-        {
-            Id = userId,
-            TenantId = 1,
-            CompanyId = 1,
-            Email = "a@test.com",
-            DisplayName = "Acme Admin",
-            IsActive = true,
-            CreatedOn = DateTimeOffset.UtcNow
-        });
-        context.FgsInvitations.Add(new FgsInvitation
-        {
-            Id = invitationId,
-            UserId = userId,
-            TenantId = 1,
-            Email = "a@test.com",
-            TokenHash = hash,
-            Status = InvitationStatus.Pending,
-            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(1),
-            CreatedOn = DateTimeOffset.UtcNow
-        });
+        SeedUserAndInvite(context, invitationId, userId, "a@test.com", InvitationStatus.Pending, hash);
         await context.SaveChangesAsync();
 
         var entraMock = new Mock<IEntraExternalIdService>();
@@ -326,38 +252,17 @@ public sealed class StartInvitationCommandHandlerTests
             .Setup(s => s.BuildAuthorizationUrl(
                 invitationId.ToString(),
                 It.IsAny<string>(),
+                It.IsAny<string>(),
                 "a@test.com",
                 true,
                 It.IsAny<string?>()))
             .Returns("https://login.example/authorize");
 
-        var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback",
-                [ConfigurationKeys.EntraExternalId.UserFlow] = "Fgs_SignUpSignIn"
-            })
-            .Build();
-
-        var handler = new StartInvitationCommandHandler(
-            new EfUnitOfWork<FgsUserDbContext>(context),
-            tokenService,
-            entraMock.Object,
-            new DateTimeProvider(),
-            configuration);
-
+        var handler = CreateHandler(context, entraMock.Object, Mock.Of<ILoginPkceStore>());
         var result = await handler.Handle(new StartInvitationCommand(plain), CancellationToken.None);
 
         result.Success.Should().BeTrue();
         result.RedirectUrl.Should().Be("https://login.example/authorize");
-        entraMock.Verify(
-            s => s.BuildAuthorizationUrl(
-                invitationId.ToString(),
-                It.IsAny<string>(),
-                "a@test.com",
-                true,
-                "Fgs_SignUpSignIn"),
-            Times.Once);
     }
 
     [Fact]
@@ -387,19 +292,67 @@ public sealed class StartInvitationCommandHandlerTests
         result.ErrorMessage.Should().Be(InvitationErrorMessages.NotActive);
     }
 
-    private static StartInvitationCommandHandler CreateHandler(FgsUserDbContext context)
+    private static void SeedUserAndInvite(
+        FgsUserDbContext context,
+        Guid invitationId,
+        Guid userId,
+        string email,
+        InvitationStatus status,
+        string? tokenHash = null)
     {
+        context.FgsUsers.Add(new FgsUser
+        {
+            Id = userId,
+            TenantId = 1,
+            CompanyId = 1,
+            Email = email,
+            DisplayName = "Acme Admin",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        context.FgsInvitations.Add(new FgsInvitation
+        {
+            Id = invitationId,
+            UserId = userId,
+            TenantId = 1,
+            Email = email,
+            TokenHash = tokenHash ?? new InvitationTokenService().HashToken(new InvitationTokenService().GenerateToken()),
+            Status = status,
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(1),
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+    }
+
+    private static StartInvitationCommandHandler CreateHandler(
+        FgsUserDbContext context,
+        IEntraExternalIdService? entra = null,
+        ILoginPkceStore? pkceStore = null,
+        string? userFlow = "Fgs_SignUpSignIn",
+        string? passwordUserFlow = "Fgs_SignUpSignIn_Pwd")
+    {
+        var values = new Dictionary<string, string?>
+        {
+            [ConfigurationKeys.Application.UiAuthCallbackUrl] = "https://app.local/auth/callback"
+        };
+        if (userFlow is not null)
+        {
+            values[ConfigurationKeys.EntraExternalId.UserFlow] = userFlow;
+        }
+
+        if (passwordUserFlow is not null)
+        {
+            values[ConfigurationKeys.EntraExternalId.PasswordUserFlow] = passwordUserFlow;
+        }
+
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                [ConfigurationKeys.EntraExternalId.RedirectUri] = "https://localhost/callback"
-            })
+            .AddInMemoryCollection(values)
             .Build();
 
         return new StartInvitationCommandHandler(
             new EfUnitOfWork<FgsUserDbContext>(context),
             new InvitationTokenService(),
-            Mock.Of<IEntraExternalIdService>(),
+            entra ?? Mock.Of<IEntraExternalIdService>(),
+            pkceStore ?? Mock.Of<ILoginPkceStore>(),
             new DateTimeProvider(),
             configuration);
     }

@@ -12,7 +12,7 @@
     { "key": "entraClientId", "value": "3c788340-59a5-4864-b1b4-4f9adeffcb37" },
     { "key": "entraClientSecret", "value": "" },
     { "key": "entraUserFlow", "value": "Fgs_SignUpSignIn" },
-    { "key": "redirectUri", "value": "https://developer.fsm.com/api/v1/auth/entra/callback" },
+    { "key": "redirectUri", "value": "https://developer.fsm.com/auth/callback" },
     { "key": "signupEmail", "value": "admin@example.com" },
     { "key": "inviteToken", "value": "" },
     { "key": "invitationId", "value": "" },

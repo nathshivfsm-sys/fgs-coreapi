@@ -1,0 +1,24 @@
+---
+description: FGS solution shape, layers, and shared libraries
+alwaysApply: true
+---
+
+# Architecture
+
+.NET 10 FSM backend. Solution: `src/FGS.slnx`. Details: [docs/ai/architecture.md](../../docs/ai/architecture.md).
+
+**Per service:** `API` → `Application` → `Domain` ← `Infrastructure`. API is thin (MediatR only).
+
+**Shared (`src/Shared/`):** Kernel, Foundation, Contracts, Persistence, MultiTenancy, Security, Messaging, Credentials, Observability.
+
+**Host:** `AddFgsApiHost` → Application DI → Infrastructure DI → `LoadFgsRemoteCredentialsAsync` → Redis/observability → `UseFgsApiHost` → `MapFgsHealthChecks`.
+
+**Do**
+- Reuse Foundation/Persistence/Messaging abstractions
+- Own one PostgreSQL schema set per service
+- Cross-service: Refit + events (outbox → RabbitMQ), not shared DbContext
+
+**Don't**
+- Put business logic in controllers or hosted-service loops
+- Use Kafka/YARP/OpenSearch unless already present (they are not)
+- Add a new shared library without a clear cross-service reuse case

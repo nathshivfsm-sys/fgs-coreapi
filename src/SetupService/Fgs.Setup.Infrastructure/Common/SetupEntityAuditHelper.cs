@@ -261,6 +261,26 @@ public sealed class SetupEntityAuditHelper
         entity.UpdatedBy = ResolveActor();
     }
 
+    public void StampForCreate(FgsPriceBookItem entity)
+    {
+        var now = _dateTimeProvider.UtcNow;
+        var actor = ResolveActor();
+        var (tenantId, companyId) = ResolveTenantCompany();
+
+        entity.CreatedOn = now;
+        entity.CreatedBy = actor;
+        entity.UpdatedOn = now;
+        entity.UpdatedBy = actor;
+        entity.TenantId = tenantId;
+        entity.CompanyId = companyId;
+    }
+
+    public void StampForUpdate(FgsPriceBookItem entity)
+    {
+        entity.UpdatedOn = _dateTimeProvider.UtcNow;
+        entity.UpdatedBy = ResolveActor();
+    }
+
     public void StampForCreate(FgsEmployee entity)
     {
         var now = _dateTimeProvider.UtcNow.DateTime;

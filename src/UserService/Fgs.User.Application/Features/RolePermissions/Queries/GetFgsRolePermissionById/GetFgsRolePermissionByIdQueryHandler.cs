@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.Api;
+using Fgs.Contracts.Api;
 using Fgs.User.Application.Abstractions.RolePermissions;
 using Fgs.User.Application.Features.RolePermissions.Dtos;
 using MediatR;
@@ -16,7 +16,7 @@ public sealed class GetFgsRolePermissionByIdQueryHandler(IFgsRolePermissionReadR
         if (result is null)
         {
             return ApiResponse<FgsRolePermissionDetailDto>.Fail(
-                [$"Role permission assignment '{request.Id}' was not found."],
+                [$"Role-permission assignment '{request.Id}' was not found."],
                 ApiStatusCodes.NotFound);
         }
 

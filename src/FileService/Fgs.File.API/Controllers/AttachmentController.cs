@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.File.Application.Abstractions.Storage;
+using Fgs.File.Application.Common;
 using Fgs.File.Application.Common.Options;
 using Fgs.File.Application.Features.Attachments;
 using Fgs.File.Application.Features.Attachments.Commands.BulkSoftDeleteAttachmentsByEntity;
@@ -65,7 +66,7 @@ public sealed class AttachmentController(
         var response = await Mediator.Send(new UploadAttachmentCommand(
             stream,
             file.FileName,
-            file.ContentType ?? "application/octet-stream",
+            AttachmentFileValidator.ResolveContentType(file.ContentType, file.FileName),
             file.Length,
             entityType,
             entityId,

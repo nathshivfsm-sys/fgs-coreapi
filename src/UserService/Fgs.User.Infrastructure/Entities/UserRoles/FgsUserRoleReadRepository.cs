@@ -1,9 +1,7 @@
 ﻿using Dapper;
-using Fgs.Foundation.Paging;
 using Fgs.MultiTenancy;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.UserRoles;
-using Fgs.User.Application.Common.IdentityCrud;
 using Fgs.User.Application.Features.UserRoles.Dtos;
 using Fgs.User.Infrastructure.Common;
 
@@ -13,7 +11,9 @@ internal sealed class FgsUserRoleReadRepository(
     IUserReadConnectionFactory connectionFactory,
     ITenantContextAccessor tenantContextAccessor) : IFgsUserRoleReadRepository
 {
-    public async Task<FgsUserRoleDetailDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<FgsUserRoleDetailDto?> GetByIdAsync(
+        long id,
+        CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
         var sql = $"""
@@ -26,70 +26,93 @@ internal sealed class FgsUserRoleReadRepository(
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         var row = await connection.QueryFirstOrDefaultAsync<FgsUserRoleRow>(
-            new CommandDefinition(sql, new { Id = id, TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
+            new CommandDefinition(
+                sql,
+                new { Id = id, TenantId = tenantId, CompanyId = companyId },
+                cancellationToken: cancellationToken));
 
         return row?.ToDetailDto();
     }
 
-    public async Task<PagedResult<FgsUserRoleSummaryDto>> ListAsync(
-        IdentityListQuery query,
-        FgsUserRoleListFilters filters,
+    public async Task<IReadOnlyList<FgsUserRoleDetailDto>> ListByUserIdAsync(
+        Guid userId,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
-        var paging = query.ToPagedQuery();
-        var page = Math.Max(1, paging.Page);
-        var pageSize = Math.Clamp(paging.PageSize, 1, 200);
-        var offset = (page - 1) * pageSize;
-
-        var where = new List<string>
-        {
-            "\"TenantId\" = @TenantId",
-            "\"CompanyId\" = @CompanyId"
-        };
-
-        if (filters.UserId.HasValue)
-        {
-            where.Add("\"UserId\" = @UserId");
-        }
-
-        if (filters.FgsRoleId.HasValue)
-        {
-            where.Add("\"FgsRoleId\" = @FgsRoleId");
-        }
-
-        var whereClause = string.Join(" AND ", where);
-        var orderBy = FgsUserRoleSql.ResolveOrderBy(paging.SortBy, paging.SortDirection);
-
         var sql = $"""
             SELECT {FgsUserRoleSql.SelectColumns}
             FROM {FgsUserRoleSql.Table}
-            WHERE {whereClause}
-            {orderBy}
-            LIMIT @PageSize OFFSET @Offset;
-
-            SELECT COUNT(*)
-            FROM {FgsUserRoleSql.Table}
-            WHERE {whereClause};
+            WHERE "UserId" = @UserId
+              AND "TenantId" = @TenantId
+              AND "CompanyId" = @CompanyId
+            ORDER BY "Id" ASC
             """;
 
-        var parameters = new
-        {
-            TenantId = tenantId,
-            CompanyId = companyId,
-            UserId = filters.UserId,
-            FgsRoleId = filters.FgsRoleId,
-            PageSize = pageSize,
-            Offset = offset
-        };
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        var rows = await connection.QueryAsync<FgsUserRoleRow>(
+            new CommandDefinition(
+                sql,
+                new { UserId = userId, TenantId = tenantId, CompanyId = companyId },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(row => row.ToDetailDto()).ToList();
+    }
+
+    public async Task<IReadOnlyList<FgsUserRoleLookupDto>> LookupAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        var sql = $"""
+            SELECT "Id", "UserId", "FgsRoleId"
+            FROM {FgsUserRoleSql.Table}
+            WHERE "UserId" = @UserId
+              AND "TenantId" = @TenantId
+              AND "CompanyId" = @CompanyId
+            ORDER BY "Id" ASC
+            """;
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        await using var multi = await connection.QueryMultipleAsync(
-            new CommandDefinition(sql, parameters, cancellationToken: cancellationToken));
+        var rows = await connection.QueryAsync<FgsUserRoleLookupRow>(
+            new CommandDefinition(
+                sql,
+                new { UserId = userId, TenantId = tenantId, CompanyId = companyId },
+                cancellationToken: cancellationToken));
 
-        var items = (await multi.ReadAsync<FgsUserRoleRow>()).Select(row => row.ToSummaryDto()).ToList();
-        var totalCount = await multi.ReadSingleAsync<int>();
+        return rows.Select(row => row.ToLookupDto()).ToList();
+    }
 
-        return new PagedResult<FgsUserRoleSummaryDto>(items, page, pageSize, totalCount);
+    public async Task<bool> ExistsByUserIdAndRoleIdAsync(
+        Guid userId,
+        long fgsRoleId,
+        long? excludeId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {FgsUserRoleSql.Table}
+                WHERE "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "UserId" = @UserId
+                  AND "FgsRoleId" = @FgsRoleId
+                  AND (@ExcludeId IS NULL OR "Id" <> @ExcludeId)
+            )
+            """;
+
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    UserId = userId,
+                    FgsRoleId = fgsRoleId,
+                    ExcludeId = excludeId
+                },
+                cancellationToken: cancellationToken));
     }
 }

@@ -46,10 +46,10 @@ public sealed class PatchFgsSetupPaymentMethodCommandValidator : AbstractValidat
     public PatchFgsSetupPaymentMethodCommandValidator(IFgsSetupPaymentMethodReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.DisplayName).NotEmpty();
+        RuleFor(x => x.Dto.DisplayName).NotEmpty().When(x => x.Dto.DisplayName is not null);
         RuleFor(x => x.Dto.DisplayName).MustAsync(async (command, name, cancellationToken) =>
                 !await readRepository.ExistsByDisplayNameAsync(name!, command.Id, cancellationToken))
-            .WithMessage("An active payment method with this name already exists.");
+            .WithMessage("An active payment method with this name already exists.").When(x => x.Dto.DisplayName is not null);
         RuleFor(x => x.Dto.SortOrder).GreaterThanOrEqualTo(0).When(x => x.Dto.SortOrder.HasValue);
 
 

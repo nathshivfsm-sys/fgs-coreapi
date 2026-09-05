@@ -183,6 +183,7 @@ internal sealed class GLBreakReadRepository : IGLBreakReadRepository
                 FROM {GLBreakSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "Code" = @Code
                   AND "BreakLevel" = @BreakLevel
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}

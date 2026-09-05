@@ -40,6 +40,11 @@ namespace Fgs.Asset.Infrastructure.Database.Migrations
                         .HasColumnType("uuid")
                         .HasComment("Globally unique asset identifier used by integrations and external systems.");
 
+                    b.Property<string>("AssetLocation")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("Physical location of the asset within the service location or unit, such as Roof - Northeast Corner, Mechanical Room, 2nd Floor West Wing, or Basement.");
+
                     b.Property<long?>("AssetManufacturerId")
                         .HasColumnType("bigint")
                         .HasComment("Optional catalog manufacturer reference.");
@@ -450,11 +455,11 @@ namespace Fgs.Asset.Infrastructure.Database.Migrations
 
                     b.Property<long>("AssetAttributeId")
                         .HasColumnType("bigint")
-                        .HasComment("Asset attribute definition that this value corresponds to.");
+                        .HasComment("Reference to the asset attribute definition.");
 
                     b.Property<long>("AssetId")
                         .HasColumnType("bigint")
-                        .HasComment("Asset that this attribute value is assigned to.");
+                        .HasComment("Asset that owns the attribute value.");
 
                     b.Property<long>("CompanyId")
                         .HasColumnType("bigint")
@@ -474,7 +479,7 @@ namespace Fgs.Asset.Infrastructure.Database.Migrations
 
                     b.Property<long?>("OptionId")
                         .HasColumnType("bigint")
-                        .HasComment("Selected dropdown option when the attribute's input type is DROPDOWN.");
+                        .HasComment("Selected option identifier when the attribute input type is DROPDOWN.");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
@@ -492,24 +497,24 @@ namespace Fgs.Asset.Infrastructure.Database.Migrations
 
                     b.Property<bool?>("ValueBoolean")
                         .HasColumnType("boolean")
-                        .HasComment("Boolean value when the attribute's input type is BOOLEAN.");
+                        .HasComment("Boolean value for BOOLEAN attributes.");
 
                     b.Property<DateOnly?>("ValueDate")
                         .HasColumnType("date")
-                        .HasComment("Date value when the attribute's input type is DATE.");
+                        .HasComment("Date value for DATE attributes.");
 
                     b.Property<decimal?>("ValueDecimal")
                         .HasColumnType("numeric(18,4)")
-                        .HasComment("Decimal value when the attribute's input type is DECIMAL.");
+                        .HasComment("Decimal value for DECIMAL attributes.");
 
                     b.Property<int?>("ValueInteger")
                         .HasColumnType("integer")
-                        .HasComment("Integer value when the attribute's input type is INTEGER.");
+                        .HasComment("Integer value for INTEGER attributes.");
 
                     b.Property<string>("ValueText")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
-                        .HasComment("Text value when the attribute's input type is TEXT or TEXTAREA.");
+                        .HasComment("Text value for TEXT or TEXTAREA attributes.");
 
                     b.HasKey("Id")
                         .HasName("PK_FgsAssetAttributeValue");

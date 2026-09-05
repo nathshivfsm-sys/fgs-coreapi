@@ -1,0 +1,63 @@
+# Starts only when redis.VERSION changes.
+# CI: build on PR; push image on merge to dev.
+# CD: auto-deploy to EC2 (repository variable EC2_INSTANCE_ID).
+name: Build redis
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - "src/Gateway/docker/redis.VERSION"
+      - "src/Gateway/docker/redis.Dockerfile"
+      - ".github/workflows/build-redis.yml"
+  pull_request:
+    branches: [dev]
+    paths:
+      - "src/Gateway/docker/redis.VERSION"
+      - "src/Gateway/docker/redis.Dockerfile"
+      - ".github/workflows/build-redis.yml"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Build even if VERSION did not change
+        type: boolean
+        default: false
+      push_to_ecr:
+        description: Also push image to ECR (normally only on merge to dev)
+        type: boolean
+        default: false
+
+concurrency:
+  group: build-redis-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-build-service.yml
+    with:
+      service: redis
+      context: .
+      dockerfile: src/Gateway/docker/redis.Dockerfile
+      ecr_repository: ${{ vars.ECR_REPO || 'fgs/dockers' }}
+      version_file: src/Gateway/docker/redis.VERSION
+      version_kind: plain
+      test_project: ""
+      force: ${{ github.event_name == 'workflow_dispatch' && inputs.force || false }}
+      push_to_ecr: ${{ github.event_name == 'workflow_dispatch' && inputs.push_to_ecr || false }}
+      caller_event: ${{ github.event_name }}
+    secrets: inherit
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.image_pushed == 'true'
+    uses: ./.github/workflows/reusable-deploy-ec2.yml
+    with:
+      compose_service: redis
+      image_tag_prefix: redis
+      channel: ${{ needs.build.outputs.channel }}
+      github_environment: ${{ needs.build.outputs.github_environment }}
+    secrets: inherit

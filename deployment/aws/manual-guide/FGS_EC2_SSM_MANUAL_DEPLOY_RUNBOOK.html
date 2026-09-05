@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>FGS DEV — Manual EC2 Deployment Runbook (SSM)</title>
+  <style>
+@page { size: A4; margin: 14mm 12mm; }
+body {
+  font-family: "Segoe UI", Calibri, Arial, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.42;
+  max-width: 920px;
+  margin: 1.2em auto;
+  padding: 0 1.2em 2em;
+  color: #18181b;
+}
+h1 {
+  font-size: 20pt;
+  color: #0f172a;
+  border-bottom: 3px solid #1d4ed8;
+  padding-bottom: 0.35em;
+  margin-top: 0;
+}
+h2 {
+  font-size: 14pt;
+  margin-top: 1.5em;
+  color: #1e3a8a;
+  border-bottom: 1px solid #bfdbfe;
+  padding-bottom: 0.2em;
+  page-break-after: avoid;
+}
+h3 {
+  font-size: 11.5pt;
+  margin-top: 1.1em;
+  color: #1e40af;
+  page-break-after: avoid;
+}
+p { margin: 0.55em 0; }
+code, pre { font-family: Consolas, "Courier New", monospace; font-size: 8.5pt; }
+code {
+  background: #f1f5f9;
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 0.85em 1em;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  page-break-inside: avoid;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.9em 0;
+  font-size: 9.5pt;
+  page-break-inside: avoid;
+}
+th, td {
+  border: 1px solid #cbd5e1;
+  padding: 0.4em 0.55em;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: #eff6ff; color: #1e3a8a; }
+tr:nth-child(even) td { background: #f8fafc; }
+hr { border: none; border-top: 1px solid #cbd5e1; margin: 1.6em 0; }
+ul, ol { padding-left: 1.35em; margin: 0.45em 0; }
+li { margin: 0.2em 0; }
+strong { color: #0f172a; }
+@media print {
+  body { margin: 0; max-width: none; padding: 0; }
+  a { color: inherit; text-decoration: none; }
+  h2, h3 { page-break-after: avoid; }
+  pre, table { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<h1 id="fgs-dev-manual-ec2-deployment-runbook-ssm">FGS DEV — Manual EC2 Deployment Runbook (SSM)</h1>
+<p><strong>Audience:</strong> operators deploying FGS <strong>dev</strong> on a <strong>single EC2</strong> host using <strong>AWS Systems Manager</strong> (Session Manager / Run Command).<br />
+<strong>Region:</strong> <code>us-east-1</code><br />
+<strong>Compose project path:</strong> <code>/opt/fgs</code><br />
+<strong>Compose file:</strong> <code>docker-compose.ec2.yml</code> (project name <code>fgs-ec2</code>)<br />
+<strong>ECR repository:</strong> <code>fgs/dockers</code><br />
+<strong>Channel:</strong> <code>dev</code> (image tags <code>setup-dev</code>, <code>user-dev</code>, …)</p>
+<p>This runbook is derived from repository files only:</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>deployment/aws/ec2/README.md</code></td>
+<td>EC2 vs local; deploy order; logs</td>
+</tr>
+<tr>
+<td><code>deployment/aws/ec2/bootstrap-ec2.sh</code></td>
+<td>One-time host bootstrap</td>
+</tr>
+<tr>
+<td><code>deployment/aws/ec2/deploy-service.sh</code></td>
+<td>ECR login, pull, recreate one service</td>
+</tr>
+<tr>
+<td><code>deployment/aws/ec2/docker-compose.ec2.yml</code></td>
+<td>Stack definition and dependencies</td>
+</tr>
+<tr>
+<td><code>deployment/aws/ec2/.env.example</code></td>
+<td>Host <code>.env</code> template</td>
+</tr>
+<tr>
+<td><code>deployment/aws/ec2/config/setup-appsettings.example.json</code></td>
+<td>Setup RDS bootstrap config</td>
+</tr>
+<tr>
+<td><code>deployment/aws/ec2/Push-Ec2Files.ps1</code></td>
+<td>Push compose/deploy scripts via SSM</td>
+</tr>
+<tr>
+<td><code>deployment/aws/manual-guide/GITHUB_ACTIONS_CD_EC2.md</code></td>
+<td>IAM, SSM CD, troubleshooting</td>
+</tr>
+<tr>
+<td><code>deployment/aws/manual-guide/EC2_FULL_SETUP_AND_CD.md</code></td>
+<td>Full setup, health checks, checklist</td>
+</tr>
+<tr>
+<td><code>deployment/aws/terraform/iam.tf</code></td>
+<td>EC2 role / SSM session operator policies</td>
+</tr>
+<tr>
+<td><code>.github/workflows/reusable-deploy-ec2.yml</code></td>
+<td>CD SendCommand pattern</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Placeholders used below:</strong> <code>ACCOUNT_ID</code>, <code>INSTANCE_ID</code> (<code>i-…</code>), <code>YOUR_RDS_HOST</code>, passwords, and connection strings — do not commit real secrets.</p>
+<p><strong>Do not</strong> use <code>src/Gateway/docker-compose.yml</code> on EC2. That file is for <strong>local Docker Desktop</strong> only (<code>fgs-local</code>).</p>
+<hr />
+<h2 id="1-architecture-dev-single-host">1. Architecture (dev single host)</h2>
+<pre><code class="language-text">Internet / optional ALB (:80/:443)
+        │
+        ▼
+EC2 (Docker Compose @ /opt/fgs)
+   ├── redis
+   ├── rabbitmq
+   ├── setup-service      (ECR …/fgs/dockers:setup-dev)
+   ├── audit-service      (:audit-dev)
+   ├── user-service       (:user-dev)
+   ├── bff-service        (:bff-dev)
+   ├── notification-service
+   ├── file-service
+   ├── publisher-service
+   ├── consumer-service
+   └── nginx              (:nginx-dev, host port 80)
+
+GitHub Actions (optional CD)
+   └── SSM SendCommand → sudo /opt/fgs/deploy-service.sh &lt;service&gt; dev …
+</code></pre>
+<p>Nginx on EC2 listens on <strong>port 80 only</strong> (TLS at ALB). Entrypoint: <code>/opt/fgs/nginx-http-only-entrypoint.sh</code>.</p>
+<hr />
+<h2 id="2-prerequisites">2. Prerequisites</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EC2</td>
+<td>Amazon Linux 2023 or Ubuntu 22.04+; <code>t3.medium</code> or larger recommended</td>
+</tr>
+<tr>
+<td>VPC</td>
+<td>Same VPC as RDS (and ALB if used)</td>
+</tr>
+<tr>
+<td>Security group</td>
+<td>Inbound <strong>80</strong> from ALB (or operator IP); <strong>no SSH required</strong> if using SSM</td>
+</tr>
+<tr>
+<td>Outbound</td>
+<td>HTTPS <strong>443</strong> to SSM and ECR endpoints</td>
+</tr>
+<tr>
+<td>RDS / Postgres</td>
+<td>Reachable from EC2; Setup needs <code>ConnectionStrings:FgsSetup</code></td>
+</tr>
+<tr>
+<td><code>glo.GloCredential</code></td>
+<td>Global DATABASE, REDIS, RABBITMQ, SENDGRID, ENTRA_EXTERNAL_ID, DATADOG, AWS, etc.</td>
+</tr>
+<tr>
+<td>ECR</td>
+<td>Private repo <code>fgs/dockers</code> with channel tags already pushed (CI or manual)</td>
+</tr>
+<tr>
+<td>Operator workstation</td>
+<td>AWS CLI v2 + Session Manager plugin (for CLI sessions / <code>Push-Ec2Files.ps1</code>)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-iam-least-privilege">3. IAM — least privilege</h2>
+<h3 id="31-ec2-instance-profile-host">3.1 EC2 instance profile (host)</h3>
+<p>Attach a role trusted by <code>ec2.amazonaws.com</code> with:</p>
+<ol>
+<li>Managed policy <strong><code>AmazonSSMManagedInstanceCore</code></strong></li>
+<li><strong>ECR pull</strong> (inline / Terraform <code>ecr-pull</code>):</li>
+</ol>
+<pre><code class="language-json">{
+  &quot;Version&quot;: &quot;2012-10-17&quot;,
+  &quot;Statement&quot;: [
+    {
+      &quot;Sid&quot;: &quot;EcrAuth&quot;,
+      &quot;Effect&quot;: &quot;Allow&quot;,
+      &quot;Action&quot;: &quot;ecr:GetAuthorizationToken&quot;,
+      &quot;Resource&quot;: &quot;*&quot;
+    },
+    {
+      &quot;Sid&quot;: &quot;EcrPull&quot;,
+      &quot;Effect&quot;: &quot;Allow&quot;,
+      &quot;Action&quot;: [
+        &quot;ecr:BatchCheckLayerAvailability&quot;,
+        &quot;ecr:GetDownloadUrlForLayer&quot;,
+        &quot;ecr:BatchGetImage&quot;,
+        &quot;ecr:DescribeRepositories&quot;
+      ],
+      &quot;Resource&quot;: &quot;arn:aws:ecr:us-east-1:ACCOUNT_ID:repository/fgs/dockers&quot;
+    }
+  ]
+}
+</code></pre>
+<ol start="3">
+<li><strong>KMS decrypt</strong> for Setup credential vault (required when Setup uses the instance profile instead of explicit <code>AwsCredentials</code> keys) — Terraform <code>kms-decrypt-credentials</code>:</li>
+</ol>
+<pre><code class="language-json">{
+  &quot;Effect&quot;: &quot;Allow&quot;,
+  &quot;Action&quot;: [
+    &quot;kms:Decrypt&quot;,
+    &quot;kms:GenerateDataKey&quot;,
+    &quot;kms:DescribeKey&quot;
+  ],
+  &quot;Resource&quot;: &quot;arn:aws:kms:us-east-1:ACCOUNT_ID:key/YOUR_CMK_ID&quot;
+}
+</code></pre>
+<ol start="4">
+<li>Optional <strong>S3</strong> when File uses the instance profile (no AccessKey in Global AWS): policy file <code>deployment/aws/iam-fgs-s3-all-buckets-policy.json</code> (Terraform <code>s3-all-buckets</code>).</li>
+</ol>
+<p>Terraform names (when <code>create_ec2_iam</code> is enabled): <code>fgs-&lt;env&gt;-ec2-role</code>, instance profile <code>fgs-&lt;env&gt;-ec2-profile</code>.</p>
+<h3 id="32-operator-interactive-session-manager">3.2 Operator (interactive Session Manager)</h3>
+<p>Attach policy pattern <code>fgs-&lt;env&gt;-ssm-session-operator</code> (Terraform). Actions include:</p>
+<ul>
+<li><code>ssm:StartSession</code>, <code>ssm:TerminateSession</code>, <code>ssm:ResumeSession</code></li>
+<li><code>ssm:DescribeSessions</code>, <code>ssm:GetConnectionStatus</code>, <code>ssm:DescribeInstanceInformation</code></li>
+<li><code>ssm:StartSession</code> on <code>SSM-SessionManagerRunShell</code> and <code>arn:aws:ec2:us-east-1:ACCOUNT_ID:instance/*</code></li>
+</ul>
+<p><strong>Do not</strong> put Session Manager permissions on the GitHub CD principal — CD uses <strong>SendCommand</strong> only.</p>
+<h3 id="33-github-actions-cd-principal-optional-for-manual-only">3.3 GitHub Actions / CD principal (optional for manual-only)</h3>
+<p>Needs ECR <strong>push</strong> (for CI) plus:</p>
+<pre><code class="language-json">{
+  &quot;Sid&quot;: &quot;Ec2DeployViaSsm&quot;,
+  &quot;Effect&quot;: &quot;Allow&quot;,
+  &quot;Action&quot;: &quot;ssm:SendCommand&quot;,
+  &quot;Resource&quot;: [
+    &quot;arn:aws:ssm:us-east-1::document/AWS-RunShellScript&quot;,
+    &quot;arn:aws:ec2:us-east-1:ACCOUNT_ID:instance/*&quot;
+  ]
+},
+{
+  &quot;Sid&quot;: &quot;SsmCommandResults&quot;,
+  &quot;Effect&quot;: &quot;Allow&quot;,
+  &quot;Action&quot;: [
+    &quot;ssm:GetCommandInvocation&quot;,
+    &quot;ssm:ListCommands&quot;,
+    &quot;ssm:ListCommandInvocations&quot;
+  ],
+  &quot;Resource&quot;: &quot;*&quot;
+}
+</code></pre>
+<hr />
+<h2 id="4-connect-with-ssm">4. Connect with SSM</h2>
+<h3 id="41-aws-console">4.1 AWS Console</h3>
+<ol>
+<li><strong>EC2</strong> → select instance → <strong>Connect</strong> → <strong>Session Manager</strong> → <strong>Connect</strong>.  </li>
+<li>Or <strong>Systems Manager</strong> → <strong>Session Manager</strong> → <strong>Start session</strong>.</li>
+</ol>
+<p>Confirm instance is <strong>Online</strong> under Systems Manager → Fleet Manager / Managed instances.</p>
+<h3 id="42-aws-cli-operator-laptop">4.2 AWS CLI (operator laptop)</h3>
+<pre><code class="language-bash">aws ssm start-session --target INSTANCE_ID --region us-east-1
+</code></pre>
+<p>Requires Session Manager plugin and the operator IAM policy above.</p>
+<h3 id="43-non-interactive-run-command-same-pattern-as-cd">4.3 Non-interactive Run Command (same pattern as CD)</h3>
+<pre><code class="language-bash">aws ssm send-command \
+  --instance-ids INSTANCE_ID \
+  --document-name AWS-RunShellScript \
+  --region us-east-1 \
+  --parameters 'commands=[&quot;sudo /opt/fgs/deploy-service.sh user-service dev fgs/dockers us-east-1&quot;]' \
+  --query Command.CommandId --output text
+</code></pre>
+<p>Poll:</p>
+<pre><code class="language-bash">aws ssm get-command-invocation \
+  --command-id COMMAND_ID \
+  --instance-id INSTANCE_ID \
+  --region us-east-1
+</code></pre>
+<hr />
+<h2 id="5-bootstrap-optfgs-one-time-per-host">5. Bootstrap <code>/opt/fgs</code> (one time per host)</h2>
+<p>Bootstrap installs Docker (Amazon Linux / Ubuntu paths in script), creates <code>/opt/fgs</code>, and installs compose/deploy files. <strong>CD does not bootstrap.</strong></p>
+<h3 id="51-option-a-git-clone-on-the-instance">5.1 Option A — Git clone on the instance</h3>
+<pre><code class="language-bash"># Amazon Linux
+sudo yum install -y git
+# Ubuntu: sudo apt install -y git
+
+cd /tmp
+git clone https://github.com/YOUR_ORG/YOUR_REPO.git fgs
+cd fgs
+sudo bash deployment/aws/ec2/bootstrap-ec2.sh
+</code></pre>
+<h3 id="52-option-b-copy-deploymentawsec2-files-then-bootstrap">5.2 Option B — Copy <code>deployment/aws/ec2</code> files, then bootstrap</h3>
+<p>Required files from <code>deployment/aws/ec2/</code>:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Installed to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bootstrap-ec2.sh</code></td>
+<td>run in place</td>
+</tr>
+<tr>
+<td><code>deploy-service.sh</code></td>
+<td><code>/opt/fgs/deploy-service.sh</code> (0755)</td>
+</tr>
+<tr>
+<td><code>docker-compose.ec2.yml</code></td>
+<td><code>/opt/fgs/docker-compose.ec2.yml</code> (0644)</td>
+</tr>
+<tr>
+<td><code>nginx-http-only-entrypoint.sh</code></td>
+<td><code>/opt/fgs/nginx-http-only-entrypoint.sh</code> (0755)</td>
+</tr>
+</tbody>
+</table>
+<p>From a Windows workstation (SSM SendCommand, no SSH):</p>
+<pre><code class="language-powershell">.\deployment\aws\ec2\Push-Ec2Files.ps1 -InstanceId INSTANCE_ID -Region us-east-1
+</code></pre>
+<p><code>Push-Ec2Files.ps1</code> uploads <code>docker-compose.ec2.yml</code>, <code>deploy-service.sh</code>, and <code>nginx-http-only-entrypoint.sh</code> to <code>/opt/fgs</code>. Still run <code>bootstrap-ec2.sh</code> once for Docker install and placeholder config (or install Docker manually and create config as below).</p>
+<h3 id="53-files-after-bootstrap">5.3 Files after bootstrap</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/opt/fgs/deploy-service.sh</code></td>
+<td>ECR login + pull + <code>compose up -d --no-deps</code></td>
+</tr>
+<tr>
+<td><code>/opt/fgs/docker-compose.ec2.yml</code></td>
+<td>Stack</td>
+</tr>
+<tr>
+<td><code>/opt/fgs/nginx-http-only-entrypoint.sh</code></td>
+<td>Nginx :80</td>
+</tr>
+<tr>
+<td><code>/opt/fgs/config/setup-appsettings.json</code></td>
+<td><strong>FgsSetup</strong> connection string only</td>
+</tr>
+<tr>
+<td><code>/opt/fgs/.env</code></td>
+<td>Host env (RabbitMQ boot, channel, public URL, …)</td>
+</tr>
+</tbody>
+</table>
+<p>Do <strong>not</strong> create <code>/opt/fgs/config/user-appsettings.json</code>. User and other APIs load secrets via Setup credential distribution.</p>
+<hr />
+<h2 id="6-configuration">6. Configuration</h2>
+<h3 id="61-setup-rds-bootstrap">6.1 Setup RDS bootstrap</h3>
+<pre><code class="language-bash">sudo nano /opt/fgs/config/setup-appsettings.json
+</code></pre>
+<p>Template (<code>config/setup-appsettings.example.json</code>):</p>
+<pre><code class="language-json">{
+  &quot;ConnectionStrings&quot;: {
+    &quot;FgsSetup&quot;: &quot;Host=YOUR_RDS_HOST;Port=5432;Database=fgs_dev_db;Username=YOUR_USER;Password=YOUR_PASSWORD&quot;
+  }
+}
+</code></pre>
+<h3 id="62-host-env">6.2 Host <code>.env</code></h3>
+<pre><code class="language-bash">sudo nano /opt/fgs/.env
+</code></pre>
+<p>From <code>.env.example</code> (replace placeholders):</p>
+<pre><code class="language-env">FGS_CONFIG_DIR=/opt/fgs/config
+FGS_ECR_REGISTRY=ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
+FGS_ECR_REPO=fgs/dockers
+FGS_CHANNEL=dev
+
+ASPNETCORE_ENVIRONMENT=Development
+
+RABBITMQ_USER=fgs
+RABBITMQ_PASSWORD=CHANGE_ME_STRONG_PASSWORD
+
+CREDENTIAL_DISTRIBUTION_KEY=fgs-internal-credential-distribution-key
+
+FGS_PUBLIC_BASE_URL=http://YOUR_PUBLIC_HOST_OR_ALB
+FGS_PUBLIC_SERVICE_PATH=user-service
+
+DD_ENV=dev
+DD_SITE=datadoghq.com
+</code></pre>
+<p><code>deploy-service.sh</code> upserts <code>FGS_*_IMAGE</code> lines to channel tags when you deploy.</p>
+<h3 id="63-rabbitmq-two-layer-model">6.3 RabbitMQ two-layer model</h3>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/opt/fgs/.env</code> <code>RABBITMQ_USER</code> / <code>RABBITMQ_PASSWORD</code></td>
+<td>RabbitMQ <strong>container</strong> boot (<code>RABBITMQ_DEFAULT_*</code>)</td>
+</tr>
+<tr>
+<td><code>glo.GloCredential</code> <code>Global:RABBITMQ</code></td>
+<td>Setup reads Username/Password (or ConnectionUri) at startup</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Passwords must match.</strong> Compose sets <code>RabbitMq__HostName=rabbitmq</code> for Setup; it does <strong>not</strong> inject <code>RabbitMq__Password</code> from <code>.env</code> (that would override the credential table).</p>
+<h3 id="64-credentials-in-rds-gloglocredential">6.4 Credentials in RDS (<code>glo.GloCredential</code>)</h3>
+<p>Ensure Global providers exist for consumers, including at least:</p>
+<ul>
+<li><code>DATABASE</code> — <code>FgsUser</code>, <code>FgsAudit</code>, <code>FgsNotification</code>, <code>FgsSetup</code>, publisher outbox DBs as needed  </li>
+<li><code>REDIS</code> — use host <code>redis:6379</code> on this compose network  </li>
+<li><code>RABBITMQ</code> — match <code>.env</code>  </li>
+<li><code>SENDGRID</code>, <code>ENTRA_EXTERNAL_ID</code>, <code>DATADOG</code>, <code>AWS</code>, etc.</li>
+</ul>
+<hr />
+<h2 id="7-ecr-authentication-and-images">7. ECR authentication and images</h2>
+<p><code>deploy-service.sh</code> performs ECR login on every deploy:</p>
+<pre><code class="language-bash">aws ecr get-login-password --region us-east-1 \
+  | docker login --username AWS --password-stdin &quot;$REGISTRY&quot;
+</code></pre>
+<p>Registry is resolved via <code>aws ecr describe-repositories --repository-names fgs/dockers</code>.</p>
+<p><strong>Channel tags (dev):</strong><br />
+<code>setup-dev</code>, <code>audit-dev</code>, <code>user-dev</code>, <code>bff-dev</code>, <code>notification-dev</code>, <code>file-dev</code>, <code>publisher-dev</code>, <code>consumer-dev</code>, <code>nginx-dev</code>, <code>redis-dev</code>, <code>rabbitmq-dev</code></p>
+<p>CI also pushes immutable tags such as <code>setup-&lt;version&gt;-dev-&lt;sha&gt;</code> (see OIDC/ECR guides). Day-to-day EC2 deploy uses <strong>channel</strong> tags via <code>deploy-service.sh</code>.</p>
+<p>Images must exist in ECR <strong>before</strong> first pull (merge to <code>dev</code> with version bumps, or workflow dispatch with push enabled).</p>
+<hr />
+<h2 id="8-deployment-order">8. Deployment order</h2>
+<h3 id="81-full-first-stack-confirmed-bootstrap-readme">8.1 Full first stack (confirmed bootstrap / README)</h3>
+<pre><code class="language-bash">cd /opt/fgs
+sudo ./deploy-service.sh redis dev
+sudo ./deploy-service.sh rabbitmq dev
+sudo ./deploy-service.sh setup-service dev
+sudo ./deploy-service.sh audit-service dev
+sudo ./deploy-service.sh user-service dev
+sudo ./deploy-service.sh bff-service dev
+sudo ./deploy-service.sh notification-service dev
+sudo ./deploy-service.sh file-service dev
+sudo ./deploy-service.sh publisher-service dev
+sudo ./deploy-service.sh consumer-service dev
+sudo ./deploy-service.sh nginx dev
+</code></pre>
+<p>Explicit region/repo (same as CD):</p>
+<pre><code class="language-bash">sudo ./deploy-service.sh setup-service dev fgs/dockers us-east-1
+</code></pre>
+<p>What each call does (<code>deploy-service.sh</code>):</p>
+<ol>
+<li>ECR login  </li>
+<li>Upsert <code>.env</code> image variables for the channel  </li>
+<li><code>docker compose -f docker-compose.ec2.yml pull &lt;service&gt;</code>  </li>
+<li><code>docker compose -f docker-compose.ec2.yml up -d --no-deps &lt;service&gt;</code>  </li>
+<li><code>docker compose … ps &lt;service&gt;</code></li>
+</ol>
+<h3 id="82-core-path-redis-rabbitmq-setup-user-nginx">8.2 Core path: Redis → RabbitMQ → Setup → User → NGINX</h3>
+<p>Compose dependencies (important):</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th><code>depends_on</code> (healthy)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>setup-service</code></td>
+<td><code>redis</code>, <code>rabbitmq</code></td>
+</tr>
+<tr>
+<td><code>user-service</code></td>
+<td><code>redis</code>, <code>setup-service</code></td>
+</tr>
+<tr>
+<td><code>nginx</code></td>
+<td><code>setup-service</code>, <code>user-service</code>, <strong><code>bff-service</code></strong></td>
+</tr>
+</tbody>
+</table>
+<p>So a <strong>working nginx container</strong> as defined in <code>docker-compose.ec2.yml</code> also expects <strong>bff-service</strong> healthy. Recommended core sequence:</p>
+<pre><code class="language-bash">sudo ./deploy-service.sh redis dev
+sudo ./deploy-service.sh rabbitmq dev
+sudo ./deploy-service.sh setup-service dev
+sudo ./deploy-service.sh user-service dev
+sudo ./deploy-service.sh bff-service dev
+sudo ./deploy-service.sh nginx dev
+</code></pre>
+<p>(<code>deploy-service.sh</code> uses <code>--no-deps</code>, so you can force-start nginx alone, but health/routing for BFF will fail until <code>bff-service</code> is up.)</p>
+<p>Optional infrastructure-only prelude:</p>
+<pre><code class="language-bash">cd /opt/fgs
+docker compose -f docker-compose.ec2.yml up -d redis rabbitmq
+# wait until healthy, then deploy-service for apps
+</code></pre>
+<h3 id="83-normal-day-2-deploy-vs-fresh-vs-rollback">8.3 Normal (day-2) deploy vs fresh vs rollback</h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Normal</strong> (one service after CI)</td>
+<td><code>sudo /opt/fgs/deploy-service.sh &lt;compose-service&gt; dev fgs/dockers us-east-1</code> — same as GitHub CD</td>
+</tr>
+<tr>
+<td><strong>Fresh host</strong> (new/resized EC2)</td>
+<td>New instance profile → SSM Online → bootstrap → restore <code>setup-appsettings.json</code> + <code>.env</code> → update GitHub <code>EC2_INSTANCE_ID</code> → full order §8.1</td>
+</tr>
+<tr>
+<td><strong>Rollback</strong></td>
+<td>Channel tags are mutable. Prefer pinning an immutable ECR tag in <code>/opt/fgs/.env</code> (e.g. <code>FGS_USER_IMAGE=…/fgs/dockers:user-&lt;version&gt;-dev-&lt;sha&gt;</code>), then <code>docker compose -f docker-compose.ec2.yml up -d --no-deps user-service</code>. Or redeploy a known-good build that retags <code>*-dev</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-restart-logs-health-checks">9. Restart, logs, health checks</h2>
+<h3 id="91-status">9.1 Status</h3>
+<pre><code class="language-bash">cd /opt/fgs
+docker compose -f docker-compose.ec2.yml ps
+</code></pre>
+<h3 id="92-restart-recreate-one-service">9.2 Restart / recreate one service</h3>
+<p>Prefer deploy script (pulls latest channel tag):</p>
+<pre><code class="language-bash">sudo /opt/fgs/deploy-service.sh file-service dev
+</code></pre>
+<p>Force recreate without changing script:</p>
+<pre><code class="language-bash">cd /opt/fgs
+docker compose -f docker-compose.ec2.yml up -d --force-recreate --no-deps file-service
+</code></pre>
+<h3 id="93-logs">9.3 Logs</h3>
+<pre><code class="language-bash">docker logs fgs-ec2-setup-service-1 --tail 100
+docker logs fgs-ec2-audit-service-1 --tail 100
+docker logs fgs-ec2-user-service-1 --tail 100
+docker logs fgs-ec2-notification-service-1 --tail 100
+docker logs fgs-ec2-file-service-1 --tail 100
+docker logs fgs-ec2-publisher-service-1 --tail 100
+docker logs fgs-ec2-consumer-service-1 --tail 100
+
+# or by name filter
+docker logs $(docker ps -qf name=setup-service) --tail 100
+docker logs $(docker ps -qf name=nginx) --tail 50
+</code></pre>
+<h3 id="94-health-checks-on-instance">9.4 Health checks (on instance)</h3>
+<pre><code class="language-bash">docker exec $(docker ps -qf name=redis) redis-cli ping
+# Expected: PONG
+
+docker exec $(docker ps -qf name=rabbitmq) rabbitmq-diagnostics -q ping
+
+curl -s -o /dev/null -w &quot;%{http_code}\n&quot; http://localhost/nginx-health
+# Expected: 200
+
+docker exec $(docker ps -qf name=setup-service) curl -fsS http://localhost:5004/health
+docker exec $(docker ps -qf name=user-service) curl -fsS http://localhost:5001/health
+
+curl -s -o /dev/null -w &quot;%{http_code}\n&quot; http://localhost/swagger/setup/
+curl -s -o /dev/null -w &quot;%{http_code}\n&quot; http://localhost/swagger/user/
+</code></pre>
+<p>ALB target group health path: <strong><code>/nginx-health</code></strong>, matcher <strong>200</strong>, instance port <strong>80</strong>.</p>
+<h3 id="95-verify-images-in-use">9.5 Verify images in use</h3>
+<pre><code class="language-bash">docker inspect $(docker ps -qf name=setup-service) --format '{{.Config.Image}}'
+docker inspect $(docker ps -qf name=user-service) --format '{{.Config.Image}}'
+docker inspect $(docker ps -qf name=nginx) --format '{{.Config.Image}}'
+</code></pre>
+<p>Expected pattern:<br />
+<code>ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/fgs/dockers:setup-dev</code></p>
+<hr />
+<h2 id="10-docker-image-cleanup-host">10. Docker image cleanup (host)</h2>
+<p><code>deploy-service.sh</code> <strong>pulls</strong> new images; previous digests can remain on disk. The repo does <strong>not</strong> ship an automated prune script on EC2.</p>
+<p>Operator steps after a successful deploy:</p>
+<pre><code class="language-bash">docker images
+docker image prune -f
+# optional deeper cleanup (removes unused images — confirm nothing needed first)
+# docker image prune -a -f
+</code></pre>
+<p>ECR-side retention (shared repo lifecycle) is documented separately in the manual ECR/OIDC guides — not part of the EC2 host script.</p>
+<hr />
+<h2 id="11-fresh-ec2-after-vertical-scaling-recreation">11. Fresh EC2 after vertical scaling / recreation</h2>
+<p>When the instance is <strong>replaced</strong> (new instance ID, same or larger type):</p>
+<ol>
+<li>Launch EC2 with the <strong>same IAM instance profile</strong> (SSM + ECR pull + KMS/S3 as required).  </li>
+<li>Security group: inbound 80 from ALB; outbound 443.  </li>
+<li>Wait until SSM shows <strong>Online</strong>.  </li>
+<li>Session Manager → run <strong><code>bootstrap-ec2.sh</code></strong> (git clone or copy files).  </li>
+<li>Restore <strong><code>/opt/fgs/config/setup-appsettings.json</code></strong> and <strong><code>/opt/fgs/.env</code></strong> (from secure backup — not git).  </li>
+<li>Optionally refresh scripts: <code>Push-Ec2Files.ps1 -InstanceId NEW_INSTANCE_ID</code>.  </li>
+<li>Update GitHub repository variable <strong><code>EC2_INSTANCE_ID</code></strong> to the new id.  </li>
+<li>Confirm ECR channel tags exist; run <strong>full deploy order</strong> (§8.1).  </li>
+<li>Retarget ALB target group to the new instance if applicable.  </li>
+<li>Verify <code>/nginx-health</code> and service health (§9.4).</li>
+</ol>
+<p>Data volumes (<code>redis-data</code>, <code>rabbitmq-data</code>) are <strong>local to the instance</strong> — a new host starts empty brokers unless you restore volumes separately (not automated in repo scripts).</p>
+<hr />
+<h2 id="12-troubleshooting">12. Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cannot StartSession</td>
+<td>Instance not registered / no SSM role / no outbound 443</td>
+<td>Fix instance profile and SG; confirm Online</td>
+</tr>
+<tr>
+<td>SSM SendCommand AccessDenied</td>
+<td>CD/operator missing SendCommand policy</td>
+<td>Add §3.3 policy</td>
+</tr>
+<tr>
+<td>SSM Failed: missing <code>deploy-service.sh</code></td>
+<td>Bootstrap not run</td>
+<td>Run <code>bootstrap-ec2.sh</code></td>
+</tr>
+<tr>
+<td>ECR pull denied</td>
+<td>Instance role missing ECR pull</td>
+<td>Attach §3.1 ECR policy</td>
+</tr>
+<tr>
+<td>Setup crash / unhealthy</td>
+<td>Bad <code>setup-appsettings.json</code> RDS string</td>
+<td>Edit FgsSetup connection string</td>
+</tr>
+<tr>
+<td>Setup “Loaded 0 credential” / 503 on resolved</td>
+<td>Missing <code>kms:Decrypt</code> on CMK for instance role</td>
+<td>Attach KMS policy §3.1</td>
+</tr>
+<tr>
+<td>RabbitMQ auth errors</td>
+<td><code>.env</code> password ≠ GloCredential RABBITMQ</td>
+<td>Align passwords</td>
+</tr>
+<tr>
+<td>nginx 502</td>
+<td>Upstreams not healthy</td>
+<td>Fix setup/user/bff first; <code>docker compose ps</code></td>
+</tr>
+<tr>
+<td>nginx won’t stay healthy on empty stack</td>
+<td><code>depends_on</code> includes bff</td>
+<td>Deploy <code>bff-service</code> before relying on nginx health</td>
+</tr>
+<tr>
+<td>CD skipped</td>
+<td>No version bump or PR-only build</td>
+<td>Merge to <code>dev</code> with version change</td>
+</tr>
+<tr>
+<td>Missing <code>EC2_INSTANCE_ID</code></td>
+<td>GitHub variable not set</td>
+<td>Settings → Actions → Variables</td>
+</tr>
+</tbody>
+</table>
+<p>View Run Command output: <strong>Systems Manager → Run Command →</strong> select command → stdout/stderr.</p>
+<hr />
+<h2 id="13-rollback-procedure-manual">13. Rollback procedure (manual)</h2>
+<ol>
+<li>Identify a known-good <strong>immutable</strong> tag in ECR (e.g. <code>user-1.0.12-dev-abc1234</code>).  </li>
+<li>On EC2:</li>
+</ol>
+<pre><code class="language-bash">sudo nano /opt/fgs/.env
+# set e.g. FGS_USER_IMAGE=ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/fgs/dockers:user-1.0.12-dev-abc1234
+
+cd /opt/fgs
+aws ecr get-login-password --region us-east-1 \
+  | docker login --username AWS --password-stdin ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
+docker compose -f docker-compose.ec2.yml pull user-service
+docker compose -f docker-compose.ec2.yml up -d --no-deps user-service
+docker compose -f docker-compose.ec2.yml ps user-service
+</code></pre>
+<ol start="3">
+<li>Note: the next <code>deploy-service.sh user-service dev</code> run will <strong>overwrite</strong> <code>.env</code> back to the channel tag <code>user-dev</code>.</li>
+</ol>
+<hr />
+<h2 id="14-sync-compose-files-without-full-bootstrap">14. Sync compose files without full bootstrap</h2>
+<pre><code class="language-powershell">.\deployment\aws\ec2\Push-Ec2Files.ps1 -InstanceId INSTANCE_ID -Region us-east-1
+</code></pre>
+<p>Then recreate affected services (especially <code>nginx</code> after entrypoint/compose changes):</p>
+<pre><code class="language-bash">sudo /opt/fgs/deploy-service.sh nginx dev
+</code></pre>
+<hr />
+<h2 id="15-quick-reference-checklist">15. Quick-reference checklist</h2>
+<h3 id="aws">AWS</h3>
+<ul>
+<li>[ ] ECR repo <code>fgs/dockers</code> with <code>*-dev</code> tags present  </li>
+<li>[ ] EC2 role: <code>AmazonSSMManagedInstanceCore</code> + ECR pull (+ KMS / S3 as needed)  </li>
+<li>[ ] Instance profile attached; SSM <strong>Online</strong>  </li>
+<li>[ ] SG: inbound 80 (ALB/IP); outbound 443  </li>
+<li>[ ] RDS reachable from EC2  </li>
+<li>[ ] Optional ALB → instance :80, health <code>/nginx-health</code>  </li>
+</ul>
+<h3 id="host-bootstrap">Host bootstrap</h3>
+<ul>
+<li>[ ] <code>bootstrap-ec2.sh</code> completed  </li>
+<li>[ ] <code>/opt/fgs/docker-compose.ec2.yml</code>, <code>deploy-service.sh</code>, nginx entrypoint present  </li>
+<li>[ ] <code>setup-appsettings.json</code> — FgsSetup only  </li>
+<li>[ ] <code>.env</code> — RabbitMQ password matches GloCredential; <code>FGS_PUBLIC_BASE_URL</code> set  </li>
+<li>[ ] GloCredential providers populated in RDS  </li>
+</ul>
+<h3 id="first-deploy-order">First deploy order</h3>
+<ul>
+<li>[ ] redis → rabbitmq → setup → audit → user → bff → notification → file → publisher → consumer → nginx  </li>
+</ul>
+<h3 id="verify">Verify</h3>
+<ul>
+<li>[ ] <code>docker compose -f /opt/fgs/docker-compose.ec2.yml ps</code> — healthy  </li>
+<li>[ ] <code>http://localhost/nginx-health</code> → 200  </li>
+<li>[ ] Setup / User <code>/health</code> OK  </li>
+<li>[ ] Image inspect shows <code>…/fgs/dockers:*-dev</code>  </li>
+</ul>
+<h3 id="operator-cd">Operator / CD</h3>
+<ul>
+<li>[ ] Session Manager works for operators  </li>
+<li>[ ] GitHub <code>EC2_INSTANCE_ID</code> / <code>AWS_REGION</code> / <code>ECR_REPO</code> set if using CD  </li>
+<li>[ ] After instance replace: new <code>EC2_INSTANCE_ID</code> + full redeploy  </li>
+</ul>
+<hr />
+<h2 id="16-command-cheat-sheet">16. Command cheat sheet</h2>
+<pre><code class="language-bash"># Session
+aws ssm start-session --target INSTANCE_ID --region us-east-1
+
+# Deploy one service (normal)
+sudo /opt/fgs/deploy-service.sh &lt;service&gt; dev fgs/dockers us-east-1
+
+# Status / logs / health
+cd /opt/fgs &amp;&amp; docker compose -f docker-compose.ec2.yml ps
+docker logs $(docker ps -qf name=setup-service) --tail 100
+curl -s -o /dev/null -w &quot;%{http_code}\n&quot; http://localhost/nginx-health
+
+# Push files from laptop
+# .\deployment\aws\ec2\Push-Ec2Files.ps1 -InstanceId INSTANCE_ID
+</code></pre>
+<p><strong>Compose services accepted by <code>deploy-service.sh</code>:</strong><br />
+<code>redis</code>, <code>rabbitmq</code>, <code>setup-service</code>, <code>audit-service</code>, <code>user-service</code>, <code>bff-service</code>, <code>notification-service</code>, <code>file-service</code>, <code>publisher-service</code>, <code>consumer-service</code>, <code>nginx</code></p>
+<hr />
+<p><em>Document generated from FGS repository deployment guides and scripts. Prefer the source files listed in the header if behavior and this runbook ever diverge.</em></p>
+</body>
+</html>

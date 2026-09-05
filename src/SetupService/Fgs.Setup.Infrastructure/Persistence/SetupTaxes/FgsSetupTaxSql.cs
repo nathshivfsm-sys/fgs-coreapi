@@ -1,4 +1,5 @@
 using Fgs.Foundation.Paging;
+using Fgs.Setup.Infrastructure.Common;
 
 namespace Fgs.Setup.Infrastructure.Persistence.SetupTaxes;
 
@@ -50,16 +51,10 @@ internal static class FgsSetupTaxSql
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)
-    {
-        var dir = direction == SortDirection.Desc ? "DESC" : "ASC";
-        if (string.IsNullOrWhiteSpace(sortBy) || !AllowedSortColumns.Contains(sortBy))
-        {
-            return $"ORDER BY t.\"Id\" {dir}";
-        }
+        => SetupSqlOrderBy.Resolve(
+            sortBy,
+            direction,
+            AllowedSortColumns,
+            tableAlias: "t");
 
-        var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));
-        return column.Equals("DisplayOrder", StringComparison.OrdinalIgnoreCase)
-            ? $"ORDER BY t.\"Name\" {dir}"
-            : $"ORDER BY t.\"{column}\" {dir}";
-    }
 }

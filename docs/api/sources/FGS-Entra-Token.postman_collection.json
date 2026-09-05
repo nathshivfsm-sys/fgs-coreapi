@@ -1,0 +1,260 @@
+﻿{
+  "info": {
+    "_postman_id": "fgs-entra-token-existing-user",
+    "name": "FGS Entra Token (Existing User)",
+    "description": "Obtain Entra tokens for an **already registered** user.\n\nRedirect URI: SPA auth callback from **FGS Globals** `redirectUri` (must match `Application:UiAuthCallbackUrl`, e.g. `https://developer.fsm.com/auth/callback`).\n\n## Recommended â€” Manual browser flow\n1. Select **FGS Globals (Local)** environment.\n2. Set `entraUserEmail`, `entraClientSecret`.\n3. Ensure gateway is running on `https://developer.fsm.com`.\n4. Run **Manual browser flow â†’ 1. Copy sign-in URL to console** â†’ **Send**.\n5. Open **View â†’ Show Postman Console**, copy URL into Chrome/Edge, sign in.\n6. Browser redirects to the SPA callback. **Copy `code=` from the address bar**.\n7. Paste into environment variable `authCode`.\n8. Run **2. Exchange Authorization Code** â†’ `accessToken` is set automatically.\n9. Use other FGS collections (FileService, SetupService, etc.).\n\n## Token lifetime\nAccess tokens ~60 min. `offline_access` returns a **refresh token** â€” run **3. Refresh Access Token** to renew.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "oauth2",
+    "oauth2": [
+      { "key": "grant_type", "value": "authorization_code", "type": "string" },
+      { "key": "authUrl", "value": "{{entraAuthority}}/{{entraTenantId}}/oauth2/v2.0/authorize", "type": "string" },
+      { "key": "accessTokenUrl", "value": "{{entraAuthority}}/{{entraTenantId}}/oauth2/v2.0/token", "type": "string" },
+      { "key": "clientId", "value": "{{entraClientId}}", "type": "string" },
+      { "key": "clientSecret", "value": "{{entraClientSecret}}", "type": "string" },
+      { "key": "scope", "value": "openid profile email offline_access", "type": "string" },
+      { "key": "redirect_uri", "value": "{{redirectUri}}", "type": "string" },
+      { "key": "client_authentication", "value": "body", "type": "string" },
+      { "key": "useBrowser", "value": true, "type": "boolean" },
+      {
+        "key": "authRequestQueryParams",
+        "value": [
+          { "key": "p", "value": "{{entraUserFlow}}", "enabled": true },
+          { "key": "login_hint", "value": "{{entraUserEmail}}", "enabled": true },
+          { "key": "response_mode", "value": "query", "enabled": true }
+        ],
+        "type": "any"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const refreshToken = pm.environment.get('refreshToken');",
+          "const expiresAt = Number(pm.environment.get('accessTokenExpiresAt') || 0);",
+          "const accessToken = pm.environment.get('accessToken');",
+          "const skipAutoRefresh = pm.variables.get('skipAutoRefresh') === 'true';",
+          "if (skipAutoRefresh || !refreshToken || !accessToken || !expiresAt) { return; }",
+          "const bufferMs = 5 * 60 * 1000;",
+          "if (Date.now() < expiresAt - bufferMs) { return; }",
+          "const tokenUrl = pm.environment.get('entraAuthority') + '/' + pm.environment.get('entraTenantId') + '/oauth2/v2.0/token';",
+          "pm.sendRequest({",
+          "  url: tokenUrl, method: 'POST',",
+          "  header: { 'Content-Type': 'application/x-www-form-urlencoded' },",
+          "  body: { mode: 'urlencoded', urlencoded: [",
+          "    { key: 'grant_type', value: 'refresh_token' },",
+          "    { key: 'client_id', value: pm.environment.get('entraClientId') },",
+          "    { key: 'client_secret', value: pm.environment.get('entraClientSecret') },",
+          "    { key: 'refresh_token', value: refreshToken },",
+          "    { key: 'scope', value: 'openid profile email offline_access' }",
+          "  ]}",
+          "}, (err, res) => {",
+          "  if (err || !res || res.code !== 200) return;",
+          "  const body = res.json();",
+          "  if (body.access_token) pm.environment.set('accessToken', body.access_token);",
+          "  if (body.refresh_token) pm.environment.set('refreshToken', body.refresh_token);",
+          "  if (body.expires_in) pm.environment.set('accessTokenExpiresAt', String(Date.now() + body.expires_in * 1000));",
+          "});"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Sign in (read first)",
+      "item": [
+        {
+          "name": "How to sign in",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "https://postman-echo.com/get",
+            "description": "**Use Manual browser flow** (folder below).\n\nThe FGS redirect URI is `https://developer.fsm.com/auth/callback`. After Entra login the browser lands on that URL with `?code=...` in the address bar.\n\nthe SPA callback page may show an error JSON (it expects an invitation `state` for onboarding). That is OK â€” **copy the `code` from the URL** before the page loads or from the address bar, set `authCode`, then run **2. Exchange Authorization Code**.\n\nPostman **Get New Access Token** (collection Authorization tab) does **not** auto-return when using the SPA callback URL â€” use the manual flow instead."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const base = pm.environment.get('entraAuthority') + '/' + pm.environment.get('entraTenantId') + '/oauth2/v2.0/authorize';",
+                  "const q = new URLSearchParams({",
+                  "  client_id: pm.environment.get('entraClientId'),",
+                  "  response_type: 'code',",
+                  "  redirect_uri: pm.environment.get('redirectUri'),",
+                  "  response_mode: 'query',",
+                  "  scope: 'openid profile email offline_access',",
+                  "  login_hint: pm.environment.get('entraUserEmail') || '',",
+                  "  p: pm.environment.get('entraUserFlow'),",
+                  "  state: 'postman-existing-user'",
+                  "});",
+                  "const url = base + '?' + q.toString();",
+                  "console.log('=== Open this URL in Chrome/Edge ===');",
+                  "console.log(url);",
+                  "console.log('=== Redirect URI:', pm.environment.get('redirectUri'), '===');",
+                  "console.log('=== After login, copy code= from the callback URL into authCode ===');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Manual browser flow",
+      "item": [
+        {
+          "name": "1. Copy sign-in URL to console",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "https://postman-echo.com/get",
+            "description": "Click **Send**, then open **View â†’ Show Postman Console**. Copy the printed URL into Chrome or Edge.\n\nAfter sign-in you will be redirected to `{{redirectUri}}?code=...` â€” copy the code into `authCode`."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const base = pm.environment.get('entraAuthority') + '/' + pm.environment.get('entraTenantId') + '/oauth2/v2.0/authorize';",
+                  "const q = new URLSearchParams({",
+                  "  client_id: pm.environment.get('entraClientId'),",
+                  "  response_type: 'code',",
+                  "  redirect_uri: pm.environment.get('redirectUri'),",
+                  "  response_mode: 'query',",
+                  "  scope: 'openid profile email offline_access',",
+                  "  login_hint: pm.environment.get('entraUserEmail') || '',",
+                  "  p: pm.environment.get('entraUserFlow'),",
+                  "  state: 'postman-existing-user'",
+                  "});",
+                  "console.log('Open in browser:', base + '?' + q.toString());",
+                  "console.log('Callback:', pm.environment.get('redirectUri'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Exchange Authorization Code",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": { "type": "text/javascript", "exec": ["pm.variables.set('skipAutoRefresh', 'true');"] }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Token exchange succeeded', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const body = pm.response.json();",
+                  "  pm.environment.set('accessToken', body.access_token);",
+                  "  if (body.refresh_token) pm.environment.set('refreshToken', body.refresh_token);",
+                  "  if (body.expires_in) pm.environment.set('accessTokenExpiresAt', String(Date.now() + body.expires_in * 1000));",
+                  "  const parts = body.access_token.split('.');",
+                  "  if (parts.length >= 2) {",
+                  "    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));",
+                  "    if (payload.tenant_id) pm.environment.set('tenantId', String(payload.tenant_id));",
+                  "    if (payload.company_id) pm.environment.set('companyId', String(payload.company_id));",
+                  "    if (payload.exp) pm.environment.set('accessTokenExpiresAt', String(payload.exp * 1000));",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "authorization_code" },
+                { "key": "client_id", "value": "{{entraClientId}}" },
+                { "key": "client_secret", "value": "{{entraClientSecret}}" },
+                { "key": "code", "value": "{{authCode}}" },
+                { "key": "redirect_uri", "value": "{{redirectUri}}" },
+                { "key": "scope", "value": "openid profile email offline_access" }
+              ]
+            },
+            "url": "{{entraAuthority}}/{{entraTenantId}}/oauth2/v2.0/token",
+            "description": "Exchanges `authCode` with Entra directly. `redirect_uri` must match the authorize step (`{{redirectUri}}`)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Refresh Access Token",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": { "type": "text/javascript", "exec": ["pm.variables.set('skipAutoRefresh', 'true');"] }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Refresh succeeded', function () {",
+              "  pm.response.to.have.status(200);",
+              "  const body = pm.response.json();",
+              "  pm.environment.set('accessToken', body.access_token);",
+              "  if (body.refresh_token) pm.environment.set('refreshToken', body.refresh_token);",
+              "  if (body.expires_in) pm.environment.set('accessTokenExpiresAt', String(Date.now() + body.expires_in * 1000));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "grant_type", "value": "refresh_token" },
+            { "key": "client_id", "value": "{{entraClientId}}" },
+            { "key": "client_secret", "value": "{{entraClientSecret}}" },
+            { "key": "refresh_token", "value": "{{refreshToken}}" },
+            { "key": "scope", "value": "openid profile email offline_access" }
+          ]
+        },
+        "url": "{{entraAuthority}}/{{entraTenantId}}/oauth2/v2.0/token"
+      }
+    },
+    {
+      "name": "4. Verify - Gateway Auth (GET /auth/me)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{gatewayUrl}}/api/v1/auth/me",
+        "description": "Confirms `accessToken` is accepted through the gateway (UserService JWT validation)."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Auth check HTTP 200', function () { pm.response.to.have.status(200); });",
+              "const body = pm.response.json();",
+              "pm.test('Authenticated user returned', function () { pm.expect(body.success).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

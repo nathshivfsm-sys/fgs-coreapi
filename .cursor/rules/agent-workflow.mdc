@@ -1,0 +1,21 @@
+---
+description: Default FGS agent workflow — read AI docs and clone existing code
+alwaysApply: true
+---
+
+# Agent workflow
+
+```text
+Requirement → identify service (docs/ai/services.md)
+  → read docs/ai feature + relevant reference
+  → load matching .cursor/skills/*/SKILL.md
+  → clone a similar existing implementation
+  → follow .cursor/rules/*.mdc
+  → implement → unit tests → build → review diff
+```
+
+- **Source of truth is the current code**, then `docs/ai/`. Older `.cursor/*.md` notes are historical; if they conflict (e.g. Kafka), follow the code.
+- Do not invent services, schemas, brokers, or auth models.
+- Do not write other services' databases. S2S via Refit in `Fgs.Contracts.Clients`.
+- Never commit secrets, tokens, or connection strings.
+- Prefer the **smallest change** that matches an existing neighbor in the same service.

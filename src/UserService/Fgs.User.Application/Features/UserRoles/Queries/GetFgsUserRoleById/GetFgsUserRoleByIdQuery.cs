@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.Api;
+using Fgs.Contracts.Api;
 using Fgs.User.Application.Features.UserRoles.Dtos;
 using MediatR;
 

@@ -52,13 +52,13 @@ public sealed class PatchFgsSetupTechSkillLevelCommandValidator : AbstractValida
     public PatchFgsSetupTechSkillLevelCommandValidator(IFgsSetupTechSkillLevelReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.Code).NotEmpty();
-        RuleFor(x => x.Dto.Code).MaximumLength(100);
-        RuleFor(x => x.Dto.Code).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("Code must be uppercase.");
+        RuleFor(x => x.Dto.Code).NotEmpty().When(x => x.Dto.Code is not null);
+        RuleFor(x => x.Dto.Code).MaximumLength(100).When(x => x.Dto.Code is not null);
+        RuleFor(x => x.Dto.Code).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("Code must be uppercase.").When(x => x.Dto.Code is not null);
         RuleFor(x => x.Dto.Code).MustAsync(async (command, code, cancellationToken) =>
                 !await readRepository.ExistsByCodeAsync(code!, command.Id, cancellationToken))
-            .WithMessage("A tech skill level with this code already exists.");
-        RuleFor(x => x.Dto.Name).NotEmpty();
+            .WithMessage("A tech skill level with this code already exists.").When(x => x.Dto.Code is not null);
+        RuleFor(x => x.Dto.Name).NotEmpty().When(x => x.Dto.Name is not null);
 
         RuleFor(x => x.Dto.SortOrder).GreaterThanOrEqualTo(0).When(x => x.Dto.SortOrder.HasValue);
     }

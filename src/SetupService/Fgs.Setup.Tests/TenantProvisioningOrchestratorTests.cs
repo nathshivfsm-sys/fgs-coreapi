@@ -42,6 +42,7 @@ public sealed class TenantProvisioningOrchestratorTests
 
         var orchestrator = new TenantProvisioningOrchestrator(
             userTenantClient.Object,
+            CreateUserCompanyClientMock().Object,
             fileTenantClient.Object,
             seedingEngine.Object,
             context,
@@ -69,6 +70,7 @@ public sealed class TenantProvisioningOrchestratorTests
 
         var orchestrator = new TenantProvisioningOrchestrator(
             CreateUserTenantClientMock().Object,
+            CreateUserCompanyClientMock().Object,
             CreateFileTenantClientMock().Object,
             seedingEngine.Object,
             context,
@@ -82,6 +84,57 @@ public sealed class TenantProvisioningOrchestratorTests
         capturedGloIds!.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task ProvisionAsync_WhenSeedHasFailures_ThrowsAndSetsProvisioningFailed()
+    {
+        await using var context = await CreateContextAsync();
+
+        var seedingEngine = new Mock<ITenantDataSeedingEngine>();
+        seedingEngine
+            .Setup(s => s.SeedTenantDataAsync(10, 1, It.IsAny<IReadOnlyList<int>?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantDataSeedResult(
+                0,
+                0,
+                1,
+                [new TenantSeedTableResult("tableX", TenantSeedTableOutcome.Failed, "seed failed")]));
+
+        var userTenantClient = CreateUserTenantClientMock();
+        var fileTenantClient = CreateFileTenantClientMock();
+
+        var orchestrator = new TenantProvisioningOrchestrator(
+            userTenantClient.Object,
+            CreateUserCompanyClientMock().Object,
+            fileTenantClient.Object,
+            seedingEngine.Object,
+            context,
+            NullLogger<TenantProvisioningOrchestrator>.Instance);
+
+        var act = () => orchestrator.ProvisionAsync(
+            new TenantProvisionRequestedEvent(10, 1, "ACME", Guid.NewGuid()),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*seed completed with failures*");
+
+        userTenantClient.Verify(
+            c => c.UpdateStatusAsync(
+                10,
+                It.Is<UpdateTenantStatusRequest>(r => r.FgsTenantStatusId == TenantStatusIds.ProvisioningFailed),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        fileTenantClient.Verify(
+            c => c.ProvisionBucketAsync(It.IsAny<long>(), It.IsAny<ProvisionTenantBucketRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        userTenantClient.Verify(
+            c => c.UpdateStatusAsync(
+                10,
+                It.Is<UpdateTenantStatusRequest>(r => r.FgsTenantStatusId == TenantStatusIds.Active),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static Mock<IUserTenantClient> CreateUserTenantClientMock()
     {
         var mock = new Mock<IUserTenantClient>();
@@ -89,10 +142,17 @@ public sealed class TenantProvisioningOrchestratorTests
             .ReturnsAsync(ApiResponse<TenantDto>.Ok(new TenantDto(10, "ACME", "Acme", TenantStatusIds.Pending, null)));
         mock.Setup(c => c.UpdateStatusAsync(10, It.IsAny<UpdateTenantStatusRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ApiResponse<object>.Ok(new object()));
-        mock.Setup(c => c.GetCompaniesAsync(10, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ApiResponse<IReadOnlyList<TenantCompanyDto>>.Ok([new TenantCompanyDto(1, 10, 1, Guid.NewGuid(), "ACME", "Acme", true)]));
         mock.Setup(c => c.UpdateStorageBucketAsync(10, It.IsAny<UpdateTenantStorageBucketRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ApiResponse<object>.Ok(new object()));
+        return mock;
+    }
+
+    private static Mock<IUserCompanyClient> CreateUserCompanyClientMock()
+    {
+        var mock = new Mock<IUserCompanyClient>();
+        mock.Setup(c => c.GetCompaniesAsync(10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponse<IReadOnlyList<TenantCompanyDto>>.Ok(
+                [new TenantCompanyDto(1, 10, 1, Guid.NewGuid(), "ACME", "Acme", true)]));
         return mock;
     }
 

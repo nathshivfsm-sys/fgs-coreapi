@@ -325,6 +325,12 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
 
+                    b.Property<bool>("IsPreferredCustomer")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the customer is designated as a preferred customer. TRUE indicates preferred customer status; FALSE indicates standard customer status.");
+
                     b.Property<int>("LastServiceLocationSequence")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
@@ -1431,6 +1437,10 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                         .HasColumnType("bigint")
                         .HasColumnOrder(1)
                         .HasComment("Tenant identifier.");
+
+                    b.Property<long?>("TermsConditionVersionId")
+                        .HasColumnType("bigint")
+                        .HasComment("Reference to the specific terms and conditions version used by the estimate.");
 
                     b.Property<decimal>("TotalAmount")
                         .ValueGeneratedOnAdd()

@@ -16,7 +16,11 @@ public sealed class CreateFgsRoleDataAccessCommandHandler(
         CancellationToken cancellationToken)
     {
         var result = await writeService.CreateAsync(request.Dto, cancellationToken);
-        logger.LogInformation("Created role data access assignment {Id}", result.Id);
+        logger.LogInformation(
+            "Created role-data-access assignment {RoleDataAccessId} for role {FgsRoleId} dataAccess {FgsDataAccessId}",
+            result.Id,
+            result.FgsRoleId,
+            result.FgsDataAccessId);
         return ApiResponse<FgsRoleDataAccessDetailDto>.Ok(result, ApiStatusCodes.Created);
     }
 }

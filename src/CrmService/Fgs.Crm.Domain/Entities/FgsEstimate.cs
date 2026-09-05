@@ -76,6 +76,8 @@ public class FgsEstimate : FgsEntityBase, ITenantCompanyScoped
 
     public long? OtherPricingMatrixId { get; set; }
 
+    public long? TermsConditionVersionId { get; set; }
+
     public decimal SubtotalAmount { get; set; }
 
     public decimal DiscountAmount { get; set; }

@@ -37,6 +37,10 @@ internal sealed class CrmCustomerConfiguration : IEntityTypeConfiguration<CrmCus
         entity.Property(e => e.CustomerAccountNumber).HasMaxLength(100);
         entity.Property(e => e.ExternalEntityId).HasMaxLength(200);
         entity.Property(e => e.ExternalVersion).HasMaxLength(100);
+        entity.Property(e => e.IsPreferredCustomer)
+            .HasDefaultValue(false)
+            .HasComment(
+                "Indicates whether the customer is designated as a preferred customer. TRUE indicates preferred customer status; FALSE indicates standard customer status.");
         entity.Property(e => e.IsActive).HasDefaultValue(true);
 
         entity.Property(e => e.CreatedOn).IsRequired().HasColumnType("timestamptz").HasDefaultValueSql("now()");

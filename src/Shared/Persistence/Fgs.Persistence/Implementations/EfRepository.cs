@@ -51,7 +51,41 @@ public sealed class EfRepository<TEntity, TDbContext> : IRepository<TEntity>
     public Task AddAsync(TEntity entity, CancellationToken cancellationToken = default) =>
         _dbSet.AddAsync(entity, cancellationToken).AsTask();
 
-    public void Update(TEntity entity) => _dbSet.Update(entity);
+    public void Update(TEntity entity)
+    {
+        var entry = _context.Entry(entity);
+        if (entry.State != EntityState.Detached)
+        {
+            return;
+        }
+
+        var keyValues = _context.Model.FindEntityType(typeof(TEntity))
+            ?.FindPrimaryKey()
+            ?.Properties
+            .Select(p => typeof(TEntity).GetProperty(p.Name)!.GetValue(entity))
+            .ToArray();
+
+        if (keyValues is { Length: > 0 })
+        {
+            var local = _dbSet.Local.FirstOrDefault(e =>
+            {
+                var localKeys = _context.Model.FindEntityType(typeof(TEntity))!
+                    .FindPrimaryKey()!
+                    .Properties
+                    .Select(p => typeof(TEntity).GetProperty(p.Name)!.GetValue(e))
+                    .ToArray();
+                return keyValues.SequenceEqual(localKeys);
+            });
+
+            if (local is not null)
+            {
+                _context.Entry(local).CurrentValues.SetValues(entity);
+                return;
+            }
+        }
+
+        _dbSet.Update(entity);
+    }
 
     public void Remove(TEntity entity) => _dbSet.Remove(entity);
 

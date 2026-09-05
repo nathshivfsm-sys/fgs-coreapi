@@ -1,4 +1,4 @@
-﻿using Fgs.Contracts.Api;
+using Fgs.Contracts.Api;
 using Fgs.User.Application.Abstractions.UserRoles;
 using Fgs.User.Application.Features.UserRoles.Dtos;
 using MediatR;
@@ -16,7 +16,11 @@ public sealed class CreateFgsUserRoleCommandHandler(
         CancellationToken cancellationToken)
     {
         var result = await writeService.CreateAsync(request.Dto, cancellationToken);
-        logger.LogInformation("Assigned role {RoleId} to user {UserId}", result.FgsRoleId, result.UserId);
+        logger.LogInformation(
+            "Created user-role assignment {UserRoleId} for user {UserId} role {FgsRoleId}",
+            result.Id,
+            result.UserId,
+            result.FgsRoleId);
         return ApiResponse<FgsUserRoleDetailDto>.Ok(result, ApiStatusCodes.Created);
     }
 }

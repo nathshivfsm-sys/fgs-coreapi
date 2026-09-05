@@ -69,6 +69,8 @@ internal sealed class FgsEstimateConfiguration : IEntityTypeConfiguration<FgsEst
         entity.Property(e => e.MaterialPricingMatrixId).HasComment("Material pricing matrix used for pricing calculations.");
         entity.Property(e => e.LaborPricingMatrixId).HasComment("Labor pricing matrix used for pricing calculations.");
         entity.Property(e => e.OtherPricingMatrixId).HasComment("Other pricing matrix used for pricing calculations.");
+        entity.Property(e => e.TermsConditionVersionId)
+            .HasComment("Reference to the specific terms and conditions version used by the estimate.");
         entity.Property(e => e.SubtotalAmount).HasColumnType("numeric(18,2)").HasDefaultValue(0m)
             .HasComment("Subtotal before discounts and taxes.");
         entity.Property(e => e.DiscountAmount).HasColumnType("numeric(18,2)").HasDefaultValue(0m)

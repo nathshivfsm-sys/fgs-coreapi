@@ -1,0 +1,14 @@
+---
+description: RabbitMQ, outbox, and consumers
+globs: "**/{Messaging,Consumer,Contracts}/**/*.cs"
+alwaysApply: false
+---
+
+# Messaging
+
+- Broker: **RabbitMQ** (not Kafka). Contracts: `IntegrationEventExchanges`, `IntegrationEventRoutingKeys`.
+- Write path: same UoW as business data → `IOutboxWriter.EnqueueAsync` → owning service `AddFgsOutboxPublisher` poller → `IIntegrationEventPublisher` (RabbitMQ default).
+- Outbox tables: `tenant.TenantOutboxMessage`, `glo.GloOutboxMessage`, `setup.SetupOutboxMessage`, `inventory.InventoryOutboxMessage`, `crm.CrmOutboxMessage` (CRM has no worker yet).
+- Consume in **ConsumerService** only (clone existing `Process*CommandHandler`). Idempotency: Redis `IConsumerIdempotencyStore` (no inbox table).
+- Hosted services: resolve `IMediator` in a scope; no business logic in the poller.
+- Details: [docs/ai/messaging.md](../../docs/ai/messaging.md), [docs/ai/outbox.md](../../docs/ai/outbox.md).

@@ -1,4 +1,5 @@
 using Fgs.Foundation.Paging;
+using Fgs.Setup.Infrastructure.Common;
 
 namespace Fgs.Setup.Infrastructure.Persistence.LeadDisqualificationReasons;
 
@@ -24,16 +25,10 @@ internal static class LeadDisqualificationReasonSql
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)
-    {
-        var dir = direction == SortDirection.Desc ? "DESC" : "ASC";
-        if (string.IsNullOrWhiteSpace(sortBy) || !AllowedSortColumns.Contains(sortBy))
-        {
-            return $"ORDER BY \"Id\" {dir}";
-        }
+        => SetupSqlOrderBy.Resolve(
+            sortBy,
+            direction,
+            AllowedSortColumns,
+            nullsLastTiebreakerColumn: "ReasonName");
 
-        var column = AllowedSortColumns.First(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));
-        return column.Equals("DisplayOrder", StringComparison.OrdinalIgnoreCase)
-            ? $"ORDER BY \"DisplayOrder\" {dir} NULLS LAST, \"ReasonName\" {dir}"
-            : $"ORDER BY \"{column}\" {dir}";
-    }
 }

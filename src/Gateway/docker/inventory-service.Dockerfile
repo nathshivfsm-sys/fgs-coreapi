@@ -24,14 +24,14 @@ COPY src/InventoryService/Fgs.Inventory.Application/Fgs.Inventory.Application.cs
 COPY src/InventoryService/Fgs.Inventory.Domain/Fgs.Inventory.Domain.csproj src/InventoryService/Fgs.Inventory.Domain/
 COPY src/InventoryService/Fgs.Inventory.Infrastructure/Fgs.Inventory.Infrastructure.csproj src/InventoryService/Fgs.Inventory.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/InventoryService/Fgs.Inventory.API/Fgs.Inventory.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/InventoryService/ src/InventoryService/
 
 WORKDIR /src/src/InventoryService/Fgs.Inventory.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Inventory.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
@@ -40,7 +40,7 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:5012 \
-    ASPNETCORE_ENVIRONMENT=Production \
+    ASPNETCORE_ENVIRONMENT=Development \
     DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_EnableDiagnostics=0
 

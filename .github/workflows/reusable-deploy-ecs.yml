@@ -1,0 +1,124 @@
+# Force a new ECS deployment so Fargate pulls the latest mutable channel tag
+# (setup-dev, …) from the shared ECR repo.
+#
+# Note: build workflows currently target EC2 (dev only). This ECS workflow remains
+# for optional/future use.
+
+name: Reusable ECS deploy
+
+on:
+  workflow_call:
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: false
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+    inputs:
+      ecs_service:
+        required: true
+        type: string
+        description: ECS service name (setup, user, gateway)
+      channel:
+        required: true
+        type: string
+        description: Image channel (dev, test, prod)
+      github_environment:
+        required: true
+        type: string
+        description: GitHub Environment name (dev, qa, prod)
+      ecs_cluster:
+        required: true
+        type: string
+        description: Default cluster name (fgs-dev, fgs-test, fgs-prod)
+      image_tag_prefix:
+        required: true
+        type: string
+        description: ECR tag prefix (setup, user, nginx)
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.ecs_service }} → ${{ inputs.github_environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.github_environment }}
+    steps:
+      - name: Require AWS auth
+        id: auth
+        env:
+          ROLE: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        run: |
+          if [ -n "$ACCESS_KEY" ]; then
+            echo "Using IAM access keys."
+            echo "use_access_keys=true" >> "$GITHUB_OUTPUT"
+          elif [ -n "$ROLE" ]; then
+            echo "Using GitHub OIDC role."
+            echo "use_access_keys=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Set secrets AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY, or variable AWS_ROLE_TO_ASSUME."
+            exit 1
+          fi
+
+      - name: Configure AWS credentials (access keys)
+        if: steps.auth.outputs.use_access_keys == 'true'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure AWS credentials (OIDC)
+        if: steps.auth.outputs.use_access_keys == 'false'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Resolve cluster and force new deployment
+        env:
+          CLUSTER_DEFAULT: ${{ inputs.ecs_cluster }}
+          CLUSTER_OVERRIDE: ${{ vars.ECS_CLUSTER }}
+          SERVICE: ${{ inputs.ecs_service }}
+          CHANNEL: ${{ inputs.channel }}
+          TAG_PREFIX: ${{ inputs.image_tag_prefix }}
+          ECR_REPO: ${{ vars.ECR_REPO || 'fgs/dockers' }}
+        run: |
+          set -euo pipefail
+          CLUSTER="${CLUSTER_OVERRIDE:-$CLUSTER_DEFAULT}"
+
+          IMAGE_TAG="${TAG_PREFIX}-${CHANNEL}"
+          echo "Cluster=$CLUSTER Service=$SERVICE ImageTag=$IMAGE_TAG"
+
+          aws ecs describe-services \
+            --cluster "$CLUSTER" \
+            --services "$SERVICE" \
+            --query 'services[0].status' \
+            --output text | tee /tmp/svc-status.txt
+
+          STATUS=$(cat /tmp/svc-status.txt)
+          if [ "$STATUS" != "ACTIVE" ]; then
+            echo "::error::ECS service '$SERVICE' not ACTIVE on cluster '$CLUSTER' (got: $STATUS). Create the service first."
+            exit 1
+          fi
+
+          aws ecs update-service \
+            --cluster "$CLUSTER" \
+            --service "$SERVICE" \
+            --force-new-deployment \
+            --query 'service.{name:serviceName,taskDefinition:taskDefinition,desired:desiredCount,rolling:deployments[0].rolloutState}' \
+            --output table
+
+          {
+            echo "### Deploy ${SERVICE}"
+            echo "- Environment: \`${{ inputs.github_environment }}\`"
+            echo "- Cluster: \`${CLUSTER}\`"
+            echo "- Service: \`${SERVICE}\`"
+            echo "- Expected ECR tag: \`${ECR_REPO}:${IMAGE_TAG}\`"
+            echo "- Action: force-new-deployment (task definition already points at the channel tag)"
+          } >> "$GITHUB_STEP_SUMMARY"

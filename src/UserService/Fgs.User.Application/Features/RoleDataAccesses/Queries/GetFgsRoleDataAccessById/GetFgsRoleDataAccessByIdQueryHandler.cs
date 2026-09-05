@@ -16,7 +16,7 @@ public sealed class GetFgsRoleDataAccessByIdQueryHandler(IFgsRoleDataAccessReadR
         if (result is null)
         {
             return ApiResponse<FgsRoleDataAccessDetailDto>.Fail(
-                [$"Role data access assignment '{request.Id}' was not found."],
+                [$"Role-data-access assignment '{request.Id}' was not found."],
                 ApiStatusCodes.NotFound);
         }
 

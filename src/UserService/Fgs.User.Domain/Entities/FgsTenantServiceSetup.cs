@@ -61,5 +61,16 @@ public class FgsTenantServiceSetup : FgsEntityBase, ITenantCompanyScoped
 
     public string? InvoiceBatchNumberFormat { get; set; }
 
+    /// <summary>
+    /// Controls when estimate revisions are created.
+    /// See <see cref="EstimateRevisionCreationModes"/>.
+    /// </summary>
+    public string EstimateRevisionCreationMode { get; set; } = EstimateRevisionCreationModes.OnDemand;
+
+    /// <summary>
+    /// Controls whether maintenance schedule calls are automatically booked.
+    /// </summary>
+    public bool AutoBookMaintenanceScheduleCalls { get; set; }
+
     public bool IsActive { get; set; } = true;
 }

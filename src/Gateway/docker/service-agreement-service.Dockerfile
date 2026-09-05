@@ -24,14 +24,14 @@ COPY src/ServiceAgreementService/Fgs.ServiceAgreement.Application/Fgs.ServiceAgr
 COPY src/ServiceAgreementService/Fgs.ServiceAgreement.Domain/Fgs.ServiceAgreement.Domain.csproj src/ServiceAgreementService/Fgs.ServiceAgreement.Domain/
 COPY src/ServiceAgreementService/Fgs.ServiceAgreement.Infrastructure/Fgs.ServiceAgreement.Infrastructure.csproj src/ServiceAgreementService/Fgs.ServiceAgreement.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/ServiceAgreementService/Fgs.ServiceAgreement.API/Fgs.ServiceAgreement.API.csproj
 
 COPY src/Shared/ src/Shared/
 COPY src/ServiceAgreementService/ src/ServiceAgreementService/
 
 WORKDIR /src/src/ServiceAgreementService/Fgs.ServiceAgreement.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.ServiceAgreement.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
@@ -40,7 +40,7 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:5016 \
-    ASPNETCORE_ENVIRONMENT=Production \
+    ASPNETCORE_ENVIRONMENT=Development \
     DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_EnableDiagnostics=0
 

@@ -64,14 +64,14 @@ public sealed class PatchResolutionCodeCommandValidator : AbstractValidator<Patc
         RuleFor(x => x.Dto.GloResolutionTypeId).MustAsync(async (command, value, cancellationToken) =>
                 !value.HasValue || await readRepository.ExistsGloResolutionTypeIdAsync(value.Value, cancellationToken))
             .WithMessage("The specified resolution type was not found.").When(x => x.Dto.GloResolutionTypeId.HasValue);
-        RuleFor(x => x.Dto.ResolutionCode).NotEmpty();
-        RuleFor(x => x.Dto.ResolutionCode).MaximumLength(50);
-        RuleFor(x => x.Dto.ResolutionCode).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("ResolutionCode must be uppercase.");
+        RuleFor(x => x.Dto.ResolutionCode).NotEmpty().When(x => x.Dto.ResolutionCode is not null);
+        RuleFor(x => x.Dto.ResolutionCode).MaximumLength(50).When(x => x.Dto.ResolutionCode is not null);
+        RuleFor(x => x.Dto.ResolutionCode).Must(code => string.Equals(code!, code!.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("ResolutionCode must be uppercase.").When(x => x.Dto.ResolutionCode is not null);
         RuleFor(x => x.Dto.ResolutionCode).MustAsync(async (command, code, cancellationToken) =>
                 !await readRepository.ExistsByResolutionCodeAsync(code!, command.Id, cancellationToken))
-            .WithMessage("A resolution code with this code already exists.");
-        RuleFor(x => x.Dto.ResolutionName).NotEmpty();
-        RuleFor(x => x.Dto.ResolutionName).MaximumLength(200);
+            .WithMessage("A resolution code with this code already exists.").When(x => x.Dto.ResolutionCode is not null);
+        RuleFor(x => x.Dto.ResolutionName).NotEmpty().When(x => x.Dto.ResolutionName is not null);
+        RuleFor(x => x.Dto.ResolutionName).MaximumLength(200).When(x => x.Dto.ResolutionName is not null);
 
     }
 }

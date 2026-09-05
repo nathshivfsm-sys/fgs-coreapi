@@ -5,7 +5,6 @@ namespace Fgs.Messaging.Consumer;
 
 /// <summary>
 /// Durable consumer idempotency backed by <see cref="IDistributedCache"/> (Redis in production).
-/// Returns <c>false</c> when the message was already marked processed.
 /// </summary>
 public sealed class DistributedCacheConsumerIdempotencyStore(
     IDistributedCache cache,
@@ -15,6 +14,20 @@ public sealed class DistributedCacheConsumerIdempotencyStore(
     {
         AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(7)
     };
+
+    public async Task<bool> HasBeenProcessedAsync(
+        string messageId,
+        string routingKey,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(messageId))
+        {
+            return false;
+        }
+
+        var existing = await cache.GetAsync(BuildKey(messageId, routingKey), cancellationToken);
+        return existing is { Length: > 0 };
+    }
 
     public async Task<bool> TryMarkProcessedAsync(
         string messageId,
@@ -39,10 +52,7 @@ public sealed class DistributedCacheConsumerIdempotencyStore(
         var payload = System.Text.Encoding.UTF8.GetBytes(
             DateTimeOffset.UtcNow.ToString("O"));
         await cache.SetAsync(key, payload, DefaultExpiration, cancellationToken);
-
-        // Re-read to reduce (not eliminate) race windows across instances.
-        var confirm = await cache.GetAsync(key, cancellationToken);
-        return confirm is { Length: > 0 };
+        return true;
     }
 
     internal static string BuildKey(string messageId, string routingKey) =>

@@ -18,24 +18,25 @@ COPY src/Shared/MultiTenancy/Fgs.MultiTenancy/Fgs.MultiTenancy.csproj src/Shared
 COPY src/Shared/Foundation/Fgs.Foundation/Fgs.Foundation.csproj src/Shared/Foundation/Fgs.Foundation/
 COPY src/Shared/Observability/Fgs.Observability/Fgs.Observability.csproj src/Shared/Observability/Fgs.Observability/
 COPY src/Shared/Credentials/Fgs.Credentials/Fgs.Credentials.csproj src/Shared/Credentials/Fgs.Credentials/
-COPY src/AuditService/Fgs.Audit.Domain/Fgs.Audit.Domain.csproj src/AuditService/Fgs.Audit.Domain/
-COPY src/AuditService/Fgs.Audit.Application/Fgs.Audit.Application.csproj src/AuditService/Fgs.Audit.Application/
-COPY src/AuditService/Fgs.Audit.Infrastructure/Fgs.Audit.Infrastructure.csproj src/AuditService/Fgs.Audit.Infrastructure/
+
 COPY src/SetupService/Fgs.Setup.API/Fgs.Setup.API.csproj src/SetupService/Fgs.Setup.API/
 COPY src/SetupService/Fgs.Setup.Application/Fgs.Setup.Application.csproj src/SetupService/Fgs.Setup.Application/
 COPY src/SetupService/Fgs.Setup.Domain/Fgs.Setup.Domain.csproj src/SetupService/Fgs.Setup.Domain/
 COPY src/SetupService/Fgs.Setup.Infrastructure/Fgs.Setup.Infrastructure.csproj src/SetupService/Fgs.Setup.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     /usr/local/bin/restore-with-retry.sh src/SetupService/Fgs.Setup.API/Fgs.Setup.API.csproj
 
 COPY src/Shared/ src/Shared/
-COPY src/AuditService/ src/AuditService/
 COPY src/SetupService/ src/SetupService/
 
 WORKDIR /src/src/SetupService/Fgs.Setup.API
-RUN --mount=type=cache,target=/root/.nuget/packages \
-    dotnet publish Fgs.Setup.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
+    dotnet publish Fgs.Setup.API.csproj -c Release --no-restore -o /app/publish \
+      /p:UseAppHost=false \
+      /p:DebugType=none \
+      /p:DebugSymbols=false \
+      /p:GenerateDocumentationFile=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 RUN apk add --no-cache curl ca-certificates && update-ca-certificates
@@ -43,13 +44,12 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:5004 \
-    ASPNETCORE_ENVIRONMENT=Production \
     DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_EnableDiagnostics=0
 
 EXPOSE 5004
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=5 \
-    CMD curl -fsS http://localhost:5004/health || exit 1
+    CMD curl -fsS -H "Host: setup-service:5004" http://127.0.0.1:5004/health || exit 1
 
 ENTRYPOINT ["dotnet", "Fgs.Setup.API.dll"]

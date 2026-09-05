@@ -152,6 +152,7 @@ internal sealed class FgsSetupTechSkillLevelReadRepository : IFgsSetupTechSkillL
                 FROM {FgsSetupTechSkillLevelSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
                   AND "Code" = @Code
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )

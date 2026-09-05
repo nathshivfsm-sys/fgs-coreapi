@@ -12,6 +12,7 @@ namespace Fgs.Setup.Infrastructure.Provisioning;
 
 public sealed class TenantProvisioningOrchestrator(
     IUserTenantClient userTenantClient,
+    IUserCompanyClient userCompanyClient,
     IFileTenantClient fileTenantClient,
     ITenantDataSeedingEngine seedingEngine,
     FgsSetupDbContext dbContext,
@@ -65,9 +66,11 @@ public sealed class TenantProvisioningOrchestrator(
                     seedResult.SucceededCount,
                     seedResult.SkippedCount,
                     seedResult.FailedCount);
+                throw new InvalidOperationException(
+                    $"Tenant data seed completed with failures for tenant {request.TenantId}: {seedResult.SucceededCount} succeeded, {seedResult.SkippedCount} skipped, {seedResult.FailedCount} failed.");
             }
 
-            var companies = (await userTenantClient.GetCompaniesAsync(request.TenantId, cancellationToken))
+            var companies = (await userCompanyClient.GetCompaniesAsync(request.TenantId, cancellationToken))
                 .EnsureSuccess();
             var companyNumbers = companies.Select(c => c.CompanyNumber).ToList();
 
