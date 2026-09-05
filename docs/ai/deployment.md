@@ -5,7 +5,8 @@
 - `src/Gateway/docker-compose.yml` (`fgs-local`)
 - Entry: NGINX → `https://developer.fsm.com`
 - Postgres usually on host; RabbitMQ in compose
-- Publisher/Consumer on Docker network, not NGINX-exposed
+- Consumer on Docker network, not NGINX-exposed; owning APIs publish outbox in-process
+
 
 ## AWS
 
@@ -17,4 +18,4 @@
 
 ## CI workflows with images
 
-`build-user`, `build-setup`, `build-bff`, `build-file`, `build-audit`, `build-notification`, `build-publisher`, `build-consumer`, `build-nginx`, `build-redis`, `build-rabbitmq`
+`build-user`, `build-setup`, `build-bff`, `build-file`, `build-audit`, `build-notification`, `build-consumer`, `build-nginx`, `build-redis`, `build-rabbitmq`

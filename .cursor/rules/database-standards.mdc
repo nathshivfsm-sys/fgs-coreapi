@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Database
 
-- One schema owner per service. No cross-service writes (known exception: Publisher reads foreign outbox tables; Setup still seeds `inventory` in places).
+- One schema owner per service. No cross-service writes (Setup still seeds `inventory` in places).
 - Schema map: [docs/ai/database.md](../../docs/ai/database.md).
 - Tables: PascalCase. Global `Glo*`. Tenant setup `FgsSetup*` or `Fgs*`. Do not create `FSGSetup*`.
 - Tenant rows: `TenantId` + `CompanyId`, implement `ITenantCompanyScoped`. Global: `GloEntityBase`, no tenant columns.

@@ -44,7 +44,6 @@ EC2 (Docker Compose @ /opt/fgs)
    ├── bff-service        (:bff-dev)
    ├── notification-service
    ├── file-service
-   ├── publisher-service
    ├── consumer-service
    └── nginx              (:nginx-dev, host port 80)
 
@@ -311,7 +310,7 @@ DD_SITE=datadoghq.com
 
 Ensure Global providers exist for consumers, including at least:
 
-- `DATABASE` — `FgsUser`, `FgsAudit`, `FgsNotification`, `FgsSetup`, publisher outbox DBs as needed  
+- `DATABASE` — `FgsUser`, `FgsAudit`, `FgsNotification`, `FgsSetup`, outbox-owning service DBs as needed  
 - `REDIS` — use host `redis:6379` on this compose network  
 - `RABBITMQ` — match `.env`  
 - `SENDGRID`, `ENTRA_EXTERNAL_ID`, `DATADOG`, `AWS`, etc.
@@ -330,7 +329,7 @@ aws ecr get-login-password --region us-east-1 \
 Registry is resolved via `aws ecr describe-repositories --repository-names fgs/dockers`.
 
 **Channel tags (dev):**  
-`setup-dev`, `audit-dev`, `user-dev`, `bff-dev`, `notification-dev`, `file-dev`, `publisher-dev`, `consumer-dev`, `nginx-dev`, `redis-dev`, `rabbitmq-dev`
+`setup-dev`, `audit-dev`, `user-dev`, `bff-dev`, `notification-dev`, `file-dev`, `consumer-dev`, `nginx-dev`, `redis-dev`, `rabbitmq-dev`
 
 CI also pushes immutable tags such as `setup-<version>-dev-<sha>` (see OIDC/ECR guides). Day-to-day EC2 deploy uses **channel** tags via `deploy-service.sh`.
 
@@ -352,7 +351,6 @@ sudo ./deploy-service.sh user-service dev
 sudo ./deploy-service.sh bff-service dev
 sudo ./deploy-service.sh notification-service dev
 sudo ./deploy-service.sh file-service dev
-sudo ./deploy-service.sh publisher-service dev
 sudo ./deploy-service.sh consumer-service dev
 sudo ./deploy-service.sh nginx dev
 ```
@@ -444,7 +442,6 @@ docker logs fgs-ec2-audit-service-1 --tail 100
 docker logs fgs-ec2-user-service-1 --tail 100
 docker logs fgs-ec2-notification-service-1 --tail 100
 docker logs fgs-ec2-file-service-1 --tail 100
-docker logs fgs-ec2-publisher-service-1 --tail 100
 docker logs fgs-ec2-consumer-service-1 --tail 100
 
 # or by name filter
@@ -597,7 +594,7 @@ sudo /opt/fgs/deploy-service.sh nginx dev
 
 ### First deploy order
 
-- [ ] redis → rabbitmq → setup → audit → user → bff → notification → file → publisher → consumer → nginx  
+- [ ] redis → rabbitmq → setup → audit → user → bff → notification → file → consumer → nginx  
 
 ### Verify
 
@@ -633,7 +630,7 @@ curl -s -o /dev/null -w "%{http_code}\n" http://localhost/nginx-health
 ```
 
 **Compose services accepted by `deploy-service.sh`:**  
-`redis`, `rabbitmq`, `setup-service`, `audit-service`, `user-service`, `bff-service`, `notification-service`, `file-service`, `publisher-service`, `consumer-service`, `nginx`
+`redis`, `rabbitmq`, `setup-service`, `audit-service`, `user-service`, `bff-service`, `notification-service`, `file-service`, `consumer-service`, `nginx`
 
 ---
 

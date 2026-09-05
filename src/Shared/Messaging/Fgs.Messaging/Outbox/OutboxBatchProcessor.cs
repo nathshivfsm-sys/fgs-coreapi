@@ -8,8 +8,8 @@ namespace Fgs.Messaging.Outbox;
 
 public sealed class OutboxBatchProcessor(
     IOutboxStore store,
-    IRabbitMqPublisher publisher,
-    IOutboxRoutingResolver routingResolver,
+    IIntegrationEventPublisher publisher,
+    IOutboxDestinationResolver destinationResolver,
     IOptions<OutboxOptions> options,
     ILogger<OutboxBatchProcessor> logger,
     IFgsMetrics? metrics = null)
@@ -33,20 +33,18 @@ public sealed class OutboxBatchProcessor(
         {
             try
             {
-                var routingKey = routingResolver.ResolveRoutingKey(message);
-                var exchangeName = routingResolver.ResolveExchangeName(message);
+                var destination = destinationResolver.Resolve(message);
 
                 logger.LogInformation(
-                    "Publishing outbox {OutboxId} event {EventType} to {Exchange}/{RoutingKey} (correlation {CorrelationId})",
+                    "Publishing outbox {OutboxId} event {EventType} to {Destination}/{RoutingKey} (correlation {CorrelationId})",
                     message.Id,
                     message.EventType,
-                    exchangeName,
-                    routingKey,
+                    destination.DestinationName,
+                    destination.RoutingKey,
                     message.CorrelationId);
 
                 await publisher.PublishAsync(
-                    exchangeName,
-                    routingKey,
+                    destination,
                     message.Payload,
                     message.CorrelationId.ToString(),
                     cancellationToken);

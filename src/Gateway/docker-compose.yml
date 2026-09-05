@@ -8,8 +8,8 @@ name: fgs-local
 #   1. rabbitmq, redis
 #   2. setup-service  ? credential authority
 #   3. audit-service starts first among consumers, then other credential consumers
-#   4. publisher / consumer ? messaging workers
-#   5. nginx ? public gateway after upstream health checks pass
+#   4. consumer — messaging worker
+#   5. nginx — public gateway after upstream health checks pass
 
 x-service-network: &service-network
   extra_hosts:
@@ -245,11 +245,15 @@ services:
       CredentialConsumer__RequiredProviders__1: ENTRA_EXTERNAL_ID
       CredentialConsumer__RequiredProviders__2: AWS
       CredentialConsumer__RequiredProviders__3: REDIS
+      CredentialConsumer__RequiredProviders__4: RABBITMQ
+      RabbitMq__HostName: rabbitmq
       # Local gateway public origin (invite + Entra callback). Flat /api/v1/... (no service prefix).
       Application__PublicBaseUrl: ${FGS_PUBLIC_BASE_URL:-https://developer.fsm.com}
       Application__PublicServicePath: ${FGS_PUBLIC_SERVICE_PATH:-}
     depends_on:
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
       <<: *depends-on-setup-and-audit
     volumes:
@@ -334,12 +338,16 @@ services:
       CredentialConsumer__ServiceName: fgs-inventory-service
       CredentialConsumer__RequiredProviders__0: DATABASE
       CredentialConsumer__RequiredProviders__1: REDIS
+      CredentialConsumer__RequiredProviders__2: RABBITMQ
+      RabbitMq__HostName: rabbitmq
       UserService__BaseUrl: http://user-service:5001
       SetupService__BaseUrl: http://setup-service:5004
       Redis__ConnectionString: redis:6379
       Redis__Enabled: "true"
     depends_on:
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
       <<: *depends-on-setup-and-audit
     volumes:
@@ -512,40 +520,7 @@ services:
       retries: 5
       start_period: 90s
 
-  # Tier 3 ? messaging workers
-  publisher-service:
-    <<: *service-network
-    build:
-      context: ../..
-      dockerfile: src/Gateway/docker/publisher-service.Dockerfile
-    environment:
-      <<: *credential-consumer-env
-      Swagger__RoutePrefix: swagger/publisher
-      CredentialConsumer__ServiceName: fgs-publisher-service
-      CredentialConsumer__RequiredProviders__0: DATABASE
-      CredentialConsumer__RequiredProviders__1: RABBITMQ
-      RabbitMq__HostName: rabbitmq
-      UserService__BaseUrl: http://user-service:5001
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      setup-service:
-        condition: service_healthy
-      audit-service:
-        condition: service_healthy
-      user-service:
-        condition: service_healthy
-    volumes:
-      - ../PublisherService/Fgs.Publisher.API/appsettings.json:/app/appsettings.json:ro
-    expose:
-      - "5006"
-    healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://publisher-service:5006/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 90s
-
+  # Tier 3 — messaging workers
   consumer-service:
     <<: *service-network
     build:

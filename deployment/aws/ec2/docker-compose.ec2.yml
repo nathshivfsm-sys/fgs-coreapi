@@ -109,6 +109,8 @@ services:
       CredentialConsumer__RequiredProviders__1: ENTRA_EXTERNAL_ID
       CredentialConsumer__RequiredProviders__2: AWS
       CredentialConsumer__RequiredProviders__3: REDIS
+      CredentialConsumer__RequiredProviders__4: RABBITMQ
+      RabbitMq__HostName: rabbitmq
       Redis__ConnectionString: redis:6379
       Redis__Enabled: "true"
       Swagger__Enabled: "true"
@@ -120,6 +122,8 @@ services:
       <<: *datadog-env
     depends_on:
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
       setup-service:
         condition: service_healthy
@@ -267,45 +271,6 @@ services:
       - "5005"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://file-service:5005/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 90s
-
-  publisher-service:
-    image: ${FGS_PUBLISHER_IMAGE:?set FGS_PUBLISHER_IMAGE in .env}
-    hostname: publisher-service
-    <<: *app-network
-    environment:
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      SetupService__BaseUrl: http://setup-service:5004
-      UserService__BaseUrl: http://user-service:5001
-      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
-      CredentialConsumer__ServiceName: fgs-publisher-service
-      CredentialConsumer__RequiredProviders__0: DATABASE
-      CredentialConsumer__RequiredProviders__1: RABBITMQ
-      CredentialConsumer__RequiredProviders__2: ENTRA_EXTERNAL_ID
-      RabbitMq__HostName: rabbitmq
-      Redis__ConnectionString: redis:6379
-      Redis__Enabled: "true"
-      Swagger__Enabled: "true"
-      Swagger__RoutePrefix: swagger/publisher
-      <<: *datadog-env
-    depends_on:
-      redis:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      setup-service:
-        condition: service_healthy
-      audit-service:
-        condition: service_healthy
-      user-service:
-        condition: service_healthy
-    expose:
-      - "5006"
-    healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://publisher-service:5006/health"]
       interval: 30s
       timeout: 5s
       retries: 5

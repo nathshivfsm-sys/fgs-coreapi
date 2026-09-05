@@ -48,7 +48,6 @@ src/Gateway/
     setup-service.Dockerfile
     file-service.Dockerfile
     audit-service.Dockerfile
-    publisher-service.Dockerfile
     consumer-service.Dockerfile
     inventory-service.Dockerfile
     asset-service.Dockerfile
@@ -67,7 +66,7 @@ src/Gateway/
     generate-local-cert.sh
 ```
 
-RabbitMQ runs in this Compose file for **PublisherService** and **ConsumerService** (host ports `5672` / `15672`). Publisher and Consumer are containerized on the private Docker network; they are not exposed through NGINX. PostgreSQL is expected on the host or reachable via connection strings in mounted `appsettings.Development.json`.
+RabbitMQ runs in this Compose file for **ConsumerService** and owning APIs that publish via in-process outbox workers (host ports `5672` / `15672`). Consumer is containerized on the private Docker network and is not exposed through NGINX. PostgreSQL is expected on the host or reachable via connection strings in mounted `appsettings.Development.json`.
 
 ## Routes
 
@@ -88,7 +87,7 @@ Windows: `C:\Windows\System32\drivers\etc\hosts`. Linux/macOS: `/etc/hosts`. Reg
 | `/api/v1/bff/*` | `bff-service:5003` | Signup orchestration + GraphQL (`/api/v1/bff/graphql`) |
 | `/api/v1/invite/*` | `user-service:5001` | |
 | `/api/v1/signup/*` | `user-service:5001` | |
-| `/api/v1/(role\|permission\|dataaccess\|…\|apiwebhooksubscription\|company)` | `user-service:5001` | Identity catalog / API management / company CRUD |
+| `/api/v1/(role\|permission\|dataaccess\|…\|tenantmenu\|rolemenu\|…\|apiwebhooksubscription\|company)` | `user-service:5001` | Identity catalog / menu assignment / API management / company CRUD |
 | `/api/v1/internal/users/*` | `user-service:5001` | Internal auth-profile |
 | `/api/v1/notification/*` | `notification-service:5002` | e.g. `POST …/notification/dispatch` |
 | `/api/v1/credential/*` | `setup-service:5004` | Credential admin |
@@ -116,7 +115,7 @@ Docker Compose service names match the URL prefix. Config: `conf.d/includes/api-
 
 **Local dev** uses flat routes only, e.g. `https://developer.fsm.com/api/v1/billingcategory/lookup`.
 
-Publisher and Consumer are on the private Docker network only (no public API routes).
+Consumer is on the private Docker network only (no public API routes).
 
 ### Swagger (OpenAPI UI) — local only
 
@@ -132,7 +131,6 @@ Swagger is exposed through the local gateway at **`https://developer.fsm.com/swa
 | `https://developer.fsm.com/swagger/audit/` | Audit |
 | `https://developer.fsm.com/swagger/inventory/` | Inventory |
 | `https://developer.fsm.com/swagger/asset/` | Asset |
-| `https://developer.fsm.com/swagger/publisher/` | Publisher |
 | `https://developer.fsm.com/swagger/consumer/` | Consumer |
 
 When adding a service to local Compose, set `Swagger__RoutePrefix: swagger/{service}` on that container and add a matching block in `conf.d/includes/swagger-routes.conf`.
@@ -188,10 +186,9 @@ Inter-service Refit clients use **direct container DNS and ports** on the `fgs-p
 | All services with remote auth | `IFgsClaimsClient` | `http://user-service:5001` |
 | Setup | `IUserTenantClient` | `http://user-service:5001` |
 | Setup | `IFileTenantClient` | `http://file-service:5005` |
-| User, Notification, Consumer, Publisher, File | `ISetupClient` | `http://setup-service:5004` |
+| User, Notification, Consumer, File | `ISetupClient` | `http://setup-service:5004` |
 | Setup | `IAuditClient` | `http://audit-service:5008` |
 | Consumer | `INotificationDispatchClient` | `http://notification-service:5002` |
-| Publisher | `IFgsClaimsClient` | `http://user-service:5001` |
 | Domain scaffolds | Direct container DNS | `http://crm-service:5009`, `http://scheduling-service:5010`, `http://billing-service:5011`, `http://inventory-service:5012`, `http://reporting-service:5013`, `http://integration-service:5014`, `http://asset-service:5015`, `http://service-agreement-service:5016`, `http://communication-service:5017` |
 
 Public-facing URLs (OAuth SPA callback, invites, APIs) use the NGINX gateway at `https://developer.fsm.com` for API routes; Entra redirects to the configured UI auth callback.
@@ -235,7 +232,7 @@ The local Compose file starts services in credential-safe order:
 1. `rabbitmq` — host ports `5672` / `15672`
 2. `setup-service` (`5004`) — credential authority; bootstraps `ConnectionStrings:FgsSetup` from mounted appsettings (no dependency on other FGS APIs)
 3. `audit-service` (`5008`) starts after Setup; other credential consumers wait for Setup **and** Audit healthy
-4. Messaging workers: `publisher-service` (`5006`), `consumer-service` (`5007`)
+4. Messaging worker: `consumer-service` (`5007`)
 5. `nginx` — host ports `80` / `443` (waits for gateway upstream health checks)
 
 ### Credential bootstrap environment variables
@@ -266,7 +263,6 @@ Each API container mounts the **same** files you edit for local `dotnet run`:
 | Setup | `src/SetupService/Fgs.Setup.API/appsettings.json` + `appsettings.Development.json` |
 | Audit | `src/AuditService/Fgs.Audit.API/appsettings.json` + `appsettings.Development.json` |
 | File | `src/FileService/Fgs.File.API/appsettings.json` + `appsettings.Development.json` |
-| Publisher | `src/PublisherService/Fgs.Publisher.API/appsettings.json` + `appsettings.Development.json` |
 | Consumer | `src/ConsumerService/Fgs.Consumer.API/appsettings.json` + `appsettings.Development.json` |
 | Crm | `src/CrmService/Fgs.Crm.API/appsettings.json` + `appsettings.Development.json` |
 | Scheduling | `src/SchedulingService/Fgs.Scheduling.API/appsettings.json` + `appsettings.Development.json` |
@@ -366,7 +362,7 @@ Validate route coverage against controllers before deploy:
 
 For Kubernetes, keep this routing model but move responsibilities as follows:
 
-- Use Kubernetes `Service` objects for the live compose services: `user-service`, `bff-service`, `notification-service`, `setup-service`, `file-service`, `audit-service`, `inventory-service`, `asset-service`, `publisher-service`, and `consumer-service`.
+- Use Kubernetes `Service` objects for the live compose services: `user-service`, `bff-service`, `notification-service`, `setup-service`, `file-service`, `audit-service`, `inventory-service`, `asset-service`, and `consumer-service`.
 - Put TLS certificates in `kubernetes.io/tls` secrets, or use cert-manager.
 - Use NGINX Ingress Controller for path routing that mirrors `api-v1-routes.prod.conf` (no path-stripping rewrites).
 - Keep the current controller route templates as the stable external contract (`/api/v1/auth`, `/api/v1/notification`, `/api/v1/credential`, `/api/v1/tenant`, `/api/v1/attachment`, catalog controllers, etc.).

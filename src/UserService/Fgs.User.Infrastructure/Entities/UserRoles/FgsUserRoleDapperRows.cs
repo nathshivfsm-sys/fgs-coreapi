@@ -13,3 +13,12 @@ internal sealed class FgsUserRoleRow
     public FgsUserRoleSummaryDto ToSummaryDto() => new(Id, UserId, FgsRoleId, CreatedOn, CreatedBy);
     public FgsUserRoleDetailDto ToDetailDto() => new(Id, UserId, FgsRoleId, CreatedOn, CreatedBy);
 }
+
+internal sealed class FgsUserRoleLookupRow
+{
+    public long Id { get; set; }
+    public Guid UserId { get; set; }
+    public long FgsRoleId { get; set; }
+
+    public FgsUserRoleLookupDto ToLookupDto() => new(Id, UserId, FgsRoleId);
+}

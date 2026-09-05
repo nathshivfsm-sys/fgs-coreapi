@@ -11,6 +11,7 @@ using Fgs.Setup.Application.Abstractions.TechTrades;
 using Fgs.Setup.Application.Abstractions.TitlesOfCourtesy;
 using Fgs.Setup.Infrastructure.Audit;
 using Fgs.Messaging.Abstractions;
+using Fgs.Messaging.Extensions;
 using Fgs.Messaging.Options;
 using Fgs.Setup.Application.Abstractions.Provisioning;
 using Fgs.Setup.Infrastructure.Common.Options;
@@ -139,7 +140,6 @@ public static class DependencyInjection
         services.Configure<CredentialConsumerOptions>(options => options.ServiceName = "fgs-setup-service");
 
         services.Configure<TenantProvisioningOptions>(configuration.GetSection(TenantProvisioningOptions.SectionName));
-        services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
 
         services.AddFgsDbContext<FgsSetupDbContext>((sp, options) =>
         {
@@ -292,12 +292,31 @@ public static class DependencyInjection
         services.AddScoped<ITenantProvisioningOrchestrator, TenantProvisioningOrchestrator>();
         services.AddScoped<ICompanyBusinessTypeService, CompanyBusinessTypeService>();
         services.AddScoped<IOutboxWriter, OutboxWriter>();
+        services.AddFgsOutboxPublisher(configuration, options =>
+        {
+            options.ClientProvidedName = "Fgs.Setup";
+            options.AddSource(
+                sourceKey: "glo",
+                schema: "glo",
+                table: "GloOutboxMessage",
+                connectionStringFactory: sp => FgsSetupConnectionString.ResolveRequired(
+                    sp.GetRequiredService<IConfiguration>(),
+                    sp.GetService<ICredentialConfigurationProvider>()));
+            options.AddSource(
+                sourceKey: "setup",
+                schema: "setup",
+                table: "SetupOutboxMessage",
+                connectionStringFactory: sp => FgsSetupConnectionString.ResolveRequired(
+                    sp.GetRequiredService<IConfiguration>(),
+                    sp.GetService<ICredentialConfigurationProvider>()));
+        });
         CredentialServiceCollectionExtensions.AddFgsCredentialConfigurationServices(
             services,
             configuration,
             configuration,
             registerCredentialStoreDbContext: false);
         CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<RedisCacheOptions>(services);
+        CredentialServiceCollectionExtensions.RegisterCredentialOptionsChangeSource<RabbitMqOptions>(services);
 
         return services;
     }

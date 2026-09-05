@@ -11,7 +11,8 @@ Validated against the repository on 2026-09-03. Application/business code was **
 
 ## Services
 
-See [services.md](services.md). Mature REST: User, Setup, File, Audit, Notification, Inventory, Asset. Partial: Billing, Crm, Scheduling, ServiceAgreement. Scaffold: Reporting, Integration, Communication. Workers: Publisher, Consumer. Orchestrator: BFF.
+See [services.md](services.md). Mature REST: User, Setup, File, Audit, Notification, Inventory, Asset. Partial: Billing, Crm, Scheduling, ServiceAgreement. Scaffold: Reporting, Integration, Communication. Workers: Consumer (dedicated). Owning APIs run in-process outbox publish. Orchestrator: BFF.
+
 
 ## Database
 
@@ -31,7 +32,8 @@ Fallback authenticated user + `[RequirePermission]`. RBAC tables in `identity`. 
 
 ## Messaging
 
-RabbitMQ + outbox poller in Publisher. Consumer Redis idempotency. No inbox table.
+RabbitMQ + service-owned outbox poller (`AddFgsOutboxPublisher`). Consumer Redis idempotency. No inbox table.
+
 
 ## Testing
 
@@ -66,11 +68,11 @@ Referenced solution, gateway routes, Setup CRUD template/script, `FgsApiControll
 1. `.cursor/rules.md` aspirational (Kafka, UUID tenancy, multi-company membership) vs code (RabbitMQ, `long`, single company).
 2. Controllers mixed: `FgsApiControllerBase` vs `ControllerBase`+`StatusCode` (Setup/Asset/Inventory/Billing/Crm/…).
 3. Setup still seeds/writes `inventory` in places (cross-service DB debt).
-4. Publisher reads other services’ outbox schemas (intentional worker exception).
-5. Scorecard date/maturity may lag (e.g. Billing/Crm/Scheduling now have partial APIs).
-6. `ApiResponse` lives in **Contracts** (older Shared review said Foundation).
-7. Some docs mention ProblemDetails; runtime envelope is `ApiResponse`.
-8. Scheduling Appointment lacks `RequirePermission` unlike peers.
+4. Scorecard date/maturity may lag (e.g. Billing/Crm/Scheduling now have partial APIs).
+5. `ApiResponse` lives in **Contracts** (older Shared review said Foundation).
+6. Some docs mention ProblemDetails; runtime envelope is `ApiResponse`.
+7. Scheduling Appointment lacks `RequirePermission` unlike peers.
+
 
 ## Missing / uncertain
 

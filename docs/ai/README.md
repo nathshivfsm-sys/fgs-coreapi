@@ -29,7 +29,7 @@ Requirement → services.md / features/* → skill → clone neighbor → rules 
 | [authorization.md](authorization.md) | Permissions / RBAC |
 | [multi-tenancy.md](multi-tenancy.md) | Headers + filters |
 | [messaging.md](messaging.md) | RabbitMQ |
-| [outbox.md](outbox.md) | Outbox + Publisher |
+| [outbox.md](outbox.md) | Outbox + service-owned workers |
 | [testing.md](testing.md) | xUnit |
 | [deployment.md](deployment.md) | NGINX, EC2, CI |
 | [configuration.md](configuration.md) | Config section names |

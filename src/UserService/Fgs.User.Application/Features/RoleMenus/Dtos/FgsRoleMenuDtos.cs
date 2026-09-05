@@ -9,6 +9,28 @@ public sealed record FgsRoleMenuDetailDto(
     DateTimeOffset CreatedOn,
     string? CreatedBy);
 
+public sealed record FgsRoleMenuLookupDto(
+    long Id,
+    long RoleId,
+    int MenuId,
+    short DisplayOrder);
+
+public sealed record FgsRoleMenuCreateDto(
+    long RoleId,
+    int MenuId,
+    short DisplayOrder = 1);
+
+public sealed record FgsRoleMenuUpdateDto(
+    long RoleId,
+    int MenuId,
+    short DisplayOrder = 1);
+
+public sealed record FgsRoleMenuPatchDto(
+    long? RoleId = null,
+    int? MenuId = null,
+    short? DisplayOrder = null,
+    bool? IsActive = null);
+
 public sealed record FgsRoleMenuSyncItemDto(
     int MenuId,
     short DisplayOrder = 1,

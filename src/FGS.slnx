@@ -113,13 +113,6 @@
     <Project Path="CommunicationService/Fgs.Communication.API/Fgs.Communication.API.csproj" />
     <Project Path="CommunicationService/Fgs.Communication.Tests/Fgs.Communication.Tests.csproj" />
   </Folder>
-  <Folder Name="/PublisherService/">
-    <Project Path="PublisherService/Fgs.Publisher.Domain/Fgs.Publisher.Domain.csproj" />
-    <Project Path="PublisherService/Fgs.Publisher.Application/Fgs.Publisher.Application.csproj" />
-    <Project Path="PublisherService/Fgs.Publisher.Infrastructure/Fgs.Publisher.Infrastructure.csproj" />
-    <Project Path="PublisherService/Fgs.Publisher.API/Fgs.Publisher.API.csproj" />
-    <Project Path="PublisherService/Fgs.Publisher.Tests/Fgs.Publisher.Tests.csproj" />
-  </Folder>
   <Folder Name="/ConsumerService/">
     <Project Path="ConsumerService/Fgs.Consumer.Domain/Fgs.Consumer.Domain.csproj" />
     <Project Path="ConsumerService/Fgs.Consumer.Application/Fgs.Consumer.Application.csproj" />
