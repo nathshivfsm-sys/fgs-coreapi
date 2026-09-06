@@ -35,7 +35,7 @@ Or CLI (gets current policy, you must merge manually):
 
 ```powershell
 aws kms get-key-policy `
-  --key-id arn:aws:kms:us-east-1:286093098927:key/8ad55556-fcb0-4dd7-8ed1-4de526a38a78 `
+  --key-id arn:aws:kms:us-east-1:ACCOUNT_ID:key/YOUR_CMK_ID `
   --policy-name default `
   --output text
 ```
@@ -50,7 +50,7 @@ $env:AWS_REGION = "us-east-1"
 aws sts get-caller-identity
 
 aws iam simulate-principal-policy `
-  --policy-source-arn arn:aws:iam::286093098927:user/fsg-storage-service `
+  --policy-source-arn arn:aws:iam::ACCOUNT_ID:user/fsg-storage-service `
   --action-names secretsmanager:CreateSecret `
   --resource-arns "*"
 ```
@@ -63,7 +63,7 @@ Test create (optional):
 aws secretsmanager create-secret `
   --name "dev/fsm/test-tenant/postgres" `
   --secret-string '{"server":"localhost","database":"postgres","username":"postgres","password":"postgres"}' `
-  --kms-key-id arn:aws:kms:us-east-1:286093098927:key/8ad55556-fcb0-4dd7-8ed1-4de526a38a78 `
+  --kms-key-id arn:aws:kms:us-east-1:ACCOUNT_ID:key/YOUR_CMK_ID `
   --region us-east-1
 ```
 
