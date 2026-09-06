@@ -168,6 +168,8 @@ public static class DependencyInjection
         services.AddSingleton<IEmailNormalizer, EmailNormalizer>();
         services.AddSingleton<IInvitationTokenService, InvitationTokenService>();
         services.AddScoped<IEntraExternalIdService, EntraExternalIdRefitService>();
+        // Auth codes are single-use. Default StandardResilience retries POST on transient
+        // failures/timeouts, which burns the code on attempt 1 and surfaces AADSTS70008 on retry.
         services.AddRefitClient<IEntraOAuthClient>()
             .ConfigureHttpClient((sp, client) =>
             {
@@ -177,7 +179,11 @@ public static class DependencyInjection
                     : entra.TokenEndpoint;
                 client.BaseAddress = new Uri(tokenEndpoint);
             })
-            .AddStandardResilienceHandler();
+            .AddStandardResilienceHandler(options =>
+            {
+                options.Retry.MaxRetryAttempts = 0;
+                options.Retry.DisableForUnsafeHttpMethods();
+            });
 
         return services;
     }
