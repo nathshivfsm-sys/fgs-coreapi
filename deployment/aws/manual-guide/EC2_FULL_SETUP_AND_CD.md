@@ -309,7 +309,8 @@ Copy these files to the instance, then run bootstrap from that folder:
 | `deployment/aws/ec2/bootstrap-ec2.sh` | Installs Docker, creates `/opt/fgs` |
 | `deployment/aws/ec2/deploy-service.sh` | CD invokes this via SSM |
 | `deployment/aws/ec2/docker-compose.ec2.yml` | Defines all containers |
-| `deployment/aws/ec2/nginx-http-only-entrypoint.sh` | Nginx on port 80 for ALB |
+| `deployment/aws/ec2/nginx-https-entrypoint.sh` | Nginx TLS (`api-dev.fieldwhizey.com`) |
+| `deployment/aws/ec2/nginx-http-only-entrypoint.sh` | Optional Nginx :80 for ALB |
 
 ### 10.3 Files created on the instance after bootstrap
 
@@ -317,7 +318,8 @@ Copy these files to the instance, then run bootstrap from that folder:
 | --- | --- |
 | `/opt/fgs/deploy-service.sh` | Pull one ECR image + restart one container |
 | `/opt/fgs/docker-compose.ec2.yml` | Stack definition |
-| `/opt/fgs/nginx-http-only-entrypoint.sh` | Nginx entrypoint |
+| `/opt/fgs/nginx-https-entrypoint.sh` | Nginx TLS entrypoint |
+| `/opt/fgs/certs/tls.crt` + `tls.key` | Wildcard `*.fieldwhizey.com` |
 | `/opt/fgs/config/setup-appsettings.json` | **FgsSetup** RDS connection only (bootstrap to reach credential store) |
 | `/opt/fgs/.env` | Host env (RabbitMQ broker boot, ASP.NET env, etc.) |
 

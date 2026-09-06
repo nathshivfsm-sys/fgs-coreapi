@@ -51,7 +51,7 @@ GitHub Actions (optional CD)
    └── SSM SendCommand → sudo /opt/fgs/deploy-service.sh <service> dev …
 ```
 
-Nginx on EC2 listens on **port 80 only** (TLS at ALB). Entrypoint: `/opt/fgs/nginx-http-only-entrypoint.sh`.
+Nginx on EC2 listens on **ports 80 and 443**. TLS terminates on nginx (`api-dev.fieldwhizey.com`). Entrypoint: `/opt/fgs/nginx-https-entrypoint.sh`. Certs: `/opt/fgs/certs/tls.crt` + `tls.key`.
 
 ---
 
@@ -225,7 +225,8 @@ Required files from `deployment/aws/ec2/`:
 | `bootstrap-ec2.sh` | run in place |
 | `deploy-service.sh` | `/opt/fgs/deploy-service.sh` (0755) |
 | `docker-compose.ec2.yml` | `/opt/fgs/docker-compose.ec2.yml` (0644) |
-| `nginx-http-only-entrypoint.sh` | `/opt/fgs/nginx-http-only-entrypoint.sh` (0755) |
+| `nginx-https-entrypoint.sh` | `/opt/fgs/nginx-https-entrypoint.sh` (0755) |
+| `nginx-http-only-entrypoint.sh` | `/opt/fgs/nginx-http-only-entrypoint.sh` (0755, ALB fallback) |
 
 From a Windows workstation (SSM SendCommand, no SSH):
 
@@ -233,7 +234,7 @@ From a Windows workstation (SSM SendCommand, no SSH):
 .\deployment\aws\ec2\Push-Ec2Files.ps1 -InstanceId INSTANCE_ID -Region us-east-1
 ```
 
-`Push-Ec2Files.ps1` uploads `docker-compose.ec2.yml`, `deploy-service.sh`, and `nginx-http-only-entrypoint.sh` to `/opt/fgs`. Still run `bootstrap-ec2.sh` once for Docker install and placeholder config (or install Docker manually and create config as below).
+`Push-Ec2Files.ps1` uploads `docker-compose.ec2.yml`, `deploy-service.sh`, and `nginx-https-entrypoint.sh` to `/opt/fgs`. Still run `bootstrap-ec2.sh` once for Docker install and placeholder config (or install Docker manually and create config as below). Place `tls.crt` / `tls.key` under `/opt/fgs/certs/` (wildcard `*.fieldwhizey.com`).
 
 ### 5.3 Files after bootstrap
 
@@ -241,7 +242,8 @@ From a Windows workstation (SSM SendCommand, no SSH):
 | --- | --- |
 | `/opt/fgs/deploy-service.sh` | ECR login + pull + `compose up -d --no-deps` |
 | `/opt/fgs/docker-compose.ec2.yml` | Stack |
-| `/opt/fgs/nginx-http-only-entrypoint.sh` | Nginx :80 |
+| `/opt/fgs/nginx-https-entrypoint.sh` | Nginx TLS (`api-dev.fieldwhizey.com`) |
+| `/opt/fgs/certs/tls.crt` + `tls.key` | Wildcard cert mount |
 | `/opt/fgs/config/setup-appsettings.json` | **FgsSetup** connection string only |
 | `/opt/fgs/.env` | Host env (RabbitMQ boot, channel, public URL, …) |
 

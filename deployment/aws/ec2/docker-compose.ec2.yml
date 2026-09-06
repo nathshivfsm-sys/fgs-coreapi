@@ -322,12 +322,16 @@ services:
   nginx:
     image: ${FGS_NGINX_IMAGE:?set FGS_NGINX_IMAGE in .env}
     <<: *app-network
-    # ALB terminates TLS and forwards HTTP — same pattern as ECS gateway_start in Terraform.
-    entrypoint: ["/bin/sh", "/opt/fgs/nginx-http-only-entrypoint.sh"]
+    # TLS terminates on nginx (api-dev.fieldwhizey.com). Place tls.crt + tls.key under ./certs/.
+    entrypoint: ["/bin/sh", "/opt/fgs/nginx-https-entrypoint.sh"]
+    environment:
+      NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:-api-dev.fieldwhizey.com}
     volumes:
-      - ./nginx-http-only-entrypoint.sh:/opt/fgs/nginx-http-only-entrypoint.sh:ro
+      - ./nginx-https-entrypoint.sh:/opt/fgs/nginx-https-entrypoint.sh:ro
+      - ./certs:/etc/nginx/certs:ro
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       setup-service:
         condition: service_healthy

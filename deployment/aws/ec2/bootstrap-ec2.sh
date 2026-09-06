@@ -4,7 +4,7 @@
 #
 # Prerequisites:
 #   - EC2 instance profile with AmazonSSMManagedInstanceCore + ECR read
-#   - Security group: inbound 80 from ALB (or your IP), no public SSH required if using SSM
+#   - Security group: inbound 80/443 from your clients (or ALB if used as TCP/passthrough)
 #
 # Usage:
 #   curl -fsSL <raw-url>/bootstrap-ec2.sh | sudo bash
@@ -41,10 +41,14 @@ fi
 systemctl enable --now docker 2>/dev/null || true
 
 echo "==> Creating $FGS_DIR"
-mkdir -p "$FGS_DIR/config"
+mkdir -p "$FGS_DIR/config" "$FGS_DIR/certs"
 install -m 0755 "$SCRIPT_DIR/deploy-service.sh" "$FGS_DIR/deploy-service.sh"
-# Also install EC2 nginx entrypoint from repo (dev: HTTP + Swagger for setup/user).
-install -m 0755 "$SCRIPT_DIR/nginx-http-only-entrypoint.sh" "$FGS_DIR/nginx-http-only-entrypoint.sh"
+# EC2 nginx entrypoint: TLS on nginx for api-dev.fieldwhizey.com (+ Swagger for setup/user).
+install -m 0755 "$SCRIPT_DIR/nginx-https-entrypoint.sh" "$FGS_DIR/nginx-https-entrypoint.sh"
+# Keep HTTP-only entrypoint available for ALB-terminated setups.
+if [ -f "$SCRIPT_DIR/nginx-http-only-entrypoint.sh" ]; then
+  install -m 0755 "$SCRIPT_DIR/nginx-http-only-entrypoint.sh" "$FGS_DIR/nginx-http-only-entrypoint.sh"
+fi
 install -m 0644 "$SCRIPT_DIR/docker-compose.ec2.yml" "$FGS_DIR/docker-compose.ec2.yml"
 
 if [ ! -f "$FGS_DIR/config/setup-appsettings.json" ]; then
@@ -81,9 +85,10 @@ echo "  2. Ensure glo.GloCredential has Global:DATABASE (FgsUser, FgsAudit, FgsN
 echo "     Global:REDIS, Global:RABBITMQ, Global:SENDGRID, Global:ENTRA_EXTERNAL_ID, Global:DATADOG, etc."
 echo "  3. Ensure RABBITMQ_USER/PASSWORD in $FGS_DIR/.env matches GloCredential RABBITMQ (broker boot)"
 echo "  4. Edit $FGS_DIR/.env (ASPNETCORE_ENVIRONMENT if needed)"
-echo "  5. Set GitHub repository variable EC2_INSTANCE_ID to this instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null || echo '<instance-id>')"
-echo "  6. Merge to dev — CI pushes ECR image and CD runs deploy-service.sh via SSM"
-echo "  7. First full stack (after images in ECR):"
+echo "  5. Place TLS files at $FGS_DIR/certs/tls.crt and $FGS_DIR/certs/tls.key (wildcard *.fieldwhizey.com)"
+echo "  6. Set GitHub repository variable EC2_INSTANCE_ID to this instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null || echo '<instance-id>')"
+echo "  7. Merge to dev — CI pushes ECR image and CD runs deploy-service.sh via SSM"
+echo "  8. First full stack (after images in ECR):"
 echo "     redis → rabbitmq → setup → audit → user → bff → notification → file → consumer → nginx"
 echo "     sudo $FGS_DIR/deploy-service.sh redis dev"
 echo "     sudo $FGS_DIR/deploy-service.sh rabbitmq dev"

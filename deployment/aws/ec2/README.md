@@ -10,7 +10,7 @@
 | Host path | `src/Gateway/` | `/opt/fgs/` on the EC2 instance |
 | Setup config | `src/SetupService/Fgs.Setup.API/appsettings.json` (mounted) | `/opt/fgs/config/setup-appsettings.json` (FgsSetup only) |
 | Other secrets | Mounted appsettings + Setup `GloCredential` | `GloCredential` in RDS only |
-| Gateway | HTTPS `developer.fsm.com` (local cert) | HTTP port 80 (ALB terminates TLS) |
+| Gateway | HTTPS `developer.fsm.com` (local cert) | HTTPS `api-dev.fieldwhizey.com` (certs in `/opt/fgs/certs`) |
 | Deploy | `docker compose up --build` | GitHub Actions → SSM → `deploy-service.sh` |
 
 Running `docker-compose.ec2.yml` on your laptop requires ECR login, a populated `.env`, and RDS reachable from your network — use the **Gateway** stack instead.
@@ -27,6 +27,7 @@ Edit on the host:
 
 - `/opt/fgs/config/setup-appsettings.json` — `ConnectionStrings:FgsSetup` only
 - `/opt/fgs/.env` — ECR image tags, RabbitMQ password, Datadog env
+- `/opt/fgs/certs/tls.crt` and `/opt/fgs/certs/tls.key` — wildcard `*.fieldwhizey.com` (nginx TLS)
 
 Deploy order (after CI push / first full stack):
 

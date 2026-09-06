@@ -3,7 +3,7 @@
 #   docker build -f src/Gateway/Dockerfile.prod -t fgs-gateway:prod src/Gateway
 #
 # TLS: mount production certs at /etc/nginx/certs/tls.crt and tls.key.
-# server_name is developer.fsm.com (see conf.d/site.prod.conf).
+# server_name is api-dev.fieldwhizey.com (see conf.d/site.prod.conf).
 
 FROM nginx:stable-alpine
 

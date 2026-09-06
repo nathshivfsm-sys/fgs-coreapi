@@ -23,6 +23,8 @@ tmp-*.json
 /src/Gateway/logs/
 /src/Gateway/certs/*.crt
 /src/Gateway/certs/*.key
+/deployment/aws/ec2/certs/*
+!/deployment/aws/ec2/certs/.gitkeep
 /src/Gateway/.env
 **/.env
 **/.env.local

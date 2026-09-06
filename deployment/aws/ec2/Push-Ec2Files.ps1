@@ -16,6 +16,7 @@ $Root = Join-Path $PSScriptRoot "."
 $Files = @(
     @{ Local = "docker-compose.ec2.yml"; Remote = "docker-compose.ec2.yml"; Mode = "0644" },
     @{ Local = "deploy-service.sh"; Remote = "deploy-service.sh"; Mode = "0755" },
+    @{ Local = "nginx-https-entrypoint.sh"; Remote = "nginx-https-entrypoint.sh"; Mode = "0755" },
     @{ Local = "nginx-http-only-entrypoint.sh"; Remote = "nginx-http-only-entrypoint.sh"; Mode = "0755" }
 )
 
@@ -38,7 +39,7 @@ Write-Host "Ensuring $RemoteDir exists on $InstanceId..."
 $mkdirId = aws ssm send-command `
     --instance-ids $InstanceId `
     --document-name "AWS-RunShellScript" `
-    --parameters "commands=[`"sudo mkdir -p $RemoteDir`"]" `
+    --parameters "commands=[`"sudo mkdir -p $RemoteDir/certs`"]" `
     --region $Region `
     --query "Command.CommandId" `
     --output text
@@ -95,8 +96,8 @@ ls -la '$remotePath'
 }
 
 Write-Host ""
-Write-Host "Done. On EC2 you can deploy with:"
-Write-Host "  sudo $RemoteDir/deploy-service.sh audit-service dev"
-Write-Host "  sudo $RemoteDir/deploy-service.sh notification-service dev"
-Write-Host "  sudo $RemoteDir/deploy-service.sh consumer-service dev"
+Write-Host "Done. Ensure TLS files exist on the instance:"
+Write-Host "  $RemoteDir/certs/tls.crt"
+Write-Host "  $RemoteDir/certs/tls.key"
+Write-Host "Then deploy nginx with:"
 Write-Host "  sudo $RemoteDir/deploy-service.sh nginx dev"

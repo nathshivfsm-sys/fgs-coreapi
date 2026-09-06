@@ -340,7 +340,7 @@ docker build -f src/Gateway/Dockerfile.prod -t fgs-gateway:prod src/Gateway
    - `conf.d/site.prod.conf`
    - `conf.d/includes/` (especially `api-v1-routes.prod.conf`, `upstreams.prod.conf`, `rate-limit.inc`)
    - `proxy_params.conf`, `cache_params.conf`
-3. Mount production certificates at `/etc/nginx/certs/tls.crt` and `/etc/nginx/certs/tls.key` (`server_name` is `developer.fsm.com` in `site.prod.conf`).
+3. Mount production certificates at `/etc/nginx/certs/tls.crt` and `/etc/nginx/certs/tls.key` (`server_name` is `api-dev.fieldwhizey.com` in `site.prod.conf`).
 4. Run NGINX in Docker or install NGINX directly on the VM.
 5. Keep microservices on a private Docker network or private VM subnet.
 6. Publish only ports `80` and `443` from NGINX.

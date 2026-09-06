@@ -70,7 +70,8 @@ aws ssm start-session --target "$INSTANCE_ID"
 
 # On the EC2 instance (as root)
 sudo mkdir -p /opt/fgs
-# Copy deploy-service.sh, docker-compose.ec2.yml, nginx-http-only-entrypoint.sh, bootstrap-ec2.sh
+# Copy deploy-service.sh, docker-compose.ec2.yml, nginx-https-entrypoint.sh, bootstrap-ec2.sh
+# Place tls.crt + tls.key under /opt/fgs/certs/ (*.fieldwhizey.com)
 sudo bash /path/to/bootstrap-ec2.sh
 ```
 
@@ -233,7 +234,7 @@ Point an Application Load Balancer at the EC2 instance:
 | Health check path | `/nginx-health` |
 | Health check matcher | 200 |
 
-Nginx on EC2 listens on **port 80 only** (TLS terminated at ALB). The entrypoint script matches the ECS `gateway_start` pattern.
+Nginx on EC2 listens on **ports 80 and 443**. TLS terminates on nginx for `api-dev.fieldwhizey.com` (mount `/opt/fgs/certs/tls.crt` and `tls.key`). The HTTP-only entrypoint remains for ALB-terminated setups.
 
 ---
 
@@ -275,5 +276,6 @@ aws ssm send-command \
 | `deployment/aws/ec2/docker-compose.ec2.yml` | Stack: redis, rabbitmq, setup, user, nginx |
 | `deployment/aws/ec2/deploy-service.sh` | Pull one ECR image + recreate container |
 | `deployment/aws/ec2/bootstrap-ec2.sh` | One-time Docker + `/opt/fgs` setup |
-| `deployment/aws/ec2/nginx-http-only-entrypoint.sh` | Nginx :80 for ALB |
+| `deployment/aws/ec2/nginx-https-entrypoint.sh` | Nginx TLS on :443 for `api-dev.fieldwhizey.com` |
+| `deployment/aws/ec2/nginx-http-only-entrypoint.sh` | Optional Nginx :80 for ALB |
 | `.github/workflows/reusable-deploy-ec2.yml` | SSM-based CD |
