@@ -29,12 +29,15 @@ public interface IEntraExternalIdService
 
     /// <summary>
     /// Exchanges an authorization code (PKCE verifier required).
+    /// When <paramref name="userFlow"/> is set, it is sent as the CIAM <c>p</c> query parameter
+    /// (must match the flow used on authorize).
     /// </summary>
     Task<EntraTokenResult> ExchangeLoginCodeAsync(
         string code,
         string redirectUri,
         string codeVerifier,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        string? userFlow = null);
 
     Task<EntraTokenResult> RefreshTokenAsync(
         string refreshToken,

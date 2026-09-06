@@ -90,7 +90,7 @@ public sealed class StartInvitationCommandHandler(
         var (codeVerifier, codeChallenge) = EntraExternalIdPkce.CreatePair();
         await loginPkceStore.SaveAsync(
             state,
-            new LoginPkceState(codeVerifier, redirectUri, invitation.UserId),
+            new LoginPkceState(codeVerifier, redirectUri, invitation.UserId, userFlow),
             cancellationToken);
 
         return entraService.BuildAuthorizationUrl(

@@ -35,7 +35,8 @@ public sealed class EntraExternalIdRefitService(
         string code,
         string redirectUri,
         string codeVerifier,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken = default,
+        string? userFlow = null) =>
         ExchangeAsync(
             new Dictionary<string, string>
             {
@@ -47,6 +48,7 @@ public sealed class EntraExternalIdRefitService(
                 ["code_verifier"] = codeVerifier,
                 ["scope"] = _options.Scopes
             },
+            ResolveUserFlow(userFlow),
             cancellationToken);
 
     public Task<EntraTokenResult> RefreshTokenAsync(
@@ -61,6 +63,7 @@ public sealed class EntraExternalIdRefitService(
                 ["refresh_token"] = refreshToken,
                 ["scope"] = _options.Scopes
             },
+            ResolveUserFlow(null),
             cancellationToken);
 
     public static (string CodeVerifier, string CodeChallenge) CreatePkcePair()
@@ -116,26 +119,50 @@ public sealed class EntraExternalIdRefitService(
 
     private async Task<EntraTokenResult> ExchangeAsync(
         Dictionary<string, string> form,
+        string? userFlow,
         CancellationToken cancellationToken)
     {
-        var response = await entraOAuthClient.ExchangeAuthorizationCodeAsync(form, cancellationToken);
+        try
+        {
+            var response = await entraOAuthClient.ExchangeAuthorizationCodeAsync(
+                form,
+                string.IsNullOrWhiteSpace(userFlow) ? null : userFlow,
+                cancellationToken);
 
-        var accessToken = response.Access_token
-            ?? throw new InvalidOperationException("access_token missing from Entra response.");
+            var accessToken = response.Access_token
+                ?? throw new InvalidOperationException("access_token missing from Entra response.");
 
-        // CIAM access tokens often omit email; id_token carries profile claims.
-        var (objectId, email, displayName) = ParseUserClaims(accessToken, response.Id_token);
+            // CIAM access tokens often omit email; id_token carries profile claims.
+            var (objectId, email, displayName) = ParseUserClaims(accessToken, response.Id_token);
 
-        return new EntraTokenResult(
-            accessToken,
-            objectId,
-            email,
-            displayName,
-            response.Refresh_token,
-            response.Id_token,
-            response.Expires_in ?? 3600,
-            string.IsNullOrWhiteSpace(response.Token_type) ? "Bearer" : response.Token_type);
+            return new EntraTokenResult(
+                accessToken,
+                objectId,
+                email,
+                displayName,
+                response.Refresh_token,
+                response.Id_token,
+                response.Expires_in ?? 3600,
+                string.IsNullOrWhiteSpace(response.Token_type) ? "Bearer" : response.Token_type);
+        }
+        catch (Refit.ApiException ex)
+        {
+            var detail = string.IsNullOrWhiteSpace(ex.Content) ? ex.Message : ex.Content.Trim();
+            if (detail.Length > 800)
+            {
+                detail = detail[..800] + "…";
+            }
+
+            throw new InvalidOperationException(
+                $"Entra token HTTP {(int)ex.StatusCode}: {detail}",
+                ex);
+        }
     }
+
+    private string? ResolveUserFlow(string? userFlow) =>
+        !string.IsNullOrWhiteSpace(userFlow)
+            ? userFlow
+            : (string.IsNullOrWhiteSpace(_options.UserFlow) ? null : _options.UserFlow);
 
     internal static (string ObjectId, string Email, string? DisplayName) ParseUserClaims(
         string accessToken,

@@ -7,6 +7,7 @@ public interface IEntraOAuthClient
     [Post("")]
     Task<EntraTokenEndpointResponse> ExchangeAuthorizationCodeAsync(
         [Body(BodySerializationMethod.UrlEncoded)] Dictionary<string, string> form,
+        [Query] string? p = null,
         CancellationToken cancellationToken = default);
 }
 

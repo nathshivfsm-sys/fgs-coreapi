@@ -79,7 +79,8 @@ public sealed class ExchangeLoginCodeCommandHandler(
                 request.Code,
                 pkceState.RedirectUri,
                 pkceState.CodeVerifier,
-                cancellationToken);
+                cancellationToken,
+                pkceState.UserFlow);
         }
         catch (Exception ex)
         {
@@ -147,7 +148,8 @@ public sealed class ExchangeLoginCodeCommandHandler(
                 request.Code,
                 pkceState.RedirectUri,
                 pkceState.CodeVerifier,
-                cancellationToken);
+                cancellationToken,
+                pkceState.UserFlow);
         }
         catch (Exception ex)
         {

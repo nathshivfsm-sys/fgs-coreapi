@@ -3,7 +3,8 @@ namespace Fgs.User.Application.Abstractions.Identity;
 public sealed record LoginPkceState(
     string CodeVerifier,
     string RedirectUri,
-    Guid UserId);
+    Guid UserId,
+    string? UserFlow = null);
 
 public interface ILoginPkceStore
 {

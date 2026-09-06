@@ -225,7 +225,7 @@ public sealed class ExchangeLoginCodeCommandHandlerTests
             .ReturnsAsync(new LoginPkceState("verifier", "https://localhost/callback", userId));
 
         var entra = new Mock<IEntraExternalIdService>();
-        entra.Setup(s => s.ExchangeLoginCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        entra.Setup(s => s.ExchangeLoginCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>(), It.IsAny<string?>()))
             .ThrowsAsync(new InvalidOperationException("exchange failed"));
 
         var handler = CreateHandler(context, entra.Object, pkceStore.Object);
@@ -260,7 +260,7 @@ public sealed class ExchangeLoginCodeCommandHandlerTests
             .ReturnsAsync(new LoginPkceState("verifier", "https://localhost/callback", userId));
 
         var entra = new Mock<IEntraExternalIdService>();
-        entra.Setup(s => s.ExchangeLoginCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        entra.Setup(s => s.ExchangeLoginCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>(), It.IsAny<string?>()))
             .ReturnsAsync(new EntraTokenResult("access", "oid-123", "other@test.com", "Other", "refresh", "id", 3600, "Bearer"));
 
         var handler = CreateHandler(context, entra.Object, pkceStore.Object);

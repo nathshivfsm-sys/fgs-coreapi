@@ -77,15 +77,16 @@ public sealed class StartLoginCommandHandler(
 
         var state = OAuthStatePrefixes.CreateUserLoginState(user.Id);
         var (codeVerifier, codeChallenge) = EntraExternalIdPkce.CreatePair();
-        await loginPkceStore.SaveAsync(
-            state,
-            new LoginPkceState(codeVerifier, redirectUri, user.Id),
-            cancellationToken);
 
         var userFlow = EntraUserFlowResolver.Resolve(
             user.AuthenticationMethod,
             configuration[ConfigurationKeys.EntraExternalId.UserFlow],
             configuration[ConfigurationKeys.EntraExternalId.PasswordUserFlow]);
+
+        await loginPkceStore.SaveAsync(
+            state,
+            new LoginPkceState(codeVerifier, redirectUri, user.Id, userFlow),
+            cancellationToken);
 
         var redirectUrl = entraService.BuildLoginAuthorizationUrl(
             state,
