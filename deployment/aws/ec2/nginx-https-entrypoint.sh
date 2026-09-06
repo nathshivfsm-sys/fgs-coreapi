@@ -219,8 +219,8 @@ server {
     add_header Content-Type text/plain;
   }
 
+  # api-v1-routes.prod.conf already includes api-v1-service-prefix-routes.conf
   include /etc/nginx/conf.d/includes/api-v1-routes.prod.conf;
-  include /etc/nginx/conf.d/includes/api-v1-service-prefix-routes.conf;
   include /etc/nginx/conf.d/includes/swagger-routes.ec2.conf;
 }
 SITE
