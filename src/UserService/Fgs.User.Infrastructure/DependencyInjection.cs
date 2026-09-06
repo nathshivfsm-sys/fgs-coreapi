@@ -181,7 +181,8 @@ public static class DependencyInjection
             })
             .AddStandardResilienceHandler(options =>
             {
-                options.Retry.MaxRetryAttempts = 0;
+                // MaxRetryAttempts must be >= 1 (Options validation). Disable POST retries
+                // so a timed-out Entra token exchange cannot burn a one-time auth code.
                 options.Retry.DisableForUnsafeHttpMethods();
             });
 
