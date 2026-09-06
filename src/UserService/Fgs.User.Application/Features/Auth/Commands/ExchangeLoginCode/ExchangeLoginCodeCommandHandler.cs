@@ -84,8 +84,13 @@ public sealed class ExchangeLoginCodeCommandHandler(
         }
         catch (Exception ex)
         {
+            // AADSTS70008 on first attempt usually means the code was already redeemed
+            // (SPA/MSAL/Postman→Entra) before this call.
             return ApiResponse<LoginProfileDto>.Fail(
-                [$"{AuthErrorMessages.EntraCodeExchangeFailed} {ex.Message}"],
+                [
+                    $"{AuthErrorMessages.EntraCodeExchangeFailed} {ex.Message} " +
+                    $"(redirect_uri={pkceState.RedirectUri}; userFlow={pkceState.UserFlow ?? "(none)"}; codeLength={request.Code.Length})"
+                ],
                 ApiStatusCodes.Unauthorized);
         }
 
