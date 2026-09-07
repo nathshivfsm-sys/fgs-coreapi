@@ -39,10 +39,31 @@ public sealed class FgsInventoryCategoryValidatorTests
     }
 
     [Fact]
+    public async Task CreateValidator_WhenDuplicateName_HasValidationError()
+    {
+        _readRepository
+            .Setup(r => r.ExistsByCategoryCodeAsync("CAT01", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        _readRepository
+            .Setup(r => r.ExistsByNameAsync("Category One", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        var validator = new CreateFgsInventoryCategoryCommandValidator(_readRepository.Object);
+        var command = new CreateFgsInventoryCategoryCommand(SampleCreateDto());
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("name", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task UpdateValidator_WhenDuplicateCodeExcludesCurrentId_Passes()
     {
         _readRepository
             .Setup(r => r.ExistsByCategoryCodeAsync("CAT01", 5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        _readRepository
+            .Setup(r => r.ExistsByNameAsync("Category One", 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         var validator = new UpdateFgsInventoryCategoryCommandValidator(_readRepository.Object);
         var updateDto = new FgsInventoryCategoryUpdateDto("CAT01", "Category One", "Description", "#FFFFFF", "#000000", null, 1);

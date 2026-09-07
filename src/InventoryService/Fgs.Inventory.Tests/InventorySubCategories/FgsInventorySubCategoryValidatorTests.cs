@@ -41,6 +41,27 @@ public sealed class FgsInventorySubCategoryValidatorTests
     }
 
     [Fact]
+    public async Task CreateValidator_WhenDuplicateName_HasValidationError()
+    {
+        _categoryReadRepository
+            .Setup(r => r.ExistsAsync(1, true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        _readRepository
+            .Setup(r => r.ExistsBySubCategoryCodeAsync(1, "SUB01", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        _readRepository
+            .Setup(r => r.ExistsByNameAsync(1, "Sub Category One", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        var validator = new CreateFgsInventorySubCategoryCommandValidator(_readRepository.Object, _categoryReadRepository.Object);
+        var command = new CreateFgsInventorySubCategoryCommand(SampleCreateDto());
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("name", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task UpdateValidator_WhenDuplicateCodeExcludesCurrentId_Passes()
     {
         _categoryReadRepository
@@ -48,6 +69,9 @@ public sealed class FgsInventorySubCategoryValidatorTests
             .ReturnsAsync(true);
         _readRepository
             .Setup(r => r.ExistsBySubCategoryCodeAsync(1, "SUB01", 5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        _readRepository
+            .Setup(r => r.ExistsByNameAsync(1, "Sub Category One", 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         var validator = new UpdateFgsInventorySubCategoryCommandValidator(_readRepository.Object, _categoryReadRepository.Object);
         var updateDto = new FgsInventorySubCategoryUpdateDto(1, "SUB01", "Sub Category One", "Description", "#FFFFFF", "#000000", null, 1);

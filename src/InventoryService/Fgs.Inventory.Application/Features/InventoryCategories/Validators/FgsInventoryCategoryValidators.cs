@@ -26,6 +26,10 @@ public sealed class CreateFgsInventoryCategoryCommandValidator : AbstractValidat
                     !await readRepository.ExistsByCategoryCodeAsync(code, null, cancellationToken))
                 .WithMessage("An inventory category with this code already exists.");
             RuleFor(x => x.Dto.Name).NotEmpty().MaximumLength(150);
+            RuleFor(x => x.Dto.Name)
+                .MustAsync(async (command, name, cancellationToken) =>
+                    !await readRepository.ExistsByNameAsync(name, null, cancellationToken))
+                .WithMessage("An inventory category with this name already exists.");
             RuleFor(x => x.Dto.TextColor).MaximumLength(20);
             RuleFor(x => x.Dto.BackgroundColor).MaximumLength(20);
             RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0);
@@ -54,6 +58,10 @@ public sealed class UpdateFgsInventoryCategoryCommandValidator : AbstractValidat
                     !await readRepository.ExistsByCategoryCodeAsync(code, command.Id, cancellationToken))
                 .WithMessage("An inventory category with this code already exists.");
             RuleFor(x => x.Dto.Name).NotEmpty().MaximumLength(150);
+            RuleFor(x => x.Dto.Name)
+                .MustAsync(async (command, name, cancellationToken) =>
+                    !await readRepository.ExistsByNameAsync(name, command.Id, cancellationToken))
+                .WithMessage("An inventory category with this name already exists.");
             RuleFor(x => x.Dto.TextColor).MaximumLength(20);
             RuleFor(x => x.Dto.BackgroundColor).MaximumLength(20);
             RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0);
@@ -85,6 +93,11 @@ public sealed class PatchFgsInventoryCategoryCommandValidator : AbstractValidato
                 .WithMessage("An inventory category with this code already exists.")
                 .When(x => x.Dto.CategoryCode is not null);
             RuleFor(x => x.Dto.Name).NotEmpty().MaximumLength(150)
+                .When(x => x.Dto.Name is not null);
+            RuleFor(x => x.Dto.Name!)
+                .MustAsync(async (command, name, cancellationToken) =>
+                    !await readRepository.ExistsByNameAsync(name, command.Id, cancellationToken))
+                .WithMessage("An inventory category with this name already exists.")
                 .When(x => x.Dto.Name is not null);
             RuleFor(x => x.Dto.TextColor).MaximumLength(20)
                 .When(x => x.Dto.TextColor is not null);

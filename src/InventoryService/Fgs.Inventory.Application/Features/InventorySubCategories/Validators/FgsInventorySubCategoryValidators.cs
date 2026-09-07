@@ -35,6 +35,11 @@ public sealed class CreateFgsInventorySubCategoryCommandValidator : AbstractVali
                         command.Dto.InventoryCategoryId, code, null, cancellationToken))
                 .WithMessage("An inventory sub-category with this code already exists for the category.");
             RuleFor(x => x.Dto.Name).NotEmpty().MaximumLength(150);
+            RuleFor(x => x.Dto.Name)
+                .MustAsync(async (command, name, cancellationToken) =>
+                    !await readRepository.ExistsByNameAsync(
+                        command.Dto.InventoryCategoryId, name, null, cancellationToken))
+                .WithMessage("An inventory sub-category with this name already exists for the category.");
             RuleFor(x => x.Dto.TextColor).MaximumLength(20);
             RuleFor(x => x.Dto.BackgroundColor).MaximumLength(20);
             RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0);
@@ -71,6 +76,11 @@ public sealed class UpdateFgsInventorySubCategoryCommandValidator : AbstractVali
                         command.Dto.InventoryCategoryId, code, command.Id, cancellationToken))
                 .WithMessage("An inventory sub-category with this code already exists for the category.");
             RuleFor(x => x.Dto.Name).NotEmpty().MaximumLength(150);
+            RuleFor(x => x.Dto.Name)
+                .MustAsync(async (command, name, cancellationToken) =>
+                    !await readRepository.ExistsByNameAsync(
+                        command.Dto.InventoryCategoryId, name, command.Id, cancellationToken))
+                .WithMessage("An inventory sub-category with this name already exists for the category.");
             RuleFor(x => x.Dto.TextColor).MaximumLength(20);
             RuleFor(x => x.Dto.BackgroundColor).MaximumLength(20);
             RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0);
@@ -112,6 +122,29 @@ public sealed class PatchFgsInventorySubCategoryCommandValidator : AbstractValid
                 .WithMessage("An inventory sub-category with this code already exists for the category.")
                 .When(x => x.Dto.SubCategoryCode is not null && x.Dto.InventoryCategoryId.HasValue);
             RuleFor(x => x.Dto.Name).NotEmpty().MaximumLength(150)
+                .When(x => x.Dto.Name is not null);
+            RuleFor(x => x.Dto.Name!)
+                .MustAsync(async (command, name, cancellationToken) =>
+                {
+                    long categoryId;
+                    if (command.Dto.InventoryCategoryId.HasValue)
+                    {
+                        categoryId = command.Dto.InventoryCategoryId.Value;
+                    }
+                    else
+                    {
+                        var existing = await readRepository.GetByIdAsync(command.Id, cancellationToken);
+                        if (existing is null)
+                        {
+                            return true;
+                        }
+
+                        categoryId = existing.InventoryCategoryId;
+                    }
+
+                    return !await readRepository.ExistsByNameAsync(categoryId, name, command.Id, cancellationToken);
+                })
+                .WithMessage("An inventory sub-category with this name already exists for the category.")
                 .When(x => x.Dto.Name is not null);
             RuleFor(x => x.Dto.TextColor).MaximumLength(20)
                 .When(x => x.Dto.TextColor is not null);

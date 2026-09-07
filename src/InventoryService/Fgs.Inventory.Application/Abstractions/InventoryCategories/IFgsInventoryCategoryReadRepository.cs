@@ -22,5 +22,15 @@ public interface IFgsInventoryCategoryReadRepository
         long? excludeId = null,
         CancellationToken cancellationToken = default);
 
+    Task<bool> ExistsByNameAsync(
+        string name,
+        long? excludeId = null,
+        CancellationToken cancellationToken = default);
+
+    Task<PagedResult<FgsInventoryCategoryWithSubCategoriesDto>> ListWithSubCategoriesAsync(
+        InventoryListQuery query,
+        FgsInventoryCategoryListFilters filters,
+        CancellationToken cancellationToken = default);
+
     Task<bool> ExistsAsync(long id, bool activeOnly = true, CancellationToken cancellationToken = default);
 }

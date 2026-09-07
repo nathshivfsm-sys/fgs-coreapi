@@ -9,6 +9,7 @@ using Fgs.Inventory.Application.Features.InventoryCategories.Commands.UpdateFgsI
 using Fgs.Inventory.Application.Features.InventoryCategories.Dtos;
 using Fgs.Inventory.Application.Features.InventoryCategories.Queries.GetFgsInventoryCategoryById;
 using Fgs.Inventory.Application.Features.InventoryCategories.Queries.ListInventoryCategories;
+using Fgs.Inventory.Application.Features.InventoryCategories.Queries.ListInventoryCategoriesWithSubCategories;
 using Fgs.Inventory.Application.Features.InventoryCategories.Queries.LookupInventoryCategories;
 using MediatR;
 using Fgs.Security.Authorization;
@@ -47,6 +48,27 @@ public sealed class InventoryCategoryController(IMediator mediator) : Controller
     {
         var response = await mediator.Send(
             new ListInventoryCategoriesQuery(
+                new InventoryListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
+                new FgsInventoryCategoryListFilters(categoryCode, name)),
+            cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [HttpGet("with-subcategories")]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsInventoryCategoryWithSubCategoriesDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListWithSubCategories(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 25,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
+        [FromQuery] string? search = null,
+        [FromQuery] bool? isActive = true,
+        [FromQuery] string? categoryCode = null,
+        [FromQuery] string? name = null,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await mediator.Send(
+            new ListInventoryCategoriesWithSubCategoriesQuery(
                 new InventoryListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
                 new FgsInventoryCategoryListFilters(categoryCode, name)),
             cancellationToken);
