@@ -278,6 +278,45 @@ services:
       retries: 5
       start_period: 90s
 
+  inventory-service:
+    image: ${FGS_INVENTORY_IMAGE:?set FGS_INVENTORY_IMAGE in .env}
+    hostname: inventory-service
+    <<: *app-network
+    environment:
+      <<: *datadog-env
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      SetupService__BaseUrl: http://setup-service:5004
+      UserService__BaseUrl: http://user-service:5001
+      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      CredentialConsumer__ServiceName: fgs-inventory-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: REDIS
+      CredentialConsumer__RequiredProviders__2: RABBITMQ
+      RabbitMq__HostName: rabbitmq
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+      Swagger__Enabled: "true"
+      Swagger__RoutePrefix: swagger/inventory
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    expose:
+      - "5012"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://inventory-service:5012/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
   consumer-service:
     image: ${FGS_CONSUMER_IMAGE:?set FGS_CONSUMER_IMAGE in .env}
     hostname: consumer-service

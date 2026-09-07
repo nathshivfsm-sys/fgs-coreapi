@@ -116,6 +116,8 @@ sudo ./deploy-service.sh audit-service dev
 sudo ./deploy-service.sh user-service dev
 sudo ./deploy-service.sh bff-service dev
 sudo ./deploy-service.sh notification-service dev
+sudo ./deploy-service.sh file-service dev
+sudo ./deploy-service.sh inventory-service dev
 sudo ./deploy-service.sh consumer-service dev
 sudo ./deploy-service.sh nginx dev
 ```
@@ -210,6 +212,7 @@ Replace `ACCOUNT_ID` with your AWS account ID. Do **not** add Session Manager (`
 | `build-bff.yml` | `Fgs.Bff.API.csproj` version bump | `bff-service` on EC2 |
 | `build-notification.yml` | `Fgs.Notification.API.csproj` version bump | `notification-service` on EC2 |
 | `build-file.yml` | `Fgs.File.API.csproj` version bump | `file-service` on EC2 |
+| `build-inventory.yml` | `Fgs.Inventory.API.csproj` version bump | `inventory-service` on EC2 |
 | `build-consumer.yml` | `Fgs.Consumer.API.csproj` version bump | `consumer-service` on EC2 |
 | `build-nginx.yml` | `src/Gateway/VERSION` bump | `nginx` on EC2 |
 
