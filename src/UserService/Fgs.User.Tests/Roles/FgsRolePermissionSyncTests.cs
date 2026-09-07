@@ -46,6 +46,63 @@ public sealed class FgsRolePermissionSyncTests
         remaining.Should().BeEquivalentTo([p2, p3]);
     }
 
+    [Fact]
+    public async Task Sync_BlocksBuiltInRolePermissionChanges()
+    {
+        await using var context = await CreateContextAsync();
+        var (roleId, p1, _, _) = await SeedRoleAndPermissionsAsync(context, isBuiltIn: true);
+        var write = CreateWriteService(context);
+
+        var act = async () => await write.SyncAsync(
+            new FgsRolePermissionSyncDto(roleId, [p1]),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Built-in*");
+    }
+
+    [Fact]
+    public async Task Create_BlocksBuiltInRolePermissionChanges()
+    {
+        await using var context = await CreateContextAsync();
+        var (roleId, p1, _, _) = await SeedRoleAndPermissionsAsync(context, isBuiltIn: true);
+        var write = CreateWriteService(context);
+
+        var act = async () => await write.CreateAsync(
+            new FgsRolePermissionCreateDto(roleId, p1),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Built-in*");
+    }
+
+    [Fact]
+    public async Task Update_BlocksBuiltInRolePermissionChanges()
+    {
+        await using var context = await CreateContextAsync();
+        var (roleId, p1, p2, _) = await SeedRoleAndPermissionsAsync(context, isBuiltIn: true);
+        var assignment = new FgsRolePermission
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            FgsRoleId = roleId,
+            FgsPermissionId = p1,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "seed"
+        };
+        context.FgsRolePermissions.Add(assignment);
+        await context.SaveChangesAsync();
+
+        var write = CreateWriteService(context);
+        var act = async () => await write.UpdateAsync(
+            assignment.Id,
+            new FgsRolePermissionUpdateDto(p2),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Built-in*");
+    }
+
     private static FgsRolePermissionWriteService CreateWriteService(FgsUserDbContext context)
     {
         var tenantAccessor = new TestTenantContextAccessor
@@ -62,14 +119,16 @@ public sealed class FgsRolePermissionSyncTests
     }
 
     private static async Task<(long RoleId, long P1, long P2, long P3)> SeedRoleAndPermissionsAsync(
-        FgsUserDbContext context)
+        FgsUserDbContext context,
+        bool isBuiltIn = false)
     {
         var role = new FgsRole
         {
             TenantId = TenantId,
             CompanyId = CompanyId,
-            RoleCode = "TECH",
-            Name = "Technician",
+            RoleCode = isBuiltIn ? "TENANT_ADMIN" : "TECH",
+            Name = isBuiltIn ? "Tenant Admin" : "Technician",
+            IsBuiltIn = isBuiltIn,
             IsActive = true,
             CreatedOn = DateTimeOffset.UtcNow,
             CreatedBy = "test"

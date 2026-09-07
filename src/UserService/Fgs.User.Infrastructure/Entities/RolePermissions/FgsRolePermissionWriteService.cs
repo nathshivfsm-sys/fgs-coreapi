@@ -21,7 +21,7 @@ public sealed class FgsRolePermissionWriteService(
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
-        await EnsureRoleExistsAsync(dto.FgsRoleId, tenantId, companyId, cancellationToken);
+        await EnsureRoleMutableAsync(dto.FgsRoleId, tenantId, companyId, cancellationToken);
         await EnsurePermissionExistsAsync(dto.FgsPermissionId, cancellationToken);
 
         var entity = new FgsRolePermission
@@ -47,6 +47,8 @@ public sealed class FgsRolePermissionWriteService(
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Role-permission assignment '{id}' was not found.");
 
+        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        await EnsureRoleMutableAsync(entity.FgsRoleId, tenantId, companyId, cancellationToken);
         await EnsurePermissionExistsAsync(dto.FgsPermissionId, cancellationToken);
 
         entity.FgsPermissionId = dto.FgsPermissionId;
@@ -61,6 +63,9 @@ public sealed class FgsRolePermissionWriteService(
     {
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Role-permission assignment '{id}' was not found.");
+
+        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        await EnsureRoleMutableAsync(entity.FgsRoleId, tenantId, companyId, cancellationToken);
 
         if (dto.FgsPermissionId.HasValue)
         {
@@ -78,7 +83,7 @@ public sealed class FgsRolePermissionWriteService(
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
 
-        await EnsureRoleExistsAsync(dto.FgsRoleId, tenantId, companyId, cancellationToken);
+        await EnsureRoleMutableAsync(dto.FgsRoleId, tenantId, companyId, cancellationToken);
 
         var desiredIds = (dto.FgsPermissionIds ?? [])
             .Distinct()
@@ -142,18 +147,24 @@ public sealed class FgsRolePermissionWriteService(
             .ToListAsync(cancellationToken);
     }
 
-    private async Task EnsureRoleExistsAsync(
+    private async Task EnsureRoleMutableAsync(
         long roleId,
         long tenantId,
         long companyId,
         CancellationToken cancellationToken)
     {
-        var roleExists = await context.FgsRoles.AnyAsync(
+        var role = await context.FgsRoles.AsNoTracking().FirstOrDefaultAsync(
             r => r.Id == roleId && r.TenantId == tenantId && r.CompanyId == companyId,
             cancellationToken);
-        if (!roleExists)
+
+        if (role is null)
         {
             throw new KeyNotFoundException($"Role '{roleId}' was not found.");
+        }
+
+        if (role.IsBuiltIn)
+        {
+            throw new InvalidOperationException("Built-in role permissions cannot be modified.");
         }
     }
 
