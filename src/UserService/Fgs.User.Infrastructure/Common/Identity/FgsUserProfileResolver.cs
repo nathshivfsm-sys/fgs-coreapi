@@ -101,6 +101,7 @@ public sealed class FgsUserProfileResolver(
         return new FgsUserProfile(
             user.Id,
             user.Email,
+            user.DisplayName,
             user.EntraObjectId,
             user.TenantId,
             user.CompanyId,

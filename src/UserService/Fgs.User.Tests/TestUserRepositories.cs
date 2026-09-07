@@ -156,6 +156,7 @@ internal static class TestUserRepositories
             .ReturnsAsync((FgsUser user, CancellationToken _) => new FgsUserProfile(
                 user.Id,
                 user.Email,
+                user.DisplayName,
                 user.EntraObjectId,
                 user.TenantId,
                 user.CompanyId,

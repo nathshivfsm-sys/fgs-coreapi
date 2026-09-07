@@ -19,6 +19,7 @@ public interface IFgsUserProfileResolver
 public sealed record FgsUserProfile(
     Guid UserId,
     string Email,
+    string? DisplayName,
     string? EntraObjectId,
     long TenantId,
     long CompanyId,

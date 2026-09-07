@@ -24,6 +24,7 @@ public sealed class LoginAuthorizationProfileBuilder(
         return new FgsUserProfile(
             user.Id,
             user.Email,
+            user.DisplayName,
             user.EntraObjectId,
             user.TenantId,
             user.CompanyId,

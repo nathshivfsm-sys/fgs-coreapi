@@ -2,6 +2,7 @@ using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
 using Fgs.User.Application.Features.Auth.Commands.EntraApiConnector;
+using Fgs.User.Application.Features.Auth.Commands.EntraAttributeCollectionStart;
 using Fgs.User.Application.Features.Auth.Commands.ExchangeLoginCode;
 using Fgs.User.Application.Features.Auth.Commands.RefreshAuthToken;
 using Fgs.User.Application.Features.Auth.Commands.StartLogin;
@@ -46,6 +47,24 @@ public sealed class AuthController(IMediator mediator) : FgsApiControllerBase(me
     {
         var response = await Mediator.Send(
             new EntraApiConnectorCommand(request.Email, request.ObjectId),
+            cancellationToken);
+
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Entra External ID custom authentication extension: OnAttributeCollectionStart.
+    /// Prefills Display Name from the company-signup contact name (<c>FgsUser.DisplayName</c>).
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("entra/attribute-collection/start")]
+    [ProducesResponseType(typeof(EntraAttributeCollectionStartResponseDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> EntraAttributeCollectionStart(
+        [FromBody] EntraAttributeCollectionStartRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        var response = await Mediator.Send(
+            new EntraAttributeCollectionStartCommand(request),
             cancellationToken);
 
         return Ok(response);

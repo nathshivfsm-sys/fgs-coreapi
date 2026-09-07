@@ -14,6 +14,7 @@ public sealed class GetUserAuthProfileQueryHandlerTests
         var profile = new FgsUserProfile(
             Guid.NewGuid(),
             "user@test.com",
+            "User Name",
             "oid-123",
             1,
             1,

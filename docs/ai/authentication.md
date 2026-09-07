@@ -15,7 +15,8 @@
 | `POST /api/v1/signup/company` | Identity signup |
 | `GET /api/v1/invite/start` | Invite → Entra |
 | `POST /api/v1/auth/login`, `.../entra/token`, `.../refresh` | Auth flows |
-| `POST /api/v1/auth/entra/connector` | Entra API Connector |
+| `POST /api/v1/auth/entra/connector` | Entra API Connector (tenant/company claims) |
+| `POST /api/v1/auth/entra/attribute-collection/start` | Prefill Display Name on signup |
 | `GET /api/v1/internal/users/auth-profile` | S2S profile |
 
 BFF: `POST /api/v1/bff/signup/company` (orchestrated, idempotent).
