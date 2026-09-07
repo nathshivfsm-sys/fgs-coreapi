@@ -61,6 +61,13 @@ public sealed class ApplicationDtosCoverageTests
         roleFilters.RoleCode.Should().Be("R");
         roleFilters.Name.Should().Be("N");
         roleFilters.IsBuiltIn.Should().BeTrue();
+        var roleClone = new FgsRoleCloneDto("R2", "N2", "d2", 2, [1, 2]);
+        roleClone.RoleCode.Should().Be("R2");
+        roleClone.Name.Should().Be("N2");
+        roleClone.Description.Should().Be("d2");
+        roleClone.DisplayOrder.Should().Be(2);
+        roleClone.FgsPermissionIds.Should().Equal(1, 2);
+        (roleClone with { Name = "N3" }).RoleCode.Should().Be("R2");
 
         var permission = new FgsPermissionDetailDto(1, "A.B", "M", "R", "X", "N", "d", 1, true);
         permission.Id.Should().Be(1);

@@ -3,6 +3,7 @@ using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using Fgs.User.Application.Common.IdentityCrud;
+using Fgs.User.Application.Features.Roles.Commands.CloneFgsRole;
 using Fgs.User.Application.Features.Roles.Commands.CreateFgsRole;
 using Fgs.User.Application.Features.Roles.Commands.PatchFgsRole;
 using Fgs.User.Application.Features.Roles.Commands.UpdateFgsRole;
@@ -66,6 +67,18 @@ public sealed class RoleController(IMediator mediator) : FgsApiControllerBase(me
         [FromBody] FgsRoleCreateDto request,
         CancellationToken cancellationToken) =>
         CreatedFromApiResponse(await Mediator.Send(new CreateFgsRoleCommand(request), cancellationToken));
+
+    [RequirePermission(FgsPermissionCodes.UserCreate)]
+    [HttpPost("{id:long}/clone")]
+    [ProducesResponseType(typeof(ApiResponse<FgsRoleDetailDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Clone(
+        long id,
+        [FromBody] FgsRoleCloneDto request,
+        CancellationToken cancellationToken) =>
+        CreatedFromApiResponse(await Mediator.Send(new CloneFgsRoleCommand(id, request), cancellationToken));
 
     [RequirePermission(FgsPermissionCodes.UserEdit)]
     [HttpPut("{id:long}")]

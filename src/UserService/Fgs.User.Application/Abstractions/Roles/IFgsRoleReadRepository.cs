@@ -22,6 +22,11 @@ public interface IFgsRoleReadRepository
         long? excludeId = null,
         CancellationToken cancellationToken = default);
 
+    Task<bool> ExistsByNameAsync(
+        string name,
+        long? excludeId = null,
+        CancellationToken cancellationToken = default);
+
     Task<bool> HasActiveUserAssignmentsAsync(long roleId, CancellationToken cancellationToken = default);
 
     /// <summary>

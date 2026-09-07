@@ -34,6 +34,17 @@ public sealed record FgsRoleCreateDto(
     long? ParentRoleId = null,
     short DisplayOrder = 1);
 
+/// <summary>
+/// Payload for cloning an existing role. When <see cref="FgsPermissionIds"/> is null,
+/// all permissions from the source role are copied; otherwise the provided set is used.
+/// </summary>
+public sealed record FgsRoleCloneDto(
+    string RoleCode,
+    string Name,
+    string? Description = null,
+    short? DisplayOrder = null,
+    IReadOnlyList<long>? FgsPermissionIds = null);
+
 public sealed record FgsRoleUpdateDto(
     string RoleCode,
     string Name,

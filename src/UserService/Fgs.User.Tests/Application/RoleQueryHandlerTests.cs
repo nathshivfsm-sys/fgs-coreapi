@@ -79,6 +79,8 @@ public sealed class RoleQueryHandlerTests
         var read = new Mock<IFgsRoleReadRepository>();
         read.Setup(r => r.ExistsByRoleCodeAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
+        read.Setup(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         var validator = new CreateFgsRoleCommandValidator(read.Object);
         var result = await validator.ValidateAsync(
@@ -106,11 +108,65 @@ public sealed class RoleQueryHandlerTests
         var read = new Mock<IFgsRoleReadRepository>();
         read.Setup(r => r.ExistsByRoleCodeAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
+        read.Setup(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         var validator = new UpdateFgsRoleCommandValidator(read.Object);
         var result = await validator.ValidateAsync(
             new Fgs.User.Application.Features.Roles.Commands.UpdateFgsRole.UpdateFgsRoleCommand(
                 1, new FgsRoleUpdateDto("DISPATCHER", "Dispatcher", null, 1)));
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CreateValidator_RejectsDuplicateName()
+    {
+        var read = new Mock<IFgsRoleReadRepository>();
+        read.Setup(r => r.ExistsByRoleCodeAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        read.Setup(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var validator = new CreateFgsRoleCommandValidator(read.Object);
+        var result = await validator.ValidateAsync(
+            new Fgs.User.Application.Features.Roles.Commands.CreateFgsRole.CreateFgsRoleCommand(
+                new FgsRoleCreateDto("DISPATCHER", "Dispatcher", null)));
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("name", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task CloneValidator_RejectsDuplicateRoleCode()
+    {
+        var read = new Mock<IFgsRoleReadRepository>();
+        read.Setup(r => r.ExistsByRoleCodeAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        read.Setup(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        var validator = new CloneFgsRoleCommandValidator(read.Object);
+        var result = await validator.ValidateAsync(
+            new Fgs.User.Application.Features.Roles.Commands.CloneFgsRole.CloneFgsRoleCommand(
+                1, new FgsRoleCloneDto("DISPATCHER", "Dispatcher Copy")));
+
+        result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task CloneValidator_AcceptsValidPayload()
+    {
+        var read = new Mock<IFgsRoleReadRepository>();
+        read.Setup(r => r.ExistsByRoleCodeAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        read.Setup(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        var validator = new CloneFgsRoleCommandValidator(read.Object);
+        var result = await validator.ValidateAsync(
+            new Fgs.User.Application.Features.Roles.Commands.CloneFgsRole.CloneFgsRoleCommand(
+                1, new FgsRoleCloneDto("DISPATCHER_COPY", "Dispatcher Copy", null, 2, [10, 20])));
 
         result.IsValid.Should().BeTrue();
     }
@@ -132,6 +188,8 @@ public sealed class RoleQueryHandlerTests
     {
         var read = new Mock<IFgsRoleReadRepository>();
         read.Setup(r => r.ExistsByRoleCodeAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        read.Setup(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         var validator = new PatchFgsRoleCommandValidator(read.Object);

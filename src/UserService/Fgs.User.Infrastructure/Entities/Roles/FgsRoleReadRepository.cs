@@ -172,6 +172,37 @@ internal sealed class FgsRoleReadRepository(
                 cancellationToken: cancellationToken));
     }
 
+    public async Task<bool> ExistsByNameAsync(
+        string name,
+        long? excludeId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {FgsRoleSql.Table}
+                WHERE "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND LOWER("Name") = LOWER(@Name)
+                  AND (@ExcludeId IS NULL OR "Id" <> @ExcludeId)
+            )
+            """;
+
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    Name = name.Trim(),
+                    ExcludeId = excludeId
+                },
+                cancellationToken: cancellationToken));
+    }
+
     public async Task<bool> HasActiveUserAssignmentsAsync(long roleId, CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);

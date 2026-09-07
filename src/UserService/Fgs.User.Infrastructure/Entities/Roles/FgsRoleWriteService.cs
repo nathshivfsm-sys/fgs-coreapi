@@ -58,6 +58,106 @@ public sealed class FgsRoleWriteService(
         return MapToDetail(entity);
     }
 
+    public async Task<FgsRoleDetailDto> CloneAsync(
+        long sourceRoleId,
+        FgsRoleCloneDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        var now = DateTimeOffset.UtcNow;
+        var actor = ResolveActor() ?? "system";
+
+        var source = await context.FgsRoles.FirstOrDefaultAsync(
+            role => role.Id == sourceRoleId && role.TenantId == tenantId && role.CompanyId == companyId,
+            cancellationToken)
+            ?? throw new KeyNotFoundException($"Role '{sourceRoleId}' was not found.");
+
+        var permissionIds = await ResolvePermissionIdsAsync(
+            sourceRoleId,
+            tenantId,
+            companyId,
+            dto.FgsPermissionIds,
+            cancellationToken);
+
+        var entity = new FgsRole
+        {
+            TenantId = tenantId,
+            CompanyId = companyId,
+            ParentRoleId = source.Id,
+            RoleCode = NormalizeRoleCode(dto.RoleCode),
+            Name = dto.Name.Trim(),
+            Description = dto.Description?.Trim() ?? source.Description,
+            IsBuiltIn = false,
+            DisplayOrder = dto.DisplayOrder ?? source.DisplayOrder,
+            IsActive = true,
+            CreatedOn = now,
+            CreatedBy = actor
+        };
+
+        await context.FgsRoles.AddAsync(entity, cancellationToken);
+
+        foreach (var permissionId in permissionIds)
+        {
+            await context.FgsRolePermissions.AddAsync(
+                new FgsRolePermission
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    FgsRole = entity,
+                    FgsPermissionId = permissionId,
+                    CreatedOn = now,
+                    CreatedBy = actor
+                },
+                cancellationToken);
+        }
+
+        var sourceMenus = await context.FgsRoleMenus
+            .AsNoTracking()
+            .Where(menu => menu.RoleId == sourceRoleId && menu.TenantId == tenantId && menu.CompanyId == companyId)
+            .ToListAsync(cancellationToken);
+
+        foreach (var menu in sourceMenus)
+        {
+            await context.FgsRoleMenus.AddAsync(
+                new FgsRoleMenu
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    Role = entity,
+                    MenuId = menu.MenuId,
+                    DisplayOrder = menu.DisplayOrder,
+                    IsActive = menu.IsActive,
+                    CreatedOn = now,
+                    CreatedBy = actor
+                },
+                cancellationToken);
+        }
+
+        var sourceDataAccessIds = await context.FgsRoleDataAccesses
+            .AsNoTracking()
+            .Where(x => x.FgsRoleId == sourceRoleId && x.TenantId == tenantId && x.CompanyId == companyId)
+            .Select(x => x.FgsDataAccessId)
+            .ToListAsync(cancellationToken);
+
+        foreach (var dataAccessId in sourceDataAccessIds)
+        {
+            await context.FgsRoleDataAccesses.AddAsync(
+                new FgsRoleDataAccess
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    FgsRole = entity,
+                    FgsDataAccessId = dataAccessId,
+                    CreatedOn = now,
+                    CreatedBy = actor
+                },
+                cancellationToken);
+        }
+
+        await SaveChangesAsync(cancellationToken);
+        return MapToDetail(entity);
+    }
+
     public async Task<FgsRoleDetailDto> UpdateAsync(
         long id,
         FgsRoleUpdateDto dto,
@@ -124,6 +224,41 @@ public sealed class FgsRoleWriteService(
         StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
         return MapToDetail(entity);
+    }
+
+    private async Task<IReadOnlyList<long>> ResolvePermissionIdsAsync(
+        long sourceRoleId,
+        long tenantId,
+        long companyId,
+        IReadOnlyList<long>? requestedPermissionIds,
+        CancellationToken cancellationToken)
+    {
+        if (requestedPermissionIds is null)
+        {
+            return await context.FgsRolePermissions
+                .AsNoTracking()
+                .Where(x => x.FgsRoleId == sourceRoleId && x.TenantId == tenantId && x.CompanyId == companyId)
+                .Select(x => x.FgsPermissionId)
+                .ToListAsync(cancellationToken);
+        }
+
+        var desiredIds = requestedPermissionIds.Distinct().ToList();
+        if (desiredIds.Count == 0)
+        {
+            return desiredIds;
+        }
+
+        var foundPermissionIds = await context.FgsPermissions
+            .Where(p => desiredIds.Contains(p.Id))
+            .Select(p => p.Id)
+            .ToListAsync(cancellationToken);
+        var missing = desiredIds.Except(foundPermissionIds).ToList();
+        if (missing.Count > 0)
+        {
+            throw new KeyNotFoundException($"Permission '{missing[0]}' was not found.");
+        }
+
+        return desiredIds;
     }
 
     private async Task<FgsRole?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
