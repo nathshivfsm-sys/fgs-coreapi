@@ -317,6 +317,41 @@ services:
       retries: 5
       start_period: 90s
 
+  asset-service:
+    image: ${FGS_ASSET_IMAGE:?set FGS_ASSET_IMAGE in .env}
+    hostname: asset-service
+    <<: *app-network
+    environment:
+      <<: *datadog-env
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      SetupService__BaseUrl: http://setup-service:5004
+      UserService__BaseUrl: http://user-service:5001
+      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      CredentialConsumer__ServiceName: fgs-asset-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      CredentialConsumer__RequiredProviders__1: REDIS
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+      Swagger__Enabled: "true"
+      Swagger__RoutePrefix: swagger/asset
+    depends_on:
+      redis:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    expose:
+      - "5015"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://asset-service:5015/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
   consumer-service:
     image: ${FGS_CONSUMER_IMAGE:?set FGS_CONSUMER_IMAGE in .env}
     hostname: consumer-service

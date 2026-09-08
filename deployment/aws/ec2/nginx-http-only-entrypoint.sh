@@ -17,7 +17,7 @@ upstream bff_service { server bff-service:5003 max_fails=3 fail_timeout=10s; kee
 upstream file_service { server file-service:5005 max_fails=3 fail_timeout=10s; keepalive 32; }
 upstream audit_service { server audit-service:5008 max_fails=3 fail_timeout=10s; keepalive 32; }
 upstream inventory_service { server inventory-service:5012 max_fails=3 fail_timeout=10s; keepalive 32; }
-upstream asset_service { server 127.0.0.1:9; }
+upstream asset_service { server asset-service:5015 max_fails=3 fail_timeout=10s; keepalive 32; }
 upstream crm_service { server 127.0.0.1:9; }
 upstream scheduling_service { server 127.0.0.1:9; }
 upstream billing_service { server 127.0.0.1:9; }
@@ -150,6 +150,20 @@ location /swagger/inventory/ {
     proxy_buffering off;
     add_header Cache-Control "no-store" always;
 }
+
+location = /swagger/asset {
+    return 308 /swagger/asset/;
+}
+
+location /swagger/asset/ {
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $swagger_upstream asset-service:5015;
+    proxy_pass http://$swagger_upstream$request_uri;
+    include /etc/nginx/proxy_params.conf;
+    proxy_cache off;
+    proxy_buffering off;
+    add_header Cache-Control "no-store" always;
+}
 SWAGGER
 
 # Minimal index if image has no swagger-index.html
@@ -168,6 +182,7 @@ if [ ! -f /etc/nginx/conf.d/includes/swagger-index.html ]; then
     <li><a href="/swagger/notification/">Notification</a></li>
     <li><a href="/swagger/consumer/">Consumer</a></li>
     <li><a href="/swagger/inventory/">Inventory</a></li>
+    <li><a href="/swagger/asset/">Asset</a></li>
   </ul>
 </body></html>
 IDX

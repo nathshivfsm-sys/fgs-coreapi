@@ -15,7 +15,7 @@
 
 Running `docker-compose.ec2.yml` on your laptop requires ECR login, a populated `.env`, and RDS reachable from your network — use the **Gateway** stack instead.
 
-## Adding a new service (e.g. inventory)
+## Adding a new service (e.g. inventory / asset)
 
 CD only pulls/recreates containers. When compose/entrypoint scripts change, sync host files on EC2 once (from this folder), then deploy:
 
@@ -24,9 +24,10 @@ CD only pulls/recreates containers. When compose/entrypoint scripts change, sync
 sudo install -m 0755 deploy-service.sh /opt/fgs/deploy-service.sh
 sudo install -m 0755 nginx-https-entrypoint.sh /opt/fgs/nginx-https-entrypoint.sh
 sudo install -m 0644 docker-compose.ec2.yml /opt/fgs/docker-compose.ec2.yml
-# Ensure glo.GloCredential Global:DATABASE includes FgsInventory
+# Ensure glo.GloCredential Global:DATABASE includes FgsInventory / FgsAsset as needed
 sudo /opt/fgs/deploy-service.sh inventory-service dev
-sudo /opt/fgs/deploy-service.sh nginx dev   # reload upstream → inventory-service:5012
+sudo /opt/fgs/deploy-service.sh asset-service dev
+sudo /opt/fgs/deploy-service.sh nginx dev   # reload upstreams
 ```
 
 ## EC2 quick reference
@@ -55,6 +56,7 @@ sudo /opt/fgs/deploy-service.sh bff-service dev
 sudo /opt/fgs/deploy-service.sh notification-service dev
 sudo /opt/fgs/deploy-service.sh file-service dev
 sudo /opt/fgs/deploy-service.sh inventory-service dev
+sudo /opt/fgs/deploy-service.sh asset-service dev
 sudo /opt/fgs/deploy-service.sh consumer-service dev
 sudo /opt/fgs/deploy-service.sh nginx dev
 ```
@@ -69,6 +71,7 @@ docker logs fgs-ec2-audit-service-1 --tail 100
 docker logs fgs-ec2-notification-service-1 --tail 100
 docker logs fgs-ec2-file-service-1 --tail 100
 docker logs fgs-ec2-inventory-service-1 --tail 100
+docker logs fgs-ec2-asset-service-1 --tail 100
 docker logs fgs-ec2-consumer-service-1 --tail 100
 ```
 
