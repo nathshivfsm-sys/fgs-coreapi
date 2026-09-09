@@ -293,8 +293,11 @@ CREDENTIAL_DISTRIBUTION_KEY=fgs-internal-credential-distribution-key
 FGS_PUBLIC_BASE_URL=http://YOUR_PUBLIC_HOST_OR_ALB
 FGS_PUBLIC_SERVICE_PATH=user-service
 
-# SPA Entra OAuth redirect_uri (must also be registered in Entra External ID)
-FGS_UI_AUTH_CALLBACK_URL=https://v40ch9rg-4200.usw3.devtunnels.ms/auth/callback
+# Entra OAuth redirect_uri — register the same URI in Entra External ID
+# API-callback mode (Web redirect URI):
+FGS_UI_AUTH_CALLBACK_URL=https://api-dev.fieldwhizey.com/user-service/api/v1/auth/entra/callback
+# SPA origin after API callback (receives ?token=&refresh_token=)
+FGS_UI_POST_LOGIN_REDIRECT_URL=https://v40ch9rg-4200.usw3.devtunnels.ms
 
 DD_ENV=dev
 DD_SITE=datadoghq.com
@@ -302,29 +305,59 @@ DD_SITE=datadoghq.com
 
 `deploy-service.sh` upserts `FGS_*_IMAGE` lines to channel tags when you deploy.
 
-### 6.2.1 Update SPA callback URL (SSM)
+### 6.2.1 Update Entra callback URLs (SSM) — user-service **1.0.24+**
 
-1. Register the same URI in **Entra External ID** → App registration → Authentication → Redirect URIs (SPA):  
-   `https://v40ch9rg-4200.usw3.devtunnels.ms/auth/callback`
+**Keys in `/opt/fgs/.env`**
+
+| Env key | Maps to | Purpose |
+| --- | --- | --- |
+| `FGS_UI_AUTH_CALLBACK_URL` | `Application__UiAuthCallbackUrl` | Entra `redirect_uri` for login + invite |
+| `FGS_UI_POST_LOGIN_REDIRECT_URL` | `Application__UiPostLoginRedirectUrl` | Browser land after `GET …/auth/entra/callback` |
+
+**Recommended values (API callback + Dev Tunnel SPA)**
+
+```env
+FGS_UI_AUTH_CALLBACK_URL=https://api-dev.fieldwhizey.com/user-service/api/v1/auth/entra/callback
+FGS_UI_POST_LOGIN_REDIRECT_URL=https://v40ch9rg-4200.usw3.devtunnels.ms
+```
+
+1. **Entra External ID** → App registration → Authentication → **Web** redirect URIs — add exactly:  
+   `https://api-dev.fieldwhizey.com/user-service/api/v1/auth/entra/callback`
 2. SSM session:
 
 ```bash
 aws ssm start-session --target INSTANCE_ID --region us-east-1
 ```
 
-3. Edit host env and recreate user-service (picks up `Application__UiAuthCallbackUrl`):
+3. Edit host env and recreate user-service (after deploying image **1.0.24** or newer):
 
 ```bash
 sudo nano /opt/fgs/.env
-# set or update:
-# FGS_UI_AUTH_CALLBACK_URL=https://v40ch9rg-4200.usw3.devtunnels.ms/auth/callback
+# set:
+# FGS_UI_AUTH_CALLBACK_URL=https://api-dev.fieldwhizey.com/user-service/api/v1/auth/entra/callback
+# FGS_UI_POST_LOGIN_REDIRECT_URL=https://v40ch9rg-4200.usw3.devtunnels.ms
 
 cd /opt/fgs
+# If compose file on host is older, sync docker-compose.ec2.yml from the repo first (see § sync host files).
+sudo /opt/fgs/deploy-service.sh user-service dev
+# or, env-only change with image already current:
 sudo docker compose -f docker-compose.ec2.yml up -d --no-deps --force-recreate user-service
 sudo docker compose -f docker-compose.ec2.yml exec user-service printenv Application__UiAuthCallbackUrl
+sudo docker compose -f docker-compose.ec2.yml exec user-service printenv Application__UiPostLoginRedirectUrl
 ```
 
-Expect: `https://v40ch9rg-4200.usw3.devtunnels.ms/auth/callback`
+Expect the two URLs above. Flow: login → Entra → API callback (exchange + invite/provision) → SPA `?token=&refresh_token=` → UI calls `POST /user-service/api/v1/auth/refresh`.
+
+### 6.2.2 Legacy SPA-only callback (optional)
+
+If the SPA redeems the code itself, keep:
+
+```env
+FGS_UI_AUTH_CALLBACK_URL=https://v40ch9rg-4200.usw3.devtunnels.ms/auth/callback
+# FGS_UI_POST_LOGIN_REDIRECT_URL can be omitted
+```
+
+Register that URI as SPA (or Web) in Entra. `POST /auth/entra/token` stays available.
 
 ### 6.3 RabbitMQ two-layer model
 
@@ -653,7 +686,7 @@ sudo /opt/fgs/deploy-service.sh nginx dev
 - [ ] `bootstrap-ec2.sh` completed  
 - [ ] `/opt/fgs/docker-compose.ec2.yml`, `deploy-service.sh`, nginx entrypoint present  
 - [ ] `setup-appsettings.json` — FgsSetup only  
-- [ ] `.env` — RabbitMQ password matches GloCredential; `FGS_PUBLIC_BASE_URL` and `FGS_UI_AUTH_CALLBACK_URL` set  
+- [ ] `.env` — RabbitMQ password matches GloCredential; `FGS_PUBLIC_BASE_URL`, `FGS_UI_AUTH_CALLBACK_URL`, and (API-callback mode) `FGS_UI_POST_LOGIN_REDIRECT_URL` set  
 - [ ] GloCredential providers populated in RDS  
 
 ### First deploy order

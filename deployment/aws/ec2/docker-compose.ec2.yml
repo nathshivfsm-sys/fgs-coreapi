@@ -120,8 +120,10 @@ services:
       Application__PublicBaseUrl: ${FGS_PUBLIC_BASE_URL:?set FGS_PUBLIC_BASE_URL in .env}
       # EC2 uses service-prefixed routes: /user-service/api/v1/...
       Application__PublicServicePath: ${FGS_PUBLIC_SERVICE_PATH:-user-service}
-      # SPA Entra OAuth callback (must match Entra redirect URI registration).
+      # Entra OAuth redirect_uri (SPA /auth/callback OR API /user-service/api/v1/auth/entra/callback).
       Application__UiAuthCallbackUrl: ${FGS_UI_AUTH_CALLBACK_URL:?set FGS_UI_AUTH_CALLBACK_URL in .env}
+      # Browser destination after GET /auth/entra/callback succeeds (SPA origin). Used only for API-callback mode.
+      Application__UiPostLoginRedirectUrl: ${FGS_UI_POST_LOGIN_REDIRECT_URL:-}
     depends_on:
       redis:
         condition: service_healthy

@@ -145,8 +145,9 @@ OAuth and invitation URLs are exposed through the gateway (register the SPA call
 
 | Setting | Local / example value |
 | --- | --- |
-| `Application:UiAuthCallbackUrl` / `FGS_UI_AUTH_CALLBACK_URL` | SPA Entra redirect, e.g. `https://app.example.com/auth/callback` (login + invite/signup). Set in host `.env` for EC2 / local compose. |
-| `EntraExternalId:LoginRedirectUri` | Fallback if `UiAuthCallbackUrl` unset (same SPA URL) |
+| `Application:UiAuthCallbackUrl` / `FGS_UI_AUTH_CALLBACK_URL` | Entra `redirect_uri`: SPA `…/auth/callback` **or** API `…/api/v1/auth/entra/callback` (login + invite). Set in host `.env` for EC2 / local compose. |
+| `Application:UiPostLoginRedirectUrl` / `FGS_UI_POST_LOGIN_REDIRECT_URL` | SPA origin after API callback (e.g. Dev Tunnel). Only needed when `UiAuthCallbackUrl` is the API callback. |
+| `EntraExternalId:LoginRedirectUri` | Fallback if `UiAuthCallbackUrl` unset |
 | `Invitation:InviteBaseUrl` | `https://developer.fsm.com/api/v1/invite/start` |
 | `Application:PublicBaseUrl` | **Preferred** — API gateway origin (`https://developer.fsm.com` local, EC2 IP/ALB). Used for invite/API deep links, not Entra redirect. |
 | `Application:PublicServicePath` | **EC2 only** — e.g. `user-service` → `/user-service/api/v1/invite/start`. Empty locally (flat `/api/v1/...`). |
