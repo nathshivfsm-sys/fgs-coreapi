@@ -1,6 +1,8 @@
 using Asp.Versioning;
+using System.Text.Json;
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
+using Fgs.User.Application.Common;
 using Fgs.User.Application.Features.Auth.Commands.EntraApiConnector;
 using Fgs.User.Application.Features.Auth.Commands.EntraAttributeCollectionStart;
 using Fgs.User.Application.Features.Auth.Commands.ExchangeLoginCode;
@@ -11,6 +13,7 @@ using Fgs.User.Application.Features.Auth.Queries.GetAuthMe;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace Fgs.User.API.Controllers;
 
@@ -19,7 +22,7 @@ namespace Fgs.User.API.Controllers;
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("auth")]
-public sealed class AuthController(IMediator mediator) : FgsApiControllerBase(mediator)
+public sealed class AuthController(IMediator mediator, IConfiguration configuration) : FgsApiControllerBase(mediator)
 {
     /// <summary>
     /// UI login: validates active platform user and returns Entra authorization URL (no invitation logic).
@@ -33,6 +36,70 @@ public sealed class AuthController(IMediator mediator) : FgsApiControllerBase(me
         [FromBody] StartLoginCommand command,
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(command, cancellationToken));
+
+    /// <summary>
+    /// Entra OAuth redirect target: validates <c>code</c>/<c>state</c> (PKCE), then redirects the browser
+    /// to <c>Application:UiPostLoginRedirectUrl</c> with access and refresh tokens.
+    /// </summary>
+    /// <remarks>
+    /// Register this URL as a Web redirect URI in Entra. Prefer HTML navigation over a raw 302 so large
+    /// tokens are not truncated by gateway Location-header limits.
+    /// The UI should call <c>POST /api/v1/auth/refresh</c> with <c>refresh_token</c> to obtain a full Login Profile.
+    /// </remarks>
+    [AllowAnonymous]
+    [HttpGet("entra/callback")]
+    [Produces("text/html", "application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> EntraCallback(
+        [FromQuery] string? code,
+        [FromQuery] string? state,
+        [FromQuery] string? error,
+        [FromQuery(Name = "error_description")] string? errorDescription,
+        CancellationToken cancellationToken)
+    {
+        if (!string.IsNullOrWhiteSpace(error))
+        {
+            var detail = string.IsNullOrWhiteSpace(errorDescription)
+                ? error
+                : $"{error}: {errorDescription}";
+            return StatusCode(
+                StatusCodes.Status400BadRequest,
+                ApiResponse<object>.Fail([detail], ApiStatusCodes.BadRequest));
+        }
+
+        if (string.IsNullOrWhiteSpace(code) || string.IsNullOrWhiteSpace(state))
+        {
+            return StatusCode(
+                StatusCodes.Status400BadRequest,
+                ApiResponse<object>.Fail(
+                    ["Authorization code and state are required."],
+                    ApiStatusCodes.BadRequest));
+        }
+
+        var response = await Mediator.Send(new ExchangeLoginCodeCommand(code, state), cancellationToken);
+        if (!response.Success || response.Data is null)
+        {
+            return StatusCode(response.StatusCode, response);
+        }
+
+        var postLoginBase = ApplicationPublicUrlResolver.ResolveUiPostLoginRedirectUrl(configuration)
+            .TrimEnd('/');
+        var query = new List<string>
+        {
+            $"token={Uri.EscapeDataString(response.Data.AccessToken)}"
+        };
+        if (!string.IsNullOrWhiteSpace(response.Data.RefreshToken))
+        {
+            query.Add($"refresh_token={Uri.EscapeDataString(response.Data.RefreshToken)}");
+        }
+
+        var destination = $"{postLoginBase}?{string.Join("&", query)}";
+
+        return Content(BuildSignInRedirectHtml(destination), "text/html; charset=utf-8");
+    }
 
     /// <summary>
     /// Entra External ID API Connector: resolves signup email to tenant and company claims for token issuance.
@@ -110,4 +177,20 @@ public sealed class AuthController(IMediator mediator) : FgsApiControllerBase(me
         [FromBody] RefreshAuthTokenCommand command,
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(command, cancellationToken));
+
+    private static string BuildSignInRedirectHtml(string destinationUrl) =>
+        $"""
+         <!DOCTYPE html>
+         <html lang="en">
+         <head>
+           <meta charset="utf-8" />
+           <meta name="viewport" content="width=device-width, initial-scale=1" />
+           <title>Signing in...</title>
+         </head>
+         <body>
+           <p>Signing you in...</p>
+           <script>window.location.replace({JsonSerializer.Serialize(destinationUrl)});</script>
+         </body>
+         </html>
+         """;
 }

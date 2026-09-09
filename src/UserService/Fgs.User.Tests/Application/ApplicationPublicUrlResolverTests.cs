@@ -74,6 +74,20 @@ public sealed class ApplicationPublicUrlResolverTests
     }
 
     [Fact]
+    public void ResolveUiPostLoginRedirect_PrefersConfiguredUrl()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Application:UiPostLoginRedirectUrl"] = "https://v40ch9rg-4200.usw3.devtunnels.ms"
+            })
+            .Build();
+
+        ApplicationPublicUrlResolver.ResolveUiPostLoginRedirectUrl(configuration)
+            .Should().Be("https://v40ch9rg-4200.usw3.devtunnels.ms");
+    }
+
+    [Fact]
     public void ResolveUiAuthCallback_DoesNotUsePublicBaseApiPath()
     {
         var configuration = new ConfigurationBuilder()
@@ -86,7 +100,5 @@ public sealed class ApplicationPublicUrlResolverTests
 
         ApplicationPublicUrlResolver.ResolveUiAuthCallbackUrl(configuration)
             .Should().Be(ApplicationUrlDefaults.UiAuthCallback);
-        ApplicationPublicUrlResolver.ResolveUiAuthCallbackUrl(configuration)
-            .Should().NotContain("/api/v1/auth/entra/callback");
     }
 }

@@ -14,5 +14,10 @@ public static class ApplicationUrlDefaults
     /// </summary>
     public const string UiAuthCallback = "https://developer.fsm.com/auth/callback";
 
+    /// <summary>
+    /// Fallback SPA origin after API Entra callback succeeds.
+    /// </summary>
+    public const string UiPostLoginRedirect = "https://developer.fsm.com";
+
     public const string InviteStart = "https://developer.fsm.com" + InviteStartPath;
 }

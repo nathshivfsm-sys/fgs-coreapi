@@ -4,7 +4,7 @@ namespace Fgs.User.Application.Common;
 
 /// <summary>
 /// Resolves public gateway and UI URLs per environment.
-/// Entra OAuth redirect uses <c>Application:UiAuthCallbackUrl</c> (SPA), not the API gateway path.
+/// Entra OAuth redirect uses <c>Application:UiAuthCallbackUrl</c> (SPA or API callback).
 /// Optional <c>Application:PublicServicePath</c> inserts the Docker service name
 /// (EC2: <c>/user-service/api/v1/...</c>; local: flat <c>/api/v1/...</c>) for API deep links only.
 /// </summary>
@@ -20,10 +20,20 @@ public static class ApplicationPublicUrlResolver
             ApplicationUrlDefaults.UiAuthCallback)!;
 
     /// <summary>
-    /// Entra authorize/token redirect URI for login and invite/signup (SPA callback).
+    /// Entra authorize/token redirect URI for login and invite/signup.
     /// </summary>
     public static string ResolveLoginRedirect(IConfiguration configuration) =>
         ResolveUiAuthCallbackUrl(configuration);
+
+    /// <summary>
+    /// Browser destination after GET /auth/entra/callback succeeds.
+    /// </summary>
+    public static string ResolveUiPostLoginRedirectUrl(IConfiguration configuration) =>
+        FirstNonEmpty(
+            configuration[ConfigurationKeys.Application.UiPostLoginRedirectUrl],
+            configuration["FGS_UI_POST_LOGIN_REDIRECT_URL"],
+            Environment.GetEnvironmentVariable("FGS_UI_POST_LOGIN_REDIRECT_URL"),
+            ApplicationUrlDefaults.UiPostLoginRedirect)!;
 
     public static string ResolveInviteBaseUrl(IConfiguration configuration) =>
         ResolveFromPublicBase(configuration, ApplicationUrlDefaults.InviteStartPath)

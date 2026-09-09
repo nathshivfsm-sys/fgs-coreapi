@@ -37,9 +37,16 @@ public static class ConfigurationKeys
 
         /// <summary>
         /// SPA URL registered as the Entra External ID OAuth redirect URI
-        /// (login + invite/signup), e.g. https://app.example.com/auth/callback.
+        /// (login + invite/signup), e.g. https://app.example.com/auth/callback
+        /// or an API callback such as https://localhost:7101/api/v1/auth/entra/callback.
         /// </summary>
         public const string UiAuthCallbackUrl = $"{Section}:UiAuthCallbackUrl";
+
+        /// <summary>
+        /// Browser destination after a successful API Entra callback exchange
+        /// (e.g. SPA origin). Used by GET /auth/entra/callback.
+        /// </summary>
+        public const string UiPostLoginRedirectUrl = $"{Section}:UiPostLoginRedirectUrl";
     }
 
     public static class Invitation
