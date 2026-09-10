@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "fgs-user-auth-flow",
     "name": "FGS User Service Auth",
-    "description": "Company signup through Entra token issuance.\n\nFlow:\n1. Company Signup — creates tenant/user and returns inviteUrl\n2. Start Invitation — captures Entra authorize URL (disable follow redirects)\n3. Manual — open Entra URL in browser, sign up with the same email, copy OAuth `code` from callback URL into `authCode`\n4. Entra Token Exchange — obtain access token\n5. Auth Me / Get Tenant — call protected APIs with Bearer token",
+    "description": "Company signup through Entra token issuance.\n\nFlow:\n1. Company Signup — creates tenant/user and returns inviteUrl\n2. Start Invitation — captures Entra authorize URL (disable follow redirects)\n3. Manual — open Entra URL in browser, sign up with the same email, copy OAuth `code` from callback URL into `authCode`\n4. Entra Token Exchange — obtain access token (store raw JWT in `accessToken`; do not prefix with Bearer)\n5. Auth Me / Get Tenant — protected APIs use Auth type Bearer Token with `{{accessToken}}` (Postman adds the Bearer prefix)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

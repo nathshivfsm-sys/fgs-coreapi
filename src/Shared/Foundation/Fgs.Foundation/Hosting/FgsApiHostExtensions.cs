@@ -16,6 +16,9 @@ namespace Fgs.Foundation.Hosting;
 
 public static class FgsApiHostExtensions
 {
+    /// <summary>Default CORS policy name: allow any origin, header, and method.</summary>
+    public const string AllowAllCorsPolicyName = "FgsAllowAll";
+
     public static FgsApiHostOptions AddFgsApiHost(
         this WebApplicationBuilder builder,
         Action<FgsApiHostOptions> configure)
@@ -30,6 +33,14 @@ public static class FgsApiHostExtensions
                 forwarded.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             });
         }
+
+        builder.Services.AddCors(cors =>
+        {
+            cors.AddPolicy(AllowAllCorsPolicyName, policy =>
+                policy.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod());
+        });
 
         builder.Services.AddFgsApiVersioning();
         builder.Services.AddFgsHttpIdempotency();
@@ -102,6 +113,9 @@ public static class FgsApiHostExtensions
         {
             app.UseForwardedHeaders();
         }
+
+        // Before auth so browser preflight (OPTIONS) succeeds for any origin.
+        app.UseCors(AllowAllCorsPolicyName);
 
         if (options.UseResponseCompression)
         {

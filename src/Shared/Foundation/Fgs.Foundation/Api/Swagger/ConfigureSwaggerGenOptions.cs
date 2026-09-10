@@ -33,7 +33,9 @@ internal sealed class ConfigureSwaggerGenOptions : IConfigureOptions<SwaggerGenO
             Scheme = "bearer",
             BearerFormat = "JWT",
             In = ParameterLocation.Header,
-            Description = "Microsoft Entra External ID access token."
+            Description =
+                "Paste the Microsoft Entra External ID JWT only. "
+                + "Swagger UI sends Authorization: Bearer {token} automatically — do not type the Bearer prefix."
         });
 
         options.AddSecurityRequirement(document => new OpenApiSecurityRequirement

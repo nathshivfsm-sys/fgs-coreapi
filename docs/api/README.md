@@ -76,6 +76,13 @@ FGS Local Docker / FGS EC2 Dev
 
 Environments hold secrets (`accessToken`, `tenantId`, `redirectUri`, etc.), not gateway URLs.
 
+## Authorization (Bearer)
+
+Collections use Postman **Auth type: Bearer Token** with `{{accessToken}}` (the raw JWT only).
+
+- Do **not** put `Bearer ` in the token value or in the `accessToken` environment variable.
+- Postman sends `Authorization: Bearer {accessToken}` automatically (same as Swagger UI Authorize).
+
 ## Regenerate
 
 After controller changes:
