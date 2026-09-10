@@ -20,8 +20,9 @@ x-service-network: &service-network
 
 # Testing: Datadog logs-only for setup-service + user-service; off for all other APIs.
 # No agent/OTLP — Serilog ships logs via Datadog Logs API when DD_API_KEY (or credential ApiKey) is set.
+# TEMPORARY: Datadog__Enabled forced false for all apps (also TemporarilyDisableDatadogLogShipping in Observability).
 x-datadog-env-on: &datadog-env-on
-  Datadog__Enabled: "true"
+  Datadog__Enabled: "false"
   Datadog__ApiKey: ${DD_API_KEY:-}
   Datadog__Site: ${DD_SITE:-datadoghq.com}
   Datadog__AgentHost: ""
@@ -226,8 +227,8 @@ services:
       dockerfile: src/Gateway/docker/user-service.Dockerfile
     environment:
       <<: *credential-consumer-env
-      # Override shared off defaults — Datadog logs-only for user-service (with setup-service).
-      Datadog__Enabled: "true"
+      # TEMPORARY: keep Datadog logs off (was logs-only for user-service).
+      Datadog__Enabled: "false"
       Datadog__ApiKey: ${DD_API_KEY:-}
       Datadog__AgentHost: ""
       Datadog__EnableApm: "false"

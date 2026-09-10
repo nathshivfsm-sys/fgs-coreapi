@@ -43,6 +43,11 @@ public static class ObservabilityHostExtensions
             o.Env = observability.Env;
             o.Version = observability.Version;
             o.EnableLlmObs = false;
+            // TEMPORARY: keep options in sync with ReloadableDatadogLogsSink kill switch.
+            if (ReloadableDatadogLogsSink.TemporarilyDisableDatadogLogShipping)
+            {
+                o.Enabled = false;
+            }
             if (string.IsNullOrWhiteSpace(o.ApiKey))
             {
                 o.ApiKey = datadog.ApiKey;

@@ -13,6 +13,12 @@ namespace Fgs.Observability.Logging;
 /// </summary>
 internal sealed class ReloadableDatadogLogsSink : ILogEventSink, IDisposable
 {
+    /// <summary>
+    /// TEMPORARY: when true, no app ships logs to Datadog (console Serilog still runs).
+    /// Set to false to restore Datadog log intake.
+    /// </summary>
+    internal const bool TemporarilyDisableDatadogLogShipping = true;
+
     private readonly object _sync = new();
     private readonly string _serviceName;
     private readonly string _env;
@@ -119,7 +125,7 @@ internal sealed class ReloadableDatadogLogsSink : ILogEventSink, IDisposable
             "datadoghq.com")!;
 
         return new DatadogLogShippingState(
-            Enabled: options.Enabled,
+            Enabled: !TemporarilyDisableDatadogLogShipping && options.Enabled,
             ApiKey: apiKey,
             Site: site.Trim().TrimEnd('/'));
     }

@@ -16,8 +16,9 @@ x-app-network: &app-network
   restart: unless-stopped
 
 # Logs-only Datadog (Serilog → Datadog Logs API). ApiKey from glo.GloCredential Global:DATADOG.
+# TEMPORARY: Datadog log shipping off for all EC2 apps (re-enable with "true" + TemporarilyDisableDatadogLogShipping=false).
 x-datadog-env: &datadog-env
-  Datadog__Enabled: "true"
+  Datadog__Enabled: "false"
   Datadog__Site: ${DD_SITE:-datadoghq.com}
   Datadog__Env: ${DD_ENV:-dev}
   Datadog__Version: ${DD_VERSION:-}
