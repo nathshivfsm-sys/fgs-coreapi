@@ -20,6 +20,7 @@ This runbook is derived from repository files only:
 | `deployment/aws/ec2/Push-Ec2Files.ps1` | Push compose/deploy scripts via SSM |
 | `deployment/aws/manual-guide/GITHUB_ACTIONS_CD_EC2.md` | IAM, SSM CD, troubleshooting |
 | `deployment/aws/manual-guide/EC2_FULL_SETUP_AND_CD.md` | Full setup, health checks, checklist |
+| `deployment/aws/manual-guide/FGS_EC2_SSM_CLONE_HOST_INTERACTIVE.md` | Clone host: interactive SSM, git `dev`, TLS subdomain, full deploy |
 | `deployment/aws/terraform/iam.tf` | EC2 role / SSM session operator policies |
 | `.github/workflows/reusable-deploy-ec2.yml` | CD SendCommand pattern |
 
