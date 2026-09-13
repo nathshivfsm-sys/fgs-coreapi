@@ -98,4 +98,28 @@ public sealed class RedisConsumerIdempotencyStoreTests
         result.Should().BeFalse();
         multiplexer.VerifyNoOtherCalls();
     }
+
+    [Fact]
+    public async Task TryReleaseAsync_DeletesKey()
+    {
+        var database = new Mock<IDatabase>();
+        database
+            .Setup(d => d.KeyDeleteAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(true);
+
+        var multiplexer = new Mock<IConnectionMultiplexer>();
+        multiplexer.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(database.Object);
+
+        var store = new RedisConsumerIdempotencyStore(
+            multiplexer.Object,
+            NullLogger<RedisConsumerIdempotencyStore>.Instance);
+
+        await store.TryReleaseAsync("msg-1", "tenant.provision.requested");
+
+        database.Verify(
+            d => d.KeyDeleteAsync(
+                (RedisKey)"fgs:consumer:idempotency:tenant.provision.requested:msg-1",
+                It.IsAny<CommandFlags>()),
+            Times.Once);
+    }
 }

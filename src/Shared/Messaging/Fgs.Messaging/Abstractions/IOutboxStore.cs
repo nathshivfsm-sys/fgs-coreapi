@@ -8,6 +8,12 @@ public interface IOutboxStore
         int batchSize,
         CancellationToken cancellationToken);
 
+    Task HeartbeatProcessingAsync(
+        string sourceKey,
+        long messageId,
+        DateTimeOffset updatedOn,
+        CancellationToken cancellationToken);
+
     Task MarkPublishedAsync(
         string sourceKey,
         long messageId,

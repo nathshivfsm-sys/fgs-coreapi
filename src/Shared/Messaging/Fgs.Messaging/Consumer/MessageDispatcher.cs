@@ -28,7 +28,8 @@ public sealed class MessageDispatcher(
             return;
         }
 
-        if (await idempotency.HasBeenProcessedAsync(context.MessageId, routingKey, cancellationToken))
+        // Acquire-before-handle so PrefetchCount / multi-replica cannot run the handler twice.
+        if (!await idempotency.TryMarkProcessedAsync(context.MessageId, routingKey, cancellationToken))
         {
             _metrics.Increment("rabbitmq.consumer_duplicate");
             logger.LogInformation(
@@ -49,12 +50,12 @@ public sealed class MessageDispatcher(
         try
         {
             await router.RouteAsync(routingKey, body, context, cancellationToken);
-            await idempotency.TryMarkProcessedAsync(context.MessageId, routingKey, cancellationToken);
             _metrics.Increment("rabbitmq.consume");
             _metrics.Histogram("rabbitmq.consume_latency_ms", sw.Elapsed.TotalMilliseconds);
         }
         catch
         {
+            await idempotency.TryReleaseAsync(context.MessageId, routingKey, cancellationToken);
             _metrics.Increment("rabbitmq.consume_failure");
             throw;
         }

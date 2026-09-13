@@ -12,6 +12,11 @@ public interface ISchemaOutboxSource
         int batchSize,
         CancellationToken cancellationToken);
 
+    Task HeartbeatProcessingAsync(
+        long messageId,
+        DateTimeOffset updatedOn,
+        CancellationToken cancellationToken);
+
     Task MarkPublishedAsync(
         long messageId,
         DateTimeOffset processedOn,

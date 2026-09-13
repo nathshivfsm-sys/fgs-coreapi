@@ -10,12 +10,12 @@ public sealed class MessageDispatcherTests
     private readonly Mock<IConsumerIdempotencyStore> _idempotency = new();
 
     [Fact]
-    public async Task DispatchAsync_WhenAlreadyProcessed_SkipsRoutingAndDoesNotMark()
+    public async Task DispatchAsync_WhenMarkFails_SkipsRoutingAndDoesNotRelease()
     {
         _router.Setup(r => r.CanRoute("tenant.provision.requested")).Returns(true);
         _idempotency
-            .Setup(i => i.HasBeenProcessedAsync("msg-1", "tenant.provision.requested", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+            .Setup(i => i.TryMarkProcessedAsync("msg-1", "tenant.provision.requested", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         var dispatcher = CreateDispatcher();
         await dispatcher.DispatchAsync(
@@ -32,18 +32,22 @@ public sealed class MessageDispatcherTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
         _idempotency.Verify(
-            i => i.TryMarkProcessedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            i => i.TryReleaseAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
     [Fact]
-    public async Task DispatchAsync_WhenRoutingSucceeds_MarksProcessedAfterRoute()
+    public async Task DispatchAsync_WhenRoutingSucceeds_MarksBeforeRouteAndDoesNotRelease()
     {
         var markCalled = false;
         _router.Setup(r => r.CanRoute("tenant.provision.requested")).Returns(true);
         _idempotency
-            .Setup(i => i.HasBeenProcessedAsync("msg-1", "tenant.provision.requested", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .Setup(i => i.TryMarkProcessedAsync("msg-1", "tenant.provision.requested", It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                markCalled = true;
+                return Task.FromResult(true);
+            });
         _router
             .Setup(r => r.RouteAsync(
                 "tenant.provision.requested",
@@ -52,15 +56,8 @@ public sealed class MessageDispatcherTests
                 It.IsAny<CancellationToken>()))
             .Returns(() =>
             {
-                markCalled.Should().BeFalse();
+                markCalled.Should().BeTrue();
                 return Task.CompletedTask;
-            });
-        _idempotency
-            .Setup(i => i.TryMarkProcessedAsync("msg-1", "tenant.provision.requested", It.IsAny<CancellationToken>()))
-            .Returns(() =>
-            {
-                markCalled = true;
-                return Task.FromResult(true);
             });
 
         var dispatcher = CreateDispatcher();
@@ -78,15 +75,18 @@ public sealed class MessageDispatcherTests
                 It.IsAny<ConsumerMessageContext>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+        _idempotency.Verify(
+            i => i.TryReleaseAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
-    public async Task DispatchAsync_WhenRoutingFails_DoesNotMarkProcessed()
+    public async Task DispatchAsync_WhenRoutingFails_ReleasesMarkForRetry()
     {
         _router.Setup(r => r.CanRoute("tenant.provision.requested")).Returns(true);
         _idempotency
-            .Setup(i => i.HasBeenProcessedAsync("msg-1", "tenant.provision.requested", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .Setup(i => i.TryMarkProcessedAsync("msg-1", "tenant.provision.requested", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         _router
             .Setup(r => r.RouteAsync(
                 It.IsAny<string>(),
@@ -104,8 +104,8 @@ public sealed class MessageDispatcherTests
 
         await act.Should().ThrowAsync<InvalidOperationException>();
         _idempotency.Verify(
-            i => i.TryMarkProcessedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+            i => i.TryReleaseAsync("msg-1", "tenant.provision.requested", It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -113,11 +113,11 @@ public sealed class MessageDispatcherTests
     {
         _router.Setup(r => r.CanRoute("tenant.provision.requested")).Returns(true);
         _idempotency
-            .Setup(i => i.HasBeenProcessedAsync("msg-1", "tenant.provision.requested", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-        _idempotency
             .Setup(i => i.TryMarkProcessedAsync("msg-1", "tenant.provision.requested", It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
+        _idempotency
+            .Setup(i => i.TryReleaseAsync("msg-1", "tenant.provision.requested", It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         var attempts = 0;
         _router
@@ -148,8 +148,8 @@ public sealed class MessageDispatcherTests
             CancellationToken.None);
         await first.Should().ThrowAsync<InvalidOperationException>();
         _idempotency.Verify(
-            i => i.TryMarkProcessedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+            i => i.TryReleaseAsync("msg-1", "tenant.provision.requested", It.IsAny<CancellationToken>()),
+            Times.Once);
 
         await dispatcher.DispatchAsync(
             "tenant.provision.requested",
@@ -166,6 +166,9 @@ public sealed class MessageDispatcherTests
             Times.Exactly(2));
         _idempotency.Verify(
             i => i.TryMarkProcessedAsync("msg-1", "tenant.provision.requested", It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+        _idempotency.Verify(
+            i => i.TryReleaseAsync("msg-1", "tenant.provision.requested", It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -182,10 +185,10 @@ public sealed class MessageDispatcherTests
             CancellationToken.None);
 
         _idempotency.Verify(
-            i => i.HasBeenProcessedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            i => i.TryMarkProcessedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
         _idempotency.Verify(
-            i => i.TryMarkProcessedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            i => i.TryReleaseAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

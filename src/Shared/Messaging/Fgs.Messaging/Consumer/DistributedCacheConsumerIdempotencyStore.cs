@@ -55,6 +55,19 @@ public sealed class DistributedCacheConsumerIdempotencyStore(
         return true;
     }
 
+    public Task TryReleaseAsync(
+        string messageId,
+        string routingKey,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(messageId))
+        {
+            return Task.CompletedTask;
+        }
+
+        return cache.RemoveAsync(BuildKey(messageId, routingKey), cancellationToken);
+    }
+
     internal static string BuildKey(string messageId, string routingKey) =>
         $"fgs:consumer:idempotency:{routingKey}:{messageId}";
 }

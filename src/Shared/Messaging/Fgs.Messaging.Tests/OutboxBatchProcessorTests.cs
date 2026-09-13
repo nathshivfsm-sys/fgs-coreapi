@@ -65,6 +65,9 @@ public sealed class OutboxBatchProcessorTests
             Times.Once);
 
         store.Verify(
+            s => s.HeartbeatProcessingAsync("tenant", 10, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        store.Verify(
             s => s.MarkPublishedAsync("tenant", 10, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }

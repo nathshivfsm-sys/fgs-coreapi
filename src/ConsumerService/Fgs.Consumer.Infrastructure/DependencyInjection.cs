@@ -58,16 +58,16 @@ public static class DependencyInjection
         services.AddSingleton<IConsumerIdempotencyStore>(sp =>
         {
             var redisOptions = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<RedisCacheOptions>>().Value;
-            if (CacheServiceCollectionExtensions.IsRedisConfigured(redisOptions))
+            if (!CacheServiceCollectionExtensions.IsRedisConfigured(redisOptions))
             {
-                return new RedisConsumerIdempotencyStore(
-                    sp.GetRequiredService<IConnectionMultiplexer>(),
-                    sp.GetRequiredService<ILogger<RedisConsumerIdempotencyStore>>());
+                throw new InvalidOperationException(
+                    "ConsumerService requires Redis for shared consumer idempotency. " +
+                    "Configure Redis (RedisCacheOptions) so multi-instance consumers share lease state.");
             }
 
-            return new DistributedCacheConsumerIdempotencyStore(
-                sp.GetRequiredService<Microsoft.Extensions.Caching.Distributed.IDistributedCache>(),
-                sp.GetRequiredService<ILogger<DistributedCacheConsumerIdempotencyStore>>());
+            return new RedisConsumerIdempotencyStore(
+                sp.GetRequiredService<IConnectionMultiplexer>(),
+                sp.GetRequiredService<ILogger<RedisConsumerIdempotencyStore>>());
         });
 
         services.AddScoped<IConsumerMessageRouter, MediatRConsumerMessageRouter>();

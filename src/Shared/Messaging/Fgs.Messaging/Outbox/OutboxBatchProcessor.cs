@@ -28,12 +28,17 @@ public sealed class OutboxBatchProcessor(
 
         _metrics.Gauge("outbox.pending", messages.Count);
 
-        var now = DateTimeOffset.UtcNow;
-
         foreach (var message in messages)
         {
             try
             {
+                // Keep Processing rows fresh so another replica's stale reclaim cannot steal mid-batch.
+                await store.HeartbeatProcessingAsync(
+                    message.SourceKey,
+                    message.Id,
+                    DateTimeOffset.UtcNow,
+                    cancellationToken);
+
                 var destination = destinationResolver.Resolve(message);
 
                 logger.LogInformation(
@@ -51,7 +56,7 @@ public sealed class OutboxBatchProcessor(
                     BuildStableMessageId(message),
                     cancellationToken);
 
-                await store.MarkPublishedAsync(message.SourceKey, message.Id, now, cancellationToken);
+                await store.MarkPublishedAsync(message.SourceKey, message.Id, DateTimeOffset.UtcNow, cancellationToken);
                 _metrics.Increment("outbox.published");
             }
             catch (Exception ex)
@@ -62,7 +67,7 @@ public sealed class OutboxBatchProcessor(
 
                 DateTimeOffset? nextRetryOn = isFailed
                     ? null
-                    : now.AddSeconds(Math.Pow(2, retryCount));
+                    : DateTimeOffset.UtcNow.AddSeconds(Math.Pow(2, retryCount));
 
                 if (isFailed)
                 {

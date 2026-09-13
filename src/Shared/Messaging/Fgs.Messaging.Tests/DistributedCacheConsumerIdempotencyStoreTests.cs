@@ -51,4 +51,18 @@ public sealed class DistributedCacheConsumerIdempotencyStoreTests
         await store.TryMarkProcessedAsync("msg-1", "tenant.provision.requested");
         (await store.HasBeenProcessedAsync("msg-1", "tenant.provision.requested")).Should().BeTrue();
     }
+
+    [Fact]
+    public async Task TryReleaseAsync_AllowsRemarkAfterFailure()
+    {
+        var cache = new MemoryDistributedCache(
+            Microsoft.Extensions.Options.Options.Create(new MemoryDistributedCacheOptions()));
+        var store = new DistributedCacheConsumerIdempotencyStore(
+            cache,
+            NullLogger<DistributedCacheConsumerIdempotencyStore>.Instance);
+
+        (await store.TryMarkProcessedAsync("msg-1", "tenant.provision.requested")).Should().BeTrue();
+        await store.TryReleaseAsync("msg-1", "tenant.provision.requested");
+        (await store.TryMarkProcessedAsync("msg-1", "tenant.provision.requested")).Should().BeTrue();
+    }
 }

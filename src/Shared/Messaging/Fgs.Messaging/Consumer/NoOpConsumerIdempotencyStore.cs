@@ -13,4 +13,10 @@ public sealed class NoOpConsumerIdempotencyStore : IConsumerIdempotencyStore
         string routingKey,
         CancellationToken cancellationToken = default) =>
         Task.FromResult(true);
+
+    public Task TryReleaseAsync(
+        string messageId,
+        string routingKey,
+        CancellationToken cancellationToken = default) =>
+        Task.CompletedTask;
 }

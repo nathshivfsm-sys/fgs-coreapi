@@ -50,4 +50,19 @@ public sealed class RedisConsumerIdempotencyStore(
 
         return created;
     }
+
+    public async Task TryReleaseAsync(
+        string messageId,
+        string routingKey,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(messageId))
+        {
+            return;
+        }
+
+        var key = DistributedCacheConsumerIdempotencyStore.BuildKey(messageId, routingKey);
+        var database = connectionMultiplexer.GetDatabase();
+        await database.KeyDeleteAsync(key);
+    }
 }

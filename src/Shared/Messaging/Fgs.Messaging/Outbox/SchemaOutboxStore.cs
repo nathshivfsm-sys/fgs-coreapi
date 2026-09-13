@@ -11,7 +11,11 @@ public sealed partial class SchemaOutboxStore : ISchemaOutboxSource
     private const string StatusPublished = "Published";
     private const string StatusRetry = "Retry";
     private const string StatusFailed = "Failed";
-    private static readonly TimeSpan StaleProcessingThreshold = TimeSpan.FromMinutes(2);
+    /// <summary>
+    /// Rows in Processing older than this are returned to Pending.
+    /// OutboxBatchProcessor heartbeats UpdatedOn before each publish so active work is not stolen.
+    /// </summary>
+    private static readonly TimeSpan StaleProcessingThreshold = TimeSpan.FromMinutes(5);
 
     private readonly Func<string> _connectionStringFactory;
     private readonly string _qualifiedTable;
@@ -132,6 +136,26 @@ public sealed partial class SchemaOutboxStore : ISchemaOutboxSource
         return rows;
     }
 
+    public async Task HeartbeatProcessingAsync(
+        long messageId,
+        DateTimeOffset updatedOn,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            UPDATE {0}
+            SET "UpdatedOn" = @updatedOn
+            WHERE "Id" = @id
+                AND "Status" = @processingStatus
+            """;
+
+        await ExecuteNonQueryAsync(
+            string.Format(sql, _qualifiedTable),
+            cancellationToken,
+            new NpgsqlParameter("updatedOn", updatedOn),
+            new NpgsqlParameter("id", messageId),
+            new NpgsqlParameter("processingStatus", StatusProcessing));
+    }
+
     public async Task MarkPublishedAsync(
         long messageId,
         DateTimeOffset processedOn,
@@ -141,6 +165,7 @@ public sealed partial class SchemaOutboxStore : ISchemaOutboxSource
             UPDATE {0}
             SET "Status" = @status,
                 "ProcessedOn" = @processedOn,
+                "UpdatedOn" = @processedOn,
                 "LastError" = NULL,
                 "NextRetryOn" = NULL
             WHERE "Id" = @id
@@ -167,7 +192,8 @@ public sealed partial class SchemaOutboxStore : ISchemaOutboxSource
             SET "Status" = @status,
                 "RetryCount" = @retryCount,
                 "LastError" = @lastError,
-                "NextRetryOn" = @nextRetryOn
+                "NextRetryOn" = @nextRetryOn,
+                "UpdatedOn" = @updatedOn
             WHERE "Id" = @id
             """;
 
@@ -178,6 +204,7 @@ public sealed partial class SchemaOutboxStore : ISchemaOutboxSource
             new NpgsqlParameter("retryCount", retryCount),
             new NpgsqlParameter("lastError", lastError),
             new NpgsqlParameter("nextRetryOn", (object?)nextRetryOn ?? DBNull.Value),
+            new NpgsqlParameter("updatedOn", DateTimeOffset.UtcNow),
             new NpgsqlParameter("id", messageId));
     }
 
