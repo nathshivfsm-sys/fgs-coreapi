@@ -42,10 +42,14 @@ public sealed class EntraAttributeCollectionStartCommandHandler(
         }
 
         var emailIdentity = identities.FirstOrDefault(i =>
-            string.Equals(i.SignInType, "email", StringComparison.OrdinalIgnoreCase)
+            IsEmailSignInType(i.SignInType)
             && !string.IsNullOrWhiteSpace(i.IssuerAssignedId));
 
         return emailIdentity?.IssuerAssignedId
             ?? identities.FirstOrDefault(i => !string.IsNullOrWhiteSpace(i.IssuerAssignedId))?.IssuerAssignedId;
     }
+
+    private static bool IsEmailSignInType(string? signInType) =>
+        string.Equals(signInType, "email", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(signInType, "emailAddress", StringComparison.OrdinalIgnoreCase);
 }

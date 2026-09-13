@@ -34,8 +34,9 @@ public sealed class FgsUserProfileResolver(
         string normalizedEmail,
         CancellationToken cancellationToken = default)
     {
+        // Emails are stored trimmed (original case); match the StartLogin / uniqueness pattern.
         var user = await userReadRepository.FirstOrDefaultAsync(
-            "\"Email\" = @email AND \"IsActive\" = true AND \"IsDeleted\" = false",
+            "UPPER(\"Email\") = @email AND \"IsActive\" = true AND \"IsDeleted\" = false",
             new { email = normalizedEmail },
             cancellationToken);
 

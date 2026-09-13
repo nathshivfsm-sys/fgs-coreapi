@@ -36,14 +36,14 @@ internal static class TestUserRepositories
 
         mock
             .Setup(r => r.FirstOrDefaultAsync(
-                It.Is<string>(w => w.Contains("\"Email\"", StringComparison.Ordinal)),
+                It.Is<string>(w => w.Contains("Email", StringComparison.Ordinal)),
                 It.IsAny<object>(),
                 It.IsAny<CancellationToken>()))
             .Returns<string, object, CancellationToken>(async (_, parameters, cancellationToken) =>
             {
                 var email = parameters.GetType().GetProperty("email")?.GetValue(parameters) as string;
                 return await context.FgsUsers.FirstOrDefaultAsync(
-                    u => u.Email == email && u.IsActive && !u.IsDeleted,
+                    u => u.Email.ToUpper() == email && u.IsActive && !u.IsDeleted,
                     cancellationToken);
             });
 

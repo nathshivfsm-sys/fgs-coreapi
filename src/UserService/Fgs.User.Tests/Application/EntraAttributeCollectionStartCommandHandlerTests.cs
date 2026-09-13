@@ -59,6 +59,46 @@ public sealed class EntraAttributeCollectionStartCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_WithStoredMixedCaseEmail_PrefillsDisplayName()
+    {
+        // Company signup stores Email trimmed (original case), while Entra may send lowercase.
+        await using var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        await SeedUserWithInvitationAsync(
+            context,
+            "Admin@Acme.com",
+            "Jane Admin",
+            storeEmailAsNormalized: false);
+
+        var handler = CreateHandler(context);
+        var response = await handler.Handle(
+            new EntraAttributeCollectionStartCommand(CreateRequest("admin@acme.com")),
+            CancellationToken.None);
+
+        var action = response.Data.Actions.Should().ContainSingle().Subject;
+        action.ODataType.Should().Be("microsoft.graph.attributeCollectionStart.setPrefillValues");
+        action.Inputs.Should().ContainKey("displayName").WhoseValue.Should().Be("Jane Admin");
+    }
+
+    [Fact]
+    public async Task Handle_WithEmailAddressSignInType_PrefillsDisplayName()
+    {
+        await using var context = await TestDbContextFactory.CreateAndInitializeAsync();
+        await SeedUserWithInvitationAsync(context, "admin@test.com", "Jane Admin");
+
+        var request = CreateRequest("admin@test.com");
+        request.Data!.UserSignUpInfo!.Identities![0].SignInType = "emailAddress";
+
+        var handler = CreateHandler(context);
+        var response = await handler.Handle(
+            new EntraAttributeCollectionStartCommand(request),
+            CancellationToken.None);
+
+        var action = response.Data.Actions.Should().ContainSingle().Subject;
+        action.ODataType.Should().Be("microsoft.graph.attributeCollectionStart.setPrefillValues");
+        action.Inputs.Should().ContainKey("displayName").WhoseValue.Should().Be("Jane Admin");
+    }
+
+    [Fact]
     public async Task Handle_WithMissingEmail_ContinuesWithoutPrefill()
     {
         await using var context = await TestDbContextFactory.CreateAndInitializeAsync();
@@ -115,7 +155,8 @@ public sealed class EntraAttributeCollectionStartCommandHandlerTests
     private static async Task SeedUserWithInvitationAsync(
         FgsUserDbContext context,
         string email,
-        string displayName)
+        string displayName,
+        bool storeEmailAsNormalized = true)
     {
         const long companyId = 1;
         var userId = Guid.NewGuid();
@@ -152,12 +193,15 @@ public sealed class EntraAttributeCollectionStartCommandHandlerTests
             IsActive = true,
             UpdatedOn = DateTimeOffset.UtcNow
         });
+        var storedEmail = storeEmailAsNormalized
+            ? email.Trim().ToUpperInvariant()
+            : email.Trim();
         context.FgsUsers.Add(new FgsUser
         {
             Id = userId,
             TenantId = tenantId,
             CompanyId = companyId,
-            Email = email.Trim().ToUpperInvariant(),
+            Email = storedEmail,
             DisplayName = displayName,
             IsActive = true,
             CreatedOn = DateTimeOffset.UtcNow
@@ -167,7 +211,7 @@ public sealed class EntraAttributeCollectionStartCommandHandlerTests
             Id = Guid.NewGuid(),
             UserId = userId,
             TenantId = tenantId,
-            Email = email,
+            Email = email.Trim(),
             TokenHash = "hash",
             Status = InvitationStatus.Pending,
             ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(1),
