@@ -66,6 +66,7 @@ Status and logs:
 ```bash
 cd /opt/fgs
 docker compose -f docker-compose.ec2.yml ps
+docker stats --no-stream
 docker logs fgs-ec2-setup-service-1 --tail 100
 docker logs fgs-ec2-audit-service-1 --tail 100
 docker logs fgs-ec2-notification-service-1 --tail 100
@@ -73,6 +74,13 @@ docker logs fgs-ec2-file-service-1 --tail 100
 docker logs fgs-ec2-inventory-service-1 --tail 100
 docker logs fgs-ec2-asset-service-1 --tail 100
 docker logs fgs-ec2-consumer-service-1 --tail 100
+```
+
+On **t3.medium (4 GB)**, compose sets per-service `mem_limit` (~2.7 GiB total) and app healthchecks every **120s**. After changing `docker-compose.ec2.yml` on the host, recreate containers so limits apply:
+
+```bash
+sudo install -m 0644 docker-compose.ec2.yml /opt/fgs/docker-compose.ec2.yml
+cd /opt/fgs && sudo docker compose -f docker-compose.ec2.yml up -d
 ```
 
 Full guide: [GITHUB_ACTIONS_CD_EC2.md](../manual-guide/GITHUB_ACTIONS_CD_EC2.md), [EC2_FULL_SETUP_AND_CD.md](../manual-guide/EC2_FULL_SETUP_AND_CD.md).
