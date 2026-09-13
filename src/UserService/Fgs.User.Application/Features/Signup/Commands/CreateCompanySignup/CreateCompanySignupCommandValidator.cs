@@ -1,4 +1,5 @@
 using Fgs.Contracts.Signup;
+using Fgs.Foundation.Validation;
 using Fgs.User.Application.Features.Signup;
 using FluentValidation;
 
@@ -45,7 +46,8 @@ public sealed class SignupContactDtoValidator : AbstractValidator<SignupContactD
 
         RuleFor(x => x.Email)
             .NotEmpty()
-            .EmailAddress()
+            .MustBeValidEmailAddress()
+            .WithMessage(SignupErrorMessages.InvalidEmailFormat)
             .MaximumLength(300);
     }
 }

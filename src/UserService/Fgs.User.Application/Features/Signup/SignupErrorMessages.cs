@@ -11,4 +11,6 @@ public static class SignupErrorMessages
         "This email address is already associated with an account or pending invitation.";
 
     public const string InvalidPhoneFormat = "Phone number format is invalid.";
+
+    public const string InvalidEmailFormat = "Email address format is invalid.";
 }

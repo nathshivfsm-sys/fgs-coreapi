@@ -1,3 +1,4 @@
+using Fgs.User.Application.Features.Signup;
 using Fgs.User.Application.Features.Signup.Commands.CreateCompanySignup;
 using Fgs.Contracts.Signup;
 
@@ -24,6 +25,19 @@ public sealed class CreateCompanySignupCommandValidatorTests
         };
         var result = await _validator.ValidateAsync(command);
         result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Validate_WithCommaInsteadOfDotInDomain_Fails()
+    {
+        var command = CreateValidCommand() with
+        {
+            Contact = CreateValidCommand().Contact with { Email = "fgs_user55@yopmail,com" }
+        };
+        var result = await _validator.ValidateAsync(command);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e =>
+            e.ErrorMessage == SignupErrorMessages.InvalidEmailFormat);
     }
 
     private static CreateCompanySignupCommand CreateValidCommand() =>

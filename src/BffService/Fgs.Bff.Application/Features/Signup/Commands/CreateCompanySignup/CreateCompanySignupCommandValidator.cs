@@ -1,4 +1,5 @@
 using Fgs.Contracts.Signup;
+using Fgs.Foundation.Validation;
 using FluentValidation;
 
 namespace Fgs.Bff.Application.Features.Signup.Commands.CreateCompanySignup;
@@ -44,7 +45,8 @@ public sealed class SignupContactDtoValidator : AbstractValidator<SignupContactD
 
         RuleFor(x => x.Email)
             .NotEmpty()
-            .EmailAddress()
+            .MustBeValidEmailAddress()
+            .WithMessage(SignupErrorMessages.InvalidEmailFormat)
             .MaximumLength(300);
     }
 }
@@ -84,4 +86,5 @@ internal static class SignupErrorMessages
 {
     public const string BusinessTypeIdsRequired = "At least one industry (business type) must be selected.";
     public const string InvalidPhoneFormat = "Phone number format is invalid.";
+    public const string InvalidEmailFormat = "Email address format is invalid.";
 }
