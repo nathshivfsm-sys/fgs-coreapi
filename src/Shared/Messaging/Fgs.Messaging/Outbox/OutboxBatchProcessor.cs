@@ -1,5 +1,6 @@
 using Fgs.Contracts.Observability;
 using Fgs.Messaging.Abstractions;
+using Fgs.Messaging.Models;
 using Fgs.Messaging.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -47,6 +48,7 @@ public sealed class OutboxBatchProcessor(
                     destination,
                     message.Payload,
                     message.CorrelationId.ToString(),
+                    BuildStableMessageId(message),
                     cancellationToken);
 
                 await store.MarkPublishedAsync(message.SourceKey, message.Id, now, cancellationToken);
@@ -93,4 +95,11 @@ public sealed class OutboxBatchProcessor(
             }
         }
     }
+
+    /// <summary>
+    /// Stable across outbox republish so Redis/Notification idempotency can suppress duplicates.
+    /// Do not use CorrelationId alone — workflows may share one correlation across many outbox rows.
+    /// </summary>
+    internal static string BuildStableMessageId(PendingOutboxMessage message) =>
+        $"{message.SourceKey}:{message.Id}";
 }

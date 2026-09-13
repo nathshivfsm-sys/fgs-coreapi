@@ -10,11 +10,13 @@ public sealed class RabbitMqIntegrationEventPublisher(IRabbitMqPublisher rabbitM
         IntegrationEventDestination destination,
         string payload,
         string? correlationId,
+        string? messageId = null,
         CancellationToken cancellationToken = default) =>
         rabbitMqPublisher.PublishAsync(
             destination.DestinationName,
             destination.RoutingKey,
             payload,
             correlationId,
+            messageId,
             cancellationToken);
 }

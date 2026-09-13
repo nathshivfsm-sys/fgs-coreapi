@@ -17,13 +17,19 @@ public sealed class RabbitMqIntegrationEventPublisherTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string?>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         var publisher = new RabbitMqIntegrationEventPublisher(rabbit.Object);
         var destination = new IntegrationEventDestination("setup.events", "credential.changed");
 
-        await publisher.PublishAsync(destination, "{\"ok\":true}", "corr-1", CancellationToken.None);
+        await publisher.PublishAsync(
+            destination,
+            "{\"ok\":true}",
+            "corr-1",
+            "tenant:10",
+            CancellationToken.None);
 
         rabbit.Verify(
             r => r.PublishAsync(
@@ -31,6 +37,7 @@ public sealed class RabbitMqIntegrationEventPublisherTests
                 "credential.changed",
                 "{\"ok\":true}",
                 "corr-1",
+                "tenant:10",
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

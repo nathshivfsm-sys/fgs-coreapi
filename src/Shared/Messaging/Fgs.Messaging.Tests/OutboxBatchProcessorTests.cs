@@ -2,6 +2,7 @@ using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Models;
 using Fgs.Messaging.Options;
 using Fgs.Messaging.Outbox;
+using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using MsOptions = Microsoft.Extensions.Options.Options;
@@ -35,6 +36,7 @@ public sealed class OutboxBatchProcessorTests
                 It.IsAny<IntegrationEventDestination>(),
                 It.IsAny<string>(),
                 It.IsAny<string?>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -58,6 +60,7 @@ public sealed class OutboxBatchProcessorTests
                     d.DestinationName == "test.events" && d.RoutingKey == "test.key"),
                 "{}",
                 message.CorrelationId.ToString(),
+                "tenant:10",
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
@@ -91,6 +94,7 @@ public sealed class OutboxBatchProcessorTests
                 It.IsAny<IntegrationEventDestination>(),
                 It.IsAny<string>(),
                 It.IsAny<string?>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("broker down"));
 
@@ -122,5 +126,22 @@ public sealed class OutboxBatchProcessorTests
                 It.IsAny<DateTimeOffset?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public void BuildStableMessageId_UsesSourceKeyAndOutboxId()
+    {
+        var message = new PendingOutboxMessage(
+            "setup",
+            42,
+            "TestEvent",
+            "{}",
+            Guid.NewGuid(),
+            null,
+            null,
+            0,
+            5);
+
+        OutboxBatchProcessor.BuildStableMessageId(message).Should().Be("setup:42");
     }
 }

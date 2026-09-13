@@ -6,6 +6,7 @@ public interface IRabbitMqPublisher
         string routingKey,
         string payload,
         string? correlationId,
+        string? messageId = null,
         CancellationToken cancellationToken = default);
 
     Task PublishAsync(
@@ -13,5 +14,6 @@ public interface IRabbitMqPublisher
         string routingKey,
         string payload,
         string? correlationId,
+        string? messageId = null,
         CancellationToken cancellationToken = default);
 }

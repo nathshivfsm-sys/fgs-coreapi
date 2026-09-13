@@ -534,13 +534,15 @@ services:
       <<: *credential-consumer-env
       Swagger__RoutePrefix: swagger/consumer
       CredentialConsumer__ServiceName: fgs-consumer-service
-      CredentialConsumer__RequiredProviders__0: DATABASE
-      CredentialConsumer__RequiredProviders__1: RABBITMQ
+      CredentialConsumer__RequiredProviders__0: RABBITMQ
+      CredentialConsumer__RequiredProviders__1: REDIS
       UserService__BaseUrl: http://user-service:5001
       # appsettings.Development.json uses localhost:5084 for host-run; override for Docker DNS.
       NotificationService__BaseUrl: http://notification-service:5002
       RabbitMq__HostName: rabbitmq
     depends_on:
+      redis:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
       setup-service:

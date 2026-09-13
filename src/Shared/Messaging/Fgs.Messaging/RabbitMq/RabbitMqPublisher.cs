@@ -28,14 +28,22 @@ public sealed class RabbitMqPublisher(
         string routingKey,
         string payload,
         string? correlationId,
+        string? messageId = null,
         CancellationToken cancellationToken = default) =>
-        PublishAsync(_options.ExchangeName, routingKey, payload, correlationId, cancellationToken);
+        PublishAsync(
+            _options.ExchangeName,
+            routingKey,
+            payload,
+            correlationId,
+            messageId,
+            cancellationToken);
 
     public Task PublishAsync(
         string exchangeName,
         string routingKey,
         string payload,
         string? correlationId,
+        string? messageId = null,
         CancellationToken cancellationToken = default)
     {
         var body = Encoding.UTF8.GetBytes(payload);
@@ -43,6 +51,11 @@ public sealed class RabbitMqPublisher(
         if (!string.IsNullOrWhiteSpace(correlationId))
         {
             headers["correlation_id"] = correlationId;
+        }
+
+        if (!string.IsNullOrWhiteSpace(messageId))
+        {
+            headers["message_id"] = messageId;
         }
 
         return PublishAsync(exchangeName, routingKey, body, headers, cancellationToken);
@@ -58,11 +71,13 @@ public sealed class RabbitMqPublisher(
         await EnsureChannelAsync(cancellationToken);
         await EnsureExchangeDeclaredAsync(exchangeName, cancellationToken);
 
+        var messageId = ResolveMessageId(headers);
+
         var properties = new BasicProperties
         {
             ContentType = "application/json",
             DeliveryMode = DeliveryModes.Persistent,
-            MessageId = Guid.NewGuid().ToString(),
+            MessageId = messageId,
             Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds())
         };
 
@@ -293,6 +308,19 @@ public sealed class RabbitMqPublisher(
             factory.Ssl.Version = SslProtocols.Tls12 | SslProtocols.Tls13;
             factory.Ssl.CheckCertificateRevocation = _options.SslCheckCertificateRevocation;
         }
+    }
+
+    private static string ResolveMessageId(IDictionary<string, object?>? headers)
+    {
+        if (headers is not null
+            && headers.TryGetValue("message_id", out var raw)
+            && raw is string text
+            && !string.IsNullOrWhiteSpace(text))
+        {
+            return text.Trim();
+        }
+
+        return Guid.NewGuid().ToString();
     }
 
     public async ValueTask DisposeAsync()
