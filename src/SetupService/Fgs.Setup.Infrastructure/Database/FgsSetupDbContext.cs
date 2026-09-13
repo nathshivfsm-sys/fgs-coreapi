@@ -229,9 +229,15 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<GloRole> GloRoles => Set<GloRole>();
 
+    public DbSet<GloPermission> GloPermissions => Set<GloPermission>();
+
     public DbSet<GloMenu> GloMenus => Set<GloMenu>();
 
     public DbSet<GloRoleMenu> GloRoleMenus => Set<GloRoleMenu>();
+
+    public DbSet<GloRolePermission> GloRolePermissions => Set<GloRolePermission>();
+
+    public DbSet<GloTimeZone> GloTimeZones => Set<GloTimeZone>();
 
     public DbSet<GloSetupDescriptionType> GloSetupDescriptionTypes => Set<GloSetupDescriptionType>();
 
