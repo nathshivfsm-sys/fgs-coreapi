@@ -172,6 +172,28 @@ public sealed class TenantDataSeedingEngine(
 
         try
         {
+            await SeedRolePermissionsAsync(
+                connectionScope,
+                mappings,
+                tenantId,
+                companyId,
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(
+                ex,
+                "Role permission seed failed for tenant {TenantId}, company {CompanyId}",
+                tenantId,
+                companyId);
+            tableResults.Add(new TenantSeedTableResult(
+                SeedTransformationTypes.SeedCodes.AllGloRolePermission,
+                TenantSeedTableOutcome.Failed,
+                ex.Message));
+        }
+
+        try
+        {
             await SeedUniversalMatrixTiersAsync(
                 connectionScope,
                 mappings,
@@ -680,6 +702,117 @@ public sealed class TenantDataSeedingEngine(
         }
 
         return inserted;
+    }
+
+    private async Task SeedRolePermissionsAsync(
+        TenantSeedConnectionScope connectionScope,
+        IReadOnlyList<GloSeedTableMapping> mappings,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var rolePermissionMapping = mappings.FirstOrDefault(m =>
+            string.Equals(
+                m.SeedCode,
+                SeedTransformationTypes.SeedCodes.AllGloRolePermission,
+                StringComparison.OrdinalIgnoreCase));
+        if (rolePermissionMapping is null)
+        {
+            logger.LogInformation(
+                "Skipping role permission seed: mapping {SeedCode} is not active",
+                SeedTransformationTypes.SeedCodes.AllGloRolePermission);
+            return;
+        }
+
+        var connections = await TenantJoinedChildSeedHelper.ResolveConnectionsAsync(
+            connectionScope,
+            mappings,
+            FgsDatabaseSchemas.Identity,
+            cancellationToken);
+
+        var validator = new TenantSeedMetadataValidator();
+        var sourceDatabase = connectionScope.ResolveSourceDatabaseName(connections.SourceDatabaseName);
+        var targetDatabase = connectionScope.ResolveTargetDatabaseName(connections.TargetDatabaseName);
+
+        var sourceRolePermissionMetadata = await validator.GetTableMetadataAsync(
+            connections.SourceConnection, sourceDatabase, connections.SourceSchema, "GloRolePermission", cancellationToken);
+        var sourceRoleMetadata = await validator.GetTableMetadataAsync(
+            connections.SourceConnection, sourceDatabase, connections.SourceSchema, "GloRole", cancellationToken);
+        var sourcePermissionMetadata = await validator.GetTableMetadataAsync(
+            connections.SourceConnection, sourceDatabase, connections.SourceSchema, "GloPermission", cancellationToken);
+        var targetRolePermissionMetadata = await validator.GetTableMetadataAsync(
+            connections.TargetConnection, targetDatabase, connections.TargetSchema, "FgsRolePermission", cancellationToken);
+        var targetRoleMetadata = await validator.GetTableMetadataAsync(
+            connections.TargetConnection, targetDatabase, connections.TargetSchema, "FgsRole", cancellationToken);
+        var targetPermissionMetadata = await validator.GetTableMetadataAsync(
+            connections.TargetConnection, targetDatabase, connections.TargetSchema, "FgsPermission", cancellationToken);
+
+        if (!sourceRolePermissionMetadata.Exists
+            || !sourceRoleMetadata.Exists
+            || !sourcePermissionMetadata.Exists
+            || !targetRolePermissionMetadata.Exists
+            || !targetRoleMetadata.Exists
+            || !targetPermissionMetadata.Exists)
+        {
+            logger.LogWarning(
+                "Skipping role permission seed because required tables are missing (source rp={SourceRp}, source role={SourceRole}, source permission={SourcePermission}, target rp={TargetRp}, target role={TargetRole}, target permission={TargetPermission})",
+                sourceRolePermissionMetadata.Exists,
+                sourceRoleMetadata.Exists,
+                sourcePermissionMetadata.Exists,
+                targetRolePermissionMetadata.Exists,
+                targetRoleMetadata.Exists,
+                targetPermissionMetadata.Exists);
+            return;
+        }
+
+        if (await TenantJoinedChildSeedHelper.IsTenantCompanySeededAsync(
+                connections.TargetConnection,
+                connections.TargetSchema,
+                "FgsRolePermission",
+                tenantId,
+                companyId,
+                cancellationToken))
+        {
+            logger.LogInformation(
+                "FgsRolePermission already seeded for tenant {TenantId}, company {CompanyId}; skipping",
+                tenantId,
+                companyId);
+            return;
+        }
+
+        var inserted = await TenantJoinedChildSeedHelper.ExecuteInTargetTransactionAsync(
+            connections.TargetConnection,
+            async (transaction, ct) =>
+            {
+                if (connections.IsCrossDatabase)
+                {
+                    return await TenantJoinedChildSeedHelper.SeedRolePermissionsCrossDatabaseAsync(
+                        connections.SourceConnection,
+                        connections.TargetConnection,
+                        transaction,
+                        connections.SourceSchema,
+                        connections.TargetSchema,
+                        tenantId,
+                        companyId,
+                        ct);
+                }
+
+                return await TenantJoinedChildSeedHelper.SeedRolePermissionsSameDatabaseAsync(
+                    connections.TargetConnection,
+                    transaction,
+                    connections.SourceSchema,
+                    connections.TargetSchema,
+                    tenantId,
+                    companyId,
+                    ct);
+            },
+            cancellationToken);
+
+        logger.LogInformation(
+            "Seeded {RowCount} FgsRolePermission row(s) for tenant {TenantId}, company {CompanyId}",
+            inserted,
+            tenantId,
+            companyId);
     }
 
     private async Task SeedUniversalMatrixTiersAsync(

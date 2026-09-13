@@ -184,6 +184,265 @@ internal static class TenantJoinedChildSeedHelper
         return await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Seeds <c>identity.FgsRolePermission</c> from <c>glo.GloRolePermission</c>, remapping
+    /// RoleId → tenant <c>FgsRole.Id</c> by RoleCode and PermissionId → platform
+    /// <c>FgsPermission.Id</c> by PermissionCode (permissions are not tenant-scoped).
+    /// </summary>
+    internal static async Task<int> SeedRolePermissionsSameDatabaseAsync(
+        DbConnection connection,
+        DbTransaction transaction,
+        string sourceSchema,
+        string targetSchema,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = BuildRolePermissionSameDatabaseSql(sourceSchema, targetSchema);
+        TenantSeedCommandExtensions.AddSeedParameters(command, tenantId, companyId);
+        AddSeedCreatedByParameter(command);
+        return await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
+    internal static string BuildRolePermissionSameDatabaseSql(string sourceSchema, string targetSchema)
+    {
+        var gloRolePermissionTable = TenantSeedSqlBuilder.QualifyTable(sourceSchema, "GloRolePermission");
+        var gloRoleTable = TenantSeedSqlBuilder.QualifyTable(sourceSchema, "GloRole");
+        var gloPermissionTable = TenantSeedSqlBuilder.QualifyTable(sourceSchema, "GloPermission");
+        var fgsRoleTable = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsRole");
+        var fgsPermissionTable = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsPermission");
+        var fgsRolePermissionTable = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsRolePermission");
+
+        return $"""
+            INSERT INTO {fgsRolePermissionTable}
+            (
+                "TenantId",
+                "CompanyId",
+                "FgsRoleId",
+                "FgsPermissionId",
+                "CreatedOn",
+                "CreatedBy"
+            )
+            SELECT
+                @tenantId,
+                @companyId,
+                fr."Id",
+                fp."Id",
+                NOW(),
+                @seedCreatedBy
+            FROM {gloRolePermissionTable} grp
+            INNER JOIN {gloRoleTable} gr ON gr."Id" = grp."RoleId"
+            INNER JOIN {gloPermissionTable} gp ON gp."Id" = grp."PermissionId"
+            INNER JOIN {fgsRoleTable} fr
+                ON fr."TenantId" = @tenantId
+               AND fr."CompanyId" = @companyId
+               AND fr."RoleCode" = gr."RoleCode"
+            INNER JOIN {fgsPermissionTable} fp
+                ON fp."PermissionCode" = gp."PermissionCode"
+            WHERE grp."IsActive" = true
+              AND NOT EXISTS (
+                SELECT 1
+                FROM {fgsRolePermissionTable} existing
+                WHERE existing."TenantId" = @tenantId
+                  AND existing."CompanyId" = @companyId
+                  AND existing."FgsRoleId" = fr."Id"
+                  AND existing."FgsPermissionId" = fp."Id"
+            )
+            """;
+    }
+
+    internal static async Task<int> SeedRolePermissionsCrossDatabaseAsync(
+        DbConnection sourceConnection,
+        DbConnection targetConnection,
+        DbTransaction transaction,
+        string sourceSchema,
+        string targetSchema,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var sourceRows = await LoadRolePermissionSourceRowsAsync(
+            sourceConnection,
+            sourceSchema,
+            cancellationToken);
+
+        var roleIds = await LoadTenantRoleIdsByCodeAsync(
+            targetConnection,
+            transaction,
+            targetSchema,
+            tenantId,
+            companyId,
+            cancellationToken);
+
+        var permissionIds = await LoadPlatformPermissionIdsByCodeAsync(
+            targetConnection,
+            transaction,
+            targetSchema,
+            cancellationToken);
+
+        var existingKeys = await LoadRolePermissionExistingKeysAsync(
+            targetConnection,
+            transaction,
+            targetSchema,
+            tenantId,
+            companyId,
+            cancellationToken);
+
+        var fgsRolePermissionTable = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsRolePermission");
+        var inserted = 0;
+
+        foreach (var row in sourceRows)
+        {
+            if (!roleIds.TryGetValue(row.RoleCode, out var fgsRoleId)
+                || !permissionIds.TryGetValue(row.PermissionCode, out var fgsPermissionId))
+            {
+                continue;
+            }
+
+            var key = $"{fgsRoleId}:{fgsPermissionId}";
+            if (existingKeys.Contains(key))
+            {
+                continue;
+            }
+
+            await using var insertCommand = targetConnection.CreateCommand();
+            insertCommand.Transaction = transaction;
+            insertCommand.CommandText = $"""
+                INSERT INTO {fgsRolePermissionTable}
+                (
+                    "TenantId", "CompanyId", "FgsRoleId", "FgsPermissionId", "CreatedOn", "CreatedBy"
+                )
+                VALUES
+                (
+                    @tenantId, @companyId, @fgsRoleId, @fgsPermissionId, NOW(), @seedCreatedBy
+                )
+                """;
+            TenantSeedCommandExtensions.AddSeedParameters(insertCommand, tenantId, companyId);
+            AddSeedCreatedByParameter(insertCommand);
+            AddParameter(insertCommand, "fgsRoleId", fgsRoleId);
+            AddParameter(insertCommand, "fgsPermissionId", fgsPermissionId);
+
+            inserted += await insertCommand.ExecuteNonQueryAsync(cancellationToken);
+            existingKeys.Add(key);
+        }
+
+        return inserted;
+    }
+
+    private static async Task<List<RolePermissionSourceRow>> LoadRolePermissionSourceRowsAsync(
+        DbConnection sourceConnection,
+        string sourceSchema,
+        CancellationToken cancellationToken)
+    {
+        var gloRolePermissionTable = TenantSeedSqlBuilder.QualifyTable(sourceSchema, "GloRolePermission");
+        var gloRoleTable = TenantSeedSqlBuilder.QualifyTable(sourceSchema, "GloRole");
+        var gloPermissionTable = TenantSeedSqlBuilder.QualifyTable(sourceSchema, "GloPermission");
+
+        var sourceSql = $"""
+            SELECT gr."RoleCode", gp."PermissionCode"
+            FROM {gloRolePermissionTable} grp
+            INNER JOIN {gloRoleTable} gr ON gr."Id" = grp."RoleId"
+            INNER JOIN {gloPermissionTable} gp ON gp."Id" = grp."PermissionId"
+            WHERE grp."IsActive" = true
+            """;
+
+        var rows = new List<RolePermissionSourceRow>();
+        await using var sourceCommand = sourceConnection.CreateCommand();
+        sourceCommand.CommandText = sourceSql;
+        await using var reader = await sourceCommand.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            rows.Add(new RolePermissionSourceRow(reader.GetString(0), reader.GetString(1)));
+        }
+
+        return rows;
+    }
+
+    private static async Task<Dictionary<string, long>> LoadTenantRoleIdsByCodeAsync(
+        DbConnection targetConnection,
+        DbTransaction transaction,
+        string targetSchema,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var fgsRoleTable = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsRole");
+        var roleIds = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
+
+        await using var command = targetConnection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = $"""
+            SELECT "Id", "RoleCode"
+            FROM {fgsRoleTable}
+            WHERE "TenantId" = @tenantId AND "CompanyId" = @companyId
+            """;
+        TenantSeedCommandExtensions.AddSeedParameters(command, tenantId, companyId);
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            roleIds[reader.GetString(1)] = reader.GetInt64(0);
+        }
+
+        return roleIds;
+    }
+
+    private static async Task<Dictionary<string, long>> LoadPlatformPermissionIdsByCodeAsync(
+        DbConnection targetConnection,
+        DbTransaction transaction,
+        string targetSchema,
+        CancellationToken cancellationToken)
+    {
+        var fgsPermissionTable = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsPermission");
+        var permissionIds = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
+
+        await using var command = targetConnection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = $"""
+            SELECT "Id", "PermissionCode"
+            FROM {fgsPermissionTable}
+            """;
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            permissionIds[reader.GetString(1)] = reader.GetInt64(0);
+        }
+
+        return permissionIds;
+    }
+
+    private static async Task<HashSet<string>> LoadRolePermissionExistingKeysAsync(
+        DbConnection targetConnection,
+        DbTransaction transaction,
+        string targetSchema,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var fgsRolePermissionTable = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsRolePermission");
+        var existingKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        await using var command = targetConnection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = $"""
+            SELECT "FgsRoleId", "FgsPermissionId"
+            FROM {fgsRolePermissionTable}
+            WHERE "TenantId" = @tenantId AND "CompanyId" = @companyId
+            """;
+        TenantSeedCommandExtensions.AddSeedParameters(command, tenantId, companyId);
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            existingKeys.Add($"{reader.GetInt64(0)}:{reader.GetInt64(1)}");
+        }
+
+        return existingKeys;
+    }
+
     internal static async Task<(int TierInserted, int SizeTierInserted)> SeedUniversalMatrixChildTablesCrossDatabaseAsync(
         DbConnection sourceConnection,
         DbConnection targetConnection,
@@ -436,4 +695,6 @@ internal static class TenantJoinedChildSeedHelper
         decimal Multiplier,
         short DisplayOrder,
         string ServiceCode);
+
+    private sealed record RolePermissionSourceRow(string RoleCode, string PermissionCode);
 }

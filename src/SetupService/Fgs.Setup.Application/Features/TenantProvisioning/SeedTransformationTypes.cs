@@ -16,6 +16,12 @@ public static class SeedTransformationTypes
 
     public const string SeedCreatedByValue = "Data Seed";
 
+    /// <summary>Known seed mapping codes referenced by soft-path provisioning.</summary>
+    public static class SeedCodes
+    {
+        public const string AllGloRolePermission = "ALL_GloRolePermission";
+    }
+
     public static class TargetColumns
     {
         public const string TenantId = "TenantId";

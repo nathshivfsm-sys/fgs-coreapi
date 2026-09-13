@@ -1,3 +1,4 @@
+using Fgs.Setup.Application.Features.TenantProvisioning;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Database.Schemas;
 using Fgs.Setup.Infrastructure.Provisioning;
@@ -101,5 +102,68 @@ public sealed class TenantJoinedChildSeedHelperTests
         TenantJoinedChildSeedHelper.SelectReferenceMapping([], FgsDatabaseSchemas.Inventory)
             .Should()
             .BeNull();
+    }
+
+    [Fact]
+    public void BuildRolePermissionSameDatabaseSql_RemapsRoleAndPermissionByCode()
+    {
+        var sql = TenantJoinedChildSeedHelper.BuildRolePermissionSameDatabaseSql(
+            FgsDatabaseSchemas.Glo,
+            FgsDatabaseSchemas.Identity);
+
+        sql.Should().Contain("INSERT INTO \"identity\".\"FgsRolePermission\"");
+        sql.Should().Contain("FROM \"glo\".\"GloRolePermission\" grp");
+        sql.Should().Contain("INNER JOIN \"glo\".\"GloRole\" gr ON gr.\"Id\" = grp.\"RoleId\"");
+        sql.Should().Contain("INNER JOIN \"glo\".\"GloPermission\" gp ON gp.\"Id\" = grp.\"PermissionId\"");
+        sql.Should().Contain("AND fr.\"RoleCode\" = gr.\"RoleCode\"");
+        sql.Should().Contain("ON fp.\"PermissionCode\" = gp.\"PermissionCode\"");
+        sql.Should().Contain("WHERE grp.\"IsActive\" = true");
+        sql.Should().Contain("existing.\"FgsRoleId\" = fr.\"Id\"");
+        sql.Should().Contain("existing.\"FgsPermissionId\" = fp.\"Id\"");
+        sql.Should().NotContain("JOINED_PARENT");
+    }
+
+    [Fact]
+    public void SelectReferenceMapping_PrefersGloToIdentity_ForRolePermissionSoftPath()
+    {
+        var mappings = new List<GloSeedTableMapping>
+        {
+            new()
+            {
+                Id = 1,
+                SeedCode = "TENANT_FgsTenantCompany_identity_cache",
+                SeedOrder = 2,
+                SourceSchemaName = "tenant",
+                TargetSchemaName = FgsDatabaseSchemas.Identity,
+            },
+            new()
+            {
+                Id = 2,
+                SeedCode = "ALL_GloRole",
+                SeedOrder = 15,
+                SourceSchemaName = FgsDatabaseSchemas.Glo,
+                SourceTableName = "GloRole",
+                TargetSchemaName = FgsDatabaseSchemas.Identity,
+                TargetTableName = "FgsRole",
+            },
+            new()
+            {
+                Id = 3,
+                SeedCode = SeedTransformationTypes.SeedCodes.AllGloRolePermission,
+                SeedOrder = 17,
+                SourceSchemaName = FgsDatabaseSchemas.Glo,
+                SourceTableName = "GloRolePermission",
+                TargetSchemaName = FgsDatabaseSchemas.Identity,
+                TargetTableName = "FgsRolePermission",
+            },
+        };
+
+        var identityRef = TenantJoinedChildSeedHelper.SelectReferenceMapping(
+            mappings,
+            FgsDatabaseSchemas.Identity);
+
+        identityRef.Should().NotBeNull();
+        identityRef!.SourceSchemaName.Should().Be(FgsDatabaseSchemas.Glo);
+        identityRef.SeedCode.Should().BeOneOf("ALL_GloRole", SeedTransformationTypes.SeedCodes.AllGloRolePermission);
     }
 }
