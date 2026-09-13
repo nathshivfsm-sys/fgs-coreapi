@@ -190,19 +190,19 @@ public sealed class CredentialSnapshotRedisCacheTests
     }
 
     [Fact]
-    public async Task PublishAsync_WhenRedisMissing_DoesNotThrow()
+    public async Task PublishAsync_WhenRedisMissing_ReturnsFalse()
     {
         var holder = new CredentialConfigurationHolder();
         var cache = new CredentialSnapshotRedisCache(
             holder,
             NullLogger<CredentialSnapshotRedisCache>.Instance);
 
-        await cache.Invoking(c => c.PublishAsync(new Dictionary<string, string>
-            {
-                ["Global:DATABASE:FgsUser"] = "Host=db"
-            }))
-            .Should()
-            .NotThrowAsync();
+        var published = await cache.PublishAsync(new Dictionary<string, string>
+        {
+            ["Global:DATABASE:FgsUser"] = "Host=db"
+        });
+
+        published.Should().BeFalse();
     }
 }
 

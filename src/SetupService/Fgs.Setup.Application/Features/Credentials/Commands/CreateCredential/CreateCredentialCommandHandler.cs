@@ -1,4 +1,5 @@
 using Fgs.Contracts.Api;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Features.Credentials.DTOs;
 using Fgs.Setup.Application.Features.Credentials.Services;
 using Fgs.Setup.Domain.Enums;
@@ -6,14 +7,11 @@ using MediatR;
 
 namespace Fgs.Setup.Application.Features.Credentials.Commands.CreateCredential;
 
-public sealed class CreateCredentialCommandHandler
+public sealed class CreateCredentialCommandHandler(
+    CredentialMutationService mutationService,
+    ITenantContextAccessor tenantContextAccessor)
     : IRequestHandler<CreateCredentialCommand, ApiResponse<CredentialMutationResultDto>>
 {
-    private readonly CredentialMutationService _mutationService;
-
-    public CreateCredentialCommandHandler(CredentialMutationService mutationService) =>
-        _mutationService = mutationService;
-
     public async Task<ApiResponse<CredentialMutationResultDto>> Handle(
         CreateCredentialCommand request,
         CancellationToken cancellationToken)
@@ -35,7 +33,7 @@ public sealed class CreateCredentialCommandHandler
         byte[] payload,
         CancellationToken cancellationToken)
     {
-        var (credential, providerCode) = await _mutationService.CreateGlobalAsync(
+        var (credential, providerCode) = await mutationService.CreateGlobalAsync(
             request.ProviderCode,
             request.CredentialName,
             request.Description,
@@ -56,16 +54,30 @@ public sealed class CreateCredentialCommandHandler
         byte[] payload,
         CancellationToken cancellationToken)
     {
-        if (!request.TenantId.HasValue || !request.CompanyId.HasValue)
+        if (tenantContextAccessor.Current is not { } tenantScope)
         {
             return ApiResponse<CredentialMutationResultDto>.Fail(
                 [CredentialErrorMessages.TenantContextRequired],
                 ApiStatusCodes.BadRequest);
         }
 
-        var (credential, providerCode) = await _mutationService.CreateTenantAsync(
-            request.TenantId.Value,
-            request.CompanyId.Value,
+        if (request.TenantId is { } bodyTenant && bodyTenant != tenantScope.TenantId)
+        {
+            return ApiResponse<CredentialMutationResultDto>.Fail(
+                [CredentialErrorMessages.TenantScopeMismatch],
+                ApiStatusCodes.Forbidden);
+        }
+
+        if (request.CompanyId is { } bodyCompany && bodyCompany != tenantScope.CompanyId)
+        {
+            return ApiResponse<CredentialMutationResultDto>.Fail(
+                [CredentialErrorMessages.TenantScopeMismatch],
+                ApiStatusCodes.Forbidden);
+        }
+
+        var (credential, providerCode) = await mutationService.CreateTenantAsync(
+            tenantScope.TenantId,
+            tenantScope.CompanyId,
             request.ProviderCode,
             request.CredentialName,
             request.Description,

@@ -1,4 +1,5 @@
 using Fgs.Contracts.Api;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Application.Features.Credentials.DTOs;
 using Fgs.Setup.Domain.Enums;
@@ -6,12 +7,11 @@ using MediatR;
 
 namespace Fgs.Setup.Application.Features.Credentials.Queries.GetCredential;
 
-public sealed class GetCredentialQueryHandler : IRequestHandler<GetCredentialQuery, ApiResponse<CredentialDetailDto>>
+public sealed class GetCredentialQueryHandler(
+    ICredentialRepository repository,
+    ITenantContextAccessor tenantContextAccessor)
+    : IRequestHandler<GetCredentialQuery, ApiResponse<CredentialDetailDto>>
 {
-    private readonly ICredentialRepository _repository;
-
-    public GetCredentialQueryHandler(ICredentialRepository repository) => _repository = repository;
-
     public async Task<ApiResponse<CredentialDetailDto>> Handle(
         GetCredentialQuery request,
         CancellationToken cancellationToken)
@@ -20,15 +20,15 @@ public sealed class GetCredentialQueryHandler : IRequestHandler<GetCredentialQue
         {
             CredentialScope.Global when CredentialRequestHelpers.TryParseGlobalId(request.Id, out var globalId) =>
                 await GetGlobalAsync(globalId, cancellationToken),
-            CredentialScope.Tenant when CredentialRequestHelpers.TryParseTenantId(request.Id, out var tenantId) =>
-                await GetTenantAsync(tenantId, cancellationToken),
+            CredentialScope.Tenant when CredentialRequestHelpers.TryParseTenantId(request.Id, out var tenantCredentialId) =>
+                await GetTenantAsync(tenantCredentialId, cancellationToken),
             _ => ApiResponse<CredentialDetailDto>.Fail([CredentialErrorMessages.InvalidScope], ApiStatusCodes.BadRequest)
         };
     }
 
     private async Task<ApiResponse<CredentialDetailDto>> GetGlobalAsync(int id, CancellationToken cancellationToken)
     {
-        var credential = await _repository.GetGlobalByIdAsync(id, cancellationToken);
+        var credential = await repository.GetGlobalByIdAsync(id, cancellationToken);
         return credential is null
             ? ApiResponse<CredentialDetailDto>.Fail([CredentialErrorMessages.GlobalCredentialNotFound], ApiStatusCodes.NotFound)
             : ApiResponse<CredentialDetailDto>.Ok(CredentialMapper.ToDetail(credential));
@@ -36,10 +36,17 @@ public sealed class GetCredentialQueryHandler : IRequestHandler<GetCredentialQue
 
     private async Task<ApiResponse<CredentialDetailDto>> GetTenantAsync(Guid id, CancellationToken cancellationToken)
     {
-        var credential = await _repository.GetTenantByIdAsync(id, cancellationToken);
-        return credential is null
-            ? ApiResponse<CredentialDetailDto>.Fail([CredentialErrorMessages.TenantCredentialNotFound], ApiStatusCodes.NotFound)
-            : ApiResponse<CredentialDetailDto>.Ok(CredentialMapper.ToDetail(credential));
+        var credential = await repository.GetTenantByIdAsync(id, cancellationToken);
+        if (credential is null)
+        {
+            return ApiResponse<CredentialDetailDto>.Fail(
+                [CredentialErrorMessages.TenantCredentialNotFound],
+                ApiStatusCodes.NotFound);
+        }
+
+        var scopeDenied = CredentialRequestHelpers.EnsureTenantScope<CredentialDetailDto>(
+            tenantContextAccessor,
+            credential);
+        return scopeDenied ?? ApiResponse<CredentialDetailDto>.Ok(CredentialMapper.ToDetail(credential));
     }
 }
-

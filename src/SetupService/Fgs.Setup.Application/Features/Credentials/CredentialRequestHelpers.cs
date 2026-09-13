@@ -1,5 +1,8 @@
 using System.Text;
+using Fgs.Contracts.Api;
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Features.Credentials.DTOs;
+using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Domain.Enums;
 
 namespace Fgs.Setup.Application.Features.Credentials;
@@ -22,4 +25,25 @@ internal static class CredentialRequestHelpers
 
     public static CredentialMutationResultDto ToMutationResult(CredentialScope scope, string id, string providerCode, string credentialName) =>
         new(scope, id, providerCode, credentialName);
+
+    public static ApiResponse<T>? EnsureTenantScope<T>(
+        ITenantContextAccessor tenantContextAccessor,
+        FgsCredential credential)
+    {
+        if (tenantContextAccessor.Current is not { } tenantScope)
+        {
+            return ApiResponse<T>.Fail(
+                [CredentialErrorMessages.TenantContextRequired],
+                ApiStatusCodes.BadRequest);
+        }
+
+        if (credential.TenantId != tenantScope.TenantId || credential.CompanyId != tenantScope.CompanyId)
+        {
+            return ApiResponse<T>.Fail(
+                [CredentialErrorMessages.TenantScopeMismatch],
+                ApiStatusCodes.Forbidden);
+        }
+
+        return null;
+    }
 }

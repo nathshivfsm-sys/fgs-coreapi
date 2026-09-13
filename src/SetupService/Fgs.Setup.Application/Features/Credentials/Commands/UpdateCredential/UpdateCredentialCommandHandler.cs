@@ -1,4 +1,6 @@
 using Fgs.Contracts.Api;
+using Fgs.MultiTenancy;
+using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Application.Features.Credentials.DTOs;
 using Fgs.Setup.Application.Features.Credentials.Services;
 using Fgs.Setup.Domain.Enums;
@@ -6,14 +8,12 @@ using MediatR;
 
 namespace Fgs.Setup.Application.Features.Credentials.Commands.UpdateCredential;
 
-public sealed class UpdateCredentialCommandHandler
+public sealed class UpdateCredentialCommandHandler(
+    CredentialMutationService mutationService,
+    ICredentialRepository repository,
+    ITenantContextAccessor tenantContextAccessor)
     : IRequestHandler<UpdateCredentialCommand, ApiResponse<CredentialMutationResultDto>>
 {
-    private readonly CredentialMutationService _mutationService;
-
-    public UpdateCredentialCommandHandler(CredentialMutationService mutationService) =>
-        _mutationService = mutationService;
-
     public async Task<ApiResponse<CredentialMutationResultDto>> Handle(
         UpdateCredentialCommand request,
         CancellationToken cancellationToken)
@@ -38,7 +38,7 @@ public sealed class UpdateCredentialCommandHandler
         byte[]? payload,
         CancellationToken cancellationToken)
     {
-        var credential = await _mutationService.UpdateGlobalAsync(
+        var credential = await mutationService.UpdateGlobalAsync(
             id,
             request.CredentialName,
             request.Description,
@@ -60,7 +60,23 @@ public sealed class UpdateCredentialCommandHandler
         byte[]? payload,
         CancellationToken cancellationToken)
     {
-        var credential = await _mutationService.UpdateTenantAsync(
+        var existing = await repository.GetTenantByIdAsync(id, cancellationToken);
+        if (existing is null)
+        {
+            return ApiResponse<CredentialMutationResultDto>.Fail(
+                [CredentialErrorMessages.TenantCredentialNotFound],
+                ApiStatusCodes.NotFound);
+        }
+
+        var scopeDenied = CredentialRequestHelpers.EnsureTenantScope<CredentialMutationResultDto>(
+            tenantContextAccessor,
+            existing);
+        if (scopeDenied is not null)
+        {
+            return scopeDenied;
+        }
+
+        var credential = await mutationService.UpdateTenantAsync(
             id,
             request.CredentialName,
             request.Description,

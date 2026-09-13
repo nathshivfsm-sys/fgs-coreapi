@@ -69,6 +69,7 @@ ASPNETCORE_ENVIRONMENT=Development
 # RabbitMQ container boot only — must match glo.GloCredential Global:RABBITMQ Username/Password.
 RABBITMQ_USER=fgs
 RABBITMQ_PASSWORD=CHANGE_ME_STRONG_PASSWORD
+# Generate a strong secret (e.g. openssl rand -hex 32). Never reuse the old repo placeholder.
 CREDENTIAL_DISTRIBUTION_KEY=fgs-internal-credential-distribution-key
 FGS_CHANNEL=dev
 DD_ENV=dev

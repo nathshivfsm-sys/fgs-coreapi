@@ -40,6 +40,18 @@ public sealed class GetResolvedCredentialConfigurationQueryHandler(
                 ApiStatusCodes.Unauthorized);
         }
 
+        if (!CredentialServiceProviderAllowList.TryGetRequiredProviders(requestingService, out var requiredProviders))
+        {
+            await RecordAccessAuditAsync(
+                requestingService,
+                CredentialAuditActions.SecretAccessDenied,
+                "Requesting service is not registered for credential distribution.",
+                cancellationToken);
+            return ApiResponse<ResolvedCredentialConfigurationDto>.Fail(
+                ["Requesting service is not registered for credential distribution."],
+                ApiStatusCodes.Forbidden);
+        }
+
         if (configurationProvider.Values.Count == 0)
         {
             await RecordAccessAuditAsync(
@@ -52,14 +64,18 @@ public sealed class GetResolvedCredentialConfigurationQueryHandler(
                 503);
         }
 
+        var filtered = CredentialConfigurationFilter.FilterForServiceDistribution(
+            configurationProvider.Values,
+            requiredProviders);
+
         await RecordAccessAuditAsync(
             requestingService,
             CredentialAuditActions.SecretAccessed,
-            $"Resolved configuration snapshot; EntryCount={configurationProvider.Values.Count}",
+            $"Resolved configuration snapshot; EntryCount={filtered.Count}; Providers={string.Join(',', requiredProviders)}",
             cancellationToken);
 
         return ApiResponse<ResolvedCredentialConfigurationDto>.Ok(
-            new ResolvedCredentialConfigurationDto(configurationProvider.Values));
+            new ResolvedCredentialConfigurationDto(filtered));
     }
 
     private async Task RecordAccessAuditAsync(

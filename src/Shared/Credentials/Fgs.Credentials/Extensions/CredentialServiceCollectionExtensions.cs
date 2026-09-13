@@ -97,6 +97,10 @@ public static class CredentialServiceCollectionExtensions
 
         services.Configure<CredentialDistributionOptions>(
             configuration.GetSection(CredentialDistributionOptions.SectionName));
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<
+                IValidateOptions<CredentialDistributionOptions>,
+                CredentialDistributionOptionsValidator>());
         services.Configure<CredentialConsumerOptions>(
             configuration.GetSection(CredentialConsumerOptions.SectionName));
 

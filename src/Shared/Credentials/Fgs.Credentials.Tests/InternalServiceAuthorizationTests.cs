@@ -46,4 +46,40 @@ public sealed class InternalServiceAuthorizationTests
 
         InternalServiceAuthorization.IsAuthorized("rotating-key", options).Should().BeTrue();
     }
+
+    [Fact]
+    public void IsAuthorized_Accepts_DevelopSharedKey()
+    {
+        var options = new CredentialDistributionOptions
+        {
+            InternalServiceKey = InternalServiceAuthorization.DevelopInternalServiceKey
+        };
+
+        InternalServiceAuthorization
+            .IsAuthorized(InternalServiceAuthorization.DevelopInternalServiceKey, options)
+            .Should().BeTrue();
+        InternalServiceAuthorization.HasUsableConfiguredKey(options).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validator_Fails_WhenValidateKeyOnStart_AndKeyMissing()
+    {
+        var validator = new CredentialDistributionOptionsValidator();
+        var result = validator.Validate(null, new CredentialDistributionOptions { ValidateKeyOnStart = true });
+        result.Failed.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validator_Succeeds_WhenValidateKeyOnStart_AndKeyPresent()
+    {
+        var validator = new CredentialDistributionOptionsValidator();
+        var result = validator.Validate(
+            null,
+            new CredentialDistributionOptions
+            {
+                ValidateKeyOnStart = true,
+                InternalServiceKey = InternalServiceAuthorization.DevelopInternalServiceKey
+            });
+        result.Succeeded.Should().BeTrue();
+    }
 }

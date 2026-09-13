@@ -35,8 +35,14 @@ public static class CredentialServiceCollectionExtensions
         services.AddMemoryCache();
 
         services.Configure<AwsCredentialsOptions>(configuration.GetSection(AwsCredentialsOptions.SectionName));
-        services.Configure<CredentialDistributionOptions>(
-            configuration.GetSection(CredentialDistributionOptions.SectionName));
+        services.AddOptions<CredentialDistributionOptions>()
+            .Bind(configuration.GetSection(CredentialDistributionOptions.SectionName))
+            .PostConfigure(options => options.ValidateKeyOnStart = true)
+            .ValidateOnStart();
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<
+                IValidateOptions<CredentialDistributionOptions>,
+                CredentialDistributionOptionsValidator>());
         services.Configure<CredentialConfigurationOptions>(_ => { });
         services.AddSingleton<ConfigureCredentialConfigurationOptions>();
         services.AddSingleton<IConfigureOptions<CredentialConfigurationOptions>>(

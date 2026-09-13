@@ -17,6 +17,7 @@ public sealed class CredentialSnapshotRedisCache : ICredentialSnapshotRedisCache
     private readonly ILogger<CredentialSnapshotRedisCache> _logger;
     private readonly SemaphoreSlim _connectLock = new(1, 1);
     private readonly SemaphoreSlim _reloadLock = new(1, 1);
+    private int _pendingReload;
 
     private IConnectionMultiplexer? _multiplexer;
     private string? _connectedConnectionString;
@@ -31,17 +32,18 @@ public sealed class CredentialSnapshotRedisCache : ICredentialSnapshotRedisCache
         _configuration = configuration;
     }
 
-    public async Task PublishAsync(
+    public async Task<bool> PublishAsync(
         IReadOnlyDictionary<string, string> values,
         CancellationToken cancellationToken = default)
     {
         var db = await GetDatabaseAsync(cancellationToken);
         if (db is null)
         {
-            _logger.LogWarning(
-                "Skipping credential snapshot publish: Redis connection string is not available "
+            _logger.LogError(
+                "Credential snapshot publish FAILED: Redis connection string is not available. "
+                + "Peers will keep stale secrets until Redis is reachable "
                 + "(set Global:REDIS:ConnectionString, Redis:ConnectionString, or ConnectionStrings:Redis).");
-            return;
+            return false;
         }
 
         var payload = JsonSerializer.Serialize(values, JsonOptions);
@@ -55,6 +57,7 @@ public sealed class CredentialSnapshotRedisCache : ICredentialSnapshotRedisCache
         _logger.LogInformation(
             "Published credential snapshot to Redis ({Count} entries).",
             values.Count);
+        return true;
     }
 
     public async Task<IReadOnlyDictionary<string, string>?> GetAsync(
@@ -132,6 +135,9 @@ public sealed class CredentialSnapshotRedisCache : ICredentialSnapshotRedisCache
         Func<CancellationToken, Task> onChanged,
         CancellationToken cancellationToken)
     {
+        // Coalesce: if a reload is already running, mark pending and return.
+        // The active worker drains pending so the latest snapshot is applied.
+        Interlocked.Exchange(ref _pendingReload, 1);
         if (!await _reloadLock.WaitAsync(0, cancellationToken))
         {
             return;
@@ -139,11 +145,17 @@ public sealed class CredentialSnapshotRedisCache : ICredentialSnapshotRedisCache
 
         try
         {
-            await onChanged(cancellationToken);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError(ex, "Failed to reload credentials from Redis snapshot.");
+            while (Interlocked.Exchange(ref _pendingReload, 0) == 1)
+            {
+                try
+                {
+                    await onChanged(cancellationToken);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    _logger.LogError(ex, "Failed to reload credentials from Redis snapshot.");
+                }
+            }
         }
         finally
         {

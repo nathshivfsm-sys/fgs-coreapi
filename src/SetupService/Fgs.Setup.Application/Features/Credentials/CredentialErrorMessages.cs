@@ -11,5 +11,6 @@ internal static class CredentialErrorMessages
     public const string InvalidScope = "Credential scope is invalid.";
     public const string InvalidPayload = "Credential payload must be valid UTF-8 text or JSON.";
     public const string TenantContextRequired = "Tenant and company context are required for tenant credentials.";
+    public const string TenantScopeMismatch = "Credential tenant/company does not match the active tenant scope.";
     public const string SecretResolveDisabled = "Credential secret resolution endpoint is disabled.";
 }

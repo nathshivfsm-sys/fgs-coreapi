@@ -174,7 +174,9 @@ public sealed class CredentialMutationServiceTests
             .Setup(r => r.GetTenantByIdAsync(credentialId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(credential);
 
-        var handler = new GetCredentialQueryHandler(repository.Object);
+        var tenantAccessor = new Mock<Fgs.MultiTenancy.ITenantContextAccessor>();
+        tenantAccessor.SetupGet(a => a.Current).Returns(new TestTenantContext(TenantId, CompanyId));
+        var handler = new GetCredentialQueryHandler(repository.Object, tenantAccessor.Object);
         var response = await handler.Handle(
             new GetCredentialQuery(CredentialScope.Tenant, credentialId.ToString("D")),
             CancellationToken.None);
@@ -252,4 +254,6 @@ public sealed class CredentialMutationServiceTests
             ConfigurationSchema = "{}",
             IsActive = true
         };
+
+    private sealed record TestTenantContext(long TenantId, long CompanyId) : Fgs.MultiTenancy.ITenantContext;
 }

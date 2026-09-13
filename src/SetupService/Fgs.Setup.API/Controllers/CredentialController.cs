@@ -30,6 +30,7 @@ namespace Fgs.Setup.API.Controllers;
 [Produces("application/json")]
 public sealed class CredentialController(IMediator mediator) : ControllerBase
 {
+    [RequirePermission(FgsPermissionCodes.SetupView)]
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<CredentialSummaryDto>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -46,6 +47,7 @@ public sealed class CredentialController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [RequirePermission(FgsPermissionCodes.SetupView)]
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ApiResponse<CredentialDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -142,6 +144,7 @@ public sealed class CredentialController(IMediator mediator) : ControllerBase
     /// Decrypts and returns credential payload. Allowed only when
     /// <c>AwsCredentials:EnableTestSecretEndpoint</c> is true and the host is Development.
     /// </summary>
+    [RequirePermission(FgsPermissionCodes.SetupView)]
     [HttpGet("{id}/resolve")]
     [ProducesResponseType(typeof(ApiResponse<CredentialSecretDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]

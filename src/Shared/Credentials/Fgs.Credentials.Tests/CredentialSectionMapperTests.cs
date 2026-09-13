@@ -154,4 +154,46 @@ public sealed class CredentialSectionMapperTests
         filtered.Should().ContainKey("Global:DATABASE:FgsUser");
         filtered.Should().ContainKey("Global:SENDGRID:ApiKey");
     }
+
+    [Fact]
+    public void Filter_EmptyRequiredProviders_ReturnsEmpty()
+    {
+        var values = new Dictionary<string, string>
+        {
+            ["Global:DATABASE:FgsUser"] = "db"
+        };
+
+        CredentialConfigurationFilter.Filter(values, []).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FilterForServiceDistribution_ExcludesTenantKeys()
+    {
+        var values = new Dictionary<string, string>
+        {
+            ["Global:DATABASE:FgsUser"] = "db",
+            ["Global:SENDGRID:ApiKey"] = "sg",
+            ["Tenant:1:2:DATABASE:Secret"] = "tenant-secret",
+            ["Global:REDIS:ConnectionString"] = "redis:6379"
+        };
+
+        var filtered = CredentialConfigurationFilter.FilterForServiceDistribution(
+            values,
+            ["DATABASE"]);
+
+        filtered.Should().ContainKey("Global:DATABASE:FgsUser");
+        filtered.Should().ContainKey("Global:REDIS:ConnectionString");
+        filtered.Should().NotContainKey("Global:SENDGRID:ApiKey");
+        filtered.Should().NotContainKey("Tenant:1:2:DATABASE:Secret");
+    }
+
+    [Fact]
+    public void ServiceAllowList_ResolvesKnownServices()
+    {
+        CredentialServiceProviderAllowList.TryGetRequiredProviders("fgs-user-service", out var providers)
+            .Should().BeTrue();
+        providers.Should().Contain("DATABASE");
+        CredentialServiceProviderAllowList.TryGetRequiredProviders("unknown-service", out _)
+            .Should().BeFalse();
+    }
 }

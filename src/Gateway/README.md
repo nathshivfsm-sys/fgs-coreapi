@@ -238,13 +238,13 @@ The local Compose file starts services in credential-safe order:
 
 ### Credential bootstrap environment variables
 
-Consuming services load secrets from Setup Service at startup (`GET /api/v1/credentials/resolved`). Configure these bootstrap values (non-secret) in appsettings or Docker env:
+Consuming services load secrets from Setup Service at startup (`GET /api/v1/credential/resolved`). Configure these bootstrap values in `.env` / Docker env (never commit real secrets):
 
 | Variable / setting | Purpose |
 | --- | --- |
 | `SetupService__BaseUrl` | Setup Service URL for `ISetupClient` |
-| `CredentialDistribution__InternalServiceKey` | S2S key for `/credentials/resolved` |
-| `CredentialConsumer__ServiceName` | Service identity for access audit |
+| `CREDENTIAL_DISTRIBUTION_KEY` / `CredentialDistribution__InternalServiceKey` | Required S2S key for `/credential/resolved` (see `src/Gateway/.env.example`) |
+| `CredentialConsumer__ServiceName` | Service identity for allow-list + access audit |
 | `CredentialConsumer__RequiredProviders__0` | Provider filter (e.g. `DATABASE`, `SENDGRID`) |
 | `AuditService__Enabled` | On `setup-service`, set to `false` in Compose so Setup does not call Audit before Audit is listening (local bootstrap race). Set `true` in `appsettings.Development.json` when testing audit integration outside Compose. |
 | `FGS_SETUP_DB` | Setup Service DB bootstrap (Setup only) |

@@ -74,6 +74,7 @@ public sealed class CredentialMutationService
         };
 
         await _repository.AddGlobalAsync(credential, cancellationToken);
+        await PublishConfigurationChangedAsync(cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         credential.ProviderType = providerType;
         await _configurationProvider.ReloadAsync(cancellationToken);
@@ -186,6 +187,7 @@ public sealed class CredentialMutationService
         credential.UpdatedBy = _actorResolver.ResolveActorId();
         _repository.UpdateTenant(credential);
         await WriteAuditAsync(credential, CredentialAuditActions.Updated, "Credential updated.", null, null, cancellationToken);
+        await PublishConfigurationChangedAsync(cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _configurationProvider.ReloadAsync(cancellationToken);
         return credential;
