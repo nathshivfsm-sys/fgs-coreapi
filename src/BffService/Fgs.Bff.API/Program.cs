@@ -46,6 +46,10 @@ try
         .AddQueryType<BffQuery>()
         .AddType<LookupItemType>()
         .AddType<HotChocolate.Types.AnyType>()
+        .ModifyRequestOptions(options =>
+        {
+            options.IncludeExceptionDetails = builder.Environment.IsDevelopment();
+        })
         .AddDiagnosticEventListener<Fgs.Bff.API.GraphQL.FgsGraphQlDiagnosticObserver>();
 
     var app = builder.Build();

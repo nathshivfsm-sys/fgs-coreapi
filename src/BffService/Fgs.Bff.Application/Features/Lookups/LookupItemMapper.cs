@@ -91,9 +91,8 @@ public static class LookupItemMapper
             JsonValueKind.True => true,
             JsonValueKind.False => false,
             JsonValueKind.Null or JsonValueKind.Undefined => null,
-            JsonValueKind.Array => element.EnumerateArray().Select(ToObject).ToList(),
-            JsonValueKind.Object => element.EnumerateObject()
-                .ToDictionary(p => p.Name, p => ToObject(p.Value), StringComparer.OrdinalIgnoreCase),
+            // Keep nested JSON as text so HotChocolate AnyType can serialize Extra safely.
+            JsonValueKind.Array or JsonValueKind.Object => element.GetRawText(),
             _ => element.GetRawText()
         };
 

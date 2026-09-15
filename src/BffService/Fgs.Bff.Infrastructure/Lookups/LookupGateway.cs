@@ -53,8 +53,14 @@ public sealed class LookupGateway(
             var items = LookupItemMapper.MapArray(payload.Data);
             return new LookupResultDto(request.Key, items);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            // Polly resilience (timeout / circuit breaker) and unexpected faults must not
+            // fail the whole GraphQL batch — surface per-key error instead.
             logger.LogWarning(
                 ex,
                 "Lookup gateway call failed for key {LookupKey} via {Service}",
