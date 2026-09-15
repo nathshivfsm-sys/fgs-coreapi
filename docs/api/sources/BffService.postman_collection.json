@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "a7c3e8f1-4b2d-4e9a-9c1f-bff-signup-001",
     "name": "BffService",
-    "description": "FGS Backend-for-Frontend (orchestration only).\n\nCompany signup spans User (identity) + Setup (business types).\n\nGateway (Docker): https://developer.fsm.com\nSwagger: https://developer.fsm.com/swagger/bff/\nGraphQL: https://developer.fsm.com/api/v1/bff/graphql\n\nImport with FGS Globals (Local). Prefer gatewayUrl = https://developer.fsm.com when using Docker Compose.",
+    "description": "FGS Backend-for-Frontend (orchestration only).\n\nCompany signup spans User (identity) + Setup (business types).\nBatch lookups: execute via GraphQL POST /api/v1/bff/graphql (lookups); discover keys via GET /api/v1/bff/lookups/keys.\n\nGateway (Docker): https://developer.fsm.com\nSwagger: https://developer.fsm.com/swagger/bff/\nGraphQL: https://developer.fsm.com/api/v1/bff/graphql\n\nImport with FGS Globals (Local). Prefer gatewayUrl = https://developer.fsm.com when using Docker Compose.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -19,15 +19,25 @@
         {
           "name": "1. Health",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [
-              { "key": "Accept", "value": "application/json", "type": "text" }
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "url": {
               "raw": "{{bffServiceUrl}}/health",
-              "host": ["{{bffServiceUrl}}"],
-              "path": ["health"]
+              "host": [
+                "{{bffServiceUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
             },
             "description": "Direct container health (port 5003). Requires a published port or use from inside the Docker network. Prefer request 2 against the gateway for end-to-end signup."
           }
@@ -86,12 +96,26 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
-              { "key": "Accept", "value": "application/json", "type": "text" },
-              { "key": "Content-Type", "value": "application/json", "type": "text" },
-              { "key": "X-Correlation-Id", "value": "{{$guid}}", "type": "text" }
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{$guid}}",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -104,8 +128,16 @@
             },
             "url": {
               "raw": "{{gatewayUrl}}/api/v1/bff/signup/company",
-              "host": ["{{gatewayUrl}}"],
-              "path": ["api", "v1", "bff", "signup", "company"]
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bff",
+                "signup",
+                "company"
+              ]
             },
             "description": "BFF orchestration:\n1) FluentValidation on BFF\n2) UserService creates tenant/company/user/invitation + invite outbox\n3) SetupService seeds business types\n4) Returns consolidated CompanySignupResultDto (includes tenantCode)\n\nAllowAnonymous. businessTypeIds must contain at least one GloBusinessType id (typically 1 in local seed)."
           }
@@ -113,11 +145,21 @@
         {
           "name": "3. GraphQL - BFF service info",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
-              { "key": "Accept", "value": "application/json", "type": "text" },
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -130,10 +172,17 @@
             },
             "url": {
               "raw": "{{gatewayUrl}}/api/v1/bff/graphql",
-              "host": ["{{gatewayUrl}}"],
-              "path": ["api", "v1", "bff", "graphql"]
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bff",
+                "graphql"
+              ]
             },
-            "description": "HotChocolate read-aggregation scaffold. Future composite reads land here."
+            "description": "HotChocolate GraphQL endpoint readiness. Batch lookups use folder 01."
           },
           "event": [
             {
@@ -159,11 +208,21 @@
         {
           "name": "CompanySignup",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
-              { "key": "Accept", "value": "application/json", "type": "text" },
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -176,8 +235,16 @@
             },
             "url": {
               "raw": "{{gatewayUrl}}/api/v1/bff/signup/company",
-              "host": ["{{gatewayUrl}}"],
-              "path": ["api", "v1", "bff", "signup", "company"]
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bff",
+                "signup",
+                "company"
+              ]
             },
             "description": "Same endpoint as folder 00. Set signupEmail to a unique address before sending if not using the orchestrated folder."
           }
@@ -186,58 +253,130 @@
     },
     {
       "name": "01 - Batch Lookups",
-      "description": "GraphQL batch lookups + REST catalog keys. Requires Bearer token and tenant headers for tenant-scoped keys.",
+      "description": "Execute lookups via GraphQL only (POST /api/v1/bff/graphql). Optional GET .../lookups/keys for catalog discovery (Swagger). Requires Bearer token; tenant headers for tenant-scoped keys.",
       "item": [
         {
-          "name": "GET lookup keys",
+          "name": "GET lookup keys (discovery)",
           "request": {
             "auth": {
               "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
             },
             "method": "GET",
             "header": [
-              { "key": "Accept", "value": "application/json", "type": "text" },
-              { "key": "X-Tenant-Id", "value": "{{tenantId}}", "type": "text" },
-              { "key": "X-Company-Id", "value": "{{companyId}}", "type": "text" }
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Company-Id",
+                "value": "{{companyId}}",
+                "type": "text"
+              }
             ],
             "url": {
               "raw": "{{gatewayUrl}}/api/v1/bff/lookups/keys",
-              "host": ["{{gatewayUrl}}"],
-              "path": ["api", "v1", "bff", "lookups", "keys"]
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bff",
+                "lookups",
+                "keys"
+              ]
             },
-            "description": "Swagger-friendly catalog of all LookupKey entries (service, path, required/optional filters)."
+            "description": "Catalog of LookupKey values (service, path, required/optional filters). Discovery only \u2014 do not use for data fetch."
           }
         },
         {
-          "name": "GraphQL - batch lookups",
+          "name": "GraphQL - execute batch lookups",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('GraphQL HTTP 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('lookups payload present', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.errors).to.be.undefined;",
+                  "  pm.expect(body.data.lookups).to.be.an('array');",
+                  "  pm.expect(body.data.lookups.length).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
             },
             "method": "POST",
             "header": [
-              { "key": "Accept", "value": "application/json", "type": "text" },
-              { "key": "Content-Type", "value": "application/json", "type": "text" },
-              { "key": "X-Tenant-Id", "value": "{{tenantId}}", "type": "text" },
-              { "key": "X-Company-Id", "value": "{{companyId}}", "type": "text" }
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenantId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Company-Id",
+                "value": "{{companyId}}",
+                "type": "text"
+              }
             ],
             "body": {
-              "mode": "raw",
-              "raw": "{\n  \"query\": \"query($requests: [LookupRequestInput!]!) { lookups(requests: $requests) { key items { id code name displayOrder extra } error } }\",\n  \"variables\": {\n    \"requests\": [\n      { \"key\": \"GLO_COUNTRY\", \"activeOnly\": true },\n      { \"key\": \"GLO_STATE_PROVINCE\", \"countryCode\": \"US\", \"activeOnly\": true },\n      { \"key\": \"TECH_TRADE\", \"activeOnly\": true }\n    ]\n  }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
+              "mode": "graphql",
+              "graphql": {
+                "query": "query BatchLookups($requests: [LookupRequestInput!]!) {\n  lookups(requests: $requests) {\n    key\n    items {\n      id\n      code\n      name\n      displayOrder\n      extra\n    }\n    error\n  }\n}",
+                "variables": "{\n  \"requests\": [\n    { \"key\": \"GLO_COUNTRY\", \"activeOnly\": true },\n    { \"key\": \"GLO_STATE_PROVINCE\", \"countryCode\": \"US\", \"activeOnly\": true },\n    { \"key\": \"TECH_TRADE\", \"activeOnly\": true }\n  ]\n}"
               }
             },
             "url": {
               "raw": "{{gatewayUrl}}/api/v1/bff/graphql",
-              "host": ["{{gatewayUrl}}"],
-              "path": ["api", "v1", "bff", "graphql"]
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bff",
+                "graphql"
+              ]
             },
-            "description": "Batch bag lookups. Max 20 keys per request; no duplicate keys. Partial failures populate error on that key only."
+            "description": "Execute one or more lookups in parallel via GraphQL. Max 20 keys; no duplicates. Partial failures set error on that key only.\n\nEnum keys use SCREAMING_SNAKE (e.g. GLO_COUNTRY, TECH_TRADE). Discover all keys with GET /api/v1/bff/lookups/keys."
           }
         }
       ]

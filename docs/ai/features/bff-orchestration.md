@@ -9,8 +9,8 @@
 
 ## Batch lookups
 
-- **GraphQL:** `lookups(requests: [LookupRequestInput!]!): [LookupResult!]!` — one bag field (not selection-set per entity). Partial failures set `error` on that key only; others still return `items`.
-- **REST discovery (Swagger):** `GET /api/v1/bff/lookups/keys` — same catalog metadata (`key`, `service`, `path`, filters).
+- **GraphQL (execute):** `lookups(requests: [LookupRequestInput!]!): [LookupResult!]!` at `POST /api/v1/bff/graphql` — one bag field (not selection-set per entity). Partial failures set `error` on that key only; others still return `items`. GraphQL is not in OpenAPI/Swagger.
+- **REST (Swagger discovery only):** `GET /api/v1/bff/lookups/keys` — catalog metadata (`key`, `service`, `path`, filters). Do not add a REST batch execute endpoint.
 - **Catalog:** `LookupCatalog` / `LookupKey` in Application — covers all existing owning-service `GET .../lookup` routes (Glo + Setup tenant + User + Asset + Inventory + Billing Invoice + CRM Customer), plus `PostalCodeCity` (`api/v1/postalcode/cities`).
 - **Caching:** no BFF response cache; rely on owning-service Redis.
 - **Fan-out:** `Task.WhenAll` via `ILookupGateway` (caller auth + tenant/company headers forwarded).

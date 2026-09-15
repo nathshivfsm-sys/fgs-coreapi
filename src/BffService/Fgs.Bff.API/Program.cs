@@ -25,7 +25,9 @@ try
         options.SwaggerDescription =
             "Backend-for-Frontend: authentication, authorization, orchestration, DTO mapping, "
             + "and response aggregation for cross-domain workflows. "
-            + "Simple CRUD continues to route directly from NGINX to owning microservices.";
+            + "Simple CRUD continues to route directly from NGINX to owning microservices. "
+            + "Batch lookups: discover keys via GET /api/v1/bff/lookups/keys; "
+            + "execute via GraphQL lookups(requests) at POST /api/v1/bff/graphql (not listed in OpenAPI).";
         options.SwaggerContactName = "FGS Platform";
         options.XmlCommentsAssembly = typeof(Program).Assembly;
         options.UseMultiTenancy = true;
