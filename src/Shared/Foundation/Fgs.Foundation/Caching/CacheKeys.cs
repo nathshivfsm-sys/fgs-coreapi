@@ -11,6 +11,12 @@ public static class CacheKeys
     public static string EntityPrefix(long tenantId, long companyId, string entity) =>
         $"tenant:{tenantId}:company:{companyId}:{entity}:";
 
+    /// <summary>
+    /// Cache key for global (non-tenant) catalog lookups. Include filter parts in <paramref name="segment"/> when needed.
+    /// </summary>
+    public static string GlobalLookup(string entity, string segment) =>
+        $"global:{entity}:{segment}";
+
     public static string LookupSegment(bool activeOnly) =>
         $"lookup:activeOnly={activeOnly.ToString().ToLowerInvariant()}";
 

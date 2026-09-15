@@ -26,6 +26,8 @@ public sealed record FgsSetupPostalCodeLookupDto(
     long Id,
     string PostalCode);
 
+public sealed record PostalCodeCityLookupDto(string City);
+
 public sealed record FgsSetupPostalCodeCreateDto(
     string PostalCode,
     string CountryCode,

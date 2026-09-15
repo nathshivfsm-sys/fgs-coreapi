@@ -135,6 +135,64 @@ internal sealed class FgsSetupPostalCodeReadRepository : IFgsSetupPostalCodeRead
         return rows.Select(r => r.ToDto()).ToList();
     }
 
+    public async Task<IReadOnlyList<PostalCodeCityLookupDto>> LookupDistinctCitiesAsync(
+        string? countryCode = null,
+        string? stateProvinceCode = null,
+        bool activeOnly = true,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var where = new List<string>
+        {
+            "\"TenantId\" = @TenantId",
+            "\"CompanyId\" = @CompanyId",
+            "\"City\" IS NOT NULL",
+            "BTRIM(\"City\") <> ''"
+        };
+
+        if (activeOnly)
+        {
+            where.Add("\"IsActive\" = TRUE");
+        }
+
+        if (!string.IsNullOrWhiteSpace(countryCode))
+        {
+            where.Add("\"CountryCode\" = @CountryCode");
+        }
+
+        if (!string.IsNullOrWhiteSpace(stateProvinceCode))
+        {
+            where.Add("\"StateProvinceCode\" = @StateProvinceCode");
+        }
+
+        var whereClause = string.Join(" AND ", where);
+        var sql = $"""
+            SELECT DISTINCT "City"
+            FROM {FgsSetupPostalCodeSql.Table}
+            WHERE {whereClause}
+            ORDER BY "City" ASC
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        var rows = await connection.QueryAsync<string>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    CountryCode = string.IsNullOrWhiteSpace(countryCode)
+                        ? null
+                        : countryCode.Trim().ToUpperInvariant(),
+                    StateProvinceCode = string.IsNullOrWhiteSpace(stateProvinceCode)
+                        ? null
+                        : stateProvinceCode.Trim().ToUpperInvariant()
+                },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(city => new PostalCodeCityLookupDto(city)).ToList();
+    }
+
     public async Task<bool> ExistsByPostalCodeAsync(
         string postalCode,
         long? excludeId = null,

@@ -54,4 +54,12 @@ public sealed class CacheKeysTests
 
         CacheKeys.Fingerprint(filters).Should().Be(CacheKeys.Fingerprint(filters));
     }
+
+    [Fact]
+    public void GlobalLookup_ProducesExpectedFormat()
+    {
+        var key = CacheKeys.GlobalLookup("country", CacheKeys.LookupSegment(true));
+
+        key.Should().Be("global:country:lookup:activeOnly=true");
+    }
 }

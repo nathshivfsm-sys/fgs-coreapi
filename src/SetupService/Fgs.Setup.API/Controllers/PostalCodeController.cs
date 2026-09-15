@@ -8,6 +8,7 @@ using Fgs.Setup.Application.Features.SetupPostalCodes.Commands.PatchFgsSetupPost
 using Fgs.Setup.Application.Features.SetupPostalCodes.Commands.UpdateFgsSetupPostalCode;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Queries.GetFgsSetupPostalCodeById;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Queries.ListSetupPostalCodes;
+using Fgs.Setup.Application.Features.SetupPostalCodes.Queries.LookupPostalCodeCities;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Queries.LookupSetupPostalCodes;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Dtos;
 using MediatR;
@@ -62,6 +63,20 @@ public sealed class PostalCodeController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new LookupSetupPostalCodesQuery(activeOnly), cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [HttpGet("cities")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<PostalCodeCityLookupDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> LookupCities(
+        [FromQuery] string? countryCode = null,
+        [FromQuery] string? stateProvinceCode = null,
+        [FromQuery] bool activeOnly = true,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await mediator.Send(
+            new LookupPostalCodeCitiesQuery(countryCode, stateProvinceCode, activeOnly),
+            cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 

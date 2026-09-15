@@ -17,6 +17,12 @@ public interface IFgsSetupPostalCodeReadRepository
         bool activeOnly = true,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<PostalCodeCityLookupDto>> LookupDistinctCitiesAsync(
+        string? countryCode = null,
+        string? stateProvinceCode = null,
+        bool activeOnly = true,
+        CancellationToken cancellationToken = default);
+
     Task<bool> ExistsByPostalCodeAsync(
         string postalCode,
         long? excludeId = null,
