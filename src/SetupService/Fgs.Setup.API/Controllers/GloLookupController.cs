@@ -25,12 +25,13 @@ namespace Fgs.Setup.API.Controllers;
 
 /// <summary>
 /// Global (non-tenant) catalog lookup endpoints under /api/v1/glo.
+/// Public reference data — no auth or tenant headers required.
 /// </summary>
+[AllowAnonymous]
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("glo")]
 public sealed class GloLookupController(IMediator mediator) : FgsApiControllerBase(mediator)
 {
-    [AllowAnonymous]
     [HttpGet("country/lookup")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<GloCountryLookupDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> LookupCountries(
@@ -46,7 +47,6 @@ public sealed class GloLookupController(IMediator mediator) : FgsApiControllerBa
         CancellationToken cancellationToken = default) =>
         FromApiResponse(await Mediator.Send(new LookupGloStateProvincesQuery(countryCode, activeOnly), cancellationToken));
 
-    [AllowAnonymous]
     [HttpGet("timezone/lookup")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<GloTimeZoneLookupDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> LookupTimeZones(
@@ -68,7 +68,6 @@ public sealed class GloLookupController(IMediator mediator) : FgsApiControllerBa
         CancellationToken cancellationToken = default) =>
         FromApiResponse(await Mediator.Send(new LookupGloLocationTypesQuery(activeOnly), cancellationToken));
 
-    [AllowAnonymous]
     [HttpGet("businesstype/lookup")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<GloBusinessTypeLookupDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> LookupBusinessTypes(

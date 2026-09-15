@@ -17,6 +17,8 @@ public sealed class TenantScopeSwaggerRulesTests
     [InlineData("api/v1/invite/start")]
     [InlineData("api/v1/internal/users")]
     [InlineData("api/v1/credential/resolved")]
+    [InlineData("api/v1/glo/country/lookup")]
+    [InlineData("api/v1/glo/language/lookup")]
     public void ShouldSkipTenantScopeHeaders_ForDefaultSkipPaths_ReturnsTrue(string relativePath)
     {
         var method = typeof(DummyController).GetMethod(nameof(DummyController.TenantScoped))!;

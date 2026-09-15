@@ -20,6 +20,7 @@ public static class FgsTenantScopeDefaults
         "/api/v1/internal",
         "/api/v1/credential/resolved",
         "/api/v1/tenantprovisioning",
+        "/api/v1/glo",
         "/api/v1/notification",
         "/health",
         "/swagger"
