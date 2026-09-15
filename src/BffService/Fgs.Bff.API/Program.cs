@@ -1,4 +1,5 @@
 using Fgs.Bff.API.GraphQL;
+using Fgs.Bff.API.GraphQL.Lookups;
 using Fgs.Bff.Application;
 using Fgs.Bff.Infrastructure;
 using Fgs.Credentials;
@@ -41,6 +42,8 @@ try
     builder.Services
         .AddGraphQLServer()
         .AddQueryType<BffQuery>()
+        .AddType<LookupItemType>()
+        .AddType<HotChocolate.Types.AnyType>()
         .AddDiagnosticEventListener<Fgs.Bff.API.GraphQL.FgsGraphQlDiagnosticObserver>();
 
     var app = builder.Build();

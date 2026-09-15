@@ -183,6 +183,64 @@
           }
         }
       ]
+    },
+    {
+      "name": "01 - Batch Lookups",
+      "description": "GraphQL batch lookups + REST catalog keys. Requires Bearer token and tenant headers for tenant-scoped keys.",
+      "item": [
+        {
+          "name": "GET lookup keys",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json", "type": "text" },
+              { "key": "X-Tenant-Id", "value": "{{tenantId}}", "type": "text" },
+              { "key": "X-Company-Id", "value": "{{companyId}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/v1/bff/lookups/keys",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "v1", "bff", "lookups", "keys"]
+            },
+            "description": "Swagger-friendly catalog of all LookupKey entries (service, path, required/optional filters)."
+          }
+        },
+        {
+          "name": "GraphQL - batch lookups",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "X-Tenant-Id", "value": "{{tenantId}}", "type": "text" },
+              { "key": "X-Company-Id", "value": "{{companyId}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query($requests: [LookupRequestInput!]!) { lookups(requests: $requests) { key items { id code name displayOrder extra } error } }\",\n  \"variables\": {\n    \"requests\": [\n      { \"key\": \"GLO_COUNTRY\", \"activeOnly\": true },\n      { \"key\": \"GLO_STATE_PROVINCE\", \"countryCode\": \"US\", \"activeOnly\": true },\n      { \"key\": \"TECH_TRADE\", \"activeOnly\": true }\n    ]\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/v1/bff/graphql",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "v1", "bff", "graphql"]
+            },
+            "description": "Batch bag lookups. Max 20 keys per request; no duplicate keys. Partial failures populate error on that key only."
+          }
+        }
+      ]
     }
   ]
 }
