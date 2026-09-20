@@ -11,7 +11,9 @@ internal sealed class FgsSetupPostalCodeSummaryRow
     public string City { get; set; } = null!;
     public decimal TripChargeAmount { get; set; }
     public long? FgsSetupZoneId { get; set; }
+    public string? ZoneName { get; set; }
     public long? FgsSetupTaxId { get; set; }
+    public string? TaxName { get; set; }
     public bool IsActive { get; set; }
 
     public FgsSetupPostalCodeSummaryDto ToDto() =>
@@ -23,7 +25,9 @@ internal sealed class FgsSetupPostalCodeSummaryRow
             City,
             TripChargeAmount,
             FgsSetupZoneId,
+            ZoneName,
             FgsSetupTaxId,
+            TaxName,
             IsActive);
 }
 
@@ -36,7 +40,9 @@ internal sealed class FgsSetupPostalCodeDetailRow
     public string City { get; set; } = null!;
     public decimal TripChargeAmount { get; set; }
     public long? FgsSetupZoneId { get; set; }
+    public string? ZoneName { get; set; }
     public long? FgsSetupTaxId { get; set; }
+    public string? TaxName { get; set; }
     public bool IsActive { get; set; }
 
     public FgsSetupPostalCodeDetailDto ToDto() =>
@@ -48,7 +54,9 @@ internal sealed class FgsSetupPostalCodeDetailRow
             City,
             TripChargeAmount,
             FgsSetupZoneId,
+            ZoneName,
             FgsSetupTaxId,
+            TaxName,
             IsActive);
 }
 

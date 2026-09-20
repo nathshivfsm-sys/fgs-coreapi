@@ -12,7 +12,7 @@ internal static class TechTradeSql
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "TradeCode", "Name", "SortOrder", "IsActive"
+        "Id", "TradeCode", "Name", "Description", "SortOrder", "IsActive"
         """;
 
     public const string SelectLookupColumns = """

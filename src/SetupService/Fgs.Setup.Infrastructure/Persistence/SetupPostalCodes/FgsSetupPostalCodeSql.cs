@@ -6,15 +6,17 @@ namespace Fgs.Setup.Infrastructure.Persistence.SetupPostalCodes;
 internal static class FgsSetupPostalCodeSql
 {
     public const string Table = "setup.\"FgsSetupPostalCode\"";
+    public const string ZoneTable = "setup.\"FgsSetupZone\"";
+    public const string TaxTable = "setup.\"FgsSetupTax\"";
 
     public const string SelectDetailColumns = """
-        "Id", "PostalCode", "CountryCode", "StateProvinceCode", "City", "TripChargeAmount",
-        "FgsSetupZoneId", "FgsSetupTaxId", "IsActive"
+        pc."Id", pc."PostalCode", pc."CountryCode", pc."StateProvinceCode", pc."City", pc."TripChargeAmount",
+        pc."FgsSetupZoneId", z."Name" AS "ZoneName", pc."FgsSetupTaxId", tax."Name" AS "TaxName", pc."IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "PostalCode", "CountryCode", "StateProvinceCode", "City", "TripChargeAmount",
-        "FgsSetupZoneId", "FgsSetupTaxId", "IsActive"
+        pc."Id", pc."PostalCode", pc."CountryCode", pc."StateProvinceCode", pc."City", pc."TripChargeAmount",
+        pc."FgsSetupZoneId", z."Name" AS "ZoneName", pc."FgsSetupTaxId", tax."Name" AS "TaxName", pc."IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -28,6 +30,9 @@ internal static class FgsSetupPostalCodeSql
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)
-        => SetupSqlOrderBy.Resolve(sortBy, direction, AllowedSortColumns);
-
+        => SetupSqlOrderBy.Resolve(
+            sortBy,
+            direction,
+            AllowedSortColumns,
+            tableAlias: "pc");
 }

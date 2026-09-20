@@ -27,10 +27,18 @@ internal sealed class FgsSetupPostalCodeReadRepository : IFgsSetupPostalCodeRead
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $"""
             SELECT {FgsSetupPostalCodeSql.SelectDetailColumns}
-            FROM {FgsSetupPostalCodeSql.Table}
-            WHERE "Id" = @Id
-              AND "TenantId" = @TenantId
-              AND "CompanyId" = @CompanyId
+            FROM {FgsSetupPostalCodeSql.Table} pc
+            LEFT JOIN {FgsSetupPostalCodeSql.ZoneTable} z
+              ON z."Id" = pc."FgsSetupZoneId"
+             AND z."TenantId" = pc."TenantId"
+             AND z."CompanyId" = pc."CompanyId"
+            LEFT JOIN {FgsSetupPostalCodeSql.TaxTable} tax
+              ON tax."Id" = pc."FgsSetupTaxId"
+             AND tax."TenantId" = pc."TenantId"
+             AND tax."CompanyId" = pc."CompanyId"
+            WHERE pc."Id" = @Id
+              AND pc."TenantId" = @TenantId
+              AND pc."CompanyId" = @CompanyId
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -53,24 +61,24 @@ internal sealed class FgsSetupPostalCodeReadRepository : IFgsSetupPostalCodeRead
 
         var where = new List<string>
         {
-            "\"TenantId\" = @TenantId",
-            "\"CompanyId\" = @CompanyId"
+            "pc.\"TenantId\" = @TenantId",
+            "pc.\"CompanyId\" = @CompanyId"
         };
 
         if (paging.IsActive.HasValue)
         {
-            where.Add("\"IsActive\" = @IsActive");
+            where.Add("pc.\"IsActive\" = @IsActive");
         }
 
         if (!string.IsNullOrWhiteSpace(filters.PostalCode))
         {
-            where.Add("\"PostalCode\" ILIKE @PostalCode");
+            where.Add("pc.\"PostalCode\" ILIKE @PostalCode");
         }
 
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
             where.Add(
-                "(\"PostalCode\" ILIKE @Search OR \"City\" ILIKE @Search OR \"CountryCode\" ILIKE @Search OR \"StateProvinceCode\" ILIKE @Search)");
+                "(pc.\"PostalCode\" ILIKE @Search OR pc.\"City\" ILIKE @Search OR pc.\"CountryCode\" ILIKE @Search OR pc.\"StateProvinceCode\" ILIKE @Search)");
         }
 
         var whereClause = string.Join(" AND ", where);
@@ -78,13 +86,21 @@ internal sealed class FgsSetupPostalCodeReadRepository : IFgsSetupPostalCodeRead
 
         var sql = $"""
             SELECT {FgsSetupPostalCodeSql.SelectSummaryColumns}
-            FROM {FgsSetupPostalCodeSql.Table}
+            FROM {FgsSetupPostalCodeSql.Table} pc
+            LEFT JOIN {FgsSetupPostalCodeSql.ZoneTable} z
+              ON z."Id" = pc."FgsSetupZoneId"
+             AND z."TenantId" = pc."TenantId"
+             AND z."CompanyId" = pc."CompanyId"
+            LEFT JOIN {FgsSetupPostalCodeSql.TaxTable} tax
+              ON tax."Id" = pc."FgsSetupTaxId"
+             AND tax."TenantId" = pc."TenantId"
+             AND tax."CompanyId" = pc."CompanyId"
             WHERE {whereClause}
             {orderBy}
             LIMIT @PageSize OFFSET @Offset;
 
             SELECT COUNT(*)
-            FROM {FgsSetupPostalCodeSql.Table}
+            FROM {FgsSetupPostalCodeSql.Table} pc
             WHERE {whereClause};
             """;
 

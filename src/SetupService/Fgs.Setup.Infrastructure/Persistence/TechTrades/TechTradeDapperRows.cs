@@ -13,12 +13,14 @@ internal sealed class TechTradeSummaryRow
 
     public string Name { get; set; } = null!;
 
+    public string? Description { get; set; }
+
     public int? SortOrder { get; set; }
 
     public bool IsActive { get; set; }
 
     public TechTradeSummaryDto ToDto() =>
-        new(Id, TradeCode, Name, SortOrder, IsActive);
+        new(Id, TradeCode, Name, Description, SortOrder, IsActive);
 }
 
 internal sealed class TechTradeDetailRow

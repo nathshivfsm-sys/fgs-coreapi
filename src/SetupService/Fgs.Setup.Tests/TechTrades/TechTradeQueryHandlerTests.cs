@@ -49,7 +49,7 @@ public sealed class TechTradeQueryHandlerTests
     {
         var items = new List<TechTradeSummaryDto>
         {
-            new(1, "HVAC", "HVAC", 1, true)
+            new(1, "HVAC", "HVAC", null, 1, true)
         };
 
         var readRepository = new Mock<ITechTradeReadRepository>();

@@ -4,6 +4,7 @@ public sealed record TechTradeSummaryDto(
     long Id,
     string TradeCode,
     string Name,
+    string? Description,
     int? SortOrder,
     bool IsActive);
 

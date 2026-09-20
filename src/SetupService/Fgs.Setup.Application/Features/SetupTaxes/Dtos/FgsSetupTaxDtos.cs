@@ -35,6 +35,13 @@ public sealed record FgsSetupTaxLookupDto(
     string Name,
     decimal TaxRate);
 
+public sealed record FgsSetupTaxLineUpsertDto(
+    long? Id,
+    long FgsSetupTaxAuthorityId,
+    DateOnly EffectiveFromDate,
+    DateOnly? EffectiveToDate,
+    bool IsExternalSystemRecord = false);
+
 public sealed record FgsSetupTaxCreateDto(
     string TaxCode,
     string Name,
@@ -42,7 +49,8 @@ public sealed record FgsSetupTaxCreateDto(
     string? ExternalSystemId,
     string? SyncToken,
     bool ShowTaxDetail,
-    string? Description);
+    string? Description,
+    IReadOnlyList<FgsSetupTaxLineUpsertDto>? TaxDetails = null);
 
 public sealed record FgsSetupTaxUpdateDto(
     string TaxCode,
@@ -51,7 +59,8 @@ public sealed record FgsSetupTaxUpdateDto(
     string? ExternalSystemId,
     string? SyncToken,
     bool ShowTaxDetail,
-    string? Description);
+    string? Description,
+    IReadOnlyList<FgsSetupTaxLineUpsertDto>? TaxDetails = null);
 
 public sealed record FgsSetupTaxPatchDto(
     string? TaxCode,

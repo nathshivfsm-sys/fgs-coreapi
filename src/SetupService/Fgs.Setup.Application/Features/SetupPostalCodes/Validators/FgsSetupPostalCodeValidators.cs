@@ -17,7 +17,7 @@ public sealed class CreateFgsSetupPostalCodeCommandValidator : AbstractValidator
         RuleFor(x => x.Dto.CountryCode).NotEmpty().Length(2);
         RuleFor(x => x.Dto.StateProvinceCode).NotEmpty().MaximumLength(10);
         RuleFor(x => x.Dto.City).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.Dto.TripChargeAmount).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.Dto.TripChargeAmount).GreaterThanOrEqualTo(0).When(x => x.Dto.TripChargeAmount.HasValue);
         RuleFor(x => x.Dto.FgsSetupZoneId).MustAsync(async (command, value, cancellationToken) =>
                 !value.HasValue || await readRepository.ExistsZoneIdAsync(value.Value, cancellationToken))
             .WithMessage("The specified zone was not found.");
@@ -39,7 +39,7 @@ public sealed class UpdateFgsSetupPostalCodeCommandValidator : AbstractValidator
         RuleFor(x => x.Dto.CountryCode).NotEmpty().Length(2);
         RuleFor(x => x.Dto.StateProvinceCode).NotEmpty().MaximumLength(10);
         RuleFor(x => x.Dto.City).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.Dto.TripChargeAmount).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.Dto.TripChargeAmount).GreaterThanOrEqualTo(0).When(x => x.Dto.TripChargeAmount.HasValue);
         RuleFor(x => x.Dto.FgsSetupZoneId).MustAsync(async (command, value, cancellationToken) =>
                 !value.HasValue || await readRepository.ExistsZoneIdAsync(value.Value, cancellationToken))
             .WithMessage("The specified zone was not found.");

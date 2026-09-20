@@ -8,7 +8,9 @@ public sealed record FgsSetupPostalCodeSummaryDto(
     string City,
     decimal TripChargeAmount,
     long? FgsSetupZoneId,
+    string? ZoneName,
     long? FgsSetupTaxId,
+    string? TaxName,
     bool IsActive);
 
 public sealed record FgsSetupPostalCodeDetailDto(
@@ -19,7 +21,9 @@ public sealed record FgsSetupPostalCodeDetailDto(
     string City,
     decimal TripChargeAmount,
     long? FgsSetupZoneId,
+    string? ZoneName,
     long? FgsSetupTaxId,
+    string? TaxName,
     bool IsActive);
 
 public sealed record FgsSetupPostalCodeLookupDto(
@@ -33,7 +37,7 @@ public sealed record FgsSetupPostalCodeCreateDto(
     string CountryCode,
     string StateProvinceCode,
     string City,
-    decimal TripChargeAmount,
+    decimal? TripChargeAmount,
     long? FgsSetupZoneId,
     long? FgsSetupTaxId);
 
@@ -42,7 +46,7 @@ public sealed record FgsSetupPostalCodeUpdateDto(
     string CountryCode,
     string StateProvinceCode,
     string City,
-    decimal TripChargeAmount,
+    decimal? TripChargeAmount,
     long? FgsSetupZoneId,
     long? FgsSetupTaxId);
 

@@ -34,7 +34,7 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
             CountryCode = NormalizeCountryCode(dto.CountryCode),
             StateProvinceCode = dto.StateProvinceCode.Trim(),
             City = dto.City.Trim(),
-            TripChargeAmount = dto.TripChargeAmount,
+            TripChargeAmount = dto.TripChargeAmount ?? 0m,
             FgsSetupZoneId = dto.FgsSetupZoneId,
             FgsSetupTaxId = dto.FgsSetupTaxId
         };
@@ -43,7 +43,7 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
         await _context.FgsSetupPostalCodes.AddAsync(entity, cancellationToken);
         await SaveChangesAsync(cancellationToken);
 
-        return MapToDetail(entity);
+        return await MapToDetailAsync(entity, cancellationToken);
     }
 
     public async Task<FgsSetupPostalCodeDetailDto> UpdateAsync(
@@ -58,14 +58,14 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
         entity.CountryCode = NormalizeCountryCode(dto.CountryCode);
         entity.StateProvinceCode = dto.StateProvinceCode.Trim();
         entity.City = dto.City.Trim();
-        entity.TripChargeAmount = dto.TripChargeAmount;
+        entity.TripChargeAmount = dto.TripChargeAmount ?? 0m;
         entity.FgsSetupZoneId = dto.FgsSetupZoneId;
         entity.FgsSetupTaxId = dto.FgsSetupTaxId;
 
         _auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
 
-        return MapToDetail(entity);
+        return await MapToDetailAsync(entity, cancellationToken);
     }
 
     public async Task<FgsSetupPostalCodeDetailDto> PatchAsync(
@@ -119,7 +119,7 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
         _auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
 
-        return MapToDetail(entity);
+        return await MapToDetailAsync(entity, cancellationToken);
     }
 
     public async Task<FgsSetupPostalCodeDetailDto> DeleteAsync(long id, CancellationToken cancellationToken = default)
@@ -134,7 +134,7 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
             await SaveChangesAsync(cancellationToken);
         }
 
-        return MapToDetail(entity);
+        return await MapToDetailAsync(entity, cancellationToken);
     }
 
     private async Task<FgsSetupPostalCode?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
@@ -159,8 +159,31 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
 
     private static string NormalizeCountryCode(string code) => code.Trim().ToUpperInvariant();
 
-    private static FgsSetupPostalCodeDetailDto MapToDetail(FgsSetupPostalCode entity) =>
-        new(
+    private async Task<FgsSetupPostalCodeDetailDto> MapToDetailAsync(
+        FgsSetupPostalCode entity,
+        CancellationToken cancellationToken)
+    {
+        string? zoneName = null;
+        if (entity.FgsSetupZoneId is > 0)
+        {
+            zoneName = await _context.FgsSetupZones
+                .AsNoTracking()
+                .Where(z => z.Id == entity.FgsSetupZoneId.Value)
+                .Select(z => z.Name)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        string? taxName = null;
+        if (entity.FgsSetupTaxId is > 0)
+        {
+            taxName = await _context.FgsSetupTaxes
+                .AsNoTracking()
+                .Where(t => t.Id == entity.FgsSetupTaxId.Value)
+                .Select(t => t.Name)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        return new FgsSetupPostalCodeDetailDto(
             entity.Id,
             entity.PostalCode,
             entity.CountryCode,
@@ -168,6 +191,9 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
             entity.City,
             entity.TripChargeAmount,
             entity.FgsSetupZoneId,
+            zoneName,
             entity.FgsSetupTaxId,
+            taxName,
             entity.IsActive);
+    }
 }

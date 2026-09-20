@@ -1,6 +1,5 @@
 using Fgs.Setup.Application.Abstractions.SetupPostalCodes;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Commands.CreateFgsSetupPostalCode;
-using Fgs.Setup.Application.Features.SetupPostalCodes.Commands.PatchFgsSetupPostalCode;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Commands.UpdateFgsSetupPostalCode;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Dtos;
 using Fgs.Setup.Application.Features.SetupPostalCodes.Validators;
@@ -45,5 +44,33 @@ public sealed class FgsSetupPostalCodeValidatorTests
         var result = await validator.ValidateAsync(command);
 
         result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenTripChargeAmountNull_Passes()
+    {
+        _readRepository
+            .Setup(r => r.ExistsByPostalCodeAsync(It.IsAny<string>(), null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        var validator = new CreateFgsSetupPostalCodeCommandValidator(_readRepository.Object);
+        var command = new CreateFgsSetupPostalCodeCommand(new FgsSetupPostalCodeCreateDto(
+            "78701", "US", "TX", "Austin", null, null, null));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenTripChargeAmountNegative_HasValidationError()
+    {
+        var validator = new CreateFgsSetupPostalCodeCommandValidator(_readRepository.Object);
+        var command = new CreateFgsSetupPostalCodeCommand(new FgsSetupPostalCodeCreateDto(
+            "78701", "US", "TX", "Austin", -1m, null, null));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Dto.TripChargeAmount");
     }
 }
