@@ -84,6 +84,37 @@ public sealed class FgsEmployeeValidatorTests
     }
 
     [Fact]
+    public async Task CreateValidator_WhenTechnicianWithoutProfile_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new CreateFgsEmployeeCommand(CreateDto(includeTechnicianProfile: false));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e =>
+            e.ErrorMessage.Contains("Technician profile is required", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenDuplicateTechCode_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        readRepository
+            .Setup(r => r.ExistsByTechCodeAsync("T-001", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new CreateFgsEmployeeCommand(CreateDto());
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("tech code", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task UpdateValidator_WhenValidDto_Passes()
     {
         var readRepository = new Mock<IFgsEmployeeReadRepository>();
@@ -127,7 +158,8 @@ public sealed class FgsEmployeeValidatorTests
 
     private static FgsEmployeeCreateDto CreateDto(
         string employeeNumber = "EMP-001",
-        string addressLine1 = "100 Main St") =>
+        string addressLine1 = "100 Main St",
+        bool includeTechnicianProfile = true) =>
         new(
             UserId: null,
             EmployeeNumber: employeeNumber,
@@ -150,6 +182,22 @@ public sealed class FgsEmployeeValidatorTests
             LaborBurdenTypeId: LaborBurdenTypeIds.Percentage,
             LaborBurdenValue: 25m,
             IsPurchaser: false,
+            Notes: null,
+            TechnicianProfile: includeTechnicianProfile ? CreateTechnicianProfile() : null);
+
+    private static FgsEmployeeTechnicianProfileWriteDto CreateTechnicianProfile() =>
+        new(
+            TechCode: "T-001",
+            TechName: "Alex",
+            CanBeScheduled: true,
+            DailyCapacityHours: 8m,
+            DispatchZoneId: null,
+            StartLocationTypeId: StartLocationTypeIds.Office,
+            StartTime: new TimeOnly(8, 0),
+            TechTradeId: null,
+            TechSkillId: null,
+            TruckId: null,
+            CustomerFacingPhone: null,
             Notes: null);
 
     private static LocationWriteDto CreateAddress(string addressLine1 = "100 Main St") =>

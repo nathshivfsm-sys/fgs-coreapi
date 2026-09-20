@@ -11,6 +11,35 @@ public sealed record FgsEmployeeAddressDetailDto(
     string? Country,
     string? PostalCode);
 
+public sealed record FgsEmployeeTechnicianProfileDetailDto(
+    long Id,
+    string TechCode,
+    string? TechName,
+    bool CanBeScheduled,
+    decimal DailyCapacityHours,
+    long? DispatchZoneId,
+    short StartLocationTypeId,
+    TimeOnly? StartTime,
+    int? TechTradeId,
+    int? TechSkillId,
+    long? TruckId,
+    string? CustomerFacingPhone,
+    string? Notes);
+
+public sealed record FgsEmployeeTechnicianProfileWriteDto(
+    string TechCode,
+    string? TechName,
+    bool CanBeScheduled = true,
+    decimal? DailyCapacityHours = null,
+    long? DispatchZoneId = null,
+    short StartLocationTypeId = 0,
+    TimeOnly? StartTime = null,
+    int? TechTradeId = null,
+    int? TechSkillId = null,
+    long? TruckId = null,
+    string? CustomerFacingPhone = null,
+    string? Notes = null);
+
 public sealed record FgsEmployeeSummaryDto(
     long Id,
     Guid? UserId,
@@ -35,7 +64,8 @@ public sealed record FgsEmployeeSummaryDto(
     short? LaborBurdenTypeId,
     decimal? LaborBurdenValue,
     bool IsPurchaser,
-    string? Notes);
+    string? Notes,
+    bool HasTechnicianProfile);
 
 public sealed record FgsEmployeeDetailDto(
     long Id,
@@ -62,7 +92,8 @@ public sealed record FgsEmployeeDetailDto(
     short? LaborBurdenTypeId,
     decimal? LaborBurdenValue,
     bool IsPurchaser,
-    string? Notes);
+    string? Notes,
+    FgsEmployeeTechnicianProfileDetailDto? TechnicianProfile);
 
 public sealed record FgsEmployeeLookupDto(
     long Id,
@@ -91,7 +122,8 @@ public sealed record FgsEmployeeCreateDto(
     short? LaborBurdenTypeId,
     decimal? LaborBurdenValue,
     bool IsPurchaser = false,
-    string? Notes = null);
+    string? Notes = null,
+    FgsEmployeeTechnicianProfileWriteDto? TechnicianProfile = null);
 
 public sealed record FgsEmployeeUpdateDto(
     Guid? UserId,
@@ -117,7 +149,8 @@ public sealed record FgsEmployeeUpdateDto(
     short? LaborBurdenTypeId,
     decimal? LaborBurdenValue,
     bool IsPurchaser,
-    string? Notes);
+    string? Notes,
+    FgsEmployeeTechnicianProfileWriteDto? TechnicianProfile = null);
 
 public sealed record FgsEmployeePatchDto(
     Guid? UserId,
@@ -143,7 +176,8 @@ public sealed record FgsEmployeePatchDto(
     short? LaborBurdenTypeId,
     decimal? LaborBurdenValue,
     bool? IsPurchaser,
-    string? Notes);
+    string? Notes,
+    FgsEmployeeTechnicianProfileWriteDto? TechnicianProfile = null);
 
 public sealed record FgsEmployeeListFilters(
     string? EmployeeNumber = null,

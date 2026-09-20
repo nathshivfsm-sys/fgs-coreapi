@@ -8,6 +8,7 @@ using Fgs.Setup.Application.Abstractions.Locations;
 using Fgs.Setup.Application.Common.Locations;
 using Fgs.Setup.Application.Features.Employees.Commands.CreateFgsEmployee;
 using Fgs.Setup.Application.Features.Employees.Commands.DeleteFgsEmployee;
+using Fgs.Setup.Application.Features.Employees.Commands.UpdateFgsEmployee;
 using Fgs.Setup.Application.Features.Employees.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
@@ -52,12 +53,73 @@ public sealed class FgsEmployeeCommandHandlerTests
         response.Data.Address.Should().NotBeNull();
         response.Data.Address!.AddressLine1.Should().Be("100 Main St");
         response.Data.Address.PostalCode.Should().Be("78701");
+        response.Data.TechnicianProfile.Should().NotBeNull();
+        response.Data.TechnicianProfile!.TechCode.Should().Be("T-001");
+        response.Data.TechnicianProfile.StartLocationTypeId.Should().Be(StartLocationTypeIds.Office);
         context.FgsLocations.Should().ContainSingle(l => l.IsActive && l.AddressLine1 == "100 Main St");
+        context.FgsEmployeeTechnicianProfiles.Should().ContainSingle(p => p.TechCode == "T-001");
         cache.Verify(
             c => c.RemoveByPrefixAsync(
                 CacheKeys.EntityPrefix(TenantId, CompanyId, "employees"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateHandler_WhenOfficeWithoutProfile_DoesNotCreateTechnicianProfile()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(context);
+        var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var handler = new CreateFgsEmployeeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<CreateFgsEmployeeCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new CreateFgsEmployeeCommand(CreateOfficeDto()),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.TechnicianProfile.Should().BeNull();
+        context.FgsEmployeeTechnicianProfiles.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task UpdateHandler_WhenSwitchingToOffice_RemovesTechnicianProfile()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(context);
+        var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var createHandler = new CreateFgsEmployeeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<CreateFgsEmployeeCommandHandler>.Instance);
+        var updateHandler = new UpdateFgsEmployeeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<UpdateFgsEmployeeCommandHandler>.Instance);
+
+        var created = await createHandler.Handle(
+            new CreateFgsEmployeeCommand(CreateDto()),
+            CancellationToken.None);
+        created.Success.Should().BeTrue();
+        context.FgsEmployeeTechnicianProfiles.Should().ContainSingle();
+
+        var response = await updateHandler.Handle(
+            new UpdateFgsEmployeeCommand(created.Data!.Id, CreateOfficeUpdateDto()),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.TechnicianProfile.Should().BeNull();
+        context.FgsEmployeeTechnicianProfiles.Should().BeEmpty();
     }
 
     [Fact]
@@ -110,26 +172,99 @@ public sealed class FgsEmployeeCommandHandlerTests
             OfficeEmail: "alex@example.com",
             PersonalPhone: null,
             OfficePhone: "+15551234567",
-            Address: new LocationWriteDto(
-                "100 Main St",
-                "Apt 2",
-                null,
-                null,
-                "Austin",
-                "TX",
-                null,
-                "US",
-                "78701",
-                null,
-                null,
-                null,
-                null),
+            Address: CreateAddress(),
             ProfilePhotoFileId: null,
             RegularRate: regularRate,
             LaborBurdenTypeId: LaborBurdenTypeIds.Percentage,
             LaborBurdenValue: 25m,
             IsPurchaser: false,
-            Notes: "Field tech");
+            Notes: "Field tech",
+            TechnicianProfile: CreateTechnicianProfile());
+
+    private static FgsEmployeeCreateDto CreateOfficeDto() =>
+        new(
+            UserId: null,
+            EmployeeNumber: "EMP-OFF-001",
+            EmployeeTypeId: EmployeeTypeIds.Office,
+            DisplayName: "Alex Office",
+            LegalFirstName: "Alex",
+            LegalMiddleName: null,
+            LegalLastName: "Office",
+            BirthDate: null,
+            HireDate: new DateOnly(2026, 1, 15),
+            TerminationDate: null,
+            StatusId: EmployeeStatusIds.Active,
+            PersonalEmail: null,
+            OfficeEmail: "alex.office@example.com",
+            PersonalPhone: null,
+            OfficePhone: "+15551234567",
+            Address: CreateAddress(),
+            ProfilePhotoFileId: null,
+            RegularRate: 40m,
+            LaborBurdenTypeId: LaborBurdenTypeIds.Percentage,
+            LaborBurdenValue: 25m,
+            IsPurchaser: false,
+            Notes: null,
+            TechnicianProfile: null);
+
+    private static FgsEmployeeUpdateDto CreateOfficeUpdateDto() =>
+        new(
+            UserId: null,
+            EmployeeNumber: "EMP-001",
+            EmployeeTypeId: EmployeeTypeIds.Office,
+            DisplayName: "Alex Tech",
+            LegalFirstName: "Alex",
+            LegalMiddleName: null,
+            LegalLastName: "Tech",
+            BirthDate: null,
+            HireDate: new DateOnly(2026, 1, 15),
+            TerminationDate: null,
+            StatusId: EmployeeStatusIds.Active,
+            PersonalEmail: "alex.personal@example.com",
+            OfficeEmail: "alex@example.com",
+            PersonalPhone: null,
+            OfficePhone: "+15551234567",
+            Address: CreateAddress(),
+            ProfilePhotoFileId: null,
+            RegularRate: 40m,
+            OvertimeRate: 60m,
+            DoubleTimeRate: 80m,
+            LaborBurdenTypeId: LaborBurdenTypeIds.Percentage,
+            LaborBurdenValue: 25m,
+            IsPurchaser: false,
+            Notes: "Field tech",
+            TechnicianProfile: null);
+
+    private static FgsEmployeeTechnicianProfileWriteDto CreateTechnicianProfile() =>
+        new(
+            TechCode: "T-001",
+            TechName: "Alex",
+            CanBeScheduled: true,
+            DailyCapacityHours: 8m,
+            DispatchZoneId: null,
+            StartLocationTypeId: StartLocationTypeIds.Office,
+            StartTime: new TimeOnly(8, 0),
+            TechTradeId: 1,
+            TechSkillId: 2,
+            TruckId: null,
+            CustomerFacingPhone: "+15559876543",
+            Notes: "Mobile bio");
+
+    private static LocationWriteDto CreateAddress() =>
+        new(
+            "100 Main St",
+            "Apt 2",
+            null,
+            null,
+            "Austin",
+            "TX",
+            null,
+            "US",
+            "78701",
+            null,
+            null,
+            null,
+            null);
 
     private static ITenantContextAccessor CreateTenantContextAccessor() =>
         new TestTenantContextAccessor

@@ -126,5 +126,19 @@ public sealed class FgsEmployeeQueryHandlerTests
             LaborBurdenTypeIds.Percentage,
             25m,
             false,
-            null);
+            null,
+            new FgsEmployeeTechnicianProfileDetailDto(
+                10,
+                "T-001",
+                "Alex",
+                true,
+                8m,
+                null,
+                StartLocationTypeIds.Office,
+                new TimeOnly(8, 0),
+                1,
+                2,
+                null,
+                "+15559876543",
+                "Mobile bio"));
 }

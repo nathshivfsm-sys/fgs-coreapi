@@ -3,6 +3,7 @@ using Fgs.Setup.Application.Common.Locations;
 using Fgs.Setup.Application.Features.Employees.Commands.CreateFgsEmployee;
 using Fgs.Setup.Application.Features.Employees.Commands.PatchFgsEmployee;
 using Fgs.Setup.Application.Features.Employees.Commands.UpdateFgsEmployee;
+using Fgs.Setup.Application.Features.Employees.Dtos;
 using Fgs.Setup.Domain.Entities;
 using FluentValidation;
 
@@ -66,6 +67,15 @@ public sealed class CreateFgsEmployeeCommandValidator : AbstractValidator<Create
             RuleFor(x => x.Dto.Address)
                 .SetValidator(new EmployeeAddressWriteDtoValidator()!)
                 .When(x => x.Dto.Address is not null);
+
+            RuleFor(x => x.Dto.TechnicianProfile)
+                .NotNull()
+                .When(x => x.Dto.EmployeeTypeId == EmployeeTypeIds.Technician)
+                .WithMessage("Technician profile is required when EmployeeTypeId is Technician.");
+
+            RuleFor(x => x.Dto.TechnicianProfile!)
+                .SetValidator(new EmployeeTechnicianProfileWriteDtoValidator(readRepository, excludeEmployeeId: null)!)
+                .When(x => x.Dto.TechnicianProfile is not null);
         });
     }
 }
@@ -131,6 +141,16 @@ public sealed class UpdateFgsEmployeeCommandValidator : AbstractValidator<Update
             RuleFor(x => x.Dto.Address)
                 .SetValidator(new EmployeeAddressWriteDtoValidator()!)
                 .When(x => x.Dto.Address is not null);
+
+            RuleFor(x => x.Dto.TechnicianProfile)
+                .NotNull()
+                .When(x => x.Dto.EmployeeTypeId == EmployeeTypeIds.Technician)
+                .WithMessage("Technician profile is required when EmployeeTypeId is Technician.");
+
+            RuleFor(x => x.Dto.TechnicianProfile!)
+                .SetValidator(command =>
+                    new EmployeeTechnicianProfileWriteDtoValidator(readRepository, command.Id))
+                .When(x => x.Dto.TechnicianProfile is not null);
         });
     }
 }
@@ -200,6 +220,24 @@ public sealed class PatchFgsEmployeeCommandValidator : AbstractValidator<PatchFg
             RuleFor(x => x.Dto.Address)
                 .SetValidator(new EmployeeAddressWriteDtoValidator()!)
                 .When(x => x.Dto.Address is not null);
+
+            RuleFor(x => x.Dto)
+                .MustAsync(async (command, dto, cancellationToken) =>
+                {
+                    if (dto.EmployeeTypeId != EmployeeTypeIds.Technician || dto.TechnicianProfile is not null)
+                    {
+                        return true;
+                    }
+
+                    return await readRepository.ExistsTechnicianProfileByEmployeeIdAsync(command.Id, cancellationToken);
+                })
+                .When(x => x.Dto.EmployeeTypeId == EmployeeTypeIds.Technician)
+                .WithMessage("Technician profile is required when EmployeeTypeId is Technician.");
+
+            RuleFor(x => x.Dto.TechnicianProfile!)
+                .SetValidator(command =>
+                    new EmployeeTechnicianProfileWriteDtoValidator(readRepository, command.Id))
+                .When(x => x.Dto.TechnicianProfile is not null);
         });
     }
 }
@@ -217,5 +255,39 @@ internal sealed class EmployeeAddressWriteDtoValidator : AbstractValidator<Locat
         RuleFor(x => x.County).MaximumLength(100).When(x => x.County is not null);
         RuleFor(x => x.FormattedAddress).MaximumLength(1000).When(x => x.FormattedAddress is not null);
         RuleFor(x => x.PlaceId).MaximumLength(500).When(x => x.PlaceId is not null);
+    }
+}
+
+internal sealed class EmployeeTechnicianProfileWriteDtoValidator : AbstractValidator<FgsEmployeeTechnicianProfileWriteDto>
+{
+    public EmployeeTechnicianProfileWriteDtoValidator(
+        IFgsEmployeeReadRepository readRepository,
+        long? excludeEmployeeId)
+    {
+        RuleFor(x => x.TechCode).NotEmpty().MaximumLength(25);
+        RuleFor(x => x.TechCode)
+            .Matches(@"^[A-Za-z0-9_-]+$")
+            .When(x => !string.IsNullOrWhiteSpace(x.TechCode))
+            .WithMessage("Tech code cannot contain special characters.");
+        RuleFor(x => x.TechCode).MustAsync(async (_, techCode, cancellationToken) =>
+                string.IsNullOrWhiteSpace(techCode)
+                || !await readRepository.ExistsByTechCodeAsync(techCode, excludeEmployeeId, cancellationToken))
+            .WithMessage("A technician with this tech code already exists.");
+
+        RuleFor(x => x.TechName).MaximumLength(100).When(x => x.TechName is not null);
+        RuleFor(x => x.CustomerFacingPhone).MaximumLength(25).When(x => x.CustomerFacingPhone is not null);
+
+        RuleFor(x => x.StartLocationTypeId)
+            .Must(id => id is StartLocationTypeIds.Office or StartLocationTypeIds.Home)
+            .WithMessage("StartLocationTypeId must be Office (1) or Home (2).");
+
+        RuleFor(x => x.DailyCapacityHours)
+            .GreaterThan(0)
+            .When(x => x.DailyCapacityHours.HasValue);
+
+        RuleFor(x => x.DispatchZoneId).GreaterThan(0).When(x => x.DispatchZoneId.HasValue);
+        RuleFor(x => x.TechTradeId).GreaterThan(0).When(x => x.TechTradeId.HasValue);
+        RuleFor(x => x.TechSkillId).GreaterThan(0).When(x => x.TechSkillId.HasValue);
+        RuleFor(x => x.TruckId).GreaterThan(0).When(x => x.TruckId.HasValue);
     }
 }

@@ -12,6 +12,7 @@ namespace Fgs.Setup.Infrastructure.Persistence.Employees;
 public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
 {
     private const string MasterEntityTypeCode = "EMPLOYEE";
+    private const decimal DefaultDailyCapacityHours = 8.00m;
 
     private readonly FgsSetupDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
@@ -73,6 +74,17 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
             null,
             dto.Address,
             cancellationToken);
+
+        if (dto.EmployeeTypeId == EmployeeTypeIds.Technician || dto.TechnicianProfile is not null)
+        {
+            if (dto.TechnicianProfile is null)
+            {
+                throw new InvalidOperationException("Technician profile is required when EmployeeTypeId is Technician.");
+            }
+
+            await UpsertTechnicianProfileAsync(entity, dto.TechnicianProfile, cancellationToken);
+        }
+
         await SaveChangesAsync(cancellationToken);
 
         return await MapToDetailAsync(entity.Id, cancellationToken);
@@ -118,6 +130,8 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
             entity.AddressId,
             dto.Address,
             cancellationToken);
+
+        await SyncTechnicianProfileAsync(entity, dto.EmployeeTypeId, dto.TechnicianProfile, cancellationToken);
 
         _auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
@@ -268,6 +282,16 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
                 cancellationToken);
         }
 
+        if (dto.EmployeeTypeId.HasValue || dto.TechnicianProfile is not null)
+        {
+            await SyncTechnicianProfileAsync(
+                entity,
+                entity.EmployeeTypeId,
+                dto.TechnicianProfile,
+                cancellationToken,
+                patchMode: true);
+        }
+
         _auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
 
@@ -288,6 +312,90 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         }
 
         return await MapToDetailAsync(entity.Id, cancellationToken);
+    }
+
+    private async Task SyncTechnicianProfileAsync(
+        FgsEmployee employee,
+        short employeeTypeId,
+        FgsEmployeeTechnicianProfileWriteDto? profileDto,
+        CancellationToken cancellationToken,
+        bool patchMode = false)
+    {
+        if (employeeTypeId == EmployeeTypeIds.Office)
+        {
+            await RemoveTechnicianProfileAsync(employee.Id, cancellationToken);
+            return;
+        }
+
+        if (profileDto is not null)
+        {
+            await UpsertTechnicianProfileAsync(employee, profileDto, cancellationToken);
+            return;
+        }
+
+        if (patchMode)
+        {
+            // Patch to Technician without a profile payload keeps any existing profile.
+            return;
+        }
+
+        if (employeeTypeId == EmployeeTypeIds.Technician)
+        {
+            throw new InvalidOperationException("Technician profile is required when EmployeeTypeId is Technician.");
+        }
+    }
+
+    private async Task UpsertTechnicianProfileAsync(
+        FgsEmployee employee,
+        FgsEmployeeTechnicianProfileWriteDto dto,
+        CancellationToken cancellationToken)
+    {
+        var existing = await _context.FgsEmployeeTechnicianProfiles
+            .FirstOrDefaultAsync(p => p.EmployeeId == employee.Id, cancellationToken);
+
+        if (existing is null)
+        {
+            var profile = new FgsEmployeeTechnicianProfile
+            {
+                EmployeeId = employee.Id
+            };
+            ApplyTechnicianProfileValues(profile, dto);
+            _auditHelper.StampForCreate(profile);
+            await _context.FgsEmployeeTechnicianProfiles.AddAsync(profile, cancellationToken);
+            return;
+        }
+
+        ApplyTechnicianProfileValues(existing, dto);
+        _auditHelper.StampForUpdate(existing);
+    }
+
+    private async Task RemoveTechnicianProfileAsync(long employeeId, CancellationToken cancellationToken)
+    {
+        var existing = await _context.FgsEmployeeTechnicianProfiles
+            .FirstOrDefaultAsync(p => p.EmployeeId == employeeId, cancellationToken);
+
+        if (existing is not null)
+        {
+            _context.FgsEmployeeTechnicianProfiles.Remove(existing);
+        }
+    }
+
+    private static void ApplyTechnicianProfileValues(
+        FgsEmployeeTechnicianProfile profile,
+        FgsEmployeeTechnicianProfileWriteDto dto)
+    {
+        profile.TechCode = dto.TechCode.Trim();
+        profile.TechName = TrimOrNull(dto.TechName);
+        profile.CanBeScheduled = dto.CanBeScheduled;
+        profile.DailyCapacityHours = dto.DailyCapacityHours ?? DefaultDailyCapacityHours;
+        profile.DispatchZoneId = dto.DispatchZoneId;
+        profile.StartLocationTypeId = dto.StartLocationTypeId;
+        profile.StartTime = dto.StartTime;
+        profile.TechTradeId = dto.TechTradeId;
+        profile.TechSkillId = dto.TechSkillId;
+        profile.TruckId = dto.TruckId;
+        profile.CustomerFacingPhone = TrimOrNull(dto.CustomerFacingPhone);
+        profile.Notes = TrimOrNull(dto.Notes);
     }
 
     private async Task<FgsEmployee?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
@@ -311,6 +419,25 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
                 address = MapLocation(location);
             }
         }
+
+        var technicianProfile = await _context.FgsEmployeeTechnicianProfiles
+            .AsNoTracking()
+            .Where(p => p.EmployeeId == entity.Id)
+            .Select(p => new FgsEmployeeTechnicianProfileDetailDto(
+                p.Id,
+                p.TechCode,
+                p.TechName,
+                p.CanBeScheduled,
+                p.DailyCapacityHours,
+                p.DispatchZoneId,
+                p.StartLocationTypeId,
+                p.StartTime,
+                p.TechTradeId,
+                p.TechSkillId,
+                p.TruckId,
+                p.CustomerFacingPhone,
+                p.Notes))
+            .FirstOrDefaultAsync(cancellationToken);
 
         return new FgsEmployeeDetailDto(
             entity.Id,
@@ -337,7 +464,8 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
             entity.LaborBurdenTypeId,
             entity.LaborBurdenValue,
             entity.IsPurchaser,
-            entity.Notes);
+            entity.Notes,
+            technicianProfile);
     }
 
     private static FgsEmployeeAddressDetailDto MapLocation(FgsLocation location) =>
@@ -358,7 +486,9 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         }
         catch (DbUpdateException ex) when (IsUniqueViolation(ex))
         {
-            throw new InvalidOperationException("An employee with the same employee number or user link already exists.", ex);
+            throw new InvalidOperationException(
+                "An employee with the same employee number, user link, or technician code already exists.",
+                ex);
         }
     }
 

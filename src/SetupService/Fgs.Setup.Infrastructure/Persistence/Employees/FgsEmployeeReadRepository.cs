@@ -30,6 +30,7 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
             SELECT {FgsEmployeeSql.SelectDetailColumns}
             FROM {FgsEmployeeSql.Table} e
             {FgsEmployeeSql.LocationJoin}
+            {FgsEmployeeSql.TechnicianProfileJoin}
             WHERE e."Id" = @Id
               AND e."TenantId" = @TenantId
               AND e."CompanyId" = @CompanyId
@@ -55,43 +56,43 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
 
         var where = new List<string>
         {
-            "\"TenantId\" = @TenantId",
-            "\"CompanyId\" = @CompanyId"
+            "e.\"TenantId\" = @TenantId",
+            "e.\"CompanyId\" = @CompanyId"
         };
 
         if (filters.StatusId.HasValue)
         {
-            where.Add("\"StatusId\" = @StatusId");
+            where.Add("e.\"StatusId\" = @StatusId");
         }
         else if (paging.IsActive == true)
         {
-            where.Add("\"StatusId\" = @ActiveStatusId");
+            where.Add("e.\"StatusId\" = @ActiveStatusId");
         }
         else if (paging.IsActive == false)
         {
-            where.Add("\"StatusId\" <> @ActiveStatusId");
+            where.Add("e.\"StatusId\" <> @ActiveStatusId");
         }
 
         if (!string.IsNullOrWhiteSpace(filters.EmployeeNumber))
         {
-            where.Add("\"EmployeeNumber\" ILIKE @EmployeeNumber");
+            where.Add("e.\"EmployeeNumber\" ILIKE @EmployeeNumber");
         }
 
         if (filters.EmployeeTypeId.HasValue)
         {
-            where.Add("\"EmployeeTypeId\" = @EmployeeTypeId");
+            where.Add("e.\"EmployeeTypeId\" = @EmployeeTypeId");
         }
 
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
             where.Add(
                 """
-                ("EmployeeNumber" ILIKE @Search
-                 OR "DisplayName" ILIKE @Search
-                 OR "LegalFirstName" ILIKE @Search
-                 OR "LegalLastName" ILIKE @Search
-                 OR "OfficeEmail" ILIKE @Search
-                 OR "PersonalEmail" ILIKE @Search)
+                (e."EmployeeNumber" ILIKE @Search
+                 OR e."DisplayName" ILIKE @Search
+                 OR e."LegalFirstName" ILIKE @Search
+                 OR e."LegalLastName" ILIKE @Search
+                 OR e."OfficeEmail" ILIKE @Search
+                 OR e."PersonalEmail" ILIKE @Search)
                 """);
         }
 
@@ -100,13 +101,14 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
 
         var sql = $"""
             SELECT {FgsEmployeeSql.SelectSummaryColumns}
-            FROM {FgsEmployeeSql.Table}
+            FROM {FgsEmployeeSql.Table} e
+            {FgsEmployeeSql.TechnicianProfileJoin}
             WHERE {whereClause}
             {orderBy}
             LIMIT @PageSize OFFSET @Offset;
 
             SELECT COUNT(*)
-            FROM {FgsEmployeeSql.Table}
+            FROM {FgsEmployeeSql.Table} e
             WHERE {whereClause};
             """;
 
@@ -219,6 +221,64 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
                     CompanyId = companyId,
                     UserId = userId,
                     ExcludeId = excludeId
+                },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task<bool> ExistsByTechCodeAsync(
+        string techCode,
+        long? excludeEmployeeId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var excludeClause = excludeEmployeeId.HasValue ? "AND \"EmployeeId\" <> @ExcludeEmployeeId" : string.Empty;
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {FgsEmployeeSql.TechnicianProfileTable}
+                WHERE "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND LOWER("TechCode") = LOWER(@TechCode)
+                  {excludeClause})
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    TechCode = techCode.Trim(),
+                    ExcludeEmployeeId = excludeEmployeeId
+                },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task<bool> ExistsTechnicianProfileByEmployeeIdAsync(
+        long employeeId,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {FgsEmployeeSql.TechnicianProfileTable}
+                WHERE "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "EmployeeId" = @EmployeeId)
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    EmployeeId = employeeId
                 },
                 cancellationToken: cancellationToken));
     }

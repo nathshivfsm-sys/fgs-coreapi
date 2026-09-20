@@ -26,4 +26,13 @@ public interface IFgsEmployeeReadRepository
         Guid userId,
         long? excludeId = null,
         CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsByTechCodeAsync(
+        string techCode,
+        long? excludeEmployeeId = null,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsTechnicianProfileByEmployeeIdAsync(
+        long employeeId,
+        CancellationToken cancellationToken = default);
 }

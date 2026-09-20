@@ -28,6 +28,7 @@ internal sealed class FgsEmployeeSummaryRow
     public decimal? LaborBurdenValue { get; set; }
     public bool IsPurchaser { get; set; }
     public string? Notes { get; set; }
+    public bool HasTechnicianProfile { get; set; }
 
     public FgsEmployeeSummaryDto ToDto() =>
         new(
@@ -54,7 +55,8 @@ internal sealed class FgsEmployeeSummaryRow
             LaborBurdenTypeId,
             LaborBurdenValue,
             IsPurchaser,
-            Notes);
+            Notes,
+            HasTechnicianProfile);
 }
 
 internal sealed class FgsEmployeeDetailRow
@@ -93,6 +95,20 @@ internal sealed class FgsEmployeeDetailRow
     public string? Country { get; set; }
     public string? PostalCode { get; set; }
 
+    public long? TechnicianProfileId { get; set; }
+    public string? TechCode { get; set; }
+    public string? TechName { get; set; }
+    public bool? CanBeScheduled { get; set; }
+    public decimal? DailyCapacityHours { get; set; }
+    public long? DispatchZoneId { get; set; }
+    public short? StartLocationTypeId { get; set; }
+    public TimeOnly? StartTime { get; set; }
+    public int? TechTradeId { get; set; }
+    public int? TechSkillId { get; set; }
+    public long? TruckId { get; set; }
+    public string? TechnicianCustomerFacingPhone { get; set; }
+    public string? TechnicianNotes { get; set; }
+
     public FgsEmployeeDetailDto ToDto() =>
         new(
             Id,
@@ -119,7 +135,8 @@ internal sealed class FgsEmployeeDetailRow
             LaborBurdenTypeId,
             LaborBurdenValue,
             IsPurchaser,
-            Notes);
+            Notes,
+            ToTechnicianProfileDto());
 
     private FgsEmployeeAddressDetailDto? ToAddressDto()
     {
@@ -136,6 +153,29 @@ internal sealed class FgsEmployeeDetailRow
             State,
             Country,
             PostalCode);
+    }
+
+    private FgsEmployeeTechnicianProfileDetailDto? ToTechnicianProfileDto()
+    {
+        if (TechnicianProfileId is not long profileId || string.IsNullOrWhiteSpace(TechCode))
+        {
+            return null;
+        }
+
+        return new FgsEmployeeTechnicianProfileDetailDto(
+            profileId,
+            TechCode,
+            TechName,
+            CanBeScheduled ?? true,
+            DailyCapacityHours ?? 8.00m,
+            DispatchZoneId,
+            StartLocationTypeId ?? 0,
+            StartTime,
+            TechTradeId,
+            TechSkillId,
+            TruckId,
+            TechnicianCustomerFacingPhone,
+            TechnicianNotes);
     }
 }
 
