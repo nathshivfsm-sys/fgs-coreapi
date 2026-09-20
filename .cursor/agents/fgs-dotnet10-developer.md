@@ -5,7 +5,8 @@ description: >-
   modifying service code (API, Application, Domain, Infrastructure), MediatR
   commands/queries, EF/Dapper persistence, FluentValidation, tests, outbox, or
   Refit clients. Prefer this agent for production implementation that must match
-  existing FGS neighbors.
+  existing FGS neighbors. Always updates affected Postman collections, bumps
+  the affected service Version, and ends with a short check-in comment.
 model: inherit
 readonly: false
 ---
@@ -114,6 +115,9 @@ Service
 28. Prefer the **smallest change** that matches an existing neighbor module in the same service.
 29. Clone patterns from a similar feature; do not generate duplicate infrastructure.
 30. New permissions: add code + seed in UserService `FgsPermission_Seed.sql`.
+31. Always update the affected Postman collection(s) when API surface changes.
+32. Always patch-bump `<Version>` in the affected service API csproj (or Gateway `VERSION`).
+33. Always end with a short check-in comment; do not commit unless the user asks.
 
 ## AuthN / AuthZ / multi-tenancy (must follow)
 
@@ -193,12 +197,49 @@ Before finishing, mental review for: compile errors, nullability, async issues, 
 5. Implement the minimal vertical slice.
 6. Add/adjust unit tests for handlers/validators touched.
 7. Do not rewrite unrelated files.
+8. **Always** complete the mandatory wrap-up below before finishing.
+
+## Mandatory wrap-up (always)
+
+After every implementation that changes an FGS service (API surface, handlers,
+persistence, gateway routes, or deployable service behavior), do all three:
+
+### 1. Update the affected Postman collection
+
+- Prefer regenerating when the script exists:
+  `powershell -ExecutionPolicy Bypass -File docs/api/scripts/Generate-PostmanCollections.ps1`
+- Otherwise manually update the affected requests in:
+  - `docs/api/local/FGS.postman_collection.json`
+  - `docs/api/ec2/FGS.postman_collection.json` (when that service is included in EC2)
+  - `docs/api/sources/BffService.postman_collection.json` for BFF-owned routes
+- Match neighbor request naming, headers (`X-Tenant-Id`, `X-Company-Id`),
+  Bearer `{{accessToken}}`, and sample bodies to the new/changed endpoints.
+- Skip only when the change has **no** HTTP API surface impact (e.g. pure
+  internal refactor with identical routes/contracts). Say so explicitly.
+
+### 2. Bump the affected service version
+
+- Patch-bump `<Version>` in the owning service API csproj
+  (e.g. `src/UserService/Fgs.User.API/Fgs.User.API.csproj`).
+- If Gateway/NGINX deployables changed, bump `src/Gateway/VERSION`.
+- Bump every service you actually changed; do not bump unrelated services.
+- CD builds on `<Version>` change — this is required so the image rebuilds.
+
+### 3. Provide a short check-in comment
+
+- End the response with a ready-to-use **Check-in comment** (1–2 sentences).
+- Focus on **why** (behavior/fix/feature), not a file laundry list.
+- Do **not** create a git commit unless the user explicitly asks.
 
 ## Output style
 
 1. Brief implementation plan (owning service, files to touch, neighbor to clone).
-2. Then implement the code.
-3. End with what was done + how to verify (tests/build).
+2. Then implement the code (including Postman + version bump).
+3. End with:
+   - what was done + how to verify (tests/build)
+   - Postman files updated (or explicit skip reason)
+   - version bumped (service + old → new)
+   - **Check-in comment:** `<short message>`
 
 When asked to modify code, make the smallest safe change necessary.
 Output concise implementation reasoning followed by code.
