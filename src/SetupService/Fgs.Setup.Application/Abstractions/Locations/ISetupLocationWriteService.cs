@@ -15,4 +15,9 @@ public interface ISetupLocationWriteService
         CancellationToken cancellationToken = default);
 
     Task SoftDeleteAsync(Guid? locationId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Restores a soft-deleted location (<c>IsActive = true</c>). No-op when missing or already active.
+    /// </summary>
+    Task ReactivateAsync(Guid? locationId, CancellationToken cancellationToken = default);
 }

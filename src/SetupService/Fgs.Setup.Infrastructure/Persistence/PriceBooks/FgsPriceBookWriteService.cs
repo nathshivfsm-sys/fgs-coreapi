@@ -6,6 +6,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.PriceBooks;
 
 public sealed class FgsPriceBookWriteService(
@@ -127,7 +129,7 @@ public sealed class FgsPriceBookWriteService(
     }
 
     private async Task<FgsPriceBook?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await context.FgsPriceBooks.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await context.FgsPriceBooks.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

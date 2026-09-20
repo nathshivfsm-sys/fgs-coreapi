@@ -6,6 +6,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixFrequencyDiscounts;
 
 public sealed class FgsUniversalMatrixFrequencyDiscountWriteService : IFgsUniversalMatrixFrequencyDiscountWriteService
@@ -113,7 +115,7 @@ public sealed class FgsUniversalMatrixFrequencyDiscountWriteService : IFgsUniver
     }
 
     private async Task<FgsUniversalMatrixFrequencyDiscount?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsUniversalMatrixFrequencyDiscounts.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsUniversalMatrixFrequencyDiscounts.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

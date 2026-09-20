@@ -196,6 +196,15 @@ public sealed class PatchFgsEmployeeCommandValidator : AbstractValidator<PatchFg
                 .When(x => x.Dto.StatusId.HasValue)
                 .WithMessage("StatusId must be Active (1), Inactive (2), LeaveOfAbsence (3), or Terminated (4).");
 
+            RuleFor(x => x.Dto)
+                .Must(dto =>
+                    !dto.StatusId.HasValue
+                    || !dto.IsActive.HasValue
+                    || (dto.IsActive.Value && dto.StatusId.Value == EmployeeStatusIds.Active)
+                    || (!dto.IsActive.Value && dto.StatusId.Value == EmployeeStatusIds.Inactive))
+                .When(x => x.Dto.StatusId.HasValue && x.Dto.IsActive.HasValue)
+                .WithMessage("StatusId and IsActive conflict. Use StatusId alone, or IsActive true/false for Active/Inactive.");
+
             RuleFor(x => x.Dto.PersonalEmail).MaximumLength(255).When(x => x.Dto.PersonalEmail is not null);
             RuleFor(x => x.Dto.OfficeEmail).MaximumLength(255).When(x => x.Dto.OfficeEmail is not null);
             RuleFor(x => x.Dto.PersonalPhone).MaximumLength(25).When(x => x.Dto.PersonalPhone is not null);

@@ -7,6 +7,7 @@ using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Common;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 
 namespace Fgs.User.Infrastructure.Entities.RolePermissions;
 
@@ -153,7 +154,7 @@ public sealed class FgsRolePermissionWriteService(
         long companyId,
         CancellationToken cancellationToken)
     {
-        var role = await context.FgsRoles.AsNoTracking().FirstOrDefaultAsync(
+        var role = await context.FgsRoles.AsNoTracking().FirstOrDefaultIncludingInactiveAsync(
             r => r.Id == roleId && r.TenantId == tenantId && r.CompanyId == companyId,
             cancellationToken);
 
@@ -182,7 +183,7 @@ public sealed class FgsRolePermissionWriteService(
     private async Task<FgsRolePermission?> FindEntityAsync(long id, CancellationToken cancellationToken)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
-        return await context.FgsRolePermissions.FirstOrDefaultAsync(
+        return await context.FgsRolePermissions.FirstOrDefaultIncludingInactiveAsync(
             x => x.Id == id && x.TenantId == tenantId && x.CompanyId == companyId,
             cancellationToken);
     }

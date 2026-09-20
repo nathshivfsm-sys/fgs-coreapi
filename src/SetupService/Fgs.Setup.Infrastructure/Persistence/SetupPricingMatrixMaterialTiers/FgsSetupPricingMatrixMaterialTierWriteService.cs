@@ -6,6 +6,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.SetupPricingMatrixMaterialTiers;
 
 public sealed class FgsSetupPricingMatrixMaterialTierWriteService(FgsSetupDbContext _context, IUnitOfWork _unitOfWork, SetupEntityAuditHelper _auditHelper) : IFgsSetupPricingMatrixMaterialTierWriteService
@@ -48,7 +50,7 @@ public sealed class FgsSetupPricingMatrixMaterialTierWriteService(FgsSetupDbCont
         var entity=await FindAsync(id,cancellationToken) ?? throw new KeyNotFoundException("Pricing Matrix Material Tier '"+id+"' was not found.");
         if(entity.IsActive){entity.IsActive=false;_auditHelper.StampForUpdate(entity);await SaveAsync(cancellationToken);} return Map(entity);
     }
-    private Task<FgsSetupPricingMatrixMaterialTier?> FindAsync(long id,CancellationToken ct)=>_context.FgsSetupPricingMatrixMaterialTiers.FirstOrDefaultAsync(x=>x.Id==id,ct);
+    private Task<FgsSetupPricingMatrixMaterialTier?> FindAsync(long id,CancellationToken ct)=>_context.FgsSetupPricingMatrixMaterialTiers.FirstOrDefaultIncludingInactiveAsync(x => x.Id == id, ct);
 
     private async Task SaveAsync(CancellationToken ct)
     {

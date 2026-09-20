@@ -5,6 +5,8 @@ using Fgs.Asset.Infrastructure.Database;
 using Fgs.Persistence.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Asset.Infrastructure.Assets;
 
 public sealed class FgsAssetWriteService : IFgsAssetWriteService
@@ -83,7 +85,7 @@ public sealed class FgsAssetWriteService : IFgsAssetWriteService
     }
 
     private async Task<Domain.Entities.FgsAsset?> Find(long id, CancellationToken ct) =>
-        await _context.FgsAssets.FirstOrDefaultAsync(x => x.Id == id, ct);
+        await _context.FgsAssets.FirstOrDefaultIncludingInactiveAsync(x => x.Id == id, ct);
 
     private static void Apply(Domain.Entities.FgsAsset e, FgsAssetUpdateDto dto)
     {

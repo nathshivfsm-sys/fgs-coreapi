@@ -8,6 +8,7 @@ using Fgs.Setup.Application.Abstractions.Locations;
 using Fgs.Setup.Application.Common.Locations;
 using Fgs.Setup.Application.Features.Employees.Commands.CreateFgsEmployee;
 using Fgs.Setup.Application.Features.Employees.Commands.DeleteFgsEmployee;
+using Fgs.Setup.Application.Features.Employees.Commands.PatchFgsEmployee;
 using Fgs.Setup.Application.Features.Employees.Commands.UpdateFgsEmployee;
 using Fgs.Setup.Application.Features.Employees.Dtos;
 using Fgs.Setup.Domain.Entities;
@@ -123,6 +124,136 @@ public sealed class FgsEmployeeCommandHandlerTests
     }
 
     [Fact]
+    public async Task PatchHandler_WhenInactive_ReactivatesStatusAndAddress()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(context);
+        var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var createHandler = new CreateFgsEmployeeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<CreateFgsEmployeeCommandHandler>.Instance);
+        var deleteHandler = new DeleteFgsEmployeeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<DeleteFgsEmployeeCommandHandler>.Instance);
+        var patchHandler = new PatchFgsEmployeeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<PatchFgsEmployeeCommandHandler>.Instance);
+
+        var created = await createHandler.Handle(
+            new CreateFgsEmployeeCommand(CreateDto()),
+            CancellationToken.None);
+        created.Success.Should().BeTrue();
+
+        var deleted = await deleteHandler.Handle(
+            new DeleteFgsEmployeeCommand(created.Data!.Id),
+            CancellationToken.None);
+        deleted.Data!.StatusId.Should().Be(EmployeeStatusIds.Inactive);
+        deleted.Data.Address.Should().BeNull();
+        context.FgsLocations.Single().IsActive.Should().BeFalse();
+
+        var response = await patchHandler.Handle(
+            new PatchFgsEmployeeCommand(
+                created.Data.Id,
+                CreateStatusPatch(statusId: EmployeeStatusIds.Active)),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.StatusId.Should().Be(EmployeeStatusIds.Active);
+        response.Data.Address.Should().NotBeNull();
+        response.Data.Address!.AddressLine1.Should().Be("100 Main St");
+        context.FgsLocations.Single().IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task PatchHandler_WhenInactive_IsActiveTrueReactivates()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(context);
+        var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var createHandler = new CreateFgsEmployeeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<CreateFgsEmployeeCommandHandler>.Instance);
+        var patchHandler = new PatchFgsEmployeeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<PatchFgsEmployeeCommandHandler>.Instance);
+
+        var created = await createHandler.Handle(
+            new CreateFgsEmployeeCommand(CreateDto()),
+            CancellationToken.None);
+
+        await patchHandler.Handle(
+            new PatchFgsEmployeeCommand(
+                created.Data!.Id,
+                CreateStatusPatch(statusId: EmployeeStatusIds.Inactive)),
+            CancellationToken.None);
+
+        var response = await patchHandler.Handle(
+            new PatchFgsEmployeeCommand(
+                created.Data.Id,
+                CreateStatusPatch(isActive: true)),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.StatusId.Should().Be(EmployeeStatusIds.Active);
+        response.Data.Address.Should().NotBeNull();
+        context.FgsLocations.Single().IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task PatchHandler_WhenInactive_CanPatchOtherFields()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(context);
+        var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var createHandler = new CreateFgsEmployeeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<CreateFgsEmployeeCommandHandler>.Instance);
+        var patchHandler = new PatchFgsEmployeeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<PatchFgsEmployeeCommandHandler>.Instance);
+
+        var created = await createHandler.Handle(
+            new CreateFgsEmployeeCommand(CreateDto()),
+            CancellationToken.None);
+
+        await patchHandler.Handle(
+            new PatchFgsEmployeeCommand(
+                created.Data!.Id,
+                CreateStatusPatch(statusId: EmployeeStatusIds.Inactive)),
+            CancellationToken.None);
+
+        var response = await patchHandler.Handle(
+            new PatchFgsEmployeeCommand(
+                created.Data.Id,
+                CreateStatusPatch(displayName: "Alex Updated")),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.StatusId.Should().Be(EmployeeStatusIds.Inactive);
+        response.Data.DisplayName.Should().Be("Alex Updated");
+    }
+
+    [Fact]
     public async Task DeleteHandler_SetsStatusInactiveAndSoftDeletesAddress()
     {
         await using var context = await CreateContextAsync();
@@ -154,6 +285,38 @@ public sealed class FgsEmployeeCommandHandlerTests
         response.Data!.StatusId.Should().Be(EmployeeStatusIds.Inactive);
         context.FgsLocations.Single().IsActive.Should().BeFalse();
     }
+
+    private static FgsEmployeePatchDto CreateStatusPatch(
+        short? statusId = null,
+        bool? isActive = null,
+        string? displayName = null) =>
+        new(
+            UserId: null,
+            EmployeeNumber: null,
+            EmployeeTypeId: null,
+            DisplayName: displayName,
+            LegalFirstName: null,
+            LegalMiddleName: null,
+            LegalLastName: null,
+            BirthDate: null,
+            HireDate: null,
+            TerminationDate: null,
+            StatusId: statusId,
+            PersonalEmail: null,
+            OfficeEmail: null,
+            PersonalPhone: null,
+            OfficePhone: null,
+            Address: null,
+            ProfilePhotoFileId: null,
+            RegularRate: null,
+            OvertimeRate: null,
+            DoubleTimeRate: null,
+            LaborBurdenTypeId: null,
+            LaborBurdenValue: null,
+            IsPurchaser: null,
+            Notes: null,
+            IsActive: isActive,
+            TechnicianProfile: null);
 
     private static FgsEmployeeCreateDto CreateDto(decimal? regularRate = null) =>
         new(

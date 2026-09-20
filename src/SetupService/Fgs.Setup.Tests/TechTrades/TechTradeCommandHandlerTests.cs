@@ -4,6 +4,7 @@ using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
 using Fgs.Setup.Application.Features.TechTrades.Commands.CreateTechTrade;
 using Fgs.Setup.Application.Features.TechTrades.Commands.DeleteTechTrade;
+using Fgs.Setup.Application.Features.TechTrades.Commands.PatchTechTrade;
 using Fgs.Setup.Application.Features.TechTrades.Commands.UpdateTechTrade;
 using Fgs.Setup.Application.Features.TechTrades.Dtos;
 using Fgs.Setup.Domain.Entities;
@@ -97,6 +98,44 @@ public sealed class TechTradeCommandHandlerTests
 
         var entity = await context.FgsSetupTechTrades.IgnoreQueryFilters().SingleAsync();
         entity.IsActive.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task PatchHandler_WhenInactive_CanReactivateWithIsActiveTrue()
+    {
+        await using var context = await CreateContextAsync();
+        var writeService = CreateWriteService(context);
+        var createHandler = new CreateTechTradeCommandHandler(
+            writeService,
+            NullLogger<CreateTechTradeCommandHandler>.Instance);
+        var deleteHandler = new DeleteTechTradeCommandHandler(
+            writeService,
+            NullLogger<DeleteTechTradeCommandHandler>.Instance);
+        var patchHandler = new PatchTechTradeCommandHandler(
+            writeService,
+            NullLogger<PatchTechTradeCommandHandler>.Instance);
+
+        var created = await createHandler.Handle(
+            new CreateTechTradeCommand(new TechTradeCreateDto("HVAC", "HVAC", null, 0)),
+            CancellationToken.None);
+        created.Success.Should().BeTrue();
+
+        var deleted = await deleteHandler.Handle(
+            new DeleteTechTradeCommand(created.Data!.Id),
+            CancellationToken.None);
+        deleted.Data!.IsActive.Should().BeFalse();
+        (await context.FgsSetupTechTrades.CountAsync()).Should().Be(0);
+
+        var response = await patchHandler.Handle(
+            new PatchTechTradeCommand(
+                created.Data.Id,
+                new TechTradePatchDto(TradeCode: null, Name: null, Description: null, SortOrder: null, IsActive: true)),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.IsActive.Should().BeTrue();
+        (await context.FgsSetupTechTrades.CountAsync()).Should().Be(1);
+        (await context.FgsSetupTechTrades.IgnoreQueryFilters().SingleAsync()).IsActive.Should().BeTrue();
     }
 
     private static TechTradeWriteService CreateWriteService(FgsSetupDbContext context)

@@ -1,4 +1,5 @@
 using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Abstractions;
 using Fgs.Security.Abstractions;
 using Fgs.User.Application.Abstractions.ApiClients;
@@ -108,7 +109,7 @@ public sealed class FgsApiClientWriteService(
     }
 
     private async Task<FgsApiClient?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await context.FgsApiClients.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+        await context.FgsApiClients.FirstOrDefaultIncludingInactiveAsync(item => item.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

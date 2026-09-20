@@ -21,4 +21,33 @@ public sealed class SoftDeleteFilterAccessorTests
         second.IsEnabled = true;
         first.IsEnabled.Should().BeTrue();
     }
+
+    [Fact]
+    public void Suppress_DisablesFilterAndRestoresPreviousValue()
+    {
+        var accessor = new SoftDeleteFilterAccessor();
+        accessor.IsEnabled = true;
+
+        using (accessor.Suppress())
+        {
+            accessor.IsEnabled.Should().BeFalse();
+            new SoftDeleteFilterAccessor().IsEnabled.Should().BeFalse();
+        }
+
+        accessor.IsEnabled.Should().BeTrue();
+    }
+
+    [Fact]
+    public void BeginSuppress_RestoresAfterDispose()
+    {
+        var accessor = new SoftDeleteFilterAccessor();
+        accessor.IsEnabled = true;
+
+        using (SoftDeleteFilterAccessor.BeginSuppress())
+        {
+            accessor.IsEnabled.Should().BeFalse();
+        }
+
+        accessor.IsEnabled.Should().BeTrue();
+    }
 }

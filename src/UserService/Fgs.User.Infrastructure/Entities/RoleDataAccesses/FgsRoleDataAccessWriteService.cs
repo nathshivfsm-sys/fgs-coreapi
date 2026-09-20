@@ -7,6 +7,7 @@ using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Common;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 
 namespace Fgs.User.Infrastructure.Entities.RoleDataAccesses;
 
@@ -177,7 +178,7 @@ public sealed class FgsRoleDataAccessWriteService(
     private async Task<FgsRoleDataAccess?> FindEntityAsync(long id, CancellationToken cancellationToken)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
-        return await context.FgsRoleDataAccesses.FirstOrDefaultAsync(
+        return await context.FgsRoleDataAccesses.FirstOrDefaultIncludingInactiveAsync(
             x => x.Id == id && x.TenantId == tenantId && x.CompanyId == companyId,
             cancellationToken);
     }

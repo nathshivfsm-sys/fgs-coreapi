@@ -5,6 +5,7 @@ using Fgs.Inventory.Infrastructure.Common;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Persistence.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 
 namespace Fgs.Inventory.Infrastructure.InventorySerials;
 
@@ -97,7 +98,7 @@ public sealed class FgsInventorySerialWriteService : IFgsInventorySerialWriteSer
     }
 
     private async Task<FgsInventorySerial?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsInventorySerials.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsInventorySerials.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

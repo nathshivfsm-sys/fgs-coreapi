@@ -6,6 +6,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixSizeTiers;
 
 public sealed class FgsUniversalMatrixSizeTierWriteService : IFgsUniversalMatrixSizeTierWriteService
@@ -113,7 +115,7 @@ public sealed class FgsUniversalMatrixSizeTierWriteService : IFgsUniversalMatrix
     }
 
     private async Task<FgsUniversalMatrixSizeTier?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsUniversalMatrixSizeTiers.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsUniversalMatrixSizeTiers.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

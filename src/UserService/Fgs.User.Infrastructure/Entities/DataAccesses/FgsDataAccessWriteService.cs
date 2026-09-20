@@ -1,4 +1,5 @@
 using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Abstractions;
 using Fgs.Security.Abstractions;
 using Fgs.User.Application.Abstractions.DataAccesses;
@@ -105,7 +106,7 @@ public sealed class FgsDataAccessWriteService(
     }
 
     private async Task<FgsDataAccess?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await context.FgsDataAccesses.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+        await context.FgsDataAccesses.FirstOrDefaultIncludingInactiveAsync(item => item.Id == id, cancellationToken);
 
     private static void EnsureMutable(FgsDataAccess entity)
     {

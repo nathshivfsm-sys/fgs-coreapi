@@ -6,6 +6,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.PriceBookItems;
 
 public sealed class FgsPriceBookItemWriteService(
@@ -120,7 +122,7 @@ public sealed class FgsPriceBookItemWriteService(
     }
 
     private async Task<FgsPriceBookItem?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await context.FgsPriceBookItems.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await context.FgsPriceBookItems.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private static FgsPriceBookItemDetailDto MapToDetail(FgsPriceBookItem entity) =>
         new(

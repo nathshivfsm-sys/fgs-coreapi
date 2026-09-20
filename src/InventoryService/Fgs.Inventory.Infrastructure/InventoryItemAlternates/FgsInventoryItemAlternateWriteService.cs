@@ -5,6 +5,7 @@ using Fgs.Inventory.Infrastructure.Common;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Persistence.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 
 namespace Fgs.Inventory.Infrastructure.InventoryItemAlternates;
 
@@ -65,7 +66,7 @@ public sealed class FgsInventoryItemAlternateWriteService(
     public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
     {
         var entity = await context.FgsInventoryItemAlternates
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
+            .FirstOrDefaultIncludingInactiveAsync(x => x.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException($"Inventory item alternate '{id}' was not found.");
 
         context.FgsInventoryItemAlternates.Remove(entity);

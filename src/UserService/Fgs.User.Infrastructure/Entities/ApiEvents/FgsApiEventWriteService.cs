@@ -5,6 +5,8 @@ using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.User.Infrastructure.Entities.ApiEvents;
 
 public sealed class FgsApiEventWriteService(
@@ -100,7 +102,7 @@ public sealed class FgsApiEventWriteService(
     }
 
     private async Task<FgsApiEvent?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await context.FgsApiEvents.FirstOrDefaultAsync(apiEvent => apiEvent.Id == id, cancellationToken);
+        await context.FgsApiEvents.FirstOrDefaultIncludingInactiveAsync(apiEvent => apiEvent.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

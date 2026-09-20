@@ -6,6 +6,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.SetupPostalCodes;
 
 public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteService
@@ -138,7 +140,7 @@ public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteSer
     }
 
     private async Task<FgsSetupPostalCode?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsSetupPostalCodes.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsSetupPostalCodes.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

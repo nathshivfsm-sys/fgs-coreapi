@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
-using Fgs.MultiTenancy;
+using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Abstractions;
 using Fgs.Security.Abstractions;
 using Fgs.User.Application.Abstractions.ApiSecrets;
@@ -110,7 +111,7 @@ public sealed class FgsApiSecretWriteService(
     }
 
     private async Task<FgsApiSecret?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await context.FgsApiSecrets.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+        await context.FgsApiSecrets.FirstOrDefaultIncludingInactiveAsync(item => item.Id == id, cancellationToken);
 
     private void ApplyRevocation(FgsApiSecret entity)
     {

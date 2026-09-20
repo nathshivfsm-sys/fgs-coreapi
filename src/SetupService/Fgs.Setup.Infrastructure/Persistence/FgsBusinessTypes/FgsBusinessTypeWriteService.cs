@@ -5,6 +5,7 @@ using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.Persistence.FgsBusinessTypes;
@@ -115,7 +116,7 @@ public sealed class FgsBusinessTypeWriteService : IFgsBusinessTypeWriteService
     }
 
     private async Task<FgsBusinessType?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsBusinessTypes.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsBusinessTypes.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

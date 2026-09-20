@@ -6,6 +6,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.TitlesOfCourtesy;
 
 public sealed class TitleOfCourtesyWriteService : ITitleOfCourtesyWriteService
@@ -110,7 +112,7 @@ public sealed class TitleOfCourtesyWriteService : ITitleOfCourtesyWriteService
     }
 
     private async Task<FgsSetupTitleOfCourtesy?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsSetupTitlesOfCourtesy.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsSetupTitlesOfCourtesy.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

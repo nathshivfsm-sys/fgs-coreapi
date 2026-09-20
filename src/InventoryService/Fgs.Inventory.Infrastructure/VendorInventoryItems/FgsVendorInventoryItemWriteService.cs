@@ -5,6 +5,7 @@ using Fgs.Inventory.Infrastructure.Common;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Persistence.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 
 namespace Fgs.Inventory.Infrastructure.VendorInventoryItems;
 
@@ -113,7 +114,7 @@ public sealed class FgsVendorInventoryItemWriteService : IFgsVendorInventoryItem
     }
 
     private async Task<FgsVendorInventoryItem?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsVendorInventoryItems.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsVendorInventoryItems.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

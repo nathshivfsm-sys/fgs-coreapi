@@ -10,6 +10,7 @@ using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Outbox;
 using Fgs.Persistence.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 
 namespace Fgs.Inventory.Infrastructure.PurchaseOrders;
 
@@ -179,7 +180,7 @@ public sealed class FgsPurchaseOrderWriteService : IFgsPurchaseOrderWriteService
             query = query.Include(e => e.Details);
         }
 
-        return await query.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        return await query.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
     }
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)

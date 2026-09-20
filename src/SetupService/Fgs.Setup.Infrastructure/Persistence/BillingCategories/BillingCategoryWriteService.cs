@@ -5,6 +5,7 @@ using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.Persistence.BillingCategories;
@@ -133,7 +134,7 @@ public sealed class BillingCategoryWriteService : IBillingCategoryWriteService
     }
 
     private async Task<FgsBillingCategory?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsBillingCategories.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsBillingCategories.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

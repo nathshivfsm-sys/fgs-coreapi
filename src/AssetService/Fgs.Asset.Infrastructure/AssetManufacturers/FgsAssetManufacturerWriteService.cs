@@ -6,6 +6,8 @@ using Fgs.Asset.Infrastructure.Database;
 using Fgs.Persistence.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Asset.Infrastructure.AssetManufacturers;
 
 public sealed class FgsAssetManufacturerWriteService : IFgsAssetManufacturerWriteService
@@ -49,7 +51,7 @@ public sealed class FgsAssetManufacturerWriteService : IFgsAssetManufacturerWrit
     }
 
     private async Task<FgsAssetManufacturer?> FindAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsAssetManufacturers.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        await _context.FgsAssetManufacturers.FirstOrDefaultIncludingInactiveAsync(x => x.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

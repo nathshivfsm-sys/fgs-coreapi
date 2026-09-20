@@ -6,6 +6,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.TechTrades;
 
 public sealed class TechTradeWriteService : ITechTradeWriteService
@@ -117,7 +119,7 @@ public sealed class TechTradeWriteService : ITechTradeWriteService
     }
 
     private async Task<FgsSetupTechTrade?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsSetupTechTrades.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsSetupTechTrades.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

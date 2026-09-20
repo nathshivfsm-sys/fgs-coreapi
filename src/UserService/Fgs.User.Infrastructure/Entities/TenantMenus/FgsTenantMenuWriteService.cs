@@ -7,6 +7,7 @@ using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Common;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 
 namespace Fgs.User.Infrastructure.Entities.TenantMenus;
 
@@ -217,7 +218,7 @@ public sealed class FgsTenantMenuWriteService(
     private async Task<FgsTenantMenu?> FindEntityAsync(long id, CancellationToken cancellationToken)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
-        return await context.FgsTenantMenus.FirstOrDefaultAsync(
+        return await context.FgsTenantMenus.FirstOrDefaultIncludingInactiveAsync(
             x => x.Id == id && x.TenantId == tenantId && x.CompanyId == companyId,
             cancellationToken);
     }

@@ -7,6 +7,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.Employees;
 
 public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
@@ -98,6 +100,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Employee '{id}' was not found.");
 
+        var previousStatusId = entity.StatusId;
         var (overtimeRate, doubleTimeRate) = ResolveRates(dto.RegularRate, dto.OvertimeRate, dto.DoubleTimeRate);
 
         entity.UserId = dto.UserId;
@@ -132,6 +135,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
             cancellationToken);
 
         await SyncTechnicianProfileAsync(entity, dto.EmployeeTypeId, dto.TechnicianProfile, cancellationToken);
+        await SyncAddressWithStatusAsync(entity, previousStatusId, cancellationToken);
 
         _auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
@@ -146,6 +150,8 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
     {
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Employee '{id}' was not found.");
+
+        var previousStatusId = entity.StatusId;
 
         if (dto.UserId.HasValue)
         {
@@ -197,10 +203,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
             entity.TerminationDate = dto.TerminationDate.Value;
         }
 
-        if (dto.StatusId.HasValue)
-        {
-            entity.StatusId = dto.StatusId.Value;
-        }
+        ApplyStatusPatch(entity, dto);
 
         if (dto.PersonalEmail is not null)
         {
@@ -292,6 +295,8 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
                 patchMode: true);
         }
 
+        await SyncAddressWithStatusAsync(entity, previousStatusId, cancellationToken);
+
         _auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
 
@@ -312,6 +317,45 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         }
 
         return await MapToDetailAsync(entity.Id, cancellationToken);
+    }
+
+    private async Task SyncAddressWithStatusAsync(
+        FgsEmployee employee,
+        short previousStatusId,
+        CancellationToken cancellationToken)
+    {
+        if (employee.StatusId == previousStatusId)
+        {
+            return;
+        }
+
+        if (employee.StatusId == EmployeeStatusIds.Inactive)
+        {
+            await _locationWriteService.SoftDeleteAsync(employee.AddressId, cancellationToken);
+            return;
+        }
+
+        if (employee.StatusId == EmployeeStatusIds.Active
+            && previousStatusId == EmployeeStatusIds.Inactive)
+        {
+            await _locationWriteService.ReactivateAsync(employee.AddressId, cancellationToken);
+        }
+    }
+
+    private static void ApplyStatusPatch(FgsEmployee entity, FgsEmployeePatchDto dto)
+    {
+        if (dto.StatusId.HasValue)
+        {
+            entity.StatusId = dto.StatusId.Value;
+            return;
+        }
+
+        if (dto.IsActive.HasValue)
+        {
+            entity.StatusId = dto.IsActive.Value
+                ? EmployeeStatusIds.Active
+                : EmployeeStatusIds.Inactive;
+        }
     }
 
     private async Task SyncTechnicianProfileAsync(
@@ -399,7 +443,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
     }
 
     private async Task<FgsEmployee?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsEmployees.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsEmployees.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task<FgsEmployeeDetailDto> MapToDetailAsync(long id, CancellationToken cancellationToken)
     {
@@ -411,6 +455,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         if (entity.AddressId is Guid addressId)
         {
             var location = await _context.FgsLocations
+                .IgnoreQueryFilters()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(l => l.Id == addressId && l.IsActive, cancellationToken);
 

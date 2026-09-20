@@ -7,6 +7,7 @@ using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Common;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 
 namespace Fgs.User.Infrastructure.Entities.RoleMenus;
 
@@ -181,7 +182,7 @@ public sealed class FgsRoleMenuWriteService(
         long tenantId,
         long companyId,
         CancellationToken cancellationToken) =>
-        await context.FgsRoleMenus.FirstOrDefaultAsync(
+        await context.FgsRoleMenus.FirstOrDefaultIncludingInactiveAsync(
             x => x.Id == id && x.TenantId == tenantId && x.CompanyId == companyId,
             cancellationToken);
 

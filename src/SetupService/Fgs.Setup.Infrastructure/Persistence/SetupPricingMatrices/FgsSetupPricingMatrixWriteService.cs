@@ -7,6 +7,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.SetupPricingMatrices;
 
 public sealed class FgsSetupPricingMatrixWriteService : IFgsSetupPricingMatrixWriteService
@@ -158,7 +160,7 @@ public sealed class FgsSetupPricingMatrixWriteService : IFgsSetupPricingMatrixWr
     }
 
     private async Task<FgsSetupPricingMatrix?> FindMatrixAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsSetupPricingMatrices.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsSetupPricingMatrices.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private static PriceAdjustmentType ResolvePriceAdjustmentType(short? priceAdjustmentTypeId) =>
         priceAdjustmentTypeId is >= 1 and <= 3

@@ -8,6 +8,7 @@ using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Common;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 
 namespace Fgs.User.Infrastructure.Entities.PublicEndpoints;
 
@@ -103,7 +104,7 @@ public sealed class FgsPublicEndpointWriteService(
     private async Task<FgsPublicEndpoint?> FindEntityAsync(long id, CancellationToken cancellationToken)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
-        return await context.FgsPublicEndpoints.FirstOrDefaultAsync(
+        return await context.FgsPublicEndpoints.FirstOrDefaultIncludingInactiveAsync(
             item => item.Id == id && item.TenantId == tenantId && item.CompanyId == companyId,
             cancellationToken);
     }

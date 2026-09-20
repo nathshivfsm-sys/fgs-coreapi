@@ -6,6 +6,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixAddOns;
 
 public sealed class FgsUniversalMatrixAddOnWriteService : IFgsUniversalMatrixAddOnWriteService
@@ -119,7 +121,7 @@ public sealed class FgsUniversalMatrixAddOnWriteService : IFgsUniversalMatrixAdd
     }
 
     private async Task<FgsUniversalMatrixAddOn?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsUniversalMatrixAddOns.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsUniversalMatrixAddOns.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

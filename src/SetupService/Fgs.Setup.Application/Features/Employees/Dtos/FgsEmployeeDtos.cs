@@ -177,6 +177,7 @@ public sealed record FgsEmployeePatchDto(
     decimal? LaborBurdenValue,
     bool? IsPurchaser,
     string? Notes,
+    bool? IsActive = null,
     FgsEmployeeTechnicianProfileWriteDto? TechnicianProfile = null);
 
 public sealed record FgsEmployeeListFilters(

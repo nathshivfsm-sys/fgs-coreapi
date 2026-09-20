@@ -5,6 +5,8 @@ using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.User.Infrastructure.Entities.Permissions;
 
 public sealed class FgsPermissionWriteService(
@@ -107,7 +109,7 @@ public sealed class FgsPermissionWriteService(
     }
 
     private async Task<FgsPermission?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await context.FgsPermissions.FirstOrDefaultAsync(permission => permission.Id == id, cancellationToken);
+        await context.FgsPermissions.FirstOrDefaultIncludingInactiveAsync(permission => permission.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

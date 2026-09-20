@@ -5,6 +5,7 @@ using Fgs.Inventory.Infrastructure.Common;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Persistence.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 
 namespace Fgs.Inventory.Infrastructure.InventoryItems;
 
@@ -76,7 +77,7 @@ public sealed class FgsInventoryItemWriteService : IFgsInventoryItemWriteService
                 .Include(e => e.Dependencies);
         }
 
-        return await query.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        return await query.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
     }
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)

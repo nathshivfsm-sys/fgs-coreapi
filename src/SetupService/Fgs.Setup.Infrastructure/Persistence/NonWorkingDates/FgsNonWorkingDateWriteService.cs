@@ -1,4 +1,5 @@
 using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Abstractions;
 using Fgs.Setup.Application.Abstractions.NonWorkingDates;
 using Fgs.Setup.Application.Features.NonWorkingDates.Dtos;
@@ -78,7 +79,7 @@ public sealed class FgsNonWorkingDateWriteService(
     }
 
     private async Task<FgsNonWorkingDate?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await context.FgsNonWorkingDates.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await context.FgsNonWorkingDates.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

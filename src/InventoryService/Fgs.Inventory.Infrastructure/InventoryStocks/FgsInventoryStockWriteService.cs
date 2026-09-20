@@ -9,6 +9,7 @@ using Fgs.Messaging.Abstractions;
 using Fgs.Messaging.Outbox;
 using Fgs.Persistence.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 
 namespace Fgs.Inventory.Infrastructure.InventoryStocks;
 
@@ -142,7 +143,7 @@ public sealed class FgsInventoryStockWriteService : IFgsInventoryStockWriteServi
     }
 
     private async Task<FgsInventoryStock?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsInventoryStocks.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsInventoryStocks.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

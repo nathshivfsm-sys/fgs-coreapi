@@ -5,6 +5,7 @@ using Fgs.Inventory.Infrastructure.Common;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Persistence.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 
 namespace Fgs.Inventory.Infrastructure.InventoryLocations;
 
@@ -167,7 +168,7 @@ public sealed class FgsInventoryLocationWriteService : IFgsInventoryLocationWrit
     }
 
     private async Task<FgsInventoryLocation?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsInventoryLocations.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsInventoryLocations.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

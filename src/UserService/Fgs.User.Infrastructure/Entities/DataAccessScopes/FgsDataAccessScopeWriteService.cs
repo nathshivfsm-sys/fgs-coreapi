@@ -1,4 +1,5 @@
 using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Abstractions;
 using Fgs.Security.Abstractions;
 using Fgs.User.Application.Abstractions.DataAccessScopes;
@@ -102,7 +103,7 @@ public sealed class FgsDataAccessScopeWriteService(
     }
 
     private async Task<FgsDataAccessScope?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await context.FgsDataAccessScopes.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+        await context.FgsDataAccessScopes.FirstOrDefaultIncludingInactiveAsync(item => item.Id == id, cancellationToken);
 
     private string? ResolveActor() =>
         userContext.Email

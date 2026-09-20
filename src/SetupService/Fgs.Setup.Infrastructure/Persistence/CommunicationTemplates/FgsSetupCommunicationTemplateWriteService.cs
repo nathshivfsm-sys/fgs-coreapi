@@ -5,6 +5,7 @@ using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.Persistence.CommunicationTemplates;
@@ -144,7 +145,7 @@ public sealed class FgsSetupCommunicationTemplateWriteService : IFgsSetupCommuni
     }
 
     private async Task<FgsSetupCommunicationTemplate?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsSetupCommunicationTemplates.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsSetupCommunicationTemplates.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

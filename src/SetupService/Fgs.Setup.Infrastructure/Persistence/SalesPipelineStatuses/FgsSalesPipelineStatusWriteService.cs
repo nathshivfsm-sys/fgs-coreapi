@@ -5,6 +5,7 @@ using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.Persistence.SalesPipelineStatuses;
@@ -145,7 +146,7 @@ public sealed class FgsSalesPipelineStatusWriteService : IFgsSalesPipelineStatus
     }
 
     private async Task<FgsSalesPipelineStatus?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsSalesPipelineStatuses.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsSalesPipelineStatuses.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

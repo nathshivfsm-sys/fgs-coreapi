@@ -6,6 +6,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.SetupTaxes;
 
 public sealed class FgsSetupTaxWriteService : IFgsSetupTaxWriteService
@@ -193,7 +195,7 @@ public sealed class FgsSetupTaxWriteService : IFgsSetupTaxWriteService
             query = query.Include(e => e.TaxDetails);
         }
 
-        return await query.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        return await query.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
     }
 
     private async Task<FgsSetupTaxDetailDto> RequireDetailAsync(long id, CancellationToken cancellationToken) =>

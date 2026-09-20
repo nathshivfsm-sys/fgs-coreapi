@@ -8,6 +8,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.GLBreaks;
 
 public sealed class GLBreakWriteService : IGLBreakWriteService
@@ -193,7 +195,7 @@ public sealed class GLBreakWriteService : IGLBreakWriteService
         CancellationToken cancellationToken) =>
         await _context.FgsSetupGLBreaks
             .Include(e => e.Trades)
-            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+            .FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task<GLBreakDetailDto> MapToDetailAsync(long id, CancellationToken cancellationToken)
     {

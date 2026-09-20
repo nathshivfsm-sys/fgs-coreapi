@@ -1,4 +1,5 @@
-using Fgs.MultiTenancy;
+using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Abstractions;
 using Fgs.Security.Abstractions;
 using Fgs.User.Application.Abstractions.ApiWebhooks;
@@ -128,7 +129,7 @@ public sealed class FgsApiWebhookWriteService(
     }
 
     private async Task<FgsApiWebhook?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await context.FgsApiWebhooks.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+        await context.FgsApiWebhooks.FirstOrDefaultIncludingInactiveAsync(item => item.Id == id, cancellationToken);
 
     private void StampForUpdate(FgsApiWebhook entity)
     {

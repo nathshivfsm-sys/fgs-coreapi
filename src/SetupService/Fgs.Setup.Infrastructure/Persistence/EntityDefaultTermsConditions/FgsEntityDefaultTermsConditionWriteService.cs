@@ -6,6 +6,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.EntityDefaultTermsConditions;
 
 public sealed class FgsEntityDefaultTermsConditionWriteService : IFgsEntityDefaultTermsConditionWriteService
@@ -88,7 +90,7 @@ public sealed class FgsEntityDefaultTermsConditionWriteService : IFgsEntityDefau
     }
 
     private async Task<FgsEntityDefaultTermsCondition?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsEntityDefaultTermsConditions.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsEntityDefaultTermsConditions.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

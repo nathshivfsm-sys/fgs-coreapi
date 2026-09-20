@@ -5,6 +5,7 @@ using Fgs.Inventory.Infrastructure.Common;
 using Fgs.Inventory.Infrastructure.Database;
 using Fgs.Persistence.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Fgs.MultiTenancy.Persistence;
 
 namespace Fgs.Inventory.Infrastructure.TruckStockTemplates;
 
@@ -147,7 +148,7 @@ public sealed class FgsTruckStockTemplateWriteService : IFgsTruckStockTemplateWr
             query = query.Include(e => e.Items);
         }
 
-        return await query.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        return await query.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
     }
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)

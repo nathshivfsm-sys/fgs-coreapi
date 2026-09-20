@@ -6,6 +6,8 @@ using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
+using Fgs.MultiTenancy.Persistence;
+
 namespace Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalMatrixOneTimeFees;
 
 public sealed class FgsUniversalMatrixOneTimeFeeWriteService : IFgsUniversalMatrixOneTimeFeeWriteService
@@ -113,7 +115,7 @@ public sealed class FgsUniversalMatrixOneTimeFeeWriteService : IFgsUniversalMatr
     }
 
     private async Task<FgsUniversalMatrixOneTimeFee?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsUniversalMatrixOneTimeFees.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsUniversalMatrixOneTimeFees.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

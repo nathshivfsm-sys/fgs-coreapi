@@ -1,4 +1,5 @@
 using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Abstractions;
 using Fgs.Security.Abstractions;
 using Fgs.User.Application.Abstractions.Roles;
@@ -262,7 +263,7 @@ public sealed class FgsRoleWriteService(
     }
 
     private async Task<FgsRole?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await context.FgsRoles.FirstOrDefaultAsync(role => role.Id == id, cancellationToken);
+        await context.FgsRoles.FirstOrDefaultIncludingInactiveAsync(role => role.Id == id, cancellationToken);
 
     private static void EnsureMutable(FgsRole entity)
     {

@@ -5,6 +5,7 @@ using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.Persistence.SetupTaxAuthorities;
@@ -136,7 +137,7 @@ public sealed class FgsSetupTaxAuthorityWriteService : IFgsSetupTaxAuthorityWrit
     }
 
     private async Task<FgsSetupTaxAuthority?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsSetupTaxAuthorities.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsSetupTaxAuthorities.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

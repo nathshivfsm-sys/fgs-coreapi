@@ -5,6 +5,7 @@ using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.Persistence.SetupZones;
@@ -109,7 +110,7 @@ public sealed class FgsSetupZoneWriteService : IFgsSetupZoneWriteService
     }
 
     private async Task<FgsSetupZone?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsSetupZones.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsSetupZones.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

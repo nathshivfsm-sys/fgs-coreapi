@@ -5,6 +5,7 @@ using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.Persistence.SetupDescriptions;
@@ -121,7 +122,7 @@ public sealed class FgsSetupDescriptionWriteService : IFgsSetupDescriptionWriteS
     }
 
     private async Task<FgsSetupDescription?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsSetupDescriptions.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsSetupDescriptions.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

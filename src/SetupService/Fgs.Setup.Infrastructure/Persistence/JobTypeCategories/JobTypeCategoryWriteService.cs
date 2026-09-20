@@ -5,6 +5,7 @@ using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Fgs.MultiTenancy;
+using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Setup.Infrastructure.Persistence.JobTypeCategories;
@@ -107,7 +108,7 @@ public sealed class JobTypeCategoryWriteService : IJobTypeCategoryWriteService
     }
 
     private async Task<FgsJobTypeCategory?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsJobTypeCategories.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        await _context.FgsJobTypeCategories.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
