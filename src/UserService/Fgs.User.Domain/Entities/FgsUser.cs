@@ -29,6 +29,11 @@ public class FgsUser : FgsEntityBase, ITenantCompanyScoped
     /// </summary>
     public AuthenticationMethod AuthenticationMethod { get; set; } = AuthenticationMethod.PasswordOrEmailOtp;
 
+    /// <summary>
+    /// UTC timestamp of the user's most recent successful login. Null when the user has never logged in.
+    /// </summary>
+    public DateTimeOffset? LastLoginOn { get; set; }
+
     public bool IsActive { get; set; } = true;
 
     public bool IsDeleted { get; set; }

@@ -30,5 +30,8 @@ internal class FgsUserConfiguration : IEntityTypeConfiguration<FgsUser>
             .HasDefaultValue(AuthenticationMethod.PasswordOrEmailOtp);
         entity.Property(e => e.CreatedOn).HasColumnType("timestamptz");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
+        entity.Property(e => e.LastLoginOn)
+            .HasColumnType("timestamptz")
+            .HasComment("UTC timestamp of the user's most recent successful login.");
     }
 }
