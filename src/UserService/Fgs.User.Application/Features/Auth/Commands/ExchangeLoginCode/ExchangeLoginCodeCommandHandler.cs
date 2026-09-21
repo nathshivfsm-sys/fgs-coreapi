@@ -115,8 +115,6 @@ public sealed class ExchangeLoginCodeCommandHandler(
         if (string.IsNullOrWhiteSpace(user.EntraObjectId))
         {
             user.EntraObjectId = entraUser.ObjectId;
-            userRepo.Update(user);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         else if (!string.Equals(user.EntraObjectId, entraUser.ObjectId, StringComparison.OrdinalIgnoreCase))
         {
@@ -124,6 +122,12 @@ public sealed class ExchangeLoginCodeCommandHandler(
                 [AuthErrorMessages.EntraEmailMismatch],
                 ApiStatusCodes.BadRequest);
         }
+
+        // Interactive login only (not refresh) — stamp LastLoginOn for Employees/Users UI.
+        user.LastLoginOn = dateTime.UtcNow;
+        user.UpdatedOn = dateTime.UtcNow;
+        userRepo.Update(user);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var profile = await profileBuilder.BuildAsync(user, cancellationToken);
         await profileStore.InvalidateAsync(user.Id, user.EntraObjectId, cancellationToken);
@@ -213,6 +217,7 @@ public sealed class ExchangeLoginCodeCommandHandler(
                         await profileStore.InvalidateAsync(user.Id, user.EntraObjectId, ct);
 
                         user.EntraObjectId = entraUser.ObjectId;
+                        user.LastLoginOn = dateTime.UtcNow;
                         user.UpdatedOn = dateTime.UtcNow;
                         userRepo.Update(user);
 
@@ -221,9 +226,15 @@ public sealed class ExchangeLoginCodeCommandHandler(
 
                         await EnqueueTenantProvisionRequestedAsync(invitation, ct);
                     }
-                    else if (string.IsNullOrWhiteSpace(user.EntraObjectId))
+                    else
                     {
-                        user.EntraObjectId = entraUser.ObjectId;
+                        if (string.IsNullOrWhiteSpace(user.EntraObjectId))
+                        {
+                            user.EntraObjectId = entraUser.ObjectId;
+                        }
+
+                        // Returning invitee completing OAuth is still an interactive login.
+                        user.LastLoginOn = dateTime.UtcNow;
                         user.UpdatedOn = dateTime.UtcNow;
                         userRepo.Update(user);
                     }

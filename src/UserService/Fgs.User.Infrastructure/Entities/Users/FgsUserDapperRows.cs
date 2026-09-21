@@ -12,9 +12,10 @@ internal sealed class FgsUserSummaryRow
     public string? RoleName { get; set; }
     public string? InvitationStatus { get; set; }
     public bool IsActive { get; set; }
+    public DateTimeOffset? LastLoginOn { get; set; }
 
     public FgsUserSummaryDto ToDto() =>
-        new(Id, DisplayName, Email, PhoneNumber, RoleId, RoleName, InvitationStatus, IsActive);
+        new(Id, DisplayName, Email, PhoneNumber, RoleId, RoleName, InvitationStatus, IsActive, LastLoginOn);
 }
 
 internal sealed class FgsUserDetailRow
@@ -28,9 +29,21 @@ internal sealed class FgsUserDetailRow
     public string? InvitationStatus { get; set; }
     public bool IsActive { get; set; }
     public bool HasAcceptedInvitation { get; set; }
+    public DateTimeOffset? LastLoginOn { get; set; }
 
     public FgsUserDetailDto ToDto() =>
-        new(Id, DisplayName, Email, PhoneNumber, RoleId, RoleName, InvitationStatus, IsActive, HasAcceptedInvitation);
+        new(Id, DisplayName, Email, PhoneNumber, RoleId, RoleName, InvitationStatus, IsActive, HasAcceptedInvitation, LastLoginOn);
+}
+
+internal sealed class FgsUserListEnrichmentRow
+{
+    public Guid UserId { get; set; }
+    public long? RoleId { get; set; }
+    public string? RoleName { get; set; }
+    public DateTimeOffset? LastLoginOn { get; set; }
+
+    public Fgs.Contracts.Clients.FgsUserListEnrichmentDto ToDto() =>
+        new(UserId, RoleId, RoleName, LastLoginOn);
 }
 
 internal sealed class FgsUserListSummaryRow

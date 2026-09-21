@@ -16,22 +16,41 @@ namespace Fgs.Setup.Tests.Employees;
 public sealed class FgsEmployeeQueryHandlerTests
 {
     [Fact]
-    public async Task GetById_WhenFound_ReturnsOk()
+    public async Task GetById_WhenFound_ReturnsOkAndEnrichesLinkedUser()
     {
-        var detail = CreateDetail(1);
+        var userId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        var detail = CreateDetail(1) with { UserId = userId };
+        var lastLogin = DateTimeOffset.Parse("2026-09-20T12:00:00Z");
 
         var readRepository = new Mock<IFgsEmployeeReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        var userClient = new Mock<IUserInternalUsersClient>();
+        userClient
+            .Setup(c => c.GetListEnrichmentAsync(
+                It.IsAny<IEnumerable<Guid>>(),
+                "10",
+                "20",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponse<IReadOnlyList<FgsUserListEnrichmentDto>>.Ok(
+                [new FgsUserListEnrichmentDto(userId, 9, "Dispatcher", lastLogin)]));
 
         var cache = new Mock<ICacheService>();
         var tenantAccessor = new Mock<ITenantContextAccessor>();
         tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
-        var handler = new GetFgsEmployeeByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
+        var handler = new GetFgsEmployeeByIdQueryHandler(
+            readRepository.Object,
+            userClient.Object,
+            cache.Object,
+            tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsEmployeeByIdQuery(1), CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(ApiStatusCodes.Ok);
+        response.Data!.RoleId.Should().Be(9);
+        response.Data.RoleName.Should().Be("Dispatcher");
+        response.Data.LastLoginOn.Should().Be(lastLogin);
         readRepository.Verify(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -45,7 +64,11 @@ public sealed class FgsEmployeeQueryHandlerTests
         var tenantAccessor = new Mock<ITenantContextAccessor>();
         tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
 
-        var handler = new GetFgsEmployeeByIdQueryHandler(readRepository.Object, cache.Object, tenantAccessor.Object);
+        var handler = new GetFgsEmployeeByIdQueryHandler(
+            readRepository.Object,
+            new Mock<IUserInternalUsersClient>().Object,
+            cache.Object,
+            tenantAccessor.Object);
         var response = await handler.Handle(new GetFgsEmployeeByIdQuery(99), CancellationToken.None);
 
         response.Success.Should().BeFalse();
@@ -53,12 +76,21 @@ public sealed class FgsEmployeeQueryHandlerTests
     }
 
     [Fact]
-    public async Task List_ReturnsPagedResult()
+    public async Task List_ReturnsListResultWithSummary()
     {
         var readRepository = new Mock<IFgsEmployeeReadRepository>();
         readRepository
-            .Setup(r => r.ListAsync(It.IsAny<SetupListQuery>(), It.IsAny<FgsEmployeeListFilters>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PagedResult<FgsEmployeeSummaryDto>([], 1, 25, 0));
+            .Setup(r => r.ListAsync(
+                It.IsAny<SetupListQuery>(),
+                It.IsAny<FgsEmployeeListFilters>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FgsEmployeeListResultDto(
+                [],
+                1,
+                25,
+                0,
+                new FgsEmployeeListSummaryDto(5, 3, 1)));
 
         var handler = CreateListHandler(readRepository);
         var response = await handler.Handle(
@@ -66,8 +98,15 @@ public sealed class FgsEmployeeQueryHandlerTests
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
+        response.Data!.Summary.TotalEmployees.Should().Be(5);
+        response.Data.Summary.ActiveEmployees.Should().Be(3);
+        response.Data.Summary.InactiveEmployees.Should().Be(1);
         readRepository.Verify(
-            r => r.ListAsync(It.IsAny<SetupListQuery>(), It.IsAny<FgsEmployeeListFilters>(), It.IsAny<CancellationToken>()),
+            r => r.ListAsync(
+                It.IsAny<SetupListQuery>(),
+                It.IsAny<FgsEmployeeListFilters>(),
+                true,
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -79,8 +118,9 @@ public sealed class FgsEmployeeQueryHandlerTests
             .Setup(r => r.ListAsync(
                 It.IsAny<SetupListQuery>(),
                 It.Is<FgsEmployeeListFilters>(f => f.StatusId == EmployeeStatusIds.Active),
+                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PagedResult<FgsEmployeeSummaryDto>([], 1, 25, 0));
+            .ReturnsAsync(new FgsEmployeeListResultDto([], 1, 25, 0, new FgsEmployeeListSummaryDto(0, 0, 0)));
 
         var handler = CreateListHandler(readRepository);
         await handler.Handle(
@@ -93,6 +133,7 @@ public sealed class FgsEmployeeQueryHandlerTests
             r => r.ListAsync(
                 It.IsAny<SetupListQuery>(),
                 It.Is<FgsEmployeeListFilters>(f => f.StatusId == EmployeeStatusIds.Active),
+                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -105,8 +146,9 @@ public sealed class FgsEmployeeQueryHandlerTests
             .Setup(r => r.ListAsync(
                 It.IsAny<SetupListQuery>(),
                 It.IsAny<FgsEmployeeListFilters>(),
+                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PagedResult<FgsEmployeeSummaryDto>([], 1, 25, 0));
+            .ReturnsAsync(new FgsEmployeeListResultDto([], 1, 25, 0, new FgsEmployeeListSummaryDto(0, 0, 0)));
 
         var handler = CreateListHandler(readRepository);
         await handler.Handle(
@@ -129,6 +171,7 @@ public sealed class FgsEmployeeQueryHandlerTests
                     && f.DispatchZoneIds != null
                     && f.DispatchZoneIds.SequenceEqual(new long[] { 4L, 5L })
                     && f.UserIds == null),
+                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -142,8 +185,9 @@ public sealed class FgsEmployeeQueryHandlerTests
             .Setup(r => r.ListAsync(
                 It.IsAny<SetupListQuery>(),
                 It.IsAny<FgsEmployeeListFilters>(),
+                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PagedResult<FgsEmployeeSummaryDto>([], 1, 25, 0));
+            .ReturnsAsync(new FgsEmployeeListResultDto([], 1, 25, 0, new FgsEmployeeListSummaryDto(0, 0, 0)));
 
         var userClient = new Mock<IUserInternalUsersClient>();
         userClient
@@ -177,14 +221,19 @@ public sealed class FgsEmployeeQueryHandlerTests
                     && f.UserIds.SequenceEqual(new Guid[] { userId })
                     && f.RoleIds != null
                     && f.RoleIds.SequenceEqual(new long[] { 7L, 8L })),
+                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
     [Fact]
-    public async Task List_WithRoleIds_WhenNoMatchingUsers_ReturnsEmptyPageWithoutRepository()
+    public async Task List_WithRoleIds_WhenNoMatchingUsers_ReturnsEmptyPageWithSummary()
     {
         var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        readRepository
+            .Setup(r => r.GetListSummaryAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FgsEmployeeListSummaryDto(10, 7, 2));
+
         var userClient = new Mock<IUserInternalUsersClient>();
         userClient
             .Setup(c => c.GetUserIdsByRolesAsync(
@@ -206,9 +255,90 @@ public sealed class FgsEmployeeQueryHandlerTests
         response.Data.Page.Should().Be(2);
         response.Data.PageSize.Should().Be(10);
         response.Data.TotalCount.Should().Be(0);
+        response.Data.Summary.TotalEmployees.Should().Be(10);
         readRepository.Verify(
-            r => r.ListAsync(It.IsAny<SetupListQuery>(), It.IsAny<FgsEmployeeListFilters>(), It.IsAny<CancellationToken>()),
+            r => r.ListAsync(
+                It.IsAny<SetupListQuery>(),
+                It.IsAny<FgsEmployeeListFilters>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
+        readRepository.Verify(r => r.GetListSummaryAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task List_EnrichesRoleAndLastLogin_AndSortsCurrentPageByRoleName()
+    {
+        var userA = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        var userB = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        var items = new List<FgsEmployeeSummaryDto>
+        {
+            CreateSummary(1, userA, "Zed"),
+            CreateSummary(2, userB, "Ann")
+        };
+
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        readRepository
+            .Setup(r => r.ListAsync(
+                It.IsAny<SetupListQuery>(),
+                It.IsAny<FgsEmployeeListFilters>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FgsEmployeeListResultDto(
+                items,
+                1,
+                25,
+                2,
+                new FgsEmployeeListSummaryDto(2, 2, 0)));
+
+        var userClient = new Mock<IUserInternalUsersClient>();
+        userClient
+            .Setup(c => c.GetListEnrichmentAsync(
+                It.IsAny<IEnumerable<Guid>>(),
+                "10",
+                "20",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponse<IReadOnlyList<FgsUserListEnrichmentDto>>.Ok(
+            [
+                new FgsUserListEnrichmentDto(userA, 1, "Zebra", null),
+                new FgsUserListEnrichmentDto(userB, 2, "Alpha", DateTimeOffset.UtcNow)
+            ]));
+
+        var handler = CreateListHandler(readRepository, userClient);
+        var response = await handler.Handle(
+            new ListEmployeesQuery(
+                new SetupListQuery(SortBy: "RoleName", SortDirection: SortDirection.Asc),
+                new FgsEmployeeListFilters()),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.Items.Should().HaveCount(2);
+        response.Data.Items[0].RoleName.Should().Be("Alpha");
+        response.Data.Items[1].RoleName.Should().Be("Zebra");
+        response.Data.Items[0].DisplayName.Should().Be("Ann");
+    }
+
+    [Fact]
+    public async Task List_PassesIncludeSummaryFalse()
+    {
+        bool? captured = null;
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        readRepository
+            .Setup(r => r.ListAsync(
+                It.IsAny<SetupListQuery>(),
+                It.IsAny<FgsEmployeeListFilters>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<SetupListQuery, FgsEmployeeListFilters, bool, CancellationToken>((_, _, summary, _) =>
+                captured = summary)
+            .ReturnsAsync(new FgsEmployeeListResultDto([], 1, 25, 0, new FgsEmployeeListSummaryDto(0, 0, 0)));
+
+        var handler = CreateListHandler(readRepository);
+        await handler.Handle(
+            new ListEmployeesQuery(new SetupListQuery(), new FgsEmployeeListFilters(), IncludeSummary: false),
+            CancellationToken.None);
+
+        captured.Should().BeFalse();
     }
 
     private static ListEmployeesQueryHandler CreateListHandler(
@@ -223,6 +353,34 @@ public sealed class FgsEmployeeQueryHandlerTests
             (userClient ?? new Mock<IUserInternalUsersClient>()).Object,
             tenantAccessor.Object);
     }
+
+    private static FgsEmployeeSummaryDto CreateSummary(long id, Guid? userId, string displayName) =>
+        new(
+            id,
+            userId,
+            $"EMP-{id:D3}",
+            EmployeeTypeIds.Technician,
+            displayName,
+            displayName,
+            null,
+            "Last",
+            null,
+            new DateOnly(2026, 1, 15),
+            null,
+            EmployeeStatusIds.Active,
+            null,
+            $"{displayName.ToLowerInvariant()}@example.com",
+            null,
+            "+15551234567",
+            null,
+            40m,
+            60m,
+            80m,
+            LaborBurdenTypeIds.Percentage,
+            25m,
+            false,
+            null,
+            true);
 
     private static FgsEmployeeDetailDto CreateDetail(long id) =>
         new(

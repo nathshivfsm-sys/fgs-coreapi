@@ -59,6 +59,16 @@ internal sealed class FgsEmployeeSummaryRow
             HasTechnicianProfile);
 }
 
+internal sealed class FgsEmployeeListSummaryRow
+{
+    public int TotalEmployees { get; set; }
+    public int ActiveEmployees { get; set; }
+    public int InactiveEmployees { get; set; }
+
+    public FgsEmployeeListSummaryDto ToDto() =>
+        new(TotalEmployees, ActiveEmployees, InactiveEmployees);
+}
+
 internal sealed class FgsEmployeeDetailRow
 {
     public long Id { get; set; }

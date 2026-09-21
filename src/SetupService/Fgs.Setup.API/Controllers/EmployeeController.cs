@@ -35,8 +35,13 @@ public sealed class EmployeeController(IMediator mediator) : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    /// <summary>
+    /// Lists employees with paging. When <paramref name="includeSummary"/> is true (default), also returns
+    /// company-scoped card counts that ignore list filters (search/status/tech/role/etc.).
+    /// Response items include Role/LastLogin when the employee has a linked UserId (via UserService S2S).
+    /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsEmployeeSummaryDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<FgsEmployeeListResultDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> List(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 25,
@@ -51,6 +56,7 @@ public sealed class EmployeeController(IMediator mediator) : ControllerBase
         [FromQuery] IReadOnlyList<long>? techSkillIds = null,
         [FromQuery] IReadOnlyList<long>? dispatchZoneIds = null,
         [FromQuery] IReadOnlyList<long>? roleIds = null,
+        [FromQuery] bool includeSummary = true,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
@@ -63,7 +69,8 @@ public sealed class EmployeeController(IMediator mediator) : ControllerBase
                     techTradeIds,
                     techSkillIds,
                     dispatchZoneIds,
-                    roleIds)),
+                    roleIds),
+                includeSummary),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);

@@ -1,5 +1,4 @@
 using Dapper;
-using Fgs.Foundation.Paging;
 using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.Employees;
 using Fgs.Setup.Application.Abstractions.Persistence;
@@ -43,9 +42,10 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
         return row?.ToDto();
     }
 
-    public async Task<PagedResult<FgsEmployeeSummaryDto>> ListAsync(
+    public async Task<FgsEmployeeListResultDto> ListAsync(
         SetupListQuery query,
         FgsEmployeeListFilters filters,
+        bool includeSummary = true,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
@@ -148,6 +148,7 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
             FROM {FgsEmployeeSql.Table} e
             {countTechnicianJoin}
             WHERE {whereClause};
+            {(includeSummary ? SummarySql : string.Empty)}
             """;
 
         var parameters = new
@@ -156,6 +157,7 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
             CompanyId = companyId,
             StatusId = filters.StatusId,
             ActiveStatusId = EmployeeStatusIds.Active,
+            InactiveStatusId = EmployeeStatusIds.Inactive,
             EmployeeNumber = string.IsNullOrWhiteSpace(filters.EmployeeNumber)
                 ? null
                 : $"%{filters.EmployeeNumber.Trim()}%",
@@ -176,12 +178,56 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
         var rows = (await multi.ReadAsync<FgsEmployeeSummaryRow>()).ToList();
         var totalCount = await multi.ReadSingleAsync<int>();
 
-        return new PagedResult<FgsEmployeeSummaryDto>(
+        FgsEmployeeListSummaryDto summary;
+        if (includeSummary)
+        {
+            var summaryRow = await multi.ReadSingleAsync<FgsEmployeeListSummaryRow>();
+            summary = summaryRow.ToDto();
+        }
+        else
+        {
+            summary = EmptySummary;
+        }
+
+        return new FgsEmployeeListResultDto(
             rows.Select(r => r.ToDto()).ToList(),
             page,
             pageSize,
-            totalCount);
+            totalCount,
+            summary);
     }
+
+    public async Task<FgsEmployeeListSummaryDto> GetListSummaryAsync(CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        var row = await connection.QuerySingleAsync<FgsEmployeeListSummaryRow>(
+            new CommandDefinition(
+                SummarySql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    ActiveStatusId = EmployeeStatusIds.Active,
+                    InactiveStatusId = EmployeeStatusIds.Inactive
+                },
+                cancellationToken: cancellationToken));
+
+        return row.ToDto();
+    }
+
+    private static readonly FgsEmployeeListSummaryDto EmptySummary = new(0, 0, 0);
+
+    // Company-scoped card counts — ignore list filters (search/status/tech/role).
+    private const string SummarySql = """
+        SELECT
+            COUNT(*)::int AS "TotalEmployees",
+            COUNT(*) FILTER (WHERE e."StatusId" = @ActiveStatusId)::int AS "ActiveEmployees",
+            COUNT(*) FILTER (WHERE e."StatusId" = @InactiveStatusId)::int AS "InactiveEmployees"
+        FROM setup."FgsEmployee" e
+        WHERE e."TenantId" = @TenantId
+          AND e."CompanyId" = @CompanyId;
+        """;
 
     private static long[] ToDistinctArray(IReadOnlyList<long>? values) =>
         values is { Count: > 0 } ? values.Distinct().ToArray() : [];

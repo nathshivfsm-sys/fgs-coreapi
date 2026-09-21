@@ -12,20 +12,22 @@ public sealed class ListEmployeesQueryHandler(
     IFgsEmployeeReadRepository readRepository,
     IUserInternalUsersClient userInternalUsersClient,
     ITenantContextAccessor tenantContextAccessor)
-    : IRequestHandler<ListEmployeesQuery, ApiResponse<PagedResult<FgsEmployeeSummaryDto>>>
+    : IRequestHandler<ListEmployeesQuery, ApiResponse<FgsEmployeeListResultDto>>
 {
-    public async Task<ApiResponse<PagedResult<FgsEmployeeSummaryDto>>> Handle(
+    private static readonly FgsEmployeeListSummaryDto EmptySummary = new(0, 0, 0);
+
+    public async Task<ApiResponse<FgsEmployeeListResultDto>> Handle(
         ListEmployeesQuery request,
         CancellationToken cancellationToken)
     {
         var filters = request.Filters;
+        var tenantContext = tenantContextAccessor.Current;
 
         if (filters.RoleIds is { Count: > 0 })
         {
-            var tenantContext = tenantContextAccessor.Current;
             if (tenantContext is null)
             {
-                return ApiResponse<PagedResult<FgsEmployeeSummaryDto>>.Fail(
+                return ApiResponse<FgsEmployeeListResultDto>.Fail(
                     ["Tenant context is required."],
                     ApiStatusCodes.BadRequest);
             }
@@ -38,7 +40,7 @@ public sealed class ListEmployeesQueryHandler(
 
             if (!userIdsResponse.Success || userIdsResponse.Data is null)
             {
-                return ApiResponse<PagedResult<FgsEmployeeSummaryDto>>.Fail(
+                return ApiResponse<FgsEmployeeListResultDto>.Fail(
                     userIdsResponse.Errors is { Count: > 0 }
                         ? userIdsResponse.Errors
                         : ["Failed to resolve users by role."],
@@ -52,14 +54,107 @@ public sealed class ListEmployeesQueryHandler(
                 var paging = request.Query.ToPagedQuery();
                 var page = Math.Max(1, paging.Page);
                 var pageSize = Math.Clamp(paging.PageSize, 1, 200);
-                return ApiResponse<PagedResult<FgsEmployeeSummaryDto>>.Ok(
-                    new PagedResult<FgsEmployeeSummaryDto>([], page, pageSize, 0));
+                var summary = request.IncludeSummary
+                    ? await readRepository.GetListSummaryAsync(cancellationToken)
+                    : EmptySummary;
+                return ApiResponse<FgsEmployeeListResultDto>.Ok(
+                    new FgsEmployeeListResultDto([], page, pageSize, 0, summary));
             }
 
             filters = filters with { UserIds = userIdsResponse.Data };
         }
 
-        var result = await readRepository.ListAsync(request.Query, filters, cancellationToken);
-        return ApiResponse<PagedResult<FgsEmployeeSummaryDto>>.Ok(result);
+        var result = await readRepository.ListAsync(
+            request.Query,
+            filters,
+            request.IncludeSummary,
+            cancellationToken);
+
+        var enrichedItems = await EnrichItemsAsync(result.Items, tenantContext, cancellationToken);
+        enrichedItems = ApplyEnrichmentSort(
+            enrichedItems,
+            request.Query.SortBy,
+            request.Query.SortDirection);
+
+        return ApiResponse<FgsEmployeeListResultDto>.Ok(
+            result with { Items = enrichedItems });
+    }
+
+    private async Task<IReadOnlyList<FgsEmployeeSummaryDto>> EnrichItemsAsync(
+        IReadOnlyList<FgsEmployeeSummaryDto> items,
+        ITenantContext? tenantContext,
+        CancellationToken cancellationToken)
+    {
+        var userIds = items
+            .Where(i => i.UserId.HasValue)
+            .Select(i => i.UserId!.Value)
+            .Distinct()
+            .ToList();
+
+        if (userIds.Count == 0 || tenantContext is null)
+        {
+            return items;
+        }
+
+        var enrichmentResponse = await userInternalUsersClient.GetListEnrichmentAsync(
+            userIds,
+            tenantContext.TenantId.ToString(),
+            tenantContext.CompanyId.ToString(),
+            cancellationToken);
+
+        if (!enrichmentResponse.Success || enrichmentResponse.Data is null || enrichmentResponse.Data.Count == 0)
+        {
+            return items;
+        }
+
+        var byUserId = enrichmentResponse.Data.ToDictionary(e => e.UserId);
+        return items
+            .Select(item =>
+            {
+                if (item.UserId is not Guid userId || !byUserId.TryGetValue(userId, out var enrichment))
+                {
+                    return item;
+                }
+
+                return item with
+                {
+                    RoleId = enrichment.RoleId,
+                    RoleName = enrichment.RoleName,
+                    LastLoginOn = enrichment.LastLoginOn
+                };
+            })
+            .ToList();
+    }
+
+    /// <summary>
+    /// Best-effort: RoleName/LastLoginOn are not in Setup SQL, so only the current page is reordered.
+    /// </summary>
+    private static IReadOnlyList<FgsEmployeeSummaryDto> ApplyEnrichmentSort(
+        IReadOnlyList<FgsEmployeeSummaryDto> items,
+        string? sortBy,
+        SortDirection sortDirection)
+    {
+        if (string.IsNullOrWhiteSpace(sortBy) || items.Count <= 1)
+        {
+            return items;
+        }
+
+        var desc = sortDirection == SortDirection.Desc;
+        if (sortBy.Equals("LastLoginOn", StringComparison.OrdinalIgnoreCase))
+        {
+            return desc
+                ? items.OrderByDescending(i => i.LastLoginOn).ToList()
+                : items.OrderBy(i => i.LastLoginOn).ToList();
+        }
+
+        if (sortBy.Equals("RoleName", StringComparison.OrdinalIgnoreCase)
+            || sortBy.Equals("Role", StringComparison.OrdinalIgnoreCase))
+        {
+            return desc
+                ? items.OrderByDescending(i => i.RoleName).ToList()
+                : items.OrderBy(i => i.RoleName).ToList();
+        }
+
+        return items;
     }
 }

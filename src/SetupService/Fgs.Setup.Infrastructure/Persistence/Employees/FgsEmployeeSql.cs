@@ -39,14 +39,70 @@ internal static class FgsEmployeeSql
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
         "Id", "EmployeeNumber", "EmployeeTypeId", "DisplayName", "LegalFirstName", "LegalLastName",
-        "HireDate", "StatusId", "OfficeEmail", "OfficePhone", "RegularRate", "CreatedOn"
+        "HireDate", "StatusId", "OfficeEmail", "OfficePhone", "RegularRate", "CreatedOn",
+        "PersonalEmail", "PersonalPhone"
     };
 
+    /// <summary>
+    /// Maps UI column aliases; RoleName/LastLoginOn/Role are enrichment sorts handled in-memory after S2S.
+    /// </summary>
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)
-        => SetupSqlOrderBy.Resolve(
-            sortBy,
+    {
+        var normalized = NormalizeSortBy(sortBy);
+        if (IsEnrichmentSort(normalized))
+        {
+            // Cross-service fields: DB uses default DisplayName; handler reorders the current page.
+            return SetupSqlOrderBy.Resolve(
+                null,
+                direction,
+                AllowedSortColumns,
+                defaultColumn: "DisplayName",
+                tableAlias: "e");
+        }
+
+        return SetupSqlOrderBy.Resolve(
+            normalized,
             direction,
             AllowedSortColumns,
             defaultColumn: "DisplayName",
             tableAlias: "e");
+    }
+
+    public static bool IsEnrichmentSort(string? sortBy) =>
+        !string.IsNullOrWhiteSpace(sortBy)
+        && (sortBy.Equals("RoleName", StringComparison.OrdinalIgnoreCase)
+            || sortBy.Equals("Role", StringComparison.OrdinalIgnoreCase)
+            || sortBy.Equals("LastLoginOn", StringComparison.OrdinalIgnoreCase));
+
+    private static string? NormalizeSortBy(string? sortBy)
+    {
+        if (string.IsNullOrWhiteSpace(sortBy))
+        {
+            return sortBy;
+        }
+
+        if (sortBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
+        {
+            return "DisplayName";
+        }
+
+        if (sortBy.Equals("Email", StringComparison.OrdinalIgnoreCase))
+        {
+            return "OfficeEmail";
+        }
+
+        if (sortBy.Equals("EmpId", StringComparison.OrdinalIgnoreCase)
+            || sortBy.Equals("Emp Id", StringComparison.OrdinalIgnoreCase)
+            || sortBy.Equals("EmpNumber", StringComparison.OrdinalIgnoreCase))
+        {
+            return "EmployeeNumber";
+        }
+
+        if (sortBy.Equals("Role", StringComparison.OrdinalIgnoreCase))
+        {
+            return "RoleName";
+        }
+
+        return sortBy;
+    }
 }

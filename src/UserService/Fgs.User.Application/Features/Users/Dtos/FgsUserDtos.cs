@@ -10,7 +10,8 @@ public sealed record FgsUserSummaryDto(
     long? RoleId,
     string? RoleName,
     string? InvitationStatus,
-    bool IsActive);
+    bool IsActive,
+    DateTimeOffset? LastLoginOn);
 
 public sealed record FgsUserDetailDto(
     Guid Id,
@@ -21,7 +22,8 @@ public sealed record FgsUserDetailDto(
     string? RoleName,
     string? InvitationStatus,
     bool IsActive,
-    bool HasAcceptedInvitation);
+    bool HasAcceptedInvitation,
+    DateTimeOffset? LastLoginOn);
 
 public sealed record FgsUserInviteDto(
     string DisplayName,

@@ -10,7 +10,7 @@ internal static class FgsUserSql
     public const string InvitationTable = "identity.\"FgsInvitation\"";
 
     public const string SelectDetailColumns = """
-        u."Id", u."DisplayName", u."Email", u."PhoneNumber", u."IsActive",
+        u."Id", u."DisplayName", u."Email", u."PhoneNumber", u."IsActive", u."LastLoginOn",
         ur."FgsRoleId" AS "RoleId", r."Name" AS "RoleName",
         inv."Status" AS "InvitationStatus",
         CASE WHEN EXISTS (
@@ -20,14 +20,20 @@ internal static class FgsUserSql
         """;
 
     public const string SelectSummaryColumns = """
-        u."Id", u."DisplayName", u."Email", u."PhoneNumber", u."IsActive",
+        u."Id", u."DisplayName", u."Email", u."PhoneNumber", u."IsActive", u."LastLoginOn",
         ur."FgsRoleId" AS "RoleId", r."Name" AS "RoleName",
         inv."Status" AS "InvitationStatus"
         """;
 
+    public const string SelectEnrichmentColumns = """
+        u."Id" AS "UserId",
+        ur."FgsRoleId" AS "RoleId", r."Name" AS "RoleName",
+        u."LastLoginOn"
+        """;
+
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "DisplayName", "Email", "PhoneNumber", "IsActive"
+        "Id", "DisplayName", "Email", "PhoneNumber", "IsActive", "LastLoginOn"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

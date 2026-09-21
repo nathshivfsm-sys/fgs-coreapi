@@ -18,7 +18,7 @@ public sealed class UserQueryHandlerTests
     private static readonly Guid UserId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
     private static readonly FgsUserDetailDto Detail =
-        new(UserId, "Test User", "user@test.com", null, 1, "Admin", "Accepted", true, true);
+        new(UserId, "Test User", "user@test.com", null, 1, "Admin", "Accepted", true, true, null);
 
     [Fact]
     public async Task GetByIdHandler_WhenFound_ReturnsUser()
@@ -49,7 +49,7 @@ public sealed class UserQueryHandlerTests
     [Fact]
     public async Task ListHandler_ReturnsPagedResults()
     {
-        var item = new FgsUserSummaryDto(UserId, "Test User", "user@test.com", null, 1, "Admin", "Accepted", true);
+        var item = new FgsUserSummaryDto(UserId, "Test User", "user@test.com", null, 1, "Admin", "Accepted", true, null);
         var list = new FgsUserListResultDto(
             [item],
             1,

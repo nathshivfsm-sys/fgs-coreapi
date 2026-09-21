@@ -1,4 +1,3 @@
-using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.Employees.Dtos;
 
@@ -8,10 +7,19 @@ public interface IFgsEmployeeReadRepository
 {
     Task<FgsEmployeeDetailDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
-    Task<PagedResult<FgsEmployeeSummaryDto>> ListAsync(
+    /// <param name="includeSummary">
+    /// When true, runs company-scoped summary COUNTs (ignores list filters). When false, returns zeroed summary.
+    /// </param>
+    Task<FgsEmployeeListResultDto> ListAsync(
         SetupListQuery query,
         FgsEmployeeListFilters filters,
+        bool includeSummary = true,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Company-scoped card counts (ignores list filters).
+    /// </summary>
+    Task<FgsEmployeeListSummaryDto> GetListSummaryAsync(CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<FgsEmployeeLookupDto>> LookupAsync(
         bool activeOnly = true,

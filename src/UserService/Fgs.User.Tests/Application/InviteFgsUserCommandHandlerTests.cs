@@ -319,7 +319,8 @@ public sealed class InviteFgsUserCommandHandlerTests
                 role?.Name,
                 invitation,
                 user.IsActive,
-                accepted);
+                accepted,
+                user.LastLoginOn);
         }
 
         public Task<FgsUserListResultDto> ListAsync(
@@ -368,5 +369,10 @@ public sealed class InviteFgsUserCommandHandlerTests
                           && roleIdSet.Contains(ur.FgsRoleId))
                 select user.Id).Distinct().ToListAsync(cancellationToken);
         }
+
+        public Task<IReadOnlyList<Fgs.Contracts.Clients.FgsUserListEnrichmentDto>> GetListEnrichmentAsync(
+            IReadOnlyList<Guid> userIds,
+            CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
     }
 }

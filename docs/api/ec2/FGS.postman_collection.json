@@ -3775,7 +3775,7 @@
                     ]
                 },
                 {
-                    "description": "InternalUsersController - internal/users. Auth: prefer Authorization Bearer ({{accessToken}}); if no JWT, send X-FGS-Internal-Service-Key.",
+                    "description": "InternalUsersController - internal/users. auth-profile: dual-auth (Bearer preferred, or X-FGS-Internal-Service-Key). ids-by-roles and list-enrichment: require Bearer {{accessToken}} (JWT); service key is not accepted.",
                     "name": "InternalUsersController",
                     "item": [
                         {
@@ -3803,7 +3803,7 @@
                                         "auth-profile"
                                     ]
                                 },
-                                "description": "S2S/user auth profile. Prefer Bearer {{accessToken}}; otherwise enable X-FGS-Internal-Service-Key and use noauth.",
+                                "description": "S2S/user auth profile bootstrap. Prefer Bearer {{accessToken}}; otherwise enable X-FGS-Internal-Service-Key and use noauth. Remains AllowAnonymous + dual-auth so profile loading works without a user JWT.",
                                 "header": [
                                     {
                                         "key": "Accept",
@@ -3865,7 +3865,7 @@
                                         "ids-by-roles"
                                     ]
                                 },
-                                "description": "Returns user Guids that have ANY of the given roles (tenant/company scoped). Used by Setup employee list roleIds filter. Prefer Bearer {{accessToken}}; otherwise enable X-FGS-Internal-Service-Key.",
+                                "description": "Returns user Guids that have ANY of the given roles (tenant/company scoped). Used by Setup employee list roleIds filter. Requires Bearer {{accessToken}} (JWT); service key is not accepted. Setup S2S forwards the original request Bearer via InternalServiceKeyDelegatingHandler.",
                                 "header": [
                                     {
                                         "key": "Accept",
@@ -3881,13 +3881,61 @@
                                         "key": "X-Company-Id",
                                         "type": "text",
                                         "value": "{{companyId}}"
+                                    }
+                                ],
+                                "auth": {
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "type": "string",
+                                            "value": "{{accessToken}}"
+                                        }
+                                    ],
+                                    "type": "bearer"
+                                }
+                            }
+                        },
+                        {
+                            "name": "GetListEnrichment",
+                            "request": {
+                                "method": "GET",
+                                "url": {
+                                    "query": [
+                                        {
+                                            "key": "userIds",
+                                            "description": "User Guids to enrich (ANY). Repeat: userIds=guid1&userIds=guid2.",
+                                            "value": "{{userId}}"
+                                        }
+                                    ],
+                                    "host": [
+                                        "https://api-dev.fieldwhizey.com"
+                                    ],
+                                    "raw": "https://api-dev.fieldwhizey.com/user-service/api/v1/internal/users/list-enrichment?userIds={{userId}}",
+                                    "path": [
+                                        "user-service",
+                                        "api",
+                                        "v1",
+                                        "internal",
+                                        "users",
+                                        "list-enrichment"
+                                    ]
+                                },
+                                "description": "Returns primary RoleId/RoleName + LastLoginOn for the given user Guids (tenant/company scoped). Used by Setup employee list/detail enrichment. Requires Bearer {{accessToken}} (JWT); service key is not accepted. Setup S2S forwards the original request Bearer via InternalServiceKeyDelegatingHandler.",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "type": "text",
+                                        "value": "application/json"
                                     },
                                     {
-                                        "key": "X-FGS-Internal-Service-Key",
+                                        "key": "X-Tenant-Id",
                                         "type": "text",
-                                        "value": "{{internalServiceKey}}",
-                                        "disabled": true,
-                                        "description": "Use when no Bearer token. Disable this header when using Bearer."
+                                        "value": "{{tenantId}}"
+                                    },
+                                    {
+                                        "key": "X-Company-Id",
+                                        "type": "text",
+                                        "value": "{{companyId}}"
                                     }
                                 ],
                                 "auth": {
@@ -7737,7 +7785,7 @@
                                         "user"
                                     ]
                                 },
-                                "description": "List users with paging. Response data is FgsUserListResultDto (items/page/pageSize/totalCount/summary). Summary is company-scoped card counts; set includeSummary=false to skip COUNT queries.",
+                                "description": "List users with paging. Response data is FgsUserListResultDto (items/page/pageSize/totalCount/summary). Summary is company-scoped card counts; set includeSummary=false to skip COUNT queries. Items/detail include LastLoginOn (null = never logged in).",
                                 "header": [
                                     {
                                         "key": "Accept",
@@ -10918,9 +10966,14 @@
                                         },
                                         {
                                             "key": "roleIds",
-                                            "description": "Optional multi role filter via linked UserId (ANY). Setup S2S calls UserService ids-by-roles (forwards Bearer when present; else service key). Repeat: roleIds=1&roleIds=2.",
+                                            "description": "Optional multi role filter via linked UserId (ANY). Setup S2S calls UserService ids-by-roles with the original request Bearer JWT. Repeat: roleIds=1&roleIds=2.",
                                             "value": "",
                                             "disabled": true
+                                        },
+                                        {
+                                            "key": "includeSummary",
+                                            "description": "When true (default), returns company-scoped card counts (TotalEmployees, ActiveEmployees, InactiveEmployees where Inactive=StatusId 2 only) ignoring list filters. When false, skips COUNT queries and returns zeros.",
+                                            "value": "true"
                                         }
                                     ],
                                     "host": [
@@ -10934,7 +10987,7 @@
                                         "employee"
                                     ]
                                 },
-                                "description": "List employees with paging, search (incl. phones), and multi-select filters (techTradeIds, techSkillIds, dispatchZoneIds, roleIds). roleIds resolves users via UserService S2S (Bearer preferred).",
+                                "description": "List employees with paging, search (incl. phones), and multi-select filters (techTradeIds, techSkillIds, dispatchZoneIds, roleIds). Response data is FgsEmployeeListResultDto (items/page/pageSize/totalCount/summary). Items include RoleId/RoleName/LastLoginOn when UserId is linked (via UserService list-enrichment S2S). sortBy aliases: Name→DisplayName, Email→OfficeEmail, EmpId→EmployeeNumber; RoleName/LastLoginOn sort current page only after enrichment.",
                                 "header": [
                                     {
                                         "key": "Accept",

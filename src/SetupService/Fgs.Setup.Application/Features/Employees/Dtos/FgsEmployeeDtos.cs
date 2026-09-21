@@ -65,7 +65,10 @@ public sealed record FgsEmployeeSummaryDto(
     decimal? LaborBurdenValue,
     bool IsPurchaser,
     string? Notes,
-    bool HasTechnicianProfile);
+    bool HasTechnicianProfile,
+    long? RoleId = null,
+    string? RoleName = null,
+    DateTimeOffset? LastLoginOn = null);
 
 public sealed record FgsEmployeeDetailDto(
     long Id,
@@ -93,7 +96,10 @@ public sealed record FgsEmployeeDetailDto(
     decimal? LaborBurdenValue,
     bool IsPurchaser,
     string? Notes,
-    FgsEmployeeTechnicianProfileDetailDto? TechnicianProfile);
+    FgsEmployeeTechnicianProfileDetailDto? TechnicianProfile,
+    long? RoleId = null,
+    string? RoleName = null,
+    DateTimeOffset? LastLoginOn = null);
 
 public sealed record FgsEmployeeLookupDto(
     long Id,
@@ -189,3 +195,23 @@ public sealed record FgsEmployeeListFilters(
     IReadOnlyList<long>? DispatchZoneIds = null,
     IReadOnlyList<long>? RoleIds = null,
     IReadOnlyList<Guid>? UserIds = null);
+
+/// <summary>
+/// Company-scoped aggregate counts for Employees UI cards/tab badges (not narrowed by list filters).
+/// InactiveEmployees counts StatusId = Inactive (2) only — not LOA/Terminated.
+/// </summary>
+public sealed record FgsEmployeeListSummaryDto(
+    int TotalEmployees,
+    int ActiveEmployees,
+    int InactiveEmployees);
+
+/// <summary>
+/// List page plus company summary. <see cref="TotalCount"/> respects current list filters;
+/// <see cref="Summary"/> is global for the current tenant/company (zeros when includeSummary is false).
+/// </summary>
+public sealed record FgsEmployeeListResultDto(
+    IReadOnlyList<FgsEmployeeSummaryDto> Items,
+    int Page,
+    int PageSize,
+    int TotalCount,
+    FgsEmployeeListSummaryDto Summary);

@@ -30,4 +30,11 @@ public interface IFgsUserReadRepository
     Task<IReadOnlyList<Guid>> GetIdsByRoleIdsAsync(
         IReadOnlyList<long> roleIds,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns primary role + LastLoginOn for the given user ids (tenant/company scoped).
+    /// </summary>
+    Task<IReadOnlyList<Fgs.Contracts.Clients.FgsUserListEnrichmentDto>> GetListEnrichmentAsync(
+        IReadOnlyList<Guid> userIds,
+        CancellationToken cancellationToken = default);
 }

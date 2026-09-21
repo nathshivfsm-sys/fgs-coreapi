@@ -74,6 +74,10 @@ public sealed class ExchangeLoginCodeCommandHandlerTests
         result.Data.User.Email.Should().Be("user@test.com");
         result.Data.User.FirstName.Should().Be("Ada");
         profileStore.Verify(s => s.SetAsync(It.IsAny<Fgs.Contracts.Auth.UserAuthProfileDto>(), It.IsAny<CancellationToken>()), Times.Once);
+
+        var user = await context.FgsUsers.FindAsync(userId);
+        user!.LastLoginOn.Should().NotBeNull();
+        user.LastLoginOn.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(5));
     }
 
     [Fact]
@@ -163,6 +167,7 @@ public sealed class ExchangeLoginCodeCommandHandlerTests
         invitation!.Status.Should().Be(InvitationStatus.Accepted);
         var user = await context.FgsUsers.FindAsync(userId);
         user!.EntraObjectId.Should().Be("oid-invite");
+        user.LastLoginOn.Should().NotBeNull();
         var updatedTenant = await context.FgsTenants.FindAsync(tenant.Id);
         updatedTenant!.FgsTenantStatusId.Should().Be(TenantStatusIds.Provisioning);
     }

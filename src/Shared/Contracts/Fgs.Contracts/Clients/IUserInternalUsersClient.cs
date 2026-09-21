@@ -13,4 +13,11 @@ public interface IUserInternalUsersClient
         [Header("X-Tenant-Id")] string tenantId,
         [Header("X-Company-Id")] string companyId,
         CancellationToken cancellationToken = default);
+
+    [Get("/api/v1/internal/users/list-enrichment")]
+    Task<Fgs.Contracts.Api.ApiResponse<IReadOnlyList<FgsUserListEnrichmentDto>>> GetListEnrichmentAsync(
+        [Query(CollectionFormat.Multi)] IEnumerable<Guid> userIds,
+        [Header("X-Tenant-Id")] string tenantId,
+        [Header("X-Company-Id")] string companyId,
+        CancellationToken cancellationToken = default);
 }

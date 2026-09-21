@@ -316,4 +316,38 @@ internal sealed class FgsUserReadRepository(
 
         return rows.ToList();
     }
+
+    public async Task<IReadOnlyList<Fgs.Contracts.Clients.FgsUserListEnrichmentDto>> GetListEnrichmentAsync(
+        IReadOnlyList<Guid> userIds,
+        CancellationToken cancellationToken = default)
+    {
+        var distinctUserIds = userIds is { Count: > 0 }
+            ? userIds.Distinct().ToArray()
+            : [];
+
+        if (distinctUserIds.Length == 0)
+        {
+            return [];
+        }
+
+        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        var sql = $"""
+            SELECT {FgsUserSql.SelectEnrichmentColumns}
+            FROM {FgsUserSql.UserTable} u
+            {PrimaryRoleJoin}
+            WHERE u."TenantId" = @TenantId
+              AND u."CompanyId" = @CompanyId
+              AND u."IsDeleted" = FALSE
+              AND u."Id" = ANY(@UserIds)
+            """;
+
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        var rows = await connection.QueryAsync<FgsUserListEnrichmentRow>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, CompanyId = companyId, UserIds = distinctUserIds },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(r => r.ToDto()).ToList();
+    }
 }

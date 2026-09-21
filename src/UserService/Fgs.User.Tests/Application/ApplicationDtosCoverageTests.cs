@@ -122,7 +122,7 @@ public sealed class ApplicationDtosCoverageTests
         var scope = new FgsDataAccessScopeDetailDto(1, 1, "T", "IN", "v", 1);
         (scope with { ScopeValue = "v2" }).ScopeType.Should().Be("T");
 
-        var userDto = new FgsUserDetailDto(Guid.NewGuid(), "N", "e", null, 1, "R", "P", true, true);
+        var userDto = new FgsUserDetailDto(Guid.NewGuid(), "N", "e", null, 1, "R", "P", true, true, null);
         (userDto with { IsActive = false }).Email.Should().Be("e");
 
         var userListFilters = new FgsUserListFilters(Email: "a@b.com", DisplayName: "Ann", RoleIds: [1, 2]);
@@ -138,7 +138,7 @@ public sealed class ApplicationDtosCoverageTests
         userListSummary.Inactive.Should().Be(1);
         userListSummary.Admins.Should().Be(3);
         var userListResult = new FgsUserListResultDto(
-            [new FgsUserSummaryDto(Guid.NewGuid(), "N", "e", null, 1, "R", "Accepted", true)],
+            [new FgsUserSummaryDto(Guid.NewGuid(), "N", "e", null, 1, "R", "Accepted", true, null)],
             1,
             25,
             1,
