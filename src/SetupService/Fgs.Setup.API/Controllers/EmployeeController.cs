@@ -47,12 +47,23 @@ public sealed class EmployeeController(IMediator mediator) : ControllerBase
         [FromQuery] string? employeeNumber = null,
         [FromQuery] short? employeeTypeId = null,
         [FromQuery] short? statusId = null,
+        [FromQuery] IReadOnlyList<long>? techTradeIds = null,
+        [FromQuery] IReadOnlyList<long>? techSkillIds = null,
+        [FromQuery] IReadOnlyList<long>? dispatchZoneIds = null,
+        [FromQuery] IReadOnlyList<long>? roleIds = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListEmployeesQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new FgsEmployeeListFilters(employeeNumber, employeeTypeId, statusId)),
+                new FgsEmployeeListFilters(
+                    employeeNumber,
+                    employeeTypeId,
+                    statusId,
+                    techTradeIds,
+                    techSkillIds,
+                    dispatchZoneIds,
+                    roleIds)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);

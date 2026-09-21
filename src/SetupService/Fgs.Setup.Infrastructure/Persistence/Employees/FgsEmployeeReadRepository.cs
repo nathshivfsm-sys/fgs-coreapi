@@ -54,6 +54,13 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
         var pageSize = Math.Clamp(paging.PageSize, 1, 200);
         var offset = (page - 1) * pageSize;
 
+        var techTradeIds = ToDistinctArray(filters.TechTradeIds);
+        var techSkillIds = ToDistinctArray(filters.TechSkillIds);
+        var dispatchZoneIds = ToDistinctArray(filters.DispatchZoneIds);
+        var userIds = filters.UserIds is { Count: > 0 }
+            ? filters.UserIds.Distinct().ToArray()
+            : [];
+
         var where = new List<string>
         {
             "e.\"TenantId\" = @TenantId",
@@ -83,6 +90,26 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
             where.Add("e.\"EmployeeTypeId\" = @EmployeeTypeId");
         }
 
+        if (techTradeIds.Length > 0)
+        {
+            where.Add("tp.\"TechTradeId\" = ANY(@TechTradeIds)");
+        }
+
+        if (techSkillIds.Length > 0)
+        {
+            where.Add("tp.\"TechSkillId\" = ANY(@TechSkillIds)");
+        }
+
+        if (dispatchZoneIds.Length > 0)
+        {
+            where.Add("tp.\"DispatchZoneId\" = ANY(@DispatchZoneIds)");
+        }
+
+        if (userIds.Length > 0)
+        {
+            where.Add("e.\"UserId\" = ANY(@UserIds)");
+        }
+
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
             where.Add(
@@ -92,12 +119,22 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
                  OR e."LegalFirstName" ILIKE @Search
                  OR e."LegalLastName" ILIKE @Search
                  OR e."OfficeEmail" ILIKE @Search
-                 OR e."PersonalEmail" ILIKE @Search)
+                 OR e."PersonalEmail" ILIKE @Search
+                 OR e."PersonalPhone" ILIKE @Search
+                 OR e."OfficePhone" ILIKE @Search
+                 OR tp."CustomerFacingPhone" ILIKE @Search)
                 """);
         }
 
+        var needsTechnicianJoin =
+            techTradeIds.Length > 0
+            || techSkillIds.Length > 0
+            || dispatchZoneIds.Length > 0
+            || !string.IsNullOrWhiteSpace(paging.Search);
+
         var whereClause = string.Join(" AND ", where);
         var orderBy = FgsEmployeeSql.ResolveOrderBy(paging.SortBy, paging.SortDirection);
+        var countTechnicianJoin = needsTechnicianJoin ? FgsEmployeeSql.TechnicianProfileJoin : string.Empty;
 
         var sql = $"""
             SELECT {FgsEmployeeSql.SelectSummaryColumns}
@@ -109,6 +146,7 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
 
             SELECT COUNT(*)
             FROM {FgsEmployeeSql.Table} e
+            {countTechnicianJoin}
             WHERE {whereClause};
             """;
 
@@ -122,6 +160,10 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
                 ? null
                 : $"%{filters.EmployeeNumber.Trim()}%",
             EmployeeTypeId = filters.EmployeeTypeId,
+            TechTradeIds = techTradeIds,
+            TechSkillIds = techSkillIds,
+            DispatchZoneIds = dispatchZoneIds,
+            UserIds = userIds,
             Search = string.IsNullOrWhiteSpace(paging.Search) ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
             Offset = offset
@@ -140,6 +182,9 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
             pageSize,
             totalCount);
     }
+
+    private static long[] ToDistinctArray(IReadOnlyList<long>? values) =>
+        values is { Count: > 0 } ? values.Distinct().ToArray() : [];
 
     public async Task<IReadOnlyList<FgsEmployeeLookupDto>> LookupAsync(
         bool activeOnly = true,

@@ -178,6 +178,11 @@ public static class DependencyInjection
             "UserService:BaseUrl",
             "http://user-service:5001");
 
+        services.AddFgsInternalServiceRefitClient<IUserInternalUsersClient>(
+            configuration,
+            "UserService:BaseUrl",
+            "http://user-service:5001");
+
         services.AddFgsInternalServiceRefitClient<IFileTenantClient>(
             configuration,
             "FileService:BaseUrl",

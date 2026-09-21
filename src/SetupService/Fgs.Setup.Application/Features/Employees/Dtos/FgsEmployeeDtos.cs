@@ -183,4 +183,9 @@ public sealed record FgsEmployeePatchDto(
 public sealed record FgsEmployeeListFilters(
     string? EmployeeNumber = null,
     short? EmployeeTypeId = null,
-    short? StatusId = null);
+    short? StatusId = null,
+    IReadOnlyList<long>? TechTradeIds = null,
+    IReadOnlyList<long>? TechSkillIds = null,
+    IReadOnlyList<long>? DispatchZoneIds = null,
+    IReadOnlyList<long>? RoleIds = null,
+    IReadOnlyList<Guid>? UserIds = null);

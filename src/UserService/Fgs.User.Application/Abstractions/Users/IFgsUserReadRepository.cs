@@ -22,4 +22,12 @@ public interface IFgsUserReadRepository
         CancellationToken cancellationToken = default);
 
     Task<bool> HasAcceptedInvitationAsync(Guid userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns user IDs in the current tenant/company that have any of the given roles
+    /// and are not soft-deleted.
+    /// </summary>
+    Task<IReadOnlyList<Guid>> GetIdsByRoleIdsAsync(
+        IReadOnlyList<long> roleIds,
+        CancellationToken cancellationToken = default);
 }

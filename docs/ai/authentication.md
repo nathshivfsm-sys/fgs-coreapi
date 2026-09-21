@@ -5,7 +5,7 @@
 - Settings from credential distribution (`ENTRA_EXTERNAL_ID` → `EntraExternalId:*`), not committed secrets
 - Claims used: Entra `oid` (object id); `sub` as user id in context; `tenant_id`/`company_id` claims are secondary
 - Tenant scope for APIs: headers + active-user profile validation
-- S2S: `X-FGS-Internal-Service-Key` (skips active-user profile path)
+- S2S: forward inbound `Authorization: Bearer` when present; otherwise `X-FGS-Internal-Service-Key` (key path skips active-user profile middleware)
 - No local/platform JWT issuer in code
 
 ## Key User endpoints (anonymous)

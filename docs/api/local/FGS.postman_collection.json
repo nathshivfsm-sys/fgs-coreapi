@@ -3718,7 +3718,7 @@
                     ]
                 },
                 {
-                    "description": "InternalUsersController - internal/users",
+                    "description": "InternalUsersController - internal/users. Auth: prefer Authorization Bearer ({{accessToken}}); if no JWT, send X-FGS-Internal-Service-Key.",
                     "name": "InternalUsersController",
                     "item": [
                         {
@@ -3726,10 +3726,17 @@
                             "request": {
                                 "method": "GET",
                                 "url": {
+                                    "query": [
+                                        {
+                                            "key": "entraObjectId",
+                                            "description": "Entra object id (oid) of the user profile to load.",
+                                            "value": "{{entraObjectId}}"
+                                        }
+                                    ],
                                     "host": [
                                         "https://developer.fsm.com"
                                     ],
-                                    "raw": "https://developer.fsm.com/api/v1/internal/users/auth-profile",
+                                    "raw": "https://developer.fsm.com/api/v1/internal/users/auth-profile?entraObjectId={{entraObjectId}}",
                                     "path": [
                                         "api",
                                         "v1",
@@ -3738,16 +3745,101 @@
                                         "auth-profile"
                                     ]
                                 },
-                                "description": "GetAuthProfile",
+                                "description": "S2S/user auth profile. Prefer Bearer {{accessToken}}; otherwise enable X-FGS-Internal-Service-Key and use noauth.",
                                 "header": [
                                     {
                                         "key": "Accept",
                                         "type": "text",
                                         "value": "application/json"
+                                    },
+                                    {
+                                        "key": "X-Tenant-Id",
+                                        "type": "text",
+                                        "value": "{{tenantId}}"
+                                    },
+                                    {
+                                        "key": "X-Company-Id",
+                                        "type": "text",
+                                        "value": "{{companyId}}"
+                                    },
+                                    {
+                                        "key": "X-FGS-Internal-Service-Key",
+                                        "type": "text",
+                                        "value": "{{internalServiceKey}}",
+                                        "disabled": true,
+                                        "description": "Use when no Bearer token. Disable this header when using Bearer."
                                     }
                                 ],
                                 "auth": {
-                                    "type": "noauth"
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "type": "string",
+                                            "value": "{{accessToken}}"
+                                        }
+                                    ],
+                                    "type": "bearer"
+                                }
+                            }
+                        },
+                        {
+                            "name": "GetUserIdsByRoles",
+                            "request": {
+                                "method": "GET",
+                                "url": {
+                                    "query": [
+                                        {
+                                            "key": "roleIds",
+                                            "description": "Role id filter (ANY). Repeat: roleIds=1&roleIds=2.",
+                                            "value": "{{roleId}}"
+                                        }
+                                    ],
+                                    "host": [
+                                        "https://developer.fsm.com"
+                                    ],
+                                    "raw": "https://developer.fsm.com/api/v1/internal/users/ids-by-roles?roleIds={{roleId}}",
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "internal",
+                                        "users",
+                                        "ids-by-roles"
+                                    ]
+                                },
+                                "description": "Returns user Guids that have ANY of the given roles (tenant/company scoped). Used by Setup employee list roleIds filter. Prefer Bearer {{accessToken}}; otherwise enable X-FGS-Internal-Service-Key.",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "type": "text",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "X-Tenant-Id",
+                                        "type": "text",
+                                        "value": "{{tenantId}}"
+                                    },
+                                    {
+                                        "key": "X-Company-Id",
+                                        "type": "text",
+                                        "value": "{{companyId}}"
+                                    },
+                                    {
+                                        "key": "X-FGS-Internal-Service-Key",
+                                        "type": "text",
+                                        "value": "{{internalServiceKey}}",
+                                        "disabled": true,
+                                        "description": "Use when no Bearer token. Disable this header when using Bearer."
+                                    }
+                                ],
+                                "auth": {
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "type": "string",
+                                            "value": "{{accessToken}}"
+                                        }
+                                    ],
+                                    "type": "bearer"
                                 }
                             }
                         }
@@ -10855,7 +10947,7 @@
                                         },
                                         {
                                             "key": "search",
-                                            "description": "Free-text search across searchable fields. Optional.",
+                                            "description": "Free-text ILIKE search across EmployeeNumber, DisplayName, LegalFirstName, LegalLastName, OfficeEmail, PersonalEmail, PersonalPhone, OfficePhone, CustomerFacingPhone. Optional.",
                                             "value": "{{search}}",
                                             "disabled": true
                                         },
@@ -10881,6 +10973,30 @@
                                             "description": "Optional statusId filter.",
                                             "value": "",
                                             "disabled": true
+                                        },
+                                        {
+                                            "key": "techTradeIds",
+                                            "description": "Optional multi TechTradeId filter (ANY). Repeat: techTradeIds=1&techTradeIds=2.",
+                                            "value": "",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "techSkillIds",
+                                            "description": "Optional multi TechSkillId filter (ANY). Repeat: techSkillIds=1&techSkillIds=2.",
+                                            "value": "",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "dispatchZoneIds",
+                                            "description": "Optional multi DispatchZoneId filter (ANY). Repeat: dispatchZoneIds=1&dispatchZoneIds=2.",
+                                            "value": "",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "roleIds",
+                                            "description": "Optional multi role filter via linked UserId (ANY). Setup S2S calls UserService ids-by-roles (forwards Bearer when present; else service key). Repeat: roleIds=1&roleIds=2.",
+                                            "value": "",
+                                            "disabled": true
                                         }
                                     ],
                                     "host": [
@@ -10893,7 +11009,7 @@
                                         "employee"
                                     ]
                                 },
-                                "description": "List",
+                                "description": "List employees with paging, search (incl. phones), and multi-select filters (techTradeIds, techSkillIds, dispatchZoneIds, roleIds). roleIds resolves users via UserService S2S (Bearer preferred).",
                                 "header": [
                                     {
                                         "key": "Accept",

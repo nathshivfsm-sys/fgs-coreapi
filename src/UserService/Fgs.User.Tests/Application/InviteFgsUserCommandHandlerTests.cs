@@ -345,5 +345,28 @@ public sealed class InviteFgsUserCommandHandlerTests
             context.FgsInvitations.AnyAsync(
                 i => i.UserId == userId && i.Status == InvitationStatus.Accepted,
                 cancellationToken);
+
+        public async Task<IReadOnlyList<Guid>> GetIdsByRoleIdsAsync(
+            IReadOnlyList<long> roleIds,
+            CancellationToken cancellationToken = default)
+        {
+            if (roleIds is not { Count: > 0 })
+            {
+                return [];
+            }
+
+            var roleIdSet = roleIds.ToHashSet();
+            return await (
+                from user in context.FgsUsers.AsNoTracking()
+                where user.TenantId == tenantId
+                      && user.CompanyId == companyId
+                      && !user.IsDeleted
+                      && context.FgsUserRoles.Any(ur =>
+                          ur.UserId == user.Id
+                          && ur.TenantId == tenantId
+                          && ur.CompanyId == companyId
+                          && roleIdSet.Contains(ur.FgsRoleId))
+                select user.Id).Distinct().ToListAsync(cancellationToken);
+        }
     }
 }

@@ -276,4 +276,44 @@ internal sealed class FgsUserReadRepository(
                 new { UserId = userId, TenantId = tenantId, CompanyId = companyId },
                 cancellationToken: cancellationToken));
     }
+
+    public async Task<IReadOnlyList<Guid>> GetIdsByRoleIdsAsync(
+        IReadOnlyList<long> roleIds,
+        CancellationToken cancellationToken = default)
+    {
+        var distinctRoleIds = roleIds is { Count: > 0 }
+            ? roleIds.Distinct().ToArray()
+            : [];
+
+        if (distinctRoleIds.Length == 0)
+        {
+            return [];
+        }
+
+        var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        var sql = $"""
+            SELECT DISTINCT u."Id"
+            FROM {FgsUserSql.UserTable} u
+            WHERE u."TenantId" = @TenantId
+              AND u."CompanyId" = @CompanyId
+              AND u."IsDeleted" = FALSE
+              AND EXISTS (
+                  SELECT 1
+                  FROM identity."FgsUserRole" ur
+                  WHERE ur."UserId" = u."Id"
+                    AND ur."TenantId" = u."TenantId"
+                    AND ur."CompanyId" = u."CompanyId"
+                    AND ur."FgsRoleId" = ANY(@RoleIds)
+              )
+            """;
+
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        var rows = await connection.QueryAsync<Guid>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, CompanyId = companyId, RoleIds = distinctRoleIds },
+                cancellationToken: cancellationToken));
+
+        return rows.ToList();
+    }
 }

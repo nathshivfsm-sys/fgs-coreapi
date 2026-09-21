@@ -6,6 +6,7 @@ using Fgs.Credentials;
 using Fgs.Credentials.Options;
 using Fgs.Foundation.Api;
 using Fgs.User.Application.Features.Auth.Queries.GetUserAuthProfile;
+using Fgs.User.Application.Features.Users.Queries.GetUserIdsByRoles;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ public sealed class InternalUsersController(
         [FromHeader(Name = InternalServiceHeaders.ServiceKey)] string? serviceKey,
         CancellationToken cancellationToken)
     {
-        var unauthorized = UnauthorizedIfNotInternal(serviceKey);
+        var unauthorized = UnauthorizedIfNotInternalOrAuthenticated(serviceKey);
         if (unauthorized is not null)
         {
             return unauthorized;
@@ -60,9 +61,31 @@ public sealed class InternalUsersController(
         return Ok(ApiResponse<UserAuthProfileDto>.Ok(dto));
     }
 
-    private IActionResult? UnauthorizedIfNotInternal(string? serviceKey)
+    [AllowAnonymous]
+    [HttpGet("ids-by-roles")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<Guid>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetUserIdsByRoles(
+        [FromQuery] IReadOnlyList<long>? roleIds,
+        [FromHeader(Name = InternalServiceHeaders.ServiceKey)] string? serviceKey,
+        CancellationToken cancellationToken)
     {
-        if (InternalServiceAuthorization.IsAuthorized(serviceKey, distributionOptions.Value))
+        var unauthorized = UnauthorizedIfNotInternalOrAuthenticated(serviceKey);
+        if (unauthorized is not null)
+        {
+            return unauthorized;
+        }
+
+        return FromApiResponse(
+            await Mediator.Send(new GetUserIdsByRolesQuery(roleIds ?? []), cancellationToken));
+    }
+
+    private IActionResult? UnauthorizedIfNotInternalOrAuthenticated(string? serviceKey)
+    {
+        if (InternalServiceAuthorization.IsAuthorizedOrUserAuthenticated(
+                serviceKey,
+                distributionOptions.Value,
+                User))
         {
             return null;
         }
@@ -70,7 +93,7 @@ public sealed class InternalUsersController(
         return StatusCode(
             StatusCodes.Status401Unauthorized,
             ApiResponse<object>.Fail(
-                ["Internal service key is missing or invalid."],
+                ["Authentication required. Provide a valid JWT or internal service key."],
                 ApiStatusCodes.Unauthorized));
     }
 }
