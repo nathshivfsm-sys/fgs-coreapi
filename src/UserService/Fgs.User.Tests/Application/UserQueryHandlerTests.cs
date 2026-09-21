@@ -1,4 +1,3 @@
-using Fgs.Foundation.Paging;
 using Fgs.User.Application.Abstractions.Roles;
 using Fgs.User.Application.Abstractions.Users;
 using Fgs.User.Application.Common.IdentityCrud;
@@ -50,11 +49,20 @@ public sealed class UserQueryHandlerTests
     [Fact]
     public async Task ListHandler_ReturnsPagedResults()
     {
-        var summary = new FgsUserSummaryDto(UserId, "Test User", "user@test.com", null, 1, "Admin", "Accepted", true);
-        var paged = new PagedResult<FgsUserSummaryDto>([summary], 1, 25, 1);
+        var item = new FgsUserSummaryDto(UserId, "Test User", "user@test.com", null, 1, "Admin", "Accepted", true);
+        var list = new FgsUserListResultDto(
+            [item],
+            1,
+            25,
+            1,
+            new FgsUserListSummaryDto(1, 0, 1, 0, 1));
         var read = new Mock<IFgsUserReadRepository>();
-        read.Setup(r => r.ListAsync(It.IsAny<IdentityListQuery>(), It.IsAny<FgsUserListFilters>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(paged);
+        read.Setup(r => r.ListAsync(
+                It.IsAny<IdentityListQuery>(),
+                It.IsAny<FgsUserListFilters>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(list);
 
         var handler = new ListFgsUsersQueryHandler(read.Object);
         var response = await handler.Handle(
@@ -63,6 +71,9 @@ public sealed class UserQueryHandlerTests
 
         response.Success.Should().BeTrue();
         response.Data!.Items.Should().ContainSingle();
+        response.Data.Summary.TotalUsers.Should().Be(1);
+        response.Data.Summary.ActiveRegistered.Should().Be(1);
+        response.Data.Summary.Admins.Should().Be(1);
     }
 
     [Fact]
@@ -70,27 +81,69 @@ public sealed class UserQueryHandlerTests
     {
         IdentityListQuery? capturedQuery = null;
         FgsUserListFilters? capturedFilters = null;
-        var paged = new PagedResult<FgsUserSummaryDto>([], 1, 25, 0);
+        var includeSummary = false;
+        var list = new FgsUserListResultDto(
+            [],
+            1,
+            25,
+            0,
+            new FgsUserListSummaryDto(0, 0, 0, 0, 0));
         var read = new Mock<IFgsUserReadRepository>();
-        read.Setup(r => r.ListAsync(It.IsAny<IdentityListQuery>(), It.IsAny<FgsUserListFilters>(), It.IsAny<CancellationToken>()))
-            .Callback<IdentityListQuery, FgsUserListFilters, CancellationToken>((query, filters, _) =>
+        read.Setup(r => r.ListAsync(
+                It.IsAny<IdentityListQuery>(),
+                It.IsAny<FgsUserListFilters>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<IdentityListQuery, FgsUserListFilters, bool, CancellationToken>((query, filters, summary, _) =>
             {
                 capturedQuery = query;
                 capturedFilters = filters;
+                includeSummary = summary;
             })
-            .ReturnsAsync(paged);
+            .ReturnsAsync(list);
 
         var handler = new ListFgsUsersQueryHandler(read.Object);
         var response = await handler.Handle(
             new ListFgsUsersQuery(
                 new IdentityListQuery(Search: "555-0100", IsActive: true),
-                new FgsUserListFilters(RoleIds: [10, 20])),
+                new FgsUserListFilters(RoleIds: [10, 20]),
+                IncludeSummary: false),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
         capturedQuery!.Search.Should().Be("555-0100");
         capturedQuery.IsActive.Should().BeTrue();
         capturedFilters!.RoleIds.Should().BeEquivalentTo([10L, 20L]);
+        includeSummary.Should().BeFalse();
+        response.Data!.Summary.TotalUsers.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task ListHandler_DefaultsIncludeSummaryToTrue()
+    {
+        bool? capturedIncludeSummary = null;
+        var list = new FgsUserListResultDto(
+            [],
+            1,
+            25,
+            0,
+            new FgsUserListSummaryDto(5, 2, 3, 1, 1));
+        var read = new Mock<IFgsUserReadRepository>();
+        read.Setup(r => r.ListAsync(
+                It.IsAny<IdentityListQuery>(),
+                It.IsAny<FgsUserListFilters>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<IdentityListQuery, FgsUserListFilters, bool, CancellationToken>((_, _, summary, _) =>
+                capturedIncludeSummary = summary)
+            .ReturnsAsync(list);
+
+        var handler = new ListFgsUsersQueryHandler(read.Object);
+        await handler.Handle(
+            new ListFgsUsersQuery(new IdentityListQuery(), new FgsUserListFilters()),
+            CancellationToken.None);
+
+        capturedIncludeSummary.Should().BeTrue();
     }
 
     [Fact]

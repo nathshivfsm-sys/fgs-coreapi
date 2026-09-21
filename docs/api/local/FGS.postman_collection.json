@@ -7506,6 +7506,11 @@
                                             "description": "Deprecated single-role fallback; maps into roleIds when roleIds is empty.",
                                             "value": "",
                                             "disabled": true
+                                        },
+                                        {
+                                            "key": "includeSummary",
+                                            "description": "When true (default), returns company-scoped card counts (TotalUsers, PendingInvitation, ActiveRegistered, Inactive, Admins) ignoring list filters. When false, skips COUNT queries and returns zeros.",
+                                            "value": "true"
                                         }
                                     ],
                                     "host": [
@@ -7518,7 +7523,7 @@
                                         "user"
                                     ]
                                 },
-                                "description": "List",
+                                "description": "List users with paging. Response data is FgsUserListResultDto (items/page/pageSize/totalCount/summary). Summary is company-scoped card counts; set includeSummary=false to skip COUNT queries.",
                                 "header": [
                                     {
                                         "key": "Accept",

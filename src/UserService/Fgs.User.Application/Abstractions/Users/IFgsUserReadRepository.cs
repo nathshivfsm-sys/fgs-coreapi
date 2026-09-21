@@ -1,4 +1,3 @@
-using Fgs.Foundation.Paging;
 using Fgs.User.Application.Common.IdentityCrud;
 using Fgs.User.Application.Features.Users.Dtos;
 
@@ -8,9 +7,13 @@ public interface IFgsUserReadRepository
 {
     Task<FgsUserDetailDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<PagedResult<FgsUserSummaryDto>> ListAsync(
+    /// <param name="includeSummary">
+    /// When true, runs company-scoped summary COUNTs (ignores list filters). When false, returns zeroed summary.
+    /// </param>
+    Task<FgsUserListResultDto> ListAsync(
         IdentityListQuery query,
         FgsUserListFilters filters,
+        bool includeSummary = true,
         CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByEmailAsync(

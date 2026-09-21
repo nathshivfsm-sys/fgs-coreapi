@@ -1,6 +1,6 @@
 using Dapper;
-using Fgs.Foundation.Paging;
 using Fgs.MultiTenancy;
+using Fgs.Security.Constants;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.Users;
 using Fgs.User.Application.Common.IdentityCrud;
@@ -13,6 +13,8 @@ internal sealed class FgsUserReadRepository(
     IUserReadConnectionFactory connectionFactory,
     ITenantContextAccessor tenantContextAccessor) : IFgsUserReadRepository
 {
+    private static readonly FgsUserListSummaryDto EmptySummary = new(0, 0, 0, 0, 0);
+
     private const string LatestInvitationJoin = """
         LEFT JOIN LATERAL (
             SELECT i."Status"
@@ -39,6 +41,49 @@ internal sealed class FgsUserReadRepository(
            AND r."CompanyId" = u."CompanyId"
         """;
 
+    // Company-scoped card counts — ignore list filters (search/role/isActive/email/displayName).
+    // ActiveRegistered matches HasAcceptedInvitation / detail DTO: any invitation Status = 'Accepted'
+    // (not IsActive, not EntraObjectId). Admins = assigned RoleCode TENANT_ADMIN (only built-in admin code).
+    private const string SummarySql = """
+        SELECT
+            COUNT(*)::int AS "TotalUsers",
+            COUNT(*) FILTER (WHERE inv."Status" = 'Pending')::int AS "PendingInvitation",
+            COUNT(*) FILTER (
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM identity."FgsInvitation" ai
+                    WHERE ai."UserId" = u."Id"
+                      AND ai."Status" = 'Accepted'
+                )
+            )::int AS "ActiveRegistered",
+            COUNT(*) FILTER (WHERE u."IsActive" = FALSE)::int AS "Inactive",
+            COUNT(*) FILTER (
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM identity."FgsUserRole" ura
+                    INNER JOIN identity."FgsRole" ra
+                        ON ra."Id" = ura."FgsRoleId"
+                       AND ra."TenantId" = u."TenantId"
+                       AND ra."CompanyId" = u."CompanyId"
+                    WHERE ura."UserId" = u."Id"
+                      AND ura."TenantId" = u."TenantId"
+                      AND ura."CompanyId" = u."CompanyId"
+                      AND ra."RoleCode" = @AdminRoleCode
+                )
+            )::int AS "Admins"
+        FROM identity."FgsUser" u
+        LEFT JOIN LATERAL (
+            SELECT i."Status"
+            FROM identity."FgsInvitation" i
+            WHERE i."UserId" = u."Id"
+            ORDER BY i."CreatedOn" DESC
+            LIMIT 1
+        ) inv ON TRUE
+        WHERE u."TenantId" = @TenantId
+          AND u."CompanyId" = @CompanyId
+          AND u."IsDeleted" = FALSE;
+        """;
+
     public async Task<FgsUserDetailDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
@@ -60,9 +105,10 @@ internal sealed class FgsUserReadRepository(
         return row?.ToDto();
     }
 
-    public async Task<PagedResult<FgsUserSummaryDto>> ListAsync(
+    public async Task<FgsUserListResultDto> ListAsync(
         IdentityListQuery query,
         FgsUserListFilters filters,
+        bool includeSummary = true,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
@@ -133,6 +179,7 @@ internal sealed class FgsUserReadRepository(
             FROM {FgsUserSql.UserTable} u
             {PrimaryRoleJoin}
             WHERE {whereClause};
+            {(includeSummary ? SummarySql : string.Empty)}
             """;
 
         var parameters = new
@@ -145,7 +192,8 @@ internal sealed class FgsUserReadRepository(
             RoleIds = roleIds,
             Search = paging.Search is null ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
-            Offset = offset
+            Offset = offset,
+            AdminRoleCode = FgsRoleCodes.TenantAdmin
         };
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -155,11 +203,23 @@ internal sealed class FgsUserReadRepository(
         var rows = (await multi.ReadAsync<FgsUserSummaryRow>()).ToList();
         var totalCount = await multi.ReadSingleAsync<int>();
 
-        return new PagedResult<FgsUserSummaryDto>(
+        FgsUserListSummaryDto summary;
+        if (includeSummary)
+        {
+            var summaryRow = await multi.ReadSingleAsync<FgsUserListSummaryRow>();
+            summary = summaryRow.ToDto();
+        }
+        else
+        {
+            summary = EmptySummary;
+        }
+
+        return new FgsUserListResultDto(
             rows.Select(r => r.ToDto()).ToList(),
             page,
             pageSize,
-            totalCount);
+            totalCount,
+            summary);
     }
 
     public async Task<bool> ExistsByEmailAsync(

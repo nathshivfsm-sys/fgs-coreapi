@@ -31,8 +31,12 @@ public sealed class UserController(IMediator mediator) : FgsApiControllerBase(me
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(new GetFgsUserByIdQuery(id), cancellationToken));
 
+    /// <summary>
+    /// Lists users with paging. When <paramref name="includeSummary"/> is true (default), also returns
+    /// company-scoped card counts that ignore list filters (search/role/isActive/etc.).
+    /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<FgsUserSummaryDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<FgsUserListResultDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> List(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 25,
@@ -44,6 +48,7 @@ public sealed class UserController(IMediator mediator) : FgsApiControllerBase(me
         [FromQuery] string? displayName = null,
         [FromQuery] IReadOnlyList<long>? roleIds = null,
         [FromQuery] long? roleId = null,
+        [FromQuery] bool includeSummary = true,
         CancellationToken cancellationToken = default)
     {
         IReadOnlyList<long>? resolvedRoleIds = roleIds is { Count: > 0 }
@@ -53,7 +58,8 @@ public sealed class UserController(IMediator mediator) : FgsApiControllerBase(me
         return FromApiResponse(await Mediator.Send(
             new ListFgsUsersQuery(
                 new IdentityListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new FgsUserListFilters(email, displayName, resolvedRoleIds)),
+                new FgsUserListFilters(email, displayName, resolvedRoleIds),
+                includeSummary),
             cancellationToken));
     }
 

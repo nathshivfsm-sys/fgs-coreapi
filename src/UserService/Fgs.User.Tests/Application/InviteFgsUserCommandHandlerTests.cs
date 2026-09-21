@@ -322,9 +322,10 @@ public sealed class InviteFgsUserCommandHandlerTests
                 accepted);
         }
 
-        public Task<PagedResult<FgsUserSummaryDto>> ListAsync(
+        public Task<FgsUserListResultDto> ListAsync(
             IdentityListQuery query,
             FgsUserListFilters filters,
+            bool includeSummary = true,
             CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 

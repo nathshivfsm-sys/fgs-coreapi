@@ -32,3 +32,15 @@ internal sealed class FgsUserDetailRow
     public FgsUserDetailDto ToDto() =>
         new(Id, DisplayName, Email, PhoneNumber, RoleId, RoleName, InvitationStatus, IsActive, HasAcceptedInvitation);
 }
+
+internal sealed class FgsUserListSummaryRow
+{
+    public int TotalUsers { get; set; }
+    public int PendingInvitation { get; set; }
+    public int ActiveRegistered { get; set; }
+    public int Inactive { get; set; }
+    public int Admins { get; set; }
+
+    public FgsUserListSummaryDto ToDto() =>
+        new(TotalUsers, PendingInvitation, ActiveRegistered, Inactive, Admins);
+}

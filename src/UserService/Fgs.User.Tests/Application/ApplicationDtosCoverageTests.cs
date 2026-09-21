@@ -131,6 +131,24 @@ public sealed class ApplicationDtosCoverageTests
         userListFilters.RoleIds.Should().BeEquivalentTo([1L, 2L]);
         (userListFilters with { RoleIds = [3] }).RoleIds.Should().ContainSingle().Which.Should().Be(3);
 
+        var userListSummary = new FgsUserListSummaryDto(10, 2, 7, 1, 3);
+        userListSummary.TotalUsers.Should().Be(10);
+        userListSummary.PendingInvitation.Should().Be(2);
+        userListSummary.ActiveRegistered.Should().Be(7);
+        userListSummary.Inactive.Should().Be(1);
+        userListSummary.Admins.Should().Be(3);
+        var userListResult = new FgsUserListResultDto(
+            [new FgsUserSummaryDto(Guid.NewGuid(), "N", "e", null, 1, "R", "Accepted", true)],
+            1,
+            25,
+            1,
+            userListSummary);
+        userListResult.Page.Should().Be(1);
+        userListResult.PageSize.Should().Be(25);
+        userListResult.TotalCount.Should().Be(1);
+        userListResult.Summary.TotalUsers.Should().Be(10);
+        (userListResult with { Page = 2 }).Summary.Admins.Should().Be(3);
+
         var endpoint = new FgsPublicEndpointDetailDto(1, "API", "PROD", "url", "d", true);
         (endpoint with { IsActive = false }).EndpointType.Should().Be("API");
 

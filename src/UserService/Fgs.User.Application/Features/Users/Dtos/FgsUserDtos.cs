@@ -46,3 +46,24 @@ public sealed record FgsUserListFilters(
     string? Email = null,
     string? DisplayName = null,
     IReadOnlyList<long>? RoleIds = null);
+
+/// <summary>
+/// Company-scoped aggregate counts for Users UI cards/tab badges (not narrowed by list filters).
+/// </summary>
+public sealed record FgsUserListSummaryDto(
+    int TotalUsers,
+    int PendingInvitation,
+    int ActiveRegistered,
+    int Inactive,
+    int Admins);
+
+/// <summary>
+/// List page plus company summary. <see cref="TotalCount"/> respects current list filters;
+/// <see cref="Summary"/> is global for the current tenant/company (zeros when includeSummary is false).
+/// </summary>
+public sealed record FgsUserListResultDto(
+    IReadOnlyList<FgsUserSummaryDto> Items,
+    int Page,
+    int PageSize,
+    int TotalCount,
+    FgsUserListSummaryDto Summary);
