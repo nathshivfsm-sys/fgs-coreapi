@@ -125,6 +125,12 @@ public sealed class ApplicationDtosCoverageTests
         var userDto = new FgsUserDetailDto(Guid.NewGuid(), "N", "e", null, 1, "R", "P", true, true);
         (userDto with { IsActive = false }).Email.Should().Be("e");
 
+        var userListFilters = new FgsUserListFilters(Email: "a@b.com", DisplayName: "Ann", RoleIds: [1, 2]);
+        userListFilters.Email.Should().Be("a@b.com");
+        userListFilters.DisplayName.Should().Be("Ann");
+        userListFilters.RoleIds.Should().BeEquivalentTo([1L, 2L]);
+        (userListFilters with { RoleIds = [3] }).RoleIds.Should().ContainSingle().Which.Should().Be(3);
+
         var endpoint = new FgsPublicEndpointDetailDto(1, "API", "PROD", "url", "d", true);
         (endpoint with { IsActive = false }).EndpointType.Should().Be("API");
 

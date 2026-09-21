@@ -45,4 +45,4 @@ public sealed record FgsUserPatchDto(
 public sealed record FgsUserListFilters(
     string? Email = null,
     string? DisplayName = null,
-    long? RoleId = null);
+    IReadOnlyList<long>? RoleIds = null);

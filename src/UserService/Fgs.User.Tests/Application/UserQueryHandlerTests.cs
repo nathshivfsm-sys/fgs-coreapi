@@ -66,6 +66,34 @@ public sealed class UserQueryHandlerTests
     }
 
     [Fact]
+    public async Task ListHandler_PassesSearchIsActiveAndRoleIdsFilters()
+    {
+        IdentityListQuery? capturedQuery = null;
+        FgsUserListFilters? capturedFilters = null;
+        var paged = new PagedResult<FgsUserSummaryDto>([], 1, 25, 0);
+        var read = new Mock<IFgsUserReadRepository>();
+        read.Setup(r => r.ListAsync(It.IsAny<IdentityListQuery>(), It.IsAny<FgsUserListFilters>(), It.IsAny<CancellationToken>()))
+            .Callback<IdentityListQuery, FgsUserListFilters, CancellationToken>((query, filters, _) =>
+            {
+                capturedQuery = query;
+                capturedFilters = filters;
+            })
+            .ReturnsAsync(paged);
+
+        var handler = new ListFgsUsersQueryHandler(read.Object);
+        var response = await handler.Handle(
+            new ListFgsUsersQuery(
+                new IdentityListQuery(Search: "555-0100", IsActive: true),
+                new FgsUserListFilters(RoleIds: [10, 20])),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        capturedQuery!.Search.Should().Be("555-0100");
+        capturedQuery.IsActive.Should().BeTrue();
+        capturedFilters!.RoleIds.Should().BeEquivalentTo([10L, 20L]);
+    }
+
+    [Fact]
     public async Task UpdateHandler_ReturnsUpdatedUser()
     {
         var write = new Mock<IFgsUserWriteService>();

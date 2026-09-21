@@ -7594,7 +7594,7 @@
                                         },
                                         {
                                             "key": "search",
-                                            "description": "Free-text search across searchable fields. Optional.",
+                                            "description": "Partial case-insensitive search across DisplayName, Email, and PhoneNumber. Optional.",
                                             "value": "{{search}}",
                                             "disabled": true
                                         },
@@ -7616,8 +7616,14 @@
                                             "disabled": true
                                         },
                                         {
+                                            "key": "roleIds",
+                                            "description": "Optional multi role filter (ANY assigned role). Repeat param: roleIds=1&roleIds=2.",
+                                            "value": "",
+                                            "disabled": true
+                                        },
+                                        {
                                             "key": "roleId",
-                                            "description": "Optional roleId filter.",
+                                            "description": "Deprecated single-role fallback; maps into roleIds when roleIds is empty.",
                                             "value": "",
                                             "disabled": true
                                         }

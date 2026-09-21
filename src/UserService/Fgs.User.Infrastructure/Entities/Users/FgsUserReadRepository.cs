@@ -93,14 +93,28 @@ internal sealed class FgsUserReadRepository(
             where.Add("u.\"DisplayName\" ILIKE @DisplayName");
         }
 
-        if (filters.RoleId.HasValue)
+        var roleIds = filters.RoleIds is { Count: > 0 }
+            ? filters.RoleIds.Distinct().ToArray()
+            : [];
+
+        if (roleIds.Length > 0)
         {
-            where.Add("ur.\"FgsRoleId\" = @RoleId");
+            where.Add("""
+                EXISTS (
+                    SELECT 1
+                    FROM identity."FgsUserRole" urf
+                    WHERE urf."UserId" = u."Id"
+                      AND urf."TenantId" = u."TenantId"
+                      AND urf."CompanyId" = u."CompanyId"
+                      AND urf."FgsRoleId" = ANY(@RoleIds)
+                )
+                """);
         }
 
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
-            where.Add("(u.\"Email\" ILIKE @Search OR u.\"DisplayName\" ILIKE @Search)");
+            where.Add(
+                "(u.\"Email\" ILIKE @Search OR u.\"DisplayName\" ILIKE @Search OR u.\"PhoneNumber\" ILIKE @Search)");
         }
 
         var whereClause = string.Join(" AND ", where);
@@ -128,7 +142,7 @@ internal sealed class FgsUserReadRepository(
             IsActive = paging.IsActive,
             Email = filters.Email is null ? null : $"%{filters.Email.Trim()}%",
             DisplayName = filters.DisplayName is null ? null : $"%{filters.DisplayName.Trim()}%",
-            RoleId = filters.RoleId,
+            RoleIds = roleIds,
             Search = paging.Search is null ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
             Offset = offset

@@ -42,13 +42,20 @@ public sealed class UserController(IMediator mediator) : FgsApiControllerBase(me
         [FromQuery] bool? isActive = null,
         [FromQuery] string? email = null,
         [FromQuery] string? displayName = null,
+        [FromQuery] IReadOnlyList<long>? roleIds = null,
         [FromQuery] long? roleId = null,
-        CancellationToken cancellationToken = default) =>
-        FromApiResponse(await Mediator.Send(
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<long>? resolvedRoleIds = roleIds is { Count: > 0 }
+            ? roleIds
+            : roleId is long singleRoleId ? [singleRoleId] : null;
+
+        return FromApiResponse(await Mediator.Send(
             new ListFgsUsersQuery(
                 new IdentityListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new FgsUserListFilters(email, displayName, roleId)),
+                new FgsUserListFilters(email, displayName, resolvedRoleIds)),
             cancellationToken));
+    }
 
     [RequirePermission(FgsPermissionCodes.UserCreate)]
     [HttpPost]
