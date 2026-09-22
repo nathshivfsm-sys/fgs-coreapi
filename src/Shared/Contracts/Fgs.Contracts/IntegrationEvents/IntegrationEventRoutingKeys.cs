@@ -29,6 +29,8 @@ public static class IntegrationEventRoutingKeys
 
     public const string PurchaseOrderStatusChanged = "inventory.PurchaseOrderStatusChanged";
 
+    public const string EmployeeAccessChanged = "setup.EmployeeAccessChanged";
+
     public static string ForEventType(string eventType, string? routingKeyPrefix = null) =>
         eventType switch
         {
@@ -43,6 +45,7 @@ public static class IntegrationEventRoutingKeys
             IntegrationEventTypes.AuditEventRequested => AuditEventRequested,
             IntegrationEventTypes.InventoryStockChanged => InventoryStockChanged,
             IntegrationEventTypes.PurchaseOrderStatusChanged => PurchaseOrderStatusChanged,
+            IntegrationEventTypes.EmployeeAccessChanged => EmployeeAccessChanged,
             _ => $"{routingKeyPrefix ?? Prefix}{eventType}"
         };
 }

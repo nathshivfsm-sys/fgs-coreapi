@@ -1,4 +1,7 @@
 using Fgs.Contracts.Audit;
+using Fgs.Contracts.IntegrationEvents;
+using Fgs.Messaging.Abstractions;
+using Fgs.Messaging.Outbox;
 using Fgs.Persistence.Abstractions;
 using Fgs.Security.Abstractions;
 using Fgs.Security.Extensions;
@@ -20,16 +23,19 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
     private const decimal DefaultDailyCapacityHours = 8.00m;
     private const string EmployeeUpdatedEventCode = "EMPLOYEE_UPDATED";
     private const string EmployeeCreatedEventCode = "EMPLOYEE_CREATED";
+    private const string EmployeeStatusChangedEventCode = "EMPLOYEE_STATUS_CHANGED";
     private const string AuditEventSource = "API";
     // No EMPLOYEE record_type in audit DB yet (no schema migration). Use SYSTEM + EventCode.
     private const string AuditRecordType = "SYSTEM";
     private const string FieldChangeEntryType = "FIELD_CHANGE";
+    private const string StatusFieldName = "Status";
 
     private readonly FgsSetupDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly SetupEntityAuditHelper _auditHelper;
     private readonly ISetupLocationWriteService _locationWriteService;
     private readonly IEmployeeAuditRecorder _employeeAuditRecorder;
+    private readonly IOutboxWriter _outboxWriter;
     private readonly IFgsUserContext _userContext;
 
     public FgsEmployeeWriteService(
@@ -38,6 +44,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         SetupEntityAuditHelper auditHelper,
         ISetupLocationWriteService locationWriteService,
         IEmployeeAuditRecorder employeeAuditRecorder,
+        IOutboxWriter outboxWriter,
         IFgsUserContext userContext)
     {
         _context = context;
@@ -45,6 +52,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         _auditHelper = auditHelper;
         _locationWriteService = locationWriteService;
         _employeeAuditRecorder = employeeAuditRecorder;
+        _outboxWriter = outboxWriter;
         _userContext = userContext;
     }
 
@@ -160,7 +168,8 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         await SyncAddressWithStatusAsync(entity, previousStatusId, cancellationToken);
 
         _auditHelper.StampForUpdate(entity);
-        await EnqueueFieldChangeAuditIfNeededAsync(entity, previousSnapshot, cancellationToken);
+        await EnqueueStatusAndFieldAuditsAsync(entity, previousStatusId, previousSnapshot, cancellationToken);
+        await EnqueueEmployeeAccessChangedIfNeededAsync(entity, previousStatusId, cancellationToken);
         await SaveChangesAsync(cancellationToken);
 
         return await MapToDetailAsync(entity.Id, cancellationToken);
@@ -322,7 +331,8 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         await SyncAddressWithStatusAsync(entity, previousStatusId, cancellationToken);
 
         _auditHelper.StampForUpdate(entity);
-        await EnqueueFieldChangeAuditIfNeededAsync(entity, previousSnapshot, cancellationToken);
+        await EnqueueStatusAndFieldAuditsAsync(entity, previousStatusId, previousSnapshot, cancellationToken);
+        await EnqueueEmployeeAccessChangedIfNeededAsync(entity, previousStatusId, cancellationToken);
         await SaveChangesAsync(cancellationToken);
 
         return await MapToDetailAsync(entity.Id, cancellationToken);
@@ -335,21 +345,52 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
 
         if (entity.StatusId != EmployeeStatusIds.Inactive)
         {
+            var previousStatusId = entity.StatusId;
+            var previousSnapshot = CaptureScalarSnapshot(entity);
             entity.StatusId = EmployeeStatusIds.Inactive;
             _auditHelper.StampForUpdate(entity);
             await _locationWriteService.SoftDeleteAsync(entity.AddressId, cancellationToken);
+            await EnqueueStatusAndFieldAuditsAsync(entity, previousStatusId, previousSnapshot, cancellationToken);
+            await EnqueueEmployeeAccessChangedIfNeededAsync(entity, previousStatusId, cancellationToken);
             await SaveChangesAsync(cancellationToken);
         }
 
         return await MapToDetailAsync(entity.Id, cancellationToken);
     }
 
-    private async Task EnqueueFieldChangeAuditIfNeededAsync(
+    private async Task EnqueueStatusAndFieldAuditsAsync(
         FgsEmployee entity,
+        short previousStatusId,
         IReadOnlyDictionary<string, string?> previousSnapshot,
         CancellationToken cancellationToken)
     {
-        var details = BuildFieldChangeDetails(previousSnapshot, CaptureScalarSnapshot(entity));
+        var currentSnapshot = CaptureScalarSnapshot(entity);
+        var details = BuildFieldChangeDetails(previousSnapshot, currentSnapshot);
+
+        if (previousStatusId != entity.StatusId)
+        {
+            var previousName = FormatStatusName(previousStatusId);
+            var newName = FormatStatusName(entity.StatusId);
+            await EnqueueEmployeeAuditAsync(
+                entity,
+                EmployeeStatusChangedEventCode,
+                $"{previousName} → {newName}",
+                [
+                    new RecordAuditEventDetailRequest(
+                        FieldChangeEntryType,
+                        StatusFieldName,
+                        previousName,
+                        newName,
+                        Sequence: 1)
+                ],
+                cancellationToken);
+
+            details = details
+                .Where(d => !string.Equals(d.ItemName, nameof(FgsEmployee.StatusId), StringComparison.Ordinal))
+                .Select((d, index) => d with { Sequence = (short)(index + 1) })
+                .ToList();
+        }
+
         if (details.Count == 0)
         {
             return;
@@ -362,6 +403,46 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
             details,
             cancellationToken);
     }
+
+    private Task EnqueueEmployeeAccessChangedIfNeededAsync(
+        FgsEmployee entity,
+        short previousStatusId,
+        CancellationToken cancellationToken)
+    {
+        if (entity.UserId is not Guid userId)
+        {
+            return Task.CompletedTask;
+        }
+
+        var previousLoginActive = MapsToLoginActive(previousStatusId);
+        var newLoginActive = MapsToLoginActive(entity.StatusId);
+        if (previousLoginActive == newLoginActive)
+        {
+            return Task.CompletedTask;
+        }
+
+        return _outboxWriter.EnqueueEmployeeAccessChangedAsync(
+            new EmployeeAccessChangedEvent(
+                entity.TenantId,
+                entity.CompanyId,
+                entity.Id,
+                userId,
+                newLoginActive),
+            Guid.NewGuid(),
+            cancellationToken);
+    }
+
+    private static bool MapsToLoginActive(short statusId) => statusId == EmployeeStatusIds.Active;
+
+    private static string FormatStatusName(short statusId) =>
+        statusId switch
+        {
+            EmployeeStatusIds.Active => "Active",
+            EmployeeStatusIds.Inactive => "Inactive",
+            EmployeeStatusIds.LeaveOfAbsence => "LeaveOfAbsence",
+            EmployeeStatusIds.Terminated => "Terminated",
+            _ => statusId.ToString()
+        };
 
     private Task EnqueueEmployeeAuditAsync(
         FgsEmployee entity,

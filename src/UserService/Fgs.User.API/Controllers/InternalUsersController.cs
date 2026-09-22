@@ -1,4 +1,4 @@
-using Asp.Versioning;
+﻿using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Auth;
 using Fgs.Contracts.Clients;
@@ -6,6 +6,7 @@ using Fgs.Credentials;
 using Fgs.Credentials.Options;
 using Fgs.Foundation.Api;
 using Fgs.User.Application.Features.Auth.Queries.GetUserAuthProfile;
+using Fgs.User.Application.Features.Users.Commands.SetFgsUserAccess;
 using Fgs.User.Application.Features.Users.Queries.GetUserIdsByRoles;
 using Fgs.User.Application.Features.Users.Queries.GetUserListEnrichment;
 using MediatR;
@@ -16,8 +17,8 @@ using Microsoft.Extensions.Options;
 namespace Fgs.User.API.Controllers;
 
 /// <summary>
-/// Internal user endpoints. <c>auth-profile</c> remains dual-auth (JWT or service key)
-/// for ActiveUserAuthorizationMiddleware / profile bootstrap. <c>ids-by-roles</c> and
+/// Internal user endpoints. <c>auth-profile</c> and <c>access</c> remain dual-auth (JWT or service key)
+/// for S2S bootstrap and employee access sync. <c>ids-by-roles</c> and
 /// <c>list-enrichment</c> require a validated caller JWT like other User APIs.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
@@ -66,6 +67,30 @@ public sealed class InternalUsersController(
             response.Data.PublicEndpoints);
 
         return Ok(ApiResponse<UserAuthProfileDto>.Ok(dto));
+    }
+
+    /// <summary>
+    /// Enables or disables application login for a user (S2S; used by employee status sync).
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPatch("{userId:guid}/access")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SetAccess(
+        Guid userId,
+        [FromBody] SetUserAccessRequest request,
+        [FromHeader(Name = InternalServiceHeaders.ServiceKey)] string? serviceKey,
+        CancellationToken cancellationToken)
+    {
+        var unauthorized = UnauthorizedIfNotInternalOrAuthenticated(serviceKey);
+        if (unauthorized is not null)
+        {
+            return unauthorized;
+        }
+
+        return FromApiResponse(
+            await Mediator.Send(new SetFgsUserAccessCommand(userId, request.IsActive), cancellationToken));
     }
 
     [HttpGet("ids-by-roles")]

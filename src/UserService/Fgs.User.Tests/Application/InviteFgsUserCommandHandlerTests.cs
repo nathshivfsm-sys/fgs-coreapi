@@ -6,6 +6,7 @@ using Fgs.Messaging.Options;
 using Fgs.MultiTenancy;
 using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
+using Fgs.Security.UserAuth;
 using Fgs.User.Application.Abstractions.Invitations;
 using Fgs.User.Application.Abstractions.Roles;
 using Fgs.Foundation.Time;
@@ -231,7 +232,8 @@ public sealed class InviteFgsUserCommandHandlerTests
             userContext.Object,
             readRepository,
             userRoleWrite,
-            issuer);
+            issuer,
+            Mock.Of<IUserAuthProfileStore>());
 
         return (writeService, readRepository);
     }

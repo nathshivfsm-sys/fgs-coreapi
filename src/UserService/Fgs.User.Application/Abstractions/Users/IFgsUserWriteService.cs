@@ -12,5 +12,7 @@ public interface IFgsUserWriteService
 
     Task<FgsUserDetailDto> PatchAsync(Guid id, FgsUserPatchDto dto, CancellationToken cancellationToken = default);
 
+    Task SetAccessAsync(Guid id, bool isActive, CancellationToken cancellationToken = default);
+
     Task<FgsUserDetailDto> ResendInviteAsync(Guid id, CancellationToken cancellationToken = default);
 }

@@ -1,6 +1,7 @@
 using Fgs.MultiTenancy;
 using Fgs.Persistence.Abstractions;
 using Fgs.Security.Abstractions;
+using Fgs.Security.UserAuth;
 using Fgs.User.Application.Abstractions.Invitations;
 using Fgs.User.Application.Abstractions.UserRoles;
 using Fgs.User.Application.Abstractions.Users;
@@ -21,7 +22,8 @@ public sealed class FgsUserWriteService(
     IFgsUserContext userContext,
     IFgsUserReadRepository readRepository,
     IFgsUserRoleWriteService userRoleWriteService,
-    IUserInvitationIssuer invitationIssuer) : IFgsUserWriteService
+    IUserInvitationIssuer invitationIssuer,
+    IUserAuthProfileStore profileStore) : IFgsUserWriteService
 {
     public async Task<IReadOnlyList<FgsUserDetailDto>> InviteAsync(
         IReadOnlyList<FgsUserInviteDto> invites,
@@ -122,6 +124,7 @@ public sealed class FgsUserWriteService(
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"User '{id}' was not found.");
 
+        var previousIsActive = entity.IsActive;
         entity.DisplayName = dto.DisplayName.Trim();
         entity.PhoneNumber = TrimOrNull(dto.PhoneNumber);
         entity.IsActive = dto.IsActive;
@@ -129,6 +132,11 @@ public sealed class FgsUserWriteService(
 
         await ReplaceRolesAsync(entity.Id, dto.RoleIds, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (previousIsActive != entity.IsActive)
+        {
+            await profileStore.InvalidateAsync(entity.Id, entity.EntraObjectId, cancellationToken);
+        }
 
         return await RequireDetailAsync(entity.Id, cancellationToken);
     }
@@ -140,6 +148,8 @@ public sealed class FgsUserWriteService(
     {
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"User '{id}' was not found.");
+
+        var previousIsActive = entity.IsActive;
 
         if (dto.DisplayName is not null)
         {
@@ -164,7 +174,32 @@ public sealed class FgsUserWriteService(
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (previousIsActive != entity.IsActive)
+        {
+            await profileStore.InvalidateAsync(entity.Id, entity.EntraObjectId, cancellationToken);
+        }
+
         return await RequireDetailAsync(entity.Id, cancellationToken);
+    }
+
+    public async Task SetAccessAsync(
+        Guid id,
+        bool isActive,
+        CancellationToken cancellationToken = default)
+    {
+        var entity = await FindEntityAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"User '{id}' was not found.");
+
+        if (entity.IsActive == isActive)
+        {
+            return;
+        }
+
+        entity.IsActive = isActive;
+        StampForUpdate(entity);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await profileStore.InvalidateAsync(entity.Id, entity.EntraObjectId, cancellationToken);
     }
 
     public async Task<FgsUserDetailDto> ResendInviteAsync(

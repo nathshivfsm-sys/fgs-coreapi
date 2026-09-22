@@ -24,6 +24,8 @@ public static class IntegrationEventTypes
 
     public const string PurchaseOrderStatusChanged = "PurchaseOrderStatusChanged";
 
+    public const string EmployeeAccessChanged = "EmployeeAccessChanged";
+
     public static class AggregateTypes
     {
         public const string Invitation = "Invitation";

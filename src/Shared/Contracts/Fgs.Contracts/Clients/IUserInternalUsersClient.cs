@@ -20,4 +20,12 @@ public interface IUserInternalUsersClient
         [Header("X-Tenant-Id")] string tenantId,
         [Header("X-Company-Id")] string companyId,
         CancellationToken cancellationToken = default);
+
+    [Patch("/api/v1/internal/users/{userId}/access")]
+    Task<Fgs.Contracts.Api.ApiResponse<object>> SetUserAccessAsync(
+        Guid userId,
+        [Body] SetUserAccessRequest request,
+        [Header("X-Tenant-Id")] string tenantId,
+        [Header("X-Company-Id")] string companyId,
+        CancellationToken cancellationToken = default);
 }

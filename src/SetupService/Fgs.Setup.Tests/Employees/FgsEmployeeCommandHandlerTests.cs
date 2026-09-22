@@ -1,6 +1,8 @@
 using Fgs.Contracts.Audit;
+using Fgs.Contracts.IntegrationEvents;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
+using Fgs.Messaging.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
@@ -288,6 +290,116 @@ public sealed class FgsEmployeeCommandHandlerTests
         context.FgsLocations.Single().IsActive.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task PatchHandler_WhenStatusChangesWithUserId_EnqueuesAccessEventAndStatusAudit()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(context);
+        var outboxWriter = new Mock<IOutboxWriter>();
+        var auditRecorder = new Mock<IEmployeeAuditRecorder>();
+        var writeService = CreateWriteService(context, outboxWriter, auditRecorder);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var createHandler = new CreateFgsEmployeeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<CreateFgsEmployeeCommandHandler>.Instance);
+        var patchHandler = new PatchFgsEmployeeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<PatchFgsEmployeeCommandHandler>.Instance);
+
+        var linkedUserId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        var created = await createHandler.Handle(
+            new CreateFgsEmployeeCommand(CreateDto() with { UserId = linkedUserId }),
+            CancellationToken.None);
+
+        await patchHandler.Handle(
+            new PatchFgsEmployeeCommand(
+                created.Data!.Id,
+                CreateStatusPatch(statusId: EmployeeStatusIds.Inactive)),
+            CancellationToken.None);
+
+        outboxWriter.Verify(
+            w => w.EnqueueAsync(
+                IntegrationEventTypes.EmployeeAccessChanged,
+                It.Is<string>(p => p.Contains(linkedUserId.ToString()) && p.Contains("\"isActive\":false")),
+                It.IsAny<Guid>(),
+                TenantId,
+                CompanyId,
+                IntegrationEventTypes.AggregateTypes.Employee,
+                created.Data.Id.ToString(),
+                It.IsAny<Guid?>(),
+                IntegrationEventExchanges.SetupEvents,
+                IntegrationEventRoutingKeys.EmployeeAccessChanged,
+                It.IsAny<string?>(),
+                It.IsAny<long?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        auditRecorder.Verify(
+            r => r.RecordAsync(
+                It.Is<RecordAuditEventRequest>(req =>
+                    req.EventCode == "EMPLOYEE_STATUS_CHANGED"
+                    && req.Summary == "Active → Inactive"
+                    && req.Details!.Any(d =>
+                        d.ItemName == "Status"
+                        && d.OldValue == "Active"
+                        && d.NewValue == "Inactive")),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task PatchHandler_WhenStatusChangesWithoutUserId_DoesNotEnqueueAccessEvent()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(context);
+        var outboxWriter = new Mock<IOutboxWriter>();
+        var writeService = CreateWriteService(context, outboxWriter);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var createHandler = new CreateFgsEmployeeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<CreateFgsEmployeeCommandHandler>.Instance);
+        var patchHandler = new PatchFgsEmployeeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<PatchFgsEmployeeCommandHandler>.Instance);
+
+        var created = await createHandler.Handle(
+            new CreateFgsEmployeeCommand(CreateDto()),
+            CancellationToken.None);
+
+        await patchHandler.Handle(
+            new PatchFgsEmployeeCommand(
+                created.Data!.Id,
+                CreateStatusPatch(statusId: EmployeeStatusIds.Inactive)),
+            CancellationToken.None);
+
+        outboxWriter.Verify(
+            w => w.EnqueueAsync(
+                IntegrationEventTypes.EmployeeAccessChanged,
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<long?>(),
+                It.IsAny<long?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<long?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static FgsEmployeePatchDto CreateStatusPatch(
         short? statusId = null,
         bool? isActive = null,
@@ -468,6 +580,45 @@ public sealed class FgsEmployeeCommandHandlerTests
             auditHelper,
             locationWriteService,
             employeeAuditRecorder.Object,
+            Mock.Of<IOutboxWriter>(),
+            userContext.Object);
+    }
+
+    private static FgsEmployeeWriteService CreateWriteService(
+        FgsSetupDbContext context,
+        Mock<IOutboxWriter> outboxWriter,
+        Mock<IEmployeeAuditRecorder>? employeeAuditRecorder = null)
+    {
+        var userContext = new Mock<IFgsUserContext>();
+        userContext.SetupGet(x => x.TenantId).Returns(TenantId);
+        userContext.SetupGet(x => x.CompanyId).Returns(CompanyId);
+        userContext.SetupGet(x => x.UserId).Returns(Guid.Parse("11111111-1111-1111-1111-111111111111"));
+
+        var tenantAccessor = new TestTenantContextAccessor
+        {
+            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId }
+        };
+
+        var auditHelper = new SetupEntityAuditHelper(
+            userContext.Object,
+            tenantAccessor,
+            new DateTimeProvider());
+        var unitOfWork = new EfUnitOfWork<FgsSetupDbContext>(context);
+        ISetupLocationWriteService locationWriteService = new SetupLocationWriteService(
+            context,
+            unitOfWork,
+            auditHelper);
+        var auditRecorder = employeeAuditRecorder ?? new Mock<IEmployeeAuditRecorder>();
+        auditRecorder
+            .Setup(r => r.RecordAsync(It.IsAny<RecordAuditEventRequest>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        return new FgsEmployeeWriteService(
+            context,
+            unitOfWork,
+            auditHelper,
+            locationWriteService,
+            auditRecorder.Object,
+            outboxWriter.Object,
             userContext.Object);
     }
 
