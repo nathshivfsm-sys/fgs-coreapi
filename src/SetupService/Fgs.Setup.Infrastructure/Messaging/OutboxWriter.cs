@@ -28,7 +28,7 @@ public sealed class OutboxWriter(
         long? createdBy = null,
         CancellationToken cancellationToken = default)
     {
-        var message = new GloOutboxMessage
+        var message = new SetupOutboxMessage
         {
             TenantId = tenantId,
             CompanyId = companyId,
@@ -47,6 +47,6 @@ public sealed class OutboxWriter(
             CreatedBy = createdBy?.ToString()
         };
 
-        await context.GloOutboxMessages.AddAsync(message, cancellationToken);
+        await context.SetupOutboxMessages.AddAsync(message, cancellationToken);
     }
 }
