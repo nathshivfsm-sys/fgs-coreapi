@@ -35,7 +35,7 @@ RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     dotnet publish Fgs.Integration.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
-RUN apk add --no-cache curl ca-certificates && update-ca-certificates
+RUN apk add --no-cache curl ca-certificates krb5-libs && update-ca-certificates
 WORKDIR /app
 COPY --from=build /app/publish .
 
