@@ -13,7 +13,6 @@ public static class ResponseCompressionExtensions
     private static readonly string[] DefaultMimeTypes =
     [
         "application/json",
-        "application/problem+json",
         "text/plain",
         "application/xml"
     ];
