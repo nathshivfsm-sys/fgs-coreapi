@@ -162,10 +162,12 @@ public static class DependencyInjection
         if (auditOutboxEnabled)
         {
             services.AddScoped<ICredentialAuditRecorder, OutboxCredentialAuditRecorder>();
+            services.AddScoped<IEmployeeAuditRecorder, OutboxEmployeeAuditRecorder>();
         }
         else
         {
             services.AddSingleton<ICredentialAuditRecorder, NoOpCredentialAuditRecorder>();
+            services.AddSingleton<IEmployeeAuditRecorder, NoOpEmployeeAuditRecorder>();
         }
 
         services.AddFgsInternalServiceRefitClient<IUserTenantClient>(

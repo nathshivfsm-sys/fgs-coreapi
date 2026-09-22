@@ -1,4 +1,7 @@
+using Fgs.Contracts.Audit;
 using Fgs.Persistence.Abstractions;
+using Fgs.Security.Abstractions;
+using Fgs.Security.Extensions;
 using Fgs.Setup.Application.Abstractions.Employees;
 using Fgs.Setup.Application.Abstractions.Locations;
 using Fgs.Setup.Application.Features.Employees.Dtos;
@@ -15,22 +18,34 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
 {
     private const string MasterEntityTypeCode = "EMPLOYEE";
     private const decimal DefaultDailyCapacityHours = 8.00m;
+    private const string EmployeeUpdatedEventCode = "EMPLOYEE_UPDATED";
+    private const string EmployeeCreatedEventCode = "EMPLOYEE_CREATED";
+    private const string AuditEventSource = "API";
+    // No EMPLOYEE record_type in audit DB yet (no schema migration). Use SYSTEM + EventCode.
+    private const string AuditRecordType = "SYSTEM";
+    private const string FieldChangeEntryType = "FIELD_CHANGE";
 
     private readonly FgsSetupDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly SetupEntityAuditHelper _auditHelper;
     private readonly ISetupLocationWriteService _locationWriteService;
+    private readonly IEmployeeAuditRecorder _employeeAuditRecorder;
+    private readonly IFgsUserContext _userContext;
 
     public FgsEmployeeWriteService(
         FgsSetupDbContext context,
         IUnitOfWork unitOfWork,
         SetupEntityAuditHelper auditHelper,
-        ISetupLocationWriteService locationWriteService)
+        ISetupLocationWriteService locationWriteService,
+        IEmployeeAuditRecorder employeeAuditRecorder,
+        IFgsUserContext userContext)
     {
         _context = context;
         _unitOfWork = unitOfWork;
         _auditHelper = auditHelper;
         _locationWriteService = locationWriteService;
+        _employeeAuditRecorder = employeeAuditRecorder;
+        _userContext = userContext;
     }
 
     public async Task<FgsEmployeeDetailDto> CreateAsync(
@@ -87,6 +102,12 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
             await UpsertTechnicianProfileAsync(entity, dto.TechnicianProfile, cancellationToken);
         }
 
+        await EnqueueEmployeeAuditAsync(
+            entity,
+            EmployeeCreatedEventCode,
+            "Employee created.",
+            details: null,
+            cancellationToken);
         await SaveChangesAsync(cancellationToken);
 
         return await MapToDetailAsync(entity.Id, cancellationToken);
@@ -100,6 +121,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Employee '{id}' was not found.");
 
+        var previousSnapshot = CaptureScalarSnapshot(entity);
         var previousStatusId = entity.StatusId;
         var (overtimeRate, doubleTimeRate) = ResolveRates(dto.RegularRate, dto.OvertimeRate, dto.DoubleTimeRate);
 
@@ -138,6 +160,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         await SyncAddressWithStatusAsync(entity, previousStatusId, cancellationToken);
 
         _auditHelper.StampForUpdate(entity);
+        await EnqueueFieldChangeAuditIfNeededAsync(entity, previousSnapshot, cancellationToken);
         await SaveChangesAsync(cancellationToken);
 
         return await MapToDetailAsync(entity.Id, cancellationToken);
@@ -151,6 +174,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Employee '{id}' was not found.");
 
+        var previousSnapshot = CaptureScalarSnapshot(entity);
         var previousStatusId = entity.StatusId;
 
         if (dto.UserId.HasValue)
@@ -298,6 +322,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         await SyncAddressWithStatusAsync(entity, previousStatusId, cancellationToken);
 
         _auditHelper.StampForUpdate(entity);
+        await EnqueueFieldChangeAuditIfNeededAsync(entity, previousSnapshot, cancellationToken);
         await SaveChangesAsync(cancellationToken);
 
         return await MapToDetailAsync(entity.Id, cancellationToken);
@@ -318,6 +343,115 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
 
         return await MapToDetailAsync(entity.Id, cancellationToken);
     }
+
+    private async Task EnqueueFieldChangeAuditIfNeededAsync(
+        FgsEmployee entity,
+        IReadOnlyDictionary<string, string?> previousSnapshot,
+        CancellationToken cancellationToken)
+    {
+        var details = BuildFieldChangeDetails(previousSnapshot, CaptureScalarSnapshot(entity));
+        if (details.Count == 0)
+        {
+            return;
+        }
+
+        await EnqueueEmployeeAuditAsync(
+            entity,
+            EmployeeUpdatedEventCode,
+            "Employee updated.",
+            details,
+            cancellationToken);
+    }
+
+    private Task EnqueueEmployeeAuditAsync(
+        FgsEmployee entity,
+        string eventCode,
+        string summary,
+        IReadOnlyList<RecordAuditEventDetailRequest>? details,
+        CancellationToken cancellationToken) =>
+        _employeeAuditRecorder.RecordAsync(
+            new RecordAuditEventRequest(
+                entity.TenantId,
+                entity.CompanyId,
+                eventCode,
+                AuditEventSource,
+                AuditRecordType,
+                entity.Id,
+                summary,
+                OccurredOn: null,
+                EntityNumber: entity.EmployeeNumber,
+                UserName: _userContext.ResolveAuditActor(),
+                Details: details),
+            cancellationToken);
+
+    private static IReadOnlyDictionary<string, string?> CaptureScalarSnapshot(FgsEmployee entity) =>
+        new Dictionary<string, string?>(StringComparer.Ordinal)
+        {
+            [nameof(FgsEmployee.UserId)] = FormatValue(entity.UserId),
+            [nameof(FgsEmployee.EmployeeNumber)] = FormatValue(entity.EmployeeNumber),
+            [nameof(FgsEmployee.EmployeeTypeId)] = FormatValue(entity.EmployeeTypeId),
+            [nameof(FgsEmployee.DisplayName)] = FormatValue(entity.DisplayName),
+            [nameof(FgsEmployee.LegalFirstName)] = FormatValue(entity.LegalFirstName),
+            [nameof(FgsEmployee.LegalMiddleName)] = FormatValue(entity.LegalMiddleName),
+            [nameof(FgsEmployee.LegalLastName)] = FormatValue(entity.LegalLastName),
+            [nameof(FgsEmployee.BirthDate)] = FormatValue(entity.BirthDate),
+            [nameof(FgsEmployee.HireDate)] = FormatValue(entity.HireDate),
+            [nameof(FgsEmployee.TerminationDate)] = FormatValue(entity.TerminationDate),
+            [nameof(FgsEmployee.StatusId)] = FormatValue(entity.StatusId),
+            [nameof(FgsEmployee.PersonalEmail)] = FormatValue(entity.PersonalEmail),
+            [nameof(FgsEmployee.OfficeEmail)] = FormatValue(entity.OfficeEmail),
+            [nameof(FgsEmployee.PersonalPhone)] = FormatValue(entity.PersonalPhone),
+            [nameof(FgsEmployee.OfficePhone)] = FormatValue(entity.OfficePhone),
+            [nameof(FgsEmployee.AddressId)] = FormatValue(entity.AddressId),
+            [nameof(FgsEmployee.ProfilePhotoFileId)] = FormatValue(entity.ProfilePhotoFileId),
+            [nameof(FgsEmployee.RegularRate)] = FormatValue(entity.RegularRate),
+            [nameof(FgsEmployee.OvertimeRate)] = FormatValue(entity.OvertimeRate),
+            [nameof(FgsEmployee.DoubleTimeRate)] = FormatValue(entity.DoubleTimeRate),
+            [nameof(FgsEmployee.LaborBurdenTypeId)] = FormatValue(entity.LaborBurdenTypeId),
+            [nameof(FgsEmployee.LaborBurdenValue)] = FormatValue(entity.LaborBurdenValue),
+            [nameof(FgsEmployee.IsPurchaser)] = FormatValue(entity.IsPurchaser),
+            [nameof(FgsEmployee.Notes)] = FormatValue(entity.Notes)
+        };
+
+    private static IReadOnlyList<RecordAuditEventDetailRequest> BuildFieldChangeDetails(
+        IReadOnlyDictionary<string, string?> previous,
+        IReadOnlyDictionary<string, string?> current)
+    {
+        var details = new List<RecordAuditEventDetailRequest>();
+        short sequence = 1;
+
+        foreach (var (itemName, oldValue) in previous)
+        {
+            if (!current.TryGetValue(itemName, out var newValue))
+            {
+                continue;
+            }
+
+            if (string.Equals(oldValue, newValue, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            details.Add(new RecordAuditEventDetailRequest(
+                FieldChangeEntryType,
+                itemName,
+                oldValue,
+                newValue,
+                sequence++));
+        }
+
+        return details;
+    }
+
+    private static string? FormatValue(object? value) =>
+        value switch
+        {
+            null => null,
+            DateOnly date => date.ToString("yyyy-MM-dd"),
+            decimal number => number.ToString("0.##"),
+            bool flag => flag ? "true" : "false",
+            _ => value.ToString()
+        };
 
     private async Task SyncAddressWithStatusAsync(
         FgsEmployee employee,

@@ -1,3 +1,4 @@
+using Fgs.Foundation.Validation;
 using Fgs.Setup.Application.Abstractions.Employees;
 using Fgs.Setup.Application.Common.Locations;
 using Fgs.Setup.Application.Features.Employees.Commands.CreateFgsEmployee;
@@ -45,8 +46,18 @@ public sealed class CreateFgsEmployeeCommandValidator : AbstractValidator<Create
                     or EmployeeStatusIds.Terminated)
                 .WithMessage("StatusId must be Active (1), Inactive (2), LeaveOfAbsence (3), or Terminated (4).");
 
-            RuleFor(x => x.Dto.PersonalEmail).MaximumLength(255).When(x => x.Dto.PersonalEmail is not null);
-            RuleFor(x => x.Dto.OfficeEmail).MaximumLength(255).When(x => x.Dto.OfficeEmail is not null);
+            RuleFor(x => x.Dto.PersonalEmail)
+                .MaximumLength(255)
+                .MustBeValidEmailAddress()
+                .When(x => !string.IsNullOrWhiteSpace(x.Dto.PersonalEmail));
+            RuleFor(x => x.Dto.OfficeEmail)
+                .MaximumLength(255)
+                .MustBeValidEmailAddress()
+                .When(x => !string.IsNullOrWhiteSpace(x.Dto.OfficeEmail));
+            RuleFor(x => x.Dto.OfficeEmail).MustAsync(async (_, officeEmail, cancellationToken) =>
+                    string.IsNullOrWhiteSpace(officeEmail)
+                    || !await readRepository.ExistsByOfficeEmailAsync(officeEmail, null, cancellationToken))
+                .WithMessage("An employee with this office email already exists.");
             RuleFor(x => x.Dto.PersonalPhone).MaximumLength(25).When(x => x.Dto.PersonalPhone is not null);
             RuleFor(x => x.Dto.OfficePhone).MaximumLength(25).When(x => x.Dto.OfficePhone is not null);
 
@@ -117,8 +128,18 @@ public sealed class UpdateFgsEmployeeCommandValidator : AbstractValidator<Update
                     or EmployeeStatusIds.Terminated)
                 .WithMessage("StatusId must be Active (1), Inactive (2), LeaveOfAbsence (3), or Terminated (4).");
 
-            RuleFor(x => x.Dto.PersonalEmail).MaximumLength(255).When(x => x.Dto.PersonalEmail is not null);
-            RuleFor(x => x.Dto.OfficeEmail).MaximumLength(255).When(x => x.Dto.OfficeEmail is not null);
+            RuleFor(x => x.Dto.PersonalEmail)
+                .MaximumLength(255)
+                .MustBeValidEmailAddress()
+                .When(x => !string.IsNullOrWhiteSpace(x.Dto.PersonalEmail));
+            RuleFor(x => x.Dto.OfficeEmail)
+                .MaximumLength(255)
+                .MustBeValidEmailAddress()
+                .When(x => !string.IsNullOrWhiteSpace(x.Dto.OfficeEmail));
+            RuleFor(x => x.Dto.OfficeEmail).MustAsync(async (command, officeEmail, cancellationToken) =>
+                    string.IsNullOrWhiteSpace(officeEmail)
+                    || !await readRepository.ExistsByOfficeEmailAsync(officeEmail, command.Id, cancellationToken))
+                .WithMessage("An employee with this office email already exists.");
             RuleFor(x => x.Dto.PersonalPhone).MaximumLength(25).When(x => x.Dto.PersonalPhone is not null);
             RuleFor(x => x.Dto.OfficePhone).MaximumLength(25).When(x => x.Dto.OfficePhone is not null);
 
@@ -205,8 +226,20 @@ public sealed class PatchFgsEmployeeCommandValidator : AbstractValidator<PatchFg
                 .When(x => x.Dto.StatusId.HasValue && x.Dto.IsActive.HasValue)
                 .WithMessage("StatusId and IsActive conflict. Use StatusId alone, or IsActive true/false for Active/Inactive.");
 
-            RuleFor(x => x.Dto.PersonalEmail).MaximumLength(255).When(x => x.Dto.PersonalEmail is not null);
-            RuleFor(x => x.Dto.OfficeEmail).MaximumLength(255).When(x => x.Dto.OfficeEmail is not null);
+            RuleFor(x => x.Dto.PersonalEmail)
+                .MaximumLength(255)
+                .MustBeValidEmailAddress()
+                .When(x => !string.IsNullOrWhiteSpace(x.Dto.PersonalEmail));
+            RuleFor(x => x.Dto.OfficeEmail)
+                .MaximumLength(255)
+                .MustBeValidEmailAddress()
+                .When(x => !string.IsNullOrWhiteSpace(x.Dto.OfficeEmail));
+            RuleFor(x => x.Dto.OfficeEmail).MustAsync(async (command, officeEmail, cancellationToken) =>
+                    officeEmail is null
+                    || string.IsNullOrWhiteSpace(officeEmail)
+                    || !await readRepository.ExistsByOfficeEmailAsync(officeEmail, command.Id, cancellationToken))
+                .When(x => x.Dto.OfficeEmail is not null)
+                .WithMessage("An employee with this office email already exists.");
             RuleFor(x => x.Dto.PersonalPhone).MaximumLength(25).When(x => x.Dto.PersonalPhone is not null);
             RuleFor(x => x.Dto.OfficePhone).MaximumLength(25).When(x => x.Dto.OfficePhone is not null);
 

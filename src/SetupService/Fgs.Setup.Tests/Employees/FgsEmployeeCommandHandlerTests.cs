@@ -1,9 +1,11 @@
+using Fgs.Contracts.Audit;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
+using Fgs.Setup.Application.Abstractions.Employees;
 using Fgs.Setup.Application.Abstractions.Locations;
 using Fgs.Setup.Application.Common.Locations;
 using Fgs.Setup.Application.Features.Employees.Commands.CreateFgsEmployee;
@@ -456,7 +458,17 @@ public sealed class FgsEmployeeCommandHandlerTests
             context,
             unitOfWork,
             auditHelper);
-        return new FgsEmployeeWriteService(context, unitOfWork, auditHelper, locationWriteService);
+        var employeeAuditRecorder = new Mock<IEmployeeAuditRecorder>();
+        employeeAuditRecorder
+            .Setup(r => r.RecordAsync(It.IsAny<RecordAuditEventRequest>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        return new FgsEmployeeWriteService(
+            context,
+            unitOfWork,
+            auditHelper,
+            locationWriteService,
+            employeeAuditRecorder.Object,
+            userContext.Object);
     }
 
     private static async Task SeedMasterEntityTypeAsync(FgsSetupDbContext context)

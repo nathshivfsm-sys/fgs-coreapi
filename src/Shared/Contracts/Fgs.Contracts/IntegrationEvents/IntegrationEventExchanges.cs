@@ -35,6 +35,7 @@ public static class IntegrationEventExchanges
             IntegrationEventTypes.CompanySignupInviteEmail => UserEvents,
             IntegrationEventTypes.CredentialConfigurationChanged => SetupEvents,
             IntegrationEventTypes.CredentialAuditRequested => AuditEvents,
+            IntegrationEventTypes.AuditEventRequested => AuditEvents,
             IntegrationEventTypes.InventoryStockChanged => InventoryEvents,
             IntegrationEventTypes.PurchaseOrderStatusChanged => InventoryEvents,
 

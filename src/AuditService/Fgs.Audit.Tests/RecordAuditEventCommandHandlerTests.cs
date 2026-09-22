@@ -101,6 +101,51 @@ public sealed class RecordAuditEventCommandHandlerTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task Handle_WithEmployeeUpdatedEvent_ReturnsCreated()
+    {
+        var detail = new AuditEventDetailDto(
+            Id: 11,
+            TenantId: 1,
+            CompanyId: 2,
+            EventCode: "EMPLOYEE_UPDATED",
+            EventSource: "API",
+            RecordType: "SYSTEM",
+            EntityId: 42,
+            EntityNumber: "EMP-001",
+            UserName: "alex",
+            Summary: "Employee updated.",
+            OccurredOn: DateTime.UtcNow,
+            CreatedOn: DateTime.UtcNow,
+            Details: [],
+            Attachments: []);
+
+        var writer = new Mock<IAuditEventWriter>();
+        writer
+            .Setup(w => w.WriteAsync(It.IsAny<RecordAuditEventRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        var handler = new RecordAuditEventCommandHandler(writer.Object);
+        var response = await handler.Handle(
+            new RecordAuditEventCommand(ValidRequest() with
+            {
+                EventCode = "EMPLOYEE_UPDATED",
+                RecordType = "SYSTEM",
+                EntityId = 42,
+                Summary = "Employee updated."
+            }),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.StatusCode.Should().Be(ApiStatusCodes.Created);
+        writer.Verify(
+            w => w.WriteAsync(
+                It.Is<RecordAuditEventRequest>(r =>
+                    r.RecordType == "SYSTEM" && r.EventCode == "EMPLOYEE_UPDATED"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static RecordAuditEventRequest ValidRequest() =>
         new(
             TenantId: 1,

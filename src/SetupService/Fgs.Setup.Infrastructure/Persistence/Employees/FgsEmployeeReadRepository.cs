@@ -285,6 +285,43 @@ internal sealed class FgsEmployeeReadRepository : IFgsEmployeeReadRepository
                 cancellationToken: cancellationToken));
     }
 
+    public async Task<bool> ExistsByOfficeEmailAsync(
+        string officeEmail,
+        long? excludeId = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(officeEmail))
+        {
+            return false;
+        }
+
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var excludeClause = excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty;
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {FgsEmployeeSql.Table}
+                WHERE "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "OfficeEmail" IS NOT NULL
+                  AND LOWER("OfficeEmail") = LOWER(@OfficeEmail)
+                  {excludeClause})
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    OfficeEmail = officeEmail.Trim(),
+                    ExcludeId = excludeId
+                },
+                cancellationToken: cancellationToken));
+    }
+
     public async Task<bool> ExistsByUserIdAsync(
         Guid userId,
         long? excludeId = null,

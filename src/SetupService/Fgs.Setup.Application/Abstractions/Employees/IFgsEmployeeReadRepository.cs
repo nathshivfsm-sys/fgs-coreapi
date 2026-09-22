@@ -30,6 +30,11 @@ public interface IFgsEmployeeReadRepository
         long? excludeId = null,
         CancellationToken cancellationToken = default);
 
+    Task<bool> ExistsByOfficeEmailAsync(
+        string officeEmail,
+        long? excludeId = null,
+        CancellationToken cancellationToken = default);
+
     Task<bool> ExistsByUserIdAsync(
         Guid userId,
         long? excludeId = null,

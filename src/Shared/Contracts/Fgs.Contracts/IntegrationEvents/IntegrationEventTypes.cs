@@ -18,6 +18,8 @@ public static class IntegrationEventTypes
 
     public const string CredentialAuditRequested = "CredentialAuditRequested";
 
+    public const string AuditEventRequested = "AuditEventRequested";
+
     public const string InventoryStockChanged = "InventoryStockChanged";
 
     public const string PurchaseOrderStatusChanged = "PurchaseOrderStatusChanged";
@@ -33,6 +35,8 @@ public static class IntegrationEventTypes
         public const string Company = "Company";
 
         public const string Credential = "Credential";
+
+        public const string Employee = "Employee";
 
         public const string InventoryStock = "InventoryStock";
 

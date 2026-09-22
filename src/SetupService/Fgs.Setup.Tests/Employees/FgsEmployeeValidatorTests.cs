@@ -115,11 +115,155 @@ public sealed class FgsEmployeeValidatorTests
     }
 
     [Fact]
+    public async Task CreateValidator_WhenDuplicateOfficeEmail_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        readRepository
+            .Setup(r => r.ExistsByOfficeEmailAsync("alex@example.com", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new CreateFgsEmployeeCommand(CreateDto());
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("office email", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenInvalidOfficeEmailFormat_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new CreateFgsEmployeeCommand(CreateDto() with { OfficeEmail = "user@domain,com" });
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e =>
+            e.PropertyName == "Dto.OfficeEmail"
+            && e.ErrorMessage.Contains("email", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenInvalidPersonalEmailFormat_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new CreateFgsEmployeeCommand(CreateDto() with { PersonalEmail = "not-an-email" });
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e =>
+            e.PropertyName == "Dto.PersonalEmail"
+            && e.ErrorMessage.Contains("email", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task UpdateValidator_WhenOfficeEmailBelongsToSelf_Passes()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        readRepository
+            .Setup(r => r.ExistsByEmployeeNumberAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        readRepository
+            .Setup(r => r.ExistsByOfficeEmailAsync("alex@example.com", 5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        var validator = new UpdateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new UpdateFgsEmployeeCommand(
+            5,
+            new FgsEmployeeUpdateDto(
+                null,
+                "EMP-001",
+                EmployeeTypeIds.Office,
+                "Alex Office",
+                "Alex",
+                null,
+                "Office",
+                null,
+                new DateOnly(2026, 1, 15),
+                null,
+                EmployeeStatusIds.Active,
+                null,
+                "alex@example.com",
+                null,
+                "+15551234567",
+                CreateAddress(),
+                null,
+                40m,
+                60m,
+                80m,
+                LaborBurdenTypeIds.Amount,
+                10m,
+                false,
+                null));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeTrue();
+        readRepository.Verify(
+            r => r.ExistsByOfficeEmailAsync("alex@example.com", 5, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateValidator_WhenDuplicateOfficeEmail_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        readRepository
+            .Setup(r => r.ExistsByEmployeeNumberAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        readRepository
+            .Setup(r => r.ExistsByOfficeEmailAsync("taken@example.com", 5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var validator = new UpdateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new UpdateFgsEmployeeCommand(
+            5,
+            new FgsEmployeeUpdateDto(
+                null,
+                "EMP-001",
+                EmployeeTypeIds.Office,
+                "Alex Office",
+                "Alex",
+                null,
+                "Office",
+                null,
+                new DateOnly(2026, 1, 15),
+                null,
+                EmployeeStatusIds.Active,
+                null,
+                "taken@example.com",
+                null,
+                "+15551234567",
+                CreateAddress(),
+                null,
+                40m,
+                60m,
+                80m,
+                LaborBurdenTypeIds.Amount,
+                10m,
+                false,
+                null));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("office email", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task UpdateValidator_WhenValidDto_Passes()
     {
         var readRepository = new Mock<IFgsEmployeeReadRepository>();
         readRepository
             .Setup(r => r.ExistsByEmployeeNumberAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        readRepository
+            .Setup(r => r.ExistsByOfficeEmailAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         var validator = new UpdateFgsEmployeeCommandValidator(readRepository.Object);
