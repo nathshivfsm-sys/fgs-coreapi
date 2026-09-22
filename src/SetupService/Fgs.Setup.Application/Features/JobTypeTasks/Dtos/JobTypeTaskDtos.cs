@@ -4,6 +4,7 @@ public sealed record JobTypeTaskSummaryDto(
     long Id,
     long JobTypeCategoryId,
     long TradeId,
+    long? SkillLevelId,
     string TaskName,
     short Priority,
     decimal EstimatedHours,
@@ -14,6 +15,7 @@ public sealed record JobTypeTaskDetailDto(
     long Id,
     long JobTypeCategoryId,
     long TradeId,
+    long? SkillLevelId,
     string TaskName,
     short Priority,
     decimal EstimatedHours,
@@ -29,7 +31,8 @@ public sealed record JobTypeTaskCreateDto(
     string TaskName,
     short Priority,
     decimal EstimatedHours,
-    short? DisplayOrder);
+    short? DisplayOrder,
+    long? SkillLevelId = null);
 
 public sealed record JobTypeTaskUpdateDto(
     long JobTypeCategoryId,
@@ -37,7 +40,8 @@ public sealed record JobTypeTaskUpdateDto(
     string TaskName,
     short Priority,
     decimal EstimatedHours,
-    short? DisplayOrder);
+    short? DisplayOrder,
+    long? SkillLevelId = null);
 
 public sealed record JobTypeTaskPatchDto(
     long? JobTypeCategoryId,
@@ -46,7 +50,8 @@ public sealed record JobTypeTaskPatchDto(
     short? Priority,
     decimal? EstimatedHours,
     short? DisplayOrder,
-    bool? IsActive);
+    bool? IsActive,
+    long? SkillLevelId = null);
 
 public sealed record JobTypeTaskListFilters(
     string? TaskName = null);

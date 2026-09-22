@@ -7,6 +7,7 @@ internal sealed class JobTypeTaskSummaryRow
     public long Id { get; set; }
     public long JobTypeCategoryId { get; set; }
     public long TradeId { get; set; }
+    public long? SkillLevelId { get; set; }
     public string TaskName { get; set; } = null!;
     public short Priority { get; set; }
     public decimal EstimatedHours { get; set; }
@@ -18,6 +19,7 @@ internal sealed class JobTypeTaskSummaryRow
             Id,
             JobTypeCategoryId,
             TradeId,
+            SkillLevelId,
             TaskName,
             Priority,
             EstimatedHours,
@@ -30,6 +32,7 @@ internal sealed class JobTypeTaskDetailRow
     public long Id { get; set; }
     public long JobTypeCategoryId { get; set; }
     public long TradeId { get; set; }
+    public long? SkillLevelId { get; set; }
     public string TaskName { get; set; } = null!;
     public short Priority { get; set; }
     public decimal EstimatedHours { get; set; }
@@ -41,6 +44,7 @@ internal sealed class JobTypeTaskDetailRow
             Id,
             JobTypeCategoryId,
             TradeId,
+            SkillLevelId,
             TaskName,
             Priority,
             EstimatedHours,

@@ -8,11 +8,11 @@ internal static class JobTypeTaskSql
     public const string Table = "setup.\"FgsJobTypeTask\"";
 
     public const string SelectDetailColumns = """
-        "Id", "JobTypeCategoryId", "TradeId", "TaskName", "Priority", "EstimatedHours", "DisplayOrder", "IsActive"
+        "Id", "JobTypeCategoryId", "TradeId", "SkillLevelId", "TaskName", "Priority", "EstimatedHours", "DisplayOrder", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "JobTypeCategoryId", "TradeId", "TaskName", "Priority", "EstimatedHours", "DisplayOrder", "IsActive"
+        "Id", "JobTypeCategoryId", "TradeId", "SkillLevelId", "TaskName", "Priority", "EstimatedHours", "DisplayOrder", "IsActive"
         """;
 
     public const string SelectLookupColumns = """
@@ -21,7 +21,7 @@ internal static class JobTypeTaskSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "IsActive", "DisplayOrder", "JobTypeCategoryId", "TradeId", "TaskName", "Priority", "EstimatedHours"
+        "Id", "IsActive", "DisplayOrder", "JobTypeCategoryId", "TradeId", "SkillLevelId", "TaskName", "Priority", "EstimatedHours"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

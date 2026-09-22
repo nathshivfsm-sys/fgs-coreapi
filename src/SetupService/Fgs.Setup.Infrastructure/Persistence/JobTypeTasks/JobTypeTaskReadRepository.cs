@@ -175,4 +175,25 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
                 new { TenantId = tenantId, CompanyId = companyId, Id = id },
                 cancellationToken: cancellationToken));
     }
+
+    public async Task<bool> ExistsSkillLevelIdAsync(
+        long id,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM setup."FgsSetupTechSkillLevel"
+                WHERE "TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE
+            )
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, CompanyId = companyId, Id = id },
+                cancellationToken: cancellationToken));
+    }
 }

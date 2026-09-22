@@ -23,4 +23,8 @@ public interface IJobTypeTaskReadRepository
     Task<bool> ExistsTradeIdAsync(
         long id,
         CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsSkillLevelIdAsync(
+        long id,
+        CancellationToken cancellationToken = default);
 }

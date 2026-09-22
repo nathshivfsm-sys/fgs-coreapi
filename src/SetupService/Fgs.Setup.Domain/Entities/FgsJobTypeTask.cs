@@ -9,6 +9,8 @@ public class FgsJobTypeTask : FgsTenantCompanySetupEntityBase<long>
 
     public long TradeId { get; set; }
 
+    public long? SkillLevelId { get; set; }
+
     public string TaskName { get; set; } = null!;
 
     public short Priority { get; set; } = 5;
@@ -20,4 +22,6 @@ public class FgsJobTypeTask : FgsTenantCompanySetupEntityBase<long>
     public FgsJobTypeCategory? JobTypeCategory { get; set; }
 
     public FgsSetupTechTrade? Trade { get; set; }
+
+    public FgsSetupTechSkillLevel? SkillLevel { get; set; }
 }

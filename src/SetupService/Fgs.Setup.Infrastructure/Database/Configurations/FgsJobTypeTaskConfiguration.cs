@@ -31,6 +31,9 @@ internal class FgsJobTypeTaskConfiguration : IEntityTypeConfiguration<FgsJobType
         entity.Property(e => e.TradeId)
             .HasComment("Identifier of the Trade responsible for performing this task.");
 
+        entity.Property(e => e.SkillLevelId)
+            .HasComment("Optional skill level required to perform this task.");
+
         entity.Property(e => e.TaskName)
             .HasMaxLength(200)
             .HasComment("Name of the task to be performed.");
@@ -81,6 +84,14 @@ internal class FgsJobTypeTaskConfiguration : IEntityTypeConfiguration<FgsJobType
             .HasForeignKey(e => e.TradeId)
             .HasConstraintName("FK_FgsJobTypeTask_FgsSetupTechTrade")
             .OnDelete(DeleteBehavior.Restrict);
+
+        entity.HasOne(e => e.SkillLevel)
+            .WithMany()
+            .HasForeignKey(e => e.SkillLevelId)
+            .HasConstraintName("FK_FgsJobTypeTask_FgsSetupTechSkillLevel")
+            .OnDelete(DeleteBehavior.Restrict);
+
+        entity.HasIndex(e => e.SkillLevelId);
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId })
             .HasDatabaseName("IX_FgsJobTypeTask_Tenant_Company");

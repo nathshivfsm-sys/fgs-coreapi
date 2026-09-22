@@ -16,7 +16,7 @@ public sealed class JobTypeTaskQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new JobTypeTaskDetailDto(1, 1, 1, "TaskName", 5, 10.5m, 1, true);
+        var detail = new JobTypeTaskDetailDto(1, 1, 1, null, "TaskName", 5, 10.5m, 1, true);
 
         var readRepository = new Mock<IJobTypeTaskReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);

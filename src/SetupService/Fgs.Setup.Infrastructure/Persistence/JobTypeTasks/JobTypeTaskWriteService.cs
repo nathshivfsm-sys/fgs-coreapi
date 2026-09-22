@@ -32,7 +32,13 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
     {
         var entity = new FgsJobTypeTask
         {
-            JobTypeCategoryId = dto.JobTypeCategoryId, TradeId = dto.TradeId, TaskName = dto.TaskName.Trim(), Priority = dto.Priority, EstimatedHours = dto.EstimatedHours, DisplayOrder = dto.DisplayOrder ?? 1
+            JobTypeCategoryId = dto.JobTypeCategoryId,
+            TradeId = dto.TradeId,
+            SkillLevelId = dto.SkillLevelId,
+            TaskName = dto.TaskName.Trim(),
+            Priority = dto.Priority,
+            EstimatedHours = dto.EstimatedHours,
+            DisplayOrder = dto.DisplayOrder ?? 1
         };
 
         _auditHelper.StampForCreate(entity);
@@ -52,6 +58,7 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
 
         entity.JobTypeCategoryId = dto.JobTypeCategoryId;
         entity.TradeId = dto.TradeId;
+        entity.SkillLevelId = dto.SkillLevelId;
         entity.TaskName = dto.TaskName.Trim();
         entity.Priority = dto.Priority;
         entity.EstimatedHours = dto.EstimatedHours;
@@ -78,6 +85,10 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
         if (dto.TradeId.HasValue)
         {
             entity.TradeId = dto.TradeId.Value;
+        }
+        if (dto.SkillLevelId.HasValue)
+        {
+            entity.SkillLevelId = dto.SkillLevelId.Value;
         }
         if (dto.TaskName is not null)
         {
@@ -149,6 +160,7 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
             entity.Id,
             entity.JobTypeCategoryId,
             entity.TradeId,
+            entity.SkillLevelId,
             entity.TaskName,
             entity.Priority,
             entity.EstimatedHours,
