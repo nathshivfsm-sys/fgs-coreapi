@@ -25,7 +25,7 @@ public sealed class ArchiveCatalogWriter(FgsAuditDbContext context) : IArchiveCa
                 ArchiveMonth = archiveMonth,
                 StoragePath = request.StoragePath.Trim(),
                 FileSize = request.FileSize,
-                CreatedOn = DateTime.UtcNow
+                CreatedOn = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)
             };
             await context.FgsArchiveCatalogs.AddAsync(existing, cancellationToken);
         }

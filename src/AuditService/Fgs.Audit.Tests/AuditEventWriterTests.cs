@@ -1,4 +1,4 @@
-using Fgs.Audit.Infrastructure.Audit;
+﻿using Fgs.Audit.Infrastructure.Audit;
 using Fgs.Audit.Infrastructure.Database;
 using Fgs.Contracts.Audit;
 using Fgs.MultiTenancy;
@@ -52,5 +52,8 @@ public sealed class AuditEventWriterTests
         stored.EventCode.Should().Be("WO_CREATED");
         stored.Details.Should().HaveCount(1);
         stored.Attachments.Single().DocumentId.Should().Be(99);
+        stored.CreatedOn.Kind.Should().Be(DateTimeKind.Unspecified);
+        stored.OccurredOn.Kind.Should().Be(DateTimeKind.Unspecified);
     }
 }
+

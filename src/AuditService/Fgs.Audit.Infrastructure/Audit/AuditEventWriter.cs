@@ -1,4 +1,4 @@
-using Fgs.Audit.Application.Abstractions;
+﻿using Fgs.Audit.Application.Abstractions;
 using Fgs.Audit.Application.Features.Events.Dtos;
 using Fgs.Audit.Domain.Entities;
 using Fgs.Audit.Domain.Enums;
@@ -13,7 +13,8 @@ public sealed class AuditEventWriter(FgsAuditDbContext context) : IAuditEventWri
         RecordAuditEventRequest request,
         CancellationToken cancellationToken = default)
     {
-        var now = DateTime.UtcNow;
+        // FgsEvent* columns are "timestamp" (without time zone). Npgsql rejects DateTime Kind=UTC.
+        var now = ToUnspecifiedUtc(DateTime.UtcNow);
         var eventSource = Enum.Parse<AuditEventSource>(request.EventSource, ignoreCase: true);
         var recordType = Enum.Parse<AuditRecordType>(request.RecordType, ignoreCase: true);
 
@@ -32,7 +33,7 @@ public sealed class AuditEventWriter(FgsAuditDbContext context) : IAuditEventWri
                 ? null
                 : request.UserName.Trim(),
             Summary = request.Summary.Trim(),
-            OccurredOn = request.OccurredOn ?? now,
+            OccurredOn = ToUnspecifiedUtc(request.OccurredOn ?? now),
             CreatedOn = now
         };
 
@@ -74,4 +75,9 @@ public sealed class AuditEventWriter(FgsAuditDbContext context) : IAuditEventWri
 
         return AuditEventMapper.ToDetailDto(entity);
     }
+
+    private static DateTime ToUnspecifiedUtc(DateTime value) =>
+        DateTime.SpecifyKind(
+            value.Kind == DateTimeKind.Utc ? value : value.ToUniversalTime(),
+            DateTimeKind.Unspecified);
 }
