@@ -56,11 +56,12 @@ public sealed class BillingCategoryWriteService : IBillingCategoryWriteService
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Billing Category '{id}' was not found.");
 
+        EnsureMutable(entity);
+
         entity.BillingCategoryType = NormalizeCode(dto.BillingCategoryType);
         entity.BillingCategoryName = dto.BillingCategoryName.Trim();
         entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
         entity.DisplayOrder = dto.DisplayOrder ?? entity.DisplayOrder;
-        entity.IsSystemDefined = dto.IsSystemDefined;
         entity.ShowToFieldTech = dto.ShowToFieldTech;
         entity.AllowToPick = dto.AllowToPick;
 
@@ -78,25 +79,23 @@ public sealed class BillingCategoryWriteService : IBillingCategoryWriteService
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Billing Category '{id}' was not found.");
 
+        EnsureMutable(entity);
+
         if (dto.BillingCategoryType is not null)
         {
-            entity.BillingCategoryType = NormalizeCode(dto.BillingCategoryType); ;
+            entity.BillingCategoryType = NormalizeCode(dto.BillingCategoryType);
         }
         if (dto.BillingCategoryName is not null)
         {
-            entity.BillingCategoryName = dto.BillingCategoryName.Trim(); ;
+            entity.BillingCategoryName = dto.BillingCategoryName.Trim();
         }
         if (dto.Description is not null)
         {
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(); ;
+            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
         }
         if (dto.DisplayOrder.HasValue)
         {
             entity.DisplayOrder = dto.DisplayOrder.Value;
-        }
-        if (dto.IsSystemDefined.HasValue)
-        {
-            entity.IsSystemDefined = dto.IsSystemDefined.Value;
         }
         if (dto.ShowToFieldTech.HasValue)
         {
@@ -123,6 +122,8 @@ public sealed class BillingCategoryWriteService : IBillingCategoryWriteService
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Billing Category '{id}' was not found.");
 
+        EnsureMutable(entity);
+
         if (entity.IsActive)
         {
             entity.IsActive = false;
@@ -135,6 +136,14 @@ public sealed class BillingCategoryWriteService : IBillingCategoryWriteService
 
     private async Task<FgsBillingCategory?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
         await _context.FgsBillingCategories.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
+
+    private static void EnsureMutable(FgsBillingCategory entity)
+    {
+        if (entity.IsSystemDefined)
+        {
+            throw new InvalidOperationException("System-defined billing categories cannot be edited.");
+        }
+    }
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

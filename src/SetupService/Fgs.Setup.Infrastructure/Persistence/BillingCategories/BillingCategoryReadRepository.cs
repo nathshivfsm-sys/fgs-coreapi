@@ -81,6 +81,11 @@ internal sealed class BillingCategoryReadRepository : IBillingCategoryReadReposi
             where.Add("\"AllowToPick\" = @AllowToPick");
         }
 
+        if (filters.IsSystemDefined.HasValue)
+        {
+            where.Add("\"IsSystemDefined\" = @IsSystemDefined");
+        }
+
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
             where.Add(
@@ -111,6 +116,7 @@ internal sealed class BillingCategoryReadRepository : IBillingCategoryReadReposi
             BillingCategoryName = string.IsNullOrWhiteSpace(filters.BillingCategoryName) ? null : $"%{filters.BillingCategoryName.Trim()}%",
             ShowToFieldTech = filters.ShowToFieldTech,
             AllowToPick = filters.AllowToPick,
+            IsSystemDefined = filters.IsSystemDefined,
             Search = string.IsNullOrWhiteSpace(paging.Search) ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
             Offset = offset

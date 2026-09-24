@@ -1,6 +1,8 @@
 using Fgs.Setup.Application.Abstractions.BillingCategories;
 using Fgs.Setup.Application.Abstractions.GloLookups;
 using Fgs.Setup.Application.Features.BillingCategories.Commands.CreateBillingCategory;
+using Fgs.Setup.Application.Features.BillingCategories.Commands.DeleteBillingCategory;
+using Fgs.Setup.Application.Features.BillingCategories.Commands.PatchBillingCategory;
 using Fgs.Setup.Application.Features.BillingCategories.Commands.UpdateBillingCategory;
 using Fgs.Setup.Application.Features.BillingCategories.Dtos;
 using Fgs.Setup.Application.Features.BillingCategories.Validators;
@@ -103,6 +105,66 @@ public sealed class BillingCategoryValidatorTests
         var result = await validator.ValidateAsync(command);
 
         result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateValidator_WhenSystemDefined_HasValidationError()
+    {
+        _readRepository
+            .Setup(r => r.GetByIdAsync(5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BillingCategoryDetailDto(5, "LB", "Labor", "Seeded", 1, true, true, true, true));
+        SetupGloTypeExists();
+        SetupDuplicateDoesNotExist();
+        var validator = new UpdateBillingCategoryCommandValidator(
+            _readRepository.Object,
+            _gloReadRepository.Object);
+        var command = new UpdateBillingCategoryCommand(
+            5,
+            new BillingCategoryUpdateDto("LB", "Labor - Updated", "Description value", 1, false, false, true));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e =>
+            e.PropertyName == "Id"
+            && e.ErrorMessage == "System-defined billing categories cannot be edited.");
+    }
+
+    [Fact]
+    public async Task PatchValidator_WhenSystemDefined_HasValidationError()
+    {
+        _readRepository
+            .Setup(r => r.GetByIdAsync(5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BillingCategoryDetailDto(5, "LB", "Labor", "Seeded", 1, true, true, true, true));
+        var validator = new PatchBillingCategoryCommandValidator(
+            _readRepository.Object,
+            _gloReadRepository.Object);
+        var command = new PatchBillingCategoryCommand(
+            5,
+            new BillingCategoryPatchDto(null, null, null, null, null, false, null, null));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e =>
+            e.PropertyName == "Id"
+            && e.ErrorMessage == "System-defined billing categories cannot be edited.");
+    }
+
+    [Fact]
+    public async Task DeleteValidator_WhenSystemDefined_HasValidationError()
+    {
+        _readRepository
+            .Setup(r => r.GetByIdAsync(5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BillingCategoryDetailDto(5, "LB", "Labor", "Seeded", 1, true, true, true, true));
+        var validator = new DeleteBillingCategoryCommandValidator(_readRepository.Object);
+
+        var result = await validator.ValidateAsync(new DeleteBillingCategoryCommand(5));
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e =>
+            e.PropertyName == "Id"
+            && e.ErrorMessage == "System-defined billing categories cannot be edited.");
     }
 
     private CreateBillingCategoryCommandValidator CreateCreateValidator() =>

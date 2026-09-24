@@ -6,8 +6,10 @@ using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
 using Fgs.Setup.Application.Features.BillingCategories.Commands.CreateBillingCategory;
 using Fgs.Setup.Application.Features.BillingCategories.Commands.DeleteBillingCategory;
+using Fgs.Setup.Application.Features.BillingCategories.Commands.PatchBillingCategory;
 using Fgs.Setup.Application.Features.BillingCategories.Commands.UpdateBillingCategory;
 using Fgs.Setup.Application.Features.BillingCategories.Dtos;
+using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
@@ -108,6 +110,128 @@ public sealed class BillingCategoryCommandHandlerTests
 
         response.Success.Should().BeTrue();
         (await context.FgsBillingCategories.IgnoreQueryFilters().SingleAsync()).IsActive.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task DeleteHandler_WhenSystemDefined_Throws()
+    {
+        await using var context = await CreateContextAsync();
+        var entity = await SeedSystemDefinedAsync(context);
+        var writeService = CreateWriteService(context);
+        var handler = new DeleteBillingCategoryCommandHandler(
+            writeService,
+            new Mock<ICacheService>().Object,
+            CreateTenantContextAccessor(),
+            NullLogger<DeleteBillingCategoryCommandHandler>.Instance);
+
+        var act = () => handler.Handle(new DeleteBillingCategoryCommand(entity.Id), CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("System-defined billing categories cannot be edited.");
+        (await context.FgsBillingCategories.IgnoreQueryFilters().SingleAsync()).IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateHandler_WhenSystemDefined_Throws()
+    {
+        await using var context = await CreateContextAsync();
+        var entity = await SeedSystemDefinedAsync(context);
+        var writeService = CreateWriteService(context);
+        var handler = new UpdateBillingCategoryCommandHandler(
+            writeService,
+            new Mock<ICacheService>().Object,
+            CreateTenantContextAccessor(),
+            NullLogger<UpdateBillingCategoryCommandHandler>.Instance);
+
+        var act = () => handler.Handle(
+            new UpdateBillingCategoryCommand(
+                entity.Id,
+                new BillingCategoryUpdateDto("LB", "Labor - Updated", "Changed", 1, false, false, true)),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("System-defined billing categories cannot be edited.");
+        (await context.FgsBillingCategories.SingleAsync()).BillingCategoryName.Should().Be("Labor");
+    }
+
+    [Fact]
+    public async Task PatchHandler_WhenSystemDefined_Throws()
+    {
+        await using var context = await CreateContextAsync();
+        var entity = await SeedSystemDefinedAsync(context);
+        var writeService = CreateWriteService(context);
+        var handler = new PatchBillingCategoryCommandHandler(
+            writeService,
+            new Mock<ICacheService>().Object,
+            CreateTenantContextAccessor(),
+            NullLogger<PatchBillingCategoryCommandHandler>.Instance);
+
+        var act = () => handler.Handle(
+            new PatchBillingCategoryCommand(entity.Id, new BillingCategoryPatchDto(null, null, null, null, null, false, null, null)),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("System-defined billing categories cannot be edited.");
+        (await context.FgsBillingCategories.SingleAsync()).ShowToFieldTech.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateHandler_WhenIsSystemDefinedTrueOnUserRow_KeepsFalse()
+    {
+        await using var context = await CreateContextAsync();
+        var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var createHandler = new CreateBillingCategoryCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<CreateBillingCategoryCommandHandler>.Instance);
+        var updateHandler = new UpdateBillingCategoryCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<UpdateBillingCategoryCommandHandler>.Instance);
+
+        var created = await createHandler.Handle(
+            new CreateBillingCategoryCommand(
+                new BillingCategoryCreateDto("LB", "Labor - Standard", "Original", 1, false, true, true)),
+            CancellationToken.None);
+
+        var response = await updateHandler.Handle(
+            new UpdateBillingCategoryCommand(
+                created.Data!.Id,
+                new BillingCategoryUpdateDto("LB", "Labor - Standard", "Updated", 2, true, false, false)),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.Id.Should().Be(created.Data.Id);
+        response.Data.Description.Should().Be("Updated");
+        response.Data.IsSystemDefined.Should().BeFalse();
+        (await context.FgsBillingCategories.SingleAsync()).IsSystemDefined.Should().BeFalse();
+    }
+
+    private static async Task<FgsBillingCategory> SeedSystemDefinedAsync(FgsSetupDbContext context)
+    {
+        var entity = new FgsBillingCategory
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            BillingCategoryType = "LB",
+            BillingCategoryName = "Labor",
+            Description = "Seeded",
+            DisplayOrder = 1,
+            IsSystemDefined = true,
+            ShowToFieldTech = true,
+            AllowToPick = true,
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "seed"
+        };
+
+        await context.FgsBillingCategories.AddAsync(entity);
+        await context.SaveChangesAsync();
+        return entity;
     }
 
     private static ITenantContextAccessor CreateTenantContextAccessor() =>

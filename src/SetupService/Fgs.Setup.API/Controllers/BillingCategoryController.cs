@@ -47,12 +47,13 @@ public sealed class BillingCategoryController(IMediator mediator) : ControllerBa
         [FromQuery] string? billingCategoryName = null,
         [FromQuery] bool? showToFieldTech = null,
         [FromQuery] bool? allowToPick = null,
+        [FromQuery] bool? isSystemDefined = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListBillingCategoriesQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new BillingCategoryListFilters(billingCategoryType, billingCategoryName, showToFieldTech, allowToPick)),
+                new BillingCategoryListFilters(billingCategoryType, billingCategoryName, showToFieldTech, allowToPick, isSystemDefined)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);

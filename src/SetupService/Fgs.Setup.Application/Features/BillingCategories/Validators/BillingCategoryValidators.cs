@@ -1,6 +1,7 @@
 using Fgs.Setup.Application.Abstractions.BillingCategories;
 using Fgs.Setup.Application.Abstractions.GloLookups;
 using Fgs.Setup.Application.Features.BillingCategories.Commands.CreateBillingCategory;
+using Fgs.Setup.Application.Features.BillingCategories.Commands.DeleteBillingCategory;
 using Fgs.Setup.Application.Features.BillingCategories.Commands.PatchBillingCategory;
 using Fgs.Setup.Application.Features.BillingCategories.Commands.UpdateBillingCategory;
 using FluentValidation;
@@ -45,6 +46,14 @@ public sealed class UpdateBillingCategoryCommandValidator : AbstractValidator<Up
         IGloBillingCategoryReadRepository gloBillingCategoryReadRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
+        RuleFor(x => x.Id)
+            .MustAsync(async (id, cancellationToken) =>
+            {
+                var existing = await readRepository.GetByIdAsync(id, cancellationToken);
+                return existing is null || !existing.IsSystemDefined;
+            })
+            .WithMessage("System-defined billing categories cannot be edited.")
+            .When(x => x.Id > 0);
         RuleFor(x => x.Dto.BillingCategoryType).NotEmpty();
         RuleFor(x => x.Dto.BillingCategoryType).MaximumLength(2);
         RuleFor(x => x.Dto.BillingCategoryType)
@@ -77,6 +86,14 @@ public sealed class PatchBillingCategoryCommandValidator : AbstractValidator<Pat
         IGloBillingCategoryReadRepository gloBillingCategoryReadRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
+        RuleFor(x => x.Id)
+            .MustAsync(async (id, cancellationToken) =>
+            {
+                var existing = await readRepository.GetByIdAsync(id, cancellationToken);
+                return existing is null || !existing.IsSystemDefined;
+            })
+            .WithMessage("System-defined billing categories cannot be edited.")
+            .When(x => x.Id > 0);
         RuleFor(x => x.Dto.BillingCategoryType).NotEmpty().When(x => x.Dto.BillingCategoryType is not null);
         RuleFor(x => x.Dto.BillingCategoryType).MaximumLength(2).When(x => x.Dto.BillingCategoryType is not null);
         RuleFor(x => x.Dto.BillingCategoryType)
@@ -102,5 +119,21 @@ public sealed class PatchBillingCategoryCommandValidator : AbstractValidator<Pat
         RuleFor(x => x.Dto.BillingCategoryName).MaximumLength(100).When(x => x.Dto.BillingCategoryName is not null);
         RuleFor(x => x.Dto.Description).MaximumLength(700).When(x => x.Dto.Description is not null);
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
+    }
+}
+
+public sealed class DeleteBillingCategoryCommandValidator : AbstractValidator<DeleteBillingCategoryCommand>
+{
+    public DeleteBillingCategoryCommandValidator(IBillingCategoryReadRepository readRepository)
+    {
+        RuleFor(x => x.Id).GreaterThan(0);
+        RuleFor(x => x.Id)
+            .MustAsync(async (id, cancellationToken) =>
+            {
+                var existing = await readRepository.GetByIdAsync(id, cancellationToken);
+                return existing is null || !existing.IsSystemDefined;
+            })
+            .WithMessage("System-defined billing categories cannot be edited.")
+            .When(x => x.Id > 0);
     }
 }
