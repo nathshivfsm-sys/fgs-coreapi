@@ -1,7 +1,5 @@
 using Fgs.Contracts.Audit;
-using Fgs.Contracts.IntegrationEvents;
-using Fgs.Messaging.Abstractions;
-using Fgs.Messaging.Outbox;
+using Fgs.Contracts.Clients;
 using Fgs.Persistence.Abstractions;
 using Fgs.Security.Abstractions;
 using Fgs.Security.Extensions;
@@ -35,7 +33,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
     private readonly SetupEntityAuditHelper _auditHelper;
     private readonly ISetupLocationWriteService _locationWriteService;
     private readonly IEmployeeAuditRecorder _employeeAuditRecorder;
-    private readonly IOutboxWriter _outboxWriter;
+    private readonly IUserInternalUsersClient _userInternalUsersClient;
     private readonly IFgsUserContext _userContext;
 
     public FgsEmployeeWriteService(
@@ -44,7 +42,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         SetupEntityAuditHelper auditHelper,
         ISetupLocationWriteService locationWriteService,
         IEmployeeAuditRecorder employeeAuditRecorder,
-        IOutboxWriter outboxWriter,
+        IUserInternalUsersClient userInternalUsersClient,
         IFgsUserContext userContext)
     {
         _context = context;
@@ -52,7 +50,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         _auditHelper = auditHelper;
         _locationWriteService = locationWriteService;
         _employeeAuditRecorder = employeeAuditRecorder;
-        _outboxWriter = outboxWriter;
+        _userInternalUsersClient = userInternalUsersClient;
         _userContext = userContext;
     }
 
@@ -169,8 +167,8 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
 
         _auditHelper.StampForUpdate(entity);
         await EnqueueStatusAndFieldAuditsAsync(entity, previousStatusId, previousSnapshot, cancellationToken);
-        await EnqueueEmployeeAccessChangedIfNeededAsync(entity, previousStatusId, cancellationToken);
         await SaveChangesAsync(cancellationToken);
+        await SyncLinkedUserAccessIfNeededAsync(entity, previousStatusId, cancellationToken);
 
         return await MapToDetailAsync(entity.Id, cancellationToken);
     }
@@ -332,8 +330,8 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
 
         _auditHelper.StampForUpdate(entity);
         await EnqueueStatusAndFieldAuditsAsync(entity, previousStatusId, previousSnapshot, cancellationToken);
-        await EnqueueEmployeeAccessChangedIfNeededAsync(entity, previousStatusId, cancellationToken);
         await SaveChangesAsync(cancellationToken);
+        await SyncLinkedUserAccessIfNeededAsync(entity, previousStatusId, cancellationToken);
 
         return await MapToDetailAsync(entity.Id, cancellationToken);
     }
@@ -351,8 +349,8 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
             _auditHelper.StampForUpdate(entity);
             await _locationWriteService.SoftDeleteAsync(entity.AddressId, cancellationToken);
             await EnqueueStatusAndFieldAuditsAsync(entity, previousStatusId, previousSnapshot, cancellationToken);
-            await EnqueueEmployeeAccessChangedIfNeededAsync(entity, previousStatusId, cancellationToken);
             await SaveChangesAsync(cancellationToken);
+            await SyncLinkedUserAccessIfNeededAsync(entity, previousStatusId, cancellationToken);
         }
 
         return await MapToDetailAsync(entity.Id, cancellationToken);
@@ -404,32 +402,37 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
             cancellationToken);
     }
 
-    private Task EnqueueEmployeeAccessChangedIfNeededAsync(
+    private async Task SyncLinkedUserAccessIfNeededAsync(
         FgsEmployee entity,
         short previousStatusId,
         CancellationToken cancellationToken)
     {
         if (entity.UserId is not Guid userId)
         {
-            return Task.CompletedTask;
+            return;
         }
 
         var previousLoginActive = MapsToLoginActive(previousStatusId);
         var newLoginActive = MapsToLoginActive(entity.StatusId);
         if (previousLoginActive == newLoginActive)
         {
-            return Task.CompletedTask;
+            return;
         }
 
-        return _outboxWriter.EnqueueEmployeeAccessChangedAsync(
-            new EmployeeAccessChangedEvent(
-                entity.TenantId,
-                entity.CompanyId,
-                entity.Id,
-                userId,
-                newLoginActive),
-            Guid.NewGuid(),
+        var response = await _userInternalUsersClient.SetUserAccessAsync(
+            userId,
+            new SetUserAccessRequest(newLoginActive),
+            entity.TenantId.ToString(),
+            entity.CompanyId.ToString(),
             cancellationToken);
+
+        if (!response.Success)
+        {
+            var message = response.Errors.Count > 0
+                ? string.Join("; ", response.Errors)
+                : "User access update failed.";
+            throw new InvalidOperationException(message);
+        }
     }
 
     private static bool MapsToLoginActive(short statusId) => statusId == EmployeeStatusIds.Active;

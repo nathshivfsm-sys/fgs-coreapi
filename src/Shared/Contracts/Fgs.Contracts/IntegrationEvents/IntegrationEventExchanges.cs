@@ -38,7 +38,6 @@ public static class IntegrationEventExchanges
             IntegrationEventTypes.AuditEventRequested => AuditEvents,
             IntegrationEventTypes.InventoryStockChanged => InventoryEvents,
             IntegrationEventTypes.PurchaseOrderStatusChanged => InventoryEvents,
-            IntegrationEventTypes.EmployeeAccessChanged => SetupEvents,
 
             _ => UserEvents
         };

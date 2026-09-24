@@ -7,7 +7,6 @@ using Fgs.Messaging.Options;
 using Fgs.Consumer.Application.Features.Audit.Commands.ProcessAuditEventRequested;
 using Fgs.Consumer.Application.Features.Audit.Commands.ProcessCredentialAuditRequested;
 using Fgs.Consumer.Application.Features.Credentials.Commands.ProcessCredentialConfigurationChanged;
-using Fgs.Consumer.Application.Features.Employees.Commands.ProcessEmployeeAccessChanged;
 using Fgs.Consumer.Application.Features.Notifications.Commands.ProcessCompanySignupInviteEmail;
 using Fgs.Consumer.Application.Features.TenantProvisioning.Commands.ProcessTenantProvisionRequested;
 using Fgs.Consumer.Infrastructure.Messaging;
@@ -56,11 +55,6 @@ public static class DependencyInjection
             "AuditService:BaseUrl",
             "http://audit-service:5008");
 
-        services.AddFgsInternalServiceRefitClient<IUserInternalUsersClient>(
-            configuration,
-            "UserService:BaseUrl",
-            "http://user-service:5001");
-
         services.AddFgsRabbitMqConsumerFramework(configuration);
         services.RemoveAll<IConsumerIdempotencyStore>();
         services.AddSingleton<IConsumerIdempotencyStore>(sp =>
@@ -99,10 +93,6 @@ public static class DependencyInjection
         services.AddConsumerRouting<CredentialConfigurationChangedEvent>(
             IntegrationEventRoutingKeys.CredentialConfigurationChanged,
             (evt, ctx) => new ProcessCredentialConfigurationChangedCommand(evt, ctx));
-
-        services.AddConsumerRouting<EmployeeAccessChangedEvent>(
-            IntegrationEventRoutingKeys.EmployeeAccessChanged,
-            (evt, ctx) => new ProcessEmployeeAccessChangedCommand(evt, ctx));
 
         return services;
     }

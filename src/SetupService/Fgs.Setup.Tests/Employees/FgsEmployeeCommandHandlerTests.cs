@@ -1,8 +1,8 @@
+using Fgs.Contracts.Api;
 using Fgs.Contracts.Audit;
-using Fgs.Contracts.IntegrationEvents;
+using Fgs.Contracts.Clients;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
-using Fgs.Messaging.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
@@ -295,9 +295,9 @@ public sealed class FgsEmployeeCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         await SeedMasterEntityTypeAsync(context);
-        var outboxWriter = new Mock<IOutboxWriter>();
+        var userClient = new Mock<IUserInternalUsersClient>();
         var auditRecorder = new Mock<IEmployeeAuditRecorder>();
-        var writeService = CreateWriteService(context, outboxWriter, auditRecorder);
+        var writeService = CreateWriteService(context, userClient, auditRecorder);
         var cache = new Mock<ICacheService>();
         var tenantAccessor = CreateTenantContextAccessor();
         var createHandler = new CreateFgsEmployeeCommandHandler(
@@ -322,20 +322,12 @@ public sealed class FgsEmployeeCommandHandlerTests
                 CreateStatusPatch(statusId: EmployeeStatusIds.Inactive)),
             CancellationToken.None);
 
-        outboxWriter.Verify(
-            w => w.EnqueueAsync(
-                IntegrationEventTypes.EmployeeAccessChanged,
-                It.Is<string>(p => p.Contains(linkedUserId.ToString()) && p.Contains("\"isActive\":false")),
-                It.IsAny<Guid>(),
-                TenantId,
-                CompanyId,
-                IntegrationEventTypes.AggregateTypes.Employee,
-                created.Data.Id.ToString(),
-                It.IsAny<Guid?>(),
-                IntegrationEventExchanges.SetupEvents,
-                IntegrationEventRoutingKeys.EmployeeAccessChanged,
-                It.IsAny<string?>(),
-                It.IsAny<long?>(),
+        userClient.Verify(
+            c => c.SetUserAccessAsync(
+                linkedUserId,
+                It.Is<SetUserAccessRequest>(r => r.IsActive == false),
+                TenantId.ToString(),
+                CompanyId.ToString(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
@@ -357,8 +349,8 @@ public sealed class FgsEmployeeCommandHandlerTests
     {
         await using var context = await CreateContextAsync();
         await SeedMasterEntityTypeAsync(context);
-        var outboxWriter = new Mock<IOutboxWriter>();
-        var writeService = CreateWriteService(context, outboxWriter);
+        var userClient = new Mock<IUserInternalUsersClient>();
+        var writeService = CreateWriteService(context, userClient);
         var cache = new Mock<ICacheService>();
         var tenantAccessor = CreateTenantContextAccessor();
         var createHandler = new CreateFgsEmployeeCommandHandler(
@@ -382,20 +374,12 @@ public sealed class FgsEmployeeCommandHandlerTests
                 CreateStatusPatch(statusId: EmployeeStatusIds.Inactive)),
             CancellationToken.None);
 
-        outboxWriter.Verify(
-            w => w.EnqueueAsync(
-                IntegrationEventTypes.EmployeeAccessChanged,
-                It.IsAny<string>(),
+        userClient.Verify(
+            c => c.SetUserAccessAsync(
                 It.IsAny<Guid>(),
-                It.IsAny<long?>(),
-                It.IsAny<long?>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<Guid?>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<long?>(),
+                It.IsAny<SetUserAccessRequest>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -580,13 +564,13 @@ public sealed class FgsEmployeeCommandHandlerTests
             auditHelper,
             locationWriteService,
             employeeAuditRecorder.Object,
-            Mock.Of<IOutboxWriter>(),
+            CreateUserClient().Object,
             userContext.Object);
     }
 
     private static FgsEmployeeWriteService CreateWriteService(
         FgsSetupDbContext context,
-        Mock<IOutboxWriter> outboxWriter,
+        Mock<IUserInternalUsersClient> userClient,
         Mock<IEmployeeAuditRecorder>? employeeAuditRecorder = null)
     {
         var userContext = new Mock<IFgsUserContext>();
@@ -618,8 +602,23 @@ public sealed class FgsEmployeeCommandHandlerTests
             auditHelper,
             locationWriteService,
             auditRecorder.Object,
-            outboxWriter.Object,
+            CreateUserClient(userClient).Object,
             userContext.Object);
+    }
+
+    private static Mock<IUserInternalUsersClient> CreateUserClient(
+        Mock<IUserInternalUsersClient>? userClient = null)
+    {
+        var client = userClient ?? new Mock<IUserInternalUsersClient>();
+        client
+            .Setup(c => c.SetUserAccessAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<SetUserAccessRequest>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponse<object>.Ok(new object()));
+        return client;
     }
 
     private static async Task SeedMasterEntityTypeAsync(FgsSetupDbContext context)
