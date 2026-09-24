@@ -2,6 +2,7 @@ using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Setup.Application.Abstractions.GloLookups;
 using Fgs.Setup.Application.Features.GloLookups.Dtos;
+using Fgs.Setup.Application.Features.GloLookups.Queries.LookupGloBillingCategoryTypes;
 using Fgs.Setup.Application.Features.GloLookups.Queries.LookupGloBusinessTypes;
 using Fgs.Setup.Application.Features.GloLookups.Queries.LookupGloCountries;
 using Fgs.Setup.Application.Features.GloLookups.Queries.LookupGloStateProvinces;
@@ -64,6 +65,25 @@ public sealed class GloLookupQueryHandlerTests
         var handler = new LookupGloBusinessTypesQueryHandler(readRepository.Object, cache.Object);
 
         var response = await handler.Handle(new LookupGloBusinessTypesQuery(), CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data.Should().BeEquivalentTo(expected);
+        readRepository.Verify(r => r.LookupAsync(true, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task LookupBillingCategoryTypes_ReturnsCachedRepositoryResult()
+    {
+        var expected = new List<GloBillingCategoryTypeLookupDto> { new("LB", "Labor", 1) };
+        var readRepository = new Mock<IGloBillingCategoryReadRepository>();
+        readRepository
+            .Setup(r => r.LookupAsync(true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expected);
+
+        var cache = CreatePassthroughCache<IReadOnlyList<GloBillingCategoryTypeLookupDto>>();
+        var handler = new LookupGloBillingCategoryTypesQueryHandler(readRepository.Object, cache.Object);
+
+        var response = await handler.Handle(new LookupGloBillingCategoryTypesQuery(), CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.Data.Should().BeEquivalentTo(expected);

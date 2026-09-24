@@ -237,6 +237,7 @@ public static class DependencyInjection
         services.AddScoped<IGloAccountingIntegrationTypeReadRepository, GloAccountingIntegrationTypeReadRepository>();
         services.AddScoped<IGloAppointmentAssignmentEventTypeReadRepository, GloAppointmentAssignmentEventTypeReadRepository>();
         services.AddScoped<IGloVehicleMaintenanceTypeReadRepository, GloVehicleMaintenanceTypeReadRepository>();
+        services.AddScoped<IGloBillingCategoryReadRepository, GloBillingCategoryReadRepository>();
         services.AddScoped<IGloSetupTenantStatusReadRepository, GloSetupTenantStatusReadRepository>();
         services.AddScoped<IFgsSetupPaymentMethodReadRepository, FgsSetupPaymentMethodReadRepository>();
         services.AddScoped<IFgsSetupPaymentMethodWriteService, FgsSetupPaymentMethodWriteService>();

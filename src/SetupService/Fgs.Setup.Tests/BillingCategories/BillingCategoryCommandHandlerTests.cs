@@ -52,6 +52,34 @@ public sealed class BillingCategoryCommandHandlerTests
     }
 
     [Fact]
+    public async Task CreateHandler_WhenIsSystemDefinedTrue_PersistsFalse()
+    {
+        await using var context = await CreateContextAsync();
+        var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var handler = new CreateBillingCategoryCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<CreateBillingCategoryCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new CreateBillingCategoryCommand(
+                new BillingCategoryCreateDto("LB", "Labor", "Description value", 1, true, false, true)),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.IsSystemDefined.Should().BeFalse();
+        (await context.FgsBillingCategories.SingleAsync()).IsSystemDefined.Should().BeFalse();
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "billingcategory"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task DeleteHandler_SoftDeletes()
     {
         await using var context = await CreateContextAsync();

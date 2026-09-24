@@ -1,6 +1,6 @@
 using Fgs.Setup.Application.Abstractions.BillingCategories;
+using Fgs.Setup.Application.Abstractions.GloLookups;
 using Fgs.Setup.Application.Features.BillingCategories.Commands.CreateBillingCategory;
-using Fgs.Setup.Application.Features.BillingCategories.Commands.PatchBillingCategory;
 using Fgs.Setup.Application.Features.BillingCategories.Commands.UpdateBillingCategory;
 using Fgs.Setup.Application.Features.BillingCategories.Dtos;
 using Fgs.Setup.Application.Features.BillingCategories.Validators;
@@ -11,12 +11,14 @@ namespace Fgs.Setup.Tests.BillingCategories;
 public sealed class BillingCategoryValidatorTests
 {
     private readonly Mock<IBillingCategoryReadRepository> _readRepository = new();
+    private readonly Mock<IGloBillingCategoryReadRepository> _gloReadRepository = new();
 
     [Fact]
     public async Task CreateValidator_WhenBillingCategoryTypeMissing_HasValidationError()
     {
-        var validator = new CreateBillingCategoryCommandValidator(_readRepository.Object);
-        var command = new CreateBillingCategoryCommand(new BillingCategoryCreateDto("", "BillingCategoryName", "Description value", 1, false, false, true));
+        var validator = CreateCreateValidator();
+        var command = new CreateBillingCategoryCommand(
+            new BillingCategoryCreateDto("", "BillingCategoryName", "Description value", 1, false, false, true));
 
         var result = await validator.ValidateAsync(command);
 
@@ -27,9 +29,10 @@ public sealed class BillingCategoryValidatorTests
     [Fact]
     public async Task CreateValidator_WhenBillingCategoryTypeNotUppercase_HasValidationError()
     {
-        var validator = new CreateBillingCategoryCommandValidator(_readRepository.Object);
-        var args = new BillingCategoryCreateDto("TEST", "BillingCategoryName", "Description value", 1, false, false, true);
-        var command = new CreateBillingCategoryCommand(args with { BillingCategoryType = "test" });
+        SetupGloTypeExists();
+        var validator = CreateCreateValidator();
+        var command = new CreateBillingCategoryCommand(
+            new BillingCategoryCreateDto("lb", "BillingCategoryName", "Description value", 1, false, false, true));
 
         var result = await validator.ValidateAsync(command);
 
@@ -38,17 +41,84 @@ public sealed class BillingCategoryValidatorTests
     }
 
     [Fact]
-    public async Task UpdateValidator_WhenDuplicateCodeExcludesCurrentId_Passes()
+    public async Task CreateValidator_WhenBillingCategoryTypeUnknown_HasValidationError()
     {
-
-        _readRepository
-            .Setup(r => r.ExistsByBillingCategoryTypeAndBillingCategoryNameAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+        _gloReadRepository
+            .Setup(r => r.ExistsByBillingCategoryTypeAsync("ZZ", It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
-        var validator = new UpdateBillingCategoryCommandValidator(_readRepository.Object);
-        var command = new UpdateBillingCategoryCommand(5, new BillingCategoryUpdateDto("TE", "BillingCategoryName", "Description value", 1, false, false, true));
+        SetupDuplicateDoesNotExist();
+        var validator = CreateCreateValidator();
+        var command = new CreateBillingCategoryCommand(
+            new BillingCategoryCreateDto("ZZ", "BillingCategoryName", "Description value", 1, false, false, true));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e =>
+            e.PropertyName == "Dto.BillingCategoryType"
+            && e.ErrorMessage == "BillingCategoryType is not a valid billing category type.");
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenDescriptionExceeds700_HasValidationError()
+    {
+        SetupGloTypeExists();
+        SetupDuplicateDoesNotExist();
+        var validator = CreateCreateValidator();
+        var command = new CreateBillingCategoryCommand(
+            new BillingCategoryCreateDto("LB", "BillingCategoryName", new string('x', 701), 1, false, false, true));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Dto.Description");
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenValidLaborTypeAndDescription_Passes()
+    {
+        SetupGloTypeExists();
+        SetupDuplicateDoesNotExist();
+        var validator = CreateCreateValidator();
+        var command = new CreateBillingCategoryCommand(
+            new BillingCategoryCreateDto("LB", "Labor", new string('x', 700), 1, false, true, true));
 
         var result = await validator.ValidateAsync(command);
 
         result.IsValid.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task UpdateValidator_WhenDuplicateCodeExcludesCurrentId_Passes()
+    {
+        SetupGloTypeExists();
+        SetupDuplicateDoesNotExist();
+        var validator = new UpdateBillingCategoryCommandValidator(
+            _readRepository.Object,
+            _gloReadRepository.Object);
+        var command = new UpdateBillingCategoryCommand(
+            5,
+            new BillingCategoryUpdateDto("LB", "BillingCategoryName", "Description value", 1, false, false, true));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    private CreateBillingCategoryCommandValidator CreateCreateValidator() =>
+        new(_readRepository.Object, _gloReadRepository.Object);
+
+    private void SetupGloTypeExists() =>
+        _gloReadRepository
+            .Setup(r => r.ExistsByBillingCategoryTypeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+    private void SetupDuplicateDoesNotExist() =>
+        _readRepository
+            .Setup(r => r.ExistsByBillingCategoryTypeAndBillingCategoryNameAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<long?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 }

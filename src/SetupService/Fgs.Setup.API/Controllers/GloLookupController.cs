@@ -4,6 +4,7 @@ using Fgs.Foundation.Api;
 using Fgs.Setup.Application.Features.GloLookups.Dtos;
 using Fgs.Setup.Application.Features.GloLookups.Queries.LookupGloAccountingIntegrationTypes;
 using Fgs.Setup.Application.Features.GloLookups.Queries.LookupGloAppointmentAssignmentEventTypes;
+using Fgs.Setup.Application.Features.GloLookups.Queries.LookupGloBillingCategoryTypes;
 using Fgs.Setup.Application.Features.GloLookups.Queries.LookupGloBusinessTypes;
 using Fgs.Setup.Application.Features.GloLookups.Queries.LookupGloCountries;
 using Fgs.Setup.Application.Features.GloLookups.Queries.LookupGloInventoryTransactionSourceTypes;
@@ -139,4 +140,11 @@ public sealed class GloLookupController(IMediator mediator) : FgsApiControllerBa
         [FromQuery] bool activeOnly = true,
         CancellationToken cancellationToken = default) =>
         FromApiResponse(await Mediator.Send(new LookupGloSetupTenantStatusesQuery(activeOnly), cancellationToken));
+
+    [HttpGet("billingcategorytype/lookup")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<GloBillingCategoryTypeLookupDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> LookupBillingCategoryTypes(
+        [FromQuery] bool activeOnly = true,
+        CancellationToken cancellationToken = default) =>
+        FromApiResponse(await Mediator.Send(new LookupGloBillingCategoryTypesQuery(activeOnly), cancellationToken));
 }

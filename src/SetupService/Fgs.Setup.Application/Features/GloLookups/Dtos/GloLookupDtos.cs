@@ -77,3 +77,8 @@ public sealed record GloVehicleMaintenanceTypeLookupDto(
 public sealed record GloSetupTenantStatusLookupDto(
     short Id,
     string Name);
+
+public sealed record GloBillingCategoryTypeLookupDto(
+    string BillingCategoryType,
+    string BillingCategoryName,
+    short DisplayOrder);

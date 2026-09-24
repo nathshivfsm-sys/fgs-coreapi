@@ -36,7 +36,7 @@ public sealed class BillingCategoryWriteService : IBillingCategoryWriteService
             BillingCategoryName = dto.BillingCategoryName.Trim(),
             Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
             DisplayOrder = dto.DisplayOrder ?? 1,
-            IsSystemDefined = dto.IsSystemDefined,
+            IsSystemDefined = false,
             ShowToFieldTech = dto.ShowToFieldTech,
             AllowToPick = dto.AllowToPick
         };
@@ -161,5 +161,9 @@ public sealed class BillingCategoryWriteService : IBillingCategoryWriteService
             entity.BillingCategoryType,
             entity.BillingCategoryName,
             entity.Description,
-            entity.DisplayOrder);
+            entity.DisplayOrder,
+            entity.IsSystemDefined,
+            entity.ShowToFieldTech,
+            entity.AllowToPick,
+            entity.IsActive);
 }

@@ -9205,6 +9205,68 @@
                     ]
                 },
                 {
+                    "description": "Global catalog lookups via {{gatewayUrl}}/setup-service/api/v1/glo. Billing category types have no IsActive column; activeOnly is ignored.",
+                    "name": "GloLookupController",
+                    "item": [
+                        {
+                            "name": "Lookup Billing Category Types",
+                            "request": {
+                                "method": "GET",
+                                "url": {
+                                    "query": [
+                                        {
+                                            "key": "activeOnly",
+                                            "description": "Accepted for signature consistency. GloBillingCategory has no IsActive column, so this is ignored.",
+                                            "value": "true",
+                                            "disabled": true
+                                        }
+                                    ],
+                                    "host": [
+                                        "https://api-dev.fieldwhizey.com"
+                                    ],
+                                    "raw": "https://api-dev.fieldwhizey.com/setup-service/api/v1/glo/billingcategorytype/lookup",
+                                    "path": [
+                                        "setup-service",
+                                        "api",
+                                        "v1",
+                                        "glo",
+                                        "billingcategorytype",
+                                        "lookup"
+                                    ]
+                                },
+                                "description": "GET /api/v1/glo/billingcategorytype/lookup \u2014 public Glo type dropdown (LB, IN, NI, SH, OT, SF, SB, DS, TX).",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "type": "text",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "X-Tenant-Id",
+                                        "type": "text",
+                                        "value": "{{tenantId}}"
+                                    },
+                                    {
+                                        "key": "X-Company-Id",
+                                        "type": "text",
+                                        "value": "{{companyId}}"
+                                    }
+                                ],
+                                "auth": {
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "type": "string",
+                                            "value": "{{accessToken}}"
+                                        }
+                                    ],
+                                    "type": "bearer"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
                     "description": "BusinessTypeController - businesstype",
                     "name": "BusinessTypeController",
                     "item": [
