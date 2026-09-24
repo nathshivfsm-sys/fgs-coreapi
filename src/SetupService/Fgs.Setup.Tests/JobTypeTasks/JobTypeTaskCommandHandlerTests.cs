@@ -44,6 +44,7 @@ public sealed class JobTypeTaskCommandHandlerTests
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
         response.Data!.IsActive.Should().BeTrue();
+        response.Data.SkillLevelId.Should().BeNull();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
                 CacheKeys.EntityPrefix(TenantId, CompanyId, "jobtypetask"),

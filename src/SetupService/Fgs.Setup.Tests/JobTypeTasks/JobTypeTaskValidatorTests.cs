@@ -25,20 +25,55 @@ public sealed class JobTypeTaskValidatorTests
     }
 
     [Fact]
+    public async Task CreateValidator_WhenSkillLevelIdOmitted_Passes()
+    {
+        SetupRequiredLookupsExist();
+        var validator = new CreateJobTypeTaskCommandValidator(_readRepository.Object);
+        var command = new CreateJobTypeTaskCommand(new JobTypeTaskCreateDto(1, 1, "TaskName", 5, 10.5m, 1));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeTrue();
+        _readRepository.Verify(
+            r => r.ExistsSkillLevelIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenSkillLevelIdNotFound_HasValidationError()
+    {
+        SetupRequiredLookupsExist();
+        _readRepository
+            .Setup(r => r.ExistsSkillLevelIdAsync(99, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        var validator = new CreateJobTypeTaskCommandValidator(_readRepository.Object);
+        var command = new CreateJobTypeTaskCommand(new JobTypeTaskCreateDto(1, 1, "TaskName", 5, 10.5m, 1, 99));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Dto.SkillLevelId");
+    }
+
+    [Fact]
     public async Task UpdateValidator_WhenDuplicateCodeExcludesCurrentId_Passes()
     {
-
-        _readRepository
-            .Setup(r => r.ExistsJobTypeCategoryIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-        _readRepository
-            .Setup(r => r.ExistsTradeIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+        SetupRequiredLookupsExist();
         var validator = new UpdateJobTypeTaskCommandValidator(_readRepository.Object);
         var command = new UpdateJobTypeTaskCommand(5, new JobTypeTaskUpdateDto(1, 1, "TaskName", 5, 10.5m, 1));
 
         var result = await validator.ValidateAsync(command);
 
         result.IsValid.Should().BeTrue();
+    }
+
+    private void SetupRequiredLookupsExist()
+    {
+        _readRepository
+            .Setup(r => r.ExistsJobTypeCategoryIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        _readRepository
+            .Setup(r => r.ExistsTradeIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
     }
 }
