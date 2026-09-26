@@ -27,10 +27,10 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $"""
             SELECT {JobTypeTaskSql.SelectDetailColumns}
-            FROM {JobTypeTaskSql.Table}
-            WHERE "Id" = @Id
-              AND "TenantId" = @TenantId
-              AND "CompanyId" = @CompanyId
+            FROM {JobTypeTaskSql.FromJoins}
+            WHERE t."Id" = @Id
+              AND t."TenantId" = @TenantId
+              AND t."CompanyId" = @CompanyId
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -53,24 +53,34 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
 
         var where = new List<string>
         {
-            "\"TenantId\" = @TenantId",
-            "\"CompanyId\" = @CompanyId"
+            "t.\"TenantId\" = @TenantId",
+            "t.\"CompanyId\" = @CompanyId"
         };
 
         if (paging.IsActive.HasValue)
         {
-            where.Add("\"IsActive\" = @IsActive");
+            where.Add("t.\"IsActive\" = @IsActive");
+        }
+
+        if (filters.JobTypeCategoryId.HasValue)
+        {
+            where.Add("t.\"JobTypeCategoryId\" = @JobTypeCategoryId");
         }
 
         if (!string.IsNullOrWhiteSpace(filters.TaskName))
         {
-            where.Add("\"TaskName\" ILIKE @TaskName");
+            where.Add("t.\"TaskName\" ILIKE @TaskName");
+        }
+
+        if (!string.IsNullOrWhiteSpace(filters.Name))
+        {
+            where.Add("t.\"Name\" ILIKE @Name");
         }
 
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
             where.Add(
-                "(\"TaskName\" ILIKE @Search)");
+                "(t.\"Name\" ILIKE @Search OR t.\"TaskName\" ILIKE @Search)");
         }
 
         var whereClause = string.Join(" AND ", where);
@@ -78,13 +88,13 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
 
         var sql = $"""
             SELECT {JobTypeTaskSql.SelectSummaryColumns}
-            FROM {JobTypeTaskSql.Table}
+            FROM {JobTypeTaskSql.FromJoins}
             WHERE {whereClause}
             {orderBy}
             LIMIT @PageSize OFFSET @Offset;
 
             SELECT COUNT(*)
-            FROM {JobTypeTaskSql.Table}
+            FROM {JobTypeTaskSql.FromJoins}
             WHERE {whereClause};
             """;
 
@@ -93,7 +103,9 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
             TenantId = tenantId,
             CompanyId = companyId,
             IsActive = paging.IsActive,
+            JobTypeCategoryId = filters.JobTypeCategoryId,
             TaskName = string.IsNullOrWhiteSpace(filters.TaskName) ? null : $"%{filters.TaskName.Trim()}%",
+            Name = string.IsNullOrWhiteSpace(filters.Name) ? null : $"%{filters.Name.Trim()}%",
             Search = string.IsNullOrWhiteSpace(paging.Search) ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
             Offset = offset
@@ -125,7 +137,7 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
             WHERE "TenantId" = @TenantId
               AND "CompanyId" = @CompanyId
               {activeFilter}
-            ORDER BY "DisplayOrder" ASC NULLS LAST, "TaskName" ASC
+            ORDER BY "DisplayOrder" ASC NULLS LAST, "Name" ASC
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -155,6 +167,7 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
                 new { TenantId = tenantId, CompanyId = companyId, Id = id },
                 cancellationToken: cancellationToken));
     }
+
     public async Task<bool> ExistsTradeIdAsync(
         long id,
         CancellationToken cancellationToken = default)
@@ -194,6 +207,40 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
             new CommandDefinition(
                 sql,
                 new { TenantId = tenantId, CompanyId = companyId, Id = id },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task<bool> ExistsByNameAsync(
+        long jobTypeCategoryId,
+        string name,
+        long? excludeId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {JobTypeTaskSql.Table}
+                WHERE "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "JobTypeCategoryId" = @JobTypeCategoryId
+                  AND "Name" = @Name
+                  {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
+            )
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    JobTypeCategoryId = jobTypeCategoryId,
+                    Name = name.Trim(),
+                    ExcludeId = excludeId
+                },
                 cancellationToken: cancellationToken));
     }
 }

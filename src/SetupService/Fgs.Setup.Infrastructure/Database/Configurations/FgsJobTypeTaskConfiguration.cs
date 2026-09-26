@@ -34,9 +34,13 @@ internal class FgsJobTypeTaskConfiguration : IEntityTypeConfiguration<FgsJobType
         entity.Property(e => e.SkillLevelId)
             .HasComment("Optional skill level required to perform this task.");
 
+        entity.Property(e => e.Name)
+            .HasMaxLength(150)
+            .HasComment("Sub-category name unique within the parent Job Type Category.");
+
         entity.Property(e => e.TaskName)
-            .HasMaxLength(200)
-            .HasComment("Name of the task to be performed.");
+            .HasMaxLength(350)
+            .HasComment("Name of the task to be performed. Defaults to category name plus a space plus the sub-category name.");
 
         entity.Property(e => e.Priority)
             .HasDefaultValue((short)5)
@@ -98,5 +102,9 @@ internal class FgsJobTypeTaskConfiguration : IEntityTypeConfiguration<FgsJobType
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.JobTypeCategoryId })
             .HasDatabaseName("IX_FgsJobTypeTask_Tenant_Company_JobTypeCategory");
+
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.JobTypeCategoryId, e.Name })
+            .IsUnique()
+            .HasDatabaseName("UX_FgsJobTypeTask_Tenant_Company_JobTypeCategory_Name");
     }
 }

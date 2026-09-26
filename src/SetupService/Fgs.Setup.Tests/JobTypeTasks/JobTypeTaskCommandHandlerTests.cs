@@ -6,8 +6,8 @@ using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
 using Fgs.Setup.Application.Features.JobTypeTasks.Commands.CreateJobTypeTask;
 using Fgs.Setup.Application.Features.JobTypeTasks.Commands.DeleteJobTypeTask;
-using Fgs.Setup.Application.Features.JobTypeTasks.Commands.UpdateJobTypeTask;
 using Fgs.Setup.Application.Features.JobTypeTasks.Dtos;
+using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
@@ -38,12 +38,14 @@ public sealed class JobTypeTaskCommandHandlerTests
             NullLogger<CreateJobTypeTaskCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateJobTypeTaskCommand(new JobTypeTaskCreateDto(1, 1, "TaskName", 5, 10.5m, 1)),
+            new CreateJobTypeTaskCommand(new JobTypeTaskCreateDto(1, 1, "Repair", 5, 10.5m, 1)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
         response.Data!.IsActive.Should().BeTrue();
+        response.Data.Name.Should().Be("Repair");
+        response.Data.TaskName.Should().Be("Repair");
         response.Data.SkillLevelId.Should().BeNull();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
@@ -71,7 +73,7 @@ public sealed class JobTypeTaskCommandHandlerTests
             NullLogger<DeleteJobTypeTaskCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateJobTypeTaskCommand(new JobTypeTaskCreateDto(1, 1, "TaskName", 5, 10.5m, 1)),
+            new CreateJobTypeTaskCommand(new JobTypeTaskCreateDto(1, 1, "Repair", 5, 10.5m, 1)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 
@@ -81,6 +83,97 @@ public sealed class JobTypeTaskCommandHandlerTests
 
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task CreateHandler_WhenTaskNameOmitted_ComposesCategoryNamePlusSubCategory()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedCategoryAsync(context, jobTypeCategoryId: 1, categoryName: "HVAC Repair");
+        var writeService = CreateWriteService(context);
+        var handler = new CreateJobTypeTaskCommandHandler(
+            writeService,
+            new Mock<ICacheService>().Object,
+            CreateTenantContextAccessor(),
+            NullLogger<CreateJobTypeTaskCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new CreateJobTypeTaskCommand(new JobTypeTaskCreateDto(1, 1, "Compressor", 5, 10.5m, 1)),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.Name.Should().Be("Compressor");
+        response.Data.TaskName.Should().Be("HVAC Repair Compressor");
+        response.Data.CategoryName.Should().Be("HVAC Repair");
+    }
+
+    [Fact]
+    public async Task CreateHandler_WhenTaskNameProvided_UsesOverride()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedCategoryAsync(context, jobTypeCategoryId: 1, categoryName: "HVAC Repair");
+        var writeService = CreateWriteService(context);
+        var handler = new CreateJobTypeTaskCommandHandler(
+            writeService,
+            new Mock<ICacheService>().Object,
+            CreateTenantContextAccessor(),
+            NullLogger<CreateJobTypeTaskCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new CreateJobTypeTaskCommand(
+                new JobTypeTaskCreateDto(1, 1, "Compressor", 5, 10.5m, 1, TaskName: "Custom Task")),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.TaskName.Should().Be("Custom Task");
+    }
+
+    [Fact]
+    public async Task CreateHandler_WhenIsActiveFalse_CreatesInactiveRecord()
+    {
+        await using var context = await CreateContextAsync();
+        var writeService = CreateWriteService(context);
+        var handler = new CreateJobTypeTaskCommandHandler(
+            writeService,
+            new Mock<ICacheService>().Object,
+            CreateTenantContextAccessor(),
+            NullLogger<CreateJobTypeTaskCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new CreateJobTypeTaskCommand(
+                new JobTypeTaskCreateDto(1, 1, "Repair", 5, 10.5m, 1, IsActive: false)),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.IsActive.Should().BeFalse();
+    }
+
+    private static async Task SeedCategoryAsync(
+        FgsSetupDbContext context,
+        long jobTypeCategoryId,
+        string categoryName)
+    {
+        await context.FgsJobCategories.AddAsync(new FgsJobCategory
+        {
+            Id = 10,
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            CategoryCode = "HVAC",
+            Name = categoryName,
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        await context.FgsJobTypeCategories.AddAsync(new FgsJobTypeCategory
+        {
+            Id = jobTypeCategoryId,
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            JobTypeId = 1,
+            JobCategoryId = 10,
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        });
+        await context.SaveChangesAsync();
     }
 
     private static ITenantContextAccessor CreateTenantContextAccessor() =>

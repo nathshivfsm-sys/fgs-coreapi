@@ -11,6 +11,8 @@ public class FgsJobTypeTask : FgsTenantCompanySetupEntityBase<long>
 
     public long? SkillLevelId { get; set; }
 
+    public string Name { get; set; } = null!;
+
     public string TaskName { get; set; } = null!;
 
     public short Priority { get; set; } = 5;

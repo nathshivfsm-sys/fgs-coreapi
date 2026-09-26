@@ -27,4 +27,10 @@ public interface IJobTypeTaskReadRepository
     Task<bool> ExistsSkillLevelIdAsync(
         long id,
         CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsByNameAsync(
+        long jobTypeCategoryId,
+        string name,
+        long? excludeId = null,
+        CancellationToken cancellationToken = default);
 }

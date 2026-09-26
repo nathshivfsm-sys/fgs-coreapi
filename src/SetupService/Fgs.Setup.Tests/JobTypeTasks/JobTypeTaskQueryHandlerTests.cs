@@ -16,7 +16,7 @@ public sealed class JobTypeTaskQueryHandlerTests
     [Fact]
     public async Task GetById_WhenFound_ReturnsOk()
     {
-        var detail = new JobTypeTaskDetailDto(1, 1, 1, null, "TaskName", 5, 10.5m, 1, true);
+        var detail = new JobTypeTaskDetailDto(1, 1, 1, null, "Repair", "HVAC Repair Repair", 5, 10.5m, 1, true);
 
         var readRepository = new Mock<IJobTypeTaskReadRepository>();
         readRepository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
@@ -64,5 +64,30 @@ public sealed class JobTypeTaskQueryHandlerTests
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task List_WhenJobTypeCategoryIdProvided_PassesFilter()
+    {
+        var readRepository = new Mock<IJobTypeTaskReadRepository>();
+        readRepository
+            .Setup(r => r.ListAsync(
+                It.IsAny<SetupListQuery>(),
+                It.Is<JobTypeTaskListFilters>(f => f.JobTypeCategoryId == 12),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PagedResult<JobTypeTaskSummaryDto>([], 1, 25, 0));
+
+        var handler = new ListJobTypeTasksQueryHandler(readRepository.Object);
+        var response = await handler.Handle(
+            new ListJobTypeTasksQuery(new SetupListQuery(), new JobTypeTaskListFilters(JobTypeCategoryId: 12)),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        readRepository.Verify(
+            r => r.ListAsync(
+                It.IsAny<SetupListQuery>(),
+                It.Is<JobTypeTaskListFilters>(f => f.JobTypeCategoryId == 12),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

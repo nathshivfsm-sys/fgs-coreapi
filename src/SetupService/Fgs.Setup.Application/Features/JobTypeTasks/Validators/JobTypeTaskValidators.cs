@@ -20,8 +20,13 @@ public sealed class CreateJobTypeTaskCommandValidator : AbstractValidator<Create
                 !value.HasValue || await readRepository.ExistsSkillLevelIdAsync(value.Value, cancellationToken))
             .WithMessage("The specified skill level was not found.")
             .When(x => x.Dto.SkillLevelId.HasValue);
-        RuleFor(x => x.Dto.TaskName).NotEmpty();
-        RuleFor(x => x.Dto.TaskName).MaximumLength(200);
+        RuleFor(x => x.Dto.Name).NotEmpty();
+        RuleFor(x => x.Dto.Name).MaximumLength(150);
+        RuleFor(x => x.Dto.Name).MustAsync(async (command, value, cancellationToken) =>
+                !await readRepository.ExistsByNameAsync(command.Dto.JobTypeCategoryId, value, null, cancellationToken))
+            .WithMessage("A sub-category with this name already exists in the selected category.");
+        RuleFor(x => x.Dto.TaskName).NotEmpty().When(x => x.Dto.TaskName is not null);
+        RuleFor(x => x.Dto.TaskName).MaximumLength(350).When(x => x.Dto.TaskName is not null);
         RuleFor(x => x.Dto.Priority).GreaterThanOrEqualTo((short)1);
         RuleFor(x => x.Dto.EstimatedHours).GreaterThanOrEqualTo(0m);
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
@@ -43,8 +48,13 @@ public sealed class UpdateJobTypeTaskCommandValidator : AbstractValidator<Update
                 !value.HasValue || await readRepository.ExistsSkillLevelIdAsync(value.Value, cancellationToken))
             .WithMessage("The specified skill level was not found.")
             .When(x => x.Dto.SkillLevelId.HasValue);
-        RuleFor(x => x.Dto.TaskName).NotEmpty();
-        RuleFor(x => x.Dto.TaskName).MaximumLength(200);
+        RuleFor(x => x.Dto.Name).NotEmpty();
+        RuleFor(x => x.Dto.Name).MaximumLength(150);
+        RuleFor(x => x.Dto.Name).MustAsync(async (command, value, cancellationToken) =>
+                !await readRepository.ExistsByNameAsync(command.Dto.JobTypeCategoryId, value, command.Id, cancellationToken))
+            .WithMessage("A sub-category with this name already exists in the selected category.");
+        RuleFor(x => x.Dto.TaskName).NotEmpty().When(x => x.Dto.TaskName is not null);
+        RuleFor(x => x.Dto.TaskName).MaximumLength(350).When(x => x.Dto.TaskName is not null);
         RuleFor(x => x.Dto.Priority).GreaterThanOrEqualTo((short)1);
         RuleFor(x => x.Dto.EstimatedHours).GreaterThanOrEqualTo(0m);
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
@@ -66,8 +76,24 @@ public sealed class PatchJobTypeTaskCommandValidator : AbstractValidator<PatchJo
                 !value.HasValue || await readRepository.ExistsSkillLevelIdAsync(value.Value, cancellationToken))
             .WithMessage("The specified skill level was not found.")
             .When(x => x.Dto.SkillLevelId.HasValue);
+        RuleFor(x => x.Dto.Name).NotEmpty().When(x => x.Dto.Name is not null);
+        RuleFor(x => x.Dto.Name).MaximumLength(150).When(x => x.Dto.Name is not null);
+        RuleFor(x => x.Dto.Name).MustAsync(async (command, value, cancellationToken) =>
+            {
+                var categoryId = command.Dto.JobTypeCategoryId;
+                if (!categoryId.HasValue)
+                {
+                    var existing = await readRepository.GetByIdAsync(command.Id, cancellationToken);
+                    categoryId = existing?.JobTypeCategoryId;
+                }
+
+                return !categoryId.HasValue
+                    || !await readRepository.ExistsByNameAsync(categoryId.Value, value!, command.Id, cancellationToken);
+            })
+            .WithMessage("A sub-category with this name already exists in the selected category.")
+            .When(x => x.Dto.Name is not null);
         RuleFor(x => x.Dto.TaskName).NotEmpty().When(x => x.Dto.TaskName is not null);
-        RuleFor(x => x.Dto.TaskName).MaximumLength(200).When(x => x.Dto.TaskName is not null);
+        RuleFor(x => x.Dto.TaskName).MaximumLength(350).When(x => x.Dto.TaskName is not null);
         RuleFor(x => x.Dto.Priority).GreaterThanOrEqualTo((short)1).When(x => x.Dto.Priority.HasValue);
         RuleFor(x => x.Dto.EstimatedHours).GreaterThanOrEqualTo(0m).When(x => x.Dto.EstimatedHours.HasValue);
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);

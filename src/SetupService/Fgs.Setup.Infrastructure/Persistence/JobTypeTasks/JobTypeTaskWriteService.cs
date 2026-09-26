@@ -30,22 +30,32 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
         JobTypeTaskCreateDto dto,
         CancellationToken cancellationToken = default)
     {
+        var name = dto.Name.Trim();
+        var categoryName = await GetCategoryNameAsync(dto.JobTypeCategoryId, cancellationToken);
+        var taskName = ResolveTaskName(dto.TaskName, categoryName, name);
+
         var entity = new FgsJobTypeTask
         {
             JobTypeCategoryId = dto.JobTypeCategoryId,
             TradeId = dto.TradeId,
             SkillLevelId = dto.SkillLevelId,
-            TaskName = dto.TaskName.Trim(),
+            Name = name,
+            TaskName = taskName,
             Priority = dto.Priority,
             EstimatedHours = dto.EstimatedHours,
             DisplayOrder = dto.DisplayOrder ?? 1
         };
 
         _auditHelper.StampForCreate(entity);
+        if (dto.IsActive.HasValue)
+        {
+            entity.IsActive = dto.IsActive.Value;
+        }
+
         await _context.FgsJobTypeTasks.AddAsync(entity, cancellationToken);
         await SaveChangesAsync(cancellationToken);
 
-        return MapToDetail(entity);
+        return MapToDetail(entity, categoryName);
     }
 
     public async Task<JobTypeTaskDetailDto> UpdateAsync(
@@ -56,10 +66,14 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Job Type Task '{id}' was not found.");
 
+        var name = dto.Name.Trim();
+        var categoryName = await GetCategoryNameAsync(dto.JobTypeCategoryId, cancellationToken);
+
         entity.JobTypeCategoryId = dto.JobTypeCategoryId;
         entity.TradeId = dto.TradeId;
         entity.SkillLevelId = dto.SkillLevelId;
-        entity.TaskName = dto.TaskName.Trim();
+        entity.Name = name;
+        entity.TaskName = ResolveTaskName(dto.TaskName, categoryName, name);
         entity.Priority = dto.Priority;
         entity.EstimatedHours = dto.EstimatedHours;
         entity.DisplayOrder = dto.DisplayOrder ?? entity.DisplayOrder;
@@ -67,7 +81,7 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
         _auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
 
-        return MapToDetail(entity);
+        return MapToDetail(entity, categoryName);
     }
 
     public async Task<JobTypeTaskDetailDto> PatchAsync(
@@ -90,9 +104,9 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
         {
             entity.SkillLevelId = dto.SkillLevelId.Value;
         }
-        if (dto.TaskName is not null)
+        if (dto.Name is not null)
         {
-            entity.TaskName = dto.TaskName.Trim();;
+            entity.Name = dto.Name.Trim();
         }
         if (dto.Priority.HasValue)
         {
@@ -112,10 +126,20 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
             entity.IsActive = dto.IsActive.Value;
         }
 
+        var categoryName = await GetCategoryNameAsync(entity.JobTypeCategoryId, cancellationToken);
+        if (dto.TaskName is not null)
+        {
+            entity.TaskName = dto.TaskName.Trim();
+        }
+        else if (dto.Name is not null || dto.JobTypeCategoryId.HasValue)
+        {
+            entity.TaskName = ComposeTaskName(categoryName, entity.Name);
+        }
+
         _auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
 
-        return MapToDetail(entity);
+        return MapToDetail(entity, categoryName);
     }
 
     public async Task<JobTypeTaskDetailDto> DeleteAsync(long id, CancellationToken cancellationToken = default)
@@ -136,6 +160,37 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
     private async Task<FgsJobTypeTask?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
         await _context.FgsJobTypeTasks.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
+    private async Task<string?> GetCategoryNameAsync(long jobTypeCategoryId, CancellationToken cancellationToken)
+    {
+        return await (
+            from jobTypeCategory in _context.FgsJobTypeCategories.AsNoTracking()
+            join jobCategory in _context.FgsJobCategories.AsNoTracking()
+                on jobTypeCategory.JobCategoryId equals jobCategory.Id
+            where jobTypeCategory.Id == jobTypeCategoryId
+            select jobCategory.Name).FirstOrDefaultAsync(cancellationToken);
+    }
+
+    internal static string ResolveTaskName(string? taskName, string? categoryName, string subCategoryName)
+    {
+        if (!string.IsNullOrWhiteSpace(taskName))
+        {
+            return taskName.Trim();
+        }
+
+        return ComposeTaskName(categoryName, subCategoryName);
+    }
+
+    internal static string ComposeTaskName(string? categoryName, string subCategoryName)
+    {
+        var name = subCategoryName.Trim();
+        if (string.IsNullOrWhiteSpace(categoryName))
+        {
+            return name;
+        }
+
+        return $"{categoryName.Trim()} {name}";
+    }
+
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
         try
@@ -144,7 +199,9 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
         }
         catch (DbUpdateException ex) when (IsUniqueViolation(ex))
         {
-            throw new InvalidOperationException("A job type task with the same code already exists.", ex);
+            throw new InvalidOperationException(
+                "A sub-category with this name already exists in the selected category.",
+                ex);
         }
     }
 
@@ -153,17 +210,17 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
         || exception.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true
         || exception.InnerException?.Message.Contains("23505", StringComparison.Ordinal) == true;
 
-    private static string NormalizeCode(string code) => code.Trim().ToUpperInvariant();
-
-    private static JobTypeTaskDetailDto MapToDetail(FgsJobTypeTask entity) =>
+    private static JobTypeTaskDetailDto MapToDetail(FgsJobTypeTask entity, string? categoryName = null) =>
         new(
             entity.Id,
             entity.JobTypeCategoryId,
             entity.TradeId,
             entity.SkillLevelId,
+            entity.Name,
             entity.TaskName,
             entity.Priority,
             entity.EstimatedHours,
             entity.DisplayOrder,
-            entity.IsActive);
+            entity.IsActive,
+            categoryName);
 }
