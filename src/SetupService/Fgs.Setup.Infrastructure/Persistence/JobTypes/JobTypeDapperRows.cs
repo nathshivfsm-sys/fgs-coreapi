@@ -39,7 +39,7 @@ internal sealed class JobTypeDetailRow
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
 
-    public JobTypeDetailDto ToDto() =>
+    public JobTypeDetailDto ToDto(IReadOnlyList<JobTypeSubCategoryDto>? subCategories = null) =>
         new(
             Id,
             JobTypeCode,
@@ -49,7 +49,19 @@ internal sealed class JobTypeDetailRow
             ShowToFieldTech,
             ShowOnCustomerPortal,
             DisplayOrder,
-            IsActive);
+            IsActive,
+            subCategories ?? []);
+}
+
+internal sealed class JobTypeSubCategoryRow
+{
+    public long Id { get; set; }
+    public long JobTypeTaskId { get; set; }
+    public short DisplayOrder { get; set; }
+    public bool IsActive { get; set; }
+
+    public JobTypeSubCategoryDto ToDto() =>
+        new(Id, JobTypeTaskId, DisplayOrder, IsActive);
 }
 
 internal sealed class JobTypeLookupRow

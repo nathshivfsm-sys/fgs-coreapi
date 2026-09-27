@@ -8,6 +8,7 @@ using Fgs.Setup.Application.Features.JobTypes.Commands.CreateJobType;
 using Fgs.Setup.Application.Features.JobTypes.Commands.DeleteJobType;
 using Fgs.Setup.Application.Features.JobTypes.Commands.UpdateJobType;
 using Fgs.Setup.Application.Features.JobTypes.Dtos;
+using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
@@ -44,6 +45,8 @@ public sealed class JobTypeCommandHandlerTests
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
         response.Data!.IsActive.Should().BeTrue();
+        response.Data.ShowToFieldTech.Should().BeTrue();
+        response.Data.ShowOnCustomerPortal.Should().BeTrue();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
                 CacheKeys.EntityPrefix(TenantId, CompanyId, "jobtype"),
@@ -80,6 +83,111 @@ public sealed class JobTypeCommandHandlerTests
 
         response.Success.Should().BeTrue();
         response.Data!.IsActive.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task CreateHandler_WritesJobTypeAndSubCategories()
+    {
+        await using var context = await CreateContextAsync();
+        var firstTaskId = await SeedJobTypeTaskAsync(context, "Repair");
+        var secondTaskId = await SeedJobTypeTaskAsync(context, "Install");
+        var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var handler = new CreateJobTypeCommandHandler(
+            writeService,
+            cache.Object,
+            CreateTenantContextAccessor(),
+            NullLogger<CreateJobTypeCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new CreateJobTypeCommand(
+                new JobTypeCreateDto(
+                    "SVC",
+                    "Service Call",
+                    1,
+                    "Field Services",
+                    true,
+                    false,
+                    1,
+                    [
+                        new JobTypeSubCategoryWriteDto(firstTaskId, 1),
+                        new JobTypeSubCategoryWriteDto(secondTaskId, 2)
+                    ])),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.ShowToFieldTech.Should().BeTrue();
+        response.Data.ShowOnCustomerPortal.Should().BeFalse();
+        response.Data.SubCategories.Should().HaveCount(2);
+        response.Data.SubCategories.Select(c => c.JobTypeTaskId).Should().BeEquivalentTo([firstTaskId, secondTaskId]);
+        context.FgsJobTypeCategories.Should().HaveCount(2);
+        context.FgsJobTypeCategories.Should().OnlyContain(c => c.JobTypeId == response.Data.Id);
+    }
+
+    [Fact]
+    public async Task UpdateHandler_SyncsSubCategoriesWithoutDeletingRemovedMappings()
+    {
+        await using var context = await CreateContextAsync();
+        var keptTaskId = await SeedJobTypeTaskAsync(context, "Repair");
+        var removedTaskId = await SeedJobTypeTaskAsync(context, "Install");
+        var addedTaskId = await SeedJobTypeTaskAsync(context, "Inspect");
+        var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var createHandler = new CreateJobTypeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<CreateJobTypeCommandHandler>.Instance);
+        var updateHandler = new UpdateJobTypeCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<UpdateJobTypeCommandHandler>.Instance);
+
+        var created = await createHandler.Handle(
+            new CreateJobTypeCommand(
+                new JobTypeCreateDto(
+                    "SVC",
+                    "Service Call",
+                    1,
+                    "Field Services",
+                    true,
+                    true,
+                    1,
+                    [
+                        new JobTypeSubCategoryWriteDto(keptTaskId, 1),
+                        new JobTypeSubCategoryWriteDto(removedTaskId, 2)
+                    ])),
+            CancellationToken.None);
+        created.Success.Should().BeTrue();
+
+        var response = await updateHandler.Handle(
+            new UpdateJobTypeCommand(
+                created.Data!.Id,
+                new JobTypeUpdateDto(
+                    "SVC",
+                    "Service Call Updated",
+                    1,
+                    "Field Services",
+                    false,
+                    true,
+                    2,
+                    [
+                        new JobTypeSubCategoryWriteDto(keptTaskId, 3),
+                        new JobTypeSubCategoryWriteDto(addedTaskId, 4)
+                    ])),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.Name.Should().Be("Service Call Updated");
+        response.Data.ShowToFieldTech.Should().BeFalse();
+        response.Data.ShowOnCustomerPortal.Should().BeTrue();
+        response.Data.SubCategories.Should().HaveCount(3);
+        response.Data.SubCategories.Single(c => c.JobTypeTaskId == keptTaskId).DisplayOrder.Should().Be(3);
+        response.Data.SubCategories.Single(c => c.JobTypeTaskId == addedTaskId).IsActive.Should().BeTrue();
+        response.Data.SubCategories.Single(c => c.JobTypeTaskId == removedTaskId).IsActive.Should().BeFalse();
+        context.FgsJobTypeCategories.IgnoreQueryFilters().Should().HaveCount(3);
     }
 
     private static ITenantContextAccessor CreateTenantContextAccessor() =>
@@ -123,6 +231,26 @@ public sealed class JobTypeCommandHandlerTests
         var context = new FgsSetupDbContext(options, accessor);
         await context.Database.EnsureCreatedAsync();
         return context;
+    }
+
+    private static async Task<long> SeedJobTypeTaskAsync(FgsSetupDbContext context, string name)
+    {
+        var task = new FgsJobTypeTask
+        {
+            JobTypeCategoryId = 1,
+            TradeId = 1,
+            Name = name,
+            TaskName = name,
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "test"
+        };
+
+        context.FgsJobTypeTasks.Add(task);
+        await context.SaveChangesAsync();
+        return task.Id;
     }
 
     private sealed class TestTenantContextAccessor : ITenantContextAccessor

@@ -20,13 +20,25 @@ public sealed record JobTypeDetailDto(
     bool ShowToFieldTech,
     bool ShowOnCustomerPortal,
     short? DisplayOrder,
-    bool IsActive);
+    bool IsActive,
+    IReadOnlyList<JobTypeSubCategoryDto> SubCategories);
 
 public sealed record JobTypeLookupDto(
     long Id,
     string JobTypeCode,
     string Name,
     short? DisplayOrder);
+
+public sealed record JobTypeSubCategoryDto(
+    long Id,
+    long JobTypeTaskId,
+    short DisplayOrder,
+    bool IsActive);
+
+public sealed record JobTypeSubCategoryWriteDto(
+    long JobTypeTaskId,
+    short? DisplayOrder,
+    bool IsActive = true);
 
 public sealed record JobTypeCreateDto(
     string JobTypeCode,
@@ -35,7 +47,9 @@ public sealed record JobTypeCreateDto(
     string? BusinessUnit,
     bool ShowToFieldTech,
     bool ShowOnCustomerPortal,
-    short? DisplayOrder);
+    short? DisplayOrder,
+    IReadOnlyList<JobTypeSubCategoryWriteDto>? SubCategories = null,
+    bool IsActive = true);
 
 public sealed record JobTypeUpdateDto(
     string JobTypeCode,
@@ -44,7 +58,8 @@ public sealed record JobTypeUpdateDto(
     string? BusinessUnit,
     bool ShowToFieldTech,
     bool ShowOnCustomerPortal,
-    short? DisplayOrder);
+    short? DisplayOrder,
+    IReadOnlyList<JobTypeSubCategoryWriteDto>? SubCategories = null);
 
 public sealed record JobTypePatchDto(
     string? JobTypeCode,
@@ -54,7 +69,8 @@ public sealed record JobTypePatchDto(
     bool? ShowToFieldTech,
     bool? ShowOnCustomerPortal,
     short? DisplayOrder,
-    bool? IsActive);
+    bool? IsActive,
+    IReadOnlyList<JobTypeSubCategoryWriteDto>? SubCategories = null);
 
 public sealed record JobTypeListFilters(
     string? JobTypeCode = null,

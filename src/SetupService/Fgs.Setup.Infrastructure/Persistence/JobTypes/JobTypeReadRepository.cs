@@ -6,6 +6,7 @@ using Fgs.Setup.Application.Abstractions.JobTypes;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.JobTypes.Dtos;
 using Fgs.Setup.Infrastructure.Common;
+using Fgs.Setup.Infrastructure.Persistence.JobTypeCategories;
 
 namespace Fgs.Setup.Infrastructure.Persistence.JobTypes;
 
@@ -37,7 +38,26 @@ internal sealed class JobTypeReadRepository : IJobTypeReadRepository
         var row = await connection.QueryFirstOrDefaultAsync<JobTypeDetailRow>(
             new CommandDefinition(sql, new { Id = id, TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
 
-        return row?.ToDto();
+        if (row is null)
+        {
+            return null;
+        }
+
+        var childrenSql = $"""
+            SELECT "Id", "JobTypeTaskId", "DisplayOrder", "IsActive"
+            FROM {JobTypeCategorySql.Table}
+            WHERE "JobTypeId" = @Id
+              AND "TenantId" = @TenantId
+              AND "CompanyId" = @CompanyId
+            ORDER BY "DisplayOrder" ASC NULLS LAST, "Id" ASC
+            """;
+        var children = await connection.QueryAsync<JobTypeSubCategoryRow>(
+            new CommandDefinition(
+                childrenSql,
+                new { Id = id, TenantId = tenantId, CompanyId = companyId },
+                cancellationToken: cancellationToken));
+
+        return row.ToDto(children.Select(c => c.ToDto()).ToList());
     }
 
     public async Task<PagedResult<JobTypeSummaryDto>> ListAsync(

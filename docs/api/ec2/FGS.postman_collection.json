@@ -13187,7 +13187,7 @@
                                     }
                                 ],
                                 "body": {
-                                    "raw": "{\r\n  \"jobTypeCode\": \"SVC\",\r\n  \"name\": \"Service Call\",\r\n  \"usedFor\": 1,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"backgroundColor\": \"#3366FF\",\r\n  \"textColor\": \"#FFFFFF\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"displayOrder\": 1\r\n}",
+                                    "raw": "{\r\n  \"jobTypeCode\": \"SVC\",\r\n  \"name\": \"Service Call\",\r\n  \"usedFor\": 1,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"displayOrder\": 1,\r\n  \"isActive\": true,\r\n  \"subCategories\": [\r\n    {\r\n      \"jobTypeTaskId\": {{jobTypeTaskId}},\r\n      \"displayOrder\": 1,\r\n      \"isActive\": true\r\n    }\r\n  ]\r\n}",
                                     "options": {
                                         "raw": {
                                             "language": "json"
@@ -13262,7 +13262,7 @@
                                     }
                                 ],
                                 "body": {
-                                    "raw": "{\r\n  \"jobTypeCode\": \"MNT\",\r\n  \"name\": \"Preventive Maintenance\",\r\n  \"usedFor\": 2,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"backgroundColor\": \"#3366FF\",\r\n  \"textColor\": \"#FFFFFF\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"displayOrder\": 2\r\n}",
+                                    "raw": "{\r\n  \"jobTypeCode\": \"MNT\",\r\n  \"name\": \"Preventive Maintenance\",\r\n  \"usedFor\": 2,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"displayOrder\": 2,\r\n  \"isActive\": true,\r\n  \"subCategories\": [\r\n    {\r\n      \"jobTypeTaskId\": {{jobTypeTaskId}},\r\n      \"displayOrder\": 1,\r\n      \"isActive\": true\r\n    }\r\n  ]\r\n}",
                                     "options": {
                                         "raw": {
                                             "language": "json"
@@ -13337,7 +13337,7 @@
                                     }
                                 ],
                                 "body": {
-                                    "raw": "{\r\n  \"jobTypeCode\": \"WAR\",\r\n  \"name\": \"Warranty Repair\",\r\n  \"usedFor\": 3,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"backgroundColor\": \"#3366FF\",\r\n  \"textColor\": \"#FFFFFF\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"displayOrder\": 3\r\n}",
+                                    "raw": "{\r\n  \"jobTypeCode\": \"WAR\",\r\n  \"name\": \"Warranty Repair\",\r\n  \"usedFor\": 3,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"displayOrder\": 3,\r\n  \"isActive\": true,\r\n  \"subCategories\": [\r\n    {\r\n      \"jobTypeTaskId\": {{jobTypeTaskId}},\r\n      \"displayOrder\": 1,\r\n      \"isActive\": true\r\n    }\r\n  ]\r\n}",
                                     "options": {
                                         "raw": {
                                             "language": "json"
@@ -13412,7 +13412,7 @@
                                     }
                                 ],
                                 "body": {
-                                    "raw": "{\r\n  \"jobTypeCode\": \"INS\",\r\n  \"name\": \"New Installation\",\r\n  \"usedFor\": 4,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"backgroundColor\": \"#3366FF\",\r\n  \"textColor\": \"#FFFFFF\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"displayOrder\": 4\r\n}",
+                                    "raw": "{\r\n  \"jobTypeCode\": \"INS\",\r\n  \"name\": \"New Installation\",\r\n  \"usedFor\": 4,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"displayOrder\": 4,\r\n  \"isActive\": true,\r\n  \"subCategories\": [\r\n    {\r\n      \"jobTypeTaskId\": {{jobTypeTaskId}},\r\n      \"displayOrder\": 1,\r\n      \"isActive\": true\r\n    }\r\n  ]\r\n}",
                                     "options": {
                                         "raw": {
                                             "language": "json"
@@ -13489,7 +13489,7 @@
                                     }
                                 ],
                                 "body": {
-                                    "raw": "{\n  \"jobTypeCode\": \"SVC\",\n  \"name\": \"Service Call\",\n  \"usedFor\": 1,\n  \"businessUnit\": \"Field Services\",\n  \"backgroundColor\": \"#3366FF\",\n  \"textColor\": \"#FFFFFF\",\n  \"showToFieldTech\": true,\n  \"showOnCustomerPortal\": true,\n  \"displayOrder\": 1\n}",
+                                    "raw": "{\n  \"jobTypeCode\": \"SVC\",\n  \"name\": \"Service Call\",\n  \"usedFor\": 1,\n  \"businessUnit\": \"Field Services\",\n  \"showToFieldTech\": true,\n  \"showOnCustomerPortal\": true,\n  \"displayOrder\": 1,\n  \"subCategories\": [\n    {\n      \"jobTypeTaskId\": {{jobTypeTaskId}},\n      \"displayOrder\": 1,\n      \"isActive\": true\n    }\n  ]\n}",
                                     "options": {
                                         "raw": {
                                             "language": "json"

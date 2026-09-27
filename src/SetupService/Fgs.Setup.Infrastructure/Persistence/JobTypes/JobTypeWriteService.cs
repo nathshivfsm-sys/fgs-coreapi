@@ -33,10 +33,18 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
     {
         var entity = new FgsJobType
         {
-            JobTypeCode = NormalizeCode(dto.JobTypeCode), Name = dto.Name.Trim(), UsedFor = (JobTypeUsedFor)dto.UsedFor, BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim(), ShowToFieldTech = dto.ShowToFieldTech, ShowOnCustomerPortal = dto.ShowOnCustomerPortal, DisplayOrder = dto.DisplayOrder ?? 1
+            JobTypeCode = NormalizeCode(dto.JobTypeCode),
+            Name = dto.Name.Trim(),
+            UsedFor = (JobTypeUsedFor)dto.UsedFor,
+            BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim(),
+            ShowToFieldTech = dto.ShowToFieldTech,
+            ShowOnCustomerPortal = dto.ShowOnCustomerPortal,
+            DisplayOrder = dto.DisplayOrder ?? 1
         };
 
         _auditHelper.StampForCreate(entity);
+        entity.IsActive = dto.IsActive;
+        SyncSubCategories(entity, dto.SubCategories ?? []);
         await _context.FgsJobTypes.AddAsync(entity, cancellationToken);
         await SaveChangesAsync(cancellationToken);
 
@@ -48,7 +56,7 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         JobTypeUpdateDto dto,
         CancellationToken cancellationToken = default)
     {
-        var entity = await FindEntityAsync(id, cancellationToken)
+        var entity = await FindEntityWithCategoriesAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Job Type '{id}' was not found.");
 
         entity.JobTypeCode = NormalizeCode(dto.JobTypeCode);
@@ -59,6 +67,7 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         entity.ShowOnCustomerPortal = dto.ShowOnCustomerPortal;
         entity.DisplayOrder = dto.DisplayOrder ?? entity.DisplayOrder;
 
+        SyncSubCategories(entity, dto.SubCategories ?? []);
         _auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
 
@@ -70,16 +79,16 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         JobTypePatchDto dto,
         CancellationToken cancellationToken = default)
     {
-        var entity = await FindEntityAsync(id, cancellationToken)
+        var entity = await FindEntityWithCategoriesAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Job Type '{id}' was not found.");
 
         if (dto.JobTypeCode is not null)
         {
-            entity.JobTypeCode = NormalizeCode(dto.JobTypeCode);;
+            entity.JobTypeCode = NormalizeCode(dto.JobTypeCode);
         }
         if (dto.Name is not null)
         {
-            entity.Name = dto.Name.Trim();;
+            entity.Name = dto.Name.Trim();
         }
         if (dto.UsedFor.HasValue)
         {
@@ -107,6 +116,11 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
             entity.IsActive = dto.IsActive.Value;
         }
 
+        if (dto.SubCategories is not null)
+        {
+            SyncSubCategories(entity, dto.SubCategories);
+        }
+
         _auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
 
@@ -115,7 +129,7 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
 
     public async Task<JobTypeDetailDto> DeleteAsync(long id, CancellationToken cancellationToken = default)
     {
-        var entity = await FindEntityAsync(id, cancellationToken)
+        var entity = await FindEntityWithCategoriesAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Job Type '{id}' was not found.");
 
         if (entity.IsActive)
@@ -128,8 +142,58 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         return MapToDetail(entity);
     }
 
-    private async Task<FgsJobType?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
-        await _context.FgsJobTypes.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
+    private void SyncSubCategories(
+        FgsJobType entity,
+        IReadOnlyList<JobTypeSubCategoryWriteDto> items)
+    {
+        var desiredTaskIds = items.Select(item => item.JobTypeTaskId).ToHashSet();
+
+        foreach (var existing in entity.JobTypeCategories.Where(c => !desiredTaskIds.Contains(c.JobTypeTaskId)))
+        {
+            if (!existing.IsActive)
+            {
+                continue;
+            }
+
+            existing.IsActive = false;
+            _auditHelper.StampForUpdate(existing);
+        }
+
+        var existingByTaskId = entity.JobTypeCategories
+            .GroupBy(c => c.JobTypeTaskId)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        short fallbackOrder = 1;
+        foreach (var item in items)
+        {
+            var displayOrder = item.DisplayOrder ?? fallbackOrder;
+            fallbackOrder++;
+
+            if (existingByTaskId.TryGetValue(item.JobTypeTaskId, out var existing))
+            {
+                existing.DisplayOrder = displayOrder;
+                existing.IsActive = item.IsActive;
+                _auditHelper.StampForUpdate(existing);
+                continue;
+            }
+
+            var mapping = new FgsJobTypeCategory
+            {
+                JobTypeId = entity.Id,
+                JobTypeTaskId = item.JobTypeTaskId,
+                DisplayOrder = displayOrder
+            };
+            _auditHelper.StampForCreate(mapping);
+            mapping.IsActive = item.IsActive;
+            entity.JobTypeCategories.Add(mapping);
+            _context.FgsJobTypeCategories.Add(mapping);
+        }
+    }
+
+    private async Task<FgsJobType?> FindEntityWithCategoriesAsync(long id, CancellationToken cancellationToken) =>
+        await _context.FgsJobTypes
+            .Include(e => e.JobTypeCategories)
+            .FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -139,7 +203,9 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         }
         catch (DbUpdateException ex) when (IsUniqueViolation(ex))
         {
-            throw new InvalidOperationException("A job type with the same code already exists.", ex);
+            throw new InvalidOperationException(
+                "A job type with the same code or subcategory assignment already exists.",
+                ex);
         }
     }
 
@@ -160,5 +226,10 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
             entity.ShowToFieldTech,
             entity.ShowOnCustomerPortal,
             entity.DisplayOrder,
-            entity.IsActive);
+            entity.IsActive,
+            entity.JobTypeCategories
+                .OrderBy(c => c.DisplayOrder)
+                .ThenBy(c => c.Id)
+                .Select(c => new JobTypeSubCategoryDto(c.Id, c.JobTypeTaskId, c.DisplayOrder, c.IsActive))
+                .ToList());
 }

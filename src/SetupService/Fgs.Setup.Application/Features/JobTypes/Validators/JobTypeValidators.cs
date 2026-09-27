@@ -1,14 +1,18 @@
+using Fgs.Setup.Application.Abstractions.JobTypeCategories;
 using Fgs.Setup.Application.Abstractions.JobTypes;
 using Fgs.Setup.Application.Features.JobTypes.Commands.CreateJobType;
 using Fgs.Setup.Application.Features.JobTypes.Commands.PatchJobType;
 using Fgs.Setup.Application.Features.JobTypes.Commands.UpdateJobType;
+using Fgs.Setup.Application.Features.JobTypes.Dtos;
 using FluentValidation;
 
 namespace Fgs.Setup.Application.Features.JobTypes.Validators;
 
 public sealed class CreateJobTypeCommandValidator : AbstractValidator<CreateJobTypeCommand>
 {
-    public CreateJobTypeCommandValidator(IJobTypeReadRepository readRepository)
+    public CreateJobTypeCommandValidator(
+        IJobTypeReadRepository readRepository,
+        IJobTypeCategoryReadRepository categoryReadRepository)
     {
         RuleFor(x => x.Dto.JobTypeCode).NotEmpty();
         RuleFor(x => x.Dto.JobTypeCode).MaximumLength(50);
@@ -23,16 +27,36 @@ public sealed class CreateJobTypeCommandValidator : AbstractValidator<CreateJobT
             .WithMessage("An active job type with this name already exists.");
         RuleFor(x => x.Dto.UsedFor).GreaterThanOrEqualTo((short)1);
         RuleFor(x => x.Dto.BusinessUnit).MaximumLength(100);
-
-
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
         RuleFor(x => x.Dto.UsedFor).InclusiveBetween((short)1, (short)4);
+        AddRequiredSubCategoryRules(this, categoryReadRepository);
     }
+
+    private static void AddRequiredSubCategoryRules(
+        AbstractValidator<CreateJobTypeCommand> validator,
+        IJobTypeCategoryReadRepository categoryReadRepository)
+    {
+        validator.RuleFor(x => x.Dto.SubCategories)
+            .NotEmpty()
+            .WithMessage("At least one subcategory is required.");
+        validator.RuleFor(x => x.Dto.SubCategories)
+            .Must(HaveUniqueTaskIds)
+            .WithMessage("SubCategories cannot contain duplicate job type tasks.")
+            .When(x => x.Dto.SubCategories is not null);
+        validator.RuleForEach(x => x.Dto.SubCategories)
+            .SetValidator(new JobTypeSubCategoryWriteDtoValidator(categoryReadRepository))
+            .When(x => x.Dto.SubCategories is not null);
+    }
+
+    private static bool HaveUniqueTaskIds(IReadOnlyList<JobTypeSubCategoryWriteDto>? items) =>
+        items is null || items.Select(item => item.JobTypeTaskId).Distinct().Count() == items.Count;
 }
 
 public sealed class UpdateJobTypeCommandValidator : AbstractValidator<UpdateJobTypeCommand>
 {
-    public UpdateJobTypeCommandValidator(IJobTypeReadRepository readRepository)
+    public UpdateJobTypeCommandValidator(
+        IJobTypeReadRepository readRepository,
+        IJobTypeCategoryReadRepository categoryReadRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
         RuleFor(x => x.Dto.JobTypeCode).NotEmpty();
@@ -48,16 +72,26 @@ public sealed class UpdateJobTypeCommandValidator : AbstractValidator<UpdateJobT
             .WithMessage("An active job type with this name already exists.");
         RuleFor(x => x.Dto.UsedFor).GreaterThanOrEqualTo((short)1);
         RuleFor(x => x.Dto.BusinessUnit).MaximumLength(100);
-
-
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
         RuleFor(x => x.Dto.UsedFor).InclusiveBetween((short)1, (short)4);
+        RuleFor(x => x.Dto.SubCategories)
+            .NotEmpty()
+            .WithMessage("At least one subcategory is required.");
+        RuleFor(x => x.Dto.SubCategories)
+            .Must(items => items is null || items.Select(item => item.JobTypeTaskId).Distinct().Count() == items.Count)
+            .WithMessage("SubCategories cannot contain duplicate job type tasks.")
+            .When(x => x.Dto.SubCategories is not null);
+        RuleForEach(x => x.Dto.SubCategories)
+            .SetValidator(new JobTypeSubCategoryWriteDtoValidator(categoryReadRepository))
+            .When(x => x.Dto.SubCategories is not null);
     }
 }
 
 public sealed class PatchJobTypeCommandValidator : AbstractValidator<PatchJobTypeCommand>
 {
-    public PatchJobTypeCommandValidator(IJobTypeReadRepository readRepository)
+    public PatchJobTypeCommandValidator(
+        IJobTypeReadRepository readRepository,
+        IJobTypeCategoryReadRepository categoryReadRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
         RuleFor(x => x.Dto.JobTypeCode).NotEmpty().When(x => x.Dto.JobTypeCode is not null);
@@ -73,9 +107,33 @@ public sealed class PatchJobTypeCommandValidator : AbstractValidator<PatchJobTyp
             .WithMessage("An active job type with this name already exists.").When(x => x.Dto.Name is not null);
         RuleFor(x => x.Dto.UsedFor).GreaterThanOrEqualTo((short)1).When(x => x.Dto.UsedFor.HasValue);
         RuleFor(x => x.Dto.BusinessUnit).MaximumLength(100).When(x => x.Dto.BusinessUnit is not null);
-
-
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
         RuleFor(x => x.Dto.UsedFor).InclusiveBetween((short)1, (short)4).When(x => x.Dto.UsedFor.HasValue);
+        When(x => x.Dto.SubCategories is not null, () =>
+        {
+            RuleFor(x => x.Dto.SubCategories)
+                .NotEmpty()
+                .WithMessage("At least one subcategory is required.");
+            RuleFor(x => x.Dto.SubCategories)
+                .Must(items => items is null || items.Select(item => item.JobTypeTaskId).Distinct().Count() == items.Count)
+                .WithMessage("SubCategories cannot contain duplicate job type tasks.");
+            RuleForEach(x => x.Dto.SubCategories)
+                .SetValidator(new JobTypeSubCategoryWriteDtoValidator(categoryReadRepository));
+        });
+    }
+}
+
+internal sealed class JobTypeSubCategoryWriteDtoValidator : AbstractValidator<JobTypeSubCategoryWriteDto>
+{
+    public JobTypeSubCategoryWriteDtoValidator(IJobTypeCategoryReadRepository categoryReadRepository)
+    {
+        RuleFor(x => x.JobTypeTaskId).GreaterThan(0);
+        RuleFor(x => x.JobTypeTaskId)
+            .MustAsync(async (id, cancellationToken) =>
+                await categoryReadRepository.ExistsJobTypeTaskIdAsync(id, cancellationToken))
+            .WithMessage("The specified job type task was not found.");
+        RuleFor(x => x.DisplayOrder)
+            .GreaterThanOrEqualTo((short)0)
+            .When(x => x.DisplayOrder.HasValue);
     }
 }
