@@ -11,9 +11,7 @@ public sealed record JobTypeTaskSummaryDto(
     decimal EstimatedHours,
     short? DisplayOrder,
     bool IsActive,
-    string? CategoryName = null,
-    string? TradeName = null,
-    string? SkillName = null);
+    string? CategoryName = null);
 
 public sealed record JobTypeTaskDetailDto(
     long Id,
@@ -26,9 +24,7 @@ public sealed record JobTypeTaskDetailDto(
     decimal EstimatedHours,
     short? DisplayOrder,
     bool IsActive,
-    string? CategoryName = null,
-    string? TradeName = null,
-    string? SkillName = null);
+    string? CategoryName = null);
 
 public sealed record JobTypeTaskLookupDto(
     long Id,

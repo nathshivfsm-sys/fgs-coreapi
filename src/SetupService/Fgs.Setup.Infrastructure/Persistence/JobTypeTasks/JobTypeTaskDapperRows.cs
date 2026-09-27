@@ -15,8 +15,6 @@ internal sealed class JobTypeTaskSummaryRow
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
     public string? CategoryName { get; set; }
-    public string? TradeName { get; set; }
-    public string? SkillName { get; set; }
 
     public JobTypeTaskSummaryDto ToDto() =>
         new(
@@ -30,9 +28,7 @@ internal sealed class JobTypeTaskSummaryRow
             EstimatedHours,
             DisplayOrder,
             IsActive,
-            CategoryName,
-            TradeName,
-            SkillName);
+            CategoryName);
 }
 
 internal sealed class JobTypeTaskDetailRow
@@ -48,8 +44,6 @@ internal sealed class JobTypeTaskDetailRow
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
     public string? CategoryName { get; set; }
-    public string? TradeName { get; set; }
-    public string? SkillName { get; set; }
 
     public JobTypeTaskDetailDto ToDto() =>
         new(
@@ -63,9 +57,7 @@ internal sealed class JobTypeTaskDetailRow
             EstimatedHours,
             DisplayOrder,
             IsActive,
-            CategoryName,
-            TradeName,
-            SkillName);
+            CategoryName);
 }
 
 internal sealed class JobTypeTaskLookupRow

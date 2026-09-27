@@ -21,20 +21,17 @@ internal static class JobTypeCategorySql
 
     public const string SelectDetailColumns = """
         jtc."Id", jtc."JobTypeId", jtc."JobTypeTaskId", jtc."DisplayOrder", jtc."IsActive",
-        t."Name", t."TaskName", t."Priority", t."EstimatedHours",
-        tr."Name" AS "TradeName", sl."Name" AS "SkillName"
+        t."Name", t."TaskName", t."Priority", t."EstimatedHours"
         """;
 
     public const string SelectSummaryColumns = """
         jtc."Id", jtc."JobTypeId", jtc."JobTypeTaskId", jtc."DisplayOrder", jtc."IsActive",
-        t."Name", t."TaskName", t."Priority", t."EstimatedHours",
-        tr."Name" AS "TradeName", sl."Name" AS "SkillName"
+        t."Name", t."TaskName", t."Priority", t."EstimatedHours"
         """;
 
     public const string SelectLookupColumns = """
         jtc."Id", jtc."JobTypeId", jtc."JobTypeTaskId", jtc."DisplayOrder",
-        t."Name", t."TaskName", t."Priority", t."EstimatedHours",
-        tr."Name" AS "TradeName", sl."Name" AS "SkillName"
+        t."Name", t."TaskName", t."Priority", t."EstimatedHours"
         """;
 
     public const string SelectJobTypeChildColumns = """
