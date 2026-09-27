@@ -26,7 +26,6 @@ public enum LookupKey
     TechTrade,
     JobCategory,
     JobType,
-    JobTypeCategory,
     JobTypeTask,
     BillingCategory,
     PriceBook,

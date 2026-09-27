@@ -216,8 +216,24 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
 
     private static string NormalizeCode(string code) => code.Trim().ToUpperInvariant();
 
-    private static JobTypeDetailDto MapToDetail(FgsJobType entity) =>
-        new(
+    private JobTypeDetailDto MapToDetail(FgsJobType entity)
+    {
+        var taskIds = entity.JobTypeCategories.Select(c => c.JobTypeTaskId).Distinct().ToArray();
+        var tasks = _context.FgsJobTypeTasks
+            .AsNoTracking()
+            .Where(t => taskIds.Contains(t.Id))
+            .Select(t => new { t.Id, t.JobTypeCategoryId, t.Name })
+            .ToList()
+            .ToDictionary(t => t.Id);
+        var categoryIds = tasks.Values.Select(t => t.JobTypeCategoryId).Distinct().ToArray();
+        var categoryNames = _context.FgsJobCategories
+            .AsNoTracking()
+            .Where(c => categoryIds.Contains(c.Id))
+            .Select(c => new { c.Id, c.Name })
+            .ToList()
+            .ToDictionary(c => c.Id, c => c.Name);
+
+        return new(
             entity.Id,
             entity.JobTypeCode,
             entity.Name,
@@ -230,6 +246,21 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
             entity.JobTypeCategories
                 .OrderBy(c => c.DisplayOrder)
                 .ThenBy(c => c.Id)
-                .Select(c => new JobTypeSubCategoryDto(c.Id, c.JobTypeTaskId, c.DisplayOrder, c.IsActive))
+                .Select(c =>
+                {
+                    tasks.TryGetValue(c.JobTypeTaskId, out var task);
+                    string? categoryName = null;
+                    if (task is not null)
+                    {
+                        categoryNames.TryGetValue(task.JobTypeCategoryId, out categoryName);
+                    }
+
+                    return new JobTypeSubCategoryDto(
+                        task?.JobTypeCategoryId ?? 0,
+                        categoryName,
+                        c.JobTypeTaskId,
+                        task?.Name);
+                })
                 .ToList());
+    }
 }

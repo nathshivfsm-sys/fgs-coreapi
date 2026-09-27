@@ -55,19 +55,13 @@ internal sealed class JobTypeDetailRow
 
 internal sealed class JobTypeSubCategoryRow
 {
-    public long Id { get; set; }
+    public long CategoryId { get; set; }
+    public string? CategoryName { get; set; }
     public long JobTypeTaskId { get; set; }
-    public short DisplayOrder { get; set; }
-    public bool IsActive { get; set; }
     public string? Name { get; set; }
-    public string? TaskName { get; set; }
-    public string? TradeName { get; set; }
-    public string? SkillName { get; set; }
-    public decimal? EstimatedHours { get; set; }
-    public short? Priority { get; set; }
 
     public JobTypeSubCategoryDto ToDto() =>
-        new(Id, JobTypeTaskId, DisplayOrder, IsActive, Name, TaskName, TradeName, SkillName, EstimatedHours, Priority);
+        new(CategoryId, CategoryName, JobTypeTaskId, Name);
 }
 
 internal sealed class JobTypeCountsRow

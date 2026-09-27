@@ -120,6 +120,8 @@ public sealed class JobTypeCommandHandlerTests
         response.Data.ShowOnCustomerPortal.Should().BeFalse();
         response.Data.SubCategories.Should().HaveCount(2);
         response.Data.SubCategories.Select(c => c.JobTypeTaskId).Should().BeEquivalentTo([firstTaskId, secondTaskId]);
+        response.Data.SubCategories.Should().OnlyContain(c => c.CategoryId == 1);
+        response.Data.SubCategories.Select(c => c.Name).Should().BeEquivalentTo(["Repair", "Install"]);
         context.FgsJobTypeCategories.Should().HaveCount(2);
         context.FgsJobTypeCategories.Should().OnlyContain(c => c.JobTypeId == response.Data.Id);
     }
@@ -184,10 +186,11 @@ public sealed class JobTypeCommandHandlerTests
         response.Data.ShowToFieldTech.Should().BeFalse();
         response.Data.ShowOnCustomerPortal.Should().BeTrue();
         response.Data.SubCategories.Should().HaveCount(3);
-        response.Data.SubCategories.Single(c => c.JobTypeTaskId == keptTaskId).DisplayOrder.Should().Be(3);
-        response.Data.SubCategories.Single(c => c.JobTypeTaskId == addedTaskId).IsActive.Should().BeTrue();
-        response.Data.SubCategories.Single(c => c.JobTypeTaskId == removedTaskId).IsActive.Should().BeFalse();
+        response.Data.SubCategories.Select(c => c.JobTypeTaskId).Should().BeEquivalentTo([keptTaskId, addedTaskId, removedTaskId]);
         context.FgsJobTypeCategories.IgnoreQueryFilters().Should().HaveCount(3);
+        context.FgsJobTypeCategories.IgnoreQueryFilters().Single(c => c.JobTypeTaskId == keptTaskId).DisplayOrder.Should().Be(3);
+        context.FgsJobTypeCategories.IgnoreQueryFilters().Single(c => c.JobTypeTaskId == addedTaskId).IsActive.Should().BeTrue();
+        context.FgsJobTypeCategories.IgnoreQueryFilters().Single(c => c.JobTypeTaskId == removedTaskId).IsActive.Should().BeFalse();
     }
 
     private static ITenantContextAccessor CreateTenantContextAccessor() =>

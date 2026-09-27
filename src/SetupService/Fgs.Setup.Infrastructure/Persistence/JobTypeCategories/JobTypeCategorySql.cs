@@ -13,14 +13,10 @@ internal static class JobTypeCategorySql
             ON t."Id" = jtc."JobTypeTaskId"
            AND t."TenantId" = jtc."TenantId"
            AND t."CompanyId" = jtc."CompanyId"
-        INNER JOIN setup."FgsSetupTechTrade" tr
-            ON tr."Id" = t."TradeId"
-           AND tr."TenantId" = t."TenantId"
-           AND tr."CompanyId" = t."CompanyId"
-        LEFT JOIN setup."FgsSetupTechSkillLevel" sl
-            ON sl."Id" = t."SkillLevelId"
-           AND sl."TenantId" = t."TenantId"
-           AND sl."CompanyId" = t."CompanyId"
+        LEFT JOIN setup."FgsJobCategory" jc
+            ON jc."Id" = t."JobTypeCategoryId"
+           AND jc."TenantId" = t."TenantId"
+           AND jc."CompanyId" = t."CompanyId"
         """;
 
     public const string SelectDetailColumns = """
@@ -42,9 +38,10 @@ internal static class JobTypeCategorySql
         """;
 
     public const string SelectJobTypeChildColumns = """
-        jtc."Id", jtc."JobTypeTaskId", jtc."DisplayOrder", jtc."IsActive",
-        t."Name", t."TaskName", t."Priority", t."EstimatedHours",
-        tr."Name" AS "TradeName", sl."Name" AS "SkillName"
+        t."JobTypeCategoryId" AS "CategoryId",
+        jc."Name" AS "CategoryName",
+        jtc."JobTypeTaskId",
+        t."Name"
         """;
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)

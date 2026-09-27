@@ -30,16 +30,10 @@ public sealed record JobTypeLookupDto(
     short? DisplayOrder);
 
 public sealed record JobTypeSubCategoryDto(
-    long Id,
+    long CategoryId,
+    string? CategoryName,
     long JobTypeTaskId,
-    short DisplayOrder,
-    bool IsActive,
-    string? Name = null,
-    string? TaskName = null,
-    string? TradeName = null,
-    string? SkillName = null,
-    decimal? EstimatedHours = null,
-    short? Priority = null);
+    string? Name);
 
 public sealed record JobTypeSubCategoryWriteDto(
     long JobTypeTaskId,

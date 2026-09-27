@@ -31,7 +31,6 @@ public static class LookupCatalog
         Setup("techtrade", LookupKey.TechTrade, "Tech trades"),
         Setup("jobcategory", LookupKey.JobCategory, "Job categories"),
         Setup("jobtype", LookupKey.JobType, "Job types"),
-        Def(LookupKey.JobTypeCategory, LookupServiceNames.Setup, "api/v1/jobtypecategory/lookup", true, NoFilters, [LookupFilterNames.JobTypeId, LookupFilterNames.ActiveOnly], "Job type categories"),
         Setup("jobtypetask", LookupKey.JobTypeTask, "Job type tasks"),
         Def(LookupKey.BillingCategory, LookupServiceNames.Setup, "api/v1/billingcategory/lookup", true, NoFilters, [LookupFilterNames.ShowToFieldTech, LookupFilterNames.AllowToPick, LookupFilterNames.ActiveOnly], "Billing categories"),
         Setup("pricebook", LookupKey.PriceBook, "Price books"),

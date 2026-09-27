@@ -17,6 +17,10 @@ public interface IJobTypeTaskReadRepository
         bool activeOnly = true,
         CancellationToken cancellationToken = default);
 
+    Task<bool> ExistsActiveByIdAsync(
+        long id,
+        CancellationToken cancellationToken = default);
+
     Task<bool> ExistsJobTypeCategoryIdAsync(
         long id,
         CancellationToken cancellationToken = default);
