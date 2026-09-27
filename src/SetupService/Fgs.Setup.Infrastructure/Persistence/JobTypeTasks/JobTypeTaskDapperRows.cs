@@ -5,7 +5,7 @@ namespace Fgs.Setup.Infrastructure.Persistence.JobTypeTasks;
 internal sealed class JobTypeTaskSummaryRow
 {
     public long Id { get; set; }
-    public long JobTypeCategoryId { get; set; }
+    public long JobCategoryId { get; set; }
     public long TradeId { get; set; }
     public long? SkillLevelId { get; set; }
     public string Name { get; set; } = null!;
@@ -21,7 +21,7 @@ internal sealed class JobTypeTaskSummaryRow
     public JobTypeTaskSummaryDto ToDto() =>
         new(
             Id,
-            JobTypeCategoryId,
+            JobCategoryId,
             TradeId,
             SkillLevelId,
             Name,
@@ -38,7 +38,7 @@ internal sealed class JobTypeTaskSummaryRow
 internal sealed class JobTypeTaskDetailRow
 {
     public long Id { get; set; }
-    public long JobTypeCategoryId { get; set; }
+    public long JobCategoryId { get; set; }
     public long TradeId { get; set; }
     public long? SkillLevelId { get; set; }
     public string Name { get; set; } = null!;
@@ -54,7 +54,7 @@ internal sealed class JobTypeTaskDetailRow
     public JobTypeTaskDetailDto ToDto() =>
         new(
             Id,
-            JobTypeCategoryId,
+            JobCategoryId,
             TradeId,
             SkillLevelId,
             Name,

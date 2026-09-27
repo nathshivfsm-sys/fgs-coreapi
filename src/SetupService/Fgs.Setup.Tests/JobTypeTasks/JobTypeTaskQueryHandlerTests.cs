@@ -67,26 +67,26 @@ public sealed class JobTypeTaskQueryHandlerTests
     }
 
     [Fact]
-    public async Task List_WhenJobTypeCategoryIdProvided_PassesFilter()
+    public async Task List_WhenJobCategoryIdProvided_PassesFilter()
     {
         var readRepository = new Mock<IJobTypeTaskReadRepository>();
         readRepository
             .Setup(r => r.ListAsync(
                 It.IsAny<SetupListQuery>(),
-                It.Is<JobTypeTaskListFilters>(f => f.JobTypeCategoryId == 12),
+                It.Is<JobTypeTaskListFilters>(f => f.JobCategoryId == 12),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PagedResult<JobTypeTaskSummaryDto>([], 1, 25, 0));
 
         var handler = new ListJobTypeTasksQueryHandler(readRepository.Object);
         var response = await handler.Handle(
-            new ListJobTypeTasksQuery(new SetupListQuery(), new JobTypeTaskListFilters(JobTypeCategoryId: 12)),
+            new ListJobTypeTasksQuery(new SetupListQuery(), new JobTypeTaskListFilters(JobCategoryId: 12)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
         readRepository.Verify(
             r => r.ListAsync(
                 It.IsAny<SetupListQuery>(),
-                It.Is<JobTypeTaskListFilters>(f => f.JobTypeCategoryId == 12),
+                It.Is<JobTypeTaskListFilters>(f => f.JobCategoryId == 12),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

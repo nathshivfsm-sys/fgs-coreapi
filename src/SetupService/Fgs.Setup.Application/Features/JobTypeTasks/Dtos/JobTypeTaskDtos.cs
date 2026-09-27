@@ -2,7 +2,7 @@ namespace Fgs.Setup.Application.Features.JobTypeTasks.Dtos;
 
 public sealed record JobTypeTaskSummaryDto(
     long Id,
-    long JobTypeCategoryId,
+    long JobCategoryId,
     long TradeId,
     long? SkillLevelId,
     string Name,
@@ -17,7 +17,7 @@ public sealed record JobTypeTaskSummaryDto(
 
 public sealed record JobTypeTaskDetailDto(
     long Id,
-    long JobTypeCategoryId,
+    long JobCategoryId,
     long TradeId,
     long? SkillLevelId,
     string Name,
@@ -35,7 +35,7 @@ public sealed record JobTypeTaskLookupDto(
     string Name);
 
 public sealed record JobTypeTaskCreateDto(
-    long JobTypeCategoryId,
+    long JobCategoryId,
     long TradeId,
     string Name,
     short Priority,
@@ -46,7 +46,7 @@ public sealed record JobTypeTaskCreateDto(
     bool? IsActive = null);
 
 public sealed record JobTypeTaskUpdateDto(
-    long JobTypeCategoryId,
+    long JobCategoryId,
     long TradeId,
     string Name,
     short Priority,
@@ -56,7 +56,7 @@ public sealed record JobTypeTaskUpdateDto(
     long? SkillLevelId = null);
 
 public sealed record JobTypeTaskPatchDto(
-    long? JobTypeCategoryId,
+    long? JobCategoryId,
     long? TradeId,
     string? Name,
     string? TaskName,
@@ -69,5 +69,5 @@ public sealed record JobTypeTaskPatchDto(
 public sealed record JobTypeTaskListFilters(
     string? TaskName = null,
     string? Name = null,
-    long? JobTypeCategoryId = null,
+    long? JobCategoryId = null,
     long? JobTypeId = null);

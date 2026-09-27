@@ -31,12 +31,12 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
         CancellationToken cancellationToken = default)
     {
         var name = dto.Name.Trim();
-        var categoryName = await GetCategoryNameAsync(dto.JobTypeCategoryId, cancellationToken);
+        var categoryName = await GetCategoryNameAsync(dto.JobCategoryId, cancellationToken);
         var taskName = ResolveTaskName(dto.TaskName, categoryName, name);
 
         var entity = new FgsJobTypeTask
         {
-            JobTypeCategoryId = dto.JobTypeCategoryId,
+            JobCategoryId = dto.JobCategoryId,
             TradeId = dto.TradeId,
             SkillLevelId = dto.SkillLevelId,
             Name = name,
@@ -67,9 +67,9 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
             ?? throw new KeyNotFoundException($"Job Type Task '{id}' was not found.");
 
         var name = dto.Name.Trim();
-        var categoryName = await GetCategoryNameAsync(dto.JobTypeCategoryId, cancellationToken);
+        var categoryName = await GetCategoryNameAsync(dto.JobCategoryId, cancellationToken);
 
-        entity.JobTypeCategoryId = dto.JobTypeCategoryId;
+        entity.JobCategoryId = dto.JobCategoryId;
         entity.TradeId = dto.TradeId;
         entity.SkillLevelId = dto.SkillLevelId;
         entity.Name = name;
@@ -92,9 +92,9 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Job Type Task '{id}' was not found.");
 
-        if (dto.JobTypeCategoryId.HasValue)
+        if (dto.JobCategoryId.HasValue)
         {
-            entity.JobTypeCategoryId = dto.JobTypeCategoryId.Value;
+            entity.JobCategoryId = dto.JobCategoryId.Value;
         }
         if (dto.TradeId.HasValue)
         {
@@ -126,12 +126,12 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
             entity.IsActive = dto.IsActive.Value;
         }
 
-        var categoryName = await GetCategoryNameAsync(entity.JobTypeCategoryId, cancellationToken);
+        var categoryName = await GetCategoryNameAsync(entity.JobCategoryId, cancellationToken);
         if (dto.TaskName is not null)
         {
             entity.TaskName = dto.TaskName.Trim();
         }
-        else if (dto.Name is not null || dto.JobTypeCategoryId.HasValue)
+        else if (dto.Name is not null || dto.JobCategoryId.HasValue)
         {
             entity.TaskName = ComposeTaskName(categoryName, entity.Name);
         }
@@ -160,12 +160,12 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
     private async Task<FgsJobTypeTask?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
         await _context.FgsJobTypeTasks.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
-    private Task<string?> GetCategoryNameAsync(long jobTypeCategoryId, CancellationToken cancellationToken)
-    {
-        _ = jobTypeCategoryId;
-        _ = cancellationToken;
-        return Task.FromResult<string?>(null);
-    }
+    private async Task<string?> GetCategoryNameAsync(long jobCategoryId, CancellationToken cancellationToken) =>
+        await _context.FgsJobCategories
+            .AsNoTracking()
+            .Where(c => c.Id == jobCategoryId)
+            .Select(c => (string?)c.Name)
+            .FirstOrDefaultAsync(cancellationToken);
 
     internal static string ResolveTaskName(string? taskName, string? categoryName, string subCategoryName)
     {
@@ -210,7 +210,7 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
     private static JobTypeTaskDetailDto MapToDetail(FgsJobTypeTask entity, string? categoryName = null) =>
         new(
             entity.Id,
-            entity.JobTypeCategoryId,
+            entity.JobCategoryId,
             entity.TradeId,
             entity.SkillLevelId,
             entity.Name,

@@ -1,11 +1,11 @@
 namespace Fgs.Setup.Domain.Entities;
 
 /// <summary>
-/// Stores the tasks that belong to a Job Type Category.
+/// Stores the tasks that belong to a Job Category (master catalog).
 /// </summary>
 public class FgsJobTypeTask : FgsTenantCompanySetupEntityBase<long>
 {
-    public long JobTypeCategoryId { get; set; }
+    public long JobCategoryId { get; set; }
 
     public long TradeId { get; set; }
 
@@ -21,7 +21,7 @@ public class FgsJobTypeTask : FgsTenantCompanySetupEntityBase<long>
 
     public short DisplayOrder { get; set; } = 1;
 
-    public FgsJobTypeCategory? JobTypeCategory { get; set; }
+    public FgsJobCategory? JobCategory { get; set; }
 
     public FgsSetupTechTrade? Trade { get; set; }
 

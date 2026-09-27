@@ -222,10 +222,10 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         var tasks = _context.FgsJobTypeTasks
             .AsNoTracking()
             .Where(t => taskIds.Contains(t.Id))
-            .Select(t => new { t.Id, t.JobTypeCategoryId, t.Name })
+            .Select(t => new { t.Id, t.JobCategoryId, t.Name })
             .ToList()
             .ToDictionary(t => t.Id);
-        var categoryIds = tasks.Values.Select(t => t.JobTypeCategoryId).Distinct().ToArray();
+        var categoryIds = tasks.Values.Select(t => t.JobCategoryId).Distinct().ToArray();
         var categoryNames = _context.FgsJobCategories
             .AsNoTracking()
             .Where(c => categoryIds.Contains(c.Id))
@@ -252,11 +252,11 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
                     string? categoryName = null;
                     if (task is not null)
                     {
-                        categoryNames.TryGetValue(task.JobTypeCategoryId, out categoryName);
+                        categoryNames.TryGetValue(task.JobCategoryId, out categoryName);
                     }
 
                     return new JobTypeSubCategoryDto(
-                        task?.JobTypeCategoryId ?? 0,
+                        task?.JobCategoryId ?? 0,
                         categoryName,
                         c.JobTypeTaskId,
                         task?.Name);

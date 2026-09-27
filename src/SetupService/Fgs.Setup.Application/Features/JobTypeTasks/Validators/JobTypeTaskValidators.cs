@@ -10,9 +10,9 @@ public sealed class CreateJobTypeTaskCommandValidator : AbstractValidator<Create
 {
     public CreateJobTypeTaskCommandValidator(IJobTypeTaskReadRepository readRepository)
     {
-        RuleFor(x => x.Dto.JobTypeCategoryId).MustAsync(async (command, value, cancellationToken) =>
-                await readRepository.ExistsJobTypeCategoryIdAsync(value, cancellationToken))
-            .WithMessage("The specified job type category was not found.");
+        RuleFor(x => x.Dto.JobCategoryId).MustAsync(async (command, value, cancellationToken) =>
+                await readRepository.ExistsJobCategoryIdAsync(value, cancellationToken))
+            .WithMessage("The specified job category was not found.");
         RuleFor(x => x.Dto.TradeId).MustAsync(async (command, value, cancellationToken) =>
                 await readRepository.ExistsTradeIdAsync(value, cancellationToken))
             .WithMessage("The specified trade was not found.");
@@ -23,7 +23,7 @@ public sealed class CreateJobTypeTaskCommandValidator : AbstractValidator<Create
         RuleFor(x => x.Dto.Name).NotEmpty();
         RuleFor(x => x.Dto.Name).MaximumLength(150);
         RuleFor(x => x.Dto.Name).MustAsync(async (command, value, cancellationToken) =>
-                !await readRepository.ExistsByNameAsync(command.Dto.JobTypeCategoryId, value, null, cancellationToken))
+                !await readRepository.ExistsByNameAsync(command.Dto.JobCategoryId, value, null, cancellationToken))
             .WithMessage("A sub-category with this name already exists in the selected category.");
         RuleFor(x => x.Dto.TaskName).NotEmpty().When(x => x.Dto.TaskName is not null);
         RuleFor(x => x.Dto.TaskName).MaximumLength(350).When(x => x.Dto.TaskName is not null);
@@ -38,9 +38,9 @@ public sealed class UpdateJobTypeTaskCommandValidator : AbstractValidator<Update
     public UpdateJobTypeTaskCommandValidator(IJobTypeTaskReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.JobTypeCategoryId).MustAsync(async (command, value, cancellationToken) =>
-                await readRepository.ExistsJobTypeCategoryIdAsync(value, cancellationToken))
-            .WithMessage("The specified job type category was not found.");
+        RuleFor(x => x.Dto.JobCategoryId).MustAsync(async (command, value, cancellationToken) =>
+                await readRepository.ExistsJobCategoryIdAsync(value, cancellationToken))
+            .WithMessage("The specified job category was not found.");
         RuleFor(x => x.Dto.TradeId).MustAsync(async (command, value, cancellationToken) =>
                 await readRepository.ExistsTradeIdAsync(value, cancellationToken))
             .WithMessage("The specified trade was not found.");
@@ -51,7 +51,7 @@ public sealed class UpdateJobTypeTaskCommandValidator : AbstractValidator<Update
         RuleFor(x => x.Dto.Name).NotEmpty();
         RuleFor(x => x.Dto.Name).MaximumLength(150);
         RuleFor(x => x.Dto.Name).MustAsync(async (command, value, cancellationToken) =>
-                !await readRepository.ExistsByNameAsync(command.Dto.JobTypeCategoryId, value, command.Id, cancellationToken))
+                !await readRepository.ExistsByNameAsync(command.Dto.JobCategoryId, value, command.Id, cancellationToken))
             .WithMessage("A sub-category with this name already exists in the selected category.");
         RuleFor(x => x.Dto.TaskName).NotEmpty().When(x => x.Dto.TaskName is not null);
         RuleFor(x => x.Dto.TaskName).MaximumLength(350).When(x => x.Dto.TaskName is not null);
@@ -66,9 +66,9 @@ public sealed class PatchJobTypeTaskCommandValidator : AbstractValidator<PatchJo
     public PatchJobTypeTaskCommandValidator(IJobTypeTaskReadRepository readRepository)
     {
         RuleFor(x => x.Id).GreaterThan(0);
-        RuleFor(x => x.Dto.JobTypeCategoryId).MustAsync(async (command, value, cancellationToken) =>
-                !value.HasValue || await readRepository.ExistsJobTypeCategoryIdAsync(value.Value, cancellationToken))
-            .WithMessage("The specified job type category was not found.").When(x => x.Dto.JobTypeCategoryId.HasValue);
+        RuleFor(x => x.Dto.JobCategoryId).MustAsync(async (command, value, cancellationToken) =>
+                !value.HasValue || await readRepository.ExistsJobCategoryIdAsync(value.Value, cancellationToken))
+            .WithMessage("The specified job category was not found.").When(x => x.Dto.JobCategoryId.HasValue);
         RuleFor(x => x.Dto.TradeId).MustAsync(async (command, value, cancellationToken) =>
                 !value.HasValue || await readRepository.ExistsTradeIdAsync(value.Value, cancellationToken))
             .WithMessage("The specified trade was not found.").When(x => x.Dto.TradeId.HasValue);
@@ -80,11 +80,11 @@ public sealed class PatchJobTypeTaskCommandValidator : AbstractValidator<PatchJo
         RuleFor(x => x.Dto.Name).MaximumLength(150).When(x => x.Dto.Name is not null);
         RuleFor(x => x.Dto.Name).MustAsync(async (command, value, cancellationToken) =>
             {
-                var categoryId = command.Dto.JobTypeCategoryId;
+                var categoryId = command.Dto.JobCategoryId;
                 if (!categoryId.HasValue)
                 {
                     var existing = await readRepository.GetByIdAsync(command.Id, cancellationToken);
-                    categoryId = existing?.JobTypeCategoryId;
+                    categoryId = existing?.JobCategoryId;
                 }
 
                 return !categoryId.HasValue

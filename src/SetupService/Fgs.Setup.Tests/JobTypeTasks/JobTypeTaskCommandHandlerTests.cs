@@ -7,6 +7,7 @@ using Fgs.Security.Abstractions;
 using Fgs.Setup.Application.Features.JobTypeTasks.Commands.CreateJobTypeTask;
 using Fgs.Setup.Application.Features.JobTypeTasks.Commands.DeleteJobTypeTask;
 using Fgs.Setup.Application.Features.JobTypeTasks.Dtos;
+using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
@@ -44,7 +45,8 @@ public sealed class JobTypeTaskCommandHandlerTests
         response.StatusCode.Should().Be(201);
         response.Data!.IsActive.Should().BeTrue();
         response.Data.Name.Should().Be("Repair");
-        response.Data.TaskName.Should().Be("Repair");
+        response.Data.TaskName.Should().Be("HVAC Repair");
+        response.Data.CategoryName.Should().Be("HVAC");
         response.Data.SkillLevelId.Should().BeNull();
         cache.Verify(
             c => c.RemoveByPrefixAsync(
@@ -85,7 +87,7 @@ public sealed class JobTypeTaskCommandHandlerTests
     }
 
     [Fact]
-    public async Task CreateHandler_WhenTaskNameOmitted_UsesNameWhenCategoryNameMissing()
+    public async Task CreateHandler_WhenTaskNameOmitted_ComposesCategoryAndName()
     {
         await using var context = await CreateContextAsync();
         var writeService = CreateWriteService(context);
@@ -101,8 +103,8 @@ public sealed class JobTypeTaskCommandHandlerTests
 
         response.Success.Should().BeTrue();
         response.Data!.Name.Should().Be("Compressor");
-        response.Data.TaskName.Should().Be("Compressor");
-        response.Data.CategoryName.Should().BeNull();
+        response.Data.TaskName.Should().Be("HVAC Compressor");
+        response.Data.CategoryName.Should().Be("HVAC");
     }
 
     [Fact]
@@ -185,6 +187,18 @@ public sealed class JobTypeTaskCommandHandlerTests
 
         var context = new FgsSetupDbContext(options, accessor);
         await context.Database.EnsureCreatedAsync();
+        context.FgsJobCategories.Add(new FgsJobCategory
+        {
+            Id = 1,
+            CategoryCode = "HVAC",
+            Name = "HVAC",
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "test"
+        });
+        await context.SaveChangesAsync();
         return context;
     }
 

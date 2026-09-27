@@ -13402,6 +13402,12 @@
                       "disabled": true
                     },
                     {
+                      "key": "jobCategoryId",
+                      "description": "Optional jobCategoryId filter from /jobcategory.",
+                      "value": "{{jobCategoryId}}",
+                      "disabled": true
+                    },
+                    {
                       "key": "jobTypeId",
                       "description": "Optional jobTypeId filter via assigned FgsJobTypeCategory mapping.",
                       "value": "",
@@ -13540,7 +13546,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"jobTypeCategoryId\": {{jobTypeCategoryId}},\n  \"tradeId\": {{tradeId}},\n  \"taskName\": \"Diagnose Issue\",\n  \"priority\": 5,\n  \"estimatedHours\": 0.00,\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"jobCategoryId\": {{jobCategoryId}},\n  \"tradeId\": {{tradeId}},\n  \"taskName\": \"Diagnose Issue\",\n  \"priority\": 5,\n  \"estimatedHours\": 0.00,\n  \"displayOrder\": 1\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -13616,7 +13622,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"jobTypeCategoryId\": {{jobTypeCategoryId}},\n  \"tradeId\": {{tradeId}},\n  \"taskName\": \"Diagnose Issue\",\n  \"priority\": 5,\n  \"estimatedHours\": 0.00,\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"jobCategoryId\": {{jobCategoryId}},\n  \"tradeId\": {{tradeId}},\n  \"taskName\": \"Diagnose Issue\",\n  \"priority\": 5,\n  \"estimatedHours\": 0.00,\n  \"displayOrder\": 1\n}",
                   "options": {
                     "raw": {
                       "language": "json"

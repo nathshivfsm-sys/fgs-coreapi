@@ -71,7 +71,6 @@ class EntityConfig:
 FK_EXISTS_TABLES: dict[str, tuple[str, str]] = {
     "JobCategoryId": ('setup."FgsJobCategory"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
     "JobTypeId": ('setup."FgsJobType"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
-    "JobTypeCategoryId": ('setup."FgsJobTypeCategory"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
     "TradeId": ('setup."FgsSetupTechTrade"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
     "GloResolutionTypeId": ('setup."GloResolutionTypeCache"', '"ResolutionTypeId" = @Id AND "IsActive" = TRUE'),
     "FgsSetupTechTradeId": ('setup."FgsSetupTechTrade"', '"TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE'),
@@ -251,7 +250,7 @@ ENTITIES: list[EntityConfig] = [
         unique_code=False,
         has_display_order=True,
         fields=f([
-            Field("JobTypeCategoryId", "long", in_summary=True),
+            Field("JobCategoryId", "long", in_summary=True),
             Field("TradeId", "long"),
             Field("TaskName", "string", 200, in_list_filter=True),
             Field("Priority", "short", default="5", validator_min=1),
@@ -259,7 +258,7 @@ ENTITIES: list[EntityConfig] = [
             Field("DisplayOrder", "short?", required=False),
         ]),
         fk_checks=[
-            ("JobTypeCategoryId", "ExistsJobTypeCategoryIdAsync", "job type category"),
+            ("JobCategoryId", "ExistsJobCategoryIdAsync", "job category"),
             ("TradeId", "ExistsTradeIdAsync", "trade"),
         ],
         search_columns=["TaskName"],

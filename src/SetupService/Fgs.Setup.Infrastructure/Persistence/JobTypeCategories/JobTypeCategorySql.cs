@@ -14,7 +14,7 @@ internal static class JobTypeCategorySql
            AND t."TenantId" = jtc."TenantId"
            AND t."CompanyId" = jtc."CompanyId"
         LEFT JOIN setup."FgsJobCategory" jc
-            ON jc."Id" = t."JobTypeCategoryId"
+            ON jc."Id" = t."JobCategoryId"
            AND jc."TenantId" = t."TenantId"
            AND jc."CompanyId" = t."CompanyId"
         """;
@@ -38,7 +38,7 @@ internal static class JobTypeCategorySql
         """;
 
     public const string SelectJobTypeChildColumns = """
-        t."JobTypeCategoryId" AS "CategoryId",
+        t."JobCategoryId" AS "CategoryId",
         jc."Name" AS "CategoryName",
         jtc."JobTypeTaskId",
         t."Name"

@@ -62,9 +62,9 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
             where.Add("t.\"IsActive\" = @IsActive");
         }
 
-        if (filters.JobTypeCategoryId.HasValue)
+        if (filters.JobCategoryId.HasValue)
         {
-            where.Add("t.\"JobTypeCategoryId\" = @JobTypeCategoryId");
+            where.Add("t.\"JobCategoryId\" = @JobCategoryId");
         }
 
         if (filters.JobTypeId.HasValue)
@@ -108,7 +108,7 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
             TenantId = tenantId,
             CompanyId = companyId,
             IsActive = paging.IsActive,
-            JobTypeCategoryId = filters.JobTypeCategoryId,
+            JobCategoryId = filters.JobCategoryId,
             JobTypeId = filters.JobTypeId,
             TaskName = string.IsNullOrWhiteSpace(filters.TaskName) ? null : $"%{filters.TaskName.Trim()}%",
             Name = string.IsNullOrWhiteSpace(filters.Name) ? null : $"%{filters.Name.Trim()}%",
@@ -174,7 +174,7 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
                 cancellationToken: cancellationToken));
     }
 
-    public async Task<bool> ExistsJobTypeCategoryIdAsync(
+    public async Task<bool> ExistsJobCategoryIdAsync(
         long id,
         CancellationToken cancellationToken = default)
     {
@@ -182,7 +182,7 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
         var sql = $"""
             SELECT EXISTS(
                 SELECT 1
-                FROM setup."FgsJobTypeCategory"
+                FROM setup."FgsJobCategory"
                 WHERE "TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE
             )
             """;
@@ -238,7 +238,7 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
     }
 
     public async Task<bool> ExistsByNameAsync(
-        long jobTypeCategoryId,
+        long jobCategoryId,
         string name,
         long? excludeId = null,
         CancellationToken cancellationToken = default)
@@ -250,7 +250,7 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
                 FROM {JobTypeTaskSql.Table}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
-                  AND "JobTypeCategoryId" = @JobTypeCategoryId
+                  AND "JobCategoryId" = @JobCategoryId
                   AND "Name" = @Name
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )
@@ -264,7 +264,7 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
                 {
                     TenantId = tenantId,
                     CompanyId = companyId,
-                    JobTypeCategoryId = jobTypeCategoryId,
+                    JobCategoryId = jobCategoryId,
                     Name = name.Trim(),
                     ExcludeId = excludeId
                 },

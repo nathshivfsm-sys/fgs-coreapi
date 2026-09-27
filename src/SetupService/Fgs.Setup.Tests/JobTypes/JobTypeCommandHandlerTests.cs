@@ -240,7 +240,7 @@ public sealed class JobTypeCommandHandlerTests
     {
         var task = new FgsJobTypeTask
         {
-            JobTypeCategoryId = 1,
+            JobCategoryId = 1,
             TradeId = 1,
             Name = name,
             TaskName = name,

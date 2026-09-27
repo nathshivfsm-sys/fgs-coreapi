@@ -21,7 +21,7 @@ public interface IJobTypeTaskReadRepository
         long id,
         CancellationToken cancellationToken = default);
 
-    Task<bool> ExistsJobTypeCategoryIdAsync(
+    Task<bool> ExistsJobCategoryIdAsync(
         long id,
         CancellationToken cancellationToken = default);
     Task<bool> ExistsTradeIdAsync(
@@ -33,7 +33,7 @@ public interface IJobTypeTaskReadRepository
         CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByNameAsync(
-        long jobTypeCategoryId,
+        long jobCategoryId,
         string name,
         long? excludeId = null,
         CancellationToken cancellationToken = default);

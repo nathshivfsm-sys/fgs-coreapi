@@ -45,14 +45,14 @@ public sealed class JobTypeTaskController(IMediator mediator) : ControllerBase
         [FromQuery] bool? isActive = null,
         [FromQuery] string? taskName = null,
         [FromQuery] string? name = null,
-        [FromQuery] long? jobTypeCategoryId = null,
+        [FromQuery] long? jobCategoryId = null,
         [FromQuery] long? jobTypeId = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListJobTypeTasksQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new JobTypeTaskListFilters(taskName, name, jobTypeCategoryId, jobTypeId)),
+                new JobTypeTaskListFilters(taskName, name, jobCategoryId, jobTypeId)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);

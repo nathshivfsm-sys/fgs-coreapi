@@ -10,7 +10,7 @@ internal class FgsJobTypeTaskConfiguration : IEntityTypeConfiguration<FgsJobType
     {
         entity.ToTable("FgsJobTypeTask", t =>
             t.HasComment(
-                "Stores the tasks that belong to a Job Type Category. Each task defines the work to be performed, along with its associated Trade, Priority, and estimated labor hours."));
+                "Stores the tasks that belong to a Job Category (master catalog). Each task defines the work to be performed, along with its associated Trade, Priority, and estimated labor hours."));
 
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id)
@@ -25,8 +25,8 @@ internal class FgsJobTypeTaskConfiguration : IEntityTypeConfiguration<FgsJobType
         entity.Property(e => e.CompanyId)
             .HasComment("Identifier of the company within the tenant that owns this Job Type Task.");
 
-        entity.Property(e => e.JobTypeCategoryId)
-            .HasComment("Identifier of the Job Type Category that owns this task.");
+        entity.Property(e => e.JobCategoryId)
+            .HasComment("Identifier of the Job Category (master catalog) that owns this task.");
 
         entity.Property(e => e.TradeId)
             .HasComment("Identifier of the Trade responsible for performing this task.");
@@ -36,7 +36,7 @@ internal class FgsJobTypeTaskConfiguration : IEntityTypeConfiguration<FgsJobType
 
         entity.Property(e => e.Name)
             .HasMaxLength(150)
-            .HasComment("Sub-category name unique within the parent Job Type Category.");
+            .HasComment("Sub-category name unique within the parent Job Category.");
 
         entity.Property(e => e.TaskName)
             .HasMaxLength(350)
@@ -53,7 +53,7 @@ internal class FgsJobTypeTaskConfiguration : IEntityTypeConfiguration<FgsJobType
 
         entity.Property(e => e.DisplayOrder)
             .HasDefaultValue((short)1)
-            .HasComment("Controls the display sequence of tasks within the Job Type Category.");
+            .HasComment("Controls the display sequence of tasks within the Job Category.");
 
         entity.Property(e => e.IsActive)
             .HasDefaultValue(true)
@@ -77,11 +77,11 @@ internal class FgsJobTypeTaskConfiguration : IEntityTypeConfiguration<FgsJobType
             .HasMaxLength(100)
             .HasComment("User who last modified the Job Type Task.");
 
-        entity.HasOne(e => e.JobTypeCategory)
-            .WithMany(e => e.Tasks)
-            .HasForeignKey(e => e.JobTypeCategoryId)
-            .HasConstraintName("FK_FgsJobTypeTask_FgsJobTypeCategory")
-            .OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne(e => e.JobCategory)
+            .WithMany()
+            .HasForeignKey(e => e.JobCategoryId)
+            .HasConstraintName("FK_FgsJobTypeTask_FgsJobCategory")
+            .OnDelete(DeleteBehavior.Restrict);
 
         entity.HasOne(e => e.Trade)
             .WithMany()
@@ -100,11 +100,11 @@ internal class FgsJobTypeTaskConfiguration : IEntityTypeConfiguration<FgsJobType
         entity.HasIndex(e => new { e.TenantId, e.CompanyId })
             .HasDatabaseName("IX_FgsJobTypeTask_Tenant_Company");
 
-        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.JobTypeCategoryId })
-            .HasDatabaseName("IX_FgsJobTypeTask_Tenant_Company_JobTypeCategory");
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.JobCategoryId })
+            .HasDatabaseName("IX_FgsJobTypeTask_Tenant_Company_JobCategory");
 
-        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.JobTypeCategoryId, e.Name })
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.JobCategoryId, e.Name })
             .IsUnique()
-            .HasDatabaseName("UX_FgsJobTypeTask_Tenant_Company_JobTypeCategory_Name");
+            .HasDatabaseName("UX_FgsJobTypeTask_Tenant_Company_JobCategory_Name");
     }
 }

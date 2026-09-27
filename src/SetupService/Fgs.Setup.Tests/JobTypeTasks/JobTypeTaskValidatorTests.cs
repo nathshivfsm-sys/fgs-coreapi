@@ -107,7 +107,7 @@ public sealed class JobTypeTaskValidatorTests
     private void SetupRequiredLookupsExist()
     {
         _readRepository
-            .Setup(r => r.ExistsJobTypeCategoryIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.ExistsJobCategoryIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         _readRepository
             .Setup(r => r.ExistsTradeIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))

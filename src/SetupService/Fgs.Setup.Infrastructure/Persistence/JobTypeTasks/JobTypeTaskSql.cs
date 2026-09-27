@@ -17,18 +17,22 @@ internal static class JobTypeTaskSql
             ON sl."Id" = t."SkillLevelId"
            AND sl."TenantId" = t."TenantId"
            AND sl."CompanyId" = t."CompanyId"
+        LEFT JOIN setup."FgsJobCategory" jc
+            ON jc."Id" = t."JobCategoryId"
+           AND jc."TenantId" = t."TenantId"
+           AND jc."CompanyId" = t."CompanyId"
         """;
 
     public const string SelectDetailColumns = """
-        t."Id", t."JobTypeCategoryId", t."TradeId", t."SkillLevelId", t."Name", t."TaskName",
+        t."Id", t."JobCategoryId", t."TradeId", t."SkillLevelId", t."Name", t."TaskName",
         t."Priority", t."EstimatedHours", t."DisplayOrder", t."IsActive",
-        NULL AS "CategoryName", tr."Name" AS "TradeName", sl."Name" AS "SkillName"
+        jc."Name" AS "CategoryName", tr."Name" AS "TradeName", sl."Name" AS "SkillName"
         """;
 
     public const string SelectSummaryColumns = """
-        t."Id", t."JobTypeCategoryId", t."TradeId", t."SkillLevelId", t."Name", t."TaskName",
+        t."Id", t."JobCategoryId", t."TradeId", t."SkillLevelId", t."Name", t."TaskName",
         t."Priority", t."EstimatedHours", t."DisplayOrder", t."IsActive",
-        NULL AS "CategoryName", tr."Name" AS "TradeName", sl."Name" AS "SkillName"
+        jc."Name" AS "CategoryName", tr."Name" AS "TradeName", sl."Name" AS "SkillName"
         """;
 
     public const string SelectLookupColumns = """
@@ -48,7 +52,7 @@ internal static class JobTypeTaskSql
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "IsActive", "DisplayOrder", "JobTypeCategoryId", "TradeId", "SkillLevelId",
+        "Id", "IsActive", "DisplayOrder", "JobCategoryId", "TradeId", "SkillLevelId",
         "Name", "TaskName", "Priority", "EstimatedHours"
     };
 

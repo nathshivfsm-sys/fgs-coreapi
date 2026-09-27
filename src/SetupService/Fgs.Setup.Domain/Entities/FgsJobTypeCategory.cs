@@ -14,6 +14,4 @@ public class FgsJobTypeCategory : FgsTenantCompanySetupEntityBase<long>
     public FgsJobType? JobType { get; set; }
 
     public FgsJobTypeTask? JobTypeTask { get; set; }
-
-    public ICollection<FgsJobTypeTask> Tasks { get; set; } = new List<FgsJobTypeTask>();
 }
