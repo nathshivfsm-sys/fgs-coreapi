@@ -6,7 +6,7 @@ internal sealed class JobTypeCategorySummaryRow
 {
     public long Id { get; set; }
     public long JobTypeId { get; set; }
-    public long JobCategoryId { get; set; }
+    public long JobTypeTaskId { get; set; }
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
 
@@ -14,7 +14,7 @@ internal sealed class JobTypeCategorySummaryRow
         new(
             Id,
             JobTypeId,
-            JobCategoryId,
+            JobTypeTaskId,
             DisplayOrder,
             IsActive);
 }
@@ -23,7 +23,7 @@ internal sealed class JobTypeCategoryDetailRow
 {
     public long Id { get; set; }
     public long JobTypeId { get; set; }
-    public long JobCategoryId { get; set; }
+    public long JobTypeTaskId { get; set; }
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
 
@@ -31,7 +31,7 @@ internal sealed class JobTypeCategoryDetailRow
         new(
             Id,
             JobTypeId,
-            JobCategoryId,
+            JobTypeTaskId,
             DisplayOrder,
             IsActive);
 }
@@ -40,11 +40,11 @@ internal sealed class JobTypeCategoryLookupRow
 {
     public long Id { get; set; }
     public long JobTypeId { get; set; }
-    public long JobCategoryId { get; set; }
+    public long JobTypeTaskId { get; set; }
     public short? DisplayOrder { get; set; }
 
     public JobTypeCategoryLookupDto ToDto() => new(Id,
             JobTypeId,
-            JobCategoryId,
+            JobTypeTaskId,
             DisplayOrder);
 }

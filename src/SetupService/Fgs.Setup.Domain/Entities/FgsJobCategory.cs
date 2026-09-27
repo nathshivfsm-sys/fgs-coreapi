@@ -9,5 +9,9 @@ public class FgsJobCategory : FgsTenantCompanySetupEntityBase<long>
 
     public string Name { get; set; } = null!;
 
+    public string BackgroundColor { get; set; } = "#FFFFFF";
+
+    public string TextColor { get; set; } = "#000000";
+
     public short DisplayOrder { get; set; } = 1;
 }

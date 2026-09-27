@@ -7,6 +7,8 @@ internal sealed class JobCategorySummaryRow
     public long Id { get; set; }
     public string CategoryCode { get; set; } = null!;
     public string Name { get; set; } = null!;
+    public string BackgroundColor { get; set; } = "#FFFFFF";
+    public string TextColor { get; set; } = "#000000";
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
 
@@ -15,6 +17,8 @@ internal sealed class JobCategorySummaryRow
             Id,
             CategoryCode,
             Name,
+            BackgroundColor,
+            TextColor,
             DisplayOrder,
             IsActive);
 }
@@ -24,6 +28,8 @@ internal sealed class JobCategoryDetailRow
     public long Id { get; set; }
     public string CategoryCode { get; set; } = null!;
     public string Name { get; set; } = null!;
+    public string BackgroundColor { get; set; } = "#FFFFFF";
+    public string TextColor { get; set; } = "#000000";
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
 
@@ -32,6 +38,8 @@ internal sealed class JobCategoryDetailRow
             Id,
             CategoryCode,
             Name,
+            BackgroundColor,
+            TextColor,
             DisplayOrder,
             IsActive);
 }

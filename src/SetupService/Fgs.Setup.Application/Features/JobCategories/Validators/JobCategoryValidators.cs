@@ -18,14 +18,8 @@ public sealed class CreateJobCategoryCommandValidator : AbstractValidator<Create
             .WithMessage("A job category with this code already exists.");
         RuleFor(x => x.Dto.Name).NotEmpty();
         RuleFor(x => x.Dto.Name).MaximumLength(150);
-        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);        RuleFor(x => x.Dto.CategoryCode).NotEmpty();
-        RuleFor(x => x.Dto.CategoryCode).MaximumLength(50);
-        RuleFor(x => x.Dto.CategoryCode).Must(code => string.Equals(code, code.Trim().ToUpperInvariant(), StringComparison.Ordinal)).WithMessage("CategoryCode must be uppercase.");
-        RuleFor(x => x.Dto.CategoryCode).MustAsync(async (command, code, cancellationToken) =>
-                !await readRepository.ExistsByCategoryCodeAsync(code, null, cancellationToken))
-            .WithMessage("A job category with this code already exists.");
-        RuleFor(x => x.Dto.Name).NotEmpty();
-        RuleFor(x => x.Dto.Name).MaximumLength(150);
+        RuleFor(x => x.Dto.BackgroundColor).MaximumLength(20);
+        RuleFor(x => x.Dto.TextColor).MaximumLength(20);
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
     }
 }
@@ -43,6 +37,8 @@ public sealed class UpdateJobCategoryCommandValidator : AbstractValidator<Update
             .WithMessage("A job category with this code already exists.");
         RuleFor(x => x.Dto.Name).NotEmpty();
         RuleFor(x => x.Dto.Name).MaximumLength(150);
+        RuleFor(x => x.Dto.BackgroundColor).MaximumLength(20);
+        RuleFor(x => x.Dto.TextColor).MaximumLength(20);
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
     }
 }
@@ -60,6 +56,8 @@ public sealed class PatchJobCategoryCommandValidator : AbstractValidator<PatchJo
             .WithMessage("A job category with this code already exists.").When(x => x.Dto.CategoryCode is not null);
         RuleFor(x => x.Dto.Name).NotEmpty().When(x => x.Dto.Name is not null);
         RuleFor(x => x.Dto.Name).MaximumLength(150).When(x => x.Dto.Name is not null);
+        RuleFor(x => x.Dto.BackgroundColor).MaximumLength(20).When(x => x.Dto.BackgroundColor is not null);
+        RuleFor(x => x.Dto.TextColor).MaximumLength(20).When(x => x.Dto.TextColor is not null);
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
     }
 }

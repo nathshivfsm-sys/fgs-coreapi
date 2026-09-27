@@ -49,14 +49,6 @@ internal class FgsJobTypeConfiguration : IEntityTypeConfiguration<FgsJobType>
             .HasMaxLength(100)
             .HasComment("Optional business unit or department responsible for this Job Type.");
 
-        entity.Property(e => e.BackgroundColor)
-            .HasMaxLength(20)
-            .HasComment("Optional background color used when displaying the Job Type in the user interface.");
-
-        entity.Property(e => e.TextColor)
-            .HasMaxLength(20)
-            .HasComment("Optional text color used when displaying the Job Type in the user interface.");
-
         entity.Property(e => e.ShowToFieldTech)
             .HasDefaultValue(true)
             .HasComment("Indicates whether this Job Type is visible to field technicians in the mobile application.");

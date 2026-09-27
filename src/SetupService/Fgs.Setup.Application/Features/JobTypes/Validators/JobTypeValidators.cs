@@ -23,8 +23,6 @@ public sealed class CreateJobTypeCommandValidator : AbstractValidator<CreateJobT
             .WithMessage("An active job type with this name already exists.");
         RuleFor(x => x.Dto.UsedFor).GreaterThanOrEqualTo((short)1);
         RuleFor(x => x.Dto.BusinessUnit).MaximumLength(100);
-        RuleFor(x => x.Dto.BackgroundColor).MaximumLength(20);
-        RuleFor(x => x.Dto.TextColor).MaximumLength(20);
 
 
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
@@ -50,8 +48,6 @@ public sealed class UpdateJobTypeCommandValidator : AbstractValidator<UpdateJobT
             .WithMessage("An active job type with this name already exists.");
         RuleFor(x => x.Dto.UsedFor).GreaterThanOrEqualTo((short)1);
         RuleFor(x => x.Dto.BusinessUnit).MaximumLength(100);
-        RuleFor(x => x.Dto.BackgroundColor).MaximumLength(20);
-        RuleFor(x => x.Dto.TextColor).MaximumLength(20);
 
 
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);
@@ -77,8 +73,6 @@ public sealed class PatchJobTypeCommandValidator : AbstractValidator<PatchJobTyp
             .WithMessage("An active job type with this name already exists.").When(x => x.Dto.Name is not null);
         RuleFor(x => x.Dto.UsedFor).GreaterThanOrEqualTo((short)1).When(x => x.Dto.UsedFor.HasValue);
         RuleFor(x => x.Dto.BusinessUnit).MaximumLength(100).When(x => x.Dto.BusinessUnit is not null);
-        RuleFor(x => x.Dto.BackgroundColor).MaximumLength(20).When(x => x.Dto.BackgroundColor is not null);
-        RuleFor(x => x.Dto.TextColor).MaximumLength(20).When(x => x.Dto.TextColor is not null);
 
 
         RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0).When(x => x.Dto.DisplayOrder.HasValue);

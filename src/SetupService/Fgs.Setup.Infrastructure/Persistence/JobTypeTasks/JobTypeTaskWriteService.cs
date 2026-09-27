@@ -160,14 +160,11 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
     private async Task<FgsJobTypeTask?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
         await _context.FgsJobTypeTasks.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
 
-    private async Task<string?> GetCategoryNameAsync(long jobTypeCategoryId, CancellationToken cancellationToken)
+    private Task<string?> GetCategoryNameAsync(long jobTypeCategoryId, CancellationToken cancellationToken)
     {
-        return await (
-            from jobTypeCategory in _context.FgsJobTypeCategories.AsNoTracking()
-            join jobCategory in _context.FgsJobCategories.AsNoTracking()
-                on jobTypeCategory.JobCategoryId equals jobCategory.Id
-            where jobTypeCategory.Id == jobTypeCategoryId
-            select jobCategory.Name).FirstOrDefaultAsync(cancellationToken);
+        _ = jobTypeCategoryId;
+        _ = cancellationToken;
+        return Task.FromResult<string?>(null);
     }
 
     internal static string ResolveTaskName(string? taskName, string? categoryName, string subCategoryName)

@@ -8,11 +8,11 @@ internal static class JobCategorySql
     public const string Table = "setup.\"FgsJobCategory\"";
 
     public const string SelectDetailColumns = """
-        "Id", "CategoryCode", "Name", "DisplayOrder", "IsActive"
+        "Id", "CategoryCode", "Name", "BackgroundColor", "TextColor", "DisplayOrder", "IsActive"
         """;
 
     public const string SelectSummaryColumns = """
-        "Id", "CategoryCode", "Name", "DisplayOrder", "IsActive"
+        "Id", "CategoryCode", "Name", "BackgroundColor", "TextColor", "DisplayOrder", "IsActive"
         """;
 
     public const string SelectLookupColumns = """

@@ -66,9 +66,9 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
         {
             where.Add("\"JobTypeId\" = @JobTypeId");
         }
-        if (filters.JobCategoryId.HasValue)
+        if (filters.JobTypeTaskId.HasValue)
         {
-            where.Add("\"JobCategoryId\" = @JobCategoryId");
+            where.Add("\"JobTypeTaskId\" = @JobTypeTaskId");
         }
 
         var whereClause = string.Join(" AND ", where);
@@ -92,7 +92,7 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
             CompanyId = companyId,
             IsActive = paging.IsActive,
             JobTypeId = filters.JobTypeId,
-            JobCategoryId = filters.JobCategoryId,
+            JobTypeTaskId = filters.JobTypeTaskId,
             Search = string.IsNullOrWhiteSpace(paging.Search) ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
             Offset = offset
@@ -127,7 +127,7 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
               AND "CompanyId" = @CompanyId
               {activeFilter}
               {jobTypeFilter}
-            ORDER BY "DisplayOrder" ASC NULLS LAST, "JobCategoryId" ASC
+            ORDER BY "DisplayOrder" ASC NULLS LAST, "JobTypeTaskId" ASC
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -137,8 +137,8 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
         return rows.Select(r => r.ToDto()).ToList();
     }
 
-    public async Task<bool> ExistsByJobTypeIdAndJobCategoryIdAsync(
-        long jobTypeId, long jobCategoryId,
+    public async Task<bool> ExistsByJobTypeIdAndJobTypeTaskIdAsync(
+        long jobTypeId, long jobTypeTaskId,
         long? excludeId = null,
         CancellationToken cancellationToken = default)
     {
@@ -150,7 +150,7 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
                   AND "IsActive" = TRUE
-                  AND "JobTypeId" = @JobTypeId AND "JobCategoryId" = @JobCategoryId
+                  AND "JobTypeId" = @JobTypeId AND "JobTypeTaskId" = @JobTypeTaskId
                   {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
             )
             """;
@@ -164,7 +164,7 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
                     TenantId = tenantId,
                     CompanyId = companyId,
                     JobTypeId = jobTypeId,
-                    JobCategoryId = jobCategoryId,
+                    JobTypeTaskId = jobTypeTaskId,
                     ExcludeId = excludeId
                 },
                 cancellationToken: cancellationToken));
@@ -189,7 +189,7 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
                 new { TenantId = tenantId, CompanyId = companyId, Id = id },
                 cancellationToken: cancellationToken));
     }
-    public async Task<bool> ExistsJobCategoryIdAsync(
+    public async Task<bool> ExistsJobTypeTaskIdAsync(
         long id,
         CancellationToken cancellationToken = default)
     {
@@ -197,7 +197,7 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
         var sql = $"""
             SELECT EXISTS(
                 SELECT 1
-                FROM setup."FgsJobCategory"
+                FROM setup."FgsJobTypeTask"
                 WHERE "TenantId" = @TenantId AND "CompanyId" = @CompanyId AND "Id" = @Id AND "IsActive" = TRUE
             )
             """;

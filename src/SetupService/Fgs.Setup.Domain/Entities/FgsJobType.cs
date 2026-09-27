@@ -16,10 +16,6 @@ public class FgsJobType : FgsTenantCompanySetupEntityBase<long>
 
     public string? BusinessUnit { get; set; }
 
-    public string? BackgroundColor { get; set; }
-
-    public string? TextColor { get; set; }
-
     public bool ShowToFieldTech { get; set; } = true;
 
     public bool ShowOnCustomerPortal { get; set; } = true;

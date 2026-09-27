@@ -9,8 +9,6 @@ internal sealed class JobTypeSummaryRow
     public string Name { get; set; } = null!;
     public short UsedFor { get; set; }
     public string? BusinessUnit { get; set; }
-    public string? BackgroundColor { get; set; }
-    public string? TextColor { get; set; }
     public bool ShowToFieldTech { get; set; }
     public bool ShowOnCustomerPortal { get; set; }
     public short? DisplayOrder { get; set; }
@@ -23,8 +21,6 @@ internal sealed class JobTypeSummaryRow
             Name,
             UsedFor,
             BusinessUnit,
-            BackgroundColor,
-            TextColor,
             ShowToFieldTech,
             ShowOnCustomerPortal,
             DisplayOrder,
@@ -38,8 +34,6 @@ internal sealed class JobTypeDetailRow
     public string Name { get; set; } = null!;
     public short UsedFor { get; set; }
     public string? BusinessUnit { get; set; }
-    public string? BackgroundColor { get; set; }
-    public string? TextColor { get; set; }
     public bool ShowToFieldTech { get; set; }
     public bool ShowOnCustomerPortal { get; set; }
     public short? DisplayOrder { get; set; }
@@ -52,8 +46,6 @@ internal sealed class JobTypeDetailRow
             Name,
             UsedFor,
             BusinessUnit,
-            BackgroundColor,
-            TextColor,
             ShowToFieldTech,
             ShowOnCustomerPortal,
             DisplayOrder,

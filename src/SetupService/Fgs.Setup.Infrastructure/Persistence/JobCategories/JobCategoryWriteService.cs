@@ -32,7 +32,11 @@ public sealed class JobCategoryWriteService : IJobCategoryWriteService
     {
         var entity = new FgsJobCategory
         {
-            CategoryCode = NormalizeCode(dto.CategoryCode), Name = dto.Name.Trim(), DisplayOrder = dto.DisplayOrder ?? 1
+            CategoryCode = NormalizeCode(dto.CategoryCode),
+            Name = dto.Name.Trim(),
+            BackgroundColor = NormalizeColor(dto.BackgroundColor, "#FFFFFF"),
+            TextColor = NormalizeColor(dto.TextColor, "#000000"),
+            DisplayOrder = dto.DisplayOrder ?? 1
         };
 
         _auditHelper.StampForCreate(entity);
@@ -52,6 +56,8 @@ public sealed class JobCategoryWriteService : IJobCategoryWriteService
 
         entity.CategoryCode = NormalizeCode(dto.CategoryCode);
         entity.Name = dto.Name.Trim();
+        entity.BackgroundColor = NormalizeColor(dto.BackgroundColor, "#FFFFFF");
+        entity.TextColor = NormalizeColor(dto.TextColor, "#000000");
         entity.DisplayOrder = dto.DisplayOrder ?? entity.DisplayOrder;
 
         _auditHelper.StampForUpdate(entity);
@@ -74,7 +80,15 @@ public sealed class JobCategoryWriteService : IJobCategoryWriteService
         }
         if (dto.Name is not null)
         {
-            entity.Name = dto.Name.Trim();;
+            entity.Name = dto.Name.Trim();
+        }
+        if (dto.BackgroundColor is not null)
+        {
+            entity.BackgroundColor = NormalizeColor(dto.BackgroundColor, "#FFFFFF");
+        }
+        if (dto.TextColor is not null)
+        {
+            entity.TextColor = NormalizeColor(dto.TextColor, "#000000");
         }
         if (dto.DisplayOrder.HasValue)
         {
@@ -129,11 +143,16 @@ public sealed class JobCategoryWriteService : IJobCategoryWriteService
 
     private static string NormalizeCode(string code) => code.Trim().ToUpperInvariant();
 
+    private static string NormalizeColor(string? color, string defaultValue) =>
+        string.IsNullOrWhiteSpace(color) ? defaultValue : color.Trim();
+
     private static JobCategoryDetailDto MapToDetail(FgsJobCategory entity) =>
         new(
             entity.Id,
             entity.CategoryCode,
             entity.Name,
+            entity.BackgroundColor,
+            entity.TextColor,
             entity.DisplayOrder,
             entity.IsActive);
 }

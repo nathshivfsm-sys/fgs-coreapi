@@ -9,14 +9,6 @@ internal static class JobTypeTaskSql
 
     public const string FromJoins = """
         setup."FgsJobTypeTask" t
-        INNER JOIN setup."FgsJobTypeCategory" jtc
-            ON jtc."Id" = t."JobTypeCategoryId"
-           AND jtc."TenantId" = t."TenantId"
-           AND jtc."CompanyId" = t."CompanyId"
-        INNER JOIN setup."FgsJobCategory" jc
-            ON jc."Id" = jtc."JobCategoryId"
-           AND jc."TenantId" = t."TenantId"
-           AND jc."CompanyId" = t."CompanyId"
         INNER JOIN setup."FgsSetupTechTrade" tr
             ON tr."Id" = t."TradeId"
            AND tr."TenantId" = t."TenantId"
@@ -30,13 +22,13 @@ internal static class JobTypeTaskSql
     public const string SelectDetailColumns = """
         t."Id", t."JobTypeCategoryId", t."TradeId", t."SkillLevelId", t."Name", t."TaskName",
         t."Priority", t."EstimatedHours", t."DisplayOrder", t."IsActive",
-        jc."Name" AS "CategoryName", tr."Name" AS "TradeName", sl."Name" AS "SkillName"
+        NULL AS "CategoryName", tr."Name" AS "TradeName", sl."Name" AS "SkillName"
         """;
 
     public const string SelectSummaryColumns = """
         t."Id", t."JobTypeCategoryId", t."TradeId", t."SkillLevelId", t."Name", t."TaskName",
         t."Priority", t."EstimatedHours", t."DisplayOrder", t."IsActive",
-        jc."Name" AS "CategoryName", tr."Name" AS "TradeName", sl."Name" AS "SkillName"
+        NULL AS "CategoryName", tr."Name" AS "TradeName", sl."Name" AS "SkillName"
         """;
 
     public const string SelectLookupColumns = """

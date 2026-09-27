@@ -17,13 +17,13 @@ public sealed class JobTypeCategoryValidatorTests
     {
 
         _readRepository
-            .Setup(r => r.ExistsByJobTypeIdAndJobCategoryIdAsync(It.IsAny<long>(), It.IsAny<long>(), 5, It.IsAny<CancellationToken>()))
+            .Setup(r => r.ExistsByJobTypeIdAndJobTypeTaskIdAsync(It.IsAny<long>(), It.IsAny<long>(), 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         _readRepository
             .Setup(r => r.ExistsJobTypeIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         _readRepository
-            .Setup(r => r.ExistsJobCategoryIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.ExistsJobTypeTaskIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         var validator = new UpdateJobTypeCategoryCommandValidator(_readRepository.Object);
         var command = new UpdateJobTypeCategoryCommand(5, new JobTypeCategoryUpdateDto(1, 1, 1));

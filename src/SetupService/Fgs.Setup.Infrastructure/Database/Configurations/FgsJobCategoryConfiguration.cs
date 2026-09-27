@@ -33,6 +33,16 @@ internal class FgsJobCategoryConfiguration : IEntityTypeConfiguration<FgsJobCate
             .HasMaxLength(150)
             .HasComment("Display name of the Job Category.");
 
+        entity.Property(e => e.BackgroundColor)
+            .HasMaxLength(20)
+            .HasDefaultValue("#FFFFFF")
+            .HasComment("Background color for displaying the Job Category, stored as a HEX color value such as #3B82F6.");
+
+        entity.Property(e => e.TextColor)
+            .HasMaxLength(20)
+            .HasDefaultValue("#000000")
+            .HasComment("Text color for displaying the Job Category, stored as a HEX color value such as #FFFFFF.");
+
         entity.Property(e => e.DisplayOrder)
             .HasDefaultValue((short)1)
             .HasComment("Controls the display sequence of Job Categories in lists and selection controls.");

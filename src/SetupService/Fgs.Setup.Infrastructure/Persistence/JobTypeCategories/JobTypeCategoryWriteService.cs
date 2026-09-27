@@ -32,7 +32,7 @@ public sealed class JobTypeCategoryWriteService : IJobTypeCategoryWriteService
     {
         var entity = new FgsJobTypeCategory
         {
-            JobTypeId = dto.JobTypeId, JobCategoryId = dto.JobCategoryId, DisplayOrder = dto.DisplayOrder ?? 1
+            JobTypeId = dto.JobTypeId, JobTypeTaskId = dto.JobTypeTaskId, DisplayOrder = dto.DisplayOrder ?? 1
         };
 
         _auditHelper.StampForCreate(entity);
@@ -51,7 +51,7 @@ public sealed class JobTypeCategoryWriteService : IJobTypeCategoryWriteService
             ?? throw new KeyNotFoundException($"Job Type Category '{id}' was not found.");
 
         entity.JobTypeId = dto.JobTypeId;
-        entity.JobCategoryId = dto.JobCategoryId;
+        entity.JobTypeTaskId = dto.JobTypeTaskId;
         entity.DisplayOrder = dto.DisplayOrder ?? entity.DisplayOrder;
 
         _auditHelper.StampForUpdate(entity);
@@ -72,9 +72,9 @@ public sealed class JobTypeCategoryWriteService : IJobTypeCategoryWriteService
         {
             entity.JobTypeId = dto.JobTypeId.Value;
         }
-        if (dto.JobCategoryId.HasValue)
+        if (dto.JobTypeTaskId.HasValue)
         {
-            entity.JobCategoryId = dto.JobCategoryId.Value;
+            entity.JobTypeTaskId = dto.JobTypeTaskId.Value;
         }
         if (dto.DisplayOrder.HasValue)
         {
@@ -133,7 +133,7 @@ public sealed class JobTypeCategoryWriteService : IJobTypeCategoryWriteService
         new(
             entity.Id,
             entity.JobTypeId,
-            entity.JobCategoryId,
+            entity.JobTypeTaskId,
             entity.DisplayOrder,
             entity.IsActive);
 }

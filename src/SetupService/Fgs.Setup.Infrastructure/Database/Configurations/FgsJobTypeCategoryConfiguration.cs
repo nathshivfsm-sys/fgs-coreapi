@@ -10,7 +10,7 @@ internal class FgsJobTypeCategoryConfiguration : IEntityTypeConfiguration<FgsJob
     {
         entity.ToTable("FgsJobTypeCategory", t =>
             t.HasComment(
-                "Maps Job Categories to Job Types. A Job Type can contain one or more Job Categories, each with its own display order."));
+                "Maps Job Type Tasks to Job Types. A Job Type can contain multiple Job Type Tasks, each with its own display order."));
 
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id)
@@ -28,16 +28,16 @@ internal class FgsJobTypeCategoryConfiguration : IEntityTypeConfiguration<FgsJob
         entity.Property(e => e.JobTypeId)
             .HasComment("Identifier of the Job Type.");
 
-        entity.Property(e => e.JobCategoryId)
-            .HasComment("Identifier of the Job Category assigned to the Job Type.");
+        entity.Property(e => e.JobTypeTaskId)
+            .HasComment("Identifier of the Job Type Task assigned to the Job Type.");
 
         entity.Property(e => e.DisplayOrder)
             .HasDefaultValue((short)1)
-            .HasComment("Controls the display sequence of Job Categories within the Job Type.");
+            .HasComment("Controls the display sequence of Job Type Tasks within the Job Type.");
 
         entity.Property(e => e.IsActive)
             .HasDefaultValue(true)
-            .HasComment("Indicates whether the Job Category assignment is active.");
+            .HasComment("Indicates whether the Job Type Task assignment is active.");
 
         entity.Property(e => e.CreatedOn)
             .IsRequired()
@@ -63,10 +63,10 @@ internal class FgsJobTypeCategoryConfiguration : IEntityTypeConfiguration<FgsJob
             .HasConstraintName("FK_FgsJobTypeCategory_FgsJobType")
             .OnDelete(DeleteBehavior.Cascade);
 
-        entity.HasOne(e => e.JobCategory)
+        entity.HasOne(e => e.JobTypeTask)
             .WithMany()
-            .HasForeignKey(e => e.JobCategoryId)
-            .HasConstraintName("FK_FgsJobTypeCategory_FgsJobCategory")
+            .HasForeignKey(e => e.JobTypeTaskId)
+            .HasConstraintName("FK_FgsJobTypeCategory_FgsJobTypeTask")
             .OnDelete(DeleteBehavior.Restrict);
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId })
@@ -75,14 +75,11 @@ internal class FgsJobTypeCategoryConfiguration : IEntityTypeConfiguration<FgsJob
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.JobTypeId })
             .HasDatabaseName("IX_FgsJobTypeCategory_Tenant_Company_JobType");
 
-        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.JobCategoryId })
-            .HasDatabaseName("IX_FgsJobTypeCategory_Tenant_Company_JobCategory");
-
-        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.JobTypeId, e.JobCategoryId })
-            .IsUnique()
-            .HasDatabaseName("UX_FgsJobTypeCategory_Tenant_Company_JobType_Category");
-
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.JobTypeId, e.DisplayOrder })
-            .HasDatabaseName("IX_FgsJobTypeCategory_Tenant_Company_DisplayOrder");
+            .HasDatabaseName("IX_FgsJobTypeCategory_Tenant_Company_JobType_DisplayOrder");
+
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.JobTypeId, e.JobTypeTaskId })
+            .IsUnique()
+            .HasDatabaseName("UX_FgsJobTypeCategory_Tenant_Company_JobType_Task");
     }
 }

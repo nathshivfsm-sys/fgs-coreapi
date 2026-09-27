@@ -33,7 +33,7 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
     {
         var entity = new FgsJobType
         {
-            JobTypeCode = NormalizeCode(dto.JobTypeCode), Name = dto.Name.Trim(), UsedFor = (JobTypeUsedFor)dto.UsedFor, BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim(), BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim(), TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim(), ShowToFieldTech = dto.ShowToFieldTech, ShowOnCustomerPortal = dto.ShowOnCustomerPortal, DisplayOrder = dto.DisplayOrder ?? 1
+            JobTypeCode = NormalizeCode(dto.JobTypeCode), Name = dto.Name.Trim(), UsedFor = (JobTypeUsedFor)dto.UsedFor, BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim(), ShowToFieldTech = dto.ShowToFieldTech, ShowOnCustomerPortal = dto.ShowOnCustomerPortal, DisplayOrder = dto.DisplayOrder ?? 1
         };
 
         _auditHelper.StampForCreate(entity);
@@ -55,8 +55,6 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         entity.Name = dto.Name.Trim();
         entity.UsedFor = (JobTypeUsedFor)dto.UsedFor;
         entity.BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim();
-        entity.BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim();
-        entity.TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim();
         entity.ShowToFieldTech = dto.ShowToFieldTech;
         entity.ShowOnCustomerPortal = dto.ShowOnCustomerPortal;
         entity.DisplayOrder = dto.DisplayOrder ?? entity.DisplayOrder;
@@ -89,15 +87,7 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         }
         if (dto.BusinessUnit is not null)
         {
-            entity.BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim();;
-        }
-        if (dto.BackgroundColor is not null)
-        {
-            entity.BackgroundColor = string.IsNullOrWhiteSpace(dto.BackgroundColor) ? null : dto.BackgroundColor.Trim();;
-        }
-        if (dto.TextColor is not null)
-        {
-            entity.TextColor = string.IsNullOrWhiteSpace(dto.TextColor) ? null : dto.TextColor.Trim();;
+            entity.BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim();
         }
         if (dto.ShowToFieldTech.HasValue)
         {
@@ -167,8 +157,6 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
             entity.Name,
             (short)entity.UsedFor,
             entity.BusinessUnit,
-            entity.BackgroundColor,
-            entity.TextColor,
             entity.ShowToFieldTech,
             entity.ShowOnCustomerPortal,
             entity.DisplayOrder,
