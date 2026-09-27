@@ -6,6 +6,7 @@ using Fgs.Setup.Application.Abstractions.JobTypes;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.JobTypes.Dtos;
 using Fgs.Setup.Application.Features.JobTypes.Queries.GetJobTypeById;
+using Fgs.Setup.Application.Features.JobTypes.Queries.GetJobTypeCounts;
 using Fgs.Setup.Application.Features.JobTypes.Queries.ListJobTypes;
 using Moq;
 
@@ -64,5 +65,27 @@ public sealed class JobTypeQueryHandlerTests
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GetCounts_ReturnsActiveAndInactiveCounts()
+    {
+        var readRepository = new Mock<IJobTypeReadRepository>();
+        readRepository
+            .Setup(r => r.GetCountsAsync(It.IsAny<string?>(), It.IsAny<JobTypeListFilters>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new JobTypeCountsDto(4, 2));
+
+        var handler = new GetJobTypeCountsQueryHandler(readRepository.Object);
+        var response = await handler.Handle(
+            new GetJobTypeCountsQuery("hvac", new JobTypeListFilters(BusinessUnit: "Service")),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.StatusCode.Should().Be(ApiStatusCodes.Ok);
+        response.Data!.ActiveCount.Should().Be(4);
+        response.Data.InactiveCount.Should().Be(2);
+        readRepository.Verify(
+            r => r.GetCountsAsync("hvac", It.Is<JobTypeListFilters>(f => f.BusinessUnit == "Service"), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

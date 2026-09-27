@@ -67,6 +67,11 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
             where.Add("t.\"JobTypeCategoryId\" = @JobTypeCategoryId");
         }
 
+        if (filters.JobTypeId.HasValue)
+        {
+            where.Add(JobTypeTaskSql.AssignedToJobTypeExists);
+        }
+
         if (!string.IsNullOrWhiteSpace(filters.TaskName))
         {
             where.Add("t.\"TaskName\" ILIKE @TaskName");
@@ -104,6 +109,7 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
             CompanyId = companyId,
             IsActive = paging.IsActive,
             JobTypeCategoryId = filters.JobTypeCategoryId,
+            JobTypeId = filters.JobTypeId,
             TaskName = string.IsNullOrWhiteSpace(filters.TaskName) ? null : $"%{filters.TaskName.Trim()}%",
             Name = string.IsNullOrWhiteSpace(filters.Name) ? null : $"%{filters.Name.Trim()}%",
             Search = string.IsNullOrWhiteSpace(paging.Search) ? null : $"%{paging.Search.Trim()}%",
@@ -137,7 +143,7 @@ internal sealed class JobTypeTaskReadRepository : IJobTypeTaskReadRepository
             WHERE "TenantId" = @TenantId
               AND "CompanyId" = @CompanyId
               {activeFilter}
-            ORDER BY "DisplayOrder" ASC NULLS LAST, "Name" ASC
+            ORDER BY "Name" ASC
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

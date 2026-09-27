@@ -9,6 +9,12 @@ internal sealed class JobTypeCategorySummaryRow
     public long JobTypeTaskId { get; set; }
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
+    public string? Name { get; set; }
+    public string? TaskName { get; set; }
+    public string? TradeName { get; set; }
+    public string? SkillName { get; set; }
+    public decimal? EstimatedHours { get; set; }
+    public short? Priority { get; set; }
 
     public JobTypeCategorySummaryDto ToDto() =>
         new(
@@ -16,7 +22,13 @@ internal sealed class JobTypeCategorySummaryRow
             JobTypeId,
             JobTypeTaskId,
             DisplayOrder,
-            IsActive);
+            IsActive,
+            Name,
+            TaskName,
+            TradeName,
+            SkillName,
+            EstimatedHours,
+            Priority);
 }
 
 internal sealed class JobTypeCategoryDetailRow
@@ -26,6 +38,12 @@ internal sealed class JobTypeCategoryDetailRow
     public long JobTypeTaskId { get; set; }
     public short? DisplayOrder { get; set; }
     public bool IsActive { get; set; }
+    public string? Name { get; set; }
+    public string? TaskName { get; set; }
+    public string? TradeName { get; set; }
+    public string? SkillName { get; set; }
+    public decimal? EstimatedHours { get; set; }
+    public short? Priority { get; set; }
 
     public JobTypeCategoryDetailDto ToDto() =>
         new(
@@ -33,7 +51,13 @@ internal sealed class JobTypeCategoryDetailRow
             JobTypeId,
             JobTypeTaskId,
             DisplayOrder,
-            IsActive);
+            IsActive,
+            Name,
+            TaskName,
+            TradeName,
+            SkillName,
+            EstimatedHours,
+            Priority);
 }
 
 internal sealed class JobTypeCategoryLookupRow
@@ -42,9 +66,23 @@ internal sealed class JobTypeCategoryLookupRow
     public long JobTypeId { get; set; }
     public long JobTypeTaskId { get; set; }
     public short? DisplayOrder { get; set; }
+    public string? Name { get; set; }
+    public string? TaskName { get; set; }
+    public string? TradeName { get; set; }
+    public string? SkillName { get; set; }
+    public decimal? EstimatedHours { get; set; }
+    public short? Priority { get; set; }
 
-    public JobTypeCategoryLookupDto ToDto() => new(Id,
+    public JobTypeCategoryLookupDto ToDto() =>
+        new(
+            Id,
             JobTypeId,
             JobTypeTaskId,
-            DisplayOrder);
+            DisplayOrder,
+            Name,
+            TaskName,
+            TradeName,
+            SkillName,
+            EstimatedHours,
+            Priority);
 }

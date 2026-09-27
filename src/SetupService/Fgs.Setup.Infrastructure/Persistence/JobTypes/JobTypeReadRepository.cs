@@ -44,12 +44,12 @@ internal sealed class JobTypeReadRepository : IJobTypeReadRepository
         }
 
         var childrenSql = $"""
-            SELECT "Id", "JobTypeTaskId", "DisplayOrder", "IsActive"
-            FROM {JobTypeCategorySql.Table}
-            WHERE "JobTypeId" = @Id
-              AND "TenantId" = @TenantId
-              AND "CompanyId" = @CompanyId
-            ORDER BY "DisplayOrder" ASC NULLS LAST, "Id" ASC
+            SELECT {JobTypeCategorySql.SelectJobTypeChildColumns}
+            FROM {JobTypeCategorySql.FromJoins}
+            WHERE jtc."JobTypeId" = @Id
+              AND jtc."TenantId" = @TenantId
+              AND jtc."CompanyId" = @CompanyId
+            ORDER BY jtc."DisplayOrder" ASC NULLS LAST, jtc."Id" ASC
             """;
         var children = await connection.QueryAsync<JobTypeSubCategoryRow>(
             new CommandDefinition(
@@ -73,46 +73,29 @@ internal sealed class JobTypeReadRepository : IJobTypeReadRepository
 
         var where = new List<string>
         {
-            "\"TenantId\" = @TenantId",
-            "\"CompanyId\" = @CompanyId"
+            "jt.\"TenantId\" = @TenantId",
+            "jt.\"CompanyId\" = @CompanyId"
         };
 
         if (paging.IsActive.HasValue)
         {
-            where.Add("\"IsActive\" = @IsActive");
+            where.Add("jt.\"IsActive\" = @IsActive");
         }
 
-        if (!string.IsNullOrWhiteSpace(filters.JobTypeCode))
-        {
-            where.Add("\"JobTypeCode\" = @JobTypeCode");
-        }
-        if (!string.IsNullOrWhiteSpace(filters.Name))
-        {
-            where.Add("\"Name\" ILIKE @Name");
-        }
-        if (filters.UsedFor.HasValue)
-        {
-            where.Add("\"UsedFor\" = @UsedFor");
-        }
-
-        if (!string.IsNullOrWhiteSpace(paging.Search))
-        {
-            where.Add(
-                "(\"JobTypeCode\" ILIKE @Search OR \"Name\" ILIKE @Search)");
-        }
+        AppendSharedListFilters(where, paging.Search, filters);
 
         var whereClause = string.Join(" AND ", where);
         var orderBy = JobTypeSql.ResolveOrderBy(paging.SortBy, paging.SortDirection);
 
         var sql = $"""
             SELECT {JobTypeSql.SelectSummaryColumns}
-            FROM {JobTypeSql.Table}
+            FROM {JobTypeSql.Table} jt
             WHERE {whereClause}
             {orderBy}
             LIMIT @PageSize OFFSET @Offset;
 
             SELECT COUNT(*)
-            FROM {JobTypeSql.Table}
+            FROM {JobTypeSql.Table} jt
             WHERE {whereClause};
             """;
 
@@ -124,6 +107,8 @@ internal sealed class JobTypeReadRepository : IJobTypeReadRepository
             JobTypeCode = filters.JobTypeCode?.Trim().ToUpperInvariant(),
             Name = string.IsNullOrWhiteSpace(filters.Name) ? null : $"%{filters.Name.Trim()}%",
             UsedFor = filters.UsedFor,
+            JobTypeTaskId = filters.JobTypeTaskId,
+            BusinessUnit = string.IsNullOrWhiteSpace(filters.BusinessUnit) ? null : $"%{filters.BusinessUnit.Trim()}%",
             Search = string.IsNullOrWhiteSpace(paging.Search) ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
             Offset = offset
@@ -141,6 +126,49 @@ internal sealed class JobTypeReadRepository : IJobTypeReadRepository
             page,
             pageSize,
             totalCount);
+    }
+
+    public async Task<JobTypeCountsDto> GetCountsAsync(
+        string? search,
+        JobTypeListFilters filters,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+
+        var where = new List<string>
+        {
+            "jt.\"TenantId\" = @TenantId",
+            "jt.\"CompanyId\" = @CompanyId"
+        };
+
+        AppendSharedListFilters(where, search, filters);
+
+        var whereClause = string.Join(" AND ", where);
+        var sql = $"""
+            SELECT
+                COUNT(*) FILTER (WHERE jt."IsActive" = TRUE) AS "ActiveCount",
+                COUNT(*) FILTER (WHERE jt."IsActive" = FALSE) AS "InactiveCount"
+            FROM {JobTypeSql.Table} jt
+            WHERE {whereClause};
+            """;
+
+        var parameters = new
+        {
+            TenantId = tenantId,
+            CompanyId = companyId,
+            JobTypeCode = filters.JobTypeCode?.Trim().ToUpperInvariant(),
+            Name = string.IsNullOrWhiteSpace(filters.Name) ? null : $"%{filters.Name.Trim()}%",
+            UsedFor = filters.UsedFor,
+            JobTypeTaskId = filters.JobTypeTaskId,
+            BusinessUnit = string.IsNullOrWhiteSpace(filters.BusinessUnit) ? null : $"%{filters.BusinessUnit.Trim()}%",
+            Search = string.IsNullOrWhiteSpace(search) ? null : $"%{search.Trim()}%"
+        };
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        var row = await connection.QueryFirstAsync<JobTypeCountsRow>(
+            new CommandDefinition(sql, parameters, cancellationToken: cancellationToken));
+
+        return row.ToDto();
     }
 
     public async Task<IReadOnlyList<JobTypeLookupDto>> LookupAsync(
@@ -226,5 +254,42 @@ internal sealed class JobTypeReadRepository : IJobTypeReadRepository
                     ExcludeId = excludeId
                 },
                 cancellationToken: cancellationToken));
+    }
+
+    private static void AppendSharedListFilters(
+        List<string> where,
+        string? search,
+        JobTypeListFilters filters)
+    {
+        if (!string.IsNullOrWhiteSpace(filters.JobTypeCode))
+        {
+            where.Add("jt.\"JobTypeCode\" = @JobTypeCode");
+        }
+
+        if (!string.IsNullOrWhiteSpace(filters.Name))
+        {
+            where.Add("jt.\"Name\" ILIKE @Name");
+        }
+
+        if (filters.UsedFor.HasValue)
+        {
+            where.Add("jt.\"UsedFor\" = @UsedFor");
+        }
+
+        if (filters.JobTypeTaskId.HasValue)
+        {
+            where.Add(JobTypeSql.RelatedJobTypeTaskIdExists);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filters.BusinessUnit))
+        {
+            where.Add("jt.\"BusinessUnit\" ILIKE @BusinessUnit");
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            where.Add(
+                $"(jt.\"JobTypeCode\" ILIKE @Search OR jt.\"Name\" ILIKE @Search OR {JobTypeSql.RelatedTaskNameExists})");
+        }
     }
 }

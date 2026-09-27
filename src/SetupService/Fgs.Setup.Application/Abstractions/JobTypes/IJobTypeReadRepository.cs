@@ -13,6 +13,11 @@ public interface IJobTypeReadRepository
         JobTypeListFilters filters,
         CancellationToken cancellationToken = default);
 
+    Task<JobTypeCountsDto> GetCountsAsync(
+        string? search,
+        JobTypeListFilters filters,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<JobTypeLookupDto>> LookupAsync(
         bool activeOnly = true,
         CancellationToken cancellationToken = default);

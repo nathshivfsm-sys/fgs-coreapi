@@ -27,10 +27,10 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var sql = $"""
             SELECT {JobTypeCategorySql.SelectDetailColumns}
-            FROM {JobTypeCategorySql.Table}
-            WHERE "Id" = @Id
-              AND "TenantId" = @TenantId
-              AND "CompanyId" = @CompanyId
+            FROM {JobTypeCategorySql.FromJoins}
+            WHERE jtc."Id" = @Id
+              AND jtc."TenantId" = @TenantId
+              AND jtc."CompanyId" = @CompanyId
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -53,22 +53,22 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
 
         var where = new List<string>
         {
-            "\"TenantId\" = @TenantId",
-            "\"CompanyId\" = @CompanyId"
+            "jtc.\"TenantId\" = @TenantId",
+            "jtc.\"CompanyId\" = @CompanyId"
         };
 
         if (paging.IsActive.HasValue)
         {
-            where.Add("\"IsActive\" = @IsActive");
+            where.Add("jtc.\"IsActive\" = @IsActive");
         }
 
         if (filters.JobTypeId.HasValue)
         {
-            where.Add("\"JobTypeId\" = @JobTypeId");
+            where.Add("jtc.\"JobTypeId\" = @JobTypeId");
         }
         if (filters.JobTypeTaskId.HasValue)
         {
-            where.Add("\"JobTypeTaskId\" = @JobTypeTaskId");
+            where.Add("jtc.\"JobTypeTaskId\" = @JobTypeTaskId");
         }
 
         var whereClause = string.Join(" AND ", where);
@@ -76,13 +76,13 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
 
         var sql = $"""
             SELECT {JobTypeCategorySql.SelectSummaryColumns}
-            FROM {JobTypeCategorySql.Table}
+            FROM {JobTypeCategorySql.FromJoins}
             WHERE {whereClause}
             {orderBy}
             LIMIT @PageSize OFFSET @Offset;
 
             SELECT COUNT(*)
-            FROM {JobTypeCategorySql.Table}
+            FROM {JobTypeCategorySql.FromJoins}
             WHERE {whereClause};
             """;
 
@@ -118,16 +118,16 @@ internal sealed class JobTypeCategoryReadRepository : IJobTypeCategoryReadReposi
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
-        var activeFilter = activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty;
-        var jobTypeFilter = jobTypeId.HasValue ? "AND \"JobTypeId\" = @JobTypeId" : string.Empty;
+        var activeFilter = activeOnly ? "AND jtc.\"IsActive\" = TRUE" : string.Empty;
+        var jobTypeFilter = jobTypeId.HasValue ? "AND jtc.\"JobTypeId\" = @JobTypeId" : string.Empty;
         var sql = $"""
             SELECT {JobTypeCategorySql.SelectLookupColumns}
-            FROM {JobTypeCategorySql.Table}
-            WHERE "TenantId" = @TenantId
-              AND "CompanyId" = @CompanyId
+            FROM {JobTypeCategorySql.FromJoins}
+            WHERE jtc."TenantId" = @TenantId
+              AND jtc."CompanyId" = @CompanyId
               {activeFilter}
               {jobTypeFilter}
-            ORDER BY "DisplayOrder" ASC NULLS LAST, "JobTypeTaskId" ASC
+            ORDER BY jtc."DisplayOrder" ASC NULLS LAST, jtc."JobTypeTaskId" ASC
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

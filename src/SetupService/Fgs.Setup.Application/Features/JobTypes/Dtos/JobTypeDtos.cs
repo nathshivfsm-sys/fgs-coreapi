@@ -33,7 +33,13 @@ public sealed record JobTypeSubCategoryDto(
     long Id,
     long JobTypeTaskId,
     short DisplayOrder,
-    bool IsActive);
+    bool IsActive,
+    string? Name = null,
+    string? TaskName = null,
+    string? TradeName = null,
+    string? SkillName = null,
+    decimal? EstimatedHours = null,
+    short? Priority = null);
 
 public sealed record JobTypeSubCategoryWriteDto(
     long JobTypeTaskId,
@@ -75,4 +81,10 @@ public sealed record JobTypePatchDto(
 public sealed record JobTypeListFilters(
     string? JobTypeCode = null,
     string? Name = null,
-    short? UsedFor = null);
+    short? UsedFor = null,
+    long? JobTypeTaskId = null,
+    string? BusinessUnit = null);
+
+public sealed record JobTypeCountsDto(
+    int ActiveCount,
+    int InactiveCount);

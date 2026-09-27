@@ -8,6 +8,7 @@ using Fgs.Setup.Application.Features.JobTypes.Commands.CreateJobType;
 using Fgs.Setup.Application.Features.JobTypes.Commands.PatchJobType;
 using Fgs.Setup.Application.Features.JobTypes.Commands.UpdateJobType;
 using Fgs.Setup.Application.Features.JobTypes.Queries.GetJobTypeById;
+using Fgs.Setup.Application.Features.JobTypes.Queries.GetJobTypeCounts;
 using Fgs.Setup.Application.Features.JobTypes.Queries.ListJobTypes;
 using Fgs.Setup.Application.Features.JobTypes.Queries.LookupJobTypes;
 using Fgs.Setup.Application.Features.JobTypes.Dtos;
@@ -26,6 +27,26 @@ namespace Fgs.Setup.API.Controllers;
 [Produces("application/json")]
 public sealed class JobTypeController(IMediator mediator) : ControllerBase
 {
+    [HttpGet("counts")]
+    [ProducesResponseType(typeof(ApiResponse<JobTypeCountsDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCounts(
+        [FromQuery] string? search = null,
+        [FromQuery] string? jobTypeCode = null,
+        [FromQuery] string? name = null,
+        [FromQuery] short? usedFor = null,
+        [FromQuery] long? jobTypeTaskId = null,
+        [FromQuery] string? businessUnit = null,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await mediator.Send(
+            new GetJobTypeCountsQuery(
+                search,
+                new JobTypeListFilters(jobTypeCode, name, usedFor, jobTypeTaskId, businessUnit)),
+            cancellationToken);
+
+        return StatusCode(response.StatusCode, response);
+    }
+
     [HttpGet("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<JobTypeDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -47,12 +68,14 @@ public sealed class JobTypeController(IMediator mediator) : ControllerBase
         [FromQuery] string? jobTypeCode = null,
         [FromQuery] string? name = null,
         [FromQuery] short? usedFor = null,
+        [FromQuery] long? jobTypeTaskId = null,
+        [FromQuery] string? businessUnit = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListJobTypesQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new JobTypeListFilters(jobTypeCode, name, usedFor)),
+                new JobTypeListFilters(jobTypeCode, name, usedFor, jobTypeTaskId, businessUnit)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);

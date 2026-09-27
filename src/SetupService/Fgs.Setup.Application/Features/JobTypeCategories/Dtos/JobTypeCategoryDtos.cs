@@ -5,20 +5,38 @@ public sealed record JobTypeCategorySummaryDto(
     long JobTypeId,
     long JobTypeTaskId,
     short? DisplayOrder,
-    bool IsActive);
+    bool IsActive,
+    string? Name = null,
+    string? TaskName = null,
+    string? TradeName = null,
+    string? SkillName = null,
+    decimal? EstimatedHours = null,
+    short? Priority = null);
 
 public sealed record JobTypeCategoryDetailDto(
     long Id,
     long JobTypeId,
     long JobTypeTaskId,
     short? DisplayOrder,
-    bool IsActive);
+    bool IsActive,
+    string? Name = null,
+    string? TaskName = null,
+    string? TradeName = null,
+    string? SkillName = null,
+    decimal? EstimatedHours = null,
+    short? Priority = null);
 
 public sealed record JobTypeCategoryLookupDto(
     long Id,
     long JobTypeId,
     long JobTypeTaskId,
-    short? DisplayOrder);
+    short? DisplayOrder,
+    string? Name = null,
+    string? TaskName = null,
+    string? TradeName = null,
+    string? SkillName = null,
+    decimal? EstimatedHours = null,
+    short? Priority = null);
 
 public sealed record JobTypeCategoryCreateDto(
     long JobTypeId,

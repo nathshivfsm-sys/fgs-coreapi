@@ -13050,6 +13050,18 @@
                                             "description": "Optional usedFor filter.",
                                             "value": "",
                                             "disabled": true
+                                        },
+                                        {
+                                            "key": "jobTypeTaskId",
+                                            "description": "Optional assigned sub-category (job type task) filter.",
+                                            "value": "",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "businessUnit",
+                                            "description": "Optional businessUnit filter.",
+                                            "value": "",
+                                            "disabled": true
                                         }
                                     ],
                                     "host": [
@@ -13064,6 +13076,91 @@
                                     ]
                                 },
                                 "description": "List",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "type": "text",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "X-Tenant-Id",
+                                        "type": "text",
+                                        "value": "{{tenantId}}"
+                                    },
+                                    {
+                                        "key": "X-Company-Id",
+                                        "type": "text",
+                                        "value": "{{companyId}}"
+                                    }
+                                ],
+                                "auth": {
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "type": "string",
+                                            "value": "{{accessToken}}"
+                                        }
+                                    ],
+                                    "type": "bearer"
+                                }
+                            }
+                        },
+                        {
+                            "name": "GetCounts",
+                            "request": {
+                                "method": "GET",
+                                "url": {
+                                    "query": [
+                                        {
+                                            "key": "search",
+                                            "description": "Free-text search across JobTypeCode, Name, and assigned TaskName. Optional.",
+                                            "value": "{{search}}",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "jobTypeCode",
+                                            "description": "Optional jobTypeCode filter.",
+                                            "value": "",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "name",
+                                            "description": "Optional name filter.",
+                                            "value": "",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "usedFor",
+                                            "description": "Optional usedFor filter.",
+                                            "value": "",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "jobTypeTaskId",
+                                            "description": "Optional assigned sub-category (job type task) filter.",
+                                            "value": "",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "businessUnit",
+                                            "description": "Optional businessUnit filter.",
+                                            "value": "",
+                                            "disabled": true
+                                        }
+                                    ],
+                                    "host": [
+                                        "https://api-dev.fieldwhizey.com"
+                                    ],
+                                    "raw": "https://api-dev.fieldwhizey.com/setup-service/api/v1/jobtype/counts",
+                                    "path": [
+                                        "setup-service",
+                                        "api",
+                                        "v1",
+                                        "jobtype",
+                                        "counts"
+                                    ]
+                                },
+                                "description": "GetCounts",
                                 "header": [
                                     {
                                         "key": "Accept",
@@ -13665,6 +13762,12 @@
                                         {
                                             "key": "taskName",
                                             "description": "Optional taskName filter.",
+                                            "value": "",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "jobTypeId",
+                                            "description": "Optional jobTypeId filter via assigned FgsJobTypeCategory mapping.",
                                             "value": "",
                                             "disabled": true
                                         }

@@ -32,7 +32,18 @@ internal static class JobTypeTaskSql
         """;
 
     public const string SelectLookupColumns = """
-        "Id"
+        "Id", "Name"
+        """;
+
+    public const string AssignedToJobTypeExists = """
+        EXISTS (
+            SELECT 1
+            FROM setup."FgsJobTypeCategory" jtc
+            WHERE jtc."JobTypeTaskId" = t."Id"
+              AND jtc."JobTypeId" = @JobTypeId
+              AND jtc."TenantId" = @TenantId
+              AND jtc."CompanyId" = @CompanyId
+        )
         """;
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)

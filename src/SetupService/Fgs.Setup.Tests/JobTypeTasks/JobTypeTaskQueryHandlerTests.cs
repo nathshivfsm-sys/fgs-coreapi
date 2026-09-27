@@ -90,4 +90,29 @@ public sealed class JobTypeTaskQueryHandlerTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task List_WhenJobTypeIdProvided_PassesFilter()
+    {
+        var readRepository = new Mock<IJobTypeTaskReadRepository>();
+        readRepository
+            .Setup(r => r.ListAsync(
+                It.IsAny<SetupListQuery>(),
+                It.Is<JobTypeTaskListFilters>(f => f.JobTypeId == 7),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PagedResult<JobTypeTaskSummaryDto>([], 1, 25, 0));
+
+        var handler = new ListJobTypeTasksQueryHandler(readRepository.Object);
+        var response = await handler.Handle(
+            new ListJobTypeTasksQuery(new SetupListQuery(), new JobTypeTaskListFilters(JobTypeId: 7)),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        readRepository.Verify(
+            r => r.ListAsync(
+                It.IsAny<SetupListQuery>(),
+                It.Is<JobTypeTaskListFilters>(f => f.JobTypeId == 7),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }

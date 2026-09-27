@@ -31,7 +31,8 @@ public sealed record JobTypeTaskDetailDto(
     string? SkillName = null);
 
 public sealed record JobTypeTaskLookupDto(
-    long Id);
+    long Id,
+    string Name);
 
 public sealed record JobTypeTaskCreateDto(
     long JobTypeCategoryId,
@@ -68,4 +69,5 @@ public sealed record JobTypeTaskPatchDto(
 public sealed record JobTypeTaskListFilters(
     string? TaskName = null,
     string? Name = null,
-    long? JobTypeCategoryId = null);
+    long? JobTypeCategoryId = null,
+    long? JobTypeId = null);

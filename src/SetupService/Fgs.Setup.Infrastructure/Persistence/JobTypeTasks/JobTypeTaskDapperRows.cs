@@ -71,6 +71,7 @@ internal sealed class JobTypeTaskDetailRow
 internal sealed class JobTypeTaskLookupRow
 {
     public long Id { get; set; }
+    public string Name { get; set; } = null!;
 
-    public JobTypeTaskLookupDto ToDto() => new(Id);
+    public JobTypeTaskLookupDto ToDto() => new(Id, Name);
 }
