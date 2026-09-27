@@ -52,6 +52,27 @@ public sealed class JobCategoryCommandHandlerTests
     }
 
     [Fact]
+    public async Task CreateHandler_WhenIsActiveFalse_CreatesInactiveRecord()
+    {
+        await using var context = await CreateContextAsync();
+        var writeService = CreateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var handler = new CreateJobCategoryCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<CreateJobCategoryCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new CreateJobCategoryCommand(new JobCategoryCreateDto("TEST", "Name", 1, IsActive: false)),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.IsActive.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task DeleteHandler_SoftDeletes()
     {
         await using var context = await CreateContextAsync();

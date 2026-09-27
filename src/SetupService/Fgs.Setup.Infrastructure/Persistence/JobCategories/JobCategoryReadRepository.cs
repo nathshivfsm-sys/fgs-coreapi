@@ -171,4 +171,36 @@ internal sealed class JobCategoryReadRepository : IJobCategoryReadRepository
                 },
                 cancellationToken: cancellationToken));
     }
+
+    public async Task<bool> ExistsByNameAsync(
+        string name,
+        long? excludeId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {JobCategorySql.Table}
+                WHERE "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "IsActive" = TRUE
+                  AND LOWER("Name") = LOWER(@Name)
+                  {(excludeId.HasValue ? "AND \"Id\" <> @ExcludeId" : string.Empty)}
+            )
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    Name = name.Trim(),
+                    ExcludeId = excludeId
+                },
+                cancellationToken: cancellationToken));
+    }
 }

@@ -29,7 +29,8 @@ public sealed record JobCategoryCreateDto(
     string Name,
     short? DisplayOrder,
     string? BackgroundColor = null,
-    string? TextColor = null);
+    string? TextColor = null,
+    bool IsActive = true);
 
 public sealed record JobCategoryUpdateDto(
     string CategoryCode,

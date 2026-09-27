@@ -21,4 +21,9 @@ public interface IJobCategoryReadRepository
         string categoryCode,
         long? excludeId = null,
         CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsByNameAsync(
+        string name,
+        long? excludeId = null,
+        CancellationToken cancellationToken = default);
 }

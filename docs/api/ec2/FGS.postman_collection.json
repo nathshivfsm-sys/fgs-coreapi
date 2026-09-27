@@ -12379,7 +12379,7 @@
                                     }
                                 ],
                                 "body": {
-                                    "raw": "{\n  \"categoryCode\": \"REPAIR\",\n  \"name\": \"Repair\",\n  \"displayOrder\": 1\n}",
+                                    "raw": "{\n  \"categoryCode\": \"REPAIR\",\n  \"name\": \"Repair\",\n  \"displayOrder\": 1,\n  \"backgroundColor\": \"#FFFFFF\",\n  \"textColor\": \"#000000\",\n  \"isActive\": true\n}",
                                     "options": {
                                         "raw": {
                                             "language": "json"

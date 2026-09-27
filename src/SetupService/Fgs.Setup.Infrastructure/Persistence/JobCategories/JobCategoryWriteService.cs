@@ -40,6 +40,7 @@ public sealed class JobCategoryWriteService : IJobCategoryWriteService
         };
 
         _auditHelper.StampForCreate(entity);
+        entity.IsActive = dto.IsActive;
         await _context.FgsJobCategories.AddAsync(entity, cancellationToken);
         await SaveChangesAsync(cancellationToken);
 

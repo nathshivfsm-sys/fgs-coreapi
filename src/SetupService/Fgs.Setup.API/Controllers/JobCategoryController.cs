@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
+using Fgs.Foundation.Idempotency;
 using Fgs.Foundation.Paging;
 using Fgs.Setup.Application.Common.SetupCrud;
 using Fgs.Setup.Application.Features.JobCategories.Commands.CreateJobCategory;
@@ -67,6 +68,7 @@ public sealed class JobCategoryController(IMediator mediator) : ControllerBase
     }
 
     [RequirePermission(FgsPermissionCodes.SetupCreate)]
+    [Idempotent]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<JobCategoryDetailDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
