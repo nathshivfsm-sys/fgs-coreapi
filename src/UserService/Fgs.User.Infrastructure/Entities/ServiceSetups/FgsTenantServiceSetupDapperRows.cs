@@ -66,4 +66,44 @@ internal sealed class FgsTenantServiceSetupDetailRow
             InvoiceBatchNumberFormat,
             EstimateRevisionCreationMode,
             IsActive);
+
+    public FgsTenantServiceSetupSummaryDto ToSummary() =>
+        new(
+            TenantId,
+            CompanyId,
+            (TimeCardOption)TimeCardOptionId,
+            AccountingIntegrationTypeId,
+            UseExternalTaxCalculationProvider,
+            EnableCallBookingWidget,
+            EnablePaymentWidget,
+            EnableCustomerPortal,
+            EnableRulesManagement,
+            EnableAutoArrive,
+            WorkLocationRadiusForAutoArrive,
+            OTStartTime,
+            OTEndTime,
+            DTStartTime,
+            DTEndTime,
+            BillHoursFromDispatchOrArrive,
+            SourceCodeRequiredOnWorkOrder,
+            SourceCodeRequiredOnServiceLocation,
+            BillToStartNumber,
+            POStartNumber,
+            QuoteStartNumber,
+            WorkOrderStartNumber,
+            InvoiceNumberPrefix,
+            QuoteNumberPrefix,
+            PONumberPrefix,
+            WorkOrderNumberPrefix,
+            InvoiceBatchNumberFormat,
+            EstimateRevisionCreationMode,
+            IsActive);
+}
+
+internal sealed class FgsTenantServiceSetupLookupRow
+{
+    public long CompanyId { get; set; }
+    public bool IsActive { get; set; }
+
+    public FgsTenantServiceSetupLookupDto ToDto() => new(CompanyId, IsActive);
 }

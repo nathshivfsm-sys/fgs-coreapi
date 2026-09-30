@@ -2,6 +2,41 @@ using Fgs.User.Domain.Enums;
 
 namespace Fgs.User.Application.Features.ServiceSetups.Dtos;
 
+public sealed record FgsTenantServiceSetupSummaryDto(
+    long TenantId,
+    long CompanyId,
+    TimeCardOption TimeCardOptionId,
+    int? AccountingIntegrationTypeId,
+    bool UseExternalTaxCalculationProvider,
+    bool EnableCallBookingWidget,
+    bool EnablePaymentWidget,
+    bool EnableCustomerPortal,
+    bool EnableRulesManagement,
+    bool EnableAutoArrive,
+    int? WorkLocationRadiusForAutoArrive,
+    TimeSpan? OTStartTime,
+    TimeSpan? OTEndTime,
+    TimeSpan? DTStartTime,
+    TimeSpan? DTEndTime,
+    string BillHoursFromDispatchOrArrive,
+    bool SourceCodeRequiredOnWorkOrder,
+    bool SourceCodeRequiredOnServiceLocation,
+    long BillToStartNumber,
+    long POStartNumber,
+    long QuoteStartNumber,
+    long WorkOrderStartNumber,
+    string? InvoiceNumberPrefix,
+    string? QuoteNumberPrefix,
+    string? PONumberPrefix,
+    string? WorkOrderNumberPrefix,
+    string? InvoiceBatchNumberFormat,
+    string EstimateRevisionCreationMode,
+    bool IsActive);
+
+public sealed record FgsTenantServiceSetupLookupDto(
+    long CompanyId,
+    bool IsActive);
+
 public sealed record FgsTenantServiceSetupDetailDto(
     long TenantId,
     long CompanyId,

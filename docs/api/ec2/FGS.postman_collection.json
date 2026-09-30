@@ -6525,10 +6525,93 @@
           "name": "ServiceAccountsSetupController",
           "item": [
             {
-              "name": "Get",
+              "name": "GetById",
               "request": {
                 "method": "GET",
                 "url": {
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
+                  "raw": "https://api-dev.fieldwhizey.com/user-service/api/v1/serviceaccountssetup/{{companyId}}",
+                  "path": [
+                    "user-service",
+                    "api",
+                    "v1",
+                    "serviceaccountssetup",
+                    "{{companyId}}"
+                  ]
+                },
+                "description": "GetById",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "List",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "query": [
+                    {
+                      "key": "page",
+                      "description": "Page number (1-based). Default: 1.",
+                      "value": "{{page}}"
+                    },
+                    {
+                      "key": "pageSize",
+                      "description": "Items per page (1-100). Default: 25.",
+                      "value": "{{pageSize}}"
+                    },
+                    {
+                      "key": "sortBy",
+                      "description": "Property to sort by (entity-specific). Optional.",
+                      "value": "{{sortBy}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "sortDirection",
+                      "description": "Sort direction: Asc or Desc. Default: Asc.",
+                      "value": "{{sortDirection}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "search",
+                      "description": "Free-text search across searchable fields. Optional.",
+                      "value": "{{search}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "isActive",
+                      "description": "Filter by active records. Omit to return both.",
+                      "value": "true",
+                      "disabled": true
+                    }
+                  ],
                   "host": [
                     "https://api-dev.fieldwhizey.com"
                   ],
@@ -6540,7 +6623,62 @@
                     "serviceaccountssetup"
                   ]
                 },
-                "description": "Get",
+                "description": "List",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "Lookup",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "query": [
+                    {
+                      "key": "activeOnly",
+                      "description": "When true, return only active rows. Default: true.",
+                      "value": "true",
+                      "disabled": true
+                    }
+                  ],
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
+                  "raw": "https://api-dev.fieldwhizey.com/user-service/api/v1/serviceaccountssetup/lookup",
+                  "path": [
+                    "user-service",
+                    "api",
+                    "v1",
+                    "serviceaccountssetup",
+                    "lookup"
+                  ]
+                },
+                "description": "Lookup",
                 "header": [
                   {
                     "key": "Accept",
@@ -6697,10 +6835,93 @@
           "name": "ServiceSetupController",
           "item": [
             {
-              "name": "Get",
+              "name": "GetById",
               "request": {
                 "method": "GET",
                 "url": {
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
+                  "raw": "https://api-dev.fieldwhizey.com/user-service/api/v1/servicesetup/{{companyId}}",
+                  "path": [
+                    "user-service",
+                    "api",
+                    "v1",
+                    "servicesetup",
+                    "{{companyId}}"
+                  ]
+                },
+                "description": "GetById",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "List",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "query": [
+                    {
+                      "key": "page",
+                      "description": "Page number (1-based). Default: 1.",
+                      "value": "{{page}}"
+                    },
+                    {
+                      "key": "pageSize",
+                      "description": "Items per page (1-100). Default: 25.",
+                      "value": "{{pageSize}}"
+                    },
+                    {
+                      "key": "sortBy",
+                      "description": "Property to sort by (entity-specific). Optional.",
+                      "value": "{{sortBy}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "sortDirection",
+                      "description": "Sort direction: Asc or Desc. Default: Asc.",
+                      "value": "{{sortDirection}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "search",
+                      "description": "Free-text search across searchable fields. Optional.",
+                      "value": "{{search}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "isActive",
+                      "description": "Filter by active records. Omit to return both.",
+                      "value": "true",
+                      "disabled": true
+                    }
+                  ],
                   "host": [
                     "https://api-dev.fieldwhizey.com"
                   ],
@@ -6712,7 +6933,62 @@
                     "servicesetup"
                   ]
                 },
-                "description": "Get",
+                "description": "List",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "Lookup",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "query": [
+                    {
+                      "key": "activeOnly",
+                      "description": "When true, return only active rows. Default: true.",
+                      "value": "true",
+                      "disabled": true
+                    }
+                  ],
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
+                  "raw": "https://api-dev.fieldwhizey.com/user-service/api/v1/servicesetup/lookup",
+                  "path": [
+                    "user-service",
+                    "api",
+                    "v1",
+                    "servicesetup",
+                    "lookup"
+                  ]
+                },
+                "description": "Lookup",
                 "header": [
                   {
                     "key": "Accept",

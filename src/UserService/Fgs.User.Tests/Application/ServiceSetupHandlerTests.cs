@@ -1,8 +1,13 @@
+using Fgs.Foundation.Paging;
 using Fgs.User.Application.Abstractions.ServiceSetups;
+using Fgs.User.Application.Common.IdentityCrud;
 using Fgs.User.Application.Features.ServiceSetups.Commands.PatchFgsTenantServiceSetup;
 using Fgs.User.Application.Features.ServiceSetups.Commands.UpdateFgsTenantServiceSetup;
 using Fgs.User.Application.Features.ServiceSetups.Dtos;
 using Fgs.User.Application.Features.ServiceSetups.Queries.GetFgsTenantServiceSetup;
+using Fgs.User.Application.Features.ServiceSetups.Queries.GetFgsTenantServiceSetupById;
+using Fgs.User.Application.Features.ServiceSetups.Queries.ListFgsTenantServiceSetups;
+using Fgs.User.Application.Features.ServiceSetups.Queries.LookupFgsTenantServiceSetups;
 using Fgs.User.Application.Features.ServiceSetups.Validators;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Domain.Enums;
@@ -29,6 +34,67 @@ public sealed class ServiceSetupHandlerTests
 
         response.Success.Should().BeTrue();
         response.Data!.TenantId.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task GetByIdHandler_WhenCompanyMatches_ReturnsSetup()
+    {
+        var read = new Mock<IFgsTenantServiceSetupReadRepository>();
+        read.Setup(r => r.GetCurrentAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Detail);
+
+        var handler = new GetFgsTenantServiceSetupByIdQueryHandler(read.Object);
+        var response = await handler.Handle(new GetFgsTenantServiceSetupByIdQuery(1), CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.CompanyId.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task GetByIdHandler_WhenMissing_ReturnsNotFound()
+    {
+        var read = new Mock<IFgsTenantServiceSetupReadRepository>();
+        read.Setup(r => r.GetCurrentAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync((FgsTenantServiceSetupDetailDto?)null);
+
+        var handler = new GetFgsTenantServiceSetupByIdQueryHandler(read.Object);
+        var response = await handler.Handle(new GetFgsTenantServiceSetupByIdQuery(1), CancellationToken.None);
+
+        response.Success.Should().BeFalse();
+        response.StatusCode.Should().Be(404);
+    }
+
+    [Fact]
+    public async Task ListHandler_ReturnsPagedSetup()
+    {
+        var summary = new FgsTenantServiceSetupSummaryDto(
+            10, 1, TimeCardOption.None, null, false, false, false, false, false, false,
+            null, null, null, null, null, "ARRIVE", false, false, 100, 100, 100, 100,
+            null, null, null, null, null, EstimateRevisionCreationModes.OnDemand, true);
+        var read = new Mock<IFgsTenantServiceSetupReadRepository>();
+        read.Setup(r => r.ListAsync(It.IsAny<IdentityListQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PagedResult<FgsTenantServiceSetupSummaryDto>([summary], 1, 25, 1));
+
+        var handler = new ListFgsTenantServiceSetupsQueryHandler(read.Object);
+        var response = await handler.Handle(
+            new ListFgsTenantServiceSetupsQuery(new IdentityListQuery()),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.Items.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task LookupHandler_ReturnsLookupRows()
+    {
+        var read = new Mock<IFgsTenantServiceSetupReadRepository>();
+        read.Setup(r => r.LookupAsync(true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<FgsTenantServiceSetupLookupDto> { new(1, true) });
+
+        var handler = new LookupFgsTenantServiceSetupsQueryHandler(read.Object);
+        var response = await handler.Handle(new LookupFgsTenantServiceSetupsQuery(), CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data![0].IsActive.Should().BeTrue();
     }
 
     [Fact]

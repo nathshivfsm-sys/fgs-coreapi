@@ -1,5 +1,24 @@
 namespace Fgs.User.Application.Features.ServiceAccountsSetups.Dtos;
 
+public sealed record FgsTenantServiceAccountsSetupSummaryDto(
+    long TenantId,
+    long CompanyId,
+    long? BankAccountId,
+    long? AccountsReceivableAccountId,
+    long? RevenueAccountId,
+    long? DiscountAccountId,
+    long? SalesTaxPayableAccountId,
+    long? InventoryAccountId,
+    long? COGSAccountId,
+    long? UndepositedFundsAccountId,
+    long? ProcessingFeeAccountId,
+    long? AccountsPayableAccountId,
+    bool IsActive);
+
+public sealed record FgsTenantServiceAccountsSetupLookupDto(
+    long CompanyId,
+    bool IsActive);
+
 public sealed record FgsTenantServiceAccountsSetupDetailDto(
     long TenantId,
     long CompanyId,

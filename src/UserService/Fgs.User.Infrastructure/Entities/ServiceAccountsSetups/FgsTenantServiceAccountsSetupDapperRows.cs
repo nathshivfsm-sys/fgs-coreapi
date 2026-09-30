@@ -33,4 +33,28 @@ internal sealed class FgsTenantServiceAccountsSetupDetailRow
             ProcessingFeeAccountId,
             AccountsPayableAccountId,
             IsActive);
+
+    public FgsTenantServiceAccountsSetupSummaryDto ToSummary() =>
+        new(
+            TenantId,
+            CompanyId,
+            BankAccountId,
+            AccountsReceivableAccountId,
+            RevenueAccountId,
+            DiscountAccountId,
+            SalesTaxPayableAccountId,
+            InventoryAccountId,
+            COGSAccountId,
+            UndepositedFundsAccountId,
+            ProcessingFeeAccountId,
+            AccountsPayableAccountId,
+            IsActive);
+}
+
+internal sealed class FgsTenantServiceAccountsSetupLookupRow
+{
+    public long CompanyId { get; set; }
+    public bool IsActive { get; set; }
+
+    public FgsTenantServiceAccountsSetupLookupDto ToDto() => new(CompanyId, IsActive);
 }
