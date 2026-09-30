@@ -19,7 +19,7 @@ public sealed record FgsUniversalPricingServiceLookupDto(
 
 public sealed record FgsUniversalPricingServiceCreateDto(
     string UniversalPricingServiceCode,
-    short DisplayOrder);
+    short? DisplayOrder = null);
 
 public sealed record FgsUniversalPricingServiceUpdateDto(
     string UniversalPricingServiceCode,

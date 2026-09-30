@@ -22,10 +22,8 @@ public sealed class CreateFgsSalesActivityOutcomeCommandValidator : AbstractVali
                 !await readRepository.ExistsByOutcomeNameAsync(name, null, cancellationToken))
             .WithMessage("An active sales activity outcome with this name already exists.");
         RuleFor(x => x.Dto.Description).MaximumLength(255);
-        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0);
-
-
-
+        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0)
+            .When(x => x.Dto.DisplayOrder.HasValue);
         RuleFor(x => x.Dto.NextSalesPipelineStatusId).MustAsync(async (command, value, cancellationToken) =>
                 !value.HasValue || await readRepository.ExistsSalesPipelineStatusIdAsync(value.Value, cancellationToken))
             .WithMessage("The specified sales pipeline status was not found.");

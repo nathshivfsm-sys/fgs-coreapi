@@ -34,7 +34,7 @@ public sealed record FgsApiEventCreateDto(
     string Name,
     string? Description = null,
     short EventVersion = 1,
-    short DisplayOrder = 1);
+    short? DisplayOrder = null);
 
 public sealed record FgsApiEventUpdateDto(
     string EventCode,

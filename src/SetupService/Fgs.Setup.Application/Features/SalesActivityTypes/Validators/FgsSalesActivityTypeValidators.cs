@@ -22,11 +22,8 @@ public sealed class CreateFgsSalesActivityTypeCommandValidator : AbstractValidat
                 !await readRepository.ExistsByActivityTypeNameAsync(name, null, cancellationToken))
             .WithMessage("An active sales activity type with this name already exists.");
         RuleFor(x => x.Dto.Description).MaximumLength(255);
-        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0);
-
-
-
-
+        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0)
+            .When(x => x.Dto.DisplayOrder.HasValue);
         RuleFor(x => x.Dto).Must(dto => dto.AppliesToLead || dto.AppliesToOpportunity)
             .WithMessage("At least one of AppliesToLead or AppliesToOpportunity must be true.");
     }

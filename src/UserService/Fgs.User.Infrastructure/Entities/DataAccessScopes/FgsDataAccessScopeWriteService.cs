@@ -42,7 +42,10 @@ public sealed class FgsDataAccessScopeWriteService(
             ScopeType = dto.ScopeType.Trim(),
             Operator = dto.Operator.Trim(),
             ScopeValue = dto.ScopeValue?.Trim(),
-            DisplayOrder = dto.DisplayOrder,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                context.FgsDataAccessScopes,
+                t => t.DisplayOrder,
+                cancellationToken),
             CreatedOn = now,
             CreatedBy = actor
         };

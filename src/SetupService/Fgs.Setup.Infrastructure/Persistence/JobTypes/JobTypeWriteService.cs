@@ -39,12 +39,15 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
             BusinessUnit = string.IsNullOrWhiteSpace(dto.BusinessUnit) ? null : dto.BusinessUnit.Trim(),
             ShowToFieldTech = dto.ShowToFieldTech,
             ShowOnCustomerPortal = dto.ShowOnCustomerPortal,
-            DisplayOrder = dto.DisplayOrder ?? 1
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsJobTypes,
+                t => t.DisplayOrder,
+                cancellationToken)
         };
 
         _auditHelper.StampForCreate(entity);
         entity.IsActive = dto.IsActive;
-        SyncSubCategories(entity, dto.SubCategories ?? []);
+        await SyncSubCategories(entity, dto.SubCategories ?? [], cancellationToken);
         await _context.FgsJobTypes.AddAsync(entity, cancellationToken);
         await SaveChangesAsync(cancellationToken);
 
@@ -67,7 +70,7 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         entity.ShowOnCustomerPortal = dto.ShowOnCustomerPortal;
         entity.DisplayOrder = dto.DisplayOrder ?? entity.DisplayOrder;
 
-        SyncSubCategories(entity, dto.SubCategories ?? []);
+        await SyncSubCategories(entity, dto.SubCategories ?? [], cancellationToken);
         _auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
 
@@ -118,7 +121,7 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
 
         if (dto.SubCategories is not null)
         {
-            SyncSubCategories(entity, dto.SubCategories);
+            await SyncSubCategories(entity, dto.SubCategories, cancellationToken);
         }
 
         _auditHelper.StampForUpdate(entity);
@@ -142,9 +145,10 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
         return MapToDetail(entity);
     }
 
-    private void SyncSubCategories(
+    private async Task SyncSubCategories(
         FgsJobType entity,
-        IReadOnlyList<JobTypeSubCategoryWriteDto> items)
+        IReadOnlyList<JobTypeSubCategoryWriteDto> items,
+        CancellationToken cancellationToken)
     {
         var desiredTaskIds = items.Select(item => item.JobTypeTaskId).ToHashSet();
 
@@ -163,11 +167,16 @@ public sealed class JobTypeWriteService : IJobTypeWriteService
             .GroupBy(c => c.JobTypeTaskId)
             .ToDictionary(g => g.Key, g => g.First());
 
-        short fallbackOrder = 1;
+        var nextOrder = items.Any(item => !item.DisplayOrder.HasValue)
+            ? await DisplayOrderSequence.NextAsync(
+                _context.FgsJobTypeCategories.Where(c => c.JobTypeId == entity.Id),
+                c => c.DisplayOrder,
+                cancellationToken)
+            : (short)1;
+        var sequenceFull = false;
         foreach (var item in items)
         {
-            var displayOrder = item.DisplayOrder ?? fallbackOrder;
-            fallbackOrder++;
+            var displayOrder = item.DisplayOrder ?? DisplayOrderSequence.TakeNext(ref nextOrder, ref sequenceFull);
 
             if (existingByTaskId.TryGetValue(item.JobTypeTaskId, out var existing))
             {

@@ -16,7 +16,7 @@ public sealed class FgsSalesActivityTypeValidatorTests
     public async Task CreateValidator_WhenActivityTypeCodeMissing_HasValidationError()
     {
         var validator = new CreateFgsSalesActivityTypeCommandValidator(_readRepository.Object);
-        var command = new CreateFgsSalesActivityTypeCommand(new FgsSalesActivityTypeCreateDto("", "ActivityTypeName", "Description", 5, false, true, true, true));
+        var command = new CreateFgsSalesActivityTypeCommand(new FgsSalesActivityTypeCreateDto("", "ActivityTypeName", "Description", false, true, true, true, 5));
 
         var result = await validator.ValidateAsync(command);
 
@@ -28,7 +28,7 @@ public sealed class FgsSalesActivityTypeValidatorTests
     public async Task CreateValidator_WhenActivityTypeCodeNotUppercase_HasValidationError()
     {
         var validator = new CreateFgsSalesActivityTypeCommandValidator(_readRepository.Object);
-        var args = new FgsSalesActivityTypeCreateDto("TEST", "ActivityTypeName", "Description", 5, false, true, true, true);
+        var args = new FgsSalesActivityTypeCreateDto("TEST", "ActivityTypeName", "Description", false, true, true, true, 5);
         var command = new CreateFgsSalesActivityTypeCommand(args with { ActivityTypeCode = "test" });
 
         var result = await validator.ValidateAsync(command);

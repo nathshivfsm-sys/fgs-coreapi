@@ -32,7 +32,7 @@ public sealed record FgsRoleCreateDto(
     string Name,
     string? Description,
     long? ParentRoleId = null,
-    short DisplayOrder = 1);
+    short? DisplayOrder = null);
 
 /// <summary>
 /// Payload for cloning an existing role. When <see cref="FgsPermissionIds"/> is null,

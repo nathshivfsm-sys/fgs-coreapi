@@ -26,7 +26,8 @@ public sealed class CreateFgsInventoryItemTypeCommandValidator : AbstractValidat
                     !await readRepository.ExistsByItemTypeCodeAsync(code, null, cancellationToken))
                 .WithMessage("An inventory item type with this code already exists.");
             RuleFor(x => x.Dto.Name).NotEmpty().MaximumLength(200);
-            RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0);
+            RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0)
+            .When(x => x.Dto.DisplayOrder.HasValue);
         });
     }
 }

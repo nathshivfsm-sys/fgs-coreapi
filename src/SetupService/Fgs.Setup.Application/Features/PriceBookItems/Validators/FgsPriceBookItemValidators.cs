@@ -19,7 +19,8 @@ public sealed class CreateFgsPriceBookItemCommandValidator : AbstractValidator<C
         RuleFor(x => x.Dto.ItemCode).MaximumLength(50).When(x => x.Dto.ItemCode is not null);
         RuleFor(x => x.Dto.ItemDescription).NotEmpty().MaximumLength(500);
         RuleFor(x => x.Dto.Quantity).GreaterThan(0m);
-        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)1);
+        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)1)
+            .When(x => x.Dto.DisplayOrder.HasValue);
     }
 }
 

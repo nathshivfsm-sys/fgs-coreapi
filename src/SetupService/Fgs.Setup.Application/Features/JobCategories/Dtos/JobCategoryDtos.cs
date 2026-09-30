@@ -27,7 +27,7 @@ public sealed record JobCategoryLookupDto(
 public sealed record JobCategoryCreateDto(
     string CategoryCode,
     string Name,
-    short? DisplayOrder,
+    short? DisplayOrder = null,
     string? BackgroundColor = null,
     string? TextColor = null,
     bool IsActive = true);

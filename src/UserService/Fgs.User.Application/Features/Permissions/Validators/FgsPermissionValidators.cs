@@ -40,7 +40,8 @@ public sealed class CreateFgsPermissionCommandValidator : AbstractValidator<Crea
             .When(x => x.Dto.Description is not null);
 
         RuleFor(x => x.Dto.DisplayOrder)
-            .GreaterThan((short)0);
+            .GreaterThan((short)0)
+            .When(x => x.Dto.DisplayOrder.HasValue);
     }
 }
 

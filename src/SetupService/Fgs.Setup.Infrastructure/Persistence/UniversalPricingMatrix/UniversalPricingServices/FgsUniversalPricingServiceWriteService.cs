@@ -33,7 +33,10 @@ public sealed class FgsUniversalPricingServiceWriteService : IFgsUniversalPricin
         var entity = new FgsUniversalPricingService
         {
             UniversalPricingServiceCode = NormalizeCode(dto.UniversalPricingServiceCode),
-            DisplayOrder = dto.DisplayOrder
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsUniversalPricingServices,
+                t => t.DisplayOrder,
+                cancellationToken)
         };
 
         _auditHelper.StampForCreate(entity);

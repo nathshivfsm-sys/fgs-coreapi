@@ -23,19 +23,33 @@ public sealed class FgsInventoryItemDependencyWriteService(
             .FirstOrDefaultAsync(i => i.Id == dto.InventoryItemId, cancellationToken)
             ?? throw new KeyNotFoundException($"Inventory item '{dto.InventoryItemId}' was not found.");
 
+        var nextOrder = await DisplayOrderSequence.NextAsync(
+            context.FgsInventoryItemDependencies.Where(d => d.InventoryItemId == item.Id),
+            d => d.DisplayOrder,
+            cancellationToken);
+        var sequenceFull = false;
+
         InventoryChildCollectionSync.Sync(
             context,
             item.Dependencies,
             dto.Items ?? [],
             row => row.Id,
             _ => new FgsInventoryItemDependency { InventoryItemId = item.Id },
-            (entity, row, _) =>
+            (entity, row, isNew) =>
             {
                 entity.DependentInventoryItemId = row.DependentInventoryItemId;
                 entity.Quantity = row.Quantity;
                 entity.IsRequired = row.IsRequired;
                 entity.Notes = TrimOrNull(row.Notes);
-                entity.DisplayOrder = row.DisplayOrder;
+                if (row.DisplayOrder.HasValue)
+                {
+                    entity.DisplayOrder = row.DisplayOrder.Value;
+                }
+                else if (isNew)
+                {
+                    entity.DisplayOrder = DisplayOrderSequence.TakeNext(ref nextOrder, ref sequenceFull);
+                }
+
                 entity.IsActive = row.IsActive;
             },
             entity => auditHelper.StampForCreate(entity, entity),

@@ -103,6 +103,35 @@ public sealed class JobCategoryCommandHandlerTests
         response.Data!.IsActive.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task CreateHandler_WhenDisplayOrderOmitted_UsesNextTenantSequence()
+    {
+        await using var context = await CreateContextAsync();
+        var handler = new CreateJobCategoryCommandHandler(
+            CreateWriteService(context),
+            new Mock<ICacheService>().Object,
+            CreateTenantContextAccessor(),
+            NullLogger<CreateJobCategoryCommandHandler>.Instance);
+
+        var first = await handler.Handle(
+            new CreateJobCategoryCommand(new JobCategoryCreateDto("ONE", "One", 4)),
+            CancellationToken.None);
+        var inactive = await handler.Handle(
+            new CreateJobCategoryCommand(new JobCategoryCreateDto("OFF", "Off", 6, IsActive: false)),
+            CancellationToken.None);
+        var second = await handler.Handle(
+            new CreateJobCategoryCommand(new JobCategoryCreateDto("TWO", "Two")),
+            CancellationToken.None);
+        var explicitOrder = await handler.Handle(
+            new CreateJobCategoryCommand(new JobCategoryCreateDto("THREE", "Three", 2)),
+            CancellationToken.None);
+
+        first.Data!.DisplayOrder.Should().Be(4);
+        inactive.Data!.DisplayOrder.Should().Be(6);
+        second.Data!.DisplayOrder.Should().Be(7);
+        explicitOrder.Data!.DisplayOrder.Should().Be(2);
+    }
+
     private static ITenantContextAccessor CreateTenantContextAccessor() =>
         new TestTenantContextAccessor
         {

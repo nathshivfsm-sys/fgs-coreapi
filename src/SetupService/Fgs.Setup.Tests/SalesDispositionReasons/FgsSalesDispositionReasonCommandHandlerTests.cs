@@ -38,7 +38,7 @@ public sealed class FgsSalesDispositionReasonCommandHandlerTests
             NullLogger<CreateFgsSalesDispositionReasonCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateFgsSalesDispositionReasonCommand(new FgsSalesDispositionReasonCreateDto("TEST", "DispositionReasonName", "Description", 5, false, true, false, false, true, true)),
+            new CreateFgsSalesDispositionReasonCommand(new FgsSalesDispositionReasonCreateDto("TEST", "DispositionReasonName", "Description", false, true, false, false, true, true, 5)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -70,7 +70,7 @@ public sealed class FgsSalesDispositionReasonCommandHandlerTests
             NullLogger<DeleteFgsSalesDispositionReasonCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateFgsSalesDispositionReasonCommand(new FgsSalesDispositionReasonCreateDto("TEST", "DispositionReasonName", "Description", 5, false, true, false, false, true, true)),
+            new CreateFgsSalesDispositionReasonCommand(new FgsSalesDispositionReasonCreateDto("TEST", "DispositionReasonName", "Description", false, true, false, false, true, true, 5)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 

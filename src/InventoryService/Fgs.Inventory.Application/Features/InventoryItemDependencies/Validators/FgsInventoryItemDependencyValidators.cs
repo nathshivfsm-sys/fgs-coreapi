@@ -76,6 +76,7 @@ internal sealed class FgsInventoryItemDependencyDtoValidator : AbstractValidator
                 await readRepository.ExistsInventoryItemAsync(dependentInventoryItemId, cancellationToken))
             .WithMessage("Dependent inventory item was not found or is inactive.");
         RuleFor(x => x.Quantity).GreaterThan(0);
-        RuleFor(x => x.DisplayOrder).GreaterThan((short)0);
+        RuleFor(x => x.DisplayOrder).GreaterThan((short)0)
+            .When(x => x.DisplayOrder.HasValue);
     }
 }

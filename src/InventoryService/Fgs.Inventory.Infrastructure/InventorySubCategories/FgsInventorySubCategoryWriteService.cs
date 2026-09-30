@@ -38,7 +38,10 @@ public sealed class FgsInventorySubCategoryWriteService : IFgsInventorySubCatego
             TextColor = TrimOrNull(dto.TextColor),
             BackgroundColor = TrimOrNull(dto.BackgroundColor),
             DisplayIconFileId = dto.DisplayIconFileId,
-            DisplayOrder = dto.DisplayOrder
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsInventorySubCategories.Where(t => t.InventoryCategoryId == dto.InventoryCategoryId),
+                t => t.DisplayOrder,
+                cancellationToken)
         };
 
         _auditHelper.StampForCreate(entity);

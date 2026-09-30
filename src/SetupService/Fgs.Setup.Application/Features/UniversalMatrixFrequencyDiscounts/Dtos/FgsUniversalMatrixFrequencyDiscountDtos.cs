@@ -26,7 +26,7 @@ public sealed record FgsUniversalMatrixFrequencyDiscountCreateDto(
     long UniversalPricingServiceId,
     string Name,
     decimal DiscountPercent,
-    short DisplayOrder);
+    short? DisplayOrder = null);
 
 public sealed record FgsUniversalMatrixFrequencyDiscountUpdateDto(
     long UniversalPricingServiceId,

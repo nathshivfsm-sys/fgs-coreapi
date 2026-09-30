@@ -16,7 +16,7 @@ public sealed class FgsSalesDispositionReasonValidatorTests
     public async Task CreateValidator_WhenDispositionReasonCodeMissing_HasValidationError()
     {
         var validator = new CreateFgsSalesDispositionReasonCommandValidator(_readRepository.Object);
-        var command = new CreateFgsSalesDispositionReasonCommand(new FgsSalesDispositionReasonCreateDto("", "DispositionReasonName", "Description", 5, false, true, false, false, true, true));
+        var command = new CreateFgsSalesDispositionReasonCommand(new FgsSalesDispositionReasonCreateDto("", "DispositionReasonName", "Description", false, true, false, false, true, true, 5));
 
         var result = await validator.ValidateAsync(command);
 
@@ -28,7 +28,7 @@ public sealed class FgsSalesDispositionReasonValidatorTests
     public async Task CreateValidator_WhenDispositionReasonCodeNotUppercase_HasValidationError()
     {
         var validator = new CreateFgsSalesDispositionReasonCommandValidator(_readRepository.Object);
-        var args = new FgsSalesDispositionReasonCreateDto("TEST", "DispositionReasonName", "Description", 5, false, true, false, false, true, true);
+        var args = new FgsSalesDispositionReasonCreateDto("TEST", "DispositionReasonName", "Description", false, true, false, false, true, true, 5);
         var command = new CreateFgsSalesDispositionReasonCommand(args with { DispositionReasonCode = "test" });
 
         var result = await validator.ValidateAsync(command);

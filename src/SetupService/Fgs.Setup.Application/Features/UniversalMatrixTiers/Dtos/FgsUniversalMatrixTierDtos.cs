@@ -26,7 +26,7 @@ public sealed record FgsUniversalMatrixTierCreateDto(
     long UniversalPricingServiceId,
     string Name,
     decimal Multiplier,
-    short DisplayOrder);
+    short? DisplayOrder = null);
 
 public sealed record FgsUniversalMatrixTierUpdateDto(
     long UniversalPricingServiceId,

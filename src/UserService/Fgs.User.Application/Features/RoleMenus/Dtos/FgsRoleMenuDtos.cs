@@ -18,7 +18,7 @@ public sealed record FgsRoleMenuLookupDto(
 public sealed record FgsRoleMenuCreateDto(
     long RoleId,
     int MenuId,
-    short DisplayOrder = 1);
+    short? DisplayOrder = null);
 
 public sealed record FgsRoleMenuUpdateDto(
     long RoleId,
@@ -33,7 +33,7 @@ public sealed record FgsRoleMenuPatchDto(
 
 public sealed record FgsRoleMenuSyncItemDto(
     int MenuId,
-    short DisplayOrder = 1,
+    short? DisplayOrder = null,
     bool IsActive = true);
 
 /// <summary>

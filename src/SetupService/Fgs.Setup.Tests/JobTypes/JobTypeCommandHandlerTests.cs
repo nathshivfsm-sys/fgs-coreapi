@@ -193,6 +193,54 @@ public sealed class JobTypeCommandHandlerTests
         context.FgsJobTypeCategories.IgnoreQueryFilters().Single(c => c.JobTypeTaskId == removedTaskId).IsActive.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task CreateHandler_WhenDisplayOrderOmitted_ContinuesSequenceAndSubCategories()
+    {
+        await using var context = await CreateContextAsync();
+        var handler = new CreateJobTypeCommandHandler(
+            CreateWriteService(context),
+            new Mock<ICacheService>().Object,
+            CreateTenantContextAccessor(),
+            NullLogger<CreateJobTypeCommandHandler>.Instance);
+        var firstTask = await SeedJobTypeTaskAsync(context, "First");
+        var secondTask = await SeedJobTypeTaskAsync(context, "Second");
+        var thirdTask = await SeedJobTypeTaskAsync(context, "Third");
+        var otherTask = await SeedJobTypeTaskAsync(context, "Other");
+
+        var first = await handler.Handle(
+            new CreateJobTypeCommand(new JobTypeCreateDto(
+                "SVC",
+                "Service",
+                1,
+                null,
+                true,
+                true,
+                4,
+                [
+                    new JobTypeSubCategoryWriteDto(firstTask, 9),
+                    new JobTypeSubCategoryWriteDto(secondTask),
+                    new JobTypeSubCategoryWriteDto(thirdTask)
+                ])),
+            CancellationToken.None);
+        var second = await handler.Handle(
+            new CreateJobTypeCommand(new JobTypeCreateDto(
+                "INS",
+                "Install",
+                1,
+                null,
+                true,
+                true,
+                SubCategories: [new JobTypeSubCategoryWriteDto(otherTask)])),
+            CancellationToken.None);
+
+        first.Data!.DisplayOrder.Should().Be(4);
+        context.FgsJobTypeCategories.IgnoreQueryFilters().Single(c => c.JobTypeTaskId == firstTask).DisplayOrder.Should().Be(9);
+        context.FgsJobTypeCategories.IgnoreQueryFilters().Single(c => c.JobTypeTaskId == secondTask).DisplayOrder.Should().Be(1);
+        context.FgsJobTypeCategories.IgnoreQueryFilters().Single(c => c.JobTypeTaskId == thirdTask).DisplayOrder.Should().Be(2);
+        second.Data!.DisplayOrder.Should().Be(5);
+        context.FgsJobTypeCategories.IgnoreQueryFilters().Single(c => c.JobTypeTaskId == otherTask).DisplayOrder.Should().Be(1);
+    }
+
     private static ITenantContextAccessor CreateTenantContextAccessor() =>
         new TestTenantContextAccessor
         {

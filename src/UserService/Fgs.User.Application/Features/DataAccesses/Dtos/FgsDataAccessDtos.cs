@@ -29,7 +29,7 @@ public sealed record FgsDataAccessCreateDto(
     string DataAccessCode,
     string Name,
     string? Description,
-    short DisplayOrder = 1);
+    short? DisplayOrder = null);
 
 public sealed record FgsDataAccessUpdateDto(
     string DataAccessCode,

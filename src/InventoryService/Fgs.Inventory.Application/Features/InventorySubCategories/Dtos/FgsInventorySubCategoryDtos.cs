@@ -39,7 +39,7 @@ public sealed record FgsInventorySubCategoryCreateDto(
     string? TextColor,
     string? BackgroundColor,
     long? DisplayIconFileId,
-    short DisplayOrder = 1);
+    short? DisplayOrder = null);
 
 public sealed record FgsInventorySubCategoryUpdateDto(
     long InventoryCategoryId,

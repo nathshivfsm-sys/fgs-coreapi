@@ -14,7 +14,6 @@ using Fgs.Inventory.Infrastructure.TruckStockTemplates;
 using Microsoft.EntityFrameworkCore;
 using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Fgs.MultiTenancy.Persistence;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
@@ -122,6 +121,86 @@ public sealed class FgsTruckStockTemplateCommandHandlerTests
         updated.Data!.Items.Should().HaveCount(1);
         updated.Data.Items[0].TargetQuantity.Should().Be(10m);
         (await context.FgsTruckStockTemplateItems.CountAsync()).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task CreateHandler_WhenItemDisplayOrderOmitted_ContinuesTemplateSequence()
+    {
+        await using var context = await CreateContextAsync();
+        var firstItem = new FgsInventoryItem
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            ItemCode = "ITEM01",
+            Name = "Filter",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        };
+        var addedItem = new FgsInventoryItem
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            ItemCode = "ITEM02",
+            Name = "Hose",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        };
+        context.FgsInventoryItems.AddRange(firstItem, addedItem);
+        await context.SaveChangesAsync();
+
+        var writeService = CreateTemplateWriteService(context);
+        var cache = new Mock<ICacheService>();
+        var tenantAccessor = CreateTenantContextAccessor();
+        var createHandler = new CreateFgsTruckStockTemplateCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<CreateFgsTruckStockTemplateCommandHandler>.Instance);
+
+        var created = await createHandler.Handle(
+            new CreateFgsTruckStockTemplateCommand(
+                new FgsTruckStockTemplateCreateDto(
+                    "TRUCK-A",
+                    "Truck A",
+                    null,
+                    [new FgsTruckStockTemplateItemDto(null, firstItem.Id, 1m, 1m, 4)])),
+            CancellationToken.None);
+
+        var kept = created.Data!.Items.Single();
+        var updated = await new UpdateFgsTruckStockTemplateCommandHandler(
+            writeService,
+            cache.Object,
+            tenantAccessor,
+            NullLogger<UpdateFgsTruckStockTemplateCommandHandler>.Instance).Handle(
+            new UpdateFgsTruckStockTemplateCommand(
+                created.Data.Id,
+                new FgsTruckStockTemplateUpdateDto(
+                    "TRUCK-A",
+                    "Truck A",
+                    null,
+                    [
+                        new FgsTruckStockTemplateItemDto(kept.Id, firstItem.Id, 1m, 1m),
+                        new FgsTruckStockTemplateItemDto(null, addedItem.Id, 1m, 1m)
+                    ])),
+            CancellationToken.None);
+
+        updated.Success.Should().BeTrue();
+        var lines = await context.FgsTruckStockTemplateItems.IgnoreQueryFilters()
+            .Where(i => i.TruckStockTemplateId == created.Data.Id)
+            .ToListAsync();
+        lines.Single(i => i.InventoryItemId == firstItem.Id).DisplayOrder.Should().Be(4);
+        lines.Single(i => i.InventoryItemId == addedItem.Id).DisplayOrder.Should().Be(5);
+
+        var other = await createHandler.Handle(
+            new CreateFgsTruckStockTemplateCommand(
+                new FgsTruckStockTemplateCreateDto(
+                    "TRUCK-B",
+                    "Truck B",
+                    null,
+                    [new FgsTruckStockTemplateItemDto(null, firstItem.Id, 1m, 1m)])),
+            CancellationToken.None);
+
+        other.Data!.Items.Single().DisplayOrder.Should().Be(1);
     }
 
     private static ITenantContextAccessor CreateTenantContextAccessor() =>

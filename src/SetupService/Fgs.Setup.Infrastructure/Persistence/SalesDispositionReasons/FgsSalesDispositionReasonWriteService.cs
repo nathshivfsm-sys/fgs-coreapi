@@ -35,7 +35,10 @@ public sealed class FgsSalesDispositionReasonWriteService : IFgsSalesDisposition
             DispositionReasonCode = NormalizeCode(dto.DispositionReasonCode),
             DispositionReasonName = dto.DispositionReasonName.Trim(),
             Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
-            DisplayOrder = dto.DisplayOrder,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsSalesDispositionReasons,
+                t => t.DisplayOrder,
+                cancellationToken),
             IsSystem = dto.IsSystem,
             AppliesToLead = dto.AppliesToLead,
             AppliesToOpportunity = dto.AppliesToOpportunity,

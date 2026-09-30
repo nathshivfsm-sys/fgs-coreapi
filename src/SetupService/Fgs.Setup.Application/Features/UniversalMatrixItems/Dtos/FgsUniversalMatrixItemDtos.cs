@@ -29,7 +29,7 @@ public sealed record FgsUniversalMatrixItemCreateDto(
     string ItemName,
     string UnitType,
     decimal BasePrice,
-    short DisplayOrder);
+    short? DisplayOrder = null);
 
 public sealed record FgsUniversalMatrixItemUpdateDto(
     long UniversalPricingServiceId,

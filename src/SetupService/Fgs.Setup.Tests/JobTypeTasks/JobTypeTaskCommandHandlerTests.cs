@@ -147,6 +147,52 @@ public sealed class JobTypeTaskCommandHandlerTests
         response.Data!.IsActive.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task CreateHandler_WhenDisplayOrderOmitted_UsesNextInCategorySequence()
+    {
+        await using var context = await CreateContextAsync();
+        context.FgsJobCategories.Add(new FgsJobCategory
+        {
+            Id = 2,
+            CategoryCode = "PLMB",
+            Name = "Plumbing",
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "test"
+        });
+        await context.SaveChangesAsync();
+
+        var handler = new CreateJobTypeTaskCommandHandler(
+            CreateWriteService(context),
+            new Mock<ICacheService>().Object,
+            CreateTenantContextAccessor(),
+            NullLogger<CreateJobTypeTaskCommandHandler>.Instance);
+
+        var first = await handler.Handle(
+            new CreateJobTypeTaskCommand(new JobTypeTaskCreateDto(1, 1, "First", 5, 1m, 4)),
+            CancellationToken.None);
+        var inactive = await handler.Handle(
+            new CreateJobTypeTaskCommand(new JobTypeTaskCreateDto(1, 1, "Inactive", 5, 1m, 7, IsActive: false)),
+            CancellationToken.None);
+        var second = await handler.Handle(
+            new CreateJobTypeTaskCommand(new JobTypeTaskCreateDto(1, 1, "Second", 5, 1m)),
+            CancellationToken.None);
+        var otherCategory = await handler.Handle(
+            new CreateJobTypeTaskCommand(new JobTypeTaskCreateDto(2, 1, "Other", 5, 1m)),
+            CancellationToken.None);
+        var explicitOrder = await handler.Handle(
+            new CreateJobTypeTaskCommand(new JobTypeTaskCreateDto(1, 1, "Explicit", 5, 1m, 3)),
+            CancellationToken.None);
+
+        first.Data!.DisplayOrder.Should().Be(4);
+        inactive.Data!.DisplayOrder.Should().Be(7);
+        second.Data!.DisplayOrder.Should().Be(8);
+        otherCategory.Data!.DisplayOrder.Should().Be(1);
+        explicitOrder.Data!.DisplayOrder.Should().Be(3);
+    }
+
     private static ITenantContextAccessor CreateTenantContextAccessor() =>
         new TestTenantContextAccessor
         {

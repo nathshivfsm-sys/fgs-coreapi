@@ -35,7 +35,10 @@ public sealed class FgsSalesPipelineStatusWriteService : IFgsSalesPipelineStatus
             StatusCode = NormalizeCode(dto.StatusCode),
             StatusName = dto.StatusName.Trim(),
             Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
-            DisplayOrder = dto.DisplayOrder,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsSalesPipelineStatuses,
+                t => t.DisplayOrder,
+                cancellationToken),
             IsSystem = dto.IsSystem,
             AppliesToLead = dto.AppliesToLead,
             AppliesToOpportunity = dto.AppliesToOpportunity,

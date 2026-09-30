@@ -16,7 +16,7 @@ public sealed class FgsSalesActivityOutcomeValidatorTests
     public async Task CreateValidator_WhenOutcomeCodeMissing_HasValidationError()
     {
         var validator = new CreateFgsSalesActivityOutcomeCommandValidator(_readRepository.Object);
-        var command = new CreateFgsSalesActivityOutcomeCommand(new FgsSalesActivityOutcomeCreateDto("", "OutcomeName", "Description", 5, false, true, true, null, false, false, true));
+        var command = new CreateFgsSalesActivityOutcomeCommand(new FgsSalesActivityOutcomeCreateDto("", "OutcomeName", "Description", false, true, true, null, false, false, true, 5));
 
         var result = await validator.ValidateAsync(command);
 
@@ -28,7 +28,7 @@ public sealed class FgsSalesActivityOutcomeValidatorTests
     public async Task CreateValidator_WhenOutcomeCodeNotUppercase_HasValidationError()
     {
         var validator = new CreateFgsSalesActivityOutcomeCommandValidator(_readRepository.Object);
-        var args = new FgsSalesActivityOutcomeCreateDto("TEST", "OutcomeName", "Description", 5, false, true, true, null, false, false, true);
+        var args = new FgsSalesActivityOutcomeCreateDto("TEST", "OutcomeName", "Description", false, true, true, null, false, false, true, 5);
         var command = new CreateFgsSalesActivityOutcomeCommand(args with { OutcomeCode = "test" });
 
         var result = await validator.ValidateAsync(command);

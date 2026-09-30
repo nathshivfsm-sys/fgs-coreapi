@@ -35,7 +35,10 @@ public sealed class FgsUniversalMatrixFrequencyDiscountWriteService : IFgsUniver
             UniversalPricingServiceId = dto.UniversalPricingServiceId,
             Name = dto.Name.Trim(),
             DiscountPercent = dto.DiscountPercent,
-            DisplayOrder = dto.DisplayOrder
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsUniversalMatrixFrequencyDiscounts.Where(t => t.UniversalPricingServiceId == dto.UniversalPricingServiceId),
+                t => t.DisplayOrder,
+                cancellationToken)
         };
 
         _auditHelper.StampForCreate(entity);

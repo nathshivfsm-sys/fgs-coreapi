@@ -17,7 +17,8 @@ public sealed class SyncFgsRoleMenusCommandValidator : AbstractValidator<SyncFgs
         RuleForEach(x => x.Dto.Items).ChildRules(item =>
         {
             item.RuleFor(x => x.MenuId).GreaterThan(0);
-            item.RuleFor(x => x.DisplayOrder).GreaterThanOrEqualTo((short)0);
+            item.RuleFor(x => x.DisplayOrder).GreaterThanOrEqualTo((short)0)
+            .When(x => x.DisplayOrder.HasValue);
         });
     }
 }
@@ -42,7 +43,8 @@ public sealed class CreateFgsRoleMenuCommandValidator : AbstractValidator<Create
                 !await readRepository.ExistsByRoleMenuAsync(command.Dto.RoleId, menuId, null, cancellationToken))
             .WithMessage("A role menu with this RoleId and MenuId already exists.");
 
-        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0);
+        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0)
+            .When(x => x.Dto.DisplayOrder.HasValue);
     }
 }
 

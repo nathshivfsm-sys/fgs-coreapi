@@ -140,6 +140,7 @@ internal sealed class FgsTruckStockTemplateItemDtoValidator : AbstractValidator<
         RuleFor(x => x)
             .Must(dto => dto.TargetQuantity >= dto.MinimumQuantity)
             .WithMessage("TargetQuantity must be greater than or equal to MinimumQuantity.");
-        RuleFor(x => x.DisplayOrder).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.DisplayOrder).GreaterThanOrEqualTo(0)
+            .When(x => x.DisplayOrder.HasValue);
     }
 }

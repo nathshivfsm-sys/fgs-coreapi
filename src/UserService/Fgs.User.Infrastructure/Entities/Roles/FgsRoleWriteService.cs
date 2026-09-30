@@ -47,7 +47,10 @@ public sealed class FgsRoleWriteService(
             Name = dto.Name.Trim(),
             Description = dto.Description?.Trim(),
             IsBuiltIn = false,
-            DisplayOrder = dto.DisplayOrder,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                context.FgsRoles,
+                t => t.DisplayOrder,
+                cancellationToken),
             IsActive = true,
             CreatedOn = now,
             CreatedBy = actor

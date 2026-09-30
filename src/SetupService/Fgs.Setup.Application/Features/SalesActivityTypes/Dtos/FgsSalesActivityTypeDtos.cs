@@ -34,11 +34,11 @@ public sealed record FgsSalesActivityTypeCreateDto(
     string ActivityTypeCode,
     string ActivityTypeName,
     string? Description,
-    short DisplayOrder,
     bool IsSystem,
     bool AppliesToLead,
     bool AppliesToOpportunity,
-    bool AllowManualSelection);
+    bool AllowManualSelection,
+    short? DisplayOrder = null);
 
 public sealed record FgsSalesActivityTypeUpdateDto(
     string ActivityTypeCode,

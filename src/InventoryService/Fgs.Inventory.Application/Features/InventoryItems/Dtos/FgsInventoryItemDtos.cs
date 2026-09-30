@@ -79,7 +79,7 @@ public sealed record FgsInventoryItemDependencyDto(
     decimal Quantity = 1m,
     bool IsRequired = true,
     string? Notes = null,
-    short DisplayOrder = 1,
+    short? DisplayOrder = null,
     bool IsActive = true);
 
 public sealed record FgsInventoryItemAlternateReplaceDto(

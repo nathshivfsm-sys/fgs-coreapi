@@ -38,7 +38,7 @@ public sealed class FgsSalesPipelineStatusCommandHandlerTests
             NullLogger<CreateFgsSalesPipelineStatusCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateFgsSalesPipelineStatusCommand(new FgsSalesPipelineStatusCreateDto("TEST", "StatusName", "Description", 5, false, true, false, false, true)),
+            new CreateFgsSalesPipelineStatusCommand(new FgsSalesPipelineStatusCreateDto("TEST", "StatusName", "Description", false, true, false, false, true, 5)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -70,7 +70,7 @@ public sealed class FgsSalesPipelineStatusCommandHandlerTests
             NullLogger<DeleteFgsSalesPipelineStatusCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateFgsSalesPipelineStatusCommand(new FgsSalesPipelineStatusCreateDto("TEST", "StatusName", "Description", 5, false, true, false, false, true)),
+            new CreateFgsSalesPipelineStatusCommand(new FgsSalesPipelineStatusCreateDto("TEST", "StatusName", "Description", false, true, false, false, true, 5)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 

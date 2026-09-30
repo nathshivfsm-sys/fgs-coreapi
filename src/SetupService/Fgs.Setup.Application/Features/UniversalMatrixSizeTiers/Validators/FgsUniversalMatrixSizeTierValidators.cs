@@ -17,7 +17,8 @@ public sealed class CreateFgsUniversalMatrixSizeTierCommandValidator : AbstractV
         RuleFor(x => x.Dto.Name).NotEmpty();
         RuleFor(x => x.Dto.Name).MaximumLength(100);
         RuleFor(x => x.Dto.Multiplier).GreaterThan(0m);
-        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)1);
+        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)1)
+            .When(x => x.Dto.DisplayOrder.HasValue);
         RuleFor(x => x.Dto.Name).MustAsync(async (command, value, cancellationToken) =>
                 !await readRepository.ExistsByNameAsync(command.Dto.UniversalPricingServiceId, value, null, cancellationToken))
             .WithMessage("A universal matrix size tier with this name already exists for the universal pricing service.");

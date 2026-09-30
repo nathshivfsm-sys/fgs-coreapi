@@ -18,7 +18,8 @@ public sealed class CreateFgsUniversalPricingServiceCommandValidator : AbstractV
         RuleFor(x => x.Dto.UniversalPricingServiceCode).MustAsync(async (_, code, cancellationToken) =>
                 !await readRepository.ExistsByUniversalPricingServiceCodeAsync(code, null, cancellationToken))
             .WithMessage("A universal pricing service with this code already exists.");
-        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)1);
+        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)1)
+            .When(x => x.Dto.DisplayOrder.HasValue);
     }
 }
 

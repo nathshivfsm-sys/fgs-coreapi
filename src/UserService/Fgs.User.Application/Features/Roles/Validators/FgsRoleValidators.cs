@@ -32,7 +32,8 @@ public sealed class CreateFgsRoleCommandValidator : AbstractValidator<CreateFgsR
             .When(x => x.Dto.Description is not null);
 
         RuleFor(x => x.Dto.DisplayOrder)
-            .GreaterThan((short)0);
+            .GreaterThan((short)0)
+            .When(x => x.Dto.DisplayOrder.HasValue);
     }
 }
 

@@ -35,7 +35,10 @@ public sealed class FgsUniversalMatrixOneTimeFeeWriteService : IFgsUniversalMatr
             UniversalPricingServiceId = dto.UniversalPricingServiceId,
             Name = dto.Name.Trim(),
             Amount = dto.Amount,
-            DisplayOrder = dto.DisplayOrder
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsUniversalMatrixOneTimeFees.Where(t => t.UniversalPricingServiceId == dto.UniversalPricingServiceId),
+                t => t.DisplayOrder,
+                cancellationToken)
         };
 
         _auditHelper.StampForCreate(entity);

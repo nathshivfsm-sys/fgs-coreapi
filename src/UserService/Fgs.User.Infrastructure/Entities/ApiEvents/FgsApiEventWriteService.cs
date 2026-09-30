@@ -24,7 +24,10 @@ public sealed class FgsApiEventWriteService(
             Name = dto.Name.Trim(),
             Description = dto.Description?.Trim(),
             EventVersion = dto.EventVersion,
-            DisplayOrder = dto.DisplayOrder,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                context.FgsApiEvents,
+                t => t.DisplayOrder,
+                cancellationToken),
             IsActive = true,
             CreatedOn = DateTimeOffset.UtcNow
         };

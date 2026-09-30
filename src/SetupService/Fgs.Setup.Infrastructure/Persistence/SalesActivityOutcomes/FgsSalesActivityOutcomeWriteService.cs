@@ -35,7 +35,10 @@ public sealed class FgsSalesActivityOutcomeWriteService : IFgsSalesActivityOutco
             OutcomeCode = NormalizeCode(dto.OutcomeCode),
             OutcomeName = dto.OutcomeName.Trim(),
             Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
-            DisplayOrder = dto.DisplayOrder,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsSalesActivityOutcomes,
+                t => t.DisplayOrder,
+                cancellationToken),
             IsSystem = dto.IsSystem,
             AppliesToLead = dto.AppliesToLead,
             AppliesToOpportunity = dto.AppliesToOpportunity,

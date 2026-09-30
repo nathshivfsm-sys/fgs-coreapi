@@ -35,7 +35,10 @@ public sealed class BillingCategoryWriteService : IBillingCategoryWriteService
             BillingCategoryType = NormalizeCode(dto.BillingCategoryType),
             BillingCategoryName = dto.BillingCategoryName.Trim(),
             Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
-            DisplayOrder = dto.DisplayOrder ?? 1,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsBillingCategories,
+                t => t.DisplayOrder,
+                cancellationToken),
             IsSystemDefined = false,
             ShowToFieldTech = dto.ShowToFieldTech,
             AllowToPick = dto.AllowToPick

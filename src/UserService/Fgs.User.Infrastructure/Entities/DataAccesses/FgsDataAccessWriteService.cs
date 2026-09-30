@@ -33,7 +33,10 @@ public sealed class FgsDataAccessWriteService(
             Name = dto.Name.Trim(),
             Description = dto.Description?.Trim(),
             IsBuiltIn = false,
-            DisplayOrder = dto.DisplayOrder,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                context.FgsDataAccesses,
+                t => t.DisplayOrder,
+                cancellationToken),
             IsActive = true,
             CreatedOn = now,
             CreatedBy = actor

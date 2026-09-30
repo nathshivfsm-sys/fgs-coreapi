@@ -37,7 +37,10 @@ public sealed class FgsTenantMenuWriteService(
             MenuType = dto.MenuType.Trim(),
             Route = dto.Route?.Trim(),
             Icon = dto.Icon?.Trim(),
-            DisplayOrder = dto.DisplayOrder,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                context.FgsTenantMenus,
+                t => t.DisplayOrder,
+                cancellationToken),
             IsActive = true,
             CreatedOn = now,
             CreatedBy = actor
@@ -162,6 +165,11 @@ public sealed class FgsTenantMenuWriteService(
 
         var actor = ResolveActor();
         var now = DateTimeOffset.UtcNow;
+        var nextOrder = await DisplayOrderSequence.NextAsync(
+            context.FgsTenantMenus,
+            menu => menu.DisplayOrder,
+            cancellationToken);
+        var sequenceFull = false;
         foreach (var item in desiredItems)
         {
             if (existingByMenuId.TryGetValue(item.MenuId, out var existingRow))
@@ -176,7 +184,7 @@ public sealed class FgsTenantMenuWriteService(
                     item.MenuType,
                     item.Route,
                     item.Icon,
-                    item.DisplayOrder);
+                    item.DisplayOrder ?? existingRow.DisplayOrder);
                 existingRow.IsActive = item.IsActive;
                 existingRow.UpdatedOn = now;
                 existingRow.UpdatedBy = actor;
@@ -196,7 +204,7 @@ public sealed class FgsTenantMenuWriteService(
                     MenuType = item.MenuType.Trim(),
                     Route = item.Route?.Trim(),
                     Icon = item.Icon?.Trim(),
-                    DisplayOrder = item.DisplayOrder,
+                    DisplayOrder = item.DisplayOrder ?? DisplayOrderSequence.TakeNext(ref nextOrder, ref sequenceFull),
                     IsActive = item.IsActive,
                     CreatedOn = now,
                     CreatedBy = actor

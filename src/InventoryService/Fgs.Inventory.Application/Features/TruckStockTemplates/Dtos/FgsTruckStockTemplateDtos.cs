@@ -36,7 +36,7 @@ public sealed record FgsTruckStockTemplateItemDto(
     long InventoryItemId,
     decimal TargetQuantity,
     decimal MinimumQuantity,
-    int DisplayOrder = 1);
+    int? DisplayOrder = null);
 
 public sealed record FgsTruckStockTemplateCreateDto(
     string TemplateCode,

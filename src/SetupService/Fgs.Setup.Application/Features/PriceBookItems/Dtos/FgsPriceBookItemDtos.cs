@@ -32,8 +32,8 @@ public sealed record FgsPriceBookItemCreateDto(
     string? ItemCode,
     string ItemDescription,
     decimal Quantity,
-    short DisplayOrder,
-    string? Notes);
+    string? Notes,
+    short? DisplayOrder = null);
 
 public sealed record FgsPriceBookItemUpdateDto(
     long PriceBookId,

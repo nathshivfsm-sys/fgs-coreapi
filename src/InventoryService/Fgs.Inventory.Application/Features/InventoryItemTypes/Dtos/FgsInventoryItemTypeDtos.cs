@@ -30,7 +30,7 @@ public sealed record FgsInventoryItemTypeCreateDto(
     string Name,
     string? Description,
     bool TracksQuantity,
-    short DisplayOrder = 1);
+    short? DisplayOrder = null);
 
 public sealed record FgsInventoryItemTypeUpdateDto(
     string ItemTypeCode,

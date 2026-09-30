@@ -19,7 +19,8 @@ public sealed class CreateFgsUniversalMatrixItemCommandValidator : AbstractValid
         RuleFor(x => x.Dto.UnitType).NotEmpty();
         RuleFor(x => x.Dto.UnitType).MaximumLength(50);
         RuleFor(x => x.Dto.BasePrice).GreaterThanOrEqualTo(0m);
-        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)1);
+        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)1)
+            .When(x => x.Dto.DisplayOrder.HasValue);
         RuleFor(x => x.Dto.ItemName).MustAsync(async (command, value, cancellationToken) =>
                 !await readRepository.ExistsByItemNameAsync(command.Dto.UniversalPricingServiceId, value, null, cancellationToken))
             .WithMessage("A universal matrix item with this itemname already exists for the universal pricing service.");

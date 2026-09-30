@@ -25,7 +25,10 @@ public sealed class FgsPermissionWriteService(
             Action = dto.Action.Trim(),
             Name = dto.Name.Trim(),
             Description = dto.Description?.Trim(),
-            DisplayOrder = dto.DisplayOrder,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                context.FgsPermissions,
+                t => t.DisplayOrder,
+                cancellationToken),
             IsActive = true,
             CreatedOn = DateTimeOffset.UtcNow
         };

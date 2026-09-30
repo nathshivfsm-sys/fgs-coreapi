@@ -32,7 +32,10 @@ public sealed class FgsRoleMenuWriteService(
             CompanyId = companyId,
             RoleId = dto.RoleId,
             MenuId = dto.MenuId,
-            DisplayOrder = dto.DisplayOrder,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                context.FgsRoleMenus.Where(t => t.RoleId == dto.RoleId),
+                t => t.DisplayOrder,
+                cancellationToken),
             IsActive = true,
             CreatedOn = now,
             CreatedBy = actor
@@ -125,11 +128,20 @@ public sealed class FgsRoleMenuWriteService(
 
         var actor = ResolveActor();
         var now = DateTimeOffset.UtcNow;
+        var nextOrder = await DisplayOrderSequence.NextAsync(
+            context.FgsRoleMenus.Where(menu => menu.RoleId == dto.RoleId),
+            menu => menu.DisplayOrder,
+            cancellationToken);
+        var sequenceFull = false;
         foreach (var item in desiredItems)
         {
             if (existingByMenuId.TryGetValue(item.MenuId, out var existingRow))
             {
-                existingRow.DisplayOrder = item.DisplayOrder;
+                if (item.DisplayOrder.HasValue)
+                {
+                    existingRow.DisplayOrder = item.DisplayOrder.Value;
+                }
+
                 existingRow.IsActive = item.IsActive;
                 existingRow.UpdatedOn = now;
                 existingRow.UpdatedBy = actor;
@@ -143,7 +155,7 @@ public sealed class FgsRoleMenuWriteService(
                     CompanyId = companyId,
                     RoleId = dto.RoleId,
                     MenuId = item.MenuId,
-                    DisplayOrder = item.DisplayOrder,
+                    DisplayOrder = item.DisplayOrder ?? DisplayOrderSequence.TakeNext(ref nextOrder, ref sequenceFull),
                     IsActive = item.IsActive,
                     CreatedOn = now,
                     CreatedBy = actor

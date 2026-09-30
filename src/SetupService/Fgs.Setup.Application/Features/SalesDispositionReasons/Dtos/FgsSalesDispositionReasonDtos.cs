@@ -38,13 +38,13 @@ public sealed record FgsSalesDispositionReasonCreateDto(
     string DispositionReasonCode,
     string DispositionReasonName,
     string? Description,
-    short DisplayOrder,
     bool IsSystem,
     bool AppliesToLead,
     bool AppliesToOpportunity,
     bool RequireComment,
     bool IsTerminal,
-    bool AllowManualSelection);
+    bool AllowManualSelection,
+    short? DisplayOrder = null);
 
 public sealed record FgsSalesDispositionReasonUpdateDto(
     string DispositionReasonCode,

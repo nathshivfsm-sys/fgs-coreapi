@@ -42,7 +42,8 @@ public sealed class CreateFgsInventorySubCategoryCommandValidator : AbstractVali
                 .WithMessage("An inventory sub-category with this name already exists for the category.");
             RuleFor(x => x.Dto.TextColor).MaximumLength(20);
             RuleFor(x => x.Dto.BackgroundColor).MaximumLength(20);
-            RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0);
+            RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0)
+            .When(x => x.Dto.DisplayOrder.HasValue);
         });
     }
 }

@@ -37,7 +37,7 @@ public sealed record JobTypeSubCategoryDto(
 
 public sealed record JobTypeSubCategoryWriteDto(
     long JobTypeTaskId,
-    short? DisplayOrder,
+    short? DisplayOrder = null,
     bool IsActive = true);
 
 public sealed record JobTypeCreateDto(
@@ -47,7 +47,7 @@ public sealed record JobTypeCreateDto(
     string? BusinessUnit,
     bool ShowToFieldTech,
     bool ShowOnCustomerPortal,
-    short? DisplayOrder,
+    short? DisplayOrder = null,
     IReadOnlyList<JobTypeSubCategoryWriteDto>? SubCategories = null,
     bool IsActive = true);
 

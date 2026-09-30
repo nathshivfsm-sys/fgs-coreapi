@@ -22,13 +22,8 @@ public sealed class CreateFgsSalesDispositionReasonCommandValidator : AbstractVa
                 !await readRepository.ExistsByDispositionReasonNameAsync(name, null, cancellationToken))
             .WithMessage("An active sales disposition reason with this name already exists.");
         RuleFor(x => x.Dto.Description).MaximumLength(255);
-        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0);
-
-
-
-
-
-
+        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0)
+            .When(x => x.Dto.DisplayOrder.HasValue);
         RuleFor(x => x.Dto).Must(dto => dto.AppliesToLead || dto.AppliesToOpportunity)
             .WithMessage("At least one of AppliesToLead or AppliesToOpportunity must be true.");
     }

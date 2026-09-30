@@ -35,7 +35,10 @@ public sealed class FgsUniversalMatrixSizeTierWriteService : IFgsUniversalMatrix
             UniversalPricingServiceId = dto.UniversalPricingServiceId,
             Name = dto.Name.Trim(),
             Multiplier = dto.Multiplier,
-            DisplayOrder = dto.DisplayOrder
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsUniversalMatrixSizeTiers.Where(t => t.UniversalPricingServiceId == dto.UniversalPricingServiceId),
+                t => t.DisplayOrder,
+                cancellationToken)
         };
 
         _auditHelper.StampForCreate(entity);

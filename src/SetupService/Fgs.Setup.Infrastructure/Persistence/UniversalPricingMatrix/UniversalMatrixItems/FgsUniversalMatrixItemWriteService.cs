@@ -36,7 +36,10 @@ public sealed class FgsUniversalMatrixItemWriteService : IFgsUniversalMatrixItem
             ItemName = dto.ItemName.Trim(),
             UnitType = dto.UnitType.Trim(),
             BasePrice = dto.BasePrice,
-            DisplayOrder = dto.DisplayOrder
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsUniversalMatrixItems.Where(t => t.UniversalPricingServiceId == dto.UniversalPricingServiceId),
+                t => t.DisplayOrder,
+                cancellationToken)
         };
 
         _auditHelper.StampForCreate(entity);

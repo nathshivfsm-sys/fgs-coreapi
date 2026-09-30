@@ -31,7 +31,7 @@ public sealed record FgsTenantMenuCreateDto(
     int? ParentMenuId = null,
     string? Route = null,
     string? Icon = null,
-    short DisplayOrder = 1);
+    short? DisplayOrder = null);
 
 public sealed record FgsTenantMenuUpdateDto(
     int MenuId,
@@ -65,7 +65,7 @@ public sealed record FgsTenantMenuSyncItemDto(
     int? ParentMenuId = null,
     string? Route = null,
     string? Icon = null,
-    short DisplayOrder = 1,
+    short? DisplayOrder = null,
     bool IsActive = true);
 
 /// <summary>

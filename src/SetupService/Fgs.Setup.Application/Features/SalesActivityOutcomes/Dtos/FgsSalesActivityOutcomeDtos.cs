@@ -40,14 +40,14 @@ public sealed record FgsSalesActivityOutcomeCreateDto(
     string OutcomeCode,
     string OutcomeName,
     string? Description,
-    short DisplayOrder,
     bool IsSystem,
     bool AppliesToLead,
     bool AppliesToOpportunity,
     long? NextSalesPipelineStatusId,
     bool IsTerminal,
     bool RequireComment,
-    bool AllowManualSelection);
+    bool AllowManualSelection,
+    short? DisplayOrder = null);
 
 public sealed record FgsSalesActivityOutcomeUpdateDto(
     string OutcomeCode,

@@ -35,7 +35,10 @@ public sealed class LeadStatusWriteService : ILeadStatusWriteService
             StatusCode = NormalizeCode(dto.StatusCode),
             StatusName = dto.StatusName.Trim(),
             Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
-            DisplayOrder = dto.DisplayOrder ?? 1,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsLeadStatuses,
+                t => t.DisplayOrder,
+                cancellationToken),
             IsSystem = dto.IsSystem
         };
 

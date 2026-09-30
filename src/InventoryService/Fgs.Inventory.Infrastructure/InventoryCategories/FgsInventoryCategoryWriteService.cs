@@ -37,7 +37,10 @@ public sealed class FgsInventoryCategoryWriteService : IFgsInventoryCategoryWrit
             TextColor = TrimOrNull(dto.TextColor),
             BackgroundColor = TrimOrNull(dto.BackgroundColor),
             DisplayIconFileId = dto.DisplayIconFileId,
-            DisplayOrder = dto.DisplayOrder
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsInventoryCategories,
+                t => t.DisplayOrder,
+                cancellationToken)
         };
 
         _auditHelper.StampForCreate(entity);

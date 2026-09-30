@@ -119,18 +119,31 @@ public sealed class FgsTruckStockTemplateWriteService : IFgsTruckStockTemplateWr
             await _context.Entry(template).Collection(t => t.Items).LoadAsync(cancellationToken);
         }
 
+        var nextOrder = await DisplayOrderSequence.NextAsync(
+            _context.FgsTruckStockTemplateItems.Where(i => i.TruckStockTemplateId == template.Id),
+            i => i.DisplayOrder,
+            cancellationToken);
+        var sequenceFull = false;
+
         InventoryChildCollectionSync.Sync(
             _context,
             template.Items,
             items,
             dto => dto.Id,
             _ => new FgsTruckStockTemplateItem { TruckStockTemplateId = template.Id },
-            (entity, dto, _) =>
+            (entity, dto, isNew) =>
             {
                 entity.InventoryItemId = dto.InventoryItemId;
                 entity.TargetQuantity = dto.TargetQuantity;
                 entity.MinimumQuantity = dto.MinimumQuantity;
-                entity.DisplayOrder = dto.DisplayOrder;
+                if (dto.DisplayOrder.HasValue)
+                {
+                    entity.DisplayOrder = dto.DisplayOrder.Value;
+                }
+                else if (isNew)
+                {
+                    entity.DisplayOrder = DisplayOrderSequence.TakeNext(ref nextOrder, ref sequenceFull);
+                }
             },
             _auditHelper.StampForCreate,
             _auditHelper.StampForUpdate,

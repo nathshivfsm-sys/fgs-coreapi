@@ -36,12 +36,12 @@ public sealed record FgsSalesPipelineStatusCreateDto(
     string StatusCode,
     string StatusName,
     string? Description,
-    short DisplayOrder,
     bool IsSystem,
     bool AppliesToLead,
     bool AppliesToOpportunity,
     bool IsTerminal,
-    bool AllowManualSelection);
+    bool AllowManualSelection,
+    short? DisplayOrder = null);
 
 public sealed record FgsSalesPipelineStatusUpdateDto(
     string StatusCode,

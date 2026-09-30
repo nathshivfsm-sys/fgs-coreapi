@@ -16,7 +16,7 @@ public sealed class FgsSalesPipelineStatusValidatorTests
     public async Task CreateValidator_WhenStatusCodeMissing_HasValidationError()
     {
         var validator = new CreateFgsSalesPipelineStatusCommandValidator(_readRepository.Object);
-        var command = new CreateFgsSalesPipelineStatusCommand(new FgsSalesPipelineStatusCreateDto("", "StatusName", "Description", 5, false, true, false, false, true));
+        var command = new CreateFgsSalesPipelineStatusCommand(new FgsSalesPipelineStatusCreateDto("", "StatusName", "Description", false, true, false, false, true, 5));
 
         var result = await validator.ValidateAsync(command);
 
@@ -28,7 +28,7 @@ public sealed class FgsSalesPipelineStatusValidatorTests
     public async Task CreateValidator_WhenStatusCodeNotUppercase_HasValidationError()
     {
         var validator = new CreateFgsSalesPipelineStatusCommandValidator(_readRepository.Object);
-        var args = new FgsSalesPipelineStatusCreateDto("TEST", "StatusName", "Description", 5, false, true, false, false, true);
+        var args = new FgsSalesPipelineStatusCreateDto("TEST", "StatusName", "Description", false, true, false, false, true, 5);
         var command = new CreateFgsSalesPipelineStatusCommand(args with { StatusCode = "test" });
 
         var result = await validator.ValidateAsync(command);

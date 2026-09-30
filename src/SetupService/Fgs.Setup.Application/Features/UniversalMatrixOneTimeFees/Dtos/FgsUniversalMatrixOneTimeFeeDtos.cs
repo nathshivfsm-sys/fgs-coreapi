@@ -26,7 +26,7 @@ public sealed record FgsUniversalMatrixOneTimeFeeCreateDto(
     long UniversalPricingServiceId,
     string Name,
     decimal Amount,
-    short DisplayOrder);
+    short? DisplayOrder = null);
 
 public sealed record FgsUniversalMatrixOneTimeFeeUpdateDto(
     long UniversalPricingServiceId,

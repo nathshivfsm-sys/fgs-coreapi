@@ -38,7 +38,7 @@ public sealed record FgsPermissionCreateDto(
     string Action,
     string Name,
     string? Description,
-    short DisplayOrder = 1);
+    short? DisplayOrder = null);
 
 public sealed record FgsPermissionUpdateDto(
     string PermissionCode,

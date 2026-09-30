@@ -36,7 +36,10 @@ public sealed class JobCategoryWriteService : IJobCategoryWriteService
             Name = dto.Name.Trim(),
             BackgroundColor = NormalizeColor(dto.BackgroundColor, "#FFFFFF"),
             TextColor = NormalizeColor(dto.TextColor, "#000000"),
-            DisplayOrder = dto.DisplayOrder ?? 1
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsJobCategories,
+                t => t.DisplayOrder,
+                cancellationToken)
         };
 
         _auditHelper.StampForCreate(entity);

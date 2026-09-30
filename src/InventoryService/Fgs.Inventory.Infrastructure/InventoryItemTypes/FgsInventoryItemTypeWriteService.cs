@@ -35,7 +35,10 @@ public sealed class FgsInventoryItemTypeWriteService : IFgsInventoryItemTypeWrit
             Name = dto.Name.Trim(),
             Description = TrimOrNull(dto.Description),
             TracksQuantity = dto.TracksQuantity,
-            DisplayOrder = dto.DisplayOrder
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsInventoryItemTypes,
+                t => t.DisplayOrder,
+                cancellationToken)
         };
 
         _auditHelper.StampForCreate(entity);

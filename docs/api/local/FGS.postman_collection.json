@@ -1228,7 +1228,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"eventCode\": \"WO_CREATED\",\n  \"eventCategory\": \"WorkOrder\",\n  \"name\": \"Work Order Created\",\n  \"description\": \"Fired when a work order is created\",\n  \"eventVersion\": 1,\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"eventCode\": \"WO_CREATED\",\n  \"eventCategory\": \"WorkOrder\",\n  \"name\": \"Work Order Created\",\n  \"description\": \"Fired when a work order is created\",\n  \"eventVersion\": 1\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -3221,7 +3221,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"dataAccessCode\": \"OWN_COMP\",\n  \"name\": \"Own Company\",\n  \"description\": \"Restrict access to the user company\",\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"dataAccessCode\": \"OWN_COMP\",\n  \"name\": \"Own Company\",\n  \"description\": \"Restrict access to the user company\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -3559,7 +3559,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"fgsDataAccessId\": {{fgsDataAccessId}},\n  \"scopeType\": \"Company\",\n  \"operator\": \"Equals\",\n  \"scopeValue\": \"OWN\",\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"fgsDataAccessId\": {{fgsDataAccessId}},\n  \"scopeType\": \"Company\",\n  \"operator\": \"Equals\",\n  \"scopeValue\": \"OWN\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -4180,7 +4180,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"permissionCode\": \"USER_VIEW\",\n  \"module\": \"Users\",\n  \"resource\": \"User\",\n  \"action\": \"View\",\n  \"name\": \"View Users\",\n  \"description\": \"Allows viewing user records\",\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"permissionCode\": \"USER_VIEW\",\n  \"module\": \"Users\",\n  \"resource\": \"User\",\n  \"action\": \"View\",\n  \"name\": \"View Users\",\n  \"description\": \"Allows viewing user records\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -4970,7 +4970,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"roleCode\": \"ADMIN\",\n  \"name\": \"Administrator\",\n  \"description\": \"Full administrative access role\",\n  \"parentRoleId\": {{parentRoleId}},\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"roleCode\": \"ADMIN\",\n  \"name\": \"Administrator\",\n  \"description\": \"Full administrative access role\",\n  \"parentRoleId\": {{parentRoleId}}\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -5047,7 +5047,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"roleCode\": \"ADMIN\",\n  \"name\": \"Administrator\",\n  \"description\": \"Full administrative access role\",\n  \"displayOrder\": 1,\n  \"fgsPermissionIds\": [{{fgsPermissionId}}]\n}",
+                  "raw": "{\n  \"roleCode\": \"ADMIN\",\n  \"name\": \"Administrator\",\n  \"description\": \"Full administrative access role\",\n  \"fgsPermissionIds\": [{{fgsPermissionId}}]\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -5792,7 +5792,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"roleId\": {{roleId}},\n  \"menuId\": 1,\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"roleId\": {{roleId}},\n  \"menuId\": 1\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -7316,7 +7316,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"menuId\": 1,\n  \"menuCode\": \"TM\",\n  \"name\": \"Tenant Menu\",\n  \"menuType\": \"Tenant Menu\",\n  \"description\": \"Tenant Menu used in field service operations\",\n  \"parentMenuId\": {{parentMenuId}},\n  \"route\": \"Tenant Menu\",\n  \"icon\": \"Tenant Menu\",\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"menuId\": 1,\n  \"menuCode\": \"TM\",\n  \"name\": \"Tenant Menu\",\n  \"menuType\": \"Tenant Menu\",\n  \"description\": \"Tenant Menu used in field service operations\",\n  \"parentMenuId\": {{parentMenuId}},\n  \"route\": \"Tenant Menu\",\n  \"icon\": \"Tenant Menu\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -8851,7 +8851,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"billingCategoryType\": \"NI\",\r\n  \"billingCategoryName\": \"Non Inventory\",\r\n  \"description\": \"Non Inventory billing category\",\r\n  \"displayOrder\": 1,\r\n  \"isSystemDefined\": false,\r\n  \"showToFieldTech\": true,\r\n  \"allowToPick\": true\r\n}",
+                  "raw": "{\r\n  \"billingCategoryType\": \"NI\",\r\n  \"billingCategoryName\": \"Non Inventory\",\r\n  \"description\": \"Non Inventory billing category\",\r\n  \"isSystemDefined\": false,\r\n  \"showToFieldTech\": true,\r\n  \"allowToPick\": true\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -8925,7 +8925,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"billingCategoryType\": \"OT\",\r\n  \"billingCategoryName\": \"Other Charges\",\r\n  \"description\": \"Other Charges billing category\",\r\n  \"displayOrder\": 1,\r\n  \"isSystemDefined\": false,\r\n  \"showToFieldTech\": true,\r\n  \"allowToPick\": true\r\n}",
+                  "raw": "{\r\n  \"billingCategoryType\": \"OT\",\r\n  \"billingCategoryName\": \"Other Charges\",\r\n  \"description\": \"Other Charges billing category\",\r\n  \"isSystemDefined\": false,\r\n  \"showToFieldTech\": true,\r\n  \"allowToPick\": true\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -8999,7 +8999,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"billingCategoryType\": \"SF\",\r\n  \"billingCategoryName\": \"Service Fee\",\r\n  \"description\": \"Service Fee billing category\",\r\n  \"displayOrder\": 1,\r\n  \"isSystemDefined\": false,\r\n  \"showToFieldTech\": true,\r\n  \"allowToPick\": true\r\n}",
+                  "raw": "{\r\n  \"billingCategoryType\": \"SF\",\r\n  \"billingCategoryName\": \"Service Fee\",\r\n  \"description\": \"Service Fee billing category\",\r\n  \"isSystemDefined\": false,\r\n  \"showToFieldTech\": true,\r\n  \"allowToPick\": true\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -9073,7 +9073,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"billingCategoryType\": \"LB\",\r\n  \"billingCategoryName\": \"Labor\",\r\n  \"description\": \"Labor billing category\",\r\n  \"displayOrder\": 1,\r\n  \"isSystemDefined\": false,\r\n  \"showToFieldTech\": true,\r\n  \"allowToPick\": true\r\n}",
+                  "raw": "{\r\n  \"billingCategoryType\": \"LB\",\r\n  \"billingCategoryName\": \"Labor\",\r\n  \"description\": \"Labor billing category\",\r\n  \"isSystemDefined\": false,\r\n  \"showToFieldTech\": true,\r\n  \"allowToPick\": true\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -9147,7 +9147,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"billingCategoryType\": \"TX\",\r\n  \"billingCategoryName\": \"Tax\",\r\n  \"description\": \"Tax billing category\",\r\n  \"displayOrder\": 1,\r\n  \"isSystemDefined\": false,\r\n  \"showToFieldTech\": true,\r\n  \"allowToPick\": true\r\n}",
+                  "raw": "{\r\n  \"billingCategoryType\": \"TX\",\r\n  \"billingCategoryName\": \"Tax\",\r\n  \"description\": \"Tax billing category\",\r\n  \"isSystemDefined\": false,\r\n  \"showToFieldTech\": true,\r\n  \"allowToPick\": true\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -9600,7 +9600,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"code\": \"PLUMB\",\n  \"name\": \"Plumbing\",\n  \"description\": \"Residential and commercial plumbing services\",\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"code\": \"PLUMB\",\n  \"name\": \"Plumbing\",\n  \"description\": \"Residential and commercial plumbing services\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -12432,7 +12432,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"categoryCode\": \"REPAIR\",\n  \"name\": \"Repair\",\n  \"displayOrder\": 1,\n  \"backgroundColor\": \"#FFFFFF\",\n  \"textColor\": \"#000000\",\n  \"isActive\": true\n}",
+                  "raw": "{\n  \"categoryCode\": \"REPAIR\",\n  \"name\": \"Repair\",\n  \"backgroundColor\": \"#FFFFFF\",\n  \"textColor\": \"#000000\",\n  \"isActive\": true\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -12926,7 +12926,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"jobTypeCode\": \"SVC\",\r\n  \"name\": \"Service Call\",\r\n  \"usedFor\": 1,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"displayOrder\": 1,\r\n  \"isActive\": true,\r\n  \"subCategories\": [\r\n    {\r\n      \"jobTypeTaskId\": {{jobTypeTaskId}},\r\n      \"displayOrder\": 1,\r\n      \"isActive\": true\r\n    }\r\n  ]\r\n}",
+                  "raw": "{\r\n  \"jobTypeCode\": \"SVC\",\r\n  \"name\": \"Service Call\",\r\n  \"usedFor\": 1,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"isActive\": true,\r\n  \"subCategories\": [\r\n    {\r\n      \"jobTypeTaskId\": {{jobTypeTaskId}},\r\n      \"isActive\": true\r\n    }\r\n  ]\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -13000,7 +13000,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"jobTypeCode\": \"MNT\",\r\n  \"name\": \"Preventive Maintenance\",\r\n  \"usedFor\": 2,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"displayOrder\": 2,\r\n  \"isActive\": true,\r\n  \"subCategories\": [\r\n    {\r\n      \"jobTypeTaskId\": {{jobTypeTaskId}},\r\n      \"displayOrder\": 1,\r\n      \"isActive\": true\r\n    }\r\n  ]\r\n}",
+                  "raw": "{\r\n  \"jobTypeCode\": \"MNT\",\r\n  \"name\": \"Preventive Maintenance\",\r\n  \"usedFor\": 2,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"isActive\": true,\r\n  \"subCategories\": [\r\n    {\r\n      \"jobTypeTaskId\": {{jobTypeTaskId}},\r\n      \"isActive\": true\r\n    }\r\n  ]\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -13074,7 +13074,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"jobTypeCode\": \"WAR\",\r\n  \"name\": \"Warranty Repair\",\r\n  \"usedFor\": 3,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"displayOrder\": 3,\r\n  \"isActive\": true,\r\n  \"subCategories\": [\r\n    {\r\n      \"jobTypeTaskId\": {{jobTypeTaskId}},\r\n      \"displayOrder\": 1,\r\n      \"isActive\": true\r\n    }\r\n  ]\r\n}",
+                  "raw": "{\r\n  \"jobTypeCode\": \"WAR\",\r\n  \"name\": \"Warranty Repair\",\r\n  \"usedFor\": 3,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"isActive\": true,\r\n  \"subCategories\": [\r\n    {\r\n      \"jobTypeTaskId\": {{jobTypeTaskId}},\r\n      \"isActive\": true\r\n    }\r\n  ]\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -13148,7 +13148,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"jobTypeCode\": \"INS\",\r\n  \"name\": \"New Installation\",\r\n  \"usedFor\": 4,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"displayOrder\": 4,\r\n  \"isActive\": true,\r\n  \"subCategories\": [\r\n    {\r\n      \"jobTypeTaskId\": {{jobTypeTaskId}},\r\n      \"displayOrder\": 1,\r\n      \"isActive\": true\r\n    }\r\n  ]\r\n}",
+                  "raw": "{\r\n  \"jobTypeCode\": \"INS\",\r\n  \"name\": \"New Installation\",\r\n  \"usedFor\": 4,\r\n  \"businessUnit\": \"Field Services\",\r\n  \"showToFieldTech\": true,\r\n  \"showOnCustomerPortal\": true,\r\n  \"isActive\": true,\r\n  \"subCategories\": [\r\n    {\r\n      \"jobTypeTaskId\": {{jobTypeTaskId}},\r\n      \"isActive\": true\r\n    }\r\n  ]\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -13546,7 +13546,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"jobCategoryId\": {{jobCategoryId}},\n  \"tradeId\": {{tradeId}},\n  \"taskName\": \"Diagnose Issue\",\n  \"priority\": 5,\n  \"estimatedHours\": 0.00,\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"jobCategoryId\": {{jobCategoryId}},\n  \"tradeId\": {{tradeId}},\n  \"taskName\": \"Diagnose Issue\",\n  \"priority\": 5,\n  \"estimatedHours\": 0.00\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -14324,7 +14324,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"reasonCode\": \"NOBUDGET\",\n  \"reasonName\": \"No Budget\",\n  \"description\": \"Lead has insufficient budget\",\n  \"displayOrder\": 1,\n  \"isSystem\": false\n}",
+                  "raw": "{\n  \"reasonCode\": \"NOBUDGET\",\n  \"reasonName\": \"No Budget\",\n  \"description\": \"Lead has insufficient budget\",\n  \"isSystem\": false\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -15108,7 +15108,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"statusCode\": \"NEW\",\n  \"statusName\": \"New Lead\",\n  \"description\": \"Newly captured lead status\",\n  \"displayOrder\": 1,\n  \"isSystem\": false\n}",
+                  "raw": "{\n  \"statusCode\": \"NEW\",\n  \"statusName\": \"New Lead\",\n  \"description\": \"Newly captured lead status\",\n  \"isSystem\": false\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -17472,7 +17472,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"priceBookId\": {{priceBookId}},\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"itemCode\": \"PBI\",\n  \"itemDescription\": \"Price Book Item item description\",\n  \"quantity\": 0.00,\n  \"displayOrder\": 1,\n  \"notes\": \"Price Book Item notes\"\n}",
+                  "raw": "{\n  \"priceBookId\": {{priceBookId}},\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"itemCode\": \"PBI\",\n  \"itemDescription\": \"Price Book Item item description\",\n  \"quantity\": 0.00,\n  \"notes\": \"Price Book Item notes\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -20344,7 +20344,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"outcomeCode\": \"WON\",\n  \"outcomeName\": \"Won\",\n  \"description\": \"Sales activity resulted in a win\",\n  \"displayOrder\": 1,\n  \"isSystem\": false,\n  \"appliesToLead\": true,\n  \"appliesToOpportunity\": true,\n  \"nextSalesPipelineStatusId\": {{nextSalesPipelineStatusId}},\n  \"isTerminal\": false,\n  \"requireComment\": false,\n  \"allowManualSelection\": true\n}",
+                  "raw": "{\n  \"outcomeCode\": \"WON\",\n  \"outcomeName\": \"Won\",\n  \"description\": \"Sales activity resulted in a win\",\n  \"isSystem\": false,\n  \"appliesToLead\": true,\n  \"appliesToOpportunity\": true,\n  \"nextSalesPipelineStatusId\": {{nextSalesPipelineStatusId}},\n  \"isTerminal\": false,\n  \"requireComment\": false,\n  \"allowManualSelection\": true\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -20736,7 +20736,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"activityTypeCode\": \"CALL\",\n  \"activityTypeName\": \"Phone Call\",\n  \"description\": \"Outbound sales phone call\",\n  \"displayOrder\": 1,\n  \"isSystem\": false,\n  \"appliesToLead\": true,\n  \"appliesToOpportunity\": true,\n  \"allowManualSelection\": true\n}",
+                  "raw": "{\n  \"activityTypeCode\": \"CALL\",\n  \"activityTypeName\": \"Phone Call\",\n  \"description\": \"Outbound sales phone call\",\n  \"isSystem\": false,\n  \"appliesToLead\": true,\n  \"appliesToOpportunity\": true,\n  \"allowManualSelection\": true\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -21128,7 +21128,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"dispositionReasonCode\": \"NOBUDGET\",\n  \"dispositionReasonName\": \"No Budget\",\n  \"description\": \"Opportunity closed due to budget\",\n  \"displayOrder\": 1,\n  \"isSystem\": false,\n  \"appliesToLead\": true,\n  \"appliesToOpportunity\": true,\n  \"requireComment\": false,\n  \"isTerminal\": false,\n  \"allowManualSelection\": true\n}",
+                  "raw": "{\n  \"dispositionReasonCode\": \"NOBUDGET\",\n  \"dispositionReasonName\": \"No Budget\",\n  \"description\": \"Opportunity closed due to budget\",\n  \"isSystem\": false,\n  \"appliesToLead\": true,\n  \"appliesToOpportunity\": true,\n  \"requireComment\": false,\n  \"isTerminal\": false,\n  \"allowManualSelection\": true\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -21520,7 +21520,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"statusCode\": \"LEAD_NEW\",\r\n  \"statusName\": \"New Lead\",\r\n  \"description\": \"Newly captured lead\",\r\n  \"displayOrder\": 1,\r\n  \"isSystem\": false,\r\n  \"appliesToLead\": true,\r\n  \"appliesToOpportunity\": false,\r\n  \"isTerminal\": false,\r\n  \"allowManualSelection\": true\r\n}",
+                  "raw": "{\r\n  \"statusCode\": \"LEAD_NEW\",\r\n  \"statusName\": \"New Lead\",\r\n  \"description\": \"Newly captured lead\",\r\n  \"isSystem\": false,\r\n  \"appliesToLead\": true,\r\n  \"appliesToOpportunity\": false,\r\n  \"isTerminal\": false,\r\n  \"allowManualSelection\": true\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -21594,7 +21594,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"statusCode\": \"OPP_QUAL\",\r\n  \"statusName\": \"Qualified Opportunity\",\r\n  \"description\": \"Qualified sales opportunity\",\r\n  \"displayOrder\": 1,\r\n  \"isSystem\": false,\r\n  \"appliesToLead\": false,\r\n  \"appliesToOpportunity\": true,\r\n  \"isTerminal\": false,\r\n  \"allowManualSelection\": true\r\n}",
+                  "raw": "{\r\n  \"statusCode\": \"OPP_QUAL\",\r\n  \"statusName\": \"Qualified Opportunity\",\r\n  \"description\": \"Qualified sales opportunity\",\r\n  \"isSystem\": false,\r\n  \"appliesToLead\": false,\r\n  \"appliesToOpportunity\": true,\r\n  \"isTerminal\": false,\r\n  \"allowManualSelection\": true\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -25636,7 +25636,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"universalPricingServiceId\": {{universalPricingServiceId}},\n  \"name\": \"Extended Warranty\",\n  \"unitType\": \"Extended Warranty\",\n  \"price\": 100.00,\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"universalPricingServiceId\": {{universalPricingServiceId}},\n  \"name\": \"Extended Warranty\",\n  \"unitType\": \"Extended Warranty\",\n  \"price\": 100.00\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -26034,7 +26034,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"universalPricingServiceId\": {{universalPricingServiceId}},\n  \"name\": \"Monthly\",\n  \"discountPercent\": 8.25,\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"universalPricingServiceId\": {{universalPricingServiceId}},\n  \"name\": \"Monthly\",\n  \"discountPercent\": 8.25\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -26432,7 +26432,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"universalPricingServiceId\": {{universalPricingServiceId}},\n  \"itemName\": \"Air Filter\",\n  \"unitType\": \"Air Filter\",\n  \"basePrice\": 100.00,\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"universalPricingServiceId\": {{universalPricingServiceId}},\n  \"itemName\": \"Air Filter\",\n  \"unitType\": \"Air Filter\",\n  \"basePrice\": 100.00\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -26830,7 +26830,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"universalPricingServiceId\": {{universalPricingServiceId}},\n  \"name\": \"Setup Fee\",\n  \"amount\": 100.00,\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"universalPricingServiceId\": {{universalPricingServiceId}},\n  \"name\": \"Setup Fee\",\n  \"amount\": 100.00\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -27228,7 +27228,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"universalPricingServiceId\": {{universalPricingServiceId}},\n  \"name\": \"Medium\",\n  \"multiplier\": 1.00,\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"universalPricingServiceId\": {{universalPricingServiceId}},\n  \"name\": \"Medium\",\n  \"multiplier\": 1.00\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -27626,7 +27626,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"universalPricingServiceId\": {{universalPricingServiceId}},\n  \"name\": \"Standard\",\n  \"multiplier\": 1.00,\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"universalPricingServiceId\": {{universalPricingServiceId}},\n  \"name\": \"Standard\",\n  \"multiplier\": 1.00\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -28012,7 +28012,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"universalPricingServiceCode\": \"DIAGFEE\",\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"universalPricingServiceCode\": \"DIAGFEE\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -31124,7 +31124,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"assetTypeId\": {{assetTypeId}},\r\n  \"attributeCode\": \"ATTR_TEXT\",\r\n  \"attributeName\": \"TEXT Attribute\",\r\n  \"inputType\": \"TEXT\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": \"Serial number\",\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                  "raw": "{\r\n  \"assetTypeId\": {{assetTypeId}},\r\n  \"attributeCode\": \"ATTR_TEXT\",\r\n  \"attributeName\": \"TEXT Attribute\",\r\n  \"inputType\": \"TEXT\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": \"Serial number\",\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -31198,7 +31198,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"assetTypeId\": {{assetTypeId}},\r\n  \"attributeCode\": \"ATTR_TEXTAREA\",\r\n  \"attributeName\": \"TEXTAREA Attribute\",\r\n  \"inputType\": \"TEXTAREA\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": \"Installed on rooftop unit\",\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                  "raw": "{\r\n  \"assetTypeId\": {{assetTypeId}},\r\n  \"attributeCode\": \"ATTR_TEXTAREA\",\r\n  \"attributeName\": \"TEXTAREA Attribute\",\r\n  \"inputType\": \"TEXTAREA\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": \"Installed on rooftop unit\",\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -31272,7 +31272,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"assetTypeId\": {{assetTypeId}},\r\n  \"attributeCode\": \"ATTR_INTEGER\",\r\n  \"attributeName\": \"INTEGER Attribute\",\r\n  \"inputType\": \"INTEGER\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": 10,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                  "raw": "{\r\n  \"assetTypeId\": {{assetTypeId}},\r\n  \"attributeCode\": \"ATTR_INTEGER\",\r\n  \"attributeName\": \"INTEGER Attribute\",\r\n  \"inputType\": \"INTEGER\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": 10,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -31346,7 +31346,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"assetTypeId\": {{assetTypeId}},\r\n  \"attributeCode\": \"ATTR_DECIMAL\",\r\n  \"attributeName\": \"DECIMAL Attribute\",\r\n  \"inputType\": \"DECIMAL\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": 12.50,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                  "raw": "{\r\n  \"assetTypeId\": {{assetTypeId}},\r\n  \"attributeCode\": \"ATTR_DECIMAL\",\r\n  \"attributeName\": \"DECIMAL Attribute\",\r\n  \"inputType\": \"DECIMAL\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": 12.50,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -31420,7 +31420,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"assetTypeId\": {{assetTypeId}},\r\n  \"attributeCode\": \"ATTR_DATE\",\r\n  \"attributeName\": \"DATE Attribute\",\r\n  \"inputType\": \"DATE\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": \"2026-06-21\",\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                  "raw": "{\r\n  \"assetTypeId\": {{assetTypeId}},\r\n  \"attributeCode\": \"ATTR_DATE\",\r\n  \"attributeName\": \"DATE Attribute\",\r\n  \"inputType\": \"DATE\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": \"2026-06-21\",\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -31494,7 +31494,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"assetTypeId\": {{assetTypeId}},\r\n  \"attributeCode\": \"ATTR_BOOLEAN\",\r\n  \"attributeName\": \"BOOLEAN Attribute\",\r\n  \"inputType\": \"BOOLEAN\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": true,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                  "raw": "{\r\n  \"assetTypeId\": {{assetTypeId}},\r\n  \"attributeCode\": \"ATTR_BOOLEAN\",\r\n  \"attributeName\": \"BOOLEAN Attribute\",\r\n  \"inputType\": \"BOOLEAN\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": true,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -31568,7 +31568,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"assetTypeId\": {{assetTypeId}},\r\n  \"attributeCode\": \"ATTR_DROPDOWN\",\r\n  \"attributeName\": \"DROPDOWN Attribute\",\r\n  \"inputType\": \"DROPDOWN\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true,\r\n  \"displayOrder\": 1\r\n}",
+                  "raw": "{\r\n  \"assetTypeId\": {{assetTypeId}},\r\n  \"attributeCode\": \"ATTR_DROPDOWN\",\r\n  \"attributeName\": \"DROPDOWN Attribute\",\r\n  \"inputType\": \"DROPDOWN\",\r\n  \"defaultOptionId\": null,\r\n  \"defaultValueText\": null,\r\n  \"defaultValueInteger\": null,\r\n  \"defaultValueDecimal\": null,\r\n  \"defaultValueDate\": null,\r\n  \"defaultValueBoolean\": null,\r\n  \"isRequired\": false,\r\n  \"isSearchable\": true\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -31966,7 +31966,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"assetAttributeId\": {{assetAttributeId}},\n  \"optionCode\": \"OPTION1\",\n  \"optionName\": \"Option 1\",\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"assetAttributeId\": {{assetAttributeId}},\n  \"optionCode\": \"OPTION1\",\n  \"optionName\": \"Option 1\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -35150,7 +35150,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"categoryCode\": \"IC\",\n  \"name\": \"Inventory Category\",\n  \"description\": \"Inventory Category used in field service operations\",\n  \"textColor\": \"#FFFFFF\",\n  \"backgroundColor\": \"#3366FF\",\n  \"displayIconFileId\": {{displayIconFileId}},\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"categoryCode\": \"IC\",\n  \"name\": \"Inventory Category\",\n  \"description\": \"Inventory Category used in field service operations\",\n  \"textColor\": \"#FFFFFF\",\n  \"backgroundColor\": \"#3366FF\",\n  \"displayIconFileId\": {{displayIconFileId}}\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -36115,7 +36115,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"items\": [{\n  \"id\": null,\n  \"dependentInventoryItemId\": {{dependentInventoryItemId}},\n  \"quantity\": 0.00,\n  \"isRequired\": true,\n  \"notes\": \"Inventory Item Dependency notes\",\n  \"displayOrder\": 1,\n  \"isActive\": true\n}]\n}",
+                  "raw": "{\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"items\": [{\n  \"id\": null,\n  \"dependentInventoryItemId\": {{dependentInventoryItemId}},\n  \"quantity\": 0.00,\n  \"isRequired\": true,\n  \"notes\": \"Inventory Item Dependency notes\",\n  \"isActive\": true\n}]\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -36492,7 +36492,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"itemTypeCode\": \"IIT\",\n  \"name\": \"Inventory Item Type\",\n  \"description\": \"Inventory Item Type used in field service operations\",\n  \"tracksQuantity\": true,\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"itemTypeCode\": \"IIT\",\n  \"name\": \"Inventory Item Type\",\n  \"description\": \"Inventory Item Type used in field service operations\",\n  \"tracksQuantity\": true\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -38382,7 +38382,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"inventoryCategoryId\": {{inventoryCategoryId}},\n  \"subCategoryCode\": \"SUB\",\n  \"name\": \"Inventory Sub Category\",\n  \"description\": \"Inventory Sub Category used in field service operations\",\n  \"textColor\": \"#FFFFFF\",\n  \"backgroundColor\": \"#3366FF\",\n  \"displayIconFileId\": {{displayIconFileId}},\n  \"displayOrder\": 1\n}",
+                  "raw": "{\n  \"inventoryCategoryId\": {{inventoryCategoryId}},\n  \"subCategoryCode\": \"SUB\",\n  \"name\": \"Inventory Sub Category\",\n  \"description\": \"Inventory Sub Category used in field service operations\",\n  \"textColor\": \"#FFFFFF\",\n  \"backgroundColor\": \"#3366FF\",\n  \"displayIconFileId\": {{displayIconFileId}}\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -39336,7 +39336,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"templateCode\": \"STDTRK\",\n  \"name\": \"Standard Truck Stock\",\n  \"description\": \"Default truck stock template\",\n  \"items\": [{\n  \"id\": null,\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"targetQuantity\": 5.00,\n  \"minimumQuantity\": 1.00,\n  \"displayOrder\": 1\n}]\n}",
+                  "raw": "{\n  \"templateCode\": \"STDTRK\",\n  \"name\": \"Standard Truck Stock\",\n  \"description\": \"Default truck stock template\",\n  \"items\": [{\n  \"id\": null,\n  \"inventoryItemId\": {{inventoryItemId}},\n  \"targetQuantity\": 5.00,\n  \"minimumQuantity\": 1.00\n}]\n}",
                   "options": {
                     "raw": {
                       "language": "json"

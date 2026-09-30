@@ -35,7 +35,8 @@ public sealed class CreateFgsApiEventCommandValidator : AbstractValidator<Create
             .GreaterThan((short)0);
 
         RuleFor(x => x.Dto.DisplayOrder)
-            .GreaterThan((short)0);
+            .GreaterThan((short)0)
+            .When(x => x.Dto.DisplayOrder.HasValue);
     }
 }
 

@@ -38,7 +38,7 @@ public sealed class FgsSalesActivityOutcomeCommandHandlerTests
             NullLogger<CreateFgsSalesActivityOutcomeCommandHandler>.Instance);
 
         var response = await handler.Handle(
-            new CreateFgsSalesActivityOutcomeCommand(new FgsSalesActivityOutcomeCreateDto("TEST", "OutcomeName", "Description", 5, false, true, true, null, false, false, true)),
+            new CreateFgsSalesActivityOutcomeCommand(new FgsSalesActivityOutcomeCreateDto("TEST", "OutcomeName", "Description", false, true, true, null, false, false, true, 5)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -70,7 +70,7 @@ public sealed class FgsSalesActivityOutcomeCommandHandlerTests
             NullLogger<DeleteFgsSalesActivityOutcomeCommandHandler>.Instance);
 
         var created = await createHandler.Handle(
-            new CreateFgsSalesActivityOutcomeCommand(new FgsSalesActivityOutcomeCreateDto("TEST", "OutcomeName", "Description", 5, false, true, true, null, false, false, true)),
+            new CreateFgsSalesActivityOutcomeCommand(new FgsSalesActivityOutcomeCreateDto("TEST", "OutcomeName", "Description", false, true, true, null, false, false, true, 5)),
             CancellationToken.None);
         created.Success.Should().BeTrue();
 

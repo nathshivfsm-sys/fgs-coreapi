@@ -43,7 +43,10 @@ public sealed class JobTypeTaskWriteService : IJobTypeTaskWriteService
             TaskName = taskName,
             Priority = dto.Priority,
             EstimatedHours = dto.EstimatedHours,
-            DisplayOrder = dto.DisplayOrder ?? 1
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsJobTypeTasks.Where(t => t.JobCategoryId == dto.JobCategoryId),
+                t => t.DisplayOrder,
+                cancellationToken)
         };
 
         _auditHelper.StampForCreate(entity);

@@ -36,7 +36,7 @@ public sealed record FgsInventoryCategoryCreateDto(
     string? TextColor,
     string? BackgroundColor,
     long? DisplayIconFileId,
-    short DisplayOrder = 1);
+    short? DisplayOrder = null);
 
 public sealed record FgsInventoryCategoryUpdateDto(
     string CategoryCode,

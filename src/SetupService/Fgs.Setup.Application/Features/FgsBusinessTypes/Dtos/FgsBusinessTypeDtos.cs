@@ -26,7 +26,7 @@ public sealed record FgsBusinessTypeCreateDto(
     string Code,
     string Name,
     string? Description,
-    short? DisplayOrder);
+    short? DisplayOrder = null);
 
 public sealed record FgsBusinessTypeUpdateDto(
     string Code,

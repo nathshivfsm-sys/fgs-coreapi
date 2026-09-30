@@ -21,7 +21,7 @@ public sealed record FgsDataAccessScopeCreateDto(
     string ScopeType,
     string Operator,
     string? ScopeValue = null,
-    short DisplayOrder = 1);
+    short? DisplayOrder = null);
 
 public sealed record FgsDataAccessScopeUpdateDto(
     string ScopeType,

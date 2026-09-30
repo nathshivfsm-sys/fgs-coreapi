@@ -35,7 +35,10 @@ public sealed class FgsSalesActivityTypeWriteService : IFgsSalesActivityTypeWrit
             ActivityTypeCode = NormalizeCode(dto.ActivityTypeCode),
             ActivityTypeName = dto.ActivityTypeName.Trim(),
             Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
-            DisplayOrder = dto.DisplayOrder,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsSalesActivityTypes,
+                t => t.DisplayOrder,
+                cancellationToken),
             IsSystem = dto.IsSystem,
             AppliesToLead = dto.AppliesToLead,
             AppliesToOpportunity = dto.AppliesToOpportunity,

@@ -35,7 +35,10 @@ public sealed class LeadDisqualificationReasonWriteService : ILeadDisqualificati
             ReasonCode = NormalizeCode(dto.ReasonCode),
             ReasonName = dto.ReasonName.Trim(),
             Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
-            DisplayOrder = dto.DisplayOrder ?? 1,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                _context.FgsLeadDisqualificationReasons,
+                t => t.DisplayOrder,
+                cancellationToken),
             IsSystem = dto.IsSystem
         };
 

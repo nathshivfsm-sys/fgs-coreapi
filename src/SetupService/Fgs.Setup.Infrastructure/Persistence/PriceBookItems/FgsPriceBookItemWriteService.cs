@@ -26,7 +26,10 @@ public sealed class FgsPriceBookItemWriteService(
             ItemCode = string.IsNullOrWhiteSpace(dto.ItemCode) ? null : dto.ItemCode.Trim(),
             ItemDescription = dto.ItemDescription.Trim(),
             Quantity = dto.Quantity,
-            DisplayOrder = dto.DisplayOrder,
+            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+                context.FgsPriceBookItems.Where(t => t.PriceBookId == dto.PriceBookId),
+                t => t.DisplayOrder,
+                cancellationToken),
             Notes = string.IsNullOrWhiteSpace(dto.Notes) ? null : dto.Notes.Trim()
         };
 
