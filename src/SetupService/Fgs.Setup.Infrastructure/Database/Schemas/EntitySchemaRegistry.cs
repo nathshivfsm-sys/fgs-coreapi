@@ -116,6 +116,7 @@ internal static class EntitySchemaRegistry
         [typeof(FgsResolutionCode)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsBusinessType)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsBillingCategory)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsBillingCategoryAccounting)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsSetupGLBreak)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsSetupGLBreakTrade)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsSetupTax)] = FgsDatabaseSchemas.Setup,
