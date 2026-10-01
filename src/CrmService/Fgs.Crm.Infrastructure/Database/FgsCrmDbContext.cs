@@ -5,6 +5,9 @@ using Fgs.Crm.Infrastructure.Database.Schemas;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Fgs.Crm.Infrastructure.Database;
 
@@ -31,7 +34,11 @@ public sealed class FgsCrmDbContext : FgsTenantFilteredDbContext
 
     public DbSet<CrmCustomer> CrmCustomers => Set<CrmCustomer>();
 
+    public DbSet<CrmDefaultCustomer> CrmDefaultCustomers => Set<CrmDefaultCustomer>();
+
     public DbSet<CrmServiceLocation> CrmServiceLocations => Set<CrmServiceLocation>();
+
+    public DbSet<CrmDefaultServiceLocation> CrmDefaultServiceLocations => Set<CrmDefaultServiceLocation>();
 
     public DbSet<CrmContact> CrmContacts => Set<CrmContact>();
 
@@ -68,6 +75,13 @@ public sealed class FgsCrmDbContext : FgsTenantFilteredDbContext
     public DbSet<FgsEstimateTemplateOption> FgsEstimateTemplateOptions => Set<FgsEstimateTemplateOption>();
 
     public DbSet<FgsEstimateTemplateOptionLine> FgsEstimateTemplateOptionLines => Set<FgsEstimateTemplateOptionLine>();
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Conventions.Replace<ForeignKeyIndexConvention>(serviceProvider =>
+            new CrmDefaultForeignKeyIndexConvention(
+                serviceProvider.GetRequiredService<ProviderConventionSetBuilderDependencies>()));
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

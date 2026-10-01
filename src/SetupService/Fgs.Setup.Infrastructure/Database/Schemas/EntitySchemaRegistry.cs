@@ -103,6 +103,8 @@ internal static class EntitySchemaRegistry
         [typeof(FgsSalesActivityOutcome)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsSetupTitleOfCourtesy)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsJobType)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsJobTypeAccounting)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsJobTypeBillingCategoryAccounting)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsJobCategory)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsJobTypeCategory)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsJobTypeTask)] = FgsDatabaseSchemas.Setup,

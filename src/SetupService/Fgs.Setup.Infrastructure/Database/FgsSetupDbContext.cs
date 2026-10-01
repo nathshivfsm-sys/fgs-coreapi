@@ -4,6 +4,9 @@ using Fgs.Setup.Infrastructure.Database.Schemas;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Fgs.Setup.Infrastructure.Database;
 
@@ -195,6 +198,11 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsJobType> FgsJobTypes => Set<FgsJobType>();
 
+    public DbSet<FgsJobTypeAccounting> FgsJobTypeAccountings => Set<FgsJobTypeAccounting>();
+
+    public DbSet<FgsJobTypeBillingCategoryAccounting> FgsJobTypeBillingCategoryAccountings =>
+        Set<FgsJobTypeBillingCategoryAccounting>();
+
     public DbSet<FgsPriceBook> FgsPriceBooks => Set<FgsPriceBook>();
 
     public DbSet<FgsPriceBookItem> FgsPriceBookItems => Set<FgsPriceBookItem>();
@@ -275,6 +283,13 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
     public DbSet<GloCredentialProviderTypeCache> GloCredentialProviderTypeCaches => Set<GloCredentialProviderTypeCache>();
 
     public DbSet<GloResolutionTypeCache> GloResolutionTypeCaches => Set<GloResolutionTypeCache>();
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Conventions.Replace<ForeignKeyIndexConvention>(serviceProvider =>
+            new JobTypeAccountingForeignKeyIndexConvention(
+                serviceProvider.GetRequiredService<ProviderConventionSetBuilderDependencies>()));
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
