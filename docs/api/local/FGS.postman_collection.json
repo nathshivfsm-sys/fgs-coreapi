@@ -40999,77 +40999,697 @@
               }
             },
             {
-              "request": {
-                "url": {
-                  "host": [
-                    "https://developer.fsm.com"
-                  ],
-                  "raw": "https://developer.fsm.com/api/v1/customer",
-                  "path": [
-                    "api",
-                    "v1",
-                    "customer"
-                  ]
-                },
-                "description": "Create",
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "type": "text",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "X-Tenant-Id",
-                    "type": "text",
-                    "value": "{{tenantId}}"
-                  },
-                  {
-                    "key": "X-Company-Id",
-                    "type": "text",
-                    "value": "{{companyId}}"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "type": "text",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "raw": "{\n  \"customerNumber\": \"CUST01\",\n  \"name\": \"Acme Corporation\",\n  \"displayName\": \"Acme Corp\",\n  \"addressLine1\": \"100 Main St\",\n  \"addressLine2\": \"Suite 200\",\n  \"addressLine3\": \"Building A\",\n  \"addressLine4\": \"Floor 2\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"county\": \"Travis\",\n  \"country\": \"US\",\n  \"postalCode\": \"78701\",\n  \"formattedAddress\": \"100 Main St, Suite 200, Austin, TX 78701\",\n  \"latitude\": 30.2672,\n  \"longitude\": -97.7431,\n  \"placeId\": {{placeId}},\n  \"defaultPaymentTermId\": {{defaultPaymentTermId}},\n  \"defaultMaterialPricingMatrixId\": {{defaultMaterialPricingMatrixId}},\n  \"defaultLaborPricingMatrixId\": {{defaultLaborPricingMatrixId}},\n  \"defaultOtherPricingMatrixId\": {{defaultOtherPricingMatrixId}},\n  \"defaultPORequired\": false,\n  \"taxExempt\": false,\n  \"taxExemptNumber\": null,\n  \"customerAccountNumber\": \"ACCT-100\",\n  \"externalEntityId\": {{externalEntityId}},\n  \"externalVersion\": null,\n  \"website\": \"https://acme.example\",\n  \"primaryContactName\": \"Jane Doe\",\n  \"primaryContactEmail\": \"jane@acme.example\",\n  \"primaryContactPhone\": \"+1 555-0100\",\n  \"tagIds\": [1, 2],\n  \"creationOption\": \"billToAndServiceLocation\",\n  \"serviceLocation\": {\n    \"serviceLocationType\": \"residential\",\n    \"name\": \"Main site\",\n    \"displayName\": \"Main site\",\n    \"addressLine1\": \"100 Main St\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"country\": \"US\",\n    \"postalCode\": \"78701\",\n    \"taxExempt\": false,\n    \"primaryContactName\": \"Site Contact\",\n    \"primaryContactEmail\": \"site@acme.example\",\n    \"primaryContactPhone\": \"+1 555-0199\",\n    \"canReceiveEstimates\": true,\n    \"canReceiveInvoices\": false,\n    \"canReceiveAppointments\": true,\n    \"tagIds\": [3]\n  }\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  },
-                  "mode": "raw"
-                },
-                "auth": {
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "type": "string",
-                      "value": "{{accessToken}}"
-                    }
-                  ],
-                  "type": "bearer"
-                }
-              },
               "name": "Create",
+              "description": "Valid POST /api/v1/customer scenarios. Each request sets a unique uppercase customer number. defaultPaymentTermId is 1. creationOption is billToOnly or billToAndServiceLocation. serviceLocationType is residential, commercial, industrial, government, or other. customerType is residential, commercial, propertyManagement, builder, hoa, or other.",
               "event": [
                 {
+                  "listen": "prerequest",
                   "script": {
+                    "type": "text/javascript",
                     "exec": [
-                      "const body = pm.response.json();",
-                      "if (body.success && body.data) {",
-                      "  const row = body.data.customer ?? (Array.isArray(body.data) ? body.data[0] : body.data);",
-                      "  if (row && row.id != null) pm.environment.set(\"customerId\", String(row.id));",
-                      "  if (body.data.serviceLocationId != null) pm.environment.set(\"serviceLocationId\", String(body.data.serviceLocationId));",
-                      "}"
+                      "const seq = Number(pm.variables.get('crmCreateSeq') || 0) + 1;",
+                      "pm.variables.set('crmCreateSeq', String(seq));",
+                      "const suffix = Date.now().toString(36).toUpperCase() + seq.toString(36).toUpperCase();",
+                      "pm.variables.set('crmCustomerSuffix', suffix);"
+                    ]
+                  }
+                }
+              ],
+              "item": [
+                {
+                  "name": "Bill to only",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "host": [
+                        "https://developer.fsm.com"
+                      ],
+                      "raw": "https://developer.fsm.com/api/v1/customer",
+                      "path": [
+                        "api",
+                        "v1",
+                        "customer"
+                      ]
+                    },
+                    "description": "Valid bill-to customer with required fields only. creationOption is billToOnly, so serviceLocation is omitted. Customer number is unique per run.",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "type": "text",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-Tenant-Id",
+                        "type": "text",
+                        "value": "{{tenantId}}"
+                      },
+                      {
+                        "key": "X-Company-Id",
+                        "type": "text",
+                        "value": "{{companyId}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "type": "text",
+                        "value": "application/json"
+                      }
                     ],
-                    "type": "text/javascript"
+                    "body": {
+                      "raw": "{\n  \"customerNumber\": \"BTO{{crmCustomerSuffix}}\",\n  \"name\": \"Bill To Only\",\n  \"displayName\": \"Bill To Only\",\n  \"defaultPaymentTermId\": 1,\n  \"defaultPORequired\": false,\n  \"taxExempt\": false,\n  \"creationOption\": \"billToOnly\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      },
+                      "mode": "raw"
+                    },
+                    "auth": {
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "type": "string",
+                          "value": "{{accessToken}}"
+                        }
+                      ],
+                      "type": "bearer"
+                    }
                   },
-                  "listen": "test"
+                  "event": [
+                    {
+                      "script": {
+                        "exec": [
+                          "const body = pm.response.json();",
+                          "if (body.success && body.data) {",
+                          "  const row = body.data.customer ?? (Array.isArray(body.data) ? body.data[0] : body.data);",
+                          "  if (row && row.id != null) pm.environment.set(\"customerId\", String(row.id));",
+                          "  if (body.data.serviceLocationId != null) pm.environment.set(\"serviceLocationId\", String(body.data.serviceLocationId));",
+                          "}"
+                        ],
+                        "type": "text/javascript"
+                      },
+                      "listen": "test"
+                    }
+                  ]
+                },
+                {
+                  "name": "Bill to only with full details",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "host": [
+                        "https://developer.fsm.com"
+                      ],
+                      "raw": "https://developer.fsm.com/api/v1/customer",
+                      "path": [
+                        "api",
+                        "v1",
+                        "customer"
+                      ]
+                    },
+                    "description": "Valid bill-to customer with address, contact, website, tax exemption, and account fields. serviceLocation is omitted.",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "type": "text",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-Tenant-Id",
+                        "type": "text",
+                        "value": "{{tenantId}}"
+                      },
+                      {
+                        "key": "X-Company-Id",
+                        "type": "text",
+                        "value": "{{companyId}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "type": "text",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "raw": "{\n  \"customerNumber\": \"BTF{{crmCustomerSuffix}}\",\n  \"name\": \"Northwind Billing\",\n  \"displayName\": \"Northwind Billing\",\n  \"defaultPaymentTermId\": 1,\n  \"defaultPORequired\": true,\n  \"taxExempt\": true,\n  \"creationOption\": \"billToOnly\",\n  \"addressLine1\": \"100 Main St\",\n  \"addressLine2\": \"Suite 200\",\n  \"addressLine3\": \"Building A\",\n  \"addressLine4\": \"Floor 2\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"county\": \"Travis\",\n  \"country\": \"US\",\n  \"postalCode\": \"78701\",\n  \"formattedAddress\": \"100 Main St, Suite 200, Austin, TX 78701\",\n  \"latitude\": 30.2672,\n  \"longitude\": -97.7431,\n  \"placeId\": \"ChIJLwPMoJm1RIYRetVp1EtGm10\",\n  \"defaultMaterialPricingMatrixId\": null,\n  \"defaultLaborPricingMatrixId\": null,\n  \"defaultOtherPricingMatrixId\": null,\n  \"taxExemptNumber\": \"EX-100\",\n  \"customerAccountNumber\": \"ACCT-100\",\n  \"externalEntityId\": \"EXT-BTF\",\n  \"externalVersion\": \"1\",\n  \"website\": \"https://northwind.example\",\n  \"primaryContactName\": \"Jane Doe\",\n  \"primaryContactEmail\": \"jane@northwind.example\",\n  \"primaryContactPhone\": \"+1 555-0100\",\n  \"tagIds\": [\n    1,\n    2\n  ]\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      },
+                      "mode": "raw"
+                    },
+                    "auth": {
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "type": "string",
+                          "value": "{{accessToken}}"
+                        }
+                      ],
+                      "type": "bearer"
+                    }
+                  },
+                  "event": [
+                    {
+                      "script": {
+                        "exec": [
+                          "const body = pm.response.json();",
+                          "if (body.success && body.data) {",
+                          "  const row = body.data.customer ?? (Array.isArray(body.data) ? body.data[0] : body.data);",
+                          "  if (row && row.id != null) pm.environment.set(\"customerId\", String(row.id));",
+                          "  if (body.data.serviceLocationId != null) pm.environment.set(\"serviceLocationId\", String(body.data.serviceLocationId));",
+                          "}"
+                        ],
+                        "type": "text/javascript"
+                      },
+                      "listen": "test"
+                    }
+                  ]
+                },
+                {
+                  "name": "Bill to and residential location",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "host": [
+                        "https://developer.fsm.com"
+                      ],
+                      "raw": "https://developer.fsm.com/api/v1/customer",
+                      "path": [
+                        "api",
+                        "v1",
+                        "customer"
+                      ]
+                    },
+                    "description": "Valid customer plus a residential service location. customerType residential.",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "type": "text",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-Tenant-Id",
+                        "type": "text",
+                        "value": "{{tenantId}}"
+                      },
+                      {
+                        "key": "X-Company-Id",
+                        "type": "text",
+                        "value": "{{companyId}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "type": "text",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "raw": "{\n  \"customerNumber\": \"RES{{crmCustomerSuffix}}\",\n  \"name\": \"Residential Customer\",\n  \"displayName\": \"Residential Customer\",\n  \"addressLine1\": \"100 Main St\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"country\": \"US\",\n  \"postalCode\": \"78701\",\n  \"formattedAddress\": \"100 Main St, Austin, TX 78701\",\n  \"defaultPaymentTermId\": 1,\n  \"defaultPORequired\": false,\n  \"taxExempt\": false,\n  \"website\": \"https://example.com\",\n  \"primaryContactName\": \"Jane Doe\",\n  \"primaryContactEmail\": \"jane@example.com\",\n  \"primaryContactPhone\": \"+1 555-0100\",\n  \"creationOption\": \"billToAndServiceLocation\",\n  \"serviceLocation\": {\n    \"serviceLocationType\": \"residential\",\n    \"name\": \"Residential Customer site\",\n    \"displayName\": \"Residential Customer site\",\n    \"customerType\": \"residential\",\n    \"addressLine1\": \"200 Oak Ave\",\n    \"addressLine2\": \"Unit 4\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": \"Travis\",\n    \"country\": \"US\",\n    \"postalCode\": \"78702\",\n    \"formattedAddress\": \"200 Oak Ave, Unit 4, Austin, TX 78702\",\n    \"latitude\": 30.2672,\n    \"longitude\": -97.7431,\n    \"placeId\": \"ChIJLwPMoJm1RIYRetVp1EtGm10\",\n    \"taxExempt\": false,\n    \"primaryContactName\": \"Site Contact\",\n    \"primaryContactEmail\": \"site@example.com\",\n    \"primaryContactPhone\": \"+1 555-0199\",\n    \"canReceiveEstimates\": true,\n    \"canReceiveInvoices\": false,\n    \"canReceiveAppointments\": true\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      },
+                      "mode": "raw"
+                    },
+                    "auth": {
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "type": "string",
+                          "value": "{{accessToken}}"
+                        }
+                      ],
+                      "type": "bearer"
+                    }
+                  },
+                  "event": [
+                    {
+                      "script": {
+                        "exec": [
+                          "const body = pm.response.json();",
+                          "if (body.success && body.data) {",
+                          "  const row = body.data.customer ?? (Array.isArray(body.data) ? body.data[0] : body.data);",
+                          "  if (row && row.id != null) pm.environment.set(\"customerId\", String(row.id));",
+                          "  if (body.data.serviceLocationId != null) pm.environment.set(\"serviceLocationId\", String(body.data.serviceLocationId));",
+                          "}"
+                        ],
+                        "type": "text/javascript"
+                      },
+                      "listen": "test"
+                    }
+                  ]
+                },
+                {
+                  "name": "Bill to and commercial location",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "host": [
+                        "https://developer.fsm.com"
+                      ],
+                      "raw": "https://developer.fsm.com/api/v1/customer",
+                      "path": [
+                        "api",
+                        "v1",
+                        "customer"
+                      ]
+                    },
+                    "description": "Valid customer plus a commercial service location. customerType commercial.",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "type": "text",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-Tenant-Id",
+                        "type": "text",
+                        "value": "{{tenantId}}"
+                      },
+                      {
+                        "key": "X-Company-Id",
+                        "type": "text",
+                        "value": "{{companyId}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "type": "text",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "raw": "{\n  \"customerNumber\": \"COM{{crmCustomerSuffix}}\",\n  \"name\": \"Commercial Customer\",\n  \"displayName\": \"Commercial Customer\",\n  \"addressLine1\": \"100 Main St\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"country\": \"US\",\n  \"postalCode\": \"78701\",\n  \"formattedAddress\": \"100 Main St, Austin, TX 78701\",\n  \"defaultPaymentTermId\": 1,\n  \"defaultPORequired\": false,\n  \"taxExempt\": false,\n  \"website\": \"https://example.com\",\n  \"primaryContactName\": \"Jane Doe\",\n  \"primaryContactEmail\": \"jane@example.com\",\n  \"primaryContactPhone\": \"+1 555-0100\",\n  \"creationOption\": \"billToAndServiceLocation\",\n  \"serviceLocation\": {\n    \"serviceLocationType\": \"commercial\",\n    \"name\": \"Commercial Customer site\",\n    \"displayName\": \"Commercial Customer site\",\n    \"customerType\": \"commercial\",\n    \"addressLine1\": \"200 Oak Ave\",\n    \"addressLine2\": \"Unit 4\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": \"Travis\",\n    \"country\": \"US\",\n    \"postalCode\": \"78702\",\n    \"formattedAddress\": \"200 Oak Ave, Unit 4, Austin, TX 78702\",\n    \"latitude\": 30.2672,\n    \"longitude\": -97.7431,\n    \"placeId\": \"ChIJLwPMoJm1RIYRetVp1EtGm10\",\n    \"taxExempt\": false,\n    \"primaryContactName\": \"Site Contact\",\n    \"primaryContactEmail\": \"site@example.com\",\n    \"primaryContactPhone\": \"+1 555-0199\",\n    \"canReceiveEstimates\": true,\n    \"canReceiveInvoices\": false,\n    \"canReceiveAppointments\": true\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      },
+                      "mode": "raw"
+                    },
+                    "auth": {
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "type": "string",
+                          "value": "{{accessToken}}"
+                        }
+                      ],
+                      "type": "bearer"
+                    }
+                  },
+                  "event": [
+                    {
+                      "script": {
+                        "exec": [
+                          "const body = pm.response.json();",
+                          "if (body.success && body.data) {",
+                          "  const row = body.data.customer ?? (Array.isArray(body.data) ? body.data[0] : body.data);",
+                          "  if (row && row.id != null) pm.environment.set(\"customerId\", String(row.id));",
+                          "  if (body.data.serviceLocationId != null) pm.environment.set(\"serviceLocationId\", String(body.data.serviceLocationId));",
+                          "}"
+                        ],
+                        "type": "text/javascript"
+                      },
+                      "listen": "test"
+                    }
+                  ]
+                },
+                {
+                  "name": "Bill to and industrial property management",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "host": [
+                        "https://developer.fsm.com"
+                      ],
+                      "raw": "https://developer.fsm.com/api/v1/customer",
+                      "path": [
+                        "api",
+                        "v1",
+                        "customer"
+                      ]
+                    },
+                    "description": "Valid customer plus an industrial service location. customerType propertyManagement.",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "type": "text",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-Tenant-Id",
+                        "type": "text",
+                        "value": "{{tenantId}}"
+                      },
+                      {
+                        "key": "X-Company-Id",
+                        "type": "text",
+                        "value": "{{companyId}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "type": "text",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "raw": "{\n  \"customerNumber\": \"IND{{crmCustomerSuffix}}\",\n  \"name\": \"Property Management Customer\",\n  \"displayName\": \"Property Management Customer\",\n  \"addressLine1\": \"100 Main St\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"country\": \"US\",\n  \"postalCode\": \"78701\",\n  \"formattedAddress\": \"100 Main St, Austin, TX 78701\",\n  \"defaultPaymentTermId\": 1,\n  \"defaultPORequired\": false,\n  \"taxExempt\": false,\n  \"website\": \"https://example.com\",\n  \"primaryContactName\": \"Jane Doe\",\n  \"primaryContactEmail\": \"jane@example.com\",\n  \"primaryContactPhone\": \"+1 555-0100\",\n  \"creationOption\": \"billToAndServiceLocation\",\n  \"serviceLocation\": {\n    \"serviceLocationType\": \"industrial\",\n    \"name\": \"Property Management Customer site\",\n    \"displayName\": \"Property Management Customer site\",\n    \"customerType\": \"propertyManagement\",\n    \"addressLine1\": \"200 Oak Ave\",\n    \"addressLine2\": \"Unit 4\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": \"Travis\",\n    \"country\": \"US\",\n    \"postalCode\": \"78702\",\n    \"formattedAddress\": \"200 Oak Ave, Unit 4, Austin, TX 78702\",\n    \"latitude\": 30.2672,\n    \"longitude\": -97.7431,\n    \"placeId\": \"ChIJLwPMoJm1RIYRetVp1EtGm10\",\n    \"taxExempt\": false,\n    \"primaryContactName\": \"Site Contact\",\n    \"primaryContactEmail\": \"site@example.com\",\n    \"primaryContactPhone\": \"+1 555-0199\",\n    \"canReceiveEstimates\": true,\n    \"canReceiveInvoices\": false,\n    \"canReceiveAppointments\": true\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      },
+                      "mode": "raw"
+                    },
+                    "auth": {
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "type": "string",
+                          "value": "{{accessToken}}"
+                        }
+                      ],
+                      "type": "bearer"
+                    }
+                  },
+                  "event": [
+                    {
+                      "script": {
+                        "exec": [
+                          "const body = pm.response.json();",
+                          "if (body.success && body.data) {",
+                          "  const row = body.data.customer ?? (Array.isArray(body.data) ? body.data[0] : body.data);",
+                          "  if (row && row.id != null) pm.environment.set(\"customerId\", String(row.id));",
+                          "  if (body.data.serviceLocationId != null) pm.environment.set(\"serviceLocationId\", String(body.data.serviceLocationId));",
+                          "}"
+                        ],
+                        "type": "text/javascript"
+                      },
+                      "listen": "test"
+                    }
+                  ]
+                },
+                {
+                  "name": "Bill to and government builder",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "host": [
+                        "https://developer.fsm.com"
+                      ],
+                      "raw": "https://developer.fsm.com/api/v1/customer",
+                      "path": [
+                        "api",
+                        "v1",
+                        "customer"
+                      ]
+                    },
+                    "description": "Valid customer plus a government service location. customerType builder.",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "type": "text",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-Tenant-Id",
+                        "type": "text",
+                        "value": "{{tenantId}}"
+                      },
+                      {
+                        "key": "X-Company-Id",
+                        "type": "text",
+                        "value": "{{companyId}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "type": "text",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "raw": "{\n  \"customerNumber\": \"GOV{{crmCustomerSuffix}}\",\n  \"name\": \"Builder Customer\",\n  \"displayName\": \"Builder Customer\",\n  \"addressLine1\": \"100 Main St\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"country\": \"US\",\n  \"postalCode\": \"78701\",\n  \"formattedAddress\": \"100 Main St, Austin, TX 78701\",\n  \"defaultPaymentTermId\": 1,\n  \"defaultPORequired\": false,\n  \"taxExempt\": false,\n  \"website\": \"https://example.com\",\n  \"primaryContactName\": \"Jane Doe\",\n  \"primaryContactEmail\": \"jane@example.com\",\n  \"primaryContactPhone\": \"+1 555-0100\",\n  \"creationOption\": \"billToAndServiceLocation\",\n  \"serviceLocation\": {\n    \"serviceLocationType\": \"government\",\n    \"name\": \"Builder Customer site\",\n    \"displayName\": \"Builder Customer site\",\n    \"customerType\": \"builder\",\n    \"addressLine1\": \"200 Oak Ave\",\n    \"addressLine2\": \"Unit 4\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": \"Travis\",\n    \"country\": \"US\",\n    \"postalCode\": \"78702\",\n    \"formattedAddress\": \"200 Oak Ave, Unit 4, Austin, TX 78702\",\n    \"latitude\": 30.2672,\n    \"longitude\": -97.7431,\n    \"placeId\": \"ChIJLwPMoJm1RIYRetVp1EtGm10\",\n    \"taxExempt\": false,\n    \"primaryContactName\": \"Site Contact\",\n    \"primaryContactEmail\": \"site@example.com\",\n    \"primaryContactPhone\": \"+1 555-0199\",\n    \"canReceiveEstimates\": true,\n    \"canReceiveInvoices\": false,\n    \"canReceiveAppointments\": true\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      },
+                      "mode": "raw"
+                    },
+                    "auth": {
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "type": "string",
+                          "value": "{{accessToken}}"
+                        }
+                      ],
+                      "type": "bearer"
+                    }
+                  },
+                  "event": [
+                    {
+                      "script": {
+                        "exec": [
+                          "const body = pm.response.json();",
+                          "if (body.success && body.data) {",
+                          "  const row = body.data.customer ?? (Array.isArray(body.data) ? body.data[0] : body.data);",
+                          "  if (row && row.id != null) pm.environment.set(\"customerId\", String(row.id));",
+                          "  if (body.data.serviceLocationId != null) pm.environment.set(\"serviceLocationId\", String(body.data.serviceLocationId));",
+                          "}"
+                        ],
+                        "type": "text/javascript"
+                      },
+                      "listen": "test"
+                    }
+                  ]
+                },
+                {
+                  "name": "Bill to and other location HOA",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "host": [
+                        "https://developer.fsm.com"
+                      ],
+                      "raw": "https://developer.fsm.com/api/v1/customer",
+                      "path": [
+                        "api",
+                        "v1",
+                        "customer"
+                      ]
+                    },
+                    "description": "Valid customer plus an other service location. customerType hoa.",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "type": "text",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-Tenant-Id",
+                        "type": "text",
+                        "value": "{{tenantId}}"
+                      },
+                      {
+                        "key": "X-Company-Id",
+                        "type": "text",
+                        "value": "{{companyId}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "type": "text",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "raw": "{\n  \"customerNumber\": \"HOA{{crmCustomerSuffix}}\",\n  \"name\": \"HOA Customer\",\n  \"displayName\": \"HOA Customer\",\n  \"addressLine1\": \"100 Main St\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"country\": \"US\",\n  \"postalCode\": \"78701\",\n  \"formattedAddress\": \"100 Main St, Austin, TX 78701\",\n  \"defaultPaymentTermId\": 1,\n  \"defaultPORequired\": false,\n  \"taxExempt\": false,\n  \"website\": \"https://example.com\",\n  \"primaryContactName\": \"Jane Doe\",\n  \"primaryContactEmail\": \"jane@example.com\",\n  \"primaryContactPhone\": \"+1 555-0100\",\n  \"creationOption\": \"billToAndServiceLocation\",\n  \"serviceLocation\": {\n    \"serviceLocationType\": \"other\",\n    \"name\": \"HOA Customer site\",\n    \"displayName\": \"HOA Customer site\",\n    \"customerType\": \"hoa\",\n    \"addressLine1\": \"200 Oak Ave\",\n    \"addressLine2\": \"Unit 4\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": \"Travis\",\n    \"country\": \"US\",\n    \"postalCode\": \"78702\",\n    \"formattedAddress\": \"200 Oak Ave, Unit 4, Austin, TX 78702\",\n    \"latitude\": 30.2672,\n    \"longitude\": -97.7431,\n    \"placeId\": \"ChIJLwPMoJm1RIYRetVp1EtGm10\",\n    \"taxExempt\": false,\n    \"primaryContactName\": \"Site Contact\",\n    \"primaryContactEmail\": \"site@example.com\",\n    \"primaryContactPhone\": \"+1 555-0199\",\n    \"canReceiveEstimates\": true,\n    \"canReceiveInvoices\": false,\n    \"canReceiveAppointments\": true\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      },
+                      "mode": "raw"
+                    },
+                    "auth": {
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "type": "string",
+                          "value": "{{accessToken}}"
+                        }
+                      ],
+                      "type": "bearer"
+                    }
+                  },
+                  "event": [
+                    {
+                      "script": {
+                        "exec": [
+                          "const body = pm.response.json();",
+                          "if (body.success && body.data) {",
+                          "  const row = body.data.customer ?? (Array.isArray(body.data) ? body.data[0] : body.data);",
+                          "  if (row && row.id != null) pm.environment.set(\"customerId\", String(row.id));",
+                          "  if (body.data.serviceLocationId != null) pm.environment.set(\"serviceLocationId\", String(body.data.serviceLocationId));",
+                          "}"
+                        ],
+                        "type": "text/javascript"
+                      },
+                      "listen": "test"
+                    }
+                  ]
+                },
+                {
+                  "name": "Bill to and other customer type",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "host": [
+                        "https://developer.fsm.com"
+                      ],
+                      "raw": "https://developer.fsm.com/api/v1/customer",
+                      "path": [
+                        "api",
+                        "v1",
+                        "customer"
+                      ]
+                    },
+                    "description": "Valid customer plus a commercial service location. customerType other.",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "type": "text",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-Tenant-Id",
+                        "type": "text",
+                        "value": "{{tenantId}}"
+                      },
+                      {
+                        "key": "X-Company-Id",
+                        "type": "text",
+                        "value": "{{companyId}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "type": "text",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "raw": "{\n  \"customerNumber\": \"OTH{{crmCustomerSuffix}}\",\n  \"name\": \"Other Customer Type\",\n  \"displayName\": \"Other Customer Type\",\n  \"addressLine1\": \"100 Main St\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"country\": \"US\",\n  \"postalCode\": \"78701\",\n  \"formattedAddress\": \"100 Main St, Austin, TX 78701\",\n  \"defaultPaymentTermId\": 1,\n  \"defaultPORequired\": false,\n  \"taxExempt\": false,\n  \"website\": \"https://example.com\",\n  \"primaryContactName\": \"Jane Doe\",\n  \"primaryContactEmail\": \"jane@example.com\",\n  \"primaryContactPhone\": \"+1 555-0100\",\n  \"creationOption\": \"billToAndServiceLocation\",\n  \"serviceLocation\": {\n    \"serviceLocationType\": \"commercial\",\n    \"name\": \"Other Customer Type site\",\n    \"displayName\": \"Other Customer Type site\",\n    \"customerType\": \"other\",\n    \"addressLine1\": \"200 Oak Ave\",\n    \"addressLine2\": \"Unit 4\",\n    \"city\": \"Austin\",\n    \"state\": \"TX\",\n    \"county\": \"Travis\",\n    \"country\": \"US\",\n    \"postalCode\": \"78702\",\n    \"formattedAddress\": \"200 Oak Ave, Unit 4, Austin, TX 78702\",\n    \"latitude\": 30.2672,\n    \"longitude\": -97.7431,\n    \"placeId\": \"ChIJLwPMoJm1RIYRetVp1EtGm10\",\n    \"taxExempt\": false,\n    \"primaryContactName\": \"Site Contact\",\n    \"primaryContactEmail\": \"site@example.com\",\n    \"primaryContactPhone\": \"+1 555-0199\",\n    \"canReceiveEstimates\": true,\n    \"canReceiveInvoices\": false,\n    \"canReceiveAppointments\": true\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      },
+                      "mode": "raw"
+                    },
+                    "auth": {
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "type": "string",
+                          "value": "{{accessToken}}"
+                        }
+                      ],
+                      "type": "bearer"
+                    }
+                  },
+                  "event": [
+                    {
+                      "script": {
+                        "exec": [
+                          "const body = pm.response.json();",
+                          "if (body.success && body.data) {",
+                          "  const row = body.data.customer ?? (Array.isArray(body.data) ? body.data[0] : body.data);",
+                          "  if (row && row.id != null) pm.environment.set(\"customerId\", String(row.id));",
+                          "  if (body.data.serviceLocationId != null) pm.environment.set(\"serviceLocationId\", String(body.data.serviceLocationId));",
+                          "}"
+                        ],
+                        "type": "text/javascript"
+                      },
+                      "listen": "test"
+                    }
+                  ]
+                },
+                {
+                  "name": "Bill to and location without customer type",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "host": [
+                        "https://developer.fsm.com"
+                      ],
+                      "raw": "https://developer.fsm.com/api/v1/customer",
+                      "path": [
+                        "api",
+                        "v1",
+                        "customer"
+                      ]
+                    },
+                    "description": "Valid customer plus a residential service location. customerType is omitted because it is optional. Location name and display name are set and the address is omitted.",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "type": "text",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-Tenant-Id",
+                        "type": "text",
+                        "value": "{{tenantId}}"
+                      },
+                      {
+                        "key": "X-Company-Id",
+                        "type": "text",
+                        "value": "{{companyId}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "type": "text",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "raw": "{\n  \"customerNumber\": \"NCT{{crmCustomerSuffix}}\",\n  \"name\": \"No Customer Type\",\n  \"displayName\": \"No Customer Type\",\n  \"addressLine1\": \"100 Main St\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"country\": \"US\",\n  \"postalCode\": \"78701\",\n  \"formattedAddress\": \"100 Main St, Austin, TX 78701\",\n  \"defaultPaymentTermId\": 1,\n  \"defaultPORequired\": false,\n  \"taxExempt\": false,\n  \"website\": \"https://example.com\",\n  \"primaryContactName\": \"Jane Doe\",\n  \"primaryContactEmail\": \"jane@example.com\",\n  \"primaryContactPhone\": \"+1 555-0100\",\n  \"creationOption\": \"billToAndServiceLocation\",\n  \"serviceLocation\": {\n    \"serviceLocationType\": \"residential\",\n    \"name\": \"No Customer Type site\",\n    \"displayName\": \"No Customer Type site\"\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      },
+                      "mode": "raw"
+                    },
+                    "auth": {
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "type": "string",
+                          "value": "{{accessToken}}"
+                        }
+                      ],
+                      "type": "bearer"
+                    }
+                  },
+                  "event": [
+                    {
+                      "script": {
+                        "exec": [
+                          "const body = pm.response.json();",
+                          "if (body.success && body.data) {",
+                          "  const row = body.data.customer ?? (Array.isArray(body.data) ? body.data[0] : body.data);",
+                          "  if (row && row.id != null) pm.environment.set(\"customerId\", String(row.id));",
+                          "  if (body.data.serviceLocationId != null) pm.environment.set(\"serviceLocationId\", String(body.data.serviceLocationId));",
+                          "}"
+                        ],
+                        "type": "text/javascript"
+                      },
+                      "listen": "test"
+                    }
+                  ]
                 }
               ]
             },
@@ -41122,13 +41742,13 @@
                   "host": [
                     "https://developer.fsm.com"
                   ],
-                  "raw": "https://developer.fsm.com/api/v1/customer/{{customerId}}/service-location",
+                  "raw": "https://developer.fsm.com/api/v1/customer/{{customerId}}/servicelocation",
                   "path": [
                     "api",
                     "v1",
                     "customer",
                     "{{customerId}}",
-                    "service-location"
+                    "servicelocation"
                   ]
                 },
                 "description": "List service locations for a customer. Requires CUSTOMER.VIEW. 404 when the customer does not exist.",
@@ -41169,13 +41789,13 @@
                   "host": [
                     "https://developer.fsm.com"
                   ],
-                  "raw": "https://developer.fsm.com/api/v1/customer/{{customerId}}/service-location",
+                  "raw": "https://developer.fsm.com/api/v1/customer/{{customerId}}/servicelocation",
                   "path": [
                     "api",
                     "v1",
                     "customer",
                     "{{customerId}}",
-                    "service-location"
+                    "servicelocation"
                   ]
                 },
                 "description": "Add a service location to an existing customer. Optional customerType: residential, commercial, propertyManagement, builder, hoa, other. Requires CUSTOMER.CREATE.",

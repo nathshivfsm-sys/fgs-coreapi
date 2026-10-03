@@ -30,7 +30,7 @@ namespace Fgs.Crm.API.Controllers;
 public sealed class CustomerController(IMediator mediator) : ControllerBase
 {
     [RequirePermission(FgsPermissionCodes.CustomerView)]
-    [HttpGet("{id:long}/service-location")]
+    [HttpGet("{id:long}/servicelocation")]
     [ProducesResponseType(typeof(ApiResponse<CrmServiceLocationListResultDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListServiceLocations(
@@ -118,7 +118,7 @@ public sealed class CustomerController(IMediator mediator) : ControllerBase
 
     [RequirePermission(FgsPermissionCodes.CustomerCreate)]
     [Idempotent]
-    [HttpPost("{id:long}/service-location")]
+    [HttpPost("{id:long}/servicelocation")]
     [ProducesResponseType(typeof(ApiResponse<CrmServiceLocationCreatedDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
