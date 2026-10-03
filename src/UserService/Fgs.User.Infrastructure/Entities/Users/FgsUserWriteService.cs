@@ -1,6 +1,7 @@
 using Fgs.MultiTenancy;
 using Fgs.Persistence.Abstractions;
 using Fgs.Security.Abstractions;
+using Fgs.Security.Constants;
 using Fgs.Security.UserAuth;
 using Fgs.User.Application.Abstractions.Invitations;
 using Fgs.User.Application.Abstractions.UserRoles;
@@ -124,6 +125,11 @@ public sealed class FgsUserWriteService(
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"User '{id}' was not found.");
 
+        if (entity.IsActive && !dto.IsActive)
+        {
+            await EnsureDeactivationAllowedAsync(entity.Id, cancellationToken);
+        }
+
         var previousIsActive = entity.IsActive;
         entity.DisplayName = dto.DisplayName.Trim();
         entity.PhoneNumber = TrimOrNull(dto.PhoneNumber);
@@ -148,6 +154,11 @@ public sealed class FgsUserWriteService(
     {
         var entity = await FindEntityAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"User '{id}' was not found.");
+
+        if (entity.IsActive && dto.IsActive == false)
+        {
+            await EnsureDeactivationAllowedAsync(entity.Id, cancellationToken);
+        }
 
         var previousIsActive = entity.IsActive;
 
@@ -196,6 +207,11 @@ public sealed class FgsUserWriteService(
             return;
         }
 
+        if (entity.IsActive && !isActive)
+        {
+            await EnsureDeactivationAllowedAsync(entity.Id, cancellationToken);
+        }
+
         entity.IsActive = isActive;
         StampForUpdate(entity);
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -235,6 +251,27 @@ public sealed class FgsUserWriteService(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return await RequireDetailAsync(entity.Id, cancellationToken);
+    }
+
+    private async Task EnsureDeactivationAllowedAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var roleCodes = await (
+            from assignment in context.FgsUserRoles.AsNoTracking()
+            join role in context.FgsRoles.AsNoTracking() on assignment.FgsRoleId equals role.Id
+            where assignment.UserId == userId && role.IsActive
+            select role.RoleCode).ToListAsync(cancellationToken);
+
+        if (roleCodes.Contains(FgsRoleCodes.TenantAdmin, StringComparer.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Tenant administrator accounts cannot be deactivated.");
+        }
+
+        if (roleCodes.Contains(FgsRoleCodes.CompanyAdmin, StringComparer.OrdinalIgnoreCase)
+            && !userContext.IsInRole(FgsRoleCodes.TenantAdmin))
+        {
+            throw new InvalidOperationException(
+                "Company administrator accounts can only be deactivated by a tenant administrator.");
+        }
     }
 
     private async Task<FgsUserDetailDto> RequireDetailAsync(Guid userId, CancellationToken cancellationToken) =>
