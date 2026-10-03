@@ -130,6 +130,10 @@ internal sealed class CrmCustomerConfiguration : IEntityTypeConfiguration<CrmCus
             .HasMaxLength(100)
             .HasComment("Version or synchronization version associated with the customer in an external system.");
 
+        entity.Property(e => e.Website)
+            .HasMaxLength(500)
+            .HasComment("Customer website.");
+
         entity.Property(e => e.IsActive)
             .HasDefaultValue(true)
             .HasComment("Indicates whether the customer is active.");

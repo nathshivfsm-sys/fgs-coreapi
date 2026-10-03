@@ -25,6 +25,10 @@
     <Folder Include="Database\Seed\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Fgs.Crm.Tests" />
+  </ItemGroup>
+
   <PropertyGroup>
   </PropertyGroup>
 

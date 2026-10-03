@@ -5,4 +5,4 @@ using MediatR;
 namespace Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
 
 public sealed record CreateCrmCustomerCommand(CrmCustomerCreateDto Dto)
-    : IRequest<ApiResponse<CrmCustomerDetailDto>>;
+    : IRequest<ApiResponse<CrmCustomerCreateResultDto>>;

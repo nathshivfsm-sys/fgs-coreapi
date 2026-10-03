@@ -23,6 +23,8 @@ public class CrmServiceLocation : FgsEntityBase, ITenantCompanyScoped
 
     public ServiceLocationType ServiceLocationType { get; set; }
 
+    public CustomerType? CustomerType { get; set; }
+
     public string? AddressLine1 { get; set; }
 
     public string? AddressLine2 { get; set; }

@@ -1,11 +1,13 @@
 using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Crm.Application.Common.CrmCrud;
+using Fgs.Crm.Application.Features.Customers.Commands.AddCrmCustomerServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Dtos;
 using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerById;
+using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomerServiceLocations;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers;
 using Fgs.Crm.Application.Features.Customers.Queries.LookupCrmCustomers;
 using Fgs.Foundation.Api;
@@ -28,6 +30,31 @@ namespace Fgs.Crm.API.Controllers;
 public sealed class CustomerController(IMediator mediator) : ControllerBase
 {
     [RequirePermission(FgsPermissionCodes.CustomerView)]
+    [HttpGet("{id:long}/service-location")]
+    [ProducesResponseType(typeof(ApiResponse<CrmServiceLocationListResultDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ListServiceLocations(
+        long id,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 25,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
+        [FromQuery] string? search = null,
+        [FromQuery] bool? isActive = true,
+        [FromQuery] bool includeSummary = true,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await mediator.Send(
+            new ListCrmCustomerServiceLocationsQuery(
+                id,
+                new CrmListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
+                includeSummary),
+            cancellationToken);
+
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [RequirePermission(FgsPermissionCodes.CustomerView)]
     [HttpGet("{id:long}")]
     [ProducesResponseType(typeof(ApiResponse<CrmCustomerDetailDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -39,7 +66,7 @@ public sealed class CustomerController(IMediator mediator) : ControllerBase
 
     [RequirePermission(FgsPermissionCodes.CustomerView)]
     [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<CrmCustomerSummaryDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<CrmCustomerListResultDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> List(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 25,
@@ -50,12 +77,15 @@ public sealed class CustomerController(IMediator mediator) : ControllerBase
         [FromQuery] string? customerNumber = null,
         [FromQuery] string? name = null,
         [FromQuery] string? displayName = null,
+        [FromQuery] bool? isPreferred = null,
+        [FromQuery] bool includeSummary = true,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListCrmCustomersQuery(
                 new CrmListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new CrmCustomerListFilters(customerNumber, name, displayName)),
+                new CrmCustomerListFilters(customerNumber, name, displayName, isPreferred),
+                includeSummary),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);
@@ -75,7 +105,7 @@ public sealed class CustomerController(IMediator mediator) : ControllerBase
     [RequirePermission(FgsPermissionCodes.CustomerCreate)]
     [Idempotent]
     [HttpPost]
-    [ProducesResponseType(typeof(ApiResponse<CrmCustomerDetailDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<CrmCustomerCreateResultDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create(
@@ -83,6 +113,23 @@ public sealed class CustomerController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new CreateCrmCustomerCommand(request), cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [RequirePermission(FgsPermissionCodes.CustomerCreate)]
+    [Idempotent]
+    [HttpPost("{id:long}/service-location")]
+    [ProducesResponseType(typeof(ApiResponse<CrmServiceLocationCreatedDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AddServiceLocation(
+        long id,
+        [FromBody] CrmServiceLocationCreateDto request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(
+            new AddCrmCustomerServiceLocationCommand(id, request),
+            cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 

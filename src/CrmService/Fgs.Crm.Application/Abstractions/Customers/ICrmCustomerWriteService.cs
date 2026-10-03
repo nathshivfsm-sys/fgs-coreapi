@@ -4,7 +4,12 @@ namespace Fgs.Crm.Application.Abstractions.Customers;
 
 public interface ICrmCustomerWriteService
 {
-    Task<CrmCustomerDetailDto> CreateAsync(CrmCustomerCreateDto dto, CancellationToken cancellationToken = default);
+    Task<CrmCustomerCreateResultDto> CreateAsync(CrmCustomerCreateDto dto, CancellationToken cancellationToken = default);
+
+    Task<CrmServiceLocationCreatedDto> AddServiceLocationAsync(
+        long customerId,
+        CrmServiceLocationCreateDto dto,
+        CancellationToken cancellationToken = default);
 
     Task<CrmCustomerDetailDto> UpdateAsync(long id, CrmCustomerUpdateDto dto, CancellationToken cancellationToken = default);
 

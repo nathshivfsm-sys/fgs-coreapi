@@ -17,6 +17,9 @@ internal sealed class CrmServiceLocationConfiguration : IEntityTypeConfiguration
                 t.HasCheckConstraint(
                     "CK_CrmServiceLocation_ServiceLocationType",
                     "\"ServiceLocationType\" IN (1, 2, 3, 4, 5)");
+                t.HasCheckConstraint(
+                    "CK_CrmServiceLocation_CustomerType",
+                    "\"CustomerType\" IS NULL OR \"CustomerType\" IN (1, 2, 3, 4, 5, 6)");
             });
 
         entity.HasKey(e => e.Id);
@@ -55,6 +58,12 @@ internal sealed class CrmServiceLocationConfiguration : IEntityTypeConfiguration
             .IsRequired()
             .HasComment(
                 "Specifies the type of the service location. Valid values: 1=Residential, 2=Commercial, 3=Industrial, 4=Government, 5=Other. Corresponds to the ServiceLocationType enum in the application.");
+
+        entity.Property(e => e.CustomerType)
+            .HasColumnType("bigint")
+            .IsRequired(false)
+            .HasComment(
+                "Classifies the service location customer type (Residential, Commercial, Property Management, Builder, HOA, Other).");
 
         entity.Property(e => e.AddressLine1)
             .HasMaxLength(200)

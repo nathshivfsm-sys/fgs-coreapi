@@ -1,6 +1,5 @@
 using Fgs.Crm.Application.Common.CrmCrud;
 using Fgs.Crm.Application.Features.Customers.Dtos;
-using Fgs.Foundation.Paging;
 
 namespace Fgs.Crm.Application.Abstractions.Customers;
 
@@ -8,9 +7,16 @@ public interface ICrmCustomerReadRepository
 {
     Task<CrmCustomerDetailDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
-    Task<PagedResult<CrmCustomerSummaryDto>> ListAsync(
+    Task<CrmCustomerListResultDto> ListAsync(
         CrmListQuery query,
         CrmCustomerListFilters filters,
+        bool includeSummary = true,
+        CancellationToken cancellationToken = default);
+
+    Task<CrmServiceLocationListResultDto?> ListServiceLocationsAsync(
+        long customerId,
+        CrmListQuery query,
+        bool includeSummary = true,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<CrmCustomerLookupDto>> LookupAsync(

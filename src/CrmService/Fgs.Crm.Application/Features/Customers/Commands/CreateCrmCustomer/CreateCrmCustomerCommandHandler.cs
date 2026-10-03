@@ -14,21 +14,21 @@ public sealed class CreateCrmCustomerCommandHandler(
     ICacheService cache,
     ITenantContextAccessor tenantContextAccessor,
     ILogger<CreateCrmCustomerCommandHandler> logger)
-    : IRequestHandler<CreateCrmCustomerCommand, ApiResponse<CrmCustomerDetailDto>>
+    : IRequestHandler<CreateCrmCustomerCommand, ApiResponse<CrmCustomerCreateResultDto>>
 {
-    public async Task<ApiResponse<CrmCustomerDetailDto>> Handle(
+    public async Task<ApiResponse<CrmCustomerCreateResultDto>> Handle(
         CreateCrmCustomerCommand request,
         CancellationToken cancellationToken)
     {
         var result = await writeService.CreateAsync(request.Dto, cancellationToken);
         logger.LogInformation(
             "Created customer {Id} with number {CustomerNumber}",
-            result.Id,
-            result.CustomerNumber);
+            result.Customer.Id,
+            result.Customer.CustomerNumber);
         var tenantScope = tenantContextAccessor.Current!;
         await cache.RemoveByPrefixAsync(
             CacheKeys.EntityPrefix(tenantScope.TenantId, tenantScope.CompanyId, "customer"),
             cancellationToken);
-        return ApiResponse<CrmCustomerDetailDto>.Ok(result, ApiStatusCodes.Created);
+        return ApiResponse<CrmCustomerCreateResultDto>.Ok(result, ApiStatusCodes.Created);
     }
 }

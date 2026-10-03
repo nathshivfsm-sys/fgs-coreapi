@@ -1,4 +1,5 @@
 using Fgs.Crm.Domain.Entities;
+using Fgs.Kernel.Entities;
 using Fgs.MultiTenancy;
 using Fgs.Security.Abstractions;
 using Fgs.Security.Extensions;
@@ -24,6 +25,50 @@ public sealed class CrmEntityAuditHelper
 
     public void StampForCreate(CrmCustomer entity)
     {
+        StampAudit(entity, (tenantId, companyId) =>
+        {
+            entity.TenantId = tenantId;
+            entity.CompanyId = companyId;
+        });
+        entity.IsActive = true;
+    }
+
+    public void StampForCreate(CrmServiceLocation entity)
+    {
+        StampAudit(entity, (tenantId, companyId) =>
+        {
+            entity.TenantId = tenantId;
+            entity.CompanyId = companyId;
+        });
+        entity.IsActive = true;
+    }
+
+    public void StampForCreate(CrmContact entity)
+    {
+        StampAudit(entity, (tenantId, companyId) =>
+        {
+            entity.TenantId = tenantId;
+            entity.CompanyId = companyId;
+        });
+        entity.IsActive = true;
+    }
+
+    public void StampForCreate(CrmEntityTag entity) =>
+        StampAudit(entity, (tenantId, companyId) =>
+        {
+            entity.TenantId = tenantId;
+            entity.CompanyId = companyId;
+        });
+
+    public void StampForCreate(CrmContactCommunication entity) =>
+        StampAudit(entity, (tenantId, companyId) =>
+        {
+            entity.TenantId = tenantId;
+            entity.CompanyId = companyId;
+        });
+
+    private void StampAudit(FgsEntityBase entity, Action<long, long> assignScope)
+    {
         var now = _dateTimeProvider.UtcNow;
         var actor = ResolveActor();
         var (tenantId, companyId) = ResolveTenantCompany();
@@ -32,9 +77,7 @@ public sealed class CrmEntityAuditHelper
         entity.CreatedBy = actor;
         entity.UpdatedOn = now;
         entity.UpdatedBy = actor;
-        entity.IsActive = true;
-        entity.TenantId = tenantId;
-        entity.CompanyId = companyId;
+        assignScope(tenantId, companyId);
     }
 
     public void StampForUpdate(CrmCustomer entity)
