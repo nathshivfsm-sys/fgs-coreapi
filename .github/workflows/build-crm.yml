@@ -59,3 +59,14 @@ jobs:
       channel: ${{ needs.build.outputs.channel }}
       github_environment: ${{ needs.build.outputs.github_environment }}
     secrets: inherit
+
+  deploy-nginx:
+    needs: [build, deploy]
+    if: needs.build.outputs.image_pushed == 'true'
+    uses: ./.github/workflows/reusable-deploy-ec2.yml
+    with:
+      compose_service: nginx
+      image_tag_prefix: nginx
+      channel: ${{ needs.build.outputs.channel }}
+      github_environment: ${{ needs.build.outputs.github_environment }}
+    secrets: inherit

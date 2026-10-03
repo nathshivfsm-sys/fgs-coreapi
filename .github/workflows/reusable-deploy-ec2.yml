@@ -76,6 +76,96 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Sync EC2 host files
+        if: inputs.compose_service == 'crm-service' || inputs.compose_service == 'nginx'
+        env:
+          INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
+          FGS_DIR: ${{ vars.FGS_COMPOSE_DIR || '/opt/fgs' }}
+        run: |
+          set -euo pipefail
+          python3 << 'PY'
+          import base64, json, os, pathlib, subprocess, time
+
+          instance = os.environ["INSTANCE_ID"]
+          region = os.environ["AWS_REGION"]
+          remote_dir = os.environ["FGS_DIR"]
+          if not instance:
+              raise SystemExit("Set repository variable EC2_INSTANCE_ID")
+
+          files = [
+              ("deployment/aws/ec2/docker-compose.ec2.yml", f"{remote_dir}/docker-compose.ec2.yml", "0644"),
+              ("deployment/aws/ec2/deploy-service.sh", f"{remote_dir}/deploy-service.sh", "0755"),
+              ("deployment/aws/ec2/nginx-https-entrypoint.sh", f"{remote_dir}/nginx-https-entrypoint.sh", "0755"),
+              ("deployment/aws/ec2/nginx-http-only-entrypoint.sh", f"{remote_dir}/nginx-http-only-entrypoint.sh", "0755"),
+          ]
+
+          def run_ssm(script: str) -> None:
+              params_path = pathlib.Path("/tmp/fgs-ssm-params.json")
+              params_path.write_text(json.dumps({"commands": [script]}), encoding="utf-8")
+              command_id = subprocess.check_output(
+                  [
+                      "aws", "ssm", "send-command",
+                      "--instance-ids", instance,
+                      "--document-name", "AWS-RunShellScript",
+                      "--comment", "FGS sync host file",
+                      "--parameters", f"file://{params_path}",
+                      "--region", region,
+                      "--query", "Command.CommandId",
+                      "--output", "text",
+                  ],
+                  text=True,
+              ).strip()
+              for _ in range(40):
+                  time.sleep(2)
+                  status = subprocess.run(
+                      [
+                          "aws", "ssm", "get-command-invocation",
+                          "--command-id", command_id,
+                          "--instance-id", instance,
+                          "--region", region,
+                          "--query", "Status",
+                          "--output", "text",
+                      ],
+                      capture_output=True,
+                      text=True,
+                  )
+                  state = (status.stdout or status.stderr or "Pending").strip()
+                  if state in {"Success", "Failed", "Cancelled", "TimedOut"}:
+                      if state != "Success":
+                          detail = subprocess.run(
+                              [
+                                  "aws", "ssm", "get-command-invocation",
+                                  "--command-id", command_id,
+                                  "--instance-id", instance,
+                                  "--region", region,
+                                  "--output", "json",
+                              ],
+                              capture_output=True,
+                              text=True,
+                          )
+                          raise SystemExit(detail.stdout or detail.stderr or state)
+                      return
+              raise SystemExit(f"Timed out waiting for SSM command {command_id}")
+
+          run_ssm(f"sudo mkdir -p {remote_dir}/certs")
+          for local, remote, mode in files:
+              payload = base64.b64encode(pathlib.Path(local).read_bytes()).decode("ascii")
+              staged = remote + ".b64"
+              run_ssm(f"sudo rm -f '{staged}'")
+              for offset in range(0, len(payload), 12000):
+                  chunk = payload[offset:offset + 12000]
+                  run_ssm(f"printf '%s' '{chunk}' | sudo tee -a '{staged}' >/dev/null")
+              run_ssm(
+                  "sudo base64 -d '{staged}' | sudo tee '{remote}' >/dev/null "
+                  "&& sudo chmod {mode} '{remote}' && sudo rm -f '{staged}' "
+                  "&& ls -la '{remote}'".format(staged=staged, remote=remote, mode=mode)
+              )
+              print(f"synced {remote}")
+          PY
+
       - name: Deploy via SSM
         env:
           INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
