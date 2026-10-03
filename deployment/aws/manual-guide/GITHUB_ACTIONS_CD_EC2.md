@@ -119,6 +119,7 @@ sudo ./deploy-service.sh notification-service dev
 sudo ./deploy-service.sh file-service dev
 sudo ./deploy-service.sh inventory-service dev
 sudo ./deploy-service.sh asset-service dev
+sudo ./deploy-service.sh crm-service dev
 sudo ./deploy-service.sh consumer-service dev
 sudo ./deploy-service.sh nginx dev
 ```
@@ -215,6 +216,7 @@ Replace `ACCOUNT_ID` with your AWS account ID. Do **not** add Session Manager (`
 | `build-file.yml` | `Fgs.File.API.csproj` version bump | `file-service` on EC2 |
 | `build-inventory.yml` | `Fgs.Inventory.API.csproj` version bump | `inventory-service` on EC2 |
 | `build-asset.yml` | `Fgs.Asset.API.csproj` version bump | `asset-service` on EC2 |
+| `build-crm.yml` | `Fgs.Crm.API.csproj` version bump | `crm-service` on EC2 |
 | `build-consumer.yml` | `Fgs.Consumer.API.csproj` version bump | `consumer-service` on EC2 |
 | `build-nginx.yml` | `src/Gateway/VERSION` bump | `nginx` on EC2 |
 

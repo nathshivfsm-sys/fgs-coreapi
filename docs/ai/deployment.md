@@ -18,4 +18,4 @@
 
 ## CI workflows with images
 
-`build-user`, `build-setup`, `build-bff`, `build-file`, `build-audit`, `build-notification`, `build-consumer`, `build-nginx`, `build-redis`, `build-rabbitmq`
+`build-user`, `build-setup`, `build-bff`, `build-file`, `build-audit`, `build-notification`, `build-inventory`, `build-asset`, `build-crm`, `build-consumer`, `build-nginx`, `build-redis`, `build-rabbitmq`

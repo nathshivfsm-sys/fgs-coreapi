@@ -24,9 +24,10 @@ CD only pulls/recreates containers. When compose/entrypoint scripts change, sync
 sudo install -m 0755 deploy-service.sh /opt/fgs/deploy-service.sh
 sudo install -m 0755 nginx-https-entrypoint.sh /opt/fgs/nginx-https-entrypoint.sh
 sudo install -m 0644 docker-compose.ec2.yml /opt/fgs/docker-compose.ec2.yml
-# Ensure glo.GloCredential Global:DATABASE includes FgsInventory / FgsAsset as needed
+# Ensure glo.GloCredential Global:DATABASE includes FgsInventory / FgsAsset / FgsCrm as needed
 sudo /opt/fgs/deploy-service.sh inventory-service dev
 sudo /opt/fgs/deploy-service.sh asset-service dev
+sudo /opt/fgs/deploy-service.sh crm-service dev
 sudo /opt/fgs/deploy-service.sh nginx dev   # reload upstreams
 ```
 
@@ -57,6 +58,7 @@ sudo /opt/fgs/deploy-service.sh notification-service dev
 sudo /opt/fgs/deploy-service.sh file-service dev
 sudo /opt/fgs/deploy-service.sh inventory-service dev
 sudo /opt/fgs/deploy-service.sh asset-service dev
+sudo /opt/fgs/deploy-service.sh crm-service dev
 sudo /opt/fgs/deploy-service.sh consumer-service dev
 sudo /opt/fgs/deploy-service.sh nginx dev
 ```
@@ -73,6 +75,7 @@ docker logs fgs-ec2-notification-service-1 --tail 100
 docker logs fgs-ec2-file-service-1 --tail 100
 docker logs fgs-ec2-inventory-service-1 --tail 100
 docker logs fgs-ec2-asset-service-1 --tail 100
+docker logs fgs-ec2-crm-service-1 --tail 100
 docker logs fgs-ec2-consumer-service-1 --tail 100
 ```
 
