@@ -19,15 +19,19 @@ public sealed class LookupInventoryLocationsQueryHandler(
         CancellationToken cancellationToken)
     {
         var tenantScope = tenantContextAccessor.Current!;
+        var locationType = string.IsNullOrWhiteSpace(request.InventoryLocationType)
+            ? null
+            : request.InventoryLocationType.Trim().ToUpperInvariant();
+        var typeSegment = locationType is null ? string.Empty : $":type={locationType}";
         var cacheKey = CacheKeys.Build(
             tenantScope.TenantId,
             tenantScope.CompanyId,
             "inventorylocation",
-            CacheKeys.LookupSegment(request.ActiveOnly));
+            CacheKeys.LookupSegment(request.ActiveOnly) + typeSegment);
 
         var result = await cache.GetOrSetAsync(
             cacheKey,
-            () => readRepository.LookupAsync(request.ActiveOnly, cancellationToken),
+            () => readRepository.LookupAsync(request.ActiveOnly, locationType, cancellationToken),
             cancellationToken: cancellationToken);
 
         return ApiResponse<IReadOnlyList<FgsInventoryLocationLookupDto>>.Ok(result ?? Array.Empty<FgsInventoryLocationLookupDto>());

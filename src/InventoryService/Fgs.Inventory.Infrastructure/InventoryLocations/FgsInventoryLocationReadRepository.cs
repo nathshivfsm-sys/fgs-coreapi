@@ -72,6 +72,11 @@ internal sealed class FgsInventoryLocationReadRepository : IFgsInventoryLocation
             where.Add("\"Name\" ILIKE @Name");
         }
 
+        if (!string.IsNullOrWhiteSpace(filters.InventoryLocationType))
+        {
+            where.Add("\"InventoryLocationType\" = @InventoryLocationType");
+        }
+
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
             where.Add(
@@ -99,6 +104,9 @@ internal sealed class FgsInventoryLocationReadRepository : IFgsInventoryLocation
             CompanyId = companyId,
             IsActive = paging.IsActive,
             InventoryLocationCode = filters.InventoryLocationCode?.Trim().ToUpperInvariant(),
+            InventoryLocationType = string.IsNullOrWhiteSpace(filters.InventoryLocationType)
+                ? null
+                : filters.InventoryLocationType.Trim().ToUpperInvariant(),
             Name = string.IsNullOrWhiteSpace(filters.Name) ? null : $"%{filters.Name.Trim()}%",
             Search = string.IsNullOrWhiteSpace(paging.Search) ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
@@ -121,22 +129,37 @@ internal sealed class FgsInventoryLocationReadRepository : IFgsInventoryLocation
 
     public async Task<IReadOnlyList<FgsInventoryLocationLookupDto>> LookupAsync(
         bool activeOnly = true,
+        string? inventoryLocationType = null,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = InventoryTenantScopeResolver.ResolveRequired(_tenantContextAccessor);
         var activeFilter = activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty;
+        var typeFilter = string.IsNullOrWhiteSpace(inventoryLocationType)
+            ? string.Empty
+            : "AND \"InventoryLocationType\" = @InventoryLocationType";
         var sql = $"""
             SELECT {FgsInventoryLocationSql.SelectLookupColumns}
             FROM {FgsInventoryLocationSql.Table}
             WHERE "TenantId" = @TenantId
               AND "CompanyId" = @CompanyId
               {activeFilter}
+              {typeFilter}
             ORDER BY "Name" ASC
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         var rows = await connection.QueryAsync<FgsInventoryLocationLookupRow>(
-            new CommandDefinition(sql, new { TenantId = tenantId, CompanyId = companyId }, cancellationToken: cancellationToken));
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    InventoryLocationType = string.IsNullOrWhiteSpace(inventoryLocationType)
+                        ? null
+                        : inventoryLocationType.Trim().ToUpperInvariant()
+                },
+                cancellationToken: cancellationToken));
 
         return rows.Select(r => r.ToDto()).ToList();
     }

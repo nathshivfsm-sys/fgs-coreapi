@@ -5,8 +5,10 @@ using Fgs.MultiTenancy;
 using Fgs.Inventory.Application.Abstractions.InventoryLocations;
 using Fgs.Inventory.Application.Common.InventoryCrud;
 using Fgs.Inventory.Application.Features.InventoryLocations.Dtos;
+using Fgs.Foundation.Caching;
 using Fgs.Inventory.Application.Features.InventoryLocations.Queries.GetFgsInventoryLocationById;
 using Fgs.Inventory.Application.Features.InventoryLocations.Queries.ListInventoryLocations;
+using Fgs.Inventory.Application.Features.InventoryLocations.Queries.LookupInventoryLocations;
 using Fgs.Inventory.Domain.Entities;
 using Moq;
 
@@ -67,5 +69,37 @@ public sealed class FgsInventoryLocationQueryHandlerTests
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Lookup_WhenLocationTypeProvided_FiltersByType()
+    {
+        var trucks = new List<FgsInventoryLocationLookupDto>
+        {
+            new(4, "TRK-1", "Truck 1")
+        };
+
+        var readRepository = new Mock<IFgsInventoryLocationReadRepository>();
+        readRepository
+            .Setup(r => r.LookupAsync(true, InventoryLocationTypes.Truck, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(trucks);
+
+        var tenantAccessor = new Mock<ITenantContextAccessor>();
+        tenantAccessor.Setup(t => t.Current).Returns(new TenantContext { TenantId = 10, CompanyId = 20 });
+
+        var handler = new LookupInventoryLocationsQueryHandler(
+            readRepository.Object,
+            new NullCacheService(),
+            tenantAccessor.Object);
+
+        var response = await handler.Handle(
+            new LookupInventoryLocationsQuery(true, InventoryLocationTypes.Truck),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data.Should().BeEquivalentTo(trucks);
+        readRepository.Verify(
+            r => r.LookupAsync(true, InventoryLocationTypes.Truck, It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

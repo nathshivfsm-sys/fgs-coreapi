@@ -4,5 +4,7 @@ using MediatR;
 
 namespace Fgs.Inventory.Application.Features.InventoryLocations.Queries.LookupInventoryLocations;
 
-public sealed record LookupInventoryLocationsQuery(bool ActiveOnly = true)
+public sealed record LookupInventoryLocationsQuery(
+    bool ActiveOnly = true,
+    string? InventoryLocationType = null)
     : IRequest<ApiResponse<IReadOnlyList<FgsInventoryLocationLookupDto>>>;

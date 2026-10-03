@@ -1,3 +1,4 @@
+using Fgs.Crm.Domain.Enums;
 using Fgs.Kernel.Entities;
 
 namespace Fgs.Crm.Domain.Entities;
@@ -20,7 +21,7 @@ public class CrmServiceLocation : FgsEntityBase, ITenantCompanyScoped
 
     public string DisplayName { get; set; } = null!;
 
-    public short ServiceLocationTypeId { get; set; }
+    public ServiceLocationType ServiceLocationType { get; set; }
 
     public string? AddressLine1 { get; set; }
 

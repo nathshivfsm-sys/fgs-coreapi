@@ -10,8 +10,14 @@ internal sealed class CrmServiceLocationConfiguration : IEntityTypeConfiguration
     {
         entity.ToTable(
             "CrmServiceLocation",
-            t => t.HasComment(
-                "Physical customer location where field service work is performed."));
+            t =>
+            {
+                t.HasComment(
+                    "Physical customer location where field service work is performed.");
+                t.HasCheckConstraint(
+                    "CK_CrmServiceLocation_ServiceLocationType",
+                    "\"ServiceLocationType\" IN (1, 2, 3, 4, 5)");
+            });
 
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id)
@@ -43,9 +49,12 @@ internal sealed class CrmServiceLocationConfiguration : IEntityTypeConfiguration
             .HasDefaultValue(string.Empty)
             .HasComment("Service location name displayed to users and customers.");
 
-        entity.Property(e => e.ServiceLocationTypeId)
-            .HasDefaultValue((short)0)
-            .HasComment("Identifier of the service location type.");
+        entity.Property(e => e.ServiceLocationType)
+            .HasConversion<short>()
+            .HasColumnType("smallint")
+            .IsRequired()
+            .HasComment(
+                "Specifies the type of the service location. Valid values: 1=Residential, 2=Commercial, 3=Industrial, 4=Government, 5=Other. Corresponds to the ServiceLocationType enum in the application.");
 
         entity.Property(e => e.AddressLine1)
             .HasMaxLength(200)

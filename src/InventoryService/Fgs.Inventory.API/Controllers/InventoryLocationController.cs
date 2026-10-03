@@ -6,6 +6,7 @@ using Fgs.Inventory.Application.Common.InventoryCrud;
 using Fgs.Inventory.Application.Features.InventoryLocations.Commands.CreateFgsInventoryLocation;
 using Fgs.Inventory.Application.Features.InventoryLocations.Commands.PatchFgsInventoryLocation;
 using Fgs.Inventory.Application.Features.InventoryLocations.Commands.UpdateFgsInventoryLocation;
+using Fgs.Inventory.Application.Features.InventoryLocations;
 using Fgs.Inventory.Application.Features.InventoryLocations.Dtos;
 using Fgs.Inventory.Application.Features.InventoryLocations.Queries.GetFgsInventoryLocationById;
 using Fgs.Inventory.Application.Features.InventoryLocations.Queries.ListInventoryLocations;
@@ -46,12 +47,13 @@ public sealed class InventoryLocationController(IMediator mediator) : Controller
         [FromQuery] bool? isActive = true,
         [FromQuery] string? inventoryLocationCode = null,
         [FromQuery] string? name = null,
+        [FromQuery] InventoryLocationTypeOption? locationType = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListInventoryLocationsQuery(
                 new InventoryListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new FgsInventoryLocationListFilters(inventoryLocationCode, name)),
+                new FgsInventoryLocationListFilters(inventoryLocationCode, name, locationType?.ToString())),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);
@@ -61,9 +63,36 @@ public sealed class InventoryLocationController(IMediator mediator) : Controller
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<FgsInventoryLocationLookupDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Lookup(
         [FromQuery] bool activeOnly = true,
+        [FromQuery] InventoryLocationTypeOption? locationType = null,
         CancellationToken cancellationToken = default)
     {
-        var response = await mediator.Send(new LookupInventoryLocationsQuery(activeOnly), cancellationToken);
+        var response = await mediator.Send(
+            new LookupInventoryLocationsQuery(activeOnly, locationType?.ToString()),
+            cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [HttpGet("truck")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<FgsInventoryLocationLookupDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> LookupTrucks(
+        [FromQuery] bool activeOnly = true,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await mediator.Send(
+            new LookupInventoryLocationsQuery(activeOnly, "TRUCK"),
+            cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [HttpGet("warehouse")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<FgsInventoryLocationLookupDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> LookupWarehouses(
+        [FromQuery] bool activeOnly = true,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await mediator.Send(
+            new LookupInventoryLocationsQuery(activeOnly, "WAREHOUSE"),
+            cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 

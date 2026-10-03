@@ -97,4 +97,5 @@ public sealed record FgsInventoryLocationPatchDto(
 
 public sealed record FgsInventoryLocationListFilters(
     string? InventoryLocationCode = null,
-    string? Name = null);
+    string? Name = null,
+    string? InventoryLocationType = null);

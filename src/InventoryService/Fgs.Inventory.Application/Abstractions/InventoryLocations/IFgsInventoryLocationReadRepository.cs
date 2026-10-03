@@ -15,6 +15,7 @@ public interface IFgsInventoryLocationReadRepository
 
     Task<IReadOnlyList<FgsInventoryLocationLookupDto>> LookupAsync(
         bool activeOnly = true,
+        string? inventoryLocationType = null,
         CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByInventoryLocationCodeAsync(
