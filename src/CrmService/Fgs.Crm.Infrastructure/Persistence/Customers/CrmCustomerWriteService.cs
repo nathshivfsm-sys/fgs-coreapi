@@ -71,28 +71,45 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
 
         await _context.CrmCustomers.AddAsync(entity, cancellationToken);
 
-        AddPrimaryContact(entity, dto);
         CrmServiceLocation? location = null;
-        if (dto.CreationOption == CrmCustomerCreationOption.BillToAndServiceLocation)
+        await SaveGraphAsync(async ct =>
         {
-            location = await AddServiceLocationAsync(entity, dto.ServiceLocation!, cancellationToken);
-        }
+            await _context.SaveChangesAsync(ct);
 
-        if (HasTagIds(dto.TagIds) || (location is not null && HasTagIds(dto.ServiceLocation?.TagIds)))
-        {
-            await SaveWithTagsAsync(() =>
+            if (dto.CreationOption == CrmCustomerCreationOption.BillToAndServiceLocation)
             {
-                AddEntityTags(entity.Id, CrmTaggedEntityType.Customer, dto.TagIds);
-                if (location is not null)
-                {
-                    AddEntityTags(location.Id, CrmTaggedEntityType.ServiceLocation, dto.ServiceLocation!.TagIds);
-                }
-            }, cancellationToken);
-        }
-        else
-        {
-            await SaveChangesAsync(cancellationToken);
-        }
+                location = await AddServiceLocationAsync(entity, dto.ServiceLocation!, ct);
+                await _context.SaveChangesAsync(ct);
+            }
+
+            var customerContact = AddPrimaryContact(entity, dto);
+            var locationContact = location is null
+                ? null
+                : AddLocationPrimaryContact(location, dto.ServiceLocation!);
+
+            if (customerContact is not null || locationContact is not null)
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+
+            if (customerContact is not null)
+            {
+                AddCommunication(customerContact, ContactCommunicationType.Email, dto.PrimaryContactEmail);
+                AddCommunication(customerContact, ContactCommunicationType.Phone, dto.PrimaryContactPhone);
+            }
+
+            if (locationContact is not null)
+            {
+                AddCommunication(locationContact, ContactCommunicationType.Email, dto.ServiceLocation!.PrimaryContactEmail);
+                AddCommunication(locationContact, ContactCommunicationType.Phone, dto.ServiceLocation.PrimaryContactPhone);
+            }
+
+            AddEntityTags(entity.Id, CrmTaggedEntityType.Customer, dto.TagIds);
+            if (location is not null)
+            {
+                AddEntityTags(location.Id, CrmTaggedEntityType.ServiceLocation, dto.ServiceLocation!.TagIds);
+            }
+        }, cancellationToken);
 
         return new CrmCustomerCreateResultDto(
             await MapToDetailAsync(entity, cancellationToken),
@@ -111,16 +128,20 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
             ?? throw new KeyNotFoundException($"Customer '{customerId}' was not found.");
 
         var location = await AddServiceLocationAsync(entity, dto, cancellationToken);
-        if (HasTagIds(dto.TagIds))
+        await SaveGraphAsync(async ct =>
         {
-            await SaveWithTagsAsync(
-                () => AddEntityTags(location.Id, CrmTaggedEntityType.ServiceLocation, dto.TagIds),
-                cancellationToken);
-        }
-        else
-        {
-            await SaveChangesAsync(cancellationToken);
-        }
+            await _context.SaveChangesAsync(ct);
+
+            var contact = AddLocationPrimaryContact(location, dto);
+            if (contact is not null)
+            {
+                await _context.SaveChangesAsync(ct);
+                AddCommunication(contact, ContactCommunicationType.Email, dto.PrimaryContactEmail);
+                AddCommunication(contact, ContactCommunicationType.Phone, dto.PrimaryContactPhone);
+            }
+
+            AddEntityTags(location.Id, CrmTaggedEntityType.ServiceLocation, dto.TagIds);
+        }, cancellationToken);
 
         return new CrmServiceLocationCreatedDto(
             location.Id,
@@ -371,11 +392,11 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
         entity.DefaultOtherPricingMatrixId = dto.DefaultOtherPricingMatrixId ?? defaults?.DefaultOtherPricingMatrixId;
     }
 
-    private void AddPrimaryContact(CrmCustomer customer, CrmCustomerCreateDto dto)
+    private CrmContact? AddPrimaryContact(CrmCustomer customer, CrmCustomerCreateDto dto)
     {
         if (!HasPrimaryContactInput(dto))
         {
-            return;
+            return null;
         }
 
         var contact = new CrmContact
@@ -388,9 +409,7 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
         };
         _auditHelper.StampForCreate(contact);
         _context.CrmContacts.Add(contact);
-
-        AddCommunication(contact, ContactCommunicationType.Email, dto.PrimaryContactEmail);
-        AddCommunication(contact, ContactCommunicationType.Phone, dto.PrimaryContactPhone);
+        return contact;
     }
 
     private void AddCommunication(CrmContact contact, ContactCommunicationType type, string? value)
@@ -469,15 +488,14 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
 
         _auditHelper.StampForCreate(location);
         await _context.CrmServiceLocations.AddAsync(location, cancellationToken);
-        AddLocationPrimaryContact(location, dto);
         return location;
     }
 
-    private void AddLocationPrimaryContact(CrmServiceLocation location, CrmServiceLocationCreateDto dto)
+    private CrmContact? AddLocationPrimaryContact(CrmServiceLocation location, CrmServiceLocationCreateDto dto)
     {
         if (!HasLocationContactInput(dto))
         {
-            return;
+            return null;
         }
 
         var contact = new CrmContact
@@ -493,9 +511,7 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
         };
         _auditHelper.StampForCreate(contact);
         _context.CrmContacts.Add(contact);
-
-        AddCommunication(contact, ContactCommunicationType.Email, dto.PrimaryContactEmail);
-        AddCommunication(contact, ContactCommunicationType.Phone, dto.PrimaryContactPhone);
+        return contact;
     }
 
     private void AddEntityTags(long entityId, CrmTaggedEntityType entityType, IReadOnlyList<long>? tagIds)
@@ -519,15 +535,13 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
         }
     }
 
-    private async Task SaveWithTagsAsync(Action addTagsAfterIds, CancellationToken cancellationToken)
+    private async Task SaveGraphAsync(
+        Func<CancellationToken, Task> persistDependents,
+        CancellationToken cancellationToken)
     {
         try
         {
-            await _unitOfWork.ExecuteInTransactionAsync(async ct =>
-            {
-                await _context.SaveChangesAsync(ct);
-                addTagsAfterIds();
-            }, cancellationToken);
+            await _unitOfWork.ExecuteInTransactionAsync(persistDependents, cancellationToken);
         }
         catch (DbUpdateException ex) when (IsUniqueViolation(ex))
         {
