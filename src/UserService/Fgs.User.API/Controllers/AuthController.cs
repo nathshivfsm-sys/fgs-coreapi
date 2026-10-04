@@ -3,6 +3,7 @@ using System.Text.Json;
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
 using Fgs.User.Application.Common;
+using Fgs.User.Application.Features.Auth;
 using Fgs.User.Application.Features.Auth.Commands.EntraApiConnector;
 using Fgs.User.Application.Features.Auth.Commands.EntraAttributeCollectionStart;
 using Fgs.User.Application.Features.Auth.Commands.ExchangeLoginCode;
@@ -39,7 +40,7 @@ public sealed class AuthController(IMediator mediator, IConfiguration configurat
 
     /// <summary>
     /// Entra OAuth redirect target: validates <c>code</c>/<c>state</c> (PKCE), then redirects the browser
-    /// to <c>Application:UiPostLoginRedirectUrl</c> with access and refresh tokens.
+    /// to <c>Application:UiPostLoginRedirectUrl</c> with the refresh token only.
     /// </summary>
     /// <remarks>
     /// Register this URL as a Web redirect URI in Entra. Prefer HTML navigation over a raw 302 so large
@@ -85,18 +86,19 @@ public sealed class AuthController(IMediator mediator, IConfiguration configurat
             return StatusCode(response.StatusCode, response);
         }
 
-        var postLoginBase = ApplicationPublicUrlResolver.ResolveUiPostLoginRedirectUrl(configuration)
-            .TrimEnd('/');
-        var query = new List<string>
+        if (string.IsNullOrWhiteSpace(response.Data.RefreshToken))
         {
-            $"token={Uri.EscapeDataString(response.Data.AccessToken)}"
-        };
-        if (!string.IsNullOrWhiteSpace(response.Data.RefreshToken))
-        {
-            query.Add($"refresh_token={Uri.EscapeDataString(response.Data.RefreshToken)}");
+            return StatusCode(
+                StatusCodes.Status401Unauthorized,
+                ApiResponse<object>.Fail(
+                    [AuthErrorMessages.RefreshTokenRequired],
+                    ApiStatusCodes.Unauthorized));
         }
 
-        var destination = $"{postLoginBase}?{string.Join("&", query)}";
+        var postLoginBase = ApplicationPublicUrlResolver.ResolveUiPostLoginRedirectUrl(configuration)
+            .TrimEnd('/');
+        var destination =
+            $"{postLoginBase}?refresh_token={Uri.EscapeDataString(response.Data.RefreshToken)}";
 
         return Content(BuildSignInRedirectHtml(destination), "text/html; charset=utf-8");
     }

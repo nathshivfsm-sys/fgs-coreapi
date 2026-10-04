@@ -297,7 +297,7 @@ FGS_PUBLIC_SERVICE_PATH=user-service
 # Entra OAuth redirect_uri — register the same URI in Entra External ID
 # API-callback mode (Web redirect URI):
 FGS_UI_AUTH_CALLBACK_URL=https://api-dev.fieldwhizey.com/user-service/api/v1/auth/entra/callback
-# SPA origin after API callback (receives ?token=&refresh_token=)
+# SPA origin after API callback (receives ?refresh_token=)
 FGS_UI_POST_LOGIN_REDIRECT_URL=https://v40ch9rg-4200.usw3.devtunnels.ms
 
 DD_ENV=dev
@@ -347,7 +347,7 @@ sudo docker compose -f docker-compose.ec2.yml exec user-service printenv Applica
 sudo docker compose -f docker-compose.ec2.yml exec user-service printenv Application__UiPostLoginRedirectUrl
 ```
 
-Expect the two URLs above. Flow: login → Entra → API callback (exchange + invite/provision) → SPA `?token=&refresh_token=` → UI calls `POST /user-service/api/v1/auth/refresh`.
+Expect the two URLs above. Flow: login → Entra → API callback (exchange + invite/provision) → SPA `?refresh_token=` → UI calls `POST /user-service/api/v1/auth/refresh`.
 
 ### 6.2.2 Legacy SPA-only callback (optional)
 
