@@ -748,10 +748,6 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                         .HasColumnType("bigint")
                         .HasComment("Existing customer associated with the lead, when applicable.");
 
-                    b.Property<long?>("DisqualificationReasonId")
-                        .HasColumnType("bigint")
-                        .HasComment("Reason the lead was disqualified selected from setup.FgsLeadDisqualificationReason.");
-
                     b.Property<DateTimeOffset?>("DisqualifiedOn")
                         .HasColumnType("timestamptz")
                         .HasComment("Date and time the lead was disqualified.");
@@ -773,11 +769,7 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
 
                     b.Property<long>("LeadSourceId")
                         .HasColumnType("bigint")
-                        .HasComment("Source that generated the lead selected from setup.FgsLeadSource.");
-
-                    b.Property<long>("LeadStatusId")
-                        .HasColumnType("bigint")
-                        .HasComment("Current status of the lead selected from the configured sales pipeline statuses applicable to leads.");
+                        .HasComment("Source that generated the lead selected from setup.FgsSource.");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -837,17 +829,11 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                     b.HasIndex("TenantId", "CompanyId", "CustomerId")
                         .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_CustomerId");
 
-                    b.HasIndex("TenantId", "CompanyId", "DisqualificationReasonId")
-                        .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_DisqualificationReasonId");
-
                     b.HasIndex("TenantId", "CompanyId", "LeadReceivedOn")
                         .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_LeadReceivedOn");
 
                     b.HasIndex("TenantId", "CompanyId", "LeadSourceId")
                         .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_LeadSourceId");
-
-                    b.HasIndex("TenantId", "CompanyId", "LeadStatusId")
-                        .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_LeadStatusId");
 
                     b.HasIndex("TenantId", "CompanyId", "ServiceLocationId")
                         .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_ServiceLocationId");
@@ -1483,9 +1469,9 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                         {
                             t.HasComment("Physical customer location where field service work is performed.");
 
-                            t.HasCheckConstraint("CK_CrmServiceLocation_ServiceLocationType", "\"ServiceLocationType\" IN (1, 2, 3, 4, 5)");
-
                             t.HasCheckConstraint("CK_CrmServiceLocation_CustomerType", "\"CustomerType\" IS NULL OR \"CustomerType\" IN (1, 2, 3, 4, 5, 6)");
+
+                            t.HasCheckConstraint("CK_CrmServiceLocation_ServiceLocationType", "\"ServiceLocationType\" IN (1, 2, 3, 4, 5)");
                         });
                 });
 

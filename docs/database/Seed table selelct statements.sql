@@ -90,18 +90,13 @@ WHERE t."TenantId" = p.tenant_id AND t."CompanyId" = p.company_id;
 
 -- FgsJobTypeCategory / FgsJobTypeSubCategory: tenant-managed; no longer seeded from glo.
 
-SELECT 'setup.FgsLeadSource' AS table_name, t.*
-FROM setup."FgsLeadSource" t
+SELECT 'setup.FgsSource' AS table_name, t.*
+FROM setup."FgsSource" t
 CROSS JOIN seed_params p
 WHERE t."TenantId" = p.tenant_id AND t."CompanyId" = p.company_id;
 
-SELECT 'setup.FgsLeadStatus' AS table_name, t.*
-FROM setup."FgsLeadStatus" t
-CROSS JOIN seed_params p
-WHERE t."TenantId" = p.tenant_id AND t."CompanyId" = p.company_id;
-
-SELECT 'setup.FgsLeadDisqualificationReason' AS table_name, t.*
-FROM setup."FgsLeadDisqualificationReason" t
+SELECT 'setup.FgsSetupTimeSlot' AS table_name, t.*
+FROM setup."FgsSetupTimeSlot" t
 CROSS JOIN seed_params p
 WHERE t."TenantId" = p.tenant_id AND t."CompanyId" = p.company_id;
 

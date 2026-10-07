@@ -14755,8 +14755,8 @@
           ]
         },
         {
-          "description": "LeadSourceController - leadsource",
-          "name": "LeadSourceController",
+          "description": "SourceController - source",
+          "name": "SourceController",
           "item": [
             {
               "name": "GetById",
@@ -14766,11 +14766,11 @@
                   "host": [
                     "https://developer.fsm.com"
                   ],
-                  "raw": "https://developer.fsm.com/api/v1/leadsource/{{leadSourceId}}",
+                  "raw": "https://developer.fsm.com/api/v1/source/{{leadSourceId}}",
                   "path": [
                     "api",
                     "v1",
-                    "leadsource",
+                    "source",
                     "{{leadSourceId}}"
                   ]
                 },
@@ -14859,11 +14859,11 @@
                   "host": [
                     "https://developer.fsm.com"
                   ],
-                  "raw": "https://developer.fsm.com/api/v1/leadsource",
+                  "raw": "https://developer.fsm.com/api/v1/source",
                   "path": [
                     "api",
                     "v1",
-                    "leadsource"
+                    "source"
                   ]
                 },
                 "description": "List",
@@ -14912,11 +14912,11 @@
                   "host": [
                     "https://developer.fsm.com"
                   ],
-                  "raw": "https://developer.fsm.com/api/v1/leadsource/lookup",
+                  "raw": "https://developer.fsm.com/api/v1/source/lookup",
                   "path": [
                     "api",
                     "v1",
-                    "leadsource",
+                    "source",
                     "lookup"
                   ]
                 },
@@ -14956,11 +14956,11 @@
                   "host": [
                     "https://developer.fsm.com"
                   ],
-                  "raw": "https://developer.fsm.com/api/v1/leadsource",
+                  "raw": "https://developer.fsm.com/api/v1/source",
                   "path": [
                     "api",
                     "v1",
-                    "leadsource"
+                    "source"
                   ]
                 },
                 "description": "Create",
@@ -15031,11 +15031,11 @@
                   "host": [
                     "https://developer.fsm.com"
                   ],
-                  "raw": "https://developer.fsm.com/api/v1/leadsource/{{leadSourceId}}",
+                  "raw": "https://developer.fsm.com/api/v1/source/{{leadSourceId}}",
                   "path": [
                     "api",
                     "v1",
-                    "leadsource",
+                    "source",
                     "{{leadSourceId}}"
                   ]
                 },
@@ -15091,11 +15091,11 @@
                   "host": [
                     "https://developer.fsm.com"
                   ],
-                  "raw": "https://developer.fsm.com/api/v1/leadsource/{{leadSourceId}}",
+                  "raw": "https://developer.fsm.com/api/v1/source/{{leadSourceId}}",
                   "path": [
                     "api",
                     "v1",
-                    "leadsource",
+                    "source",
                     "{{leadSourceId}}"
                   ]
                 },

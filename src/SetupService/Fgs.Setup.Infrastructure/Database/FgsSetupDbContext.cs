@@ -151,20 +151,14 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
 
     public DbSet<GloSkill> GloSkills => Set<GloSkill>();
 
-    public DbSet<GloLeadSource> GloLeadSources => Set<GloLeadSource>();
+    public DbSet<GloSource> GloSources => Set<GloSource>();
 
-    public DbSet<FgsLeadSource> FgsLeadSources => Set<FgsLeadSource>();
+    public DbSet<FgsSource> FgsSources => Set<FgsSource>();
 
-    public DbSet<GloLeadStatus> GloLeadStatuses => Set<GloLeadStatus>();
+    public DbSet<GloTimeSlot> GloTimeSlots => Set<GloTimeSlot>();
 
     public DbSet<GloAppointmentAssignmentEventType> GloAppointmentAssignmentEventTypes =>
         Set<GloAppointmentAssignmentEventType>();
-
-    public DbSet<FgsLeadStatus> FgsLeadStatuses => Set<FgsLeadStatus>();
-
-    public DbSet<GloLeadDisqualificationReason> GloLeadDisqualificationReasons => Set<GloLeadDisqualificationReason>();
-
-    public DbSet<FgsLeadDisqualificationReason> FgsLeadDisqualificationReasons => Set<FgsLeadDisqualificationReason>();
 
     public DbSet<GloEstimateFlavor> GloEstimateFlavors => Set<GloEstimateFlavor>();
 

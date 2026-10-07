@@ -14736,8 +14736,8 @@
           ]
         },
         {
-          "description": "LeadSourceController - leadsource",
-          "name": "LeadSourceController",
+          "description": "SourceController - source",
+          "name": "SourceController",
           "item": [
             {
               "name": "GetById",
@@ -14747,12 +14747,12 @@
                   "host": [
                     "https://api-dev.fieldwhizey.com"
                   ],
-                  "raw": "https://api-dev.fieldwhizey.com/setup-service/api/v1/leadsource/{{leadSourceId}}",
+                  "raw": "https://api-dev.fieldwhizey.com/setup-service/api/v1/source/{{leadSourceId}}",
                   "path": [
                     "setup-service",
                     "api",
                     "v1",
-                    "leadsource",
+                    "source",
                     "{{leadSourceId}}"
                   ]
                 },
@@ -14841,12 +14841,12 @@
                   "host": [
                     "https://api-dev.fieldwhizey.com"
                   ],
-                  "raw": "https://api-dev.fieldwhizey.com/setup-service/api/v1/leadsource",
+                  "raw": "https://api-dev.fieldwhizey.com/setup-service/api/v1/source",
                   "path": [
                     "setup-service",
                     "api",
                     "v1",
-                    "leadsource"
+                    "source"
                   ]
                 },
                 "description": "List",
@@ -14895,12 +14895,12 @@
                   "host": [
                     "https://api-dev.fieldwhizey.com"
                   ],
-                  "raw": "https://api-dev.fieldwhizey.com/setup-service/api/v1/leadsource/lookup",
+                  "raw": "https://api-dev.fieldwhizey.com/setup-service/api/v1/source/lookup",
                   "path": [
                     "setup-service",
                     "api",
                     "v1",
-                    "leadsource",
+                    "source",
                     "lookup"
                   ]
                 },
@@ -14940,12 +14940,12 @@
                   "host": [
                     "https://api-dev.fieldwhizey.com"
                   ],
-                  "raw": "https://api-dev.fieldwhizey.com/setup-service/api/v1/leadsource",
+                  "raw": "https://api-dev.fieldwhizey.com/setup-service/api/v1/source",
                   "path": [
                     "setup-service",
                     "api",
                     "v1",
-                    "leadsource"
+                    "source"
                   ]
                 },
                 "description": "Create",
@@ -15016,12 +15016,12 @@
                   "host": [
                     "https://api-dev.fieldwhizey.com"
                   ],
-                  "raw": "https://api-dev.fieldwhizey.com/setup-service/api/v1/leadsource/{{leadSourceId}}",
+                  "raw": "https://api-dev.fieldwhizey.com/setup-service/api/v1/source/{{leadSourceId}}",
                   "path": [
                     "setup-service",
                     "api",
                     "v1",
-                    "leadsource",
+                    "source",
                     "{{leadSourceId}}"
                   ]
                 },
@@ -15077,12 +15077,12 @@
                   "host": [
                     "https://api-dev.fieldwhizey.com"
                   ],
-                  "raw": "https://api-dev.fieldwhizey.com/setup-service/api/v1/leadsource/{{leadSourceId}}",
+                  "raw": "https://api-dev.fieldwhizey.com/setup-service/api/v1/source/{{leadSourceId}}",
                   "path": [
                     "setup-service",
                     "api",
                     "v1",
-                    "leadsource",
+                    "source",
                     "{{leadSourceId}}"
                   ]
                 },

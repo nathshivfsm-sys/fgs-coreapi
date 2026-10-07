@@ -10,8 +10,6 @@ public class CrmLead : FgsEntityBase, ITenantCompanyScoped
 
     public long CompanyId { get; set; }
 
-    public long LeadStatusId { get; set; }
-
     public long LeadSourceId { get; set; }
 
     public long? CampaignId { get; set; }
@@ -45,8 +43,6 @@ public class CrmLead : FgsEntityBase, ITenantCompanyScoped
     public long? ServiceLocationId { get; set; }
 
     public DateTimeOffset LeadReceivedOn { get; set; }
-
-    public long? DisqualificationReasonId { get; set; }
 
     public DateTimeOffset? DisqualifiedOn { get; set; }
 

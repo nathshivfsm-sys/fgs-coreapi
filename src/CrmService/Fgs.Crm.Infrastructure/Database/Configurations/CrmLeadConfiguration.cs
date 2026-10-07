@@ -17,10 +17,8 @@ internal sealed class CrmLeadConfiguration : IEntityTypeConfiguration<CrmLead>
         entity.Property(e => e.Id).UseIdentityAlwaysColumn();
         entity.ConfigureTenantCompanyColumns();
 
-        entity.Property(e => e.LeadStatusId)
-            .HasComment("Current status of the lead selected from the configured sales pipeline statuses applicable to leads.");
         entity.Property(e => e.LeadSourceId)
-            .HasComment("Source that generated the lead selected from setup.FgsLeadSource.");
+            .HasComment("Source that generated the lead selected from setup.FgsSource.");
         entity.Property(e => e.CampaignId)
             .HasComment("Marketing campaign associated with the lead.");
         entity.Property(e => e.Name).HasMaxLength(200).IsRequired()
@@ -55,8 +53,6 @@ internal sealed class CrmLeadConfiguration : IEntityTypeConfiguration<CrmLead>
             .HasColumnType("timestamptz")
             .HasDefaultValueSql("now()")
             .HasComment("Date and time the lead was originally received.");
-        entity.Property(e => e.DisqualificationReasonId)
-            .HasComment("Reason the lead was disqualified selected from setup.FgsLeadDisqualificationReason.");
         entity.Property(e => e.DisqualifiedOn).HasColumnType("timestamptz")
             .HasComment("Date and time the lead was disqualified.");
         entity.Property(e => e.ConvertedOpportunityId)
@@ -68,8 +64,6 @@ internal sealed class CrmLeadConfiguration : IEntityTypeConfiguration<CrmLead>
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId }).HasDatabaseName("IX_CrmLead_TenantId_CompanyId");
-        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.LeadStatusId })
-            .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_LeadStatusId");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.LeadSourceId })
             .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_LeadSourceId");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.CampaignId })
@@ -80,8 +74,6 @@ internal sealed class CrmLeadConfiguration : IEntityTypeConfiguration<CrmLead>
             .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_CustomerId");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.ServiceLocationId })
             .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_ServiceLocationId");
-        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.DisqualificationReasonId })
-            .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_DisqualificationReasonId");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.LeadReceivedOn })
             .HasDatabaseName("IX_CrmLead_TenantId_CompanyId_LeadReceivedOn");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.ConvertedOpportunityId })

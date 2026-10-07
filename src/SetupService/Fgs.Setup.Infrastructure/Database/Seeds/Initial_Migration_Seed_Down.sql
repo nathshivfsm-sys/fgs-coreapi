@@ -268,7 +268,8 @@ WHERE "SeedTableMappingId" IN (
     WHERE "SeedCode" IN (
         'ALL_GloBillingCategory',
         'ALL_GloRole',
-        'ALL_GloLeadSource',
+        'ALL_GloSource',
+        'ALL_GloTimeSlot',
         'ALL_GloEstimateFlavor',
         'ALL_GloEstimateStatus',
         'ALL_GloPaymentMethodType',
@@ -283,7 +284,7 @@ WHERE "SeedTableMappingId" IN (
         'GLO_ZONE_TO_FGS_SETUP_ZONE',
         'GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',
         'GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',
-        'GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',
+        'GLO_SOURCE_TO_FGS_SOURCE',
         'GLO_ROLE_TO_FGS_ROLE',
         'GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY',
         'GLO_TAG_TO_FGS_TAG',
@@ -306,7 +307,8 @@ DELETE FROM glo."GloSeedTableMapping"
 WHERE "SeedCode" IN (
     'ALL_GloBillingCategory',
     'ALL_GloRole',
-    'ALL_GloLeadSource',
+    'ALL_GloSource',
+        'ALL_GloTimeSlot',
     'ALL_GloEstimateFlavor',
     'ALL_GloEstimateStatus',
     'ALL_GloPaymentMethodType',
@@ -321,7 +323,7 @@ WHERE "SeedCode" IN (
     'GLO_ZONE_TO_FGS_SETUP_ZONE',
     'GLO_TRADE_TO_FGS_SETUP_TECH_TRADE',
     'GLO_SKILL_TO_FGS_SETUP_TECH_SKILL_LEVEL',
-    'GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE',
+    'GLO_SOURCE_TO_FGS_SOURCE',
     'GLO_ROLE_TO_FGS_ROLE',
     'GLO_TITLE_OF_COURTESY_TO_FGS_SETUP_TITLE_OF_COURTESY',
     'GLO_TAG_TO_FGS_TAG',
@@ -356,7 +358,7 @@ WHERE "ItemTypeCode" IN (
     'TOOL'
 );
 
-DELETE FROM glo."GloLeadSource"
+DELETE FROM glo."GloSource"
 WHERE "SourceCode" IN (
     'REFERRAL',
     'WEBSITE',
@@ -366,6 +368,13 @@ WHERE "SourceCode" IN (
     'PHONE',
     'DIRECT',
     'OTHER'
+);
+
+DELETE FROM glo."GloTimeSlot"
+WHERE "Code" IN (
+    'MORNING',
+    'AFTERNOON',
+    'EVENING'
 );
 
 DELETE FROM glo."GloEstimateStatus"

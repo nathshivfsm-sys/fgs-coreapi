@@ -1203,6 +1203,66 @@ SELECT setval(
     COALESCE((SELECT MAX("Id") FROM glo."GloZone"), 1),
     true);
 
+-- GloTimeSlot (global default time slots for tenant provisioning seed)
+INSERT INTO glo."GloTimeSlot"
+(
+    "Code",
+    "Name",
+    "BeginTime",
+    "EndTime",
+    "MarkTechArrivedLateAfter",
+    "MarkWorkOrderDelayedCompletionAfter",
+    "IsMobileVisible",
+    "IsCustomerPortalVisible",
+    "IncludeInCapacityPlanning",
+    "ShowToExternalSystem",
+    "IsActive",
+    "CreatedOn",
+    "CreatedBy"
+)
+SELECT
+    v."Code",
+    v."Name",
+    v."BeginTime"::interval,
+    v."EndTime"::interval,
+    v."MarkTechArrivedLateAfter"::interval,
+    v."MarkWorkOrderDelayedCompletionAfter"::interval,
+    v."IsMobileVisible",
+    v."IsCustomerPortalVisible",
+    v."IncludeInCapacityPlanning",
+    v."ShowToExternalSystem",
+    v."IsActive",
+    timezone('utc', now()),
+    'System'
+FROM (
+    VALUES
+        ('MORNING',   'Morning',   '08:00:00', '12:00:00', '00:15:00', '01:00:00', true, true, true, false, true),
+        ('AFTERNOON', 'Afternoon', '12:00:00', '17:00:00', '00:15:00', '01:00:00', true, true, true, false, true),
+        ('EVENING',   'Evening',   '17:00:00', '20:00:00', '00:15:00', '01:00:00', true, true, false, false, true)
+) AS v(
+    "Code",
+    "Name",
+    "BeginTime",
+    "EndTime",
+    "MarkTechArrivedLateAfter",
+    "MarkWorkOrderDelayedCompletionAfter",
+    "IsMobileVisible",
+    "IsCustomerPortalVisible",
+    "IncludeInCapacityPlanning",
+    "ShowToExternalSystem",
+    "IsActive"
+)
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM glo."GloTimeSlot" ts
+    WHERE ts."Code" = v."Code"
+);
+
+SELECT setval(
+    pg_get_serial_sequence('glo."GloTimeSlot"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloTimeSlot"), 1),
+    true);
+
 -- GloInventoryItemType
 INSERT INTO glo."GloInventoryItemType"
 (
@@ -1386,8 +1446,8 @@ SELECT setval(
     COALESCE((SELECT MAX("Id") FROM glo."GloInventorySubCategory"), 1),
     true);
 
--- GloLeadSource (global lead acquisition sources for tenant provisioning seed)
-INSERT INTO glo."GloLeadSource"
+-- GloSource (global acquisition sources for tenant provisioning seed)
+INSERT INTO glo."GloSource"
 (
     "SourceCode",
     "SourceName",
@@ -1412,90 +1472,17 @@ FROM (
         ('YELP',      'Yelp',            'Yelp or online review platform',         true),
         ('PHONE',     'Phone Call',      'Inbound phone call',                     true),
         ('DIRECT',    'Direct Mail',     'Direct mail campaign',                   true),
-        ('OTHER',     'Other',           'Other or unknown lead source',           true)
+        ('OTHER',     'Other',           'Other or unknown source',           true)
 ) AS v("SourceCode", "SourceName", "Description", "IsActive")
 WHERE NOT EXISTS (
     SELECT 1
-    FROM glo."GloLeadSource" ls
+    FROM glo."GloSource" ls
     WHERE ls."SourceCode" = v."SourceCode"
 );
 
 SELECT setval(
-    pg_get_serial_sequence('glo."GloLeadSource"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM glo."GloLeadSource"), 1),
-    true);
-
--- GloLeadStatus (global lead pipeline statuses for tenant provisioning seed)
-INSERT INTO glo."GloLeadStatus"
-(
-    "StatusCode",
-    "StatusName",
-    "Description",
-    "DisplayOrder",
-    "IsActive",
-    "CreatedOn"
-)
-SELECT
-    v."StatusCode",
-    v."StatusName",
-    v."Description",
-    v."DisplayOrder",
-    true,
-    timezone('utc', now())
-FROM (
-    VALUES
-        ('NEW',          'New',          'Lead has been created.', 1::smallint),
-        ('CONTACTED',    'Contacted',    'Initial contact has been made.', 2::smallint),
-        ('QUALIFIED',    'Qualified',    'Lead meets qualification criteria.', 3::smallint),
-        ('CONVERTED',    'Converted',    'Lead converted to customer and/or opportunity.', 4::smallint),
-        ('DISQUALIFIED', 'Disqualified', 'Lead is not a viable sales opportunity.', 5::smallint)
-) AS v("StatusCode", "StatusName", "Description", "DisplayOrder")
-WHERE NOT EXISTS (
-    SELECT 1 FROM glo."GloLeadStatus" ls WHERE ls."StatusCode" = v."StatusCode"
-);
-
-SELECT setval(
-    pg_get_serial_sequence('glo."GloLeadStatus"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM glo."GloLeadStatus"), 1),
-    true);
-
--- GloLeadDisqualificationReason (global disqualification reasons for tenant provisioning seed)
-INSERT INTO glo."GloLeadDisqualificationReason"
-(
-    "ReasonCode",
-    "ReasonName",
-    "Description",
-    "DisplayOrder",
-    "IsActive",
-    "CreatedOn"
-)
-SELECT
-    v."ReasonCode",
-    v."ReasonName",
-    v."Description",
-    v."DisplayOrder",
-    true,
-    timezone('utc', now())
-FROM (
-    VALUES
-        ('OUTSIDE_SERVICE_AREA', 'Outside Service Area',           'Service location is outside the company service area.', 1::smallint),
-        ('DUPLICATE',            'Duplicate Lead',                 'Lead already exists in the system.', 2::smallint),
-        ('NO_RESPONSE',          'Unable To Contact',              'Multiple contact attempts were unsuccessful.', 3::smallint),
-        ('NO_BUDGET',            'No Budget',                      'Prospect does not have budget available for the requested service.', 4::smallint),
-        ('COMPETITOR',           'Competitor Selected',            'Prospect selected a competing provider.', 5::smallint),
-        ('NOT_INTERESTED',       'Not Interested',                 'Prospect is no longer interested in the service.', 6::smallint),
-        ('INVALID_CONTACT',      'Invalid Contact Information',    'Provided phone number, email, or contact information is invalid.', 7::smallint),
-        ('PROJECT_CANCELLED',    'Project Cancelled',              'Prospect cancelled or postponed the project indefinitely.', 8::smallint),
-        ('NO_DECISION_MAKER',    'No Decision Maker',              'Unable to reach or engage the decision maker.', 9::smallint),
-        ('OTHER',                'Other',                          'Other disqualification reason not covered by existing categories.', 10::smallint)
-) AS v("ReasonCode", "ReasonName", "Description", "DisplayOrder")
-WHERE NOT EXISTS (
-    SELECT 1 FROM glo."GloLeadDisqualificationReason" r WHERE r."ReasonCode" = v."ReasonCode"
-);
-
-SELECT setval(
-    pg_get_serial_sequence('glo."GloLeadDisqualificationReason"', 'Id'),
-    COALESCE((SELECT MAX("Id") FROM glo."GloLeadDisqualificationReason"), 1),
+    pg_get_serial_sequence('glo."GloSource"', 'Id'),
+    COALESCE((SELECT MAX("Id") FROM glo."GloSource"), 1),
     true);
 
 -- GloSalesPipelineStatus (global sales pipeline statuses for tenant provisioning seed)
@@ -1855,6 +1842,47 @@ SELECT setval(
 -- Transformation types: TENANT_ID, COMPANY_ID, STATIC, CURRENT_TIMESTAMP, SEED_CREATED_BY
 -- =============================================================================
 
+-- Migrate legacy LeadSource / removed lead catalog seed mappings before inserts
+-- so ALL_GloSource is not inserted while ALL_GloLeadSource still exists.
+DELETE FROM glo."GloSeedTableColumnMapping" cm
+USING glo."GloSeedTableMapping" m
+WHERE cm."SeedTableMappingId" = m."Id"
+  AND m."SeedCode" IN (
+      'ALL_GloLeadStatus',
+      'ALL_GloLeadDisqualificationReason',
+      'GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE'
+  );
+
+DELETE FROM glo."GloSeedTableMapping"
+WHERE "SeedCode" IN (
+    'ALL_GloLeadStatus',
+    'ALL_GloLeadDisqualificationReason',
+    'GLO_LEAD_SOURCE_TO_FGS_LEAD_SOURCE'
+);
+
+-- If ALL_GloSource already exists, drop leftover ALL_GloLeadSource row.
+DELETE FROM glo."GloSeedTableColumnMapping" cm
+USING glo."GloSeedTableMapping" m
+WHERE cm."SeedTableMappingId" = m."Id"
+  AND m."SeedCode" = 'ALL_GloLeadSource'
+  AND EXISTS (
+      SELECT 1 FROM glo."GloSeedTableMapping" x WHERE x."SeedCode" = 'ALL_GloSource'
+  );
+
+DELETE FROM glo."GloSeedTableMapping"
+WHERE "SeedCode" = 'ALL_GloLeadSource'
+  AND EXISTS (
+      SELECT 1 FROM glo."GloSeedTableMapping" x WHERE x."SeedCode" = 'ALL_GloSource'
+  );
+
+-- Otherwise rename ALL_GloLeadSource -> ALL_GloSource (keeps column mappings via Id).
+UPDATE glo."GloSeedTableMapping"
+SET "SeedCode" = 'ALL_GloSource',
+    "SourceTableName" = 'GloSource',
+    "TargetTableName" = 'FgsSource',
+    "Description" = 'Source'
+WHERE "SeedCode" = 'ALL_GloLeadSource';
+
 INSERT INTO glo."GloSeedTableMapping"
 (
     "SeedCode",
@@ -1901,9 +1929,7 @@ FROM (
         ('ALL_GloMenu', 'fgs_dev_db', 'glo', 'GloMenu', 'fgs_dev_db', 'identity', 'FgsTenantMenu', 16, 'Tenant company menus (identity)', true),
         ('ALL_GloBillingCategory', 'fgs_dev_db', 'glo', 'GloBillingCategory', 'fgs_dev_db', 'setup', 'FgsBillingCategory', 100, 'Billing Category', true),
         ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', 'fgs_dev_db', 'glo', 'GloInventoryCategory', 'fgs_dev_db', 'inventory', 'FgsInventoryCategory', 105, 'Inventory Category', true),
-        ('ALL_GloLeadSource', 'fgs_dev_db', 'glo', 'GloLeadSource', 'fgs_dev_db', 'setup', 'FgsLeadSource', 190, 'Lead Source', true),
-        ('ALL_GloLeadStatus', 'fgs_dev_db', 'glo', 'GloLeadStatus', 'fgs_dev_db', 'setup', 'FgsLeadStatus', 195, 'Lead Status', true),
-        ('ALL_GloLeadDisqualificationReason', 'fgs_dev_db', 'glo', 'GloLeadDisqualificationReason', 'fgs_dev_db', 'setup', 'FgsLeadDisqualificationReason', 198, 'Lead Disqualification Reason', true),
+        ('ALL_GloSource', 'fgs_dev_db', 'glo', 'GloSource', 'fgs_dev_db', 'setup', 'FgsSource', 190, 'Source', true),
         ('ALL_GloSalesPipelineStatus', 'fgs_dev_db', 'glo', 'GloSalesPipelineStatus', 'fgs_dev_db', 'setup', 'FgsSalesPipelineStatus', 199, 'Sales Pipeline Status', true),
         ('ALL_GloSalesDispositionReason', 'fgs_dev_db', 'glo', 'GloSalesDispositionReason', 'fgs_dev_db', 'setup', 'FgsSalesDispositionReason', 200, 'Sales Disposition Reason', true),
         ('ALL_GloSalesActivityType', 'fgs_dev_db', 'glo', 'GloSalesActivityType', 'fgs_dev_db', 'setup', 'FgsSalesActivityType', 201, 'Sales Activity Type', true),
@@ -1918,6 +1944,7 @@ FROM (
         ('GloTrade', 'fgs_dev_db', 'glo', 'GloTrade', 'fgs_dev_db', 'setup', 'FgsSetupTechTrade', 410, 'Technician Trade', true),
         ('ALL_GloTitleOfCourtesy', 'fgs_dev_db', 'glo', 'GloTitleOfCourtesy', 'fgs_dev_db', 'setup', 'FgsSetupTitleOfCourtesy', 440, 'Title Of Courtesy', true),
         ('ALL_GloZone', 'fgs_dev_db', 'glo', 'GloZone', 'fgs_dev_db', 'setup', 'FgsSetupZone', 470, 'Zone', true),
+        ('ALL_GloTimeSlot', 'fgs_dev_db', 'glo', 'GloTimeSlot', 'fgs_dev_db', 'setup', 'FgsSetupTimeSlot', 475, 'Time Slot', true),
         ('ALL_GloSetupPaymentTerm', 'fgs_dev_db', 'glo', 'GloSetupPaymentTerm', 'fgs_dev_db', 'setup', 'FgsSetupPaymentTerm', 500, 'Payment Term', true)
 ) AS v("SeedCode", "SourceDatabaseName", "SourceSchemaName", "SourceTableName", "TargetDatabaseName", "TargetSchemaName", "TargetTableName", "SeedOrder", "Description", "IsActive")
 WHERE NOT EXISTS (
@@ -2123,39 +2150,16 @@ INNER JOIN (
         ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 9, true, true),
         ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 10, false, true),
 
-        -- ALL_GloLeadSource -> FgsLeadSource
-        ('ALL_GloLeadSource', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
-        ('ALL_GloLeadSource', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
-        ('ALL_GloLeadSource', 'SourceCode', 'SourceCode', NULL, NULL, 3, true, true),
-        ('ALL_GloLeadSource', 'SourceName', 'SourceName', NULL, NULL, 4, true, true),
-        ('ALL_GloLeadSource', 'Description', 'Description', NULL, NULL, 5, false, true),
-        ('ALL_GloLeadSource', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
-        ('ALL_GloLeadSource', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
-        ('ALL_GloLeadSource', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 8, false, true),
+        -- ALL_GloSource -> FgsSource
+        ('ALL_GloSource', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloSource', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloSource', 'SourceCode', 'SourceCode', NULL, NULL, 3, true, true),
+        ('ALL_GloSource', 'SourceName', 'SourceName', NULL, NULL, 4, true, true),
+        ('ALL_GloSource', 'Description', 'Description', NULL, NULL, 5, false, true),
+        ('ALL_GloSource', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
+        ('ALL_GloSource', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
+        ('ALL_GloSource', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 8, false, true),
 
-        -- ALL_GloLeadStatus -> FgsLeadStatus
-        ('ALL_GloLeadStatus', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
-        ('ALL_GloLeadStatus', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
-        ('ALL_GloLeadStatus', 'StatusCode', 'StatusCode', NULL, NULL, 3, true, true),
-        ('ALL_GloLeadStatus', 'StatusName', 'StatusName', NULL, NULL, 4, true, true),
-        ('ALL_GloLeadStatus', 'Description', 'Description', NULL, NULL, 5, false, true),
-        ('ALL_GloLeadStatus', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 6, true, true),
-        ('ALL_GloLeadStatus', NULL, 'IsSystem', 'STATIC', 'true', 7, true, true),
-        ('ALL_GloLeadStatus', 'IsActive', 'IsActive', NULL, NULL, 8, true, true),
-        ('ALL_GloLeadStatus', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 9, true, true),
-        ('ALL_GloLeadStatus', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 10, false, true),
-
-        -- ALL_GloLeadDisqualificationReason -> FgsLeadDisqualificationReason
-        ('ALL_GloLeadDisqualificationReason', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
-        ('ALL_GloLeadDisqualificationReason', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
-        ('ALL_GloLeadDisqualificationReason', 'ReasonCode', 'ReasonCode', NULL, NULL, 3, true, true),
-        ('ALL_GloLeadDisqualificationReason', 'ReasonName', 'ReasonName', NULL, NULL, 4, true, true),
-        ('ALL_GloLeadDisqualificationReason', 'Description', 'Description', NULL, NULL, 5, false, true),
-        ('ALL_GloLeadDisqualificationReason', 'DisplayOrder', 'DisplayOrder', NULL, NULL, 6, true, true),
-        ('ALL_GloLeadDisqualificationReason', NULL, 'IsSystem', 'STATIC', 'true', 7, true, true),
-        ('ALL_GloLeadDisqualificationReason', 'IsActive', 'IsActive', NULL, NULL, 8, true, true),
-        ('ALL_GloLeadDisqualificationReason', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 9, true, true),
-        ('ALL_GloLeadDisqualificationReason', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 10, false, true),
 
         -- ALL_GloSalesPipelineStatus -> FgsSalesPipelineStatus
         ('ALL_GloSalesPipelineStatus', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
@@ -2332,6 +2336,23 @@ INNER JOIN (
         ('ALL_GloZone', 'IsActive', 'IsActive', NULL, NULL, 6, true, true),
         ('ALL_GloZone', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 7, true, true),
         ('ALL_GloZone', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 8, false, true),
+
+        -- ALL_GloTimeSlot -> FgsSetupTimeSlot
+        ('ALL_GloTimeSlot', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),
+        ('ALL_GloTimeSlot', NULL, 'CompanyId', 'COMPANY_ID', NULL, 2, true, true),
+        ('ALL_GloTimeSlot', 'Code', 'Code', NULL, NULL, 3, true, true),
+        ('ALL_GloTimeSlot', 'Name', 'Name', NULL, NULL, 4, true, true),
+        ('ALL_GloTimeSlot', 'BeginTime', 'BeginTime', NULL, NULL, 5, true, true),
+        ('ALL_GloTimeSlot', 'EndTime', 'EndTime', NULL, NULL, 6, true, true),
+        ('ALL_GloTimeSlot', 'MarkTechArrivedLateAfter', 'MarkTechArrivedLateAfter', NULL, NULL, 7, false, true),
+        ('ALL_GloTimeSlot', 'MarkWorkOrderDelayedCompletionAfter', 'MarkWorkOrderDelayedCompletionAfter', NULL, NULL, 8, false, true),
+        ('ALL_GloTimeSlot', 'IsMobileVisible', 'IsMobileVisible', NULL, NULL, 9, true, true),
+        ('ALL_GloTimeSlot', 'IsCustomerPortalVisible', 'IsCustomerPortalVisible', NULL, NULL, 10, true, true),
+        ('ALL_GloTimeSlot', 'IncludeInCapacityPlanning', 'IncludeInCapacityPlanning', NULL, NULL, 11, true, true),
+        ('ALL_GloTimeSlot', 'ShowToExternalSystem', 'ShowToExternalSystem', NULL, NULL, 12, true, true),
+        ('ALL_GloTimeSlot', 'IsActive', 'IsActive', NULL, NULL, 13, true, true),
+        ('ALL_GloTimeSlot', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 14, true, true),
+        ('ALL_GloTimeSlot', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 15, false, true),
 
         -- ALL_GloSetupPaymentTerm -> FgsSetupPaymentTerm
         ('ALL_GloSetupPaymentTerm', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),

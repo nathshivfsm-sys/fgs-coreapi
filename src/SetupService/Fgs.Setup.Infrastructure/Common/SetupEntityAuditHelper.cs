@@ -79,7 +79,7 @@ public sealed class SetupEntityAuditHelper
     }
 
 
-    public void StampForCreate(FgsLeadDisqualificationReason entity)
+    public void StampForCreate(FgsSource entity)
     {
         var now = _dateTimeProvider.UtcNow;
         var actor = ResolveActor();
@@ -94,49 +94,7 @@ public sealed class SetupEntityAuditHelper
         entity.CompanyId = companyId;
     }
 
-    public void StampForUpdate(FgsLeadDisqualificationReason entity)
-    {
-        entity.UpdatedOn = _dateTimeProvider.UtcNow;
-        entity.UpdatedBy = ResolveActor();
-    }
-
-    public void StampForCreate(FgsLeadSource entity)
-    {
-        var now = _dateTimeProvider.UtcNow;
-        var actor = ResolveActor();
-        var (tenantId, companyId) = ResolveTenantCompany();
-
-        entity.CreatedOn = now;
-        entity.CreatedBy = actor;
-        entity.UpdatedOn = now;
-        entity.UpdatedBy = actor;
-        entity.IsActive = true;
-        entity.TenantId = tenantId;
-        entity.CompanyId = companyId;
-    }
-
-    public void StampForUpdate(FgsLeadSource entity)
-    {
-        entity.UpdatedOn = _dateTimeProvider.UtcNow;
-        entity.UpdatedBy = ResolveActor();
-    }
-
-    public void StampForCreate(FgsLeadStatus entity)
-    {
-        var now = _dateTimeProvider.UtcNow;
-        var actor = ResolveActor();
-        var (tenantId, companyId) = ResolveTenantCompany();
-
-        entity.CreatedOn = now;
-        entity.CreatedBy = actor;
-        entity.UpdatedOn = now;
-        entity.UpdatedBy = actor;
-        entity.IsActive = true;
-        entity.TenantId = tenantId;
-        entity.CompanyId = companyId;
-    }
-
-    public void StampForUpdate(FgsLeadStatus entity)
+    public void StampForUpdate(FgsSource entity)
     {
         entity.UpdatedOn = _dateTimeProvider.UtcNow;
         entity.UpdatedBy = ResolveActor();
