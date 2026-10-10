@@ -109,6 +109,7 @@ public static class DependencyInjection
         services.AddFgsDbContextReadyCheck<FgsUserDbContext>();
         services.AddSingleton<IUserReadConnectionFactory, FgsUserReadConnectionFactory>();
         services.AddScoped(typeof(IUserReadRepository<>), typeof(UserDapperReadRepository<>));
+        services.AddScoped<ITenantCatalogReadRepository, TenantCatalogReadRepository>();
         services.AddScoped(typeof(IUserWriteRepository<>), typeof(UserEfWriteRepository<>));
         services.AddScoped<ICompanyDetailsReadQuery, CompanyDetailsReadQuery>();
         services.AddScoped<IUserRoleCodesReadQuery, UserRoleCodesReadQuery>();

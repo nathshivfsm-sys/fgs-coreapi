@@ -31,7 +31,9 @@ public sealed class CompanyCommandHandlerTests
         var readRepo = new Mock<IUserReadRepository<FgsTenantCompany>>();
         readRepo.Setup(r => r.AnyAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
-        readRepo.Setup(r => r.QueryFirstAsync<long>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+
+        var catalog = new Mock<ITenantCatalogReadRepository>();
+        catalog.Setup(r => r.GetMaxCompanyNumberAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(0L);
 
         var mediator = new Mock<IMediator>();
@@ -46,6 +48,7 @@ public sealed class CompanyCommandHandlerTests
             TestUserRepositories.Write<FgsTenantServiceSetup>(context),
             TestUserRepositories.Write<FgsTenantServiceAccountsSetup>(context),
             readRepo.Object,
+            catalog.Object,
             new EfUnitOfWork<FgsUserDbContext>(context),
             mediator.Object,
             Mock.Of<ICacheService>(),
@@ -275,6 +278,7 @@ public sealed class CompanyCommandHandlerTests
             TestUserRepositories.Write<FgsTenantServiceSetup>(context),
             TestUserRepositories.Write<FgsTenantServiceAccountsSetup>(context),
             readRepo,
+            Mock.Of<ITenantCatalogReadRepository>(),
             new EfUnitOfWork<FgsUserDbContext>(context),
             mediator,
             Mock.Of<ICacheService>(),

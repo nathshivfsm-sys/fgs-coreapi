@@ -68,7 +68,8 @@ public sealed class CommunicationTemplateController(
                 tenantId,
                 companyId,
                 templateType,
-                code),
+                code,
+                isInternalService),
             cancellationToken));
     }
 

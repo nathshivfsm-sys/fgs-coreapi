@@ -246,6 +246,7 @@ public static class DependencyInjection
         services.AddScoped<IFgsSetupTimeSlotReadRepository, FgsSetupTimeSlotReadRepository>();
         services.AddScoped<IFgsSetupTimeSlotWriteService, FgsSetupTimeSlotWriteService>();
         services.AddScoped<IFgsSetupCommunicationTemplateReadRepository, FgsSetupCommunicationTemplateReadRepository>();
+        services.AddScoped<IActiveCommunicationTemplateReadRepository, ActiveCommunicationTemplateReadRepository>();
         services.AddScoped<IFgsSetupCommunicationTemplateWriteService, FgsSetupCommunicationTemplateWriteService>();
         services.AddScoped<IFgsTagReadRepository, FgsTagReadRepository>();
         services.AddScoped<IFgsTagWriteService, FgsTagWriteService>();

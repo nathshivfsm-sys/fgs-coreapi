@@ -1,40 +1,38 @@
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Clients;
-using Fgs.Persistence.Abstractions;
+using Fgs.MultiTenancy;
+using Fgs.Setup.Application.Abstractions.CommunicationTemplates;
 using Fgs.Setup.Application.Features.CommunicationTemplates;
-using Fgs.Setup.Domain.Entities;
 using MediatR;
 
 namespace Fgs.Setup.Application.Features.CommunicationTemplates.Queries.GetActiveCommunicationTemplate;
 
 public sealed class GetActiveCommunicationTemplateQueryHandler(
-    IUnitOfWork unitOfWork)
+    IActiveCommunicationTemplateReadRepository readRepository,
+    ITenantContextAccessor tenantContextAccessor)
     : IRequestHandler<GetActiveCommunicationTemplateQuery, ApiResponse<CommunicationTemplateDto>>
 {
     public async Task<ApiResponse<CommunicationTemplateDto>> Handle(
         GetActiveCommunicationTemplateQuery request,
         CancellationToken cancellationToken)
     {
+        var scope = ResolveScope(request);
+        if (scope.Error is not null)
+        {
+            return scope.Error;
+        }
+
         var normalizedType = request.TemplateType.Trim();
         var normalizedCode = request.Code.Trim();
-
-        var templates = await unitOfWork.Repository<FgsSetupCommunicationTemplate>()
-            .ListAsync(
-                t => t.TemplateType == normalizedType
-                     && t.Code == normalizedCode
-                     && t.IsActive
-                     && (
-                         (request.CompanyId.HasValue
-                          && t.TenantId == request.TenantId
-                          && t.CompanyId == request.CompanyId)
-                         || (request.TenantId.HasValue
-                             && t.TenantId == request.TenantId
-                             && t.CompanyId == null)
-                         || (t.TenantId == null && t.CompanyId == null)),
-                cancellationToken);
+        var templates = await readRepository.ListFgsMatchesAsync(
+            scope.TenantId,
+            scope.CompanyId,
+            normalizedType,
+            normalizedCode,
+            cancellationToken);
 
         var template = templates
-            .Select(t => (Template: t, Priority: GetScopePriority(t, request)))
+            .Select(t => (Template: t, Priority: GetScopePriority(t, scope.TenantId, scope.CompanyId)))
             .Where(x => x.Priority > 0)
             .OrderByDescending(x => x.Priority)
             .ThenByDescending(x => x.Template.Id)
@@ -42,7 +40,7 @@ public sealed class GetActiveCommunicationTemplateQueryHandler(
             .FirstOrDefault();
         if (template is not null)
         {
-            return ApiResponse<CommunicationTemplateDto>.Ok(MapFgsTemplate(template));
+            return ApiResponse<CommunicationTemplateDto>.Ok(Map(template));
         }
 
         if (!CommunicationTemplateChannelMapper.TryMapTemplateTypeToCommunicationChannel(
@@ -54,14 +52,11 @@ public sealed class GetActiveCommunicationTemplateQueryHandler(
                 ApiStatusCodes.NotFound);
         }
 
-        var gloTemplates = await unitOfWork.Repository<GloCommunicationTemplate>()
-            .ListAsync(
-                t => t.TemplateCode == normalizedCode
-                     && t.CommunicationChannel == communicationChannel
-                     && t.IsActive,
-                cancellationToken);
-
-        var gloTemplate = gloTemplates.OrderByDescending(t => t.Id).FirstOrDefault();
+        var gloTemplate = await readRepository.FindLatestGloAsync(
+            normalizedType,
+            communicationChannel,
+            normalizedCode,
+            cancellationToken);
         if (gloTemplate is null)
         {
             return ApiResponse<CommunicationTemplateDto>.Fail(
@@ -69,22 +64,55 @@ public sealed class GetActiveCommunicationTemplateQueryHandler(
                 ApiStatusCodes.NotFound);
         }
 
-        return ApiResponse<CommunicationTemplateDto>.Ok(MapGloTemplate(gloTemplate, normalizedType));
+        return ApiResponse<CommunicationTemplateDto>.Ok(Map(gloTemplate));
+    }
+
+    private (long? TenantId, long? CompanyId, ApiResponse<CommunicationTemplateDto>? Error) ResolveScope(
+        GetActiveCommunicationTemplateQuery request)
+    {
+        if (request.IsInternalService)
+        {
+            return (request.TenantId, request.CompanyId, null);
+        }
+
+        if (tenantContextAccessor.Current is not { } tenantScope)
+        {
+            return (null, null, ApiResponse<CommunicationTemplateDto>.Fail(
+                ["Tenant context is required."],
+                ApiStatusCodes.BadRequest));
+        }
+
+        if (request.TenantId is { } requestedTenant && requestedTenant != tenantScope.TenantId)
+        {
+            return (null, null, ApiResponse<CommunicationTemplateDto>.Fail(
+                ["Template tenant/company does not match the active tenant scope."],
+                ApiStatusCodes.Forbidden));
+        }
+
+        if (request.CompanyId is { } requestedCompany && requestedCompany != tenantScope.CompanyId)
+        {
+            return (null, null, ApiResponse<CommunicationTemplateDto>.Fail(
+                ["Template tenant/company does not match the active tenant scope."],
+                ApiStatusCodes.Forbidden));
+        }
+
+        return (tenantScope.TenantId, tenantScope.CompanyId, null);
     }
 
     private static int GetScopePriority(
-        FgsSetupCommunicationTemplate template,
-        GetActiveCommunicationTemplateQuery request)
+        ActiveCommunicationTemplateCandidate template,
+        long? tenantId,
+        long? companyId)
     {
-        if (request.CompanyId.HasValue
-            && template.TenantId == request.TenantId
-            && template.CompanyId == request.CompanyId)
+        if (companyId.HasValue
+            && template.TenantId == tenantId
+            && template.CompanyId == companyId)
         {
             return 3;
         }
 
-        if (request.TenantId.HasValue
-            && template.TenantId == request.TenantId
+        if (tenantId.HasValue
+            && template.TenantId == tenantId
             && template.CompanyId is null)
         {
             return 2;
@@ -98,7 +126,7 @@ public sealed class GetActiveCommunicationTemplateQueryHandler(
         return 0;
     }
 
-    private static CommunicationTemplateDto MapFgsTemplate(FgsSetupCommunicationTemplate template) =>
+    private static CommunicationTemplateDto Map(ActiveCommunicationTemplateCandidate template) =>
         new(
             template.Id,
             template.TenantId,
@@ -110,20 +138,4 @@ public sealed class GetActiveCommunicationTemplateQueryHandler(
             template.Body,
             template.IsMobileVisible,
             template.IsActive);
-
-    private static CommunicationTemplateDto MapGloTemplate(
-        GloCommunicationTemplate template,
-        string templateType) =>
-        new(
-            template.Id,
-            TenantId: null,
-            CompanyId: null,
-            templateType,
-            template.TemplateCode,
-            template.Name,
-            template.Subject,
-            template.Body,
-            template.IsMobileVisible,
-            template.IsActive);
-
 }

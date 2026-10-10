@@ -96,8 +96,8 @@ public sealed class CredentialSecurityHandlerTests
         response.StatusCode.Should().Be(ApiStatusCodes.BadRequest);
         repository.Verify(
             r => r.ListTenantAsync(
-                It.IsAny<long?>(),
-                It.IsAny<long?>(),
+                It.IsAny<long>(),
+                It.IsAny<long>(),
                 It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
@@ -124,8 +124,8 @@ public sealed class CredentialSecurityHandlerTests
         response.StatusCode.Should().Be(ApiStatusCodes.Forbidden);
         repository.Verify(
             r => r.ListTenantAsync(
-                It.IsAny<long?>(),
-                It.IsAny<long?>(),
+                It.IsAny<long>(),
+                It.IsAny<long>(),
                 It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);

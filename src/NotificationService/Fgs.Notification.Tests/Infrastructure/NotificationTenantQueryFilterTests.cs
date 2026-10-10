@@ -51,7 +51,7 @@ public sealed class NotificationTenantQueryFilterTests
     }
 
     [Fact]
-    public async Task UpdateEmailStatus_WhenDifferentTenantContext_UpdatesMatchingId()
+    public async Task UpdateEmailStatus_WhenDifferentTenantContext_LeavesRowUnchanged()
     {
         var accessor = new NotificationTestTenantContextAccessor
         {
@@ -88,10 +88,9 @@ public sealed class NotificationTenantQueryFilterTests
             .IgnoreQueryFilters()
             .SingleAsync(h => h.Id == history.Id);
 
-        updated.Status.Should().Be(NotificationStatus.Sent);
-        updated.ProviderMessageId.Should().Be("provider-1");
-        updated.ProviderName.Should().Be("Smtp");
-        updated.SentOn.Should().Be(sentOn);
+        updated.Status.Should().Be(NotificationStatus.Queued);
+        updated.ProviderMessageId.Should().BeNull();
+        updated.SentOn.Should().BeNull();
     }
 
     private static async Task<FgsNotificationDbContext> CreateContextAsync(

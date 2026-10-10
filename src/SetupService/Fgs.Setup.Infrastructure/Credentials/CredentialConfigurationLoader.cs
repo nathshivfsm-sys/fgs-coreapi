@@ -44,7 +44,7 @@ public sealed class CredentialConfigurationLoader
                 cancellationToken);
         }
 
-        var tenantCredentials = await _repository.ListTenantAsync(null, null, activeOnly: true, cancellationToken);
+        var tenantCredentials = await _repository.ListAllActiveTenantCredentialsAsync(cancellationToken);
         foreach (var credential in tenantCredentials)
         {
             await AddCredentialAsync(

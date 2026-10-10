@@ -1,54 +1,59 @@
+using Dapper;
 using Fgs.Inventory.Application.Abstractions.InventoryItemAlternates;
+using Fgs.Inventory.Application.Abstractions.Persistence;
 using Fgs.Inventory.Application.Features.InventoryItems.Dtos;
-using Fgs.Inventory.Infrastructure.Database;
+using Fgs.Inventory.Infrastructure.Common;
+using Fgs.Inventory.Infrastructure.InventoryItems;
 using Fgs.MultiTenancy;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Inventory.Infrastructure.InventoryItemAlternates;
 
 public sealed class FgsInventoryItemAlternateReadRepository(
-    FgsInventoryDbContext context,
+    IInventoryReadConnectionFactory connectionFactory,
     ITenantContextAccessor tenantContextAccessor) : IFgsInventoryItemAlternateReadRepository
 {
     public async Task<FgsInventoryItemAlternateDetailDto?> GetByIdAsync(
         long id,
         CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveScope();
-        var entity = await context.FgsInventoryItemAlternates
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.Id == id && x.TenantId == tenantId && x.CompanyId == companyId,
-                cancellationToken);
+        var (tenantId, companyId) = InventoryTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        var sql = $"""
+            SELECT {FgsInventoryItemSql.SelectAlternateColumns}
+            FROM {FgsInventoryItemSql.AlternateTable}
+            WHERE "Id" = @Id
+              AND "TenantId" = @TenantId
+              AND "CompanyId" = @CompanyId
+            """;
 
-        return entity is null ? null : Map(entity);
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        var row = await connection.QueryFirstOrDefaultAsync<FgsInventoryItemAlternateRow>(
+            new CommandDefinition(
+                sql,
+                new { Id = id, TenantId = tenantId, CompanyId = companyId },
+                cancellationToken: cancellationToken));
+        return row?.ToDto();
     }
 
     public async Task<IReadOnlyList<FgsInventoryItemAlternateDetailDto>> ListByInventoryItemIdAsync(
         long inventoryItemId,
         CancellationToken cancellationToken = default)
     {
-        var (tenantId, companyId) = ResolveScope();
-        var rows = await context.FgsInventoryItemAlternates
-            .AsNoTracking()
-            .Where(x =>
-                x.InventoryItemId == inventoryItemId
-                && x.TenantId == tenantId
-                && x.CompanyId == companyId)
-            .OrderBy(x => x.PriorityOrder)
-            .ThenBy(x => x.Id)
-            .ToListAsync(cancellationToken);
+        var (tenantId, companyId) = InventoryTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        var sql = $"""
+            SELECT {FgsInventoryItemSql.SelectAlternateColumns}
+            FROM {FgsInventoryItemSql.AlternateTable}
+            WHERE "InventoryItemId" = @InventoryItemId
+              AND "TenantId" = @TenantId
+              AND "CompanyId" = @CompanyId
+            ORDER BY "PriorityOrder" ASC, "Id" ASC
+            """;
 
-        return rows.Select(Map).ToList();
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        var rows = await connection.QueryAsync<FgsInventoryItemAlternateRow>(
+            new CommandDefinition(
+                sql,
+                new { InventoryItemId = inventoryItemId, TenantId = tenantId, CompanyId = companyId },
+                cancellationToken: cancellationToken));
+        return rows.Select(row => row.ToDto()).ToList();
     }
-
-    private (long TenantId, long CompanyId) ResolveScope()
-    {
-        var scope = tenantContextAccessor.Current
-            ?? throw new InvalidOperationException("Tenant context is required.");
-        return (scope.TenantId, scope.CompanyId);
-    }
-
-    private static FgsInventoryItemAlternateDetailDto Map(Domain.Entities.FgsInventoryItemAlternate entity) =>
-        new(entity.Id, entity.AlternateInventoryItemId, entity.PriorityOrder, entity.Notes, entity.IsActive);
 }

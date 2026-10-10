@@ -511,6 +511,71 @@ public sealed class FgsEmployeeCommandHandlerTests
             CustomerFacingPhone: "+15559876543",
             Notes: "Mobile bio");
 
+    [Fact]
+    public async Task Patch_DoesNotAttachAnotherCompanysAddress()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(context);
+        var writeService = CreateWriteService(context);
+        var created = await writeService.CreateAsync(CreateDto(regularRate: 40m), CancellationToken.None);
+        var foreignAddressId = Guid.NewGuid();
+        context.FgsLocations.Add(new FgsLocation
+        {
+            Id = foreignAddressId,
+            TenantId = 99,
+            CompanyId = 99,
+            MasterEntityTypeId = 15,
+            AddressLine1 = "Other company",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "test"
+        });
+        var employee = await context.FgsEmployees.SingleAsync(e => e.Id == created.Id);
+        employee.AddressId = foreignAddressId;
+        await context.SaveChangesAsync();
+
+        var patched = await writeService.PatchAsync(
+            created.Id,
+            new FgsEmployeePatchDto(
+                null, null, null, "Renamed", null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null, null, null, null),
+            CancellationToken.None);
+
+        patched.DisplayName.Should().Be("Renamed");
+        patched.Address.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task LocationSoftDelete_DoesNotUpdateAnotherCompanysLocation()
+    {
+        await using var context = await CreateContextAsync();
+        var userContext = new Mock<IFgsUserContext>();
+        userContext.SetupGet(x => x.TenantId).Returns(TenantId);
+        userContext.SetupGet(x => x.CompanyId).Returns(CompanyId);
+        userContext.SetupGet(x => x.UserId).Returns(Guid.Parse("11111111-1111-1111-1111-111111111111"));
+        var locationWriteService = new SetupLocationWriteService(
+            context,
+            new EfUnitOfWork<FgsSetupDbContext>(context),
+            new SetupEntityAuditHelper(userContext.Object, CreateTenantContextAccessor(), new DateTimeProvider()));
+        var foreignId = Guid.NewGuid();
+        context.FgsLocations.Add(new FgsLocation
+        {
+            Id = foreignId,
+            TenantId = 99,
+            CompanyId = 99,
+            MasterEntityTypeId = 15,
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "test"
+        });
+        await context.SaveChangesAsync();
+
+        await locationWriteService.SoftDeleteAsync(foreignId, CancellationToken.None);
+
+        var stored = await context.FgsLocations.IgnoreQueryFilters().SingleAsync(l => l.Id == foreignId);
+        stored.IsActive.Should().BeTrue();
+    }
+
     private static LocationWriteDto CreateAddress() =>
         new(
             "100 Main St",

@@ -10,13 +10,17 @@ public sealed class AuditEventReadRepository(FgsAuditDbContext context) : IAudit
 {
     public async Task<AuditEventDetailDto?> GetByIdAsync(
         long id,
+        long tenantId,
+        long companyId,
         CancellationToken cancellationToken = default)
     {
         var entity = await context.FgsEvents
             .AsNoTracking()
             .Include(e => e.Details)
             .Include(e => e.Attachments)
-            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(
+                e => e.Id == id && e.TenantId == tenantId && e.CompanyId == companyId,
+                cancellationToken);
 
         return entity is null ? null : AuditEventMapper.ToDetailDto(entity);
     }
@@ -24,25 +28,17 @@ public sealed class AuditEventReadRepository(FgsAuditDbContext context) : IAudit
     public async Task<IReadOnlyList<AuditEventSummaryDto>> ListByEntityAsync(
         AuditRecordType recordType,
         long entityId,
-        long? tenantId = null,
-        long? companyId = null,
+        long tenantId,
+        long companyId,
         CancellationToken cancellationToken = default)
     {
-        var query = context.FgsEvents
+        var entities = await context.FgsEvents
             .AsNoTracking()
-            .Where(e => e.RecordType == recordType && e.EntityId == entityId);
-
-        if (tenantId.HasValue)
-        {
-            query = query.Where(e => e.TenantId == tenantId.Value);
-        }
-
-        if (companyId.HasValue)
-        {
-            query = query.Where(e => e.CompanyId == companyId.Value);
-        }
-
-        var entities = await query
+            .Where(e =>
+                e.RecordType == recordType
+                && e.EntityId == entityId
+                && e.TenantId == tenantId
+                && e.CompanyId == companyId)
             .OrderByDescending(e => e.OccurredOn)
             .ThenByDescending(e => e.Id)
             .ToListAsync(cancellationToken);

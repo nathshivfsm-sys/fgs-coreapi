@@ -27,9 +27,15 @@ public interface ICredentialRepository
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<FgsCredential>> ListTenantAsync(
-        long? tenantId,
-        long? companyId,
+        long tenantId,
+        long companyId,
         bool activeOnly,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Unscoped scan for the credential snapshot loader only.
+    /// </summary>
+    Task<IReadOnlyList<FgsCredential>> ListAllActiveTenantCredentialsAsync(
         CancellationToken cancellationToken = default);
 
     Task AddGlobalAsync(GloCredential credential, CancellationToken cancellationToken = default);

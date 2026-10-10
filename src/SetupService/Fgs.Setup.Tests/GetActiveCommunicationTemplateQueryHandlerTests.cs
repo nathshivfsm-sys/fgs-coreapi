@@ -1,9 +1,8 @@
-using System.Linq.Expressions;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.IntegrationEvents;
-using Fgs.Persistence.Abstractions;
+using Fgs.MultiTenancy;
+using Fgs.Setup.Application.Abstractions.CommunicationTemplates;
 using Fgs.Setup.Application.Features.CommunicationTemplates.Queries.GetActiveCommunicationTemplate;
-using Fgs.Setup.Domain.Entities;
 using Moq;
 
 namespace Fgs.Setup.Tests;
@@ -13,25 +12,12 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
     [Fact]
     public async Task Handle_WhenFgsTemplateExists_ReturnsFgsTemplate()
     {
-        var fgsTemplate = new FgsSetupCommunicationTemplate
-        {
-            Id = 10,
-            TenantId = 1,
-            CompanyId = 2,
-            TemplateType = "EMAIL",
-            Code = CommunicationTemplateCodes.CompanyAdminInvitation,
-            Name = "Tenant override",
-            Subject = "Subject",
-            Body = "Body",
-            IsActive = true
-        };
+        var fgsTemplate = CreateCandidate(1, 2, id: 10, name: "Tenant override");
 
-        var handler = CreateHandler(
-            fgsTemplates: [fgsTemplate],
-            gloTemplates: []);
+        var handler = CreateHandler(fgsTemplates: [fgsTemplate], gloTemplate: null);
 
         var response = await handler.Handle(
-            new GetActiveCommunicationTemplateQuery(1, 2, "EMAIL", CommunicationTemplateCodes.CompanyAdminInvitation),
+            InternalQuery(1, 2),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -44,21 +30,16 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
     [Fact]
     public async Task Handle_WhenCompanyTenantAndGlobalExist_ReturnsCompanyScoped()
     {
-        var global = CreateFgsTemplate(null, null, id: 1, name: "Global");
-        var tenantTemplate = CreateFgsTemplate(100, null, id: 2, name: "Tenant");
-        var companyTemplate = CreateFgsTemplate(100, 200, id: 3, name: "Company");
-
         var handler = CreateHandler(
-            fgsTemplates: [global, tenantTemplate, companyTemplate],
-            gloTemplates: []);
+            fgsTemplates:
+            [
+                CreateCandidate(null, null, id: 1, name: "Global"),
+                CreateCandidate(100, null, id: 2, name: "Tenant"),
+                CreateCandidate(100, 200, id: 3, name: "Company")
+            ],
+            gloTemplate: null);
 
-        var response = await handler.Handle(
-            new GetActiveCommunicationTemplateQuery(
-                100,
-                200,
-                "EMAIL",
-                CommunicationTemplateCodes.CompanyAdminInvitation),
-            CancellationToken.None);
+        var response = await handler.Handle(InternalQuery(100, 200), CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.Data!.Id.Should().Be(3);
@@ -68,20 +49,15 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
     [Fact]
     public async Task Handle_WhenCompanyMissing_FallsBackToTenantScoped()
     {
-        var global = CreateFgsTemplate(null, null, id: 1, name: "Global");
-        var tenantTemplate = CreateFgsTemplate(100, null, id: 2, name: "Tenant");
-
         var handler = CreateHandler(
-            fgsTemplates: [global, tenantTemplate],
-            gloTemplates: []);
+            fgsTemplates:
+            [
+                CreateCandidate(null, null, id: 1, name: "Global"),
+                CreateCandidate(100, null, id: 2, name: "Tenant")
+            ],
+            gloTemplate: null);
 
-        var response = await handler.Handle(
-            new GetActiveCommunicationTemplateQuery(
-                100,
-                200,
-                "EMAIL",
-                CommunicationTemplateCodes.CompanyAdminInvitation),
-            CancellationToken.None);
+        var response = await handler.Handle(InternalQuery(100, 200), CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.Data!.Id.Should().Be(2);
@@ -92,19 +68,11 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
     [Fact]
     public async Task Handle_WhenTenantMissing_FallsBackToGlobal()
     {
-        var global = CreateFgsTemplate(null, null, id: 1, name: "Global");
-
         var handler = CreateHandler(
-            fgsTemplates: [global],
-            gloTemplates: []);
+            fgsTemplates: [CreateCandidate(null, null, id: 1, name: "Global")],
+            gloTemplate: null);
 
-        var response = await handler.Handle(
-            new GetActiveCommunicationTemplateQuery(
-                999,
-                888,
-                "EMAIL",
-                CommunicationTemplateCodes.CompanyAdminInvitation),
-            CancellationToken.None);
+        var response = await handler.Handle(InternalQuery(999, 888), CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.Data!.Id.Should().Be(1);
@@ -115,24 +83,15 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
     [Fact]
     public async Task Handle_WhenFgsTemplateMissing_FallsBackToGloTemplateByCode()
     {
-        var gloTemplate = new GloCommunicationTemplate
+        var gloTemplate = CreateCandidate(null, null, id: 99, name: "Company Admin Invitation Email") with
         {
-            Id = 99,
-            CommunicationChannel = "Email",
-            TemplateCode = CommunicationTemplateCodes.CompanyAdminInvitation,
-            Name = "Company Admin Invitation Email",
             Subject = "Welcome to {{PlatformName}} – Activate Your Admin Account",
-            Body = "Hello {{Name}}",
-            IsActive = true
+            Body = "Hello {{Name}}"
         };
 
-        var handler = CreateHandler(
-            fgsTemplates: [],
-            gloTemplates: [gloTemplate]);
+        var handler = CreateHandler(fgsTemplates: [], gloTemplate: gloTemplate);
 
-        var response = await handler.Handle(
-            new GetActiveCommunicationTemplateQuery(1, 2, "EMAIL", CommunicationTemplateCodes.CompanyAdminInvitation),
-            CancellationToken.None);
+        var response = await handler.Handle(InternalQuery(1, 2), CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.Data!.Id.Should().Be(99);
@@ -145,54 +104,86 @@ public sealed class GetActiveCommunicationTemplateQueryHandlerTests
     [Fact]
     public async Task Handle_WhenTemplateMissingInBothTables_ReturnsNotFound()
     {
-        var handler = CreateHandler(fgsTemplates: [], gloTemplates: []);
+        var handler = CreateHandler(fgsTemplates: [], gloTemplate: null);
 
         var response = await handler.Handle(
-            new GetActiveCommunicationTemplateQuery(null, null, "EMAIL", "MISSING_CODE"),
+            new GetActiveCommunicationTemplateQuery(null, null, "EMAIL", "MISSING_CODE", IsInternalService: true),
             CancellationToken.None);
 
         response.Success.Should().BeFalse();
         response.StatusCode.Should().Be(ApiStatusCodes.NotFound);
     }
 
-    private static FgsSetupCommunicationTemplate CreateFgsTemplate(
+    [Fact]
+    public async Task Handle_WhenJwtScopeDoesNotMatch_ReturnsForbidden()
+    {
+        var read = new Mock<IActiveCommunicationTemplateReadRepository>();
+        var accessor = new TestTenantContextAccessor
+        {
+            Current = new TenantContext { TenantId = 1, CompanyId = 2 }
+        };
+        var handler = new GetActiveCommunicationTemplateQueryHandler(read.Object, accessor);
+
+        var response = await handler.Handle(
+            new GetActiveCommunicationTemplateQuery(9, 2, "EMAIL", CommunicationTemplateCodes.CompanyAdminInvitation),
+            CancellationToken.None);
+
+        response.Success.Should().BeFalse();
+        response.StatusCode.Should().Be(ApiStatusCodes.Forbidden);
+        read.Verify(
+            r => r.ListFgsMatchesAsync(
+                It.IsAny<long?>(),
+                It.IsAny<long?>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    private static GetActiveCommunicationTemplateQuery InternalQuery(long? tenantId, long? companyId) =>
+        new(tenantId, companyId, "EMAIL", CommunicationTemplateCodes.CompanyAdminInvitation, IsInternalService: true);
+
+    private static ActiveCommunicationTemplateCandidate CreateCandidate(
         long? tenantId,
         long? companyId,
         long id,
         string name) =>
-        new()
-        {
-            Id = id,
-            TenantId = tenantId,
-            CompanyId = companyId,
-            TemplateType = "EMAIL",
-            Code = CommunicationTemplateCodes.CompanyAdminInvitation,
-            Name = name,
-            Subject = "Subject",
-            Body = "Body",
-            IsActive = true
-        };
+        new(
+            id,
+            tenantId,
+            companyId,
+            "EMAIL",
+            CommunicationTemplateCodes.CompanyAdminInvitation,
+            name,
+            "Subject",
+            "Body",
+            true,
+            true);
 
     private static GetActiveCommunicationTemplateQueryHandler CreateHandler(
-        IReadOnlyList<FgsSetupCommunicationTemplate> fgsTemplates,
-        IReadOnlyList<GloCommunicationTemplate> gloTemplates)
+        IReadOnlyList<ActiveCommunicationTemplateCandidate> fgsTemplates,
+        ActiveCommunicationTemplateCandidate? gloTemplate)
     {
-        var fgsRepoMock = new Mock<IRepository<FgsSetupCommunicationTemplate>>();
-        fgsRepoMock
-            .Setup(r => r.ListAsync(It.IsAny<Expression<Func<FgsSetupCommunicationTemplate, bool>>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Expression<Func<FgsSetupCommunicationTemplate, bool>> predicate, CancellationToken _) =>
-                fgsTemplates.Where(predicate.Compile()).ToList());
+        var read = new Mock<IActiveCommunicationTemplateReadRepository>();
+        read.Setup(r => r.ListFgsMatchesAsync(
+                It.IsAny<long?>(),
+                It.IsAny<long?>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fgsTemplates);
+        read.Setup(r => r.FindLatestGloAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(gloTemplate);
 
-        var gloRepoMock = new Mock<IRepository<GloCommunicationTemplate>>();
-        gloRepoMock
-            .Setup(r => r.ListAsync(It.IsAny<Expression<Func<GloCommunicationTemplate, bool>>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Expression<Func<GloCommunicationTemplate, bool>> predicate, CancellationToken _) =>
-                gloTemplates.Where(predicate.Compile()).ToList());
+        return new GetActiveCommunicationTemplateQueryHandler(read.Object, new TestTenantContextAccessor());
+    }
 
-        var unitOfWorkMock = new Mock<IUnitOfWork>();
-        unitOfWorkMock.Setup(u => u.Repository<FgsSetupCommunicationTemplate>()).Returns(fgsRepoMock.Object);
-        unitOfWorkMock.Setup(u => u.Repository<GloCommunicationTemplate>()).Returns(gloRepoMock.Object);
-
-        return new GetActiveCommunicationTemplateQueryHandler(unitOfWorkMock.Object);
+    private sealed class TestTenantContextAccessor : ITenantContextAccessor
+    {
+        public ITenantContext? Current { get; set; }
     }
 }

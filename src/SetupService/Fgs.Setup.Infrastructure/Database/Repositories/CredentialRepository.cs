@@ -1,3 +1,4 @@
+using Fgs.MultiTenancy;
 using Fgs.Setup.Application.Abstractions.Credentials;
 using Fgs.Setup.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -7,8 +8,13 @@ namespace Fgs.Setup.Infrastructure.Database.Repositories;
 public sealed class CredentialRepository : ICredentialRepository
 {
     private readonly FgsSetupDbContext _setupContext;
+    private readonly ITenantContextAccessor _tenantContextAccessor;
 
-    public CredentialRepository(FgsSetupDbContext setupContext) => _setupContext = setupContext;
+    public CredentialRepository(FgsSetupDbContext setupContext, ITenantContextAccessor tenantContextAccessor)
+    {
+        _setupContext = setupContext;
+        _tenantContextAccessor = tenantContextAccessor;
+    }
 
     public Task<GloCredential?> GetGlobalByIdAsync(int id, CancellationToken cancellationToken = default) =>
         _setupContext.GloCredentials
@@ -16,10 +22,19 @@ public sealed class CredentialRepository : ICredentialRepository
             .Include(x => x.ProviderType)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-    public Task<FgsCredential?> GetTenantByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
-        _setupContext.FgsCredentials
+    public Task<FgsCredential?> GetTenantByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        if (_tenantContextAccessor.Current is not { } scope)
+        {
+            return Task.FromResult<FgsCredential?>(null);
+        }
+
+        return _setupContext.FgsCredentials
             .Include(x => x.ProviderType)
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(
+                x => x.Id == id && x.TenantId == scope.TenantId && x.CompanyId == scope.CompanyId,
+                cancellationToken);
+    }
 
     public Task<GloCredential?> GetGlobalByProviderTypeIdAsync(
         int providerTypeId,
@@ -52,6 +67,7 @@ public sealed class CredentialRepository : ICredentialRepository
         CancellationToken cancellationToken = default)
     {
         var query = _setupContext.GloCredentials
+            .AsNoTracking()
             .IgnoreQueryFilters()
             .Include(x => x.ProviderType)
             .AsQueryable();
@@ -65,25 +81,15 @@ public sealed class CredentialRepository : ICredentialRepository
     }
 
     public async Task<IReadOnlyList<FgsCredential>> ListTenantAsync(
-        long? tenantId,
-        long? companyId,
+        long tenantId,
+        long companyId,
         bool activeOnly,
         CancellationToken cancellationToken = default)
     {
         var query = _setupContext.FgsCredentials
-            .IgnoreQueryFilters()
+            .AsNoTracking()
             .Include(x => x.ProviderType)
-            .AsQueryable();
-
-        if (tenantId.HasValue)
-        {
-            query = query.Where(x => x.TenantId == tenantId.Value);
-        }
-
-        if (companyId.HasValue)
-        {
-            query = query.Where(x => x.CompanyId == companyId.Value);
-        }
+            .Where(x => x.TenantId == tenantId && x.CompanyId == companyId);
 
         if (activeOnly)
         {
@@ -91,11 +97,21 @@ public sealed class CredentialRepository : ICredentialRepository
         }
 
         return await query
+            .OrderBy(x => x.CredentialName)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<FgsCredential>> ListAllActiveTenantCredentialsAsync(
+        CancellationToken cancellationToken = default) =>
+        await _setupContext.FgsCredentials
+            .AsNoTracking()
+            .IgnoreQueryFilters()
+            .Include(x => x.ProviderType)
+            .Where(x => x.IsActive)
             .OrderBy(x => x.TenantId)
             .ThenBy(x => x.CompanyId)
             .ThenBy(x => x.CredentialName)
             .ToListAsync(cancellationToken);
-    }
 
     public Task AddGlobalAsync(GloCredential credential, CancellationToken cancellationToken = default) =>
         _setupContext.GloCredentials.AddAsync(credential, cancellationToken).AsTask();

@@ -673,9 +673,13 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         if (entity.AddressId is Guid addressId)
         {
             var location = await _context.FgsLocations
-                .IgnoreQueryFilters()
                 .AsNoTracking()
-                .FirstOrDefaultAsync(l => l.Id == addressId && l.IsActive, cancellationToken);
+                .FirstOrDefaultAsync(
+                    l => l.Id == addressId
+                        && l.IsActive
+                        && l.TenantId == entity.TenantId
+                        && l.CompanyId == entity.CompanyId,
+                    cancellationToken);
 
             if (location is not null)
             {

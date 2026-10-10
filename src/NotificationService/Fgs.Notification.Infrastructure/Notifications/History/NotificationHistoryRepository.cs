@@ -75,7 +75,6 @@ public sealed class NotificationHistoryRepository(FgsNotificationDbContext conte
         where THistory : class
     {
         var entry = await histories
-            .IgnoreQueryFilters()
             .FirstOrDefaultAsync(history => EF.Property<long>(history, nameof(FgsEmailHistory.Id)) == id, cancellationToken);
 
         if (entry is null)

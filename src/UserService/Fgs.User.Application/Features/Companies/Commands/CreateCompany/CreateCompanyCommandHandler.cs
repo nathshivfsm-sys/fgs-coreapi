@@ -24,6 +24,7 @@ public sealed class CreateCompanyCommandHandler(
     IUserWriteRepository<FgsTenantServiceSetup> serviceSetupWriteRepository,
     IUserWriteRepository<FgsTenantServiceAccountsSetup> serviceAccountsSetupWriteRepository,
     IUserReadRepository<FgsTenantCompany> companyReadRepository,
+    ITenantCatalogReadRepository tenantCatalogReadRepository,
     IUnitOfWork unitOfWork,
     IMediator mediator,
     ICacheService cache,
@@ -60,13 +61,8 @@ public sealed class CreateCompanyCommandHandler(
                 ApiStatusCodes.Conflict);
         }
 
-        var maxCompanyNumber = await companyReadRepository.QueryFirstAsync<long>(
-            """
-            SELECT COALESCE(MAX("CompanyNumber"), 0)
-            FROM tenant."FgsTenantCompany"
-            WHERE "TenantId" = @tenantId
-            """,
-            new { tenantId = request.TenantId },
+        var maxCompanyNumber = await tenantCatalogReadRepository.GetMaxCompanyNumberAsync(
+            request.TenantId,
             cancellationToken);
         var companyNumber = maxCompanyNumber + 1;
         var now = DateTimeOffset.UtcNow;

@@ -4,6 +4,7 @@ using Fgs.Foundation.Paging;
 using Fgs.Security.Abstractions;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Common.IdentityCrud;
+using Fgs.User.Application.Features.Tenants.Dtos;
 using Fgs.User.Application.Features.Tenants.Queries.GetTenant;
 using Fgs.User.Application.Features.Tenants.Queries.ListTenants;
 using Fgs.User.Domain.Entities;
@@ -63,24 +64,18 @@ public sealed class TenantQueryHandlerTests
     [Fact]
     public async Task ListTenants_ReturnsPagedResults()
     {
-        var tenants = new List<FgsTenant>
-        {
-            new()
-            {
-                Id = 1,
-                TenantGuid = Guid.NewGuid(),
-                TenantCode = "ACME",
-                Name = "Acme",
-                FgsTenantStatusId = 1,
-                IsActive = true
-            }
-        };
+        var page = new PagedResult<TenantSummaryDto>(
+            [new TenantSummaryDto(1, Guid.NewGuid(), "ACME", "Acme", 1, true)],
+            1,
+            25,
+            1);
 
-        var repository = new Mock<IUserReadRepository<FgsTenant>>();
-        repository.Setup(r => r.QueryListAsync<FgsTenant>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(tenants);
-        repository.Setup(r => r.QueryFirstAsync<int>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(1);
+        var repository = new Mock<ITenantCatalogReadRepository>();
+        repository.Setup(r => r.ListTenantsAsync(
+                It.IsAny<IdentityListQuery>(),
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(page);
 
         var handler = new ListTenantsQueryHandler(repository.Object, UnauthenticatedContext().Object);
         var response = await handler.Handle(new ListTenantsQuery(new IdentityListQuery()), CancellationToken.None);
@@ -93,14 +88,12 @@ public sealed class TenantQueryHandlerTests
     [Fact]
     public async Task ListTenants_WhenAuthenticated_ScopesToTenant()
     {
-        var repository = new Mock<IUserReadRepository<FgsTenant>>();
-        repository.Setup(r => r.QueryListAsync<FgsTenant>(
-                It.Is<string>(sql => sql.Contains("@ScopedTenantId")),
-                It.IsAny<object>(),
+        var repository = new Mock<ITenantCatalogReadRepository>();
+        repository.Setup(r => r.ListTenantsAsync(
+                It.IsAny<IdentityListQuery>(),
+                5L,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        repository.Setup(r => r.QueryFirstAsync<int>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(0);
+            .ReturnsAsync(new PagedResult<TenantSummaryDto>([], 1, 25, 0));
 
         var userContext = new Mock<IFgsUserContext>();
         userContext.SetupGet(c => c.IsAuthenticated).Returns(true);
@@ -111,10 +104,7 @@ public sealed class TenantQueryHandlerTests
 
         response.Success.Should().BeTrue();
         repository.Verify(
-            r => r.QueryListAsync<FgsTenant>(
-                It.Is<string>(sql => sql.Contains("@ScopedTenantId")),
-                It.IsAny<object>(),
-                It.IsAny<CancellationToken>()),
+            r => r.ListTenantsAsync(It.IsAny<IdentityListQuery>(), 5L, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

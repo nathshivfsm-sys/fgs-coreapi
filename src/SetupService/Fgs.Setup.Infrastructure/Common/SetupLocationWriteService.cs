@@ -1,3 +1,4 @@
+using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Abstractions;
 using Fgs.Setup.Application.Abstractions.Locations;
 using Fgs.Setup.Application.Common.Locations;
@@ -40,7 +41,7 @@ public sealed class SetupLocationWriteService : ISetupLocationWriteService
 
         if (existingLocationId is Guid locationId)
         {
-            var entity = await FindLocationIgnoringFiltersAsync(locationId, cancellationToken);
+            var entity = await FindLocationAsync(locationId, cancellationToken);
 
             if (entity is not null)
             {
@@ -71,7 +72,7 @@ public sealed class SetupLocationWriteService : ISetupLocationWriteService
             return;
         }
 
-        var entity = await FindLocationIgnoringFiltersAsync(id, cancellationToken);
+        var entity = await FindLocationAsync(id, cancellationToken);
 
         if (entity is null || !entity.IsActive)
         {
@@ -90,7 +91,7 @@ public sealed class SetupLocationWriteService : ISetupLocationWriteService
             return;
         }
 
-        var entity = await FindLocationIgnoringFiltersAsync(id, cancellationToken);
+        var entity = await FindLocationAsync(id, cancellationToken);
 
         if (entity is null || entity.IsActive)
         {
@@ -102,12 +103,8 @@ public sealed class SetupLocationWriteService : ISetupLocationWriteService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    private async Task<FgsLocation?> FindLocationIgnoringFiltersAsync(
-        Guid id,
-        CancellationToken cancellationToken) =>
-        await _context.FgsLocations
-            .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
+    private Task<FgsLocation?> FindLocationAsync(Guid id, CancellationToken cancellationToken) =>
+        _context.FgsLocations.FirstOrDefaultIncludingInactiveAsync(l => l.Id == id, cancellationToken);
 
     private async Task<int> ResolveMasterEntityTypeIdAsync(
         string masterEntityTypeCode,

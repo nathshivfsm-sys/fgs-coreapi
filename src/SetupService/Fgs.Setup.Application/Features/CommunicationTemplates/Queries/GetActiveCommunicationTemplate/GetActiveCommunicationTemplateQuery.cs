@@ -8,4 +8,5 @@ public sealed record GetActiveCommunicationTemplateQuery(
     long? TenantId,
     long? CompanyId,
     string TemplateType,
-    string Code) : IRequest<ApiResponse<CommunicationTemplateDto>>;
+    string Code,
+    bool IsInternalService = false) : IRequest<ApiResponse<CommunicationTemplateDto>>;
