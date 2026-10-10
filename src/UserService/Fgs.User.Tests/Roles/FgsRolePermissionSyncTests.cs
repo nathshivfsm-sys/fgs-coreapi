@@ -6,6 +6,8 @@ using Fgs.User.Application.Features.Permissions.Dtos;
 using Fgs.User.Application.Features.RolePermissions.Commands.SyncFgsRolePermissions;
 using Fgs.User.Application.Features.RolePermissions.Dtos;
 using Fgs.User.Domain.Entities;
+using Fgs.Security.UserAuth;
+using Fgs.User.Infrastructure.Common.Auth;
 using Fgs.User.Infrastructure.Database;
 using Fgs.User.Infrastructure.Entities.RolePermissions;
 using Microsoft.EntityFrameworkCore;
@@ -109,7 +111,81 @@ public sealed class FgsRolePermissionSyncTests
             .WithMessage("*Built-in*");
     }
 
-    private static FgsRolePermissionWriteService CreateWriteService(FgsUserDbContext context)
+    [Fact]
+    public async Task Sync_InvalidatesAuthProfilesForUsersAssignedToRole()
+    {
+        await using var context = await CreateContextAsync();
+        var (roleId, p1, _, _) = await SeedRoleAndPermissionsAsync(context);
+        var otherRole = new FgsRole
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            RoleCode = "OTHER",
+            Name = "Other",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "test"
+        };
+        context.FgsRoles.Add(otherRole);
+
+        var affected = Guid.NewGuid();
+        var alsoAffected = Guid.NewGuid();
+        var unaffected = Guid.NewGuid();
+        context.FgsUsers.AddRange(
+            CreateUser(affected, "oid-a"),
+            CreateUser(alsoAffected, "oid-b"),
+            CreateUser(unaffected, "oid-c"));
+        await context.SaveChangesAsync();
+
+        context.FgsUserRoles.AddRange(
+            CreateAssignment(affected, roleId),
+            CreateAssignment(alsoAffected, roleId),
+            CreateAssignment(unaffected, otherRole.Id));
+        await context.SaveChangesAsync();
+
+        var store = new Mock<IUserAuthProfileStore>();
+        store
+            .Setup(s => s.InvalidateAsync(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        var write = CreateWriteService(context, store.Object);
+
+        await write.SyncAsync(new FgsRolePermissionSyncDto(roleId, [p1]), CancellationToken.None);
+
+        store.Verify(s => s.InvalidateAsync(affected, "oid-a", It.IsAny<CancellationToken>()), Times.Once);
+        store.Verify(s => s.InvalidateAsync(alsoAffected, "oid-b", It.IsAny<CancellationToken>()), Times.Once);
+        store.Verify(
+            s => s.InvalidateAsync(unaffected, It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    private static FgsUser CreateUser(Guid id, string entraObjectId) =>
+        new()
+        {
+            Id = id,
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            Email = $"{id:N}@example.com",
+            DisplayName = "User",
+            EntraObjectId = entraObjectId,
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "test"
+        };
+
+    private static FgsUserRole CreateAssignment(Guid userId, long roleId) =>
+        new()
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            UserId = userId,
+            FgsRoleId = roleId,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "test"
+        };
+
+    private static FgsRolePermissionWriteService CreateWriteService(
+        FgsUserDbContext context,
+        IUserAuthProfileStore? profileStore = null)
     {
         var tenantAccessor = new TestTenantContextAccessor
         {
@@ -117,12 +193,23 @@ public sealed class FgsRolePermissionSyncTests
         };
         var userContext = new Mock<IFgsUserContext>();
         userContext.SetupGet(x => x.Email).Returns("test@example.com");
+        var store = profileStore ?? CreatePermissiveProfileStore();
         return new FgsRolePermissionWriteService(
             context,
             new EfUnitOfWork<FgsUserDbContext>(context),
             tenantAccessor,
             userContext.Object,
-            new ContextRolePermissionReadRepository(context));
+            new ContextRolePermissionReadRepository(context),
+            new UserAuthProfileInvalidator(context, store));
+    }
+
+    private static IUserAuthProfileStore CreatePermissiveProfileStore()
+    {
+        var store = new Mock<IUserAuthProfileStore>();
+        store
+            .Setup(s => s.InvalidateAsync(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        return store.Object;
     }
 
     private static async Task<(long RoleId, long P1, long P2, long P3)> SeedRoleAndPermissionsAsync(

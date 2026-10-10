@@ -1,6 +1,7 @@
 using Fgs.Billing.Application;
 using Fgs.Billing.Infrastructure;
 using Fgs.Credentials.Extensions;
+using Fgs.Foundation.Caching.Extensions;
 using Fgs.Foundation.Hosting;
 using Fgs.Observability.Extensions;
 
@@ -17,6 +18,7 @@ var hostOptions = builder.AddFgsApiHost(options =>
 
 builder.Services.AddFgsBillingApplication();
 builder.Services.AddFgsBillingInfrastructure(builder.Configuration);
+builder.Services.AddFgsRedisCache(builder.Configuration);
 builder.AddFgsObservability(hostOptions.ServiceName);
 
 var app = builder.Build();

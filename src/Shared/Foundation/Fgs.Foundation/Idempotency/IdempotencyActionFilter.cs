@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using Microsoft.AspNetCore.Http;
@@ -39,6 +40,16 @@ public sealed class IdempotencyActionFilter(
         if (string.IsNullOrWhiteSpace(keyHeader))
         {
             await next();
+            return;
+        }
+
+        if (cache is NullCacheService)
+        {
+            logger.LogWarning(
+                "Rejecting idempotent {Method} {Path} because the cache is not durable.",
+                context.HttpContext.Request.Method,
+                context.HttpContext.Request.Path);
+            context.Result = new StatusCodeResult(StatusCodes.Status503ServiceUnavailable);
             return;
         }
 

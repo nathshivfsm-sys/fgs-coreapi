@@ -19,4 +19,9 @@ public interface ICacheService
         Func<Task<T>> factory,
         TimeSpan? absoluteExpiration = null,
         CancellationToken cancellationToken = default) where T : class;
+
+    /// <summary>
+    /// Atomically reads and deletes <paramref name="key"/>. A second call returns null.
+    /// </summary>
+    Task<T?> GetAndRemoveAsync<T>(string key, CancellationToken cancellationToken = default) where T : class;
 }

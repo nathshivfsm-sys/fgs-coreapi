@@ -1,3 +1,4 @@
+using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.Idempotency;
 using Fgs.MultiTenancy;
@@ -92,6 +93,26 @@ public sealed class IdempotencyActionFilterTests
         cached.Should().NotBeNull();
         cached!.StatusCode.Should().Be(201);
         cached.Body.Should().Contain("42");
+    }
+
+    [Fact]
+    public async Task NullCache_WithIdempotencyKey_Returns503WithoutInvokingAction()
+    {
+        var filter = new IdempotencyActionFilter(
+            new NullCacheService(),
+            new TenantContextAccessor(),
+            NullLogger<IdempotencyActionFilter>.Instance);
+
+        var context = CreateContext(hasAttribute: true, idempotencyKey: "k1");
+        var nextCalled = false;
+        await filter.OnActionExecutionAsync(context, () =>
+        {
+            nextCalled = true;
+            return Task.FromResult(new ActionExecutedContext(context, [], context.Controller));
+        });
+
+        nextCalled.Should().BeFalse();
+        context.Result.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
     }
 
     [Fact]
@@ -258,6 +279,13 @@ public sealed class IdempotencyActionFilterTests
             var created = await factory();
             await SetAsync(key, created, absoluteExpiration, cancellationToken);
             return created;
+        }
+
+        public async Task<T?> GetAndRemoveAsync<T>(string key, CancellationToken cancellationToken = default) where T : class
+        {
+            var existing = await GetAsync<T>(key, cancellationToken);
+            await RemoveAsync(key, cancellationToken);
+            return existing;
         }
     }
 }

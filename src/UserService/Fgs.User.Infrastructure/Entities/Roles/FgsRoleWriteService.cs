@@ -6,6 +6,7 @@ using Fgs.User.Application.Abstractions.Roles;
 using Fgs.User.Application.Features.Roles.Dtos;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Common;
+using Fgs.User.Infrastructure.Common.Auth;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,8 @@ public sealed class FgsRoleWriteService(
     IUnitOfWork unitOfWork,
     ITenantContextAccessor tenantContextAccessor,
     IFgsRoleReadRepository readRepository,
-    IFgsUserContext userContext) : IFgsRoleWriteService
+    IFgsUserContext userContext,
+    UserAuthProfileInvalidator authProfileInvalidator) : IFgsRoleWriteService
 {
     public async Task<FgsRoleDetailDto> CreateAsync(
         FgsRoleCreateDto dto,
@@ -191,6 +193,7 @@ public sealed class FgsRoleWriteService(
             ?? throw new KeyNotFoundException($"Role '{id}' was not found.");
 
         EnsureMutable(entity);
+        var previousIsActive = entity.IsActive;
 
         if (dto.RoleCode is not null)
         {
@@ -227,6 +230,11 @@ public sealed class FgsRoleWriteService(
 
         StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
+        if (previousIsActive != entity.IsActive)
+        {
+            await authProfileInvalidator.InvalidateUsersAssignedToRoleAsync(entity.Id, cancellationToken);
+        }
+
         return MapToDetail(entity);
     }
 

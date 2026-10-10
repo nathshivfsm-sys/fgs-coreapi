@@ -5,6 +5,7 @@ using Fgs.User.Infrastructure.Extensions;
 using Fgs.User.Application.Abstractions.Geo;
 using Fgs.User.Application.Abstractions.Identity;
 using Fgs.User.Application.Abstractions.Security;
+using Fgs.User.Infrastructure.Common.Auth;
 using Fgs.User.Infrastructure.Common.Geo;
 using Fgs.Contracts.Clients;
 using Fgs.Foundation.Extensions;
@@ -115,6 +116,7 @@ public static class DependencyInjection
         services.AddScoped<IUserRoleCodesReadQuery, UserRoleCodesReadQuery>();
         services.AddScoped<IUserAuthorizationReadQuery, UserAuthorizationReadQuery>();
         services.AddScoped<IInvitationReadQuery, InvitationReadQuery>();
+        services.AddScoped<UserAuthProfileInvalidator>();
         services.AddScoped<ILoginPkceStore, LoginPkceStore>();
         services.AddScoped<ILoginAuthorizationProfileBuilder, LoginAuthorizationProfileBuilder>();
         services.AddScoped<IFgsRoleReadRepository, FgsRoleReadRepository>();

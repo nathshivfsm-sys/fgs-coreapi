@@ -26,4 +26,7 @@ public sealed class NullCacheService : ICacheService
         TimeSpan? absoluteExpiration = null,
         CancellationToken cancellationToken = default) where T : class =>
         await factory();
+
+    public Task<T?> GetAndRemoveAsync<T>(string key, CancellationToken cancellationToken = default) where T : class =>
+        Task.FromResult<T?>(null);
 }

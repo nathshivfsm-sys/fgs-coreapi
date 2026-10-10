@@ -5,6 +5,7 @@ using Fgs.User.Application.Abstractions.RoleDataAccesses;
 using Fgs.User.Application.Features.RoleDataAccesses.Dtos;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Common;
+using Fgs.User.Infrastructure.Common.Auth;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Fgs.MultiTenancy.Persistence;
@@ -15,7 +16,8 @@ public sealed class FgsRoleDataAccessWriteService(
     FgsUserDbContext context,
     IUnitOfWork unitOfWork,
     ITenantContextAccessor tenantContextAccessor,
-    IFgsUserContext userContext) : IFgsRoleDataAccessWriteService
+    IFgsUserContext userContext,
+    UserAuthProfileInvalidator authProfileInvalidator) : IFgsRoleDataAccessWriteService
 {
     public async Task<FgsRoleDataAccessDetailDto> CreateAsync(
         FgsRoleDataAccessCreateDto dto,
@@ -37,6 +39,7 @@ public sealed class FgsRoleDataAccessWriteService(
 
         await context.FgsRoleDataAccesses.AddAsync(entity, cancellationToken);
         await SaveChangesAsync(cancellationToken);
+        await authProfileInvalidator.InvalidateUsersAssignedToRoleAsync(entity.FgsRoleId, cancellationToken);
         return MapToDetail(entity);
     }
 
@@ -53,6 +56,7 @@ public sealed class FgsRoleDataAccessWriteService(
 
         entity.FgsDataAccessId = dto.FgsDataAccessId;
         await SaveChangesAsync(cancellationToken);
+        await authProfileInvalidator.InvalidateUsersAssignedToRoleAsync(entity.FgsRoleId, cancellationToken);
         return MapToDetail(entity);
     }
 
@@ -72,6 +76,7 @@ public sealed class FgsRoleDataAccessWriteService(
         }
 
         await SaveChangesAsync(cancellationToken);
+        await authProfileInvalidator.InvalidateUsersAssignedToRoleAsync(entity.FgsRoleId, cancellationToken);
         return MapToDetail(entity);
     }
 
@@ -136,6 +141,7 @@ public sealed class FgsRoleDataAccessWriteService(
         }
 
         await SaveChangesAsync(cancellationToken);
+        await authProfileInvalidator.InvalidateUsersAssignedToRoleAsync(dto.FgsRoleId, cancellationToken);
 
         return await context.FgsRoleDataAccesses
             .AsNoTracking()

@@ -55,15 +55,16 @@ public sealed class RedisConsumerIdempotencyStoreTests
     }
 
     [Fact]
-    public async Task TryMarkProcessedAsync_EmptyMessageId_ReturnsTrueWithoutRedis()
+    public async Task TryMarkProcessedAsync_EmptyMessageId_ThrowsWithoutRedis()
     {
         var multiplexer = new Mock<IConnectionMultiplexer>(MockBehavior.Strict);
         var store = new RedisConsumerIdempotencyStore(
             multiplexer.Object,
             NullLogger<RedisConsumerIdempotencyStore>.Instance);
 
-        var result = await store.TryMarkProcessedAsync(" ", "rk");
-        result.Should().BeTrue();
+        var act = async () => await store.TryMarkProcessedAsync(" ", "rk");
+
+        await act.Should().ThrowAsync<ArgumentException>();
         multiplexer.VerifyNoOtherCalls();
     }
 

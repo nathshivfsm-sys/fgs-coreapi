@@ -5,6 +5,7 @@ using Fgs.User.Application.Abstractions.UserRoles;
 using Fgs.User.Application.Features.UserRoles.Dtos;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Common;
+using Fgs.User.Infrastructure.Common.Auth;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Fgs.MultiTenancy.Persistence;
@@ -15,7 +16,8 @@ public sealed class FgsUserRoleWriteService(
     FgsUserDbContext context,
     IUnitOfWork unitOfWork,
     ITenantContextAccessor tenantContextAccessor,
-    IFgsUserContext userContext) : IFgsUserRoleWriteService
+    IFgsUserContext userContext,
+    UserAuthProfileInvalidator authProfileInvalidator) : IFgsUserRoleWriteService
 {
     public async Task<FgsUserRoleDetailDto> CreateAsync(
         FgsUserRoleCreateDto dto,
@@ -38,6 +40,7 @@ public sealed class FgsUserRoleWriteService(
 
         await context.FgsUserRoles.AddAsync(entity, cancellationToken);
         await SaveChangesAsync(cancellationToken);
+        await authProfileInvalidator.InvalidateUserAsync(entity.UserId, cancellationToken);
         return MapToDetail(entity);
     }
 
@@ -54,6 +57,7 @@ public sealed class FgsUserRoleWriteService(
 
         entity.FgsRoleId = dto.FgsRoleId;
         await SaveChangesAsync(cancellationToken);
+        await authProfileInvalidator.InvalidateUserAsync(entity.UserId, cancellationToken);
         return MapToDetail(entity);
     }
 
@@ -73,6 +77,7 @@ public sealed class FgsUserRoleWriteService(
         }
 
         await SaveChangesAsync(cancellationToken);
+        await authProfileInvalidator.InvalidateUserAsync(entity.UserId, cancellationToken);
         return MapToDetail(entity);
     }
 
@@ -137,6 +142,7 @@ public sealed class FgsUserRoleWriteService(
         }
 
         await SaveChangesAsync(cancellationToken);
+        await authProfileInvalidator.InvalidateUserAsync(dto.UserId, cancellationToken);
 
         return await context.FgsUserRoles
             .AsNoTracking()

@@ -1,6 +1,7 @@
 using Fgs.ServiceAgreement.Application;
 using Fgs.ServiceAgreement.Infrastructure;
 using Fgs.Credentials.Extensions;
+using Fgs.Foundation.Caching.Extensions;
 using Fgs.Foundation.Hosting;
 using Fgs.Observability.Extensions;
 
@@ -17,6 +18,7 @@ var hostOptions = builder.AddFgsApiHost(options =>
 
 builder.Services.AddFgsServiceAgreementApplication();
 builder.Services.AddFgsServiceAgreementInfrastructure(builder.Configuration);
+builder.Services.AddFgsRedisCache(builder.Configuration);
 builder.AddFgsObservability(hostOptions.ServiceName);
 
 var app = builder.Build();

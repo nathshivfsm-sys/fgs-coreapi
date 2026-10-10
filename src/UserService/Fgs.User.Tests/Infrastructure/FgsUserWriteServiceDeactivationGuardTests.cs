@@ -10,6 +10,7 @@ using Fgs.User.Application.Common.IdentityCrud;
 using Fgs.User.Application.Features.Users.Dtos;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Database;
+using Fgs.User.Infrastructure.Common.Auth;
 using Fgs.User.Infrastructure.Entities.UserRoles;
 using Fgs.User.Infrastructure.Entities.Users;
 using Microsoft.EntityFrameworkCore;
@@ -180,7 +181,16 @@ public sealed class FgsUserWriteServiceDeactivationGuardTests
                 && string.Equals(roleCode, FgsRoleCodes.TenantAdmin, StringComparison.OrdinalIgnoreCase));
 
         var unitOfWork = new EfUnitOfWork<FgsUserDbContext>(context);
-        var userRoleWrite = new FgsUserRoleWriteService(context, unitOfWork, tenantAccessor, userContext.Object);
+        var roleProfileStore = new Mock<IUserAuthProfileStore>();
+        roleProfileStore
+            .Setup(store => store.InvalidateAsync(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        var userRoleWrite = new FgsUserRoleWriteService(
+            context,
+            unitOfWork,
+            tenantAccessor,
+            userContext.Object,
+            new UserAuthProfileInvalidator(context, roleProfileStore.Object));
         var profileStore = new Mock<IUserAuthProfileStore>();
         profileStore
             .Setup(store => store.InvalidateAsync(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))

@@ -34,10 +34,12 @@ public sealed class RedisConsumerIdempotencyStore(
     {
         if (string.IsNullOrWhiteSpace(messageId))
         {
-            logger.LogWarning(
-                "Consumer idempotency skipped because MessageId is empty (RoutingKey={RoutingKey})",
+            logger.LogError(
+                "Consumer idempotency rejected because MessageId is empty (RoutingKey={RoutingKey})",
                 routingKey);
-            return true;
+            throw new ArgumentException(
+                "MessageId is required to mark a consumer message processed.",
+                nameof(messageId));
         }
 
         var key = DistributedCacheConsumerIdempotencyStore.BuildKey(messageId, routingKey);

@@ -7,6 +7,8 @@ using Fgs.User.Application.Features.Roles.Commands.PatchFgsRole;
 using Fgs.User.Application.Features.Roles.Commands.UpdateFgsRole;
 using Fgs.User.Application.Features.Roles.Dtos;
 using Fgs.User.Domain.Entities;
+using Fgs.Security.UserAuth;
+using Fgs.User.Infrastructure.Common.Auth;
 using Fgs.User.Infrastructure.Database;
 using Fgs.User.Infrastructure.Entities.Roles;
 using Microsoft.EntityFrameworkCore;
@@ -288,12 +290,18 @@ public sealed class FgsRoleCommandHandlerTests
         var readRepo = readRepository ?? CreateDefaultReadRepository();
         var unitOfWork = new EfUnitOfWork<FgsUserDbContext>(context);
 
+        var profileStore = new Mock<IUserAuthProfileStore>();
+        profileStore
+            .Setup(s => s.InvalidateAsync(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         return new FgsRoleWriteService(
             context,
             unitOfWork,
             tenantAccessor,
             readRepo,
-            userContext.Object);
+            userContext.Object,
+            new UserAuthProfileInvalidator(context, profileStore.Object));
     }
 
     private static async Task<FgsUserDbContext> CreateContextAsync()

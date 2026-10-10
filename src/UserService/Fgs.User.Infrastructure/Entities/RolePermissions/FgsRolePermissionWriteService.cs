@@ -5,6 +5,7 @@ using Fgs.User.Application.Abstractions.RolePermissions;
 using Fgs.User.Application.Features.RolePermissions.Dtos;
 using Fgs.User.Domain.Entities;
 using Fgs.User.Infrastructure.Common;
+using Fgs.User.Infrastructure.Common.Auth;
 using Fgs.User.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Fgs.MultiTenancy.Persistence;
@@ -16,7 +17,8 @@ public sealed class FgsRolePermissionWriteService(
     IUnitOfWork unitOfWork,
     ITenantContextAccessor tenantContextAccessor,
     IFgsUserContext userContext,
-    IFgsRolePermissionReadRepository readRepository) : IFgsRolePermissionWriteService
+    IFgsRolePermissionReadRepository readRepository,
+    UserAuthProfileInvalidator authProfileInvalidator) : IFgsRolePermissionWriteService
 {
     public async Task<FgsRolePermissionDetailDto> CreateAsync(
         FgsRolePermissionCreateDto dto,
@@ -38,6 +40,7 @@ public sealed class FgsRolePermissionWriteService(
 
         await context.FgsRolePermissions.AddAsync(entity, cancellationToken);
         await SaveChangesAsync(cancellationToken);
+        await authProfileInvalidator.InvalidateUsersAssignedToRoleAsync(entity.FgsRoleId, cancellationToken);
         return await ReloadAsync(entity.Id, cancellationToken);
     }
 
@@ -55,6 +58,7 @@ public sealed class FgsRolePermissionWriteService(
 
         entity.FgsPermissionId = dto.FgsPermissionId;
         await SaveChangesAsync(cancellationToken);
+        await authProfileInvalidator.InvalidateUsersAssignedToRoleAsync(entity.FgsRoleId, cancellationToken);
         return await ReloadAsync(entity.Id, cancellationToken);
     }
 
@@ -76,6 +80,7 @@ public sealed class FgsRolePermissionWriteService(
         }
 
         await SaveChangesAsync(cancellationToken);
+        await authProfileInvalidator.InvalidateUsersAssignedToRoleAsync(entity.FgsRoleId, cancellationToken);
         return await ReloadAsync(entity.Id, cancellationToken);
     }
 
@@ -140,6 +145,7 @@ public sealed class FgsRolePermissionWriteService(
         }
 
         await SaveChangesAsync(cancellationToken);
+        await authProfileInvalidator.InvalidateUsersAssignedToRoleAsync(dto.FgsRoleId, cancellationToken);
 
         return await readRepository.ListByRoleIdAsync(dto.FgsRoleId, cancellationToken);
     }

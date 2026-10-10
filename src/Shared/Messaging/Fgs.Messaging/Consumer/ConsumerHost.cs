@@ -144,7 +144,17 @@ public sealed class ConsumerHost(
         var routingKey = string.IsNullOrWhiteSpace(args.RoutingKey)
             ? subscription.RoutingKey
             : args.RoutingKey;
-        var messageId = args.BasicProperties.MessageId ?? Guid.NewGuid().ToString("N");
+        var messageId = args.BasicProperties.MessageId;
+        if (string.IsNullOrWhiteSpace(messageId))
+        {
+            logger.LogError(
+                "Dead-lettering delivery {DeliveryTag} because MessageId is missing (RoutingKey={RoutingKey})",
+                args.DeliveryTag,
+                routingKey);
+            await SafeNackAsync(channel, args.DeliveryTag, messageId ?? string.Empty, stoppingToken);
+            return;
+        }
+
         var correlationId = args.BasicProperties.CorrelationId ?? Guid.NewGuid().ToString();
         var retryCount = ConsumerRetryPolicy.GetRetryCount(args.BasicProperties.Headers);
         var body = args.Body;
