@@ -1,4 +1,5 @@
 ﻿using Fgs.Foundation.Paging;
+using Fgs.User.Infrastructure.Entities.Permissions;
 
 namespace Fgs.User.Infrastructure.Entities.RolePermissions;
 
@@ -6,8 +7,17 @@ internal static class FgsRolePermissionSql
 {
     public const string Table = "identity.\"FgsRolePermission\"";
 
-    public const string SelectColumns = """
-        "Id", "FgsRoleId", "FgsPermissionId", "CreatedOn", "CreatedBy"
+    public const string SelectDetailColumns = """
+        rp."Id", rp."FgsRoleId", rp."FgsPermissionId", rp."CreatedOn", rp."CreatedBy",
+        p."Id" AS "PermissionId", p."PermissionCode", p."Module", p."Resource", p."Action",
+        p."Name" AS "PermissionName", p."Description" AS "PermissionDescription",
+        p."DisplayOrder" AS "PermissionDisplayOrder", p."IsActive" AS "PermissionIsActive"
+        """;
+
+    public static readonly string DetailFrom = $"""
+        {Table} rp
+        LEFT JOIN {FgsPermissionSql.Table} p
+          ON p."Id" = rp."FgsPermissionId"
         """;
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)

@@ -9,6 +9,7 @@ using Fgs.User.Application.Features.RoleMenus.Queries.GetFgsRoleMenuById;
 using Fgs.User.Application.Features.RoleMenus.Queries.ListFgsRoleMenusByRoleId;
 using Fgs.User.Application.Features.RoleMenus.Queries.LookupFgsRoleMenus;
 using Fgs.User.Application.Features.RoleMenus.Validators;
+using Fgs.User.Application.Features.TenantMenus.Dtos;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
@@ -22,7 +23,28 @@ public sealed class RoleMenuHandlerTests
         int menuId = 100,
         short displayOrder = 1,
         bool isActive = true) =>
-        new(id, roleId, menuId, displayOrder, isActive, DateTimeOffset.UtcNow, "test");
+        new(
+            id,
+            roleId,
+            menuId,
+            displayOrder,
+            isActive,
+            DateTimeOffset.UtcNow,
+            "test",
+            new FgsTenantMenuDetailDto(
+                id,
+                menuId,
+                "WORKORDERS",
+                "Work Orders",
+                null,
+                null,
+                "Page",
+                "/work-orders",
+                null,
+                displayOrder,
+                true,
+                DateTimeOffset.UtcNow,
+                "test"));
 
     private static FgsRoleMenuCreateDto CreateDto(
         long roleId = 10,
@@ -74,7 +96,12 @@ public sealed class RoleMenuHandlerTests
         var response = await handler.Handle(new ListFgsRoleMenusByRoleIdQuery(10), CancellationToken.None);
 
         response.Success.Should().BeTrue();
-        response.Data.Should().ContainSingle(x => x.MenuId == 100 && x.RoleId == 10);
+        response.Data.Should().ContainSingle(x =>
+            x.MenuId == 100
+            && x.RoleId == 10
+            && x.Menu != null
+            && x.Menu.MenuCode == "WORKORDERS"
+            && x.Menu.Name == "Work Orders");
     }
 
     [Fact]

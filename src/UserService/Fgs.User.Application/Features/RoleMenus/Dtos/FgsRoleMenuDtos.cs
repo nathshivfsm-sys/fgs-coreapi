@@ -1,3 +1,5 @@
+using Fgs.User.Application.Features.TenantMenus.Dtos;
+
 namespace Fgs.User.Application.Features.RoleMenus.Dtos;
 
 public sealed record FgsRoleMenuDetailDto(
@@ -7,7 +9,8 @@ public sealed record FgsRoleMenuDetailDto(
     short DisplayOrder,
     bool IsActive,
     DateTimeOffset CreatedOn,
-    string? CreatedBy);
+    string? CreatedBy,
+    FgsTenantMenuDetailDto? Menu = null);
 
 public sealed record FgsRoleMenuLookupDto(
     long Id,

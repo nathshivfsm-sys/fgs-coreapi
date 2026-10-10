@@ -17,11 +17,11 @@ internal sealed class FgsRoleMenuReadRepository(
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
         var sql = $"""
-            SELECT {FgsRoleMenuSql.SelectColumns}
-            FROM {FgsRoleMenuSql.Table}
-            WHERE "Id" = @Id
-              AND "TenantId" = @TenantId
-              AND "CompanyId" = @CompanyId
+            SELECT {FgsRoleMenuSql.SelectDetailColumns}
+            FROM {FgsRoleMenuSql.DetailFrom}
+            WHERE rm."Id" = @Id
+              AND rm."TenantId" = @TenantId
+              AND rm."CompanyId" = @CompanyId
             """;
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -40,12 +40,12 @@ internal sealed class FgsRoleMenuReadRepository(
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
         var sql = $"""
-            SELECT {FgsRoleMenuSql.SelectColumns}
-            FROM {FgsRoleMenuSql.Table}
-            WHERE "RoleId" = @RoleId
-              AND "TenantId" = @TenantId
-              AND "CompanyId" = @CompanyId
-            ORDER BY "DisplayOrder" ASC, "Id" ASC
+            SELECT {FgsRoleMenuSql.SelectDetailColumns}
+            FROM {FgsRoleMenuSql.DetailFrom}
+            WHERE rm."RoleId" = @RoleId
+              AND rm."TenantId" = @TenantId
+              AND rm."CompanyId" = @CompanyId
+            ORDER BY rm."DisplayOrder" ASC, rm."Id" ASC
             """;
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);

@@ -15,7 +15,8 @@ public sealed class FgsRoleMenuWriteService(
     FgsUserDbContext context,
     IUnitOfWork unitOfWork,
     ITenantContextAccessor tenantContextAccessor,
-    IFgsUserContext userContext) : IFgsRoleMenuWriteService
+    IFgsUserContext userContext,
+    IFgsRoleMenuReadRepository readRepository) : IFgsRoleMenuWriteService
 {
     public async Task<FgsRoleMenuDetailDto> CreateAsync(
         FgsRoleMenuCreateDto dto,
@@ -43,7 +44,7 @@ public sealed class FgsRoleMenuWriteService(
 
         await context.FgsRoleMenus.AddAsync(entity, cancellationToken);
         await SaveChangesAsync(cancellationToken);
-        return MapToDetail(entity);
+        return await ReloadAsync(entity.Id, cancellationToken);
     }
 
     public async Task<FgsRoleMenuDetailDto> UpdateAsync(
@@ -63,7 +64,7 @@ public sealed class FgsRoleMenuWriteService(
         StampForUpdate(entity);
 
         await SaveChangesAsync(cancellationToken);
-        return MapToDetail(entity);
+        return await ReloadAsync(entity.Id, cancellationToken);
     }
 
     public async Task<FgsRoleMenuDetailDto> PatchAsync(
@@ -98,7 +99,7 @@ public sealed class FgsRoleMenuWriteService(
 
         StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
-        return MapToDetail(entity);
+        return await ReloadAsync(entity.Id, cancellationToken);
     }
 
     public async Task<IReadOnlyList<FgsRoleMenuDetailDto>> SyncAsync(
@@ -165,13 +166,7 @@ public sealed class FgsRoleMenuWriteService(
 
         await SaveChangesAsync(cancellationToken);
 
-        return await context.FgsRoleMenus
-            .AsNoTracking()
-            .Where(x => x.RoleId == dto.RoleId && x.TenantId == tenantId && x.CompanyId == companyId)
-            .OrderBy(x => x.DisplayOrder)
-            .ThenBy(x => x.Id)
-            .Select(x => MapToDetail(x))
-            .ToListAsync(cancellationToken);
+        return await readRepository.ListByRoleIdAsync(dto.RoleId, cancellationToken);
     }
 
     private async Task EnsureRoleExistsAsync(
@@ -224,18 +219,12 @@ public sealed class FgsRoleMenuWriteService(
         ?? userContext.UserId?.ToString()
         ?? "system";
 
+    private async Task<FgsRoleMenuDetailDto> ReloadAsync(long id, CancellationToken cancellationToken) =>
+        await readRepository.GetByIdAsync(id, cancellationToken)
+        ?? throw new InvalidOperationException($"Role menu '{id}' was not found after save.");
+
     private static bool IsUniqueViolation(DbUpdateException exception) =>
         exception.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true
         || exception.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true
         || exception.InnerException?.Message.Contains("23505", StringComparison.Ordinal) == true;
-
-    private static FgsRoleMenuDetailDto MapToDetail(FgsRoleMenu entity) =>
-        new(
-            entity.Id,
-            entity.RoleId,
-            entity.MenuId,
-            entity.DisplayOrder,
-            entity.IsActive,
-            entity.CreatedOn,
-            entity.CreatedBy);
 }

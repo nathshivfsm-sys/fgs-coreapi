@@ -1,4 +1,6 @@
-﻿namespace Fgs.User.Application.Features.RolePermissions.Dtos;
+﻿using Fgs.User.Application.Features.Permissions.Dtos;
+
+namespace Fgs.User.Application.Features.RolePermissions.Dtos;
 
 public sealed record FgsRolePermissionSummaryDto(
     long Id,
@@ -12,7 +14,8 @@ public sealed record FgsRolePermissionDetailDto(
     long FgsRoleId,
     long FgsPermissionId,
     DateTimeOffset CreatedOn,
-    string CreatedBy);
+    string CreatedBy,
+    FgsPermissionDetailDto? Permission = null);
 
 public sealed record FgsRolePermissionLookupDto(
     long Id,

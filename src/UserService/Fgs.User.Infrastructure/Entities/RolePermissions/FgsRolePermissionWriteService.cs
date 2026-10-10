@@ -15,7 +15,8 @@ public sealed class FgsRolePermissionWriteService(
     FgsUserDbContext context,
     IUnitOfWork unitOfWork,
     ITenantContextAccessor tenantContextAccessor,
-    IFgsUserContext userContext) : IFgsRolePermissionWriteService
+    IFgsUserContext userContext,
+    IFgsRolePermissionReadRepository readRepository) : IFgsRolePermissionWriteService
 {
     public async Task<FgsRolePermissionDetailDto> CreateAsync(
         FgsRolePermissionCreateDto dto,
@@ -37,7 +38,7 @@ public sealed class FgsRolePermissionWriteService(
 
         await context.FgsRolePermissions.AddAsync(entity, cancellationToken);
         await SaveChangesAsync(cancellationToken);
-        return MapToDetail(entity);
+        return await ReloadAsync(entity.Id, cancellationToken);
     }
 
     public async Task<FgsRolePermissionDetailDto> UpdateAsync(
@@ -54,7 +55,7 @@ public sealed class FgsRolePermissionWriteService(
 
         entity.FgsPermissionId = dto.FgsPermissionId;
         await SaveChangesAsync(cancellationToken);
-        return MapToDetail(entity);
+        return await ReloadAsync(entity.Id, cancellationToken);
     }
 
     public async Task<FgsRolePermissionDetailDto> PatchAsync(
@@ -75,7 +76,7 @@ public sealed class FgsRolePermissionWriteService(
         }
 
         await SaveChangesAsync(cancellationToken);
-        return MapToDetail(entity);
+        return await ReloadAsync(entity.Id, cancellationToken);
     }
 
     public async Task<IReadOnlyList<FgsRolePermissionDetailDto>> SyncAsync(
@@ -140,12 +141,7 @@ public sealed class FgsRolePermissionWriteService(
 
         await SaveChangesAsync(cancellationToken);
 
-        return await context.FgsRolePermissions
-            .AsNoTracking()
-            .Where(x => x.FgsRoleId == dto.FgsRoleId && x.TenantId == tenantId && x.CompanyId == companyId)
-            .OrderBy(x => x.Id)
-            .Select(x => MapToDetail(x))
-            .ToListAsync(cancellationToken);
+        return await readRepository.ListByRoleIdAsync(dto.FgsRoleId, cancellationToken);
     }
 
     private async Task EnsureRoleMutableAsync(
@@ -208,11 +204,12 @@ public sealed class FgsRolePermissionWriteService(
         ?? userContext.UserId?.ToString()
         ?? "system";
 
+    private async Task<FgsRolePermissionDetailDto> ReloadAsync(long id, CancellationToken cancellationToken) =>
+        await readRepository.GetByIdAsync(id, cancellationToken)
+        ?? throw new InvalidOperationException($"Role-permission assignment '{id}' was not found after save.");
+
     private static bool IsUniqueViolation(DbUpdateException exception) =>
         exception.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true
         || exception.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true
         || exception.InnerException?.Message.Contains("23505", StringComparison.Ordinal) == true;
-
-    private static FgsRolePermissionDetailDto MapToDetail(FgsRolePermission entity) =>
-        new(entity.Id, entity.FgsRoleId, entity.FgsPermissionId, entity.CreatedOn, entity.CreatedBy);
 }

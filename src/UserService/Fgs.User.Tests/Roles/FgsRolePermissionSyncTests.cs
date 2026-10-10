@@ -1,6 +1,8 @@
 using Fgs.MultiTenancy;
 using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
+using Fgs.User.Application.Abstractions.RolePermissions;
+using Fgs.User.Application.Features.Permissions.Dtos;
 using Fgs.User.Application.Features.RolePermissions.Commands.SyncFgsRolePermissions;
 using Fgs.User.Application.Features.RolePermissions.Dtos;
 using Fgs.User.Domain.Entities;
@@ -32,6 +34,10 @@ public sealed class FgsRolePermissionSyncTests
             CancellationToken.None);
         first.Success.Should().BeTrue();
         first.Data.Should().HaveCount(2);
+        first.Data.Should().OnlyContain(x =>
+            x.Permission != null
+            && x.Permission.Id == x.FgsPermissionId
+            && x.Permission.PermissionCode.Length > 0);
 
         var second = await syncHandler.Handle(
             new SyncFgsRolePermissionsCommand(new FgsRolePermissionSyncDto(roleId, [p2, p3])),
@@ -115,7 +121,8 @@ public sealed class FgsRolePermissionSyncTests
             context,
             new EfUnitOfWork<FgsUserDbContext>(context),
             tenantAccessor,
-            userContext.Object);
+            userContext.Object,
+            new ContextRolePermissionReadRepository(context));
     }
 
     private static async Task<(long RoleId, long P1, long P2, long P3)> SeedRoleAndPermissionsAsync(
@@ -187,5 +194,64 @@ public sealed class FgsRolePermissionSyncTests
     private sealed class TestTenantContextAccessor : ITenantContextAccessor
     {
         public ITenantContext? Current { get; set; }
+    }
+
+    private sealed class ContextRolePermissionReadRepository(FgsUserDbContext context) : IFgsRolePermissionReadRepository
+    {
+        public async Task<FgsRolePermissionDetailDto?> GetByIdAsync(
+            long id,
+            CancellationToken cancellationToken = default)
+        {
+            var entity = await context.FgsRolePermissions
+                .AsNoTracking()
+                .Include(x => x.FgsPermission)
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            return entity is null ? null : Map(entity);
+        }
+
+        public async Task<IReadOnlyList<FgsRolePermissionDetailDto>> ListByRoleIdAsync(
+            long fgsRoleId,
+            CancellationToken cancellationToken = default)
+        {
+            var rows = await context.FgsRolePermissions
+                .AsNoTracking()
+                .Include(x => x.FgsPermission)
+                .Where(x => x.FgsRoleId == fgsRoleId)
+                .OrderBy(x => x.Id)
+                .ToListAsync(cancellationToken);
+            return rows.Select(Map).ToList();
+        }
+
+        public Task<IReadOnlyList<FgsRolePermissionLookupDto>> LookupAsync(
+            long fgsRoleId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<FgsRolePermissionLookupDto>>([]);
+
+        public Task<bool> ExistsByRoleIdAndPermissionIdAsync(
+            long fgsRoleId,
+            long fgsPermissionId,
+            long? excludeId = null,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(false);
+
+        private static FgsRolePermissionDetailDto Map(FgsRolePermission entity) =>
+            new(
+                entity.Id,
+                entity.FgsRoleId,
+                entity.FgsPermissionId,
+                entity.CreatedOn,
+                entity.CreatedBy,
+                entity.FgsPermission is null
+                    ? null
+                    : new FgsPermissionDetailDto(
+                        entity.FgsPermission.Id,
+                        entity.FgsPermission.PermissionCode,
+                        entity.FgsPermission.Module,
+                        entity.FgsPermission.Resource,
+                        entity.FgsPermission.Action,
+                        entity.FgsPermission.Name,
+                        entity.FgsPermission.Description,
+                        entity.FgsPermission.DisplayOrder,
+                        entity.FgsPermission.IsActive));
     }
 }

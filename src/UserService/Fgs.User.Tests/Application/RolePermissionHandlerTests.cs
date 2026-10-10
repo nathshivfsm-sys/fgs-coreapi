@@ -7,6 +7,7 @@ using Fgs.User.Application.Features.RolePermissions.Commands.UpdateFgsRolePermis
 using Fgs.User.Application.Features.RolePermissions.Dtos;
 using Fgs.User.Application.Features.RolePermissions.Queries.GetFgsRolePermissionById;
 using Fgs.User.Application.Features.RolePermissions.Queries.ListFgsRolePermissionsByRoleId;
+using Fgs.User.Application.Features.Permissions.Dtos;
 using Fgs.User.Application.Features.RolePermissions.Queries.LookupFgsRolePermissions;
 using Fgs.User.Application.Features.RolePermissions.Validators;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -17,7 +18,22 @@ namespace Fgs.User.Tests.Application;
 public sealed class RolePermissionHandlerTests
 {
     private static FgsRolePermissionDetailDto Detail(long id = 1, long roleId = 10, long permissionId = 100) =>
-        new(id, roleId, permissionId, DateTimeOffset.UtcNow, "test");
+        new(
+            id,
+            roleId,
+            permissionId,
+            DateTimeOffset.UtcNow,
+            "test",
+            new FgsPermissionDetailDto(
+                permissionId,
+                "WORKORDER.VIEW",
+                "Work Orders",
+                "WorkOrder",
+                "View",
+                "View work orders",
+                null,
+                1,
+                true));
 
     [Fact]
     public async Task SyncHandler_ReturnsSyncedAssignments()
@@ -57,7 +73,11 @@ public sealed class RolePermissionHandlerTests
         var response = await handler.Handle(new ListFgsRolePermissionsByRoleIdQuery(10), CancellationToken.None);
 
         response.Success.Should().BeTrue();
-        response.Data.Should().ContainSingle(x => x.FgsPermissionId == 100);
+        response.Data.Should().ContainSingle(x =>
+            x.FgsPermissionId == 100
+            && x.Permission != null
+            && x.Permission.PermissionCode == "WORKORDER.VIEW"
+            && x.Permission.Name == "View work orders");
     }
 
     [Fact]

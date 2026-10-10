@@ -205,10 +205,11 @@ public sealed class ApplicationDtosCoverageTests
         serviceAccounts.AccountsPayableAccountId.Should().Be(10);
         (serviceAccounts with { IsActive = false }).BankAccountId.Should().Be(1);
 
-        var rolePermission = new FgsRolePermissionDetailDto(1, 1, 2, DateTimeOffset.UtcNow, "t");
+        var rolePermission = new FgsRolePermissionDetailDto(1, 1, 2, DateTimeOffset.UtcNow, "t", permission);
         rolePermission.Id.Should().Be(1);
         rolePermission.CreatedOn.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(5));
         rolePermission.CreatedBy.Should().Be("t");
+        rolePermission.Permission!.PermissionCode.Should().Be("A.B");
         (rolePermission with { FgsPermissionId = 3 }).FgsRoleId.Should().Be(1);
         var rolePermissionLookup = new FgsRolePermissionLookupDto(1, 1, 2);
         rolePermissionLookup.Id.Should().Be(1);
@@ -222,7 +223,8 @@ public sealed class ApplicationDtosCoverageTests
         var rolePermissionPatch = new FgsRolePermissionPatchDto(FgsPermissionId: 6);
         rolePermissionPatch.FgsPermissionId.Should().Be(6);
 
-        var roleMenu = new FgsRoleMenuDetailDto(1, 10, 100, 1, true, DateTimeOffset.UtcNow, "t");
+        var menu = new FgsTenantMenuDetailDto(5, 100, "WORKORDERS", "Work Orders", null, null, "Page", "/work-orders", null, 1, true, DateTimeOffset.UtcNow, "t");
+        var roleMenu = new FgsRoleMenuDetailDto(1, 10, 100, 1, true, DateTimeOffset.UtcNow, "t", menu);
         roleMenu.Id.Should().Be(1);
         roleMenu.RoleId.Should().Be(10);
         roleMenu.MenuId.Should().Be(100);
@@ -230,6 +232,7 @@ public sealed class ApplicationDtosCoverageTests
         roleMenu.IsActive.Should().BeTrue();
         roleMenu.CreatedOn.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(5));
         roleMenu.CreatedBy.Should().Be("t");
+        roleMenu.Menu!.MenuCode.Should().Be("WORKORDERS");
         (roleMenu with { DisplayOrder = 2 }).DisplayOrder.Should().Be(2);
         var roleMenuSyncItem = new FgsRoleMenuSyncItemDto(100, 1, true);
         roleMenuSyncItem.MenuId.Should().Be(100);
