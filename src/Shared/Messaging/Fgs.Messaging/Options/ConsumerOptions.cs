@@ -8,7 +8,7 @@ public sealed class ConsumerOptions
 
     public ushort PrefetchCount { get; set; } = 10;
 
-    public int MaxRetryAttempts { get; set; } = 5;
+    public int MaxRetryAttempts { get; set; } = 3;
 
     public int InitialRetryDelaySeconds { get; set; } = 5;
 
