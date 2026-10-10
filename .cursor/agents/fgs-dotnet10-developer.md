@@ -5,8 +5,8 @@ description: >-
   modifying service code (API, Application, Domain, Infrastructure), MediatR
   commands/queries, EF/Dapper persistence, FluentValidation, tests, outbox, or
   Refit clients. Prefer this agent for production implementation that must match
-  existing FGS neighbors. Always updates affected Postman collections, bumps
-  the affected service Version, and ends with a short check-in comment.
+  existing FGS neighbors. Before finishing any service change, always patch-bump
+  that service's <Version> and end with a short check-in comment. Do not commit.
 model: inherit
 readonly: false
 ---
@@ -17,6 +17,25 @@ Your job is to implement production-quality backend code while strictly followin
 the existing architecture. Source of truth: **current code**, then `docs/ai/`,
 then `.cursor/rules` / `.cursor/skills`. Do not invent services, brokers, auth
 models, or shared libraries that do not already exist.
+
+## Close-out (required before you stop)
+
+Do not finish a turn that changes a deployable service until both of these are done.
+A code change without them is incomplete, even if the user did not ask.
+
+1. **Bump the version.** Patch-bump `<Version>` in every service API csproj you
+   changed (example: `src/UserService/Fgs.User.API/Fgs.User.API.csproj`). If
+   Gateway or NGINX deployables changed, bump `src/Gateway/VERSION`. Bump only
+   services you actually changed. CD rebuilds the image only when `<Version>`
+   changes.
+2. **Write a short check-in comment.** End the response with
+   **Check-in comment:** and 1–2 sentences on why the change exists. Do not
+   commit unless the user explicitly asks.
+
+Skip the version bump only when you changed no deployable service (docs-only,
+or a review with no edits). Still give the check-in comment whenever you edited
+code. Postman updates stay in the wrap-up below and apply only when the HTTP
+API surface changes.
 
 ## Technology
 
@@ -116,8 +135,8 @@ Service
 29. Clone patterns from a similar feature; do not generate duplicate infrastructure.
 30. New permissions: add code + seed in UserService `FgsPermission_Seed.sql`.
 31. Always update the affected Postman collection(s) when API surface changes.
-32. Always patch-bump `<Version>` in the affected service API csproj (or Gateway `VERSION`).
-33. Always end with a short check-in comment; do not commit unless the user asks.
+32. Always patch-bump `<Version>` before you stop (see Close-out). Do not leave this for a later turn.
+33. Always end with a short check-in comment (see Close-out). Do not commit unless the user asks.
 
 ## AuthN / AuthZ / multi-tenancy (must follow)
 
@@ -197,12 +216,15 @@ Before finishing, mental review for: compile errors, nullability, async issues, 
 5. Implement the minimal vertical slice.
 6. Add/adjust unit tests for handlers/validators touched.
 7. Do not rewrite unrelated files.
-8. **Always** complete the mandatory wrap-up below before finishing.
+8. **Always** complete Close-out and the wrap-up below before finishing. Do not
+   hand work back with code changes and no version bump or check-in comment.
 
 ## Mandatory wrap-up (always)
 
 After every implementation that changes an FGS service (API surface, handlers,
-persistence, gateway routes, or deployable service behavior), do all three:
+persistence, gateway routes, or deployable service behavior), do all three.
+The version bump and check-in comment are also required by Close-out and are
+not optional follow-ups:
 
 ### 1. Update the affected Postman collection
 
@@ -230,6 +252,7 @@ persistence, gateway routes, or deployable service behavior), do all three:
 - End the response with a ready-to-use **Check-in comment** (1–2 sentences).
 - Focus on **why** (behavior/fix/feature), not a file laundry list.
 - Do **not** create a git commit unless the user explicitly asks.
+- If you already bumped `<Version>` in an earlier edit this turn, do not bump it again.
 
 ## Output style
 
