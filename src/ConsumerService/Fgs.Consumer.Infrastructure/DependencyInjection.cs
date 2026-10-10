@@ -8,6 +8,7 @@ using Fgs.Consumer.Application.Features.Audit.Commands.ProcessAuditEventRequeste
 using Fgs.Consumer.Application.Features.Audit.Commands.ProcessCredentialAuditRequested;
 using Fgs.Consumer.Application.Features.Credentials.Commands.ProcessCredentialConfigurationChanged;
 using Fgs.Consumer.Application.Features.Notifications.Commands.ProcessCompanySignupInviteEmail;
+using Fgs.Consumer.Application.Features.Notifications.Commands.ProcessUserInvited;
 using Fgs.Consumer.Application.Features.TenantProvisioning.Commands.ProcessTenantProvisionRequested;
 using Fgs.Consumer.Infrastructure.Messaging;
 using Fgs.Foundation.Extensions;
@@ -81,6 +82,10 @@ public static class DependencyInjection
         services.AddConsumerRouting<CompanySignupInviteEmailEvent>(
             IntegrationEventRoutingKeys.CompanySignupInviteEmail,
             (evt, ctx) => new ProcessCompanySignupInviteEmailCommand(evt, ctx));
+
+        services.AddConsumerRouting<UserInvitedEvent>(
+            IntegrationEventRoutingKeys.UserInvited,
+            (evt, ctx) => new ProcessUserInvitedCommand(evt, ctx));
 
         services.AddConsumerRouting<CredentialAuditRequestedEvent>(
             IntegrationEventRoutingKeys.CredentialAuditRequested,

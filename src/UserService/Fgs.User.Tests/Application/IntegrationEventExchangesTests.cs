@@ -8,6 +8,7 @@ public sealed class IntegrationEventExchangesTests
     [InlineData(IntegrationEventTypes.TenantProvisionRequested, IntegrationEventExchanges.TenantEvents)]
     [InlineData(IntegrationEventTypes.TenantProvisionCompleted, IntegrationEventExchanges.TenantEvents)]
     [InlineData(IntegrationEventTypes.CompanySignupInviteEmail, IntegrationEventExchanges.UserEvents)]
+    [InlineData(IntegrationEventTypes.UserInvited, IntegrationEventExchanges.UserEvents)]
     public void ForEventType_ReturnsExpectedExchange(string eventType, string expectedExchange) =>
         IntegrationEventExchanges.ForEventType(eventType).Should().Be(expectedExchange);
 }

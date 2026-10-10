@@ -33,6 +33,7 @@ public static class IntegrationEventExchanges
             IntegrationEventTypes.TenantProvisionRequested => TenantEvents,
             IntegrationEventTypes.TenantProvisionCompleted => TenantEvents,
             IntegrationEventTypes.CompanySignupInviteEmail => UserEvents,
+            IntegrationEventTypes.UserInvited => UserEvents,
             IntegrationEventTypes.CredentialConfigurationChanged => SetupEvents,
             IntegrationEventTypes.CredentialAuditRequested => AuditEvents,
             IntegrationEventTypes.AuditEventRequested => AuditEvents,
