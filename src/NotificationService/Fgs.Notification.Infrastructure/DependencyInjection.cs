@@ -51,7 +51,6 @@ public static class DependencyInjection
         services.Configure<TwilioOptions>(configuration.GetSection(TwilioOptions.SectionName));
         services.Configure<FirebaseOptions>(configuration.GetSection(FirebaseOptions.SectionName));
         services.Configure<TenantProviderOptions>(configuration.GetSection(TenantProviderOptions.SectionName));
-        services.Configure<NotificationFeatureFlagsOptions>(configuration.GetSection(NotificationFeatureFlagsOptions.SectionName));
         services.Configure<NotificationOptions>(configuration.GetSection(NotificationOptions.SectionName));
 
         services.AddHttpClient(nameof(TwilioSmsProvider));

@@ -22,9 +22,8 @@ public sealed class SmtpEmailProvider(
         if (string.IsNullOrWhiteSpace(smtp.Host))
         {
             logger.LogWarning(
-                "SMTP host is not configured; email not sent (TenantId={TenantId}, To={To}, CorrelationId={CorrelationId}).",
+                "SMTP host is not configured; email not sent (TenantId={TenantId}, CorrelationId={CorrelationId}).",
                 message.TenantId,
-                message.ToAddress,
                 message.CorrelationId);
 
             return new NotificationDispatchResult(false, null, "SMTP host is not configured.");

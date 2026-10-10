@@ -19,7 +19,7 @@ public static class IntegrationEventJsonSerializerOptions
 }
 
 /// <summary>
-/// Accepts numeric ids and numeric strings. Non-numeric strings (e.g. legacy GUID company ids) map to 0.
+/// Accepts numeric ids and numeric strings.
 /// </summary>
 public sealed class FlexibleInt64JsonConverter : JsonConverter<long>
 {
@@ -30,15 +30,7 @@ public sealed class FlexibleInt64JsonConverter : JsonConverter<long>
             case JsonTokenType.Number:
                 return reader.GetInt64();
             case JsonTokenType.String:
-                var value = reader.GetString();
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    return 0;
-                }
-
-                return long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
-                    ? parsed
-                    : 0;
+                return FlexibleInt64Parser.Parse(reader.GetString());
             default:
                 throw new JsonException($"Unexpected token '{reader.TokenType}' when parsing a numeric id.");
         }
@@ -62,15 +54,7 @@ public sealed class FlexibleNullableInt64JsonConverter : JsonConverter<long?>
             case JsonTokenType.Number:
                 return reader.GetInt64();
             case JsonTokenType.String:
-                var value = reader.GetString();
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    return null;
-                }
-
-                return long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
-                    ? parsed
-                    : null;
+                return FlexibleInt64Parser.Parse(reader.GetString());
             default:
                 throw new JsonException($"Unexpected token '{reader.TokenType}' when parsing a nullable numeric id.");
         }
@@ -86,5 +70,18 @@ public sealed class FlexibleNullableInt64JsonConverter : JsonConverter<long?>
         {
             writer.WriteNullValue();
         }
+    }
+}
+
+internal static class FlexibleInt64Parser
+{
+    public static long Parse(string? value)
+    {
+        if (long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed))
+        {
+            return parsed;
+        }
+
+        throw new JsonException($"Value '{value}' is not an integer.");
     }
 }

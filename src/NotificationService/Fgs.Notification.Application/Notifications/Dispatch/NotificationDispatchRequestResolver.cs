@@ -55,7 +55,7 @@ public sealed class NotificationDispatchRequestResolver(IIntegrationEventMapper 
 
         if (dispatchRequest is null)
         {
-            return NotificationDispatchResolveResult.NoContent();
+            return NotificationDispatchResolveResult.Fail("Notification payload could not be read.");
         }
 
         return NotificationDispatchResolveResult.Success(

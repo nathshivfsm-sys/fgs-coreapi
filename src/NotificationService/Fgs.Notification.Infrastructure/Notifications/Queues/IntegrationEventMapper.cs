@@ -39,17 +39,21 @@ public sealed class IntegrationEventMapper(IOptions<NotificationOptions> notific
         };
     }
 
-    private NotificationDispatchRequest MapCompanySignupInvite(
+    private NotificationDispatchRequest? MapCompanySignupInvite(
         string payload,
         string? correlationId,
         string messageId)
     {
-        var evt = JsonSerializer.Deserialize<CompanySignupInviteEmailEvent>(payload, JsonOptions)!;
+        var evt = JsonSerializer.Deserialize<CompanySignupInviteEmailEvent>(payload, JsonOptions);
+        if (evt is null)
+        {
+            return null;
+        }
+
         var templateCode = string.IsNullOrWhiteSpace(evt.EmailTemplateCode)
             ? CommunicationTemplateCodes.CompanyAdminInvitation
             : evt.EmailTemplateCode;
 
-        // Legacy payloads may carry a GUID string for CompanyId; those map to 0 and use global templates.
         return new NotificationDispatchRequest(
             evt.TenantId,
             evt.CompanyId > 0 ? evt.CompanyId : null,
@@ -61,12 +65,17 @@ public sealed class IntegrationEventMapper(IOptions<NotificationOptions> notific
             messageId);
     }
 
-    private NotificationDispatchRequest MapUserInvited(
+    private NotificationDispatchRequest? MapUserInvited(
         string payload,
         string? correlationId,
         string messageId)
     {
-        var evt = JsonSerializer.Deserialize<UserInvitedEvent>(payload, JsonOptions)!;
+        var evt = JsonSerializer.Deserialize<UserInvitedEvent>(payload, JsonOptions);
+        if (evt is null)
+        {
+            return null;
+        }
+
         return new NotificationDispatchRequest(
             evt.TenantId,
             evt.CompanyId > 0 ? evt.CompanyId : null,
@@ -83,17 +92,22 @@ public sealed class IntegrationEventMapper(IOptions<NotificationOptions> notific
             messageId);
     }
 
-    private static NotificationDispatchRequest MapPasswordReset(
+    private static NotificationDispatchRequest? MapPasswordReset(
         string payload,
         string? correlationId,
         string messageId)
     {
-        var evt = JsonSerializer.Deserialize<PasswordResetEvent>(payload, JsonOptions)!;
+        var evt = JsonSerializer.Deserialize<PasswordResetEvent>(payload, JsonOptions);
+        if (evt is null)
+        {
+            return null;
+        }
+
         return new NotificationDispatchRequest(
             evt.TenantId,
-            CompanyId: null,
+            evt.CompanyId > 0 ? evt.CompanyId : null,
             NotificationChannel.Email,
-            "PASSWORD_RESET",
+            CommunicationTemplateCodes.PasswordReset,
             evt.Email,
             new Dictionary<string, string>
             {
@@ -105,17 +119,22 @@ public sealed class IntegrationEventMapper(IOptions<NotificationOptions> notific
             messageId);
     }
 
-    private static NotificationDispatchRequest MapCompanyCreated(
+    private static NotificationDispatchRequest? MapCompanyCreated(
         string payload,
         string? correlationId,
         string messageId)
     {
-        var evt = JsonSerializer.Deserialize<CompanyCreatedEvent>(payload, JsonOptions)!;
+        var evt = JsonSerializer.Deserialize<CompanyCreatedEvent>(payload, JsonOptions);
+        if (evt is null)
+        {
+            return null;
+        }
+
         return new NotificationDispatchRequest(
             evt.TenantId,
             evt.CompanyId,
             NotificationChannel.Email,
-            "COMPANY_CREATED",
+            CommunicationTemplateCodes.CompanyCreated,
             evt.AdminEmail,
             new Dictionary<string, string>
             {

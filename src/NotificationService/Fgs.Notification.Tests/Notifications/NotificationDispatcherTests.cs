@@ -76,4 +76,59 @@ public sealed class NotificationDispatcherTests
             Times.Once);
         history.Verify(h => h.AddEmailAsync(It.IsAny<FgsEmailHistory>(), It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Fact]
+    public async Task DispatchAsync_Email_WhenProviderThrows_ReturnsFailureAndMarksHistoryFailed()
+    {
+        var emailProvider = new Mock<IEmailProvider>();
+        emailProvider.Setup(p => p.ProviderName).Returns("Smtp");
+        emailProvider.Setup(p => p.SendAsync(It.IsAny<EmailNotificationMessage>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("smtp down"));
+
+        var factory = new Mock<INotificationProviderFactory>();
+        factory.Setup(f => f.ResolveEmailProvider(It.IsAny<long>())).Returns(emailProvider.Object);
+
+        var history = new Mock<INotificationHistoryRepository>();
+        history.Setup(h => h.AddEmailAsync(It.IsAny<FgsEmailHistory>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1L);
+
+        var renderer = new Mock<INotificationTemplateRenderer>();
+        renderer.Setup(r => r.RenderAsync(
+                It.IsAny<long>(),
+                It.IsAny<long?>(),
+                It.IsAny<NotificationChannel>(),
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyDictionary<string, string>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RenderedNotificationTemplate("Subject", "<p>Hi</p>", "Hi"));
+
+        var dispatcher = new NotificationDispatcher(
+            factory.Object,
+            renderer.Object,
+            history.Object,
+            Mock.Of<Microsoft.Extensions.Logging.ILogger<NotificationDispatcher>>());
+
+        var result = await dispatcher.DispatchAsync(
+            new NotificationDispatchRequest(
+                5001,
+                CompanyId: null,
+                NotificationChannel.Email,
+                CommunicationTemplateCodes.UserInvitation,
+                "user@example.com",
+                new Dictionary<string, string>(),
+                "corr-1",
+                "msg-id-1"));
+
+        result.Success.Should().BeFalse();
+        result.Error.Should().Be("smtp down");
+        history.Verify(h => h.UpdateEmailStatusAsync(
+            1,
+            NotificationStatus.Failed,
+            null,
+            null,
+            "smtp down",
+            null,
+            It.IsAny<DateTimeOffset?>(),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
 }

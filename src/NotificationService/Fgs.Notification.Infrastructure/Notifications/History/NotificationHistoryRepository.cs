@@ -15,7 +15,7 @@ public sealed class NotificationHistoryRepository(FgsNotificationDbContext conte
         return entry.Id;
     }
 
-    public async Task UpdateEmailStatusAsync(
+    public Task UpdateEmailStatusAsync(
         long id,
         NotificationStatus status,
         string? providerMessageId,
@@ -23,24 +23,17 @@ public sealed class NotificationHistoryRepository(FgsNotificationDbContext conte
         string? failureReason,
         DateTimeOffset? sentOn,
         DateTimeOffset? failedOn,
-        CancellationToken cancellationToken = default)
-    {
-        var entry = await context.FgsEmailHistories
-            .FirstOrDefaultAsync(h => h.Id == id, cancellationToken);
-
-        if (entry is null)
-        {
-            return;
-        }
-
-        entry.Status = status;
-        entry.ProviderMessageId = providerMessageId;
-        entry.ProviderName = providerName ?? entry.ProviderName;
-        entry.FailureReason = failureReason;
-        entry.SentOn = sentOn;
-        entry.FailedOn = failedOn;
-        await context.SaveChangesAsync(cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        UpdateStatusAsync(
+            context.FgsEmailHistories,
+            id,
+            status,
+            providerMessageId,
+            providerName,
+            failureReason,
+            sentOn,
+            failedOn,
+            cancellationToken);
 
     public async Task<long> AddSmsAsync(FgsSmsHistory entry, CancellationToken cancellationToken = default)
     {
@@ -49,7 +42,7 @@ public sealed class NotificationHistoryRepository(FgsNotificationDbContext conte
         return entry.Id;
     }
 
-    public async Task UpdateSmsStatusAsync(
+    public Task UpdateSmsStatusAsync(
         long id,
         NotificationStatus status,
         string? providerMessageId,
@@ -57,22 +50,47 @@ public sealed class NotificationHistoryRepository(FgsNotificationDbContext conte
         string? failureReason,
         DateTimeOffset? sentOn,
         DateTimeOffset? failedOn,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        UpdateStatusAsync(
+            context.FgsSmsHistories,
+            id,
+            status,
+            providerMessageId,
+            providerName,
+            failureReason,
+            sentOn,
+            failedOn,
+            cancellationToken);
+
+    private async Task UpdateStatusAsync<THistory>(
+        DbSet<THistory> histories,
+        long id,
+        NotificationStatus status,
+        string? providerMessageId,
+        string? providerName,
+        string? failureReason,
+        DateTimeOffset? sentOn,
+        DateTimeOffset? failedOn,
+        CancellationToken cancellationToken)
+        where THistory : class
     {
-        var entry = await context.FgsSmsHistories
-            .FirstOrDefaultAsync(h => h.Id == id, cancellationToken);
+        var entry = await histories
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(history => EF.Property<long>(history, nameof(FgsEmailHistory.Id)) == id, cancellationToken);
 
         if (entry is null)
         {
             return;
         }
 
-        entry.Status = status;
-        entry.ProviderMessageId = providerMessageId;
-        entry.ProviderName = providerName ?? entry.ProviderName;
-        entry.FailureReason = failureReason;
-        entry.SentOn = sentOn;
-        entry.FailedOn = failedOn;
+        var tracked = context.Entry(entry);
+        tracked.Property(nameof(FgsEmailHistory.Status)).CurrentValue = status;
+        tracked.Property(nameof(FgsEmailHistory.ProviderMessageId)).CurrentValue = providerMessageId;
+        var existingProviderName = tracked.Property(nameof(FgsEmailHistory.ProviderName)).CurrentValue as string;
+        tracked.Property(nameof(FgsEmailHistory.ProviderName)).CurrentValue = providerName ?? existingProviderName;
+        tracked.Property(nameof(FgsEmailHistory.FailureReason)).CurrentValue = failureReason;
+        tracked.Property(nameof(FgsEmailHistory.SentOn)).CurrentValue = sentOn;
+        tracked.Property(nameof(FgsEmailHistory.FailedOn)).CurrentValue = failedOn;
         await context.SaveChangesAsync(cancellationToken);
     }
 }

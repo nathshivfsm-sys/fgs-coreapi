@@ -3,6 +3,7 @@ using Fgs.MultiTenancy.Persistence;
 using Fgs.Notification.Domain.Entities;
 using Fgs.Notification.Domain.Enums;
 using Fgs.Notification.Infrastructure.Database;
+using Fgs.Notification.Infrastructure.Notifications.History;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -47,6 +48,50 @@ public sealed class NotificationTenantQueryFilterTests
 
         history.Should().ContainSingle();
         history[0].Subject.Should().Be("MATCH");
+    }
+
+    [Fact]
+    public async Task UpdateEmailStatus_WhenDifferentTenantContext_UpdatesMatchingId()
+    {
+        var accessor = new NotificationTestTenantContextAccessor
+        {
+            Current = new TenantContext
+            {
+                TenantId = 1,
+                CompanyId = 1
+            }
+        };
+
+        var context = await CreateContextAsync(accessor);
+        var history = CreateEmailHistory(1, "MATCH");
+        context.FgsEmailHistories.Add(history);
+        await context.SaveChangesAsync();
+
+        accessor.Current = new TenantContext
+        {
+            TenantId = 2,
+            CompanyId = 9
+        };
+
+        var repository = new NotificationHistoryRepository(context);
+        var sentOn = DateTimeOffset.UtcNow;
+        await repository.UpdateEmailStatusAsync(
+            history.Id,
+            NotificationStatus.Sent,
+            "provider-1",
+            "Smtp",
+            null,
+            sentOn,
+            null);
+
+        var updated = await context.FgsEmailHistories
+            .IgnoreQueryFilters()
+            .SingleAsync(h => h.Id == history.Id);
+
+        updated.Status.Should().Be(NotificationStatus.Sent);
+        updated.ProviderMessageId.Should().Be("provider-1");
+        updated.ProviderName.Should().Be("Smtp");
+        updated.SentOn.Should().Be(sentOn);
     }
 
     private static async Task<FgsNotificationDbContext> CreateContextAsync(

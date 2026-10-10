@@ -10,4 +10,6 @@ public static class CommunicationTemplateCodes
     public const string UserInvitation = "USER_INVITATION";
 
     public const string PasswordReset = "PASSWORD_RESET";
+
+    public const string CompanyCreated = "COMPANY_CREATED";
 }

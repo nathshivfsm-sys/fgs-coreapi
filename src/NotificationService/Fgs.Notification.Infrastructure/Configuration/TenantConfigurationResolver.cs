@@ -5,9 +5,8 @@ using Microsoft.Extensions.Options;
 
 namespace Fgs.Notification.Infrastructure.Configuration;
 
-public sealed class TenantConfigurationResolver(
-    IOptions<TenantProviderOptions> tenantProviders,
-    IOptions<NotificationFeatureFlagsOptions> featureFlags) : ITenantConfigurationResolver
+public sealed class TenantConfigurationResolver(IOptions<TenantProviderOptions> tenantProviders)
+    : ITenantConfigurationResolver
 {
     public TenantProviderConfiguration GetProviderConfiguration(long tenantId)
     {
@@ -20,18 +19,6 @@ public sealed class TenantConfigurationResolver(
             ParseEmailProvider(binding.Email),
             binding.Sms,
             binding.Push);
-    }
-
-    public bool IsFeatureEnabled(long tenantId, string featureFlag)
-    {
-        var flags = featureFlags.Value;
-        if (flags.Tenants.TryGetValue(tenantId.ToString(), out var tenantFlags)
-            && tenantFlags.TryGetValue(featureFlag, out var tenantValue))
-        {
-            return tenantValue;
-        }
-
-        return flags.Global.TryGetValue(featureFlag, out var globalValue) && globalValue;
     }
 
     private static EmailProviderKind ParseEmailProvider(string value) =>

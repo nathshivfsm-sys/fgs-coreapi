@@ -127,7 +127,45 @@ public sealed class IntegrationEventMapperTests
     }
 
     [Fact]
-    public void Map_CompanySignupInviteEmail_AcceptsLegacyGuidCompanyId()
+    public void Map_PasswordReset_KeepsPositiveCompanyId()
+    {
+        const long tenantId = 5001;
+        const long companyId = 42;
+        var payload = JsonSerializer.Serialize(new PasswordResetEvent(
+            tenantId,
+            companyId,
+            Guid.NewGuid(),
+            "user@example.com",
+            "Alex",
+            "https://example.com/reset"));
+
+        var request = _mapper.Map(
+            IntegrationEventRoutingKeys.PasswordReset,
+            payload,
+            "corr",
+            "mid");
+
+        request.Should().NotBeNull();
+        request!.TenantId.Should().Be(tenantId);
+        request.CompanyId.Should().Be(companyId);
+        request.TemplateCode.Should().Be(CommunicationTemplateCodes.PasswordReset);
+        request.Recipient.Should().Be("user@example.com");
+    }
+
+    [Fact]
+    public void Map_PasswordReset_NullPayload_ReturnsNull()
+    {
+        var request = _mapper.Map(
+            IntegrationEventRoutingKeys.PasswordReset,
+            "null",
+            "corr",
+            "mid");
+
+        request.Should().BeNull();
+    }
+
+    [Fact]
+    public void Map_CompanySignupInviteEmail_RejectsNonIntegerCompanyId()
     {
         const string payload =
             """
@@ -146,15 +184,12 @@ public sealed class IntegrationEventMapperTests
             }
             """;
 
-        var request = _mapper.Map(
+        var act = () => _mapper.Map(
             IntegrationEventRoutingKeys.CompanySignupInviteEmail,
             payload,
             "corr",
             "mid");
 
-        request.Should().NotBeNull();
-        request!.TenantId.Should().Be(5001);
-        request.CompanyId.Should().BeNull();
-        request.Recipient.Should().Be("invite@example.com");
+        act.Should().Throw<System.Text.Json.JsonException>();
     }
 }

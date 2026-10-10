@@ -25,6 +25,7 @@
     <ProjectReference Include="..\Fgs.Notification.Application\Fgs.Notification.Application.csproj" />
     <ProjectReference Include="..\Fgs.Notification.Domain\Fgs.Notification.Domain.csproj" />
     <ProjectReference Include="..\Fgs.Notification.Infrastructure\Fgs.Notification.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\SetupService\Fgs.Setup.API\Fgs.Setup.API.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

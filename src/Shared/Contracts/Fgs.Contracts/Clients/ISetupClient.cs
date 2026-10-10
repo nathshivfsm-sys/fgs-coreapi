@@ -15,7 +15,7 @@ public interface ISetupClient
         [Body] AddCompanyBusinessTypesRequest request,
         CancellationToken cancellationToken = default);
 
-    [Get("/api/v1/communication-template/active")]
+    [Get("/api/v1/communicationtemplate/active")]
     Task<Fgs.Contracts.Api.ApiResponse<CommunicationTemplateDto>> GetActiveTemplateAsync(
         [Query] long? tenantId,
         [Query] long? companyId,

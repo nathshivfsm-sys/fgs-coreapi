@@ -34,6 +34,7 @@ public sealed class NotificationDispatcher(
         NotificationDispatchRequest request,
         CancellationToken cancellationToken)
     {
+        // 0 is the platform sentinel when the event has no company.
         var companyId = request.CompanyId ?? 0;
         var rendered = await templateRenderer.RenderAsync(
             request.TenantId,
@@ -94,16 +95,11 @@ public sealed class NotificationDispatcher(
         }
         catch (Exception ex)
         {
-            await historyRepository.UpdateEmailStatusAsync(
+            return await MarkHistoryFailedAsync(
+                NotificationChannel.Email,
                 historyId,
-                NotificationStatus.Failed,
-                null,
-                null,
                 ex.Message,
-                null,
-                DateTimeOffset.UtcNow,
                 cancellationToken);
-            throw;
         }
     }
 
@@ -111,6 +107,7 @@ public sealed class NotificationDispatcher(
         NotificationDispatchRequest request,
         CancellationToken cancellationToken)
     {
+        // 0 is the platform sentinel when the event has no company.
         var companyId = request.CompanyId ?? 0;
         var rendered = await templateRenderer.RenderAsync(
             request.TenantId,
@@ -166,17 +163,47 @@ public sealed class NotificationDispatcher(
         }
         catch (Exception ex)
         {
+            return await MarkHistoryFailedAsync(
+                NotificationChannel.Sms,
+                historyId,
+                ex.Message,
+                cancellationToken);
+        }
+    }
+
+    private async Task<NotificationDispatchResult> MarkHistoryFailedAsync(
+        NotificationChannel channel,
+        long historyId,
+        string error,
+        CancellationToken cancellationToken)
+    {
+        var failedOn = DateTimeOffset.UtcNow;
+        if (channel == NotificationChannel.Email)
+        {
+            await historyRepository.UpdateEmailStatusAsync(
+                historyId,
+                NotificationStatus.Failed,
+                null,
+                null,
+                error,
+                null,
+                failedOn,
+                cancellationToken);
+        }
+        else
+        {
             await historyRepository.UpdateSmsStatusAsync(
                 historyId,
                 NotificationStatus.Failed,
                 null,
                 null,
-                ex.Message,
+                error,
                 null,
-                DateTimeOffset.UtcNow,
+                failedOn,
                 cancellationToken);
-            throw;
         }
+
+        return new NotificationDispatchResult(false, null, error);
     }
 
     private async Task<NotificationDispatchResult> DispatchPushAsync(

@@ -54,10 +54,9 @@ public sealed class TwilioSmsProvider(
             if (!response.IsSuccessStatusCode)
             {
                 logger.LogError(
-                    "Twilio send failed (Status={Status}, CorrelationId={CorrelationId}): {Body}",
+                    "Twilio send failed (Status={Status}, CorrelationId={CorrelationId}).",
                     response.StatusCode,
-                    message.CorrelationId,
-                    body);
+                    message.CorrelationId);
                 return new NotificationDispatchResult(false, null, $"Twilio error: {response.StatusCode}");
             }
 

@@ -7,12 +7,6 @@ namespace Fgs.Notification.Infrastructure.Notifications.Queues;
 
 public sealed class IdempotencyStore(FgsNotificationDbContext context) : IIdempotencyStore
 {
-    public Task<bool> HasBeenProcessedAsync(
-        string messageId,
-        CancellationToken cancellationToken = default) =>
-        context.ProcessedIntegrationEvents
-            .AnyAsync(e => e.MessageId == messageId, cancellationToken);
-
     public async Task<bool> TryMarkProcessedAsync(
         string messageId,
         string eventType,
@@ -44,5 +38,21 @@ public sealed class IdempotencyStore(FgsNotificationDbContext context) : IIdempo
         {
             return false;
         }
+    }
+
+    public async Task ReleaseAsync(
+        string messageId,
+        CancellationToken cancellationToken = default)
+    {
+        var existing = await context.ProcessedIntegrationEvents
+            .FirstOrDefaultAsync(e => e.MessageId == messageId, cancellationToken);
+
+        if (existing is null)
+        {
+            return;
+        }
+
+        context.ProcessedIntegrationEvents.Remove(existing);
+        await context.SaveChangesAsync(cancellationToken);
     }
 }

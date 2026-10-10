@@ -79,6 +79,29 @@ public sealed class NotificationDispatchRequestResolverTests
         result.Errors.Should().NotBeEmpty();
     }
 
+    [Fact]
+    public void Resolve_NullMappedPayload_ReturnsFailureNotNoContent()
+    {
+        _mapper.Setup(m => m.CanMap(IntegrationEventRoutingKeys.PasswordReset)).Returns(true);
+        _mapper.Setup(m => m.Map(
+                IntegrationEventRoutingKeys.PasswordReset,
+                "null",
+                null,
+                "msg-1"))
+            .Returns((NotificationDispatchRequest?)null);
+
+        var result = CreateResolver().Resolve(new DispatchNotificationRequest
+        {
+            RoutingKey = IntegrationEventRoutingKeys.PasswordReset,
+            Payload = "null",
+            MessageId = "msg-1"
+        });
+
+        result.IsFailure.Should().BeTrue();
+        result.IsNoContent.Should().BeFalse();
+        result.Errors.Should().NotBeEmpty();
+    }
+
     private NotificationDispatchRequestResolver CreateResolver() =>
         new(_mapper.Object);
 }
