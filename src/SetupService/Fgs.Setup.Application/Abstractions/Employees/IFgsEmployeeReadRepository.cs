@@ -7,9 +7,9 @@ public interface IFgsEmployeeReadRepository
 {
     Task<FgsEmployeeDetailDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
-    /// <param name="includeSummary">
-    /// When true, runs company-scoped summary COUNTs (ignores list filters). When false, returns zeroed summary.
-    /// </param>
+    /// <summary>
+    /// When <paramref name="includeSummary"/> is true, runs company-scoped summary COUNTs (ignores list filters). When false, returns zeroed summary.
+    /// </summary>
     Task<FgsEmployeeListResultDto> ListAsync(
         SetupListQuery query,
         FgsEmployeeListFilters filters,

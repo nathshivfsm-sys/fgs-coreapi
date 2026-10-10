@@ -5,9 +5,9 @@ using MediatR;
 
 namespace Fgs.Setup.Application.Features.Employees.Queries.ListEmployees;
 
-/// <param name="IncludeSummary">
-/// When true (default), loads company-scoped card counts. When false, skips COUNT queries and returns zeros.
-/// </param>
+/// <summary>
+/// When <paramref name="IncludeSummary"/> is true (default), loads company-scoped card counts. When false, skips COUNT queries and returns zeros.
+/// </summary>
 public sealed record ListEmployeesQuery(
     SetupListQuery Query,
     FgsEmployeeListFilters Filters,

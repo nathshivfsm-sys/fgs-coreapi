@@ -13,7 +13,6 @@ using Fgs.Inventory.Infrastructure.Vendors;
 using Microsoft.EntityFrameworkCore;
 using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Fgs.MultiTenancy.Persistence;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 

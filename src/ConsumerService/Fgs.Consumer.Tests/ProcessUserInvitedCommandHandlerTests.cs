@@ -37,6 +37,7 @@ public sealed class ProcessUserInvitedCommandHandlerTests
                     r.RoutingKey == IntegrationEventRoutingKeys.UserInvited
                     && r.MessageId == "message-1"
                     && r.CorrelationId == "correlation-1"
+                    && r.Payload != null
                     && r.Payload.Contains("fgs_user75@yopmail.com", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
