@@ -65,6 +65,11 @@ internal sealed class CrmServiceLocationConfiguration : IEntityTypeConfiguration
             .HasComment(
                 "Classifies the service location customer type (Residential, Commercial, Property Management, Builder, HOA, Other).");
 
+        entity.Property(e => e.Break1Id)
+            .HasComment("First accounting segment used for GL exports and reporting.");
+        entity.Property(e => e.Break2Id)
+            .HasComment("Second accounting segment used for GL exports and reporting.");
+
         entity.Property(e => e.AddressLine1)
             .HasMaxLength(200)
             .HasComment("Primary service location address line.");
@@ -192,5 +197,11 @@ internal sealed class CrmServiceLocationConfiguration : IEntityTypeConfiguration
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.IsActive })
             .HasDatabaseName("IX_CrmServiceLocation_IsActive");
+
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Break1Id })
+            .HasDatabaseName("IX_CrmServiceLocation_Break1Id");
+
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Break2Id })
+            .HasDatabaseName("IX_CrmServiceLocation_Break2Id");
     }
 }

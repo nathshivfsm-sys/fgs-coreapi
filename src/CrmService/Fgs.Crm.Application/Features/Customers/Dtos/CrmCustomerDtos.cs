@@ -119,6 +119,10 @@ public interface ICrmServiceLocationInput
     IReadOnlyList<long>? TagIds { get; }
 
     CustomerType? CustomerType { get; }
+
+    long? Break1Id { get; }
+
+    long? Break2Id { get; }
 }
 
 public sealed record CrmServiceLocationCreateDto(
@@ -146,7 +150,9 @@ public sealed record CrmServiceLocationCreateDto(
     bool? CanReceiveInvoices = null,
     bool? CanReceiveAppointments = null,
     IReadOnlyList<long>? TagIds = null,
-    CustomerType? CustomerType = null) : ICrmServiceLocationInput;
+    CustomerType? CustomerType = null,
+    long? Break1Id = null,
+    long? Break2Id = null) : ICrmServiceLocationInput;
 
 public sealed record CrmServiceLocationUpdateDto(
     ServiceLocationType ServiceLocationType,
@@ -174,7 +180,9 @@ public sealed record CrmServiceLocationUpdateDto(
     bool? CanReceiveAppointments = null,
     IReadOnlyList<long>? TagIds = null,
     CustomerType? CustomerType = null,
-    bool IsActive = false) : ICrmServiceLocationInput;
+    bool IsActive = false,
+    long? Break1Id = null,
+    long? Break2Id = null) : ICrmServiceLocationInput;
 
 public sealed record CrmServiceLocationDetailDto(
     long Id,
@@ -206,7 +214,9 @@ public sealed record CrmServiceLocationDetailDto(
     bool CanReceiveInvoices,
     bool CanReceiveAppointments,
     IReadOnlyList<long> TagIds,
-    CustomerType? CustomerType);
+    CustomerType? CustomerType,
+    long? Break1Id,
+    long? Break2Id);
 
 public sealed record CrmServiceLocationSummaryDto(
     long Id,
@@ -251,19 +261,23 @@ public sealed record CrmCompanyServiceLocationSummaryDto(
     string? Email,
     string? Phone,
     bool IsActive,
-    CustomerType? CustomerType);
+    CustomerType? CustomerType,
+    long? Break1Id,
+    long? Break2Id);
 
 /// <summary>
 /// Company-scoped location counts. Not narrowed by search, isActive, customer, or customer type.
+/// <see cref="BusinessUnits"/> counts distinct non-null Break1Id and Break2Id values.
 /// </summary>
 public sealed record CrmCompanyServiceLocationListSummaryDto(
     int TotalLocations,
     int ActiveLocations,
-    int InactiveLocations);
+    int InactiveLocations,
+    int BusinessUnits);
 
 /// <summary>
 /// List page plus company summary. <see cref="TotalCount"/> respects current list filters;
-/// <see cref="Summary"/> is company-wide (zeros when includeSummary is false).
+/// <see cref="Summary"/> is company-wide, including business units (zeros when includeSummary is false).
 /// </summary>
 public sealed record CrmCompanyServiceLocationListResultDto(
     IReadOnlyList<CrmCompanyServiceLocationSummaryDto> Items,

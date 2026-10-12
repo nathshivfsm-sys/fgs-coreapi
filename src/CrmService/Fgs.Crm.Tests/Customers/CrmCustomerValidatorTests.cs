@@ -260,6 +260,44 @@ public sealed class CrmCustomerValidatorTests
     }
 
     [Fact]
+    public async Task ServiceLocationValidator_BreakIdsMustBePositiveWhenSet()
+    {
+        var createValidator = new AddCrmCustomerServiceLocationCommandValidator();
+        var updateValidator = new UpdateCrmCustomerServiceLocationCommandValidator();
+        var zero = new AddCrmCustomerServiceLocationCommand(1, ValidLocation() with { Break1Id = 0 });
+        var negative = new AddCrmCustomerServiceLocationCommand(1, ValidLocation() with { Break2Id = -5 });
+        var omitted = new AddCrmCustomerServiceLocationCommand(1, ValidLocation());
+        var positive = new AddCrmCustomerServiceLocationCommand(
+            1,
+            ValidLocation() with { Break1Id = 8, Break2Id = 9 });
+        var updateZero = new UpdateCrmCustomerServiceLocationCommand(
+            1,
+            2,
+            ValidLocationUpdate() with { Break1Id = 0, Break2Id = null });
+        var updateClear = new UpdateCrmCustomerServiceLocationCommand(
+            1,
+            2,
+            ValidLocationUpdate() with { Break1Id = null, Break2Id = null });
+
+        var zeroResult = await createValidator.ValidateAsync(zero);
+        var negativeResult = await createValidator.ValidateAsync(negative);
+        var omittedResult = await createValidator.ValidateAsync(omitted);
+        var positiveResult = await createValidator.ValidateAsync(positive);
+        var updateZeroResult = await updateValidator.ValidateAsync(updateZero);
+        var updateClearResult = await updateValidator.ValidateAsync(updateClear);
+
+        zeroResult.IsValid.Should().BeFalse();
+        zeroResult.Errors.Should().Contain(e => e.PropertyName == "Dto.Break1Id");
+        negativeResult.IsValid.Should().BeFalse();
+        negativeResult.Errors.Should().Contain(e => e.PropertyName == "Dto.Break2Id");
+        omittedResult.IsValid.Should().BeTrue();
+        positiveResult.IsValid.Should().BeTrue();
+        updateZeroResult.IsValid.Should().BeFalse();
+        updateZeroResult.Errors.Should().Contain(e => e.PropertyName == "Dto.Break1Id");
+        updateClearResult.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task CreateValidator_PartialAddressRequiresLine1PostalStateAndCountry()
     {
         var validator = new CreateCrmCustomerCommandValidator(_readRepository.Object);

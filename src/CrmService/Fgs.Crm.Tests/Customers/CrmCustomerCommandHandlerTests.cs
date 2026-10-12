@@ -298,6 +298,60 @@ public sealed class CrmCustomerCommandHandlerTests
     }
 
     [Fact]
+    public async Task AddServiceLocation_PersistsBreakIdsAndDoesNotCopyThemFromDefaults()
+    {
+        await using var context = await CreateContextAsync();
+        context.CrmDefaultServiceLocations.Add(new CrmDefaultServiceLocation
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            DefaultPaymentMethodId = 21,
+            DefaultMaterialPricingMatrixId = 31,
+            DefaultLaborPricingMatrixId = 32,
+            DefaultOtherPricingMatrixId = 33,
+            InvoiceEmailTemplateId = 41,
+            EstimateEmailTemplateId = 42,
+            InvoiceSmsTemplateId = 43,
+            EstimateSmsTemplateId = 44,
+            EmailAllowed = false,
+            SmsAllowed = false,
+            TaxExempt = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "seed"
+        });
+        await context.SaveChangesAsync();
+
+        var writeService = CreateWriteService(context);
+        var created = await writeService.CreateAsync(SampleCreateDto());
+        var added = await writeService.AddServiceLocationAsync(
+            created.Customer.Id,
+            new CrmServiceLocationCreateDto(
+                ServiceLocationType.Commercial,
+                "Warehouse",
+                "Warehouse",
+                Break1Id: 501,
+                Break2Id: 502));
+
+        var location = await context.CrmServiceLocations.SingleAsync(l => l.Id == added.ServiceLocationId);
+        location.Break1Id.Should().Be(501);
+        location.Break2Id.Should().Be(502);
+        location.DefaultPaymentMethodId.Should().Be(21);
+
+        var omitted = await writeService.AddServiceLocationAsync(
+            created.Customer.Id,
+            new CrmServiceLocationCreateDto(ServiceLocationType.Industrial, "Yard", "Yard"));
+        var omittedLocation = await context.CrmServiceLocations.SingleAsync(l => l.Id == omitted.ServiceLocationId);
+        omittedLocation.Break1Id.Should().BeNull();
+        omittedLocation.Break2Id.Should().BeNull();
+        omittedLocation.DefaultPaymentMethodId.Should().Be(21);
+
+        var detail = await new CrmCustomerReadRepository(context)
+            .GetServiceLocationByIdAsync(created.Customer.Id, added.ServiceLocationId);
+        detail!.Break1Id.Should().Be(501);
+        detail.Break2Id.Should().Be(502);
+    }
+
+    [Fact]
     public async Task UpdateServiceLocation_ChangesEditableFieldsAndLeavesNumberAndDefaults()
     {
         await using var context = await CreateContextAsync();
@@ -457,6 +511,44 @@ public sealed class CrmCustomerCommandHandlerTests
         cleared.TagIds.Should().BeEmpty();
         cleared.LocationNumber.Should().Be("CUST01-1");
         cleared.PrimaryContactEmail.Should().Be("new@acme.example");
+    }
+
+    [Fact]
+    public async Task UpdateServiceLocation_ReplacesBreakIdsAndNullClearsThem()
+    {
+        await using var context = await CreateContextAsync();
+        var writeService = CreateWriteService(context);
+        var created = await writeService.CreateAsync(SampleCreateDto());
+        var added = await writeService.AddServiceLocationAsync(
+            created.Customer.Id,
+            new CrmServiceLocationCreateDto(
+                ServiceLocationType.Commercial,
+                "Warehouse",
+                "Warehouse",
+                AddressLine1: "200 Oak",
+                State: "TX",
+                Country: "US",
+                PostalCode: "78702",
+                Break1Id: 11,
+                Break2Id: 22));
+
+        var replaced = await writeService.UpdateServiceLocationAsync(
+            created.Customer.Id,
+            added.ServiceLocationId,
+            BreakLocationUpdate(33, 44));
+        replaced.Break1Id.Should().Be(33);
+        replaced.Break2Id.Should().Be(44);
+
+        var cleared = await writeService.UpdateServiceLocationAsync(
+            created.Customer.Id,
+            added.ServiceLocationId,
+            BreakLocationUpdate(null, null));
+        cleared.Break1Id.Should().BeNull();
+        cleared.Break2Id.Should().BeNull();
+
+        var location = await context.CrmServiceLocations.SingleAsync();
+        location.Break1Id.Should().BeNull();
+        location.Break2Id.Should().BeNull();
     }
 
     [Fact]
@@ -661,6 +753,19 @@ public sealed class CrmCustomerCommandHandlerTests
             auditHelper,
             new CrmCustomerReadRepository(context));
     }
+
+    private static CrmServiceLocationUpdateDto BreakLocationUpdate(long? break1Id, long? break2Id) =>
+        new(
+            ServiceLocationType.Commercial,
+            "Warehouse",
+            "Warehouse",
+            AddressLine1: "200 Oak",
+            State: "TX",
+            Country: "US",
+            PostalCode: "78702",
+            IsActive: true,
+            Break1Id: break1Id,
+            Break2Id: break2Id);
 
     private static async Task<FgsCrmDbContext> CreateContextAsync()
     {

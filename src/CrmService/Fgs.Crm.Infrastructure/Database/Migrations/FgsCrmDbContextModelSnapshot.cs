@@ -1261,6 +1261,14 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(200)")
                         .HasComment("Additional service location address information.");
 
+                    b.Property<long?>("Break1Id")
+                        .HasColumnType("bigint")
+                        .HasComment("First accounting segment used for GL exports and reporting.");
+
+                    b.Property<long?>("Break2Id")
+                        .HasColumnType("bigint")
+                        .HasComment("Second accounting segment used for GL exports and reporting.");
+
                     b.Property<string>("City")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
@@ -1432,6 +1440,12 @@ namespace Fgs.Crm.Infrastructure.Database.Migrations
 
                     b.HasIndex("CustomerId")
                         .HasDatabaseName("IX_CrmServiceLocation_CustomerId1");
+
+                    b.HasIndex("TenantId", "CompanyId", "Break1Id")
+                        .HasDatabaseName("IX_CrmServiceLocation_Break1Id");
+
+                    b.HasIndex("TenantId", "CompanyId", "Break2Id")
+                        .HasDatabaseName("IX_CrmServiceLocation_Break2Id");
 
                     b.HasIndex("TenantId", "CompanyId", "City")
                         .HasDatabaseName("IX_CrmServiceLocation_City");

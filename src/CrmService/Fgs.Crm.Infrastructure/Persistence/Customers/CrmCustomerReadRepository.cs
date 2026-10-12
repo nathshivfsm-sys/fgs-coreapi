@@ -202,7 +202,9 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
             contact?.CanReceiveInvoices ?? false,
             contact?.CanReceiveAppointments ?? true,
             tagIds,
-            location.CustomerType);
+            location.CustomerType,
+            location.Break1Id,
+            location.Break2Id);
     }
 
     public async Task<CrmCustomerListResultDto> ListAsync(
@@ -553,7 +555,7 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
 
     private static readonly CrmServiceLocationListSummaryDto EmptyLocationSummary = new(0, 0);
 
-    private static readonly CrmCompanyServiceLocationListSummaryDto EmptyCompanyLocationSummary = new(0, 0, 0);
+    private static readonly CrmCompanyServiceLocationListSummaryDto EmptyCompanyLocationSummary = new(0, 0, 0, 0);
 
     private IQueryable<CrmServiceLocation> ApplyServiceLocationSearch(
         IQueryable<CrmServiceLocation> query,
@@ -707,7 +709,28 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
         var totalCount = await locations.CountAsync(cancellationToken);
         var activeCount = await locations.CountAsync(e => e.IsActive, cancellationToken);
         var inactiveCount = await locations.CountAsync(e => !e.IsActive, cancellationToken);
-        return new CrmCompanyServiceLocationListSummaryDto(totalCount, activeCount, inactiveCount);
+        var breakIds = await locations
+            .Select(e => new { e.Break1Id, e.Break2Id })
+            .ToListAsync(cancellationToken);
+        var businessUnits = new HashSet<long>();
+        foreach (var row in breakIds)
+        {
+            if (row.Break1Id is long break1Id)
+            {
+                businessUnits.Add(break1Id);
+            }
+
+            if (row.Break2Id is long break2Id)
+            {
+                businessUnits.Add(break2Id);
+            }
+        }
+
+        return new CrmCompanyServiceLocationListSummaryDto(
+            totalCount,
+            activeCount,
+            inactiveCount,
+            businessUnits.Count);
     }
 
     private async Task<IReadOnlyList<CrmServiceLocationSummaryDto>> MapLocationSummariesAsync(
@@ -837,7 +860,9 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
                 email,
                 phone,
                 location.IsActive,
-                location.CustomerType);
+                location.CustomerType,
+                location.Break1Id,
+                location.Break2Id);
         }).ToList();
     }
 

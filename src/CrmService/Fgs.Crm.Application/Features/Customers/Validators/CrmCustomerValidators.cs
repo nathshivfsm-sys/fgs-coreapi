@@ -276,6 +276,14 @@ internal static class CrmServiceLocationFieldRules
         validator.RuleFor(x => x.TagIds)
             .Must(CrmCustomerFieldValidation.TagIdsAreDistinct)
             .WithMessage("TagIds must not contain duplicates.");
+
+        validator.RuleFor(x => x.Break1Id)
+            .GreaterThan(0)
+            .When(x => x.Break1Id.HasValue);
+
+        validator.RuleFor(x => x.Break2Id)
+            .GreaterThan(0)
+            .When(x => x.Break2Id.HasValue);
     }
 }
 

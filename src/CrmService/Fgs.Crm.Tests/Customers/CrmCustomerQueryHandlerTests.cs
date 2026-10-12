@@ -147,7 +147,7 @@ public sealed class CrmCustomerQueryHandlerTests
             1,
             10,
             0,
-            new CrmCompanyServiceLocationListSummaryDto(0, 0, 0));
+            new CrmCompanyServiceLocationListSummaryDto(0, 0, 0, 0));
         readRepository
             .Setup(r => r.ListCompanyServiceLocationsAsync(
                 It.IsAny<CrmListQuery>(),
@@ -713,8 +713,8 @@ public sealed class CrmCustomerReadRepositoryTests
 
         page.Items.Should().ContainSingle(i => i.Id == match.Id);
         page.TotalCount.Should().Be(1);
-        page.Summary.Should().Be(new CrmCompanyServiceLocationListSummaryDto(4, 3, 1));
-        withoutSummary.Summary.Should().Be(new CrmCompanyServiceLocationListSummaryDto(0, 0, 0));
+        page.Summary.Should().Be(new CrmCompanyServiceLocationListSummaryDto(4, 3, 1, 0));
+        withoutSummary.Summary.Should().Be(new CrmCompanyServiceLocationListSummaryDto(0, 0, 0, 0));
         withoutSummary.TotalCount.Should().Be(1);
     }
 
@@ -776,6 +776,59 @@ public sealed class CrmCustomerReadRepositoryTests
         page.Items.Single(i => i.Id == orphan.Id).CustomerName.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task ListCompanyServiceLocations_BusinessUnitsCountDistinctBreakIdsAndIgnoreFilters()
+    {
+        await using var context = await CreateContextAsync();
+        var included = await SeedCustomerAsync(context, "CUST01", "Acme", contactName: null, email: null, phone: null);
+        var other = await SeedCustomerAsync(context, "CUST02", "Other", contactName: null, email: null, phone: null);
+        var shared = await SeedLocationAsync(
+            context,
+            included.Id,
+            1,
+            "SHARED",
+            "Shared",
+            "Shared",
+            break1Id: 10,
+            break2Id: 20);
+        var inactive = await SeedLocationAsync(
+            context,
+            included.Id,
+            2,
+            "INACTIVE",
+            "Inactive",
+            "Inactive",
+            isActive: false,
+            break1Id: 10);
+        await SeedLocationAsync(
+            context,
+            other.Id,
+            1,
+            "EMPTY",
+            "Empty",
+            "Empty");
+
+        var repository = new CrmCustomerReadRepository(context);
+        var filters = new CrmCompanyServiceLocationListFilters([included.Id]);
+        var page = await repository.ListCompanyServiceLocationsAsync(
+            new CrmListQuery(IsActive: true),
+            filters,
+            includeSummary: true);
+        var withoutSummary = await repository.ListCompanyServiceLocationsAsync(
+            new CrmListQuery(IsActive: true),
+            filters,
+            includeSummary: false);
+
+        page.Items.Should().ContainSingle(i => i.Id == shared.Id);
+        page.Items.Single().Break1Id.Should().Be(10);
+        page.Items.Single().Break2Id.Should().Be(20);
+        page.TotalCount.Should().Be(1);
+        page.Summary.Should().Be(new CrmCompanyServiceLocationListSummaryDto(3, 2, 1, 2));
+        inactive.Break2Id.Should().BeNull();
+        withoutSummary.Summary.Should().Be(new CrmCompanyServiceLocationListSummaryDto(0, 0, 0, 0));
+        withoutSummary.TotalCount.Should().Be(1);
+    }
+
     private static async Task<CrmServiceLocation> SeedLocationAsync(
         FgsCrmDbContext context,
         long customerId,
@@ -790,7 +843,9 @@ public sealed class CrmCustomerReadRepositoryTests
         string? email = null,
         string? phone = null,
         CustomerType? customerType = null,
-        string? city = null)
+        string? city = null,
+        long? break1Id = null,
+        long? break2Id = null)
     {
         var location = new CrmServiceLocation
         {
@@ -803,6 +858,8 @@ public sealed class CrmCustomerReadRepositoryTests
             DisplayName = displayName,
             ServiceLocationType = ServiceLocationType.Commercial,
             CustomerType = customerType,
+            Break1Id = break1Id,
+            Break2Id = break2Id,
             FormattedAddress = formattedAddress,
             AddressLine1 = addressLine1,
             PostalCode = postalCode,

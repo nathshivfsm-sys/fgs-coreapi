@@ -499,6 +499,8 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
             DisplayName = EmptyIfBlank(dto.DisplayName),
             ServiceLocationType = dto.ServiceLocationType,
             CustomerType = dto.CustomerType,
+            Break1Id = dto.Break1Id,
+            Break2Id = dto.Break2Id,
             AddressLine1 = TrimOrNull(dto.AddressLine1),
             AddressLine2 = TrimOrNull(dto.AddressLine2),
             AddressLine3 = TrimOrNull(dto.AddressLine3),
@@ -537,6 +539,8 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
         location.DisplayName = EmptyIfBlank(dto.DisplayName);
         location.ServiceLocationType = dto.ServiceLocationType;
         location.CustomerType = dto.CustomerType;
+        location.Break1Id = dto.Break1Id;
+        location.Break2Id = dto.Break2Id;
         location.AddressLine1 = TrimOrNull(dto.AddressLine1);
         location.AddressLine2 = TrimOrNull(dto.AddressLine2);
         location.AddressLine3 = TrimOrNull(dto.AddressLine3);

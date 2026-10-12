@@ -41835,7 +41835,7 @@
                     },
                     {
                       "key": "includeSummary",
-                      "description": "When true (default), summary is company-wide totalLocations, activeLocations, and inactiveLocations and ignores search, isActive, customerId, and customerType. When false, summary is 0, 0, 0.",
+                      "description": "When true (default), summary is company-wide totalLocations, activeLocations, inactiveLocations, and businessUnits. businessUnits counts distinct non-null break1Id and break2Id values. Summary ignores search, isActive, customerId, and customerType. When false, summary is 0, 0, 0, 0.",
                       "value": "true",
                       "disabled": true
                     }
@@ -41850,7 +41850,7 @@
                     "servicelocation"
                   ]
                 },
-                "description": "List service locations for the current company. Requires CUSTOMER.VIEW. pageSize defaults to 10. Omit isActive to return all locations. customerId and customerType are repeatable. Summary counts ignore search, isActive, customerId, and customerType.",
+                "description": "List service locations for the current company. Requires CUSTOMER.VIEW. pageSize defaults to 10. Omit isActive to return all locations. customerId and customerType are repeatable. Each row includes optional break1Id and break2Id. Summary counts ignore search, isActive, customerId, and customerType. businessUnits is the count of distinct non-null break ids across both columns.",
                 "header": [
                   {
                     "key": "Accept",
@@ -41897,7 +41897,7 @@
                     "servicelocation"
                   ]
                 },
-                "description": "Add a service location to an existing customer. Optional customerType: residential, commercial, propertyManagement, builder, hoa, other. Requires CUSTOMER.CREATE.",
+                "description": "Add a service location to an existing customer. Optional customerType: residential, commercial, propertyManagement, builder, hoa, other. Optional break1Id and break2Id are stored as sent and must be greater than 0 when set. Requires CUSTOMER.CREATE.",
                 "header": [
                   {
                     "key": "Accept",
@@ -41921,7 +41921,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"serviceLocationType\": \"commercial\",\n  \"customerType\": \"propertyManagement\",\n  \"name\": \"Warehouse\",\n  \"displayName\": \"Warehouse\",\n  \"addressLine1\": \"200 Oak Ave\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"country\": \"US\",\n  \"postalCode\": \"78702\",\n  \"taxExempt\": false,\n  \"primaryContactName\": \"Warehouse Contact\",\n  \"primaryContactEmail\": \"warehouse@acme.example\",\n  \"primaryContactPhone\": \"+1 555-0188\",\n  \"canReceiveEstimates\": false,\n  \"canReceiveInvoices\": true,\n  \"canReceiveAppointments\": true,\n  \"tagIds\": [4]\n}",
+                  "raw": "{\n  \"serviceLocationType\": \"commercial\",\n  \"customerType\": \"propertyManagement\",\n  \"name\": \"Warehouse\",\n  \"displayName\": \"Warehouse\",\n  \"addressLine1\": \"200 Oak Ave\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"country\": \"US\",\n  \"postalCode\": \"78702\",\n  \"taxExempt\": false,\n  \"primaryContactName\": \"Warehouse Contact\",\n  \"primaryContactEmail\": \"warehouse@acme.example\",\n  \"primaryContactPhone\": \"+1 555-0188\",\n  \"canReceiveEstimates\": false,\n  \"canReceiveInvoices\": true,\n  \"canReceiveAppointments\": true,\n  \"tagIds\": [4],\n  \"break1Id\": 10,\n  \"break2Id\": 20\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -41973,7 +41973,7 @@
                     "{{serviceLocationId}}"
                   ]
                 },
-                "description": "Get one service location for the edit form. Requires CUSTOMER.VIEW. 404 when the customer is missing, the location is missing, or the location belongs to another customer.",
+                "description": "Get one service location for the edit form. Response includes optional break1Id and break2Id. Requires CUSTOMER.VIEW. 404 when the customer is missing, the location is missing, or the location belongs to another customer.",
                 "header": [
                   {
                     "key": "Accept",
@@ -42021,7 +42021,7 @@
                     "{{serviceLocationId}}"
                   ]
                 },
-                "description": "Full replace of a service location. Requires CUSTOMER.EDIT. Address line 1, postal code, state, and country are required. Location number, sequence, and customer id stay unchanged. Returns the location detail.",
+                "description": "Full replace of a service location. Requires CUSTOMER.EDIT. Address line 1, postal code, state, and country are required. Optional break1Id and break2Id replace the stored values; omit or send null to clear them. Location number, sequence, and customer id stay unchanged. Returns the location detail, including break1Id and break2Id.",
                 "header": [
                   {
                     "key": "Accept",
@@ -42045,7 +42045,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"serviceLocationType\": \"commercial\",\n  \"customerType\": \"propertyManagement\",\n  \"name\": \"Warehouse\",\n  \"displayName\": \"Warehouse\",\n  \"addressLine1\": \"200 Oak Ave\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"country\": \"US\",\n  \"postalCode\": \"78702\",\n  \"taxExempt\": false,\n  \"primaryContactName\": \"Warehouse Contact\",\n  \"primaryContactEmail\": \"warehouse@acme.example\",\n  \"primaryContactPhone\": \"+1 555-0188\",\n  \"canReceiveEstimates\": false,\n  \"canReceiveInvoices\": true,\n  \"canReceiveAppointments\": true,\n  \"tagIds\": [4],\n  \"isActive\": true\n}",
+                  "raw": "{\n  \"serviceLocationType\": \"commercial\",\n  \"customerType\": \"propertyManagement\",\n  \"name\": \"Warehouse\",\n  \"displayName\": \"Warehouse\",\n  \"addressLine1\": \"200 Oak Ave\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"country\": \"US\",\n  \"postalCode\": \"78702\",\n  \"taxExempt\": false,\n  \"primaryContactName\": \"Warehouse Contact\",\n  \"primaryContactEmail\": \"warehouse@acme.example\",\n  \"primaryContactPhone\": \"+1 555-0188\",\n  \"canReceiveEstimates\": false,\n  \"canReceiveInvoices\": true,\n  \"canReceiveAppointments\": true,\n  \"tagIds\": [4],\n  \"isActive\": true,\n  \"break1Id\": 10,\n  \"break2Id\": 20\n}",
                   "options": {
                     "raw": {
                       "language": "json"
