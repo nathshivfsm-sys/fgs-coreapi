@@ -19,6 +19,12 @@ public interface ICrmCustomerReadRepository
         bool includeSummary = true,
         CancellationToken cancellationToken = default);
 
+    Task<CrmCompanyServiceLocationListResultDto> ListCompanyServiceLocationsAsync(
+        CrmListQuery query,
+        CrmCompanyServiceLocationListFilters filters,
+        bool includeSummary = true,
+        CancellationToken cancellationToken = default);
+
     Task<CrmServiceLocationDetailDto?> GetServiceLocationByIdAsync(
         long customerId,
         long serviceLocationId,

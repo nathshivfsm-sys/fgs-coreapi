@@ -41723,7 +41723,7 @@
                     },
                     {
                       "key": "search",
-                      "description": "Search within the isActive tab: location number, name, display name, address, postal code, and the location contact primary email and phone.",
+                      "description": "Search within the isActive tab: numeric id, location number, name, display name, address, city, postal code, and the location contact primary email and phone.",
                       "value": "{{search}}",
                       "disabled": true
                     },
@@ -41752,6 +41752,105 @@
                   ]
                 },
                 "description": "List service locations for a customer. Requires CUSTOMER.VIEW. 404 when the customer does not exist.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "List company service locations",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "query": [
+                    {
+                      "key": "page",
+                      "description": "Page number (1-based). Default: 1.",
+                      "value": "{{page}}"
+                    },
+                    {
+                      "key": "pageSize",
+                      "description": "Items per page. Default: 10. Clamped to 1-200.",
+                      "value": "10"
+                    },
+                    {
+                      "key": "sortBy",
+                      "description": "Optional. id, locationNumber, name, displayName, address, email, phone, customerType. Omitted sorts by locationNumber ascending. Unknown keys sort by id.",
+                      "value": "{{sortBy}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "sortDirection",
+                      "description": "Sort direction: Asc or Desc. Default: Asc.",
+                      "value": "{{sortDirection}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "search",
+                      "description": "One partial case-insensitive term over numeric id, location number, name, display name, address lines, formatted address, city, postal code, and the default location contact primary email and phone.",
+                      "value": "{{search}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "isActive",
+                      "description": "Omit for all locations. true or false filters the page only. Summary ignores this filter.",
+                      "value": "true",
+                      "disabled": true
+                    },
+                    {
+                      "key": "customerId",
+                      "description": "Repeatable. Limits the page to these customers (OR). Omit for every customer. Summary ignores this filter.",
+                      "value": "{{customerId}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "customerType",
+                      "description": "Repeatable. residential, commercial, propertyManagement, builder, hoa, other. OR within the list. Omit for all types. Summary ignores this filter.",
+                      "value": "propertyManagement",
+                      "disabled": true
+                    },
+                    {
+                      "key": "includeSummary",
+                      "description": "When true (default), summary is company-wide totalLocations, activeLocations, and inactiveLocations and ignores search, isActive, customerId, and customerType. When false, summary is 0, 0, 0.",
+                      "value": "true",
+                      "disabled": true
+                    }
+                  ],
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/servicelocation",
+                  "path": [
+                    "api",
+                    "v1",
+                    "servicelocation"
+                  ]
+                },
+                "description": "List service locations for the current company. Requires CUSTOMER.VIEW. pageSize defaults to 10. Omit isActive to return all locations. customerId and customerType are repeatable. Summary counts ignore search, isActive, customerId, and customerType.",
                 "header": [
                   {
                     "key": "Accept",

@@ -237,6 +237,45 @@ public sealed record CrmServiceLocationListResultDto(
     int TotalCount,
     CrmServiceLocationListSummaryDto Summary);
 
+/// <summary>
+/// One service location on the company-wide list.
+/// </summary>
+public sealed record CrmCompanyServiceLocationSummaryDto(
+    long Id,
+    long CustomerId,
+    string CustomerName,
+    string LocationNumber,
+    string Name,
+    string DisplayName,
+    string? Address,
+    string? Email,
+    string? Phone,
+    bool IsActive,
+    CustomerType? CustomerType);
+
+/// <summary>
+/// Company-scoped location counts. Not narrowed by search, isActive, customer, or customer type.
+/// </summary>
+public sealed record CrmCompanyServiceLocationListSummaryDto(
+    int TotalLocations,
+    int ActiveLocations,
+    int InactiveLocations);
+
+/// <summary>
+/// List page plus company summary. <see cref="TotalCount"/> respects current list filters;
+/// <see cref="Summary"/> is company-wide (zeros when includeSummary is false).
+/// </summary>
+public sealed record CrmCompanyServiceLocationListResultDto(
+    IReadOnlyList<CrmCompanyServiceLocationSummaryDto> Items,
+    int Page,
+    int PageSize,
+    int TotalCount,
+    CrmCompanyServiceLocationListSummaryDto Summary);
+
+public sealed record CrmCompanyServiceLocationListFilters(
+    IReadOnlyList<long>? CustomerIds = null,
+    IReadOnlyList<CustomerType>? CustomerTypes = null);
+
 public sealed record CrmServiceLocationCreatedDto(
     long ServiceLocationId,
     long CustomerId,

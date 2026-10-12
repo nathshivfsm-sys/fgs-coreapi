@@ -4,6 +4,7 @@ using Fgs.Crm.Application.Common.CrmCrud;
 using Fgs.Crm.Application.Features.Customers.Dtos;
 using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerById;
 using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerServiceLocationById;
+using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCompanyServiceLocations;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomerServiceLocations;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers;
 using Fgs.Crm.Domain.Entities;
@@ -135,6 +136,36 @@ public sealed class CrmCustomerQueryHandlerTests
 
         response.Success.Should().BeFalse();
         response.StatusCode.Should().Be(ApiStatusCodes.NotFound);
+    }
+
+    [Fact]
+    public async Task ListCompanyServiceLocations_ReturnsOkWithoutNotFound()
+    {
+        var readRepository = new Mock<ICrmCustomerReadRepository>();
+        var result = new CrmCompanyServiceLocationListResultDto(
+            [],
+            1,
+            10,
+            0,
+            new CrmCompanyServiceLocationListSummaryDto(0, 0, 0));
+        readRepository
+            .Setup(r => r.ListCompanyServiceLocationsAsync(
+                It.IsAny<CrmListQuery>(),
+                It.IsAny<CrmCompanyServiceLocationListFilters>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(result);
+
+        var handler = new ListCrmCompanyServiceLocationsQueryHandler(readRepository.Object);
+        var response = await handler.Handle(
+            new ListCrmCompanyServiceLocationsQuery(
+                new CrmListQuery(IsActive: null),
+                new CrmCompanyServiceLocationListFilters()),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.StatusCode.Should().Be(ApiStatusCodes.Ok);
+        response.Data.Should().BeSameAs(result);
     }
 
     [Fact]
@@ -539,6 +570,212 @@ public sealed class CrmCustomerReadRepositoryTests
         missingLocation.Should().BeNull();
     }
 
+    [Fact]
+    public async Task ListCompanyServiceLocations_DefaultOrderIsLocationNumber_NotName()
+    {
+        await using var context = await CreateContextAsync();
+        var firstCustomer = await SeedCustomerAsync(context, "CUST01", "Acme", contactName: null, email: null, phone: null);
+        var secondCustomer = await SeedCustomerAsync(context, "CUST02", "Bravo", contactName: null, email: null, phone: null);
+        var laterNumber = await SeedLocationAsync(
+            context,
+            firstCustomer.Id,
+            1,
+            "ZZ-9",
+            "Alpha",
+            "Alpha site",
+            email: "z@acme.com",
+            phone: "+1999");
+        var earlierNumber = await SeedLocationAsync(
+            context,
+            secondCustomer.Id,
+            1,
+            "AA-1",
+            "Zulu",
+            "Zulu site",
+            email: "a@acme.com",
+            phone: "+1000");
+
+        var repository = new CrmCustomerReadRepository(context);
+        var ordered = await repository.ListCompanyServiceLocationsAsync(
+            new CrmListQuery(IsActive: null),
+            new CrmCompanyServiceLocationListFilters());
+        var page = await repository.ListCompanyServiceLocationsAsync(
+            new CrmListQuery(PageSize: 1, IsActive: null),
+            new CrmCompanyServiceLocationListFilters());
+        var byUnknown = await repository.ListCompanyServiceLocationsAsync(
+            new CrmListQuery(SortBy: "not-a-column", IsActive: null),
+            new CrmCompanyServiceLocationListFilters());
+        var byEmail = await repository.ListCompanyServiceLocationsAsync(
+            new CrmListQuery(SortBy: "email", IsActive: null),
+            new CrmCompanyServiceLocationListFilters());
+        var byPhone = await repository.ListCompanyServiceLocationsAsync(
+            new CrmListQuery(SortBy: "phone", IsActive: null),
+            new CrmCompanyServiceLocationListFilters());
+
+        ordered.Items.Select(i => i.LocationNumber).Should().Equal("AA-1", "ZZ-9");
+        ordered.Items.Select(i => i.Name).Should().Equal("Zulu", "Alpha");
+        ordered.Items.Select(i => i.CustomerName).Should().Equal("Bravo", "Acme");
+        page.Items.Should().ContainSingle(i => i.LocationNumber == "AA-1");
+        page.TotalCount.Should().Be(2);
+        page.PageSize.Should().Be(1);
+        byUnknown.Items.Select(i => i.Id).Should().Equal(laterNumber.Id, earlierNumber.Id);
+        byEmail.Items.Select(i => i.Email).Should().Equal("a@acme.com", "z@acme.com");
+        byPhone.Items.Select(i => i.Phone).Should().Equal("+1000", "+1999");
+    }
+
+    [Fact]
+    public async Task ListCompanyServiceLocations_SearchMatchesCityAndNumericId()
+    {
+        await using var context = await CreateContextAsync();
+        var customer = await SeedCustomerAsync(context, "CUST01", "Acme", contactName: null, email: null, phone: null);
+        var inCity = await SeedLocationAsync(
+            context,
+            customer.Id,
+            1,
+            "ALPHA",
+            "North",
+            "North site",
+            city: "Cedar Park");
+        var other = await SeedLocationAsync(
+            context,
+            customer.Id,
+            2,
+            "BRAVO",
+            "South",
+            "South site",
+            city: "Dallas");
+
+        var repository = new CrmCustomerReadRepository(context);
+        var byCity = await repository.ListCompanyServiceLocationsAsync(
+            new CrmListQuery(Search: "cedar", IsActive: null),
+            new CrmCompanyServiceLocationListFilters());
+        var byId = await repository.ListCompanyServiceLocationsAsync(
+            new CrmListQuery(Search: other.Id.ToString(), IsActive: null),
+            new CrmCompanyServiceLocationListFilters());
+
+        byCity.Items.Should().ContainSingle(i => i.Id == inCity.Id);
+        byCity.TotalCount.Should().Be(1);
+        byId.Items.Should().ContainSingle(i => i.Id == other.Id);
+    }
+
+    [Fact]
+    public async Task ListCompanyServiceLocations_FiltersNarrowItems_SummaryCountsEveryLocation()
+    {
+        await using var context = await CreateContextAsync();
+        var included = await SeedCustomerAsync(context, "CUST01", "Acme", contactName: null, email: null, phone: null);
+        var other = await SeedCustomerAsync(context, "CUST02", "Other", contactName: null, email: null, phone: null);
+        var match = await SeedLocationAsync(
+            context,
+            included.Id,
+            1,
+            "MATCH",
+            "Match",
+            "Match",
+            customerType: CustomerType.PropertyManagement);
+        await SeedLocationAsync(
+            context,
+            included.Id,
+            2,
+            "TYPE",
+            "Wrong type",
+            "Wrong type",
+            customerType: CustomerType.Commercial);
+        await SeedLocationAsync(
+            context,
+            included.Id,
+            3,
+            "INACTIVE",
+            "Inactive",
+            "Inactive",
+            isActive: false,
+            customerType: CustomerType.PropertyManagement);
+        await SeedLocationAsync(
+            context,
+            other.Id,
+            1,
+            "OTHER",
+            "Other site",
+            "Other site",
+            customerType: CustomerType.PropertyManagement);
+
+        var repository = new CrmCustomerReadRepository(context);
+        var filters = new CrmCompanyServiceLocationListFilters(
+            [included.Id],
+            [CustomerType.PropertyManagement]);
+        var page = await repository.ListCompanyServiceLocationsAsync(
+            new CrmListQuery(IsActive: true),
+            filters,
+            includeSummary: true);
+        var withoutSummary = await repository.ListCompanyServiceLocationsAsync(
+            new CrmListQuery(IsActive: true),
+            filters,
+            includeSummary: false);
+
+        page.Items.Should().ContainSingle(i => i.Id == match.Id);
+        page.TotalCount.Should().Be(1);
+        page.Summary.Should().Be(new CrmCompanyServiceLocationListSummaryDto(4, 3, 1));
+        withoutSummary.Summary.Should().Be(new CrmCompanyServiceLocationListSummaryDto(0, 0, 0));
+        withoutSummary.TotalCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ListCompanyServiceLocations_AddressUsesFormattedValueOrJoinedParts()
+    {
+        await using var context = await CreateContextAsync();
+        var customer = await SeedCustomerAsync(context, "CUST01", "Acme", contactName: null, email: null, phone: null);
+        var formatted = await SeedLocationAsync(
+            context,
+            customer.Id,
+            1,
+            "FMT",
+            "Formatted",
+            "Formatted",
+            formattedAddress: "  500 Pine St  ",
+            addressLine1: "Should not win",
+            city: "Austin");
+        var joined = await SeedLocationAsync(
+            context,
+            customer.Id,
+            2,
+            "JOIN",
+            "Joined",
+            "Joined",
+            addressLine1: "10 Oak",
+            postalCode: "78701",
+            city: "Austin");
+        joined.AddressLine2 = "Suite 4";
+        joined.State = "TX";
+        joined.Country = "US";
+        joined.AddressLine3 = " ";
+        var orphan = new CrmServiceLocation
+        {
+            TenantId = 10,
+            CompanyId = 20,
+            CustomerId = 999,
+            LocationSequence = 1,
+            LocationNumber = "ORPHAN",
+            Name = "Orphan",
+            DisplayName = "Orphan",
+            ServiceLocationType = ServiceLocationType.Commercial,
+            AddressLine1 = "1 Lone St",
+            City = "Austin",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        };
+        context.CrmServiceLocations.Add(orphan);
+        await context.SaveChangesAsync();
+
+        var repository = new CrmCustomerReadRepository(context);
+        var page = await repository.ListCompanyServiceLocationsAsync(
+            new CrmListQuery(IsActive: null),
+            new CrmCompanyServiceLocationListFilters());
+
+        page.Items.Single(i => i.Id == formatted.Id).Address.Should().Be("500 Pine St");
+        page.Items.Single(i => i.Id == formatted.Id).CustomerName.Should().Be("Acme");
+        page.Items.Single(i => i.Id == joined.Id).Address.Should().Be("10 Oak, Suite 4, Austin, TX, 78701, US");
+        page.Items.Single(i => i.Id == orphan.Id).CustomerName.Should().BeEmpty();
+    }
+
     private static async Task<CrmServiceLocation> SeedLocationAsync(
         FgsCrmDbContext context,
         long customerId,
@@ -552,7 +789,8 @@ public sealed class CrmCustomerReadRepositoryTests
         string? postalCode = null,
         string? email = null,
         string? phone = null,
-        CustomerType? customerType = null)
+        CustomerType? customerType = null,
+        string? city = null)
     {
         var location = new CrmServiceLocation
         {
@@ -568,6 +806,7 @@ public sealed class CrmCustomerReadRepositoryTests
             FormattedAddress = formattedAddress,
             AddressLine1 = addressLine1,
             PostalCode = postalCode,
+            City = city,
             IsActive = isActive,
             CreatedOn = DateTimeOffset.UtcNow
         };

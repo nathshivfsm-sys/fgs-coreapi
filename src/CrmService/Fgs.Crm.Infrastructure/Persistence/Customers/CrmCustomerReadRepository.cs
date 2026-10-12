@@ -72,6 +72,53 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
         return new CrmServiceLocationListResultDto(items, page, pageSize, totalCount, summary);
     }
 
+    public async Task<CrmCompanyServiceLocationListResultDto> ListCompanyServiceLocationsAsync(
+        CrmListQuery query,
+        CrmCompanyServiceLocationListFilters filters,
+        bool includeSummary = true,
+        CancellationToken cancellationToken = default)
+    {
+        var paging = query.ToPagedQuery();
+        var page = Math.Max(1, paging.Page);
+        var pageSize = Math.Clamp(paging.PageSize, 1, 200);
+
+        var dbQuery = dbContext.CrmServiceLocations.AsNoTracking();
+
+        if (paging.IsActive.HasValue)
+        {
+            dbQuery = dbQuery.Where(e => e.IsActive == paging.IsActive.Value);
+        }
+
+        var customerIds = filters.CustomerIds?.Distinct().ToArray();
+        if (customerIds is { Length: > 0 })
+        {
+            dbQuery = dbQuery.Where(e => customerIds.Contains(e.CustomerId));
+        }
+
+        var customerTypes = filters.CustomerTypes?.Distinct().ToArray();
+        if (customerTypes is { Length: > 0 })
+        {
+            dbQuery = dbQuery.Where(e =>
+                e.CustomerType.HasValue && customerTypes.Contains(e.CustomerType.Value));
+        }
+
+        dbQuery = ApplyServiceLocationSearch(dbQuery, paging.Search);
+        dbQuery = ApplyCompanyServiceLocationSort(dbQuery, paging.SortBy, paging.SortDirection);
+
+        var totalCount = await dbQuery.CountAsync(cancellationToken);
+        var locations = await dbQuery
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        var items = await MapCompanyLocationSummariesAsync(locations, cancellationToken);
+        var summary = includeSummary
+            ? await BuildCompanyServiceLocationSummaryAsync(cancellationToken)
+            : EmptyCompanyLocationSummary;
+
+        return new CrmCompanyServiceLocationListResultDto(items, page, pageSize, totalCount, summary);
+    }
+
     public async Task<CrmServiceLocationDetailDto?> GetServiceLocationByIdAsync(
         long customerId,
         long serviceLocationId,
@@ -506,6 +553,8 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
 
     private static readonly CrmServiceLocationListSummaryDto EmptyLocationSummary = new(0, 0);
 
+    private static readonly CrmCompanyServiceLocationListSummaryDto EmptyCompanyLocationSummary = new(0, 0, 0);
+
     private IQueryable<CrmServiceLocation> ApplyServiceLocationSearch(
         IQueryable<CrmServiceLocation> query,
         string? search)
@@ -516,6 +565,7 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
         }
 
         var term = search.Trim().ToLower();
+        var matchId = long.TryParse(search.Trim(), out var parsedId);
         var emailType = (short)ContactCommunicationType.Email;
         var phoneType = (short)ContactCommunicationType.Phone;
 
@@ -532,7 +582,8 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
             select contact.ServiceLocationId!.Value;
 
         return query.Where(e =>
-            e.LocationNumber.ToLower().Contains(term)
+            (matchId && e.Id == parsedId)
+            || e.LocationNumber.ToLower().Contains(term)
             || e.Name.ToLower().Contains(term)
             || e.DisplayName.ToLower().Contains(term)
             || (e.FormattedAddress != null && e.FormattedAddress.ToLower().Contains(term))
@@ -540,6 +591,7 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
             || (e.AddressLine2 != null && e.AddressLine2.ToLower().Contains(term))
             || (e.AddressLine3 != null && e.AddressLine3.ToLower().Contains(term))
             || (e.AddressLine4 != null && e.AddressLine4.ToLower().Contains(term))
+            || (e.City != null && e.City.ToLower().Contains(term))
             || (e.PostalCode != null && e.PostalCode.ToLower().Contains(term))
             || communicationIds.Contains(e.Id));
     }
@@ -568,6 +620,73 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
         };
     }
 
+    private IQueryable<CrmServiceLocation> ApplyCompanyServiceLocationSort(
+        IQueryable<CrmServiceLocation> query,
+        string? sortBy,
+        SortDirection direction)
+    {
+        var desc = direction == SortDirection.Desc;
+        var key = sortBy?.Trim().ToLowerInvariant();
+        if (string.IsNullOrEmpty(key))
+        {
+            return desc
+                ? query.OrderByDescending(e => e.LocationNumber)
+                : query.OrderBy(e => e.LocationNumber);
+        }
+
+        return key switch
+        {
+            "id" => desc ? query.OrderByDescending(e => e.Id) : query.OrderBy(e => e.Id),
+            "locationnumber" => desc
+                ? query.OrderByDescending(e => e.LocationNumber)
+                : query.OrderBy(e => e.LocationNumber),
+            "name" => desc ? query.OrderByDescending(e => e.Name) : query.OrderBy(e => e.Name),
+            "displayname" => desc
+                ? query.OrderByDescending(e => e.DisplayName)
+                : query.OrderBy(e => e.DisplayName),
+            "address" => desc
+                ? query.OrderByDescending(e => e.FormattedAddress ?? e.AddressLine1)
+                : query.OrderBy(e => e.FormattedAddress ?? e.AddressLine1),
+            "email" => OrderByDefaultContactValue(query, ContactCommunicationType.Email, desc),
+            "phone" => OrderByDefaultContactValue(query, ContactCommunicationType.Phone, desc),
+            "customertype" => desc
+                ? query.OrderByDescending(e => e.CustomerType)
+                : query.OrderBy(e => e.CustomerType),
+            _ => desc ? query.OrderByDescending(e => e.Id) : query.OrderBy(e => e.Id)
+        };
+    }
+
+    private IQueryable<CrmServiceLocation> OrderByDefaultContactValue(
+        IQueryable<CrmServiceLocation> query,
+        ContactCommunicationType communicationType,
+        bool desc)
+    {
+        var typeId = (short)communicationType;
+        var values =
+            from contact in dbContext.CrmContacts
+            where contact.CustomerId == null
+                && contact.IsDefaultContact
+                && contact.ServiceLocationId != null
+            join communication in dbContext.CrmContactCommunications
+                on contact.Id equals communication.ContactId
+            where communication.IsPrimary
+                && communication.IsActive
+                && communication.CommunicationTypeId == typeId
+            select new { LocationId = contact.ServiceLocationId!.Value, communication.Value };
+
+        var joined =
+            from location in query
+            join value in values on location.Id equals value.LocationId into matches
+            from value in matches.DefaultIfEmpty()
+            select new { location, SortValue = value == null ? null : value.Value };
+
+        var ordered = desc
+            ? joined.OrderByDescending(row => row.SortValue)
+            : joined.OrderBy(row => row.SortValue);
+
+        return ordered.Select(row => row.location);
+    }
+
     private async Task<CrmServiceLocationListSummaryDto> BuildServiceLocationSummaryAsync(
         long customerId,
         CancellationToken cancellationToken)
@@ -579,6 +698,16 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
         var activeCount = await locations.CountAsync(e => e.IsActive, cancellationToken);
         var inactiveCount = await locations.CountAsync(e => !e.IsActive, cancellationToken);
         return new CrmServiceLocationListSummaryDto(activeCount, inactiveCount);
+    }
+
+    private async Task<CrmCompanyServiceLocationListSummaryDto> BuildCompanyServiceLocationSummaryAsync(
+        CancellationToken cancellationToken)
+    {
+        var locations = dbContext.CrmServiceLocations.AsNoTracking();
+        var totalCount = await locations.CountAsync(cancellationToken);
+        var activeCount = await locations.CountAsync(e => e.IsActive, cancellationToken);
+        var inactiveCount = await locations.CountAsync(e => !e.IsActive, cancellationToken);
+        return new CrmCompanyServiceLocationListSummaryDto(totalCount, activeCount, inactiveCount);
     }
 
     private async Task<IReadOnlyList<CrmServiceLocationSummaryDto>> MapLocationSummariesAsync(
@@ -639,6 +768,102 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
                 location.IsActive,
                 location.CustomerType);
         }).ToList();
+    }
+
+    private async Task<IReadOnlyList<CrmCompanyServiceLocationSummaryDto>> MapCompanyLocationSummariesAsync(
+        List<CrmServiceLocation> locations,
+        CancellationToken cancellationToken)
+    {
+        if (locations.Count == 0)
+        {
+            return [];
+        }
+
+        var ids = locations.Select(l => l.Id).ToArray();
+        var customerIds = locations.Select(l => l.CustomerId).Distinct().ToArray();
+        var customers = await dbContext.CrmCustomers
+            .AsNoTracking()
+            .Where(c => customerIds.Contains(c.Id))
+            .Select(c => new { c.Id, c.DisplayName })
+            .ToListAsync(cancellationToken);
+        var customerNames = customers.ToDictionary(c => c.Id, c => c.DisplayName ?? string.Empty);
+
+        var contacts = await dbContext.CrmContacts
+            .AsNoTracking()
+            .Where(c => c.ServiceLocationId != null
+                && ids.Contains(c.ServiceLocationId.Value)
+                && c.CustomerId == null
+                && c.IsDefaultContact)
+            .ToListAsync(cancellationToken);
+
+        var contactIds = contacts.Select(c => c.Id).ToArray();
+        var communications = contactIds.Length == 0
+            ? []
+            : await dbContext.CrmContactCommunications
+                .AsNoTracking()
+                .Where(cc => contactIds.Contains(cc.ContactId)
+                    && cc.IsPrimary
+                    && cc.IsActive
+                    && (cc.CommunicationTypeId == (short)ContactCommunicationType.Email
+                        || cc.CommunicationTypeId == (short)ContactCommunicationType.Phone))
+                .ToListAsync(cancellationToken);
+
+        var contactByLocation = contacts
+            .GroupBy(c => c.ServiceLocationId!.Value)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        return locations.Select(location =>
+        {
+            contactByLocation.TryGetValue(location.Id, out var contact);
+            string? email = null;
+            string? phone = null;
+            if (contact is not null)
+            {
+                email = communications.FirstOrDefault(cc =>
+                    cc.ContactId == contact.Id && cc.CommunicationTypeId == (short)ContactCommunicationType.Email)?.Value;
+                phone = communications.FirstOrDefault(cc =>
+                    cc.ContactId == contact.Id && cc.CommunicationTypeId == (short)ContactCommunicationType.Phone)?.Value;
+            }
+
+            customerNames.TryGetValue(location.CustomerId, out var customerName);
+            return new CrmCompanyServiceLocationSummaryDto(
+                location.Id,
+                location.CustomerId,
+                customerName ?? string.Empty,
+                location.LocationNumber,
+                location.Name,
+                location.DisplayName,
+                ComposeServiceLocationAddress(location),
+                email,
+                phone,
+                location.IsActive,
+                location.CustomerType);
+        }).ToList();
+    }
+
+    private static string? ComposeServiceLocationAddress(CrmServiceLocation location)
+    {
+        if (!string.IsNullOrWhiteSpace(location.FormattedAddress))
+        {
+            return location.FormattedAddress.Trim();
+        }
+
+        var parts = new[]
+        {
+            location.AddressLine1,
+            location.AddressLine2,
+            location.AddressLine3,
+            location.AddressLine4,
+            location.City,
+            location.State,
+            location.PostalCode,
+            location.Country
+        };
+
+        var joined = string.Join(
+            ", ",
+            parts.Where(part => !string.IsNullOrWhiteSpace(part)).Select(part => part!.Trim()));
+        return joined.Length == 0 ? null : joined;
     }
 
     private static CrmCustomerDetailDto MapToDetail(
