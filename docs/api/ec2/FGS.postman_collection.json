@@ -32706,6 +32706,132 @@
                   ],
                   "type": "bearer"
                 }
+              },
+              "event": [
+                {
+                  "script": {
+                    "exec": [
+                      "const body = pm.response.json();",
+                      "if (body.success && body.data && body.data.serviceLocationId != null) {",
+                      "  pm.environment.set(\"serviceLocationId\", String(body.data.serviceLocationId));",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  },
+                  "listen": "test"
+                }
+              ]
+            },
+            {
+              "name": "Get service location",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
+                  "raw": "https://api-dev.fieldwhizey.com/crm-service/api/v1/customer/{{customerId}}/servicelocation/{{serviceLocationId}}",
+                  "path": [
+                    "crm-service",
+                    "api",
+                    "v1",
+                    "customer",
+                    "{{customerId}}",
+                    "servicelocation",
+                    "{{serviceLocationId}}"
+                  ]
+                },
+                "description": "Get one service location for the edit form. Requires CUSTOMER.VIEW. 404 when the customer is missing, the location is missing, or the location belongs to another customer.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "Update service location",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
+                  "raw": "https://api-dev.fieldwhizey.com/crm-service/api/v1/customer/{{customerId}}/servicelocation/{{serviceLocationId}}",
+                  "path": [
+                    "crm-service",
+                    "api",
+                    "v1",
+                    "customer",
+                    "{{customerId}}",
+                    "servicelocation",
+                    "{{serviceLocationId}}"
+                  ]
+                },
+                "description": "Full replace of a service location. Requires CUSTOMER.EDIT. Address line 1, postal code, state, and country are required. Location number, sequence, and customer id stay unchanged. Returns the location detail.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "type": "text",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "raw": "{\n  \"serviceLocationType\": \"commercial\",\n  \"customerType\": \"propertyManagement\",\n  \"name\": \"Warehouse\",\n  \"displayName\": \"Warehouse\",\n  \"addressLine1\": \"200 Oak Ave\",\n  \"city\": \"Austin\",\n  \"state\": \"TX\",\n  \"country\": \"US\",\n  \"postalCode\": \"78702\",\n  \"taxExempt\": false,\n  \"primaryContactName\": \"Warehouse Contact\",\n  \"primaryContactEmail\": \"warehouse@acme.example\",\n  \"primaryContactPhone\": \"+1 555-0188\",\n  \"canReceiveEstimates\": false,\n  \"canReceiveInvoices\": true,\n  \"canReceiveAppointments\": true,\n  \"tagIds\": [4],\n  \"isActive\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  },
+                  "mode": "raw"
+                },
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
               }
             },
             {

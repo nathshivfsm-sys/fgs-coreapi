@@ -11,6 +11,12 @@ public interface ICrmCustomerWriteService
         CrmServiceLocationCreateDto dto,
         CancellationToken cancellationToken = default);
 
+    Task<CrmServiceLocationDetailDto> UpdateServiceLocationAsync(
+        long customerId,
+        long serviceLocationId,
+        CrmServiceLocationUpdateDto dto,
+        CancellationToken cancellationToken = default);
+
     Task<CrmCustomerDetailDto> UpdateAsync(long id, CrmCustomerUpdateDto dto, CancellationToken cancellationToken = default);
 
     Task<CrmCustomerDetailDto> PatchAsync(long id, CrmCustomerPatchDto dto, CancellationToken cancellationToken = default);

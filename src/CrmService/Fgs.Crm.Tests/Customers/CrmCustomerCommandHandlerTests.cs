@@ -1,4 +1,5 @@
 using Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Dtos;
 using Fgs.Crm.Application.Common.CrmCrud;
 using Fgs.Crm.Domain.Entities;
@@ -297,6 +298,212 @@ public sealed class CrmCustomerCommandHandlerTests
     }
 
     [Fact]
+    public async Task UpdateServiceLocation_ChangesEditableFieldsAndLeavesNumberAndDefaults()
+    {
+        await using var context = await CreateContextAsync();
+        context.CrmDefaultServiceLocations.Add(new CrmDefaultServiceLocation
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            DefaultPaymentMethodId = 21,
+            DefaultMaterialPricingMatrixId = 31,
+            DefaultLaborPricingMatrixId = 32,
+            DefaultOtherPricingMatrixId = 33,
+            InvoiceEmailTemplateId = 41,
+            EstimateEmailTemplateId = 42,
+            InvoiceSmsTemplateId = 43,
+            EstimateSmsTemplateId = 44,
+            EmailAllowed = false,
+            SmsAllowed = false,
+            TaxExempt = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "seed"
+        });
+        await context.SaveChangesAsync();
+
+        var writeService = CreateWriteService(context);
+        var created = await writeService.CreateAsync(SampleCreateDto() with
+        {
+            CreationOption = CrmCustomerCreationOption.BillToAndServiceLocation,
+            ServiceLocation = new CrmServiceLocationCreateDto(
+                ServiceLocationType.Commercial,
+                "Warehouse",
+                "Warehouse dock",
+                AddressLine1: "200 Oak",
+                City: "Austin",
+                State: "TX",
+                Country: "US",
+                PostalCode: "78702",
+                PrimaryContactName: "Old Contact",
+                PrimaryContactEmail: "old@acme.example",
+                PrimaryContactPhone: "+1 555-0100",
+                CanReceiveEstimates: false,
+                CanReceiveInvoices: false,
+                CanReceiveAppointments: true,
+                TagIds: [4, 1])
+        });
+
+        var contactBefore = await context.CrmContacts.SingleAsync(c => c.ServiceLocationId == created.ServiceLocationId);
+        var update = new CrmServiceLocationUpdateDto(
+            ServiceLocationType.Industrial,
+            "Plant",
+            "Plant floor",
+            "500 Pine",
+            null,
+            null,
+            null,
+            null,
+            "CA",
+            null,
+            "US",
+            "90001",
+            "500 Pine, CA 90001",
+            34.05m,
+            -118.25m,
+            "place-1",
+            false,
+            "New Contact",
+            "new@acme.example",
+            null,
+            true,
+            true,
+            false,
+            [9, 2],
+            CustomerType.Builder,
+            false);
+        var cache = new Mock<ICacheService>();
+        var handler = new UpdateCrmCustomerServiceLocationCommandHandler(
+            writeService,
+            cache.Object,
+            CreateTenantContextAccessor(),
+            NullLogger<UpdateCrmCustomerServiceLocationCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new UpdateCrmCustomerServiceLocationCommand(
+                created.Customer.Id,
+                created.ServiceLocationId!.Value,
+                update),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.StatusCode.Should().Be(200);
+        var detail = response.Data!;
+        detail.Id.Should().Be(created.ServiceLocationId);
+        detail.CustomerId.Should().Be(created.Customer.Id);
+        detail.LocationSequence.Should().Be(1);
+        detail.LocationNumber.Should().Be("CUST01-1");
+        detail.Name.Should().Be("Plant");
+        detail.DisplayName.Should().Be("Plant floor");
+        detail.AddressLine1.Should().Be("500 Pine");
+        detail.City.Should().BeNull();
+        detail.State.Should().Be("CA");
+        detail.Country.Should().Be("US");
+        detail.PostalCode.Should().Be("90001");
+        detail.ServiceLocationType.Should().Be(ServiceLocationType.Industrial);
+        detail.CustomerType.Should().Be(CustomerType.Builder);
+        detail.TaxExempt.Should().BeFalse();
+        detail.IsActive.Should().BeFalse();
+        detail.Latitude.Should().Be(34.05m);
+        detail.Longitude.Should().Be(-118.25m);
+        detail.PlaceId.Should().Be("place-1");
+        detail.PrimaryContactName.Should().Be("New Contact");
+        detail.PrimaryContactEmail.Should().Be("new@acme.example");
+        detail.PrimaryContactPhone.Should().BeNull();
+        detail.CanReceiveEstimates.Should().BeTrue();
+        detail.CanReceiveInvoices.Should().BeTrue();
+        detail.CanReceiveAppointments.Should().BeFalse();
+        detail.TagIds.Should().Equal(9L, 2L);
+
+        var location = await context.CrmServiceLocations.SingleAsync();
+        location.LocationNumber.Should().Be("CUST01-1");
+        location.LocationSequence.Should().Be(1);
+        location.CustomerId.Should().Be(created.Customer.Id);
+        location.DefaultPaymentMethodId.Should().Be(21);
+        location.DefaultMaterialPricingMatrixId.Should().Be(31);
+        location.DefaultLaborPricingMatrixId.Should().Be(32);
+        location.DefaultOtherPricingMatrixId.Should().Be(33);
+        location.InvoiceEmailTemplateId.Should().Be(41);
+        location.EstimateEmailTemplateId.Should().Be(42);
+        location.InvoiceSmsTemplateId.Should().Be(43);
+        location.EstimateSmsTemplateId.Should().Be(44);
+        location.EmailAllowed.Should().BeFalse();
+        location.SmsAllowed.Should().BeFalse();
+
+        var contact = await context.CrmContacts.SingleAsync(c => c.ServiceLocationId == location.Id);
+        contact.Id.Should().Be(contactBefore.Id);
+        var phone = await context.CrmContactCommunications.SingleAsync(
+            c => c.ContactId == contact.Id && c.CommunicationTypeId == (short)ContactCommunicationType.Phone);
+        phone.IsPrimary.Should().BeFalse();
+        phone.IsActive.Should().BeFalse();
+
+        var repository = new CrmCustomerReadRepository(context);
+        var listed = await repository.ListServiceLocationsAsync(
+            created.Customer.Id,
+            new CrmListQuery(IsActive: false));
+        listed!.Items.Should().ContainSingle();
+        listed.Items.Single().Email.Should().Be("new@acme.example");
+        listed.Items.Single().Phone.Should().BeNull();
+
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "customer"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        var cleared = await writeService.UpdateServiceLocationAsync(
+            created.Customer.Id,
+            location.Id,
+            update with { TagIds = null });
+        cleared.TagIds.Should().BeEmpty();
+        cleared.LocationNumber.Should().Be("CUST01-1");
+        cleared.PrimaryContactEmail.Should().Be("new@acme.example");
+    }
+
+    [Fact]
+    public async Task UpdateServiceLocation_UnknownCustomerOrForeignLocation_IsNotFound()
+    {
+        await using var context = await CreateContextAsync();
+        var writeService = CreateWriteService(context);
+        var first = await writeService.CreateAsync(SampleCreateDto() with
+        {
+            CreationOption = CrmCustomerCreationOption.BillToAndServiceLocation,
+            ServiceLocation = new CrmServiceLocationCreateDto(
+                ServiceLocationType.Residential,
+                "Main",
+                "Main site")
+        });
+        var second = await writeService.CreateAsync(SampleCreateDto() with
+        {
+            CustomerNumber = "CUST02",
+            CreationOption = CrmCustomerCreationOption.BillToAndServiceLocation,
+            ServiceLocation = new CrmServiceLocationCreateDto(
+                ServiceLocationType.Commercial,
+                "Other",
+                "Other site")
+        });
+
+        var update = new CrmServiceLocationUpdateDto(
+            ServiceLocationType.Industrial,
+            "Plant",
+            "Plant floor",
+            IsActive: true);
+
+        var unknownCustomer = () => writeService.UpdateServiceLocationAsync(
+            999,
+            first.ServiceLocationId!.Value,
+            update);
+        var foreignLocation = () => writeService.UpdateServiceLocationAsync(
+            first.Customer.Id,
+            second.ServiceLocationId!.Value,
+            update);
+
+        await unknownCustomer.Should().ThrowAsync<KeyNotFoundException>();
+        await foreignLocation.Should().ThrowAsync<KeyNotFoundException>();
+        (await context.CrmServiceLocations.SingleAsync(l => l.Id == first.ServiceLocationId)).Name.Should().Be("Main");
+        (await context.CrmServiceLocations.SingleAsync(l => l.Id == second.ServiceLocationId)).Name.Should().Be("Other");
+    }
+
+    [Fact]
     public async Task Create_StoresLocationContactSeparatelyFromCustomerContact()
     {
         await using var context = await CreateContextAsync();
@@ -448,7 +655,11 @@ public sealed class CrmCustomerCommandHandlerTests
             tenantAccessor,
             new DateTimeProvider());
         var unitOfWork = new EfUnitOfWork<FgsCrmDbContext>(context);
-        return new CrmCustomerWriteService(context, unitOfWork, auditHelper);
+        return new CrmCustomerWriteService(
+            context,
+            unitOfWork,
+            auditHelper,
+            new CrmCustomerReadRepository(context));
     }
 
     private static async Task<FgsCrmDbContext> CreateContextAsync()

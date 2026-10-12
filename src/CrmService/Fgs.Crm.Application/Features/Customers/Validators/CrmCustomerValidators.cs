@@ -4,6 +4,7 @@ using Fgs.Crm.Application.Features.Customers.Commands.AddCrmCustomerServiceLocat
 using Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Dtos;
 using Fgs.Foundation.Validation;
 using FluentValidation;
@@ -216,66 +217,63 @@ internal sealed class CrmServiceLocationCreateDtoValidator : AbstractValidator<C
 {
     public CrmServiceLocationCreateDtoValidator()
     {
-        RuleFor(x => x.ServiceLocationType).IsInEnum();
-        RuleFor(x => x.CustomerType)
+        CrmServiceLocationFieldRules.Apply(this);
+    }
+}
+
+internal sealed class CrmServiceLocationUpdateDtoValidator : AbstractValidator<CrmServiceLocationUpdateDto>
+{
+    public CrmServiceLocationUpdateDtoValidator()
+    {
+        CrmServiceLocationFieldRules.Apply(this);
+    }
+}
+
+internal static class CrmServiceLocationFieldRules
+{
+    public static void Apply<T>(AbstractValidator<T> validator)
+        where T : ICrmServiceLocationInput
+    {
+        validator.RuleFor(x => x.ServiceLocationType).IsInEnum();
+        validator.RuleFor(x => x.CustomerType)
             .IsInEnum()
             .When(x => x.CustomerType.HasValue);
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.DisplayName).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.AddressLine1).MaximumLength(200);
-        RuleFor(x => x.AddressLine2).MaximumLength(200);
-        RuleFor(x => x.AddressLine3).MaximumLength(200);
-        RuleFor(x => x.AddressLine4).MaximumLength(200);
-        RuleFor(x => x.City).MaximumLength(100);
-        RuleFor(x => x.State).MaximumLength(100);
-        RuleFor(x => x.County).MaximumLength(100);
-        RuleFor(x => x.Country).MaximumLength(100);
-        RuleFor(x => x.PostalCode).MaximumLength(20);
-        RuleFor(x => x.FormattedAddress).MaximumLength(1000);
-        RuleFor(x => x.PlaceId).MaximumLength(500);
+        validator.RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        validator.RuleFor(x => x.DisplayName).NotEmpty().MaximumLength(200);
+        validator.RuleFor(x => x.AddressLine1).NotEmpty().MaximumLength(200);
+        validator.RuleFor(x => x.AddressLine2).MaximumLength(200);
+        validator.RuleFor(x => x.AddressLine3).MaximumLength(200);
+        validator.RuleFor(x => x.AddressLine4).MaximumLength(200);
+        validator.RuleFor(x => x.City).MaximumLength(100);
+        validator.RuleFor(x => x.State).NotEmpty().MaximumLength(100);
+        validator.RuleFor(x => x.County).MaximumLength(100);
+        validator.RuleFor(x => x.Country).NotEmpty().MaximumLength(100);
+        validator.RuleFor(x => x.PostalCode).NotEmpty().MaximumLength(20);
+        validator.RuleFor(x => x.FormattedAddress).MaximumLength(1000);
+        validator.RuleFor(x => x.PlaceId).MaximumLength(500);
 
-        When(
-            x => CrmCustomerFieldValidation.HasAddressInput(
-                x.AddressLine1,
-                x.AddressLine2,
-                x.AddressLine3,
-                x.AddressLine4,
-                x.City,
-                x.State,
-                x.County,
-                x.Country,
-                x.PostalCode,
-                x.FormattedAddress),
-            () =>
-            {
-                RuleFor(x => x.AddressLine1).NotEmpty();
-                RuleFor(x => x.PostalCode).NotEmpty();
-                RuleFor(x => x.State).NotEmpty();
-                RuleFor(x => x.Country).NotEmpty();
-            });
-
-        RuleFor(x => x.PrimaryContactName)
+        validator.RuleFor(x => x.PrimaryContactName)
             .MaximumLength(200)
             .When(x => !string.IsNullOrWhiteSpace(x.PrimaryContactName));
 
-        RuleFor(x => x.PrimaryContactName)
+        validator.RuleFor(x => x.PrimaryContactName)
             .NotEmpty()
             .WithMessage("Primary contact name is required when email or phone is provided.")
             .When(x => !string.IsNullOrWhiteSpace(x.PrimaryContactEmail)
                 || !string.IsNullOrWhiteSpace(x.PrimaryContactPhone));
 
-        RuleFor(x => x.PrimaryContactEmail)
+        validator.RuleFor(x => x.PrimaryContactEmail)
             .MaximumLength(1000)
             .MustBeValidEmailAddress()
             .When(x => !string.IsNullOrWhiteSpace(x.PrimaryContactEmail));
 
-        RuleFor(x => x.PrimaryContactPhone)
+        validator.RuleFor(x => x.PrimaryContactPhone)
             .MaximumLength(50)
             .Matches(@"^\+?[\d\s().-]+$")
             .WithMessage("Phone must contain only digits, spaces, and phone punctuation.")
             .When(x => !string.IsNullOrWhiteSpace(x.PrimaryContactPhone));
 
-        RuleFor(x => x.TagIds)
+        validator.RuleFor(x => x.TagIds)
             .Must(CrmCustomerFieldValidation.TagIdsAreDistinct)
             .WithMessage("TagIds must not contain duplicates.");
     }
@@ -294,6 +292,24 @@ public sealed class AddCrmCustomerServiceLocationCommandValidator : AbstractVali
         When(x => x.Dto is not null, () =>
         {
             RuleFor(x => x.Dto).SetValidator(new CrmServiceLocationCreateDtoValidator());
+        });
+    }
+}
+
+public sealed class UpdateCrmCustomerServiceLocationCommandValidator : AbstractValidator<UpdateCrmCustomerServiceLocationCommand>
+{
+    public UpdateCrmCustomerServiceLocationCommandValidator()
+    {
+        RuleFor(x => x.CustomerId).GreaterThan(0);
+        RuleFor(x => x.ServiceLocationId).GreaterThan(0);
+        RuleFor(x => x.Dto)
+            .NotNull()
+            .WithMessage(
+                "Request body is required. Ensure the JSON is valid (unresolved Postman variables produce invalid JSON).");
+
+        When(x => x.Dto is not null, () =>
+        {
+            RuleFor(x => x.Dto).SetValidator(new CrmServiceLocationUpdateDtoValidator());
         });
     }
 }

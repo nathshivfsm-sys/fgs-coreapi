@@ -80,7 +80,15 @@ public sealed class CrmEntityAuditHelper
         assignScope(tenantId, companyId);
     }
 
-    public void StampForUpdate(CrmCustomer entity)
+    public void StampForUpdate(CrmCustomer entity) => StampUpdated(entity);
+
+    public void StampForUpdate(CrmServiceLocation entity) => StampUpdated(entity);
+
+    public void StampForUpdate(CrmContact entity) => StampUpdated(entity);
+
+    public void StampForUpdate(CrmContactCommunication entity) => StampUpdated(entity);
+
+    private void StampUpdated(FgsEntityBase entity)
     {
         entity.UpdatedOn = _dateTimeProvider.UtcNow;
         entity.UpdatedBy = ResolveActor();

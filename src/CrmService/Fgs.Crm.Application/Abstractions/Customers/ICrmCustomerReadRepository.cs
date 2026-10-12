@@ -19,6 +19,11 @@ public interface ICrmCustomerReadRepository
         bool includeSummary = true,
         CancellationToken cancellationToken = default);
 
+    Task<CrmServiceLocationDetailDto?> GetServiceLocationByIdAsync(
+        long customerId,
+        long serviceLocationId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<CrmCustomerLookupDto>> LookupAsync(
         bool activeOnly = true,
         CancellationToken cancellationToken = default);

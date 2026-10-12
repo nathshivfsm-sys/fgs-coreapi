@@ -72,6 +72,92 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
         return new CrmServiceLocationListResultDto(items, page, pageSize, totalCount, summary);
     }
 
+    public async Task<CrmServiceLocationDetailDto?> GetServiceLocationByIdAsync(
+        long customerId,
+        long serviceLocationId,
+        CancellationToken cancellationToken = default)
+    {
+        var location = await dbContext.CrmServiceLocations
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                e => e.Id == serviceLocationId && e.CustomerId == customerId,
+                cancellationToken);
+
+        if (location is null)
+        {
+            return null;
+        }
+
+        var contact = await dbContext.CrmContacts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                c => c.ServiceLocationId == location.Id
+                    && c.CustomerId == null
+                    && c.IsDefaultContact,
+                cancellationToken);
+
+        var communications = contact is null
+            ? []
+            : await dbContext.CrmContactCommunications
+                .AsNoTracking()
+                .Where(cc => cc.ContactId == contact.Id
+                    && cc.IsPrimary
+                    && cc.IsActive
+                    && (cc.CommunicationTypeId == (short)ContactCommunicationType.Email
+                        || cc.CommunicationTypeId == (short)ContactCommunicationType.Phone))
+                .ToListAsync(cancellationToken);
+
+        var tagIds = await dbContext.CrmEntityTags
+            .AsNoTracking()
+            .Where(t => t.EntityTypeId == (int)CrmTaggedEntityType.ServiceLocation && t.EntityId == location.Id)
+            .OrderBy(t => t.DisplayOrder)
+            .ThenBy(t => t.TagId)
+            .Select(t => t.TagId)
+            .ToListAsync(cancellationToken);
+
+        string? email = null;
+        string? phone = null;
+        if (contact is not null)
+        {
+            email = communications.FirstOrDefault(cc =>
+                cc.CommunicationTypeId == (short)ContactCommunicationType.Email)?.Value;
+            phone = communications.FirstOrDefault(cc =>
+                cc.CommunicationTypeId == (short)ContactCommunicationType.Phone)?.Value;
+        }
+
+        return new CrmServiceLocationDetailDto(
+            location.Id,
+            location.CustomerId,
+            location.LocationSequence,
+            location.LocationNumber,
+            location.IsActive,
+            location.ServiceLocationType,
+            location.Name,
+            location.DisplayName,
+            location.AddressLine1,
+            location.AddressLine2,
+            location.AddressLine3,
+            location.AddressLine4,
+            location.City,
+            location.State,
+            location.County,
+            location.Country,
+            location.PostalCode,
+            location.FormattedAddress,
+            location.Latitude,
+            location.Longitude,
+            location.PlaceId,
+            location.TaxExempt,
+            contact?.DisplayName,
+            email,
+            phone,
+            contact?.CanReceiveEstimates ?? false,
+            contact?.CanReceiveInvoices ?? false,
+            contact?.CanReceiveAppointments ?? true,
+            tagIds,
+            location.CustomerType);
+    }
+
     public async Task<CrmCustomerListResultDto> ListAsync(
         CrmListQuery query,
         CrmCustomerListFilters filters,
@@ -437,6 +523,7 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
             from communication in dbContext.CrmContactCommunications
             join contact in dbContext.CrmContacts on communication.ContactId equals contact.Id
             where communication.IsPrimary
+                && communication.IsActive
                 && (communication.CommunicationTypeId == emailType || communication.CommunicationTypeId == phoneType)
                 && communication.Value.ToLower().Contains(term)
                 && contact.ServiceLocationId != null
@@ -519,6 +606,7 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
                 .AsNoTracking()
                 .Where(cc => contactIds.Contains(cc.ContactId)
                     && cc.IsPrimary
+                    && cc.IsActive
                     && (cc.CommunicationTypeId == (short)ContactCommunicationType.Email
                         || cc.CommunicationTypeId == (short)ContactCommunicationType.Phone))
                 .ToListAsync(cancellationToken);

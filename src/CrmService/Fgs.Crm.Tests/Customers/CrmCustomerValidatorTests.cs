@@ -2,6 +2,7 @@ using Fgs.Crm.Application.Abstractions.Customers;
 using Fgs.Crm.Application.Features.Customers.Commands.AddCrmCustomerServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Dtos;
 using Fgs.Crm.Application.Features.Customers.Validators;
 using Fgs.Crm.Domain.Enums;
@@ -302,30 +303,84 @@ public sealed class CrmCustomerValidatorTests
     }
 
     [Fact]
-    public async Task CreateValidator_LocationPartialAddressFailsAndBlankAddressIsAllowed()
+    public async Task CreateValidator_LocationAddressRequiresLine1PostalStateAndCountry()
     {
         var validator = new CreateCrmCustomerCommandValidator(_readRepository.Object);
-        var partial = new CreateCrmCustomerCommand(ValidCreateDto() with
+        var missingAddress = new CreateCrmCustomerCommand(ValidCreateDto() with
         {
             CreationOption = CrmCustomerCreationOption.BillToAndServiceLocation,
-            ServiceLocation = ValidLocation() with { AddressLine2 = "Suite 2" }
+            ServiceLocation = new CrmServiceLocationCreateDto(
+                ServiceLocationType.Residential,
+                "Main",
+                "Main site",
+                AddressLine2: "Suite 2",
+                City: "Austin")
         });
-        var blank = new CreateCrmCustomerCommand(ValidCreateDto() with
+        var optionalBlank = new CreateCrmCustomerCommand(ValidCreateDto() with
         {
             CreationOption = CrmCustomerCreationOption.BillToAndServiceLocation,
-            ServiceLocation = ValidLocation()
+            ServiceLocation = ValidLocation() with
+            {
+                AddressLine2 = " ",
+                AddressLine3 = null,
+                AddressLine4 = "",
+                City = null,
+                County = null
+            }
         });
 
-        var partialResult = await validator.ValidateAsync(partial);
-        var blankResult = await validator.ValidateAsync(blank);
+        var missingResult = await validator.ValidateAsync(missingAddress);
+        var optionalResult = await validator.ValidateAsync(optionalBlank);
 
-        partialResult.IsValid.Should().BeFalse();
-        partialResult.Errors.Should().Contain(e => e.PropertyName == "Dto.ServiceLocation.AddressLine1");
-        partialResult.Errors.Should().Contain(e => e.PropertyName == "Dto.ServiceLocation.PostalCode");
-        partialResult.Errors.Should().Contain(e => e.PropertyName == "Dto.ServiceLocation.State");
-        partialResult.Errors.Should().Contain(e => e.PropertyName == "Dto.ServiceLocation.Country");
-        partialResult.Errors.Should().NotContain(e => e.PropertyName == "Dto.ServiceLocation.AddressLine2");
-        blankResult.IsValid.Should().BeTrue();
+        missingResult.IsValid.Should().BeFalse();
+        missingResult.Errors.Should().Contain(e => e.PropertyName == "Dto.ServiceLocation.AddressLine1");
+        missingResult.Errors.Should().Contain(e => e.PropertyName == "Dto.ServiceLocation.PostalCode");
+        missingResult.Errors.Should().Contain(e => e.PropertyName == "Dto.ServiceLocation.State");
+        missingResult.Errors.Should().Contain(e => e.PropertyName == "Dto.ServiceLocation.Country");
+        missingResult.Errors.Should().NotContain(e => e.PropertyName == "Dto.ServiceLocation.AddressLine2");
+        missingResult.Errors.Should().NotContain(e => e.PropertyName == "Dto.ServiceLocation.City");
+        optionalResult.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateServiceLocationValidator_RequiresNameDisplayNameAddressAndContactName()
+    {
+        var validator = new UpdateCrmCustomerServiceLocationCommandValidator();
+        var missing = new UpdateCrmCustomerServiceLocationCommand(
+            1,
+            2,
+            new CrmServiceLocationUpdateDto(ServiceLocationType.Commercial));
+        var missingContactName = new UpdateCrmCustomerServiceLocationCommand(
+            1,
+            2,
+            ValidLocationUpdate() with { PrimaryContactPhone = "+1 555-0100" });
+        var optionalAddress = new UpdateCrmCustomerServiceLocationCommand(
+            1,
+            2,
+            ValidLocationUpdate() with
+            {
+                AddressLine2 = null,
+                AddressLine3 = " ",
+                AddressLine4 = "",
+                City = null,
+                County = null
+            });
+
+        var missingResult = await validator.ValidateAsync(missing);
+        var contactResult = await validator.ValidateAsync(missingContactName);
+        var optionalResult = await validator.ValidateAsync(optionalAddress);
+
+        missingResult.IsValid.Should().BeFalse();
+        missingResult.Errors.Should().Contain(e => e.PropertyName == "Dto.Name");
+        missingResult.Errors.Should().Contain(e => e.PropertyName == "Dto.DisplayName");
+        missingResult.Errors.Should().Contain(e => e.PropertyName == "Dto.AddressLine1");
+        missingResult.Errors.Should().Contain(e => e.PropertyName == "Dto.PostalCode");
+        missingResult.Errors.Should().Contain(e => e.PropertyName == "Dto.State");
+        missingResult.Errors.Should().Contain(e => e.PropertyName == "Dto.Country");
+        missingResult.Errors.Should().NotContain(e => e.PropertyName == "Dto.City");
+        contactResult.IsValid.Should().BeFalse();
+        contactResult.Errors.Should().Contain(e => e.PropertyName == "Dto.PrimaryContactName");
+        optionalResult.IsValid.Should().BeTrue();
     }
 
     [Fact]
@@ -365,5 +420,23 @@ public sealed class CrmCustomerValidatorTests
         };
 
     private static CrmServiceLocationCreateDto ValidLocation() =>
-        new(ServiceLocationType.Residential, "Main", "Main site");
+        new(
+            ServiceLocationType.Residential,
+            "Main",
+            "Main site",
+            AddressLine1: "100 Main St",
+            State: "TX",
+            Country: "US",
+            PostalCode: "78701");
+
+    private static CrmServiceLocationUpdateDto ValidLocationUpdate() =>
+        new(
+            ServiceLocationType.Residential,
+            "Main",
+            "Main site",
+            AddressLine1: "100 Main St",
+            State: "TX",
+            Country: "US",
+            PostalCode: "78701",
+            IsActive: true);
 }

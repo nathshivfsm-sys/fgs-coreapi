@@ -5,8 +5,10 @@ using Fgs.Crm.Application.Features.Customers.Commands.AddCrmCustomerServiceLocat
 using Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Dtos;
 using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerById;
+using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerServiceLocationById;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomerServiceLocations;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers;
 using Fgs.Crm.Application.Features.Customers.Queries.LookupCrmCustomers;
@@ -129,6 +131,38 @@ public sealed class CustomerController(IMediator mediator) : ControllerBase
     {
         var response = await mediator.Send(
             new AddCrmCustomerServiceLocationCommand(id, request),
+            cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [RequirePermission(FgsPermissionCodes.CustomerView)]
+    [HttpGet("{id:long}/servicelocation/{locationId:long}")]
+    [ProducesResponseType(typeof(ApiResponse<CrmServiceLocationDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetServiceLocation(
+        long id,
+        long locationId,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(
+            new GetCrmCustomerServiceLocationByIdQuery(id, locationId),
+            cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [RequirePermission(FgsPermissionCodes.CustomerEdit)]
+    [HttpPut("{id:long}/servicelocation/{locationId:long}")]
+    [ProducesResponseType(typeof(ApiResponse<CrmServiceLocationDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateServiceLocation(
+        long id,
+        long locationId,
+        [FromBody] CrmServiceLocationUpdateDto request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(
+            new UpdateCrmCustomerServiceLocationCommand(id, locationId, request),
             cancellationToken);
         return StatusCode(response.StatusCode, response);
     }

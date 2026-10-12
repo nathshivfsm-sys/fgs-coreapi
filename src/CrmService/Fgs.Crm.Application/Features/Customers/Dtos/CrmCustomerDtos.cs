@@ -68,6 +68,59 @@ public sealed record CrmCustomerLookupDto(
     string CustomerNumber,
     string DisplayName);
 
+public interface ICrmServiceLocationInput
+{
+    ServiceLocationType ServiceLocationType { get; }
+
+    string? Name { get; }
+
+    string? DisplayName { get; }
+
+    string? AddressLine1 { get; }
+
+    string? AddressLine2 { get; }
+
+    string? AddressLine3 { get; }
+
+    string? AddressLine4 { get; }
+
+    string? City { get; }
+
+    string? State { get; }
+
+    string? County { get; }
+
+    string? Country { get; }
+
+    string? PostalCode { get; }
+
+    string? FormattedAddress { get; }
+
+    decimal? Latitude { get; }
+
+    decimal? Longitude { get; }
+
+    string? PlaceId { get; }
+
+    bool? TaxExempt { get; }
+
+    string? PrimaryContactName { get; }
+
+    string? PrimaryContactEmail { get; }
+
+    string? PrimaryContactPhone { get; }
+
+    bool? CanReceiveEstimates { get; }
+
+    bool? CanReceiveInvoices { get; }
+
+    bool? CanReceiveAppointments { get; }
+
+    IReadOnlyList<long>? TagIds { get; }
+
+    CustomerType? CustomerType { get; }
+}
+
 public sealed record CrmServiceLocationCreateDto(
     ServiceLocationType ServiceLocationType,
     string? Name = null,
@@ -93,7 +146,67 @@ public sealed record CrmServiceLocationCreateDto(
     bool? CanReceiveInvoices = null,
     bool? CanReceiveAppointments = null,
     IReadOnlyList<long>? TagIds = null,
-    CustomerType? CustomerType = null);
+    CustomerType? CustomerType = null) : ICrmServiceLocationInput;
+
+public sealed record CrmServiceLocationUpdateDto(
+    ServiceLocationType ServiceLocationType,
+    string? Name = null,
+    string? DisplayName = null,
+    string? AddressLine1 = null,
+    string? AddressLine2 = null,
+    string? AddressLine3 = null,
+    string? AddressLine4 = null,
+    string? City = null,
+    string? State = null,
+    string? County = null,
+    string? Country = null,
+    string? PostalCode = null,
+    string? FormattedAddress = null,
+    decimal? Latitude = null,
+    decimal? Longitude = null,
+    string? PlaceId = null,
+    bool? TaxExempt = null,
+    string? PrimaryContactName = null,
+    string? PrimaryContactEmail = null,
+    string? PrimaryContactPhone = null,
+    bool? CanReceiveEstimates = null,
+    bool? CanReceiveInvoices = null,
+    bool? CanReceiveAppointments = null,
+    IReadOnlyList<long>? TagIds = null,
+    CustomerType? CustomerType = null,
+    bool IsActive = false) : ICrmServiceLocationInput;
+
+public sealed record CrmServiceLocationDetailDto(
+    long Id,
+    long CustomerId,
+    int LocationSequence,
+    string LocationNumber,
+    bool IsActive,
+    ServiceLocationType ServiceLocationType,
+    string Name,
+    string DisplayName,
+    string? AddressLine1,
+    string? AddressLine2,
+    string? AddressLine3,
+    string? AddressLine4,
+    string? City,
+    string? State,
+    string? County,
+    string? Country,
+    string? PostalCode,
+    string? FormattedAddress,
+    decimal? Latitude,
+    decimal? Longitude,
+    string? PlaceId,
+    bool TaxExempt,
+    string? PrimaryContactName,
+    string? PrimaryContactEmail,
+    string? PrimaryContactPhone,
+    bool CanReceiveEstimates,
+    bool CanReceiveInvoices,
+    bool CanReceiveAppointments,
+    IReadOnlyList<long> TagIds,
+    CustomerType? CustomerType);
 
 public sealed record CrmServiceLocationSummaryDto(
     long Id,

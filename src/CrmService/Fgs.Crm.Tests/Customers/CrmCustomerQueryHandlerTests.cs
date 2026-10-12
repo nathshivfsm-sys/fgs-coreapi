@@ -3,6 +3,7 @@ using Fgs.Crm.Application.Abstractions.Customers;
 using Fgs.Crm.Application.Common.CrmCrud;
 using Fgs.Crm.Application.Features.Customers.Dtos;
 using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerById;
+using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerServiceLocationById;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomerServiceLocations;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers;
 using Fgs.Crm.Domain.Entities;
@@ -130,6 +131,23 @@ public sealed class CrmCustomerQueryHandlerTests
         var handler = new ListCrmCustomerServiceLocationsQueryHandler(readRepository.Object);
         var response = await handler.Handle(
             new ListCrmCustomerServiceLocationsQuery(99, new CrmListQuery()),
+            CancellationToken.None);
+
+        response.Success.Should().BeFalse();
+        response.StatusCode.Should().Be(ApiStatusCodes.NotFound);
+    }
+
+    [Fact]
+    public async Task GetServiceLocationById_WhenMissing_ReturnsNotFound()
+    {
+        var readRepository = new Mock<ICrmCustomerReadRepository>();
+        readRepository
+            .Setup(r => r.GetServiceLocationByIdAsync(1, 99, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CrmServiceLocationDetailDto?)null);
+
+        var handler = new GetCrmCustomerServiceLocationByIdQueryHandler(readRepository.Object);
+        var response = await handler.Handle(
+            new GetCrmCustomerServiceLocationByIdQuery(1, 99),
             CancellationToken.None);
 
         response.Success.Should().BeFalse();
@@ -429,6 +447,96 @@ public sealed class CrmCustomerReadRepositoryTests
         inactiveEmail.Items.Should().NotContain(i => i.IsActive);
         ordered!.Items.Select(i => i.Name).Should().Equal("Acme Yard", "Zebra");
         byId!.Items.Select(i => i.LocationNumber).Should().Equal("CUST01-1", "CUST01-2");
+    }
+
+    [Fact]
+    public async Task GetServiceLocationById_ReturnsLocationOnlyWhenItBelongsToCustomer()
+    {
+        await using var context = await CreateContextAsync();
+        var owner = await SeedCustomerAsync(context, "CUST01", "Acme", contactName: null, email: null, phone: null);
+        var other = await SeedCustomerAsync(context, "CUST02", "Other", contactName: null, email: null, phone: null);
+        var location = await SeedLocationAsync(
+            context,
+            owner.Id,
+            1,
+            "CUST01-1",
+            "Warehouse",
+            "Warehouse dock",
+            addressLine1: "200 Oak Ave",
+            postalCode: "78702",
+            email: "site@acme.com",
+            phone: "+15550199",
+            customerType: CustomerType.PropertyManagement);
+        var foreign = await SeedLocationAsync(
+            context,
+            other.Id,
+            1,
+            "CUST02-1",
+            "Other site",
+            "Other site");
+
+        location.State = "TX";
+        location.Country = "US";
+        location.City = "Austin";
+        location.ServiceLocationType = ServiceLocationType.Industrial;
+        var contact = await context.CrmContacts.SingleAsync(c => c.ServiceLocationId == location.Id);
+        contact.DisplayName = "Site Lead";
+        contact.CanReceiveEstimates = true;
+        contact.CanReceiveInvoices = true;
+        contact.CanReceiveAppointments = false;
+        context.CrmEntityTags.AddRange(
+            new CrmEntityTag
+            {
+                TenantId = 10,
+                CompanyId = 20,
+                TagId = 4,
+                EntityTypeId = (int)CrmTaggedEntityType.ServiceLocation,
+                EntityId = location.Id,
+                DisplayOrder = 0,
+                CreatedOn = DateTimeOffset.UtcNow
+            },
+            new CrmEntityTag
+            {
+                TenantId = 10,
+                CompanyId = 20,
+                TagId = 1,
+                EntityTypeId = (int)CrmTaggedEntityType.ServiceLocation,
+                EntityId = location.Id,
+                DisplayOrder = 1,
+                CreatedOn = DateTimeOffset.UtcNow
+            });
+        await context.SaveChangesAsync();
+
+        var repository = new CrmCustomerReadRepository(context);
+        var detail = await repository.GetServiceLocationByIdAsync(owner.Id, location.Id);
+        var ownedByOtherCustomer = await repository.GetServiceLocationByIdAsync(other.Id, location.Id);
+        var otherLocationFromOwner = await repository.GetServiceLocationByIdAsync(owner.Id, foreign.Id);
+        var missingCustomer = await repository.GetServiceLocationByIdAsync(999, location.Id);
+        var missingLocation = await repository.GetServiceLocationByIdAsync(owner.Id, 999);
+
+        detail.Should().NotBeNull();
+        detail!.CustomerId.Should().Be(owner.Id);
+        detail.LocationNumber.Should().Be("CUST01-1");
+        detail.LocationSequence.Should().Be(1);
+        detail.Name.Should().Be("Warehouse");
+        detail.AddressLine1.Should().Be("200 Oak Ave");
+        detail.City.Should().Be("Austin");
+        detail.State.Should().Be("TX");
+        detail.Country.Should().Be("US");
+        detail.PostalCode.Should().Be("78702");
+        detail.ServiceLocationType.Should().Be(ServiceLocationType.Industrial);
+        detail.CustomerType.Should().Be(CustomerType.PropertyManagement);
+        detail.PrimaryContactName.Should().Be("Site Lead");
+        detail.PrimaryContactEmail.Should().Be("site@acme.com");
+        detail.PrimaryContactPhone.Should().Be("+15550199");
+        detail.CanReceiveEstimates.Should().BeTrue();
+        detail.CanReceiveInvoices.Should().BeTrue();
+        detail.CanReceiveAppointments.Should().BeFalse();
+        detail.TagIds.Should().Equal(4L, 1L);
+        ownedByOtherCustomer.Should().BeNull();
+        otherLocationFromOwner.Should().BeNull();
+        missingCustomer.Should().BeNull();
+        missingLocation.Should().BeNull();
     }
 
     private static async Task<CrmServiceLocation> SeedLocationAsync(

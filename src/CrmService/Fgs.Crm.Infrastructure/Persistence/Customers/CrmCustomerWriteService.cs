@@ -14,15 +14,18 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
     private readonly FgsCrmDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly CrmEntityAuditHelper _auditHelper;
+    private readonly ICrmCustomerReadRepository _readRepository;
 
     public CrmCustomerWriteService(
         FgsCrmDbContext context,
         IUnitOfWork unitOfWork,
-        CrmEntityAuditHelper auditHelper)
+        CrmEntityAuditHelper auditHelper,
+        ICrmCustomerReadRepository readRepository)
     {
         _context = context;
         _unitOfWork = unitOfWork;
         _auditHelper = auditHelper;
+        _readRepository = readRepository;
     }
 
     public async Task<CrmCustomerCreateResultDto> CreateAsync(
@@ -148,6 +151,43 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
             entity.Id,
             location.LocationSequence,
             location.LocationNumber);
+    }
+
+    public async Task<CrmServiceLocationDetailDto> UpdateServiceLocationAsync(
+        long customerId,
+        long serviceLocationId,
+        CrmServiceLocationUpdateDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var createDto = ToLocationCreateDto(dto);
+        EnsureLocationContact(createDto);
+        EnsureDistinctTagIds(dto.TagIds);
+
+        if (!Enum.IsDefined(dto.ServiceLocationType))
+        {
+            throw new ArgumentException("ServiceLocationType must be between 1 and 5.");
+        }
+
+        var customer = await FindEntityAsync(customerId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Customer '{customerId}' was not found.");
+
+        var location = await _context.CrmServiceLocations
+            .FirstOrDefaultAsync(
+                e => e.Id == serviceLocationId && e.CustomerId == customer.Id,
+                cancellationToken)
+            ?? throw new KeyNotFoundException($"Service location '{serviceLocationId}' was not found.");
+
+        ApplyServiceLocationFields(location, dto);
+        _auditHelper.StampForUpdate(location);
+
+        await SaveGraphAsync(async ct =>
+        {
+            await ReplaceServiceLocationTagsAsync(location.Id, dto.TagIds, ct);
+            await SyncLocationContactAsync(location, createDto, ct);
+            await _context.SaveChangesAsync(ct);
+        }, cancellationToken);
+
+        return (await _readRepository.GetServiceLocationByIdAsync(customer.Id, location.Id, cancellationToken))!;
     }
 
     public async Task<CrmCustomerDetailDto> UpdateAsync(
@@ -489,6 +529,153 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
         _auditHelper.StampForCreate(location);
         await _context.CrmServiceLocations.AddAsync(location, cancellationToken);
         return location;
+    }
+
+    private static void ApplyServiceLocationFields(CrmServiceLocation location, CrmServiceLocationUpdateDto dto)
+    {
+        location.Name = EmptyIfBlank(dto.Name);
+        location.DisplayName = EmptyIfBlank(dto.DisplayName);
+        location.ServiceLocationType = dto.ServiceLocationType;
+        location.CustomerType = dto.CustomerType;
+        location.AddressLine1 = TrimOrNull(dto.AddressLine1);
+        location.AddressLine2 = TrimOrNull(dto.AddressLine2);
+        location.AddressLine3 = TrimOrNull(dto.AddressLine3);
+        location.AddressLine4 = TrimOrNull(dto.AddressLine4);
+        location.City = TrimOrNull(dto.City);
+        location.State = TrimOrNull(dto.State);
+        location.County = TrimOrNull(dto.County);
+        location.Country = TrimOrNull(dto.Country);
+        location.PostalCode = TrimOrNull(dto.PostalCode);
+        location.FormattedAddress = TrimOrNull(dto.FormattedAddress);
+        location.Latitude = dto.Latitude;
+        location.Longitude = dto.Longitude;
+        location.PlaceId = TrimOrNull(dto.PlaceId);
+        location.TaxExempt = dto.TaxExempt ?? false;
+        location.IsActive = dto.IsActive;
+    }
+
+    private static CrmServiceLocationCreateDto ToLocationCreateDto(CrmServiceLocationUpdateDto dto) =>
+        new(
+            dto.ServiceLocationType,
+            dto.Name,
+            dto.DisplayName,
+            dto.AddressLine1,
+            dto.AddressLine2,
+            dto.AddressLine3,
+            dto.AddressLine4,
+            dto.City,
+            dto.State,
+            dto.County,
+            dto.Country,
+            dto.PostalCode,
+            dto.FormattedAddress,
+            dto.Latitude,
+            dto.Longitude,
+            dto.PlaceId,
+            dto.TaxExempt,
+            dto.PrimaryContactName,
+            dto.PrimaryContactEmail,
+            dto.PrimaryContactPhone,
+            dto.CanReceiveEstimates,
+            dto.CanReceiveInvoices,
+            dto.CanReceiveAppointments,
+            dto.TagIds,
+            dto.CustomerType);
+
+    private async Task SyncLocationContactAsync(
+        CrmServiceLocation location,
+        CrmServiceLocationCreateDto dto,
+        CancellationToken cancellationToken)
+    {
+        var contact = await _context.CrmContacts
+            .FirstOrDefaultAsync(
+                c => c.IsDefaultContact && c.ServiceLocationId == location.Id && c.CustomerId == null,
+                cancellationToken);
+
+        if (contact is null)
+        {
+            var created = AddLocationPrimaryContact(location, dto);
+            if (created is null)
+            {
+                return;
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+            AddCommunication(created, ContactCommunicationType.Email, dto.PrimaryContactEmail);
+            AddCommunication(created, ContactCommunicationType.Phone, dto.PrimaryContactPhone);
+            return;
+        }
+
+        contact.DisplayName = string.IsNullOrWhiteSpace(dto.PrimaryContactName)
+            ? string.Empty
+            : dto.PrimaryContactName.Trim();
+        contact.CanReceiveEstimates = dto.CanReceiveEstimates ?? false;
+        contact.CanReceiveInvoices = dto.CanReceiveInvoices ?? false;
+        contact.CanReceiveAppointments = dto.CanReceiveAppointments ?? true;
+        _auditHelper.StampForUpdate(contact);
+
+        await ReplacePrimaryCommunicationAsync(contact, ContactCommunicationType.Email, dto.PrimaryContactEmail, cancellationToken);
+        await ReplacePrimaryCommunicationAsync(contact, ContactCommunicationType.Phone, dto.PrimaryContactPhone, cancellationToken);
+    }
+
+    private async Task ReplacePrimaryCommunicationAsync(
+        CrmContact contact,
+        ContactCommunicationType type,
+        string? value,
+        CancellationToken cancellationToken)
+    {
+        var typeId = (short)type;
+        var rows = await _context.CrmContactCommunications
+            .Where(c => c.ContactId == contact.Id && c.CommunicationTypeId == typeId)
+            .ToListAsync(cancellationToken);
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            foreach (var row in rows.Where(r => r.IsPrimary || r.IsActive))
+            {
+                row.IsPrimary = false;
+                row.IsActive = false;
+                _auditHelper.StampForUpdate(row);
+            }
+
+            return;
+        }
+
+        var target = rows.FirstOrDefault(r => r.IsPrimary) ?? rows.FirstOrDefault();
+        if (target is null)
+        {
+            AddCommunication(contact, type, value);
+            return;
+        }
+
+        target.Value = value.Trim();
+        target.IsPrimary = true;
+        target.IsActive = true;
+        _auditHelper.StampForUpdate(target);
+
+        foreach (var other in rows.Where(r => !ReferenceEquals(r, target) && r.IsPrimary))
+        {
+            other.IsPrimary = false;
+            _auditHelper.StampForUpdate(other);
+        }
+    }
+
+    private async Task ReplaceServiceLocationTagsAsync(
+        long locationId,
+        IReadOnlyList<long>? tagIds,
+        CancellationToken cancellationToken)
+    {
+        var entityTypeId = (int)CrmTaggedEntityType.ServiceLocation;
+        var existing = await _context.CrmEntityTags
+            .Where(t => t.EntityTypeId == entityTypeId && t.EntityId == locationId)
+            .ToListAsync(cancellationToken);
+
+        if (existing.Count > 0)
+        {
+            _context.CrmEntityTags.RemoveRange(existing);
+        }
+
+        AddEntityTags(locationId, CrmTaggedEntityType.ServiceLocation, tagIds);
     }
 
     private CrmContact? AddLocationPrimaryContact(CrmServiceLocation location, CrmServiceLocationCreateDto dto)
