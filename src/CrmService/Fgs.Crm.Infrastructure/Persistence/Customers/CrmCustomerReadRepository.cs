@@ -618,6 +618,10 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
             "formattedaddress" => desc
                 ? query.OrderByDescending(e => e.FormattedAddress)
                 : query.OrderBy(e => e.FormattedAddress),
+            "city" => desc ? query.OrderByDescending(e => e.City) : query.OrderBy(e => e.City),
+            "postalcode" => desc ? query.OrderByDescending(e => e.PostalCode) : query.OrderBy(e => e.PostalCode),
+            "createdon" => desc ? query.OrderByDescending(e => e.CreatedOn) : query.OrderBy(e => e.CreatedOn),
+            "createdby" => desc ? query.OrderByDescending(e => e.CreatedBy) : query.OrderBy(e => e.CreatedBy),
             _ => desc ? query.OrderByDescending(e => e.Id) : query.OrderBy(e => e.Id)
         };
     }
@@ -789,7 +793,11 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
                 email,
                 phone,
                 location.IsActive,
-                location.CustomerType);
+                location.CustomerType,
+                location.City,
+                location.PostalCode,
+                location.CreatedOn,
+                location.CreatedBy);
         }).ToList();
     }
 

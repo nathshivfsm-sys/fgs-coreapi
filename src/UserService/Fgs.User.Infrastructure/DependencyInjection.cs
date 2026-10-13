@@ -30,6 +30,8 @@ using Fgs.User.Application.Abstractions.Roles;
 using Fgs.User.Application.Abstractions.UserRoles;
 using Fgs.User.Application.Abstractions.ServiceSetups;
 using Fgs.User.Application.Abstractions.ServiceAccountsSetups;
+using Fgs.MultiTenancy;
+using Fgs.User.Application.Abstractions.GridPreferences;
 using Fgs.User.Application.Abstractions.Users;
 using Fgs.User.Infrastructure.Entities.ApiClients;
 using Fgs.User.Infrastructure.Entities.ApiEvents;
@@ -48,6 +50,7 @@ using Fgs.User.Infrastructure.Entities.Roles;
 using Fgs.User.Infrastructure.Entities.UserRoles;
 using Fgs.User.Infrastructure.Entities.ServiceSetups;
 using Fgs.User.Infrastructure.Entities.ServiceAccountsSetups;
+using Fgs.User.Infrastructure.Entities.GridPreferences;
 using Fgs.User.Infrastructure.Entities.Users;
 using Fgs.User.Infrastructure.Database;
 using Fgs.User.Infrastructure.Database.Read;
@@ -131,6 +134,10 @@ public static class DependencyInjection
         services.AddScoped<IFgsUserRoleWriteService, FgsUserRoleWriteService>();
         services.AddScoped<IFgsUserReadRepository, FgsUserReadRepository>();
         services.AddScoped<IFgsUserWriteService, FgsUserWriteService>();
+        services.AddScoped<IFgsUserGridPreferenceStore, FgsUserGridPreferenceStore>();
+        services.AddScoped<ITenantContext>(sp =>
+            sp.GetRequiredService<ITenantContextAccessor>().Current
+            ?? throw new InvalidOperationException("Tenant context is not resolved."));
         services.AddScoped<IFgsTenantServiceSetupReadRepository, FgsTenantServiceSetupReadRepository>();
         services.AddScoped<IFgsTenantServiceSetupWriteService, FgsTenantServiceSetupWriteService>();
         services.AddScoped<IFgsTenantServiceAccountsSetupReadRepository, FgsTenantServiceAccountsSetupReadRepository>();

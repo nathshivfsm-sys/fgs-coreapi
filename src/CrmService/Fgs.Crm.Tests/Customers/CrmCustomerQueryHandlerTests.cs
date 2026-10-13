@@ -530,6 +530,12 @@ public sealed class CrmCustomerReadRepositoryTests
             email: "site@acme.com",
             postalCode: "78702");
 
+        var createdOn = new DateTimeOffset(2026, 3, 1, 12, 0, 0, TimeSpan.Zero);
+        active.City = "Austin";
+        active.CreatedBy = "actor-42";
+        active.CreatedOn = createdOn;
+        await context.SaveChangesAsync();
+
         var repository = new CrmCustomerReadRepository(context);
         var activePage = await repository.ListServiceLocationsAsync(customer.Id, new CrmListQuery(IsActive: true), true);
         var inactivePage = await repository.ListServiceLocationsAsync(customer.Id, new CrmListQuery(IsActive: false), true);
@@ -545,6 +551,10 @@ public sealed class CrmCustomerReadRepositoryTests
 
         activePage!.Items.Select(i => i.Id).Should().Equal(active.Id);
         activePage.Items.Single().CustomerType.Should().Be(CustomerType.PropertyManagement);
+        activePage.Items.Single().City.Should().Be("Austin");
+        activePage.Items.Single().PostalCode.Should().Be("78702");
+        activePage.Items.Single().CreatedOn.Should().Be(createdOn);
+        activePage.Items.Single().CreatedBy.Should().Be("actor-42");
         inactivePage!.Items.Single().CustomerType.Should().BeNull();
         activePage.Items.Should().NotContain(i => !i.IsActive);
         inactivePage!.Items.Should().ContainSingle(i => i.LocationNumber == "CUST01-2");
@@ -624,6 +634,59 @@ public sealed class CrmCustomerReadRepositoryTests
         inactiveEmail.Items.Should().NotContain(i => i.IsActive);
         ordered!.Items.Select(i => i.Name).Should().Equal("Acme Yard", "Zebra");
         byId!.Items.Select(i => i.LocationNumber).Should().Equal("CUST01-1", "CUST01-2");
+    }
+
+    [Fact]
+    public async Task ListServiceLocations_SortsByCityPostalCodeCreatedOnAndCreatedBy()
+    {
+        await using var context = await CreateContextAsync();
+        var customer = await SeedCustomerAsync(context, "CUST01", "Acme", contactName: null, email: null, phone: null);
+        var later = await SeedLocationAsync(
+            context,
+            customer.Id,
+            1,
+            "CUST01-1",
+            "Later",
+            "Later site",
+            city: "Dallas",
+            postalCode: "78702");
+        var earlier = await SeedLocationAsync(
+            context,
+            customer.Id,
+            2,
+            "CUST01-2",
+            "Earlier",
+            "Earlier site",
+            city: "Austin",
+            postalCode: "73301");
+        later.CreatedOn = new DateTimeOffset(2026, 5, 2, 0, 0, 0, TimeSpan.Zero);
+        later.CreatedBy = "user-b";
+        earlier.CreatedOn = new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.Zero);
+        earlier.CreatedBy = "user-a";
+        await context.SaveChangesAsync();
+
+        var repository = new CrmCustomerReadRepository(context);
+        var byCity = await repository.ListServiceLocationsAsync(
+            customer.Id,
+            new CrmListQuery(SortBy: "city"));
+        var byPostal = await repository.ListServiceLocationsAsync(
+            customer.Id,
+            new CrmListQuery(SortBy: "postalCode"));
+        var byCreatedOn = await repository.ListServiceLocationsAsync(
+            customer.Id,
+            new CrmListQuery(SortBy: "createdOn"));
+        var byCreatedBy = await repository.ListServiceLocationsAsync(
+            customer.Id,
+            new CrmListQuery(SortBy: "createdBy"));
+        var unknown = await repository.ListServiceLocationsAsync(
+            customer.Id,
+            new CrmListQuery(SortBy: "not-a-column"));
+
+        byCity!.Items.Select(i => i.City).Should().Equal("Austin", "Dallas");
+        byPostal!.Items.Select(i => i.PostalCode).Should().Equal("73301", "78702");
+        byCreatedOn!.Items.Select(i => i.Name).Should().Equal("Earlier", "Later");
+        byCreatedBy!.Items.Select(i => i.CreatedBy).Should().Equal("user-a", "user-b");
+        unknown!.Items.Select(i => i.Id).Should().Equal(later.Id, earlier.Id);
     }
 
     [Fact]

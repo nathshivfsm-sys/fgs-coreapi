@@ -227,7 +227,11 @@ public sealed record CrmServiceLocationSummaryDto(
     string? Email,
     string? Phone,
     bool IsActive,
-    CustomerType? CustomerType = null);
+    CustomerType? CustomerType = null,
+    string? City = null,
+    string? PostalCode = null,
+    DateTimeOffset CreatedOn = default,
+    string? CreatedBy = null);
 
 /// <summary>
 /// Active and inactive location counts for one customer. Not narrowed by search or the selected tab.

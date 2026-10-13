@@ -8613,6 +8613,164 @@
               }
             }
           ]
+        },
+        {
+          "description": "Signed-in user's column layout for any grid. Authenticated caller only; no extra permission. The row is always the current user in the current tenant and company. GET returns columns [] when no row exists. PUT upserts columns (an empty list is stored). DELETE removes the row and still succeeds when it is already missing.",
+          "name": "GridPreferenceController",
+          "item": [
+            {
+              "name": "Get",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/gridpreference/WorkOrderList",
+                  "path": [
+                    "api",
+                    "v1",
+                    "gridpreference",
+                    "WorkOrderList"
+                  ]
+                },
+                "description": "Returns { gridCode, columns } for the signed-in user. No saved row returns columns: [].",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "Save",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/gridpreference/WorkOrderList",
+                  "path": [
+                    "api",
+                    "v1",
+                    "gridpreference",
+                    "WorkOrderList"
+                  ]
+                },
+                "description": "Upserts the signed-in user's columns for this grid. Empty columns is allowed and stores []. Duplicate, blank, or over-length codes return 400. gridCode and each column code are required, distinct, and at most 100 characters. At most 100 columns.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "body": {
+                  "raw": "{\n  \"columns\": [\"name\", \"city\", \"email\"]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  },
+                  "mode": "raw"
+                },
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "Delete",
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/gridpreference/WorkOrderList",
+                  "path": [
+                    "api",
+                    "v1",
+                    "gridpreference",
+                    "WorkOrderList"
+                  ]
+                },
+                "description": "Removes the signed-in user's saved layout for this grid (restore). A missing row still returns success.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            }
+          ]
         }
       ]
     },
@@ -41711,7 +41869,7 @@
                     },
                     {
                       "key": "sortBy",
-                      "description": "Optional. locationNumber, name, displayName, formattedAddress. Omitted sorts by name ascending.",
+                      "description": "Optional. locationNumber, name, displayName, formattedAddress, city, postalCode, createdOn, createdBy. Omitted sorts by name ascending. Unknown keys sort by id.",
                       "value": "{{sortBy}}",
                       "disabled": true
                     },
@@ -41751,7 +41909,7 @@
                     "servicelocation"
                   ]
                 },
-                "description": "List service locations for a customer. Requires CUSTOMER.VIEW. 404 when the customer does not exist.",
+                "description": "List service locations for a customer. Requires CUSTOMER.VIEW. 404 when the customer does not exist. Each row includes city, postalCode, createdOn, and createdBy (the stored actor id).",
                 "header": [
                   {
                     "key": "Accept",
