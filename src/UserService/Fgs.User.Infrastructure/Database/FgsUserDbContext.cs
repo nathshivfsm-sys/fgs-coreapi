@@ -25,6 +25,7 @@ public class FgsUserDbContext : FgsTenantFilteredDbContext
     public DbSet<FgsLocation> FgsLocations => Set<FgsLocation>();
     public DbSet<FgsUser> FgsUsers => Set<FgsUser>();
     public DbSet<FgsUserRole> FgsUserRoles => Set<FgsUserRole>();
+    public DbSet<FgsUserGridPreference> FgsUserGridPreferences => Set<FgsUserGridPreference>();
     public DbSet<FgsRole> FgsRoles => Set<FgsRole>();
     public DbSet<FgsInvitation> FgsInvitations => Set<FgsInvitation>();
     public DbSet<FgsPermission> FgsPermissions => Set<FgsPermission>();

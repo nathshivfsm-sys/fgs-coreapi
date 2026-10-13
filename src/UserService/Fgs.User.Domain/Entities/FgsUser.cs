@@ -41,4 +41,6 @@ public class FgsUser : FgsEntityBase, ITenantCompanyScoped
     public ICollection<FgsInvitation> Invitations { get; set; } = new List<FgsInvitation>();
 
     public ICollection<FgsUserRole> UserRoles { get; set; } = new List<FgsUserRole>();
+
+    public ICollection<FgsUserGridPreference> GridPreferences { get; set; } = new List<FgsUserGridPreference>();
 }

@@ -47,6 +47,7 @@ internal static class EntitySchemaRegistry
         ["FgsUser"] = FgsDatabaseSchemas.Identity,
         ["FgsInvitation"] = FgsDatabaseSchemas.Identity,
         ["FgsUserRole"] = FgsDatabaseSchemas.Identity,
+        ["FgsUserGridPreference"] = FgsDatabaseSchemas.Identity,
         ["FgsRole"] = FgsDatabaseSchemas.Identity,
         ["FgsPermission"] = FgsDatabaseSchemas.Identity,
         ["FgsRolePermission"] = FgsDatabaseSchemas.Identity,
@@ -68,6 +69,7 @@ internal static class EntitySchemaRegistry
     {
         [typeof(FgsUser)] = FgsDatabaseSchemas.Identity,
         [typeof(FgsUserRole)] = FgsDatabaseSchemas.Identity,
+        [typeof(FgsUserGridPreference)] = FgsDatabaseSchemas.Identity,
         [typeof(FgsRole)] = FgsDatabaseSchemas.Identity,
         [typeof(FgsInvitation)] = FgsDatabaseSchemas.Identity,
         [typeof(FgsPermission)] = FgsDatabaseSchemas.Identity,

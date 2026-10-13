@@ -1892,6 +1892,9 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("Id", "TenantId", "CompanyId")
+                        .HasName("AK_FgsUser_Id_TenantId_CompanyId");
+
                     b.HasIndex("TenantId", "CompanyId", "Email")
                         .IsUnique()
                         .HasDatabaseName("IX_FgsUser_TenantId_CompanyId_Email")
@@ -1900,6 +1903,77 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.ToTable("FgsUser", "identity", t =>
                         {
                             t.HasCheckConstraint("CK_FgsUser_AuthenticationMethod", "\"AuthenticationMethod\" IN (1, 2, 3, 4, 5)");
+                        });
+                });
+
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUserGridPreference", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Unique identifier for the user grid preference record.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifier of the company within the tenant to which the user and grid preference belong.");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Identifier of the user or process that created the user grid preference record.");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("UTC timestamp when the user grid preference record was created.");
+
+                    b.Property<string>("GridCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Unique application-defined code identifying the grid for which the user preferences are stored, such as WorkOrderList or EstimateList.");
+
+                    b.Property<string>("GridConfiguration")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'{}'::jsonb")
+                        .HasComment("JSON configuration containing user-specific grid preferences such as column width, visibility, display order, pinning, sorting, filtering, grouping, and other supported grid settings.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifier of the tenant to which the user and grid preference belong.");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Identifier of the user or process that last updated the user grid preference record.");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz")
+                        .HasComment("UTC timestamp when the user grid preference record was last updated.");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasComment("Identifier of the user whose grid preference is being stored.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId", "GridCode")
+                        .HasDatabaseName("IX_FgsUserGridPreference_TenantId_CompanyId_GridCode");
+
+                    b.HasIndex("UserId", "TenantId", "CompanyId");
+
+                    b.HasIndex("TenantId", "CompanyId", "UserId", "GridCode")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_FgsUserGridPreference_TenantId_CompanyId_UserId_GridCode");
+
+                    b.ToTable("FgsUserGridPreference", "identity", t =>
+                        {
+                            t.HasComment("Stores user-specific grid layout and display preferences for each grid within a tenant and company.");
                         });
                 });
 
@@ -2321,6 +2395,26 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasConstraintName("FK_FgsUser_FgsTenantCompanyCache");
                 });
 
+            modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUserGridPreference", b =>
+                {
+                    b.HasOne("Fgs.User.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUserGridPreference_FgsTenantCompanyCache");
+
+                    b.HasOne("Fgs.User.Domain.Entities.FgsUser", "User")
+                        .WithMany("GridPreferences")
+                        .HasForeignKey("UserId", "TenantId", "CompanyId")
+                        .HasPrincipalKey("Id", "TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsUserGridPreference_FgsUser");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUserRole", b =>
                 {
                     b.HasOne("Fgs.User.Domain.Entities.FgsRole", "FgsRole")
@@ -2373,6 +2467,8 @@ namespace Fgs.User.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Fgs.User.Domain.Entities.FgsUser", b =>
                 {
+                    b.Navigation("GridPreferences");
+
                     b.Navigation("Invitations");
 
                     b.Navigation("UserRoles");

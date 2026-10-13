@@ -13,6 +13,8 @@ internal class FgsUserConfiguration : IEntityTypeConfiguration<FgsUser>
             "CK_FgsUser_AuthenticationMethod",
             "\"AuthenticationMethod\" IN (1, 2, 3, 4, 5)"));
         entity.HasKey(e => e.Id);
+        entity.HasAlternateKey(e => new { e.Id, e.TenantId, e.CompanyId })
+            .HasName("AK_FgsUser_Id_TenantId_CompanyId");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Email })
             .IsUnique()
             .HasDatabaseName("IX_FgsUser_TenantId_CompanyId_Email")
