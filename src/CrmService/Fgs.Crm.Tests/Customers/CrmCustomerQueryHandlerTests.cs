@@ -1,4 +1,5 @@
 using Fgs.Contracts.Api;
+using Fgs.Contracts.Clients;
 using Fgs.Crm.Application.Abstractions.Customers;
 using Fgs.Crm.Application.Common.CrmCrud;
 using Fgs.Crm.Application.Features.Customers.Dtos;
@@ -156,7 +157,8 @@ public sealed class CrmCustomerQueryHandlerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(result);
 
-        var handler = new ListCrmCompanyServiceLocationsQueryHandler(readRepository.Object);
+        var setupClient = new Mock<ISetupClient>(MockBehavior.Strict);
+        var handler = new ListCrmCompanyServiceLocationsQueryHandler(readRepository.Object, setupClient.Object);
         var response = await handler.Handle(
             new ListCrmCompanyServiceLocationsQuery(
                 new CrmListQuery(IsActive: null),
@@ -166,7 +168,151 @@ public sealed class CrmCustomerQueryHandlerTests
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(ApiStatusCodes.Ok);
         response.Data.Should().BeSameAs(result);
+        setupClient.Verify(
+            c => c.LookupGlBreaksAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
+
+    [Fact]
+    public async Task ListCompanyServiceLocations_ResolvesBreakNamesFromSetup()
+    {
+        var resolved = CompanyLocation(1, break1Id: 100, break2Id: 200);
+        var missing = CompanyLocation(2, break1Id: 300, break2Id: null);
+        var result = new CrmCompanyServiceLocationListResultDto(
+            [resolved, missing],
+            1,
+            10,
+            2,
+            new CrmCompanyServiceLocationListSummaryDto(2, 2, 0, 3));
+
+        var readRepository = new Mock<ICrmCustomerReadRepository>();
+        readRepository
+            .Setup(r => r.ListCompanyServiceLocationsAsync(
+                It.IsAny<CrmListQuery>(),
+                It.IsAny<CrmCompanyServiceLocationListFilters>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(result);
+
+        var setupClient = new Mock<ISetupClient>();
+        setupClient
+            .Setup(c => c.LookupGlBreaksAsync(false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponse<IReadOnlyList<GlBreakLookupItemDto>>.Ok(
+            [
+                new GlBreakLookupItemDto(100, "West"),
+                new GlBreakLookupItemDto(200, "HVAC")
+            ]));
+
+        var handler = new ListCrmCompanyServiceLocationsQueryHandler(readRepository.Object, setupClient.Object);
+        var response = await handler.Handle(
+            new ListCrmCompanyServiceLocationsQuery(
+                new CrmListQuery(IsActive: null),
+                new CrmCompanyServiceLocationListFilters()),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.Items.Should().HaveCount(2);
+        response.Data.Items[0].Break1Name.Should().Be("West");
+        response.Data.Items[0].Break2Name.Should().Be("HVAC");
+        response.Data.Items[1].Break1Name.Should().BeNull();
+        response.Data.Items[1].Break2Name.Should().BeNull();
+        setupClient.Verify(c => c.LookupGlBreaksAsync(false, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ListCompanyServiceLocations_WhenSetupLookupFails_ReturnsFailure()
+    {
+        var result = new CrmCompanyServiceLocationListResultDto(
+            [CompanyLocation(1, break1Id: 100, break2Id: 200)],
+            1,
+            10,
+            1,
+            new CrmCompanyServiceLocationListSummaryDto(1, 1, 0, 2));
+
+        var readRepository = new Mock<ICrmCustomerReadRepository>();
+        readRepository
+            .Setup(r => r.ListCompanyServiceLocationsAsync(
+                It.IsAny<CrmListQuery>(),
+                It.IsAny<CrmCompanyServiceLocationListFilters>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(result);
+
+        var setupClient = new Mock<ISetupClient>();
+        setupClient
+            .Setup(c => c.LookupGlBreaksAsync(false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponse<IReadOnlyList<GlBreakLookupItemDto>>.Fail(
+                ["GL break lookup failed."],
+                ApiStatusCodes.Forbidden));
+
+        var handler = new ListCrmCompanyServiceLocationsQueryHandler(readRepository.Object, setupClient.Object);
+        var response = await handler.Handle(
+            new ListCrmCompanyServiceLocationsQuery(
+                new CrmListQuery(IsActive: null),
+                new CrmCompanyServiceLocationListFilters()),
+            CancellationToken.None);
+
+        response.Success.Should().BeFalse();
+        response.StatusCode.Should().Be(ApiStatusCodes.Forbidden);
+        response.Errors.Should().Contain("GL break lookup failed.");
+        response.Data.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ListCompanyServiceLocations_WhenSetupLookupThrows_ReturnsFailure()
+    {
+        var result = new CrmCompanyServiceLocationListResultDto(
+            [CompanyLocation(1, break1Id: 100, break2Id: null)],
+            1,
+            10,
+            1,
+            new CrmCompanyServiceLocationListSummaryDto(1, 1, 0, 1));
+
+        var readRepository = new Mock<ICrmCustomerReadRepository>();
+        readRepository
+            .Setup(r => r.ListCompanyServiceLocationsAsync(
+                It.IsAny<CrmListQuery>(),
+                It.IsAny<CrmCompanyServiceLocationListFilters>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(result);
+
+        var setupClient = new Mock<ISetupClient>();
+        setupClient
+            .Setup(c => c.LookupGlBreaksAsync(false, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("Setup unreachable."));
+
+        var handler = new ListCrmCompanyServiceLocationsQueryHandler(readRepository.Object, setupClient.Object);
+        var response = await handler.Handle(
+            new ListCrmCompanyServiceLocationsQuery(
+                new CrmListQuery(IsActive: null),
+                new CrmCompanyServiceLocationListFilters()),
+            CancellationToken.None);
+
+        response.Success.Should().BeFalse();
+        response.StatusCode.Should().Be(ApiStatusCodes.InternalServerError);
+        response.Errors.Should().Contain("Setup unreachable.");
+        response.Data.Should().BeNull();
+    }
+
+    private static CrmCompanyServiceLocationSummaryDto CompanyLocation(
+        long id,
+        long? break1Id,
+        long? break2Id) =>
+        new(
+            id,
+            10,
+            "Acme",
+            "LOC-1",
+            "Main",
+            "Main",
+            null,
+            null,
+            null,
+            true,
+            null,
+            break1Id,
+            break2Id);
 
     [Fact]
     public async Task GetServiceLocationById_WhenMissing_ReturnsNotFound()

@@ -1,5 +1,6 @@
 using Fgs.Contracts.Clients;
 using Fgs.Credentials.Options;
+using Fgs.Foundation.Api;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -8,6 +9,7 @@ namespace Fgs.Credentials.Http;
 
 /// <summary>
 /// Outbound S2S auth: forwards the inbound Bearer token when present; otherwise stamps the internal service key.
+/// Copies inbound X-Tenant-Id and X-Company-Id onto the outbound request when those headers are not already set.
 /// </summary>
 public sealed class InternalServiceKeyDelegatingHandler : DelegatingHandler
 {
@@ -63,7 +65,35 @@ public sealed class InternalServiceKeyDelegatingHandler : DelegatingHandler
             }
         }
 
+        ForwardCallerTenantHeaders(request);
+
         return base.SendAsync(request, cancellationToken);
+    }
+
+    private void ForwardCallerTenantHeaders(HttpRequestMessage request)
+    {
+        var httpContext = _httpContextAccessor?.HttpContext;
+        if (httpContext is null)
+        {
+            return;
+        }
+
+        CopyHeaderIfAbsent(httpContext, request, FgsApiHeaders.TenantId);
+        CopyHeaderIfAbsent(httpContext, request, FgsApiHeaders.CompanyId);
+    }
+
+    private static void CopyHeaderIfAbsent(HttpContext httpContext, HttpRequestMessage request, string headerName)
+    {
+        if (request.Headers.Contains(headerName))
+        {
+            return;
+        }
+
+        var value = httpContext.Request.Headers[headerName].FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(value))
+        {
+            request.Headers.TryAddWithoutValidation(headerName, value);
+        }
     }
 
     private bool TryForwardCallerAuthorization(HttpRequestMessage request)

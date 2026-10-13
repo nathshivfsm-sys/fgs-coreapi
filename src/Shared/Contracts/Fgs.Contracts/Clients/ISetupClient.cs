@@ -34,6 +34,11 @@ public interface ISetupClient
         [Header(InternalServiceHeaders.ServiceKey)] string internalServiceKey,
         [Header(InternalServiceHeaders.ServiceName)] string? serviceName = null,
         CancellationToken cancellationToken = default);
+
+    [Get("/api/v1/glbreak/lookup")]
+    Task<Fgs.Contracts.Api.ApiResponse<IReadOnlyList<GlBreakLookupItemDto>>> LookupGlBreaksAsync(
+        [Query] bool activeOnly,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record AddCompanyBusinessTypesRequest(
@@ -45,3 +50,10 @@ public sealed record AddCompanyBusinessTypesRequest(
 
 public sealed record ResolvedCredentialConfigurationDto(
     IReadOnlyDictionary<string, string> Values);
+
+/// <summary>
+/// Id and name from Setup GL break lookup. Code and break level are ignored.
+/// </summary>
+public sealed record GlBreakLookupItemDto(
+    long Id,
+    string Name);

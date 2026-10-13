@@ -73,6 +73,8 @@ public sealed class InternalServiceKeyDelegatingHandlerTests
         var configuration = new ConfigurationBuilder().Build();
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Headers.Authorization = "Bearer caller-jwt";
+        httpContext.Request.Headers["X-Tenant-Id"] = "10";
+        httpContext.Request.Headers["X-Company-Id"] = "20";
 
         var accessor = new Mock<IHttpContextAccessor>();
         accessor.SetupGet(a => a.HttpContext).Returns(httpContext);
@@ -98,6 +100,39 @@ public sealed class InternalServiceKeyDelegatingHandlerTests
         captured!.Headers.GetValues("Authorization")
             .Should().ContainSingle().Which.Should().Be("Bearer caller-jwt");
         captured.Headers.Contains(InternalServiceHeaders.ServiceKey).Should().BeFalse();
+        captured.Headers.GetValues("X-Tenant-Id").Should().ContainSingle().Which.Should().Be("10");
+        captured.Headers.GetValues("X-Company-Id").Should().ContainSingle().Which.Should().Be("20");
+    }
+
+    [Fact]
+    public async Task SendAsync_WhenTenantHeadersAlreadySet_DoesNotOverwrite()
+    {
+        var configuration = new ConfigurationBuilder().Build();
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers.Authorization = "Bearer caller-jwt";
+        httpContext.Request.Headers["X-Tenant-Id"] = "99";
+        httpContext.Request.Headers["X-Company-Id"] = "88";
+
+        var accessor = new Mock<IHttpContextAccessor>();
+        accessor.SetupGet(a => a.HttpContext).Returns(httpContext);
+
+        HttpRequestMessage? captured = null;
+        var handler = CreateHandler(
+            distribution: new CredentialDistributionOptions { InternalServiceKey = "should-not-send" },
+            consumer: new CredentialConsumerOptions(),
+            configuration: configuration,
+            httpContextAccessor: accessor.Object,
+            onRequest: request => captured = request);
+
+        using var client = new HttpClient(handler);
+        using var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/test");
+        request.Headers.TryAddWithoutValidation("X-Tenant-Id", "10");
+        request.Headers.TryAddWithoutValidation("X-Company-Id", "20");
+        await client.SendAsync(request);
+
+        captured.Should().NotBeNull();
+        captured!.Headers.GetValues("X-Tenant-Id").Should().ContainSingle().Which.Should().Be("10");
+        captured.Headers.GetValues("X-Company-Id").Should().ContainSingle().Which.Should().Be("20");
     }
 
     [Fact]

@@ -32716,7 +32716,7 @@
                     "servicelocation"
                   ]
                 },
-                "description": "List service locations for the current company. Requires CUSTOMER.VIEW. pageSize defaults to 10. Omit isActive to return all locations. customerId and customerType are repeatable. Each row includes optional break1Id and break2Id. Summary counts ignore search, isActive, customerId, and customerType. businessUnits is the count of distinct non-null break ids across both columns.",
+                "description": "List service locations for the current company. Requires CUSTOMER.VIEW. pageSize defaults to 10. Omit isActive to return all locations. customerId and customerType are repeatable. Each row includes optional break1Id, break1Name, break2Id, and break2Name. break1Name is the business-unit name for break1Id. Summary counts ignore search, isActive, customerId, and customerType. businessUnits is the count of distinct non-null break ids across both columns.",
                 "header": [
                   {
                     "key": "Accept",

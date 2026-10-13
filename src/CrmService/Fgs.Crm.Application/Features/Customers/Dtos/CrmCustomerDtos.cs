@@ -249,6 +249,8 @@ public sealed record CrmServiceLocationListResultDto(
 
 /// <summary>
 /// One service location on the company-wide list.
+/// <see cref="Break1Name"/> is the business-unit name for <see cref="Break1Id"/>.
+/// <see cref="Break2Name"/> is the name for <see cref="Break2Id"/>.
 /// </summary>
 public sealed record CrmCompanyServiceLocationSummaryDto(
     long Id,
@@ -263,7 +265,9 @@ public sealed record CrmCompanyServiceLocationSummaryDto(
     bool IsActive,
     CustomerType? CustomerType,
     long? Break1Id,
-    long? Break2Id);
+    long? Break2Id,
+    string? Break1Name = null,
+    string? Break2Name = null);
 
 /// <summary>
 /// Company-scoped location counts. Not narrowed by search, isActive, customer, or customer type.
