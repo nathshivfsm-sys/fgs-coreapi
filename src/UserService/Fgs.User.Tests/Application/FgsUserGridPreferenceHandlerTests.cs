@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Fgs.Contracts.Api;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
@@ -22,6 +23,9 @@ public sealed class FgsUserGridPreferenceHandlerTests
 
     private const string GridCode = "WorkOrderList";
 
+    private const string SavedConfiguration =
+        """{"columns":[{"field":"name","width":180,"visible":true}],"sorting":[{"field":"name","direction":"asc"}]}""";
+
     [Fact]
     public async Task Get_CachesEmptyResult_PutOverwrites_DeleteRemoves_NextGetLoadsAgain()
     {
@@ -30,13 +34,10 @@ public sealed class FgsUserGridPreferenceHandlerTests
         var store = new Mock<IFgsUserGridPreferenceStore>();
         store
             .Setup(s => s.GetAsync(GridCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FgsUserGridPreferenceDto(GridCode, []));
+            .ReturnsAsync(new FgsUserGridPreferenceDto(GridCode, EmptyConfiguration()));
         store
-            .Setup(s => s.UpsertAsync(
-                GridCode,
-                It.Is<IReadOnlyList<string>>(columns => columns.SequenceEqual(new[] { "name", "city" })),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FgsUserGridPreferenceDto(GridCode, ["name", "city"]));
+            .Setup(s => s.UpsertAsync(GridCode, SavedConfiguration, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FgsUserGridPreferenceDto(GridCode, ParseConfiguration(SavedConfiguration)));
         store
             .Setup(s => s.DeleteAsync(GridCode, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -52,18 +53,18 @@ public sealed class FgsUserGridPreferenceHandlerTests
         var second = await getHandler.Handle(new GetFgsUserGridPreferenceQuery(GridCode), CancellationToken.None);
 
         first.Success.Should().BeTrue();
-        first.Data!.Columns.Should().BeEmpty();
-        second.Data!.Columns.Should().BeEmpty();
+        first.Data!.GridConfiguration.GetRawText().Should().Be("{}");
+        second.Data!.GridConfiguration.GetRawText().Should().Be("{}");
         entries.Keys.Should().ContainSingle().Which.Should().Be(expectedKey);
         store.Verify(s => s.GetAsync(GridCode, It.IsAny<CancellationToken>()), Times.Once);
 
         var saved = await saveHandler.Handle(
-            new SaveFgsUserGridPreferenceCommand(GridCode, ["name", "city"]),
+            new SaveFgsUserGridPreferenceCommand(GridCode, ParseConfiguration(SavedConfiguration)),
             CancellationToken.None);
 
         saved.Success.Should().BeTrue();
-        saved.Data!.Columns.Should().Equal("name", "city");
-        entries[expectedKey].Columns.Should().Equal("name", "city");
+        saved.Data!.GridConfiguration.GetRawText().Should().Be(SavedConfiguration);
+        entries[expectedKey].GridConfiguration.GetRawText().Should().Be(SavedConfiguration);
 
         var deleted = await deleteHandler.Handle(
             new DeleteFgsUserGridPreferenceCommand(GridCode),
@@ -76,23 +77,20 @@ public sealed class FgsUserGridPreferenceHandlerTests
 
         var afterDelete = await getHandler.Handle(new GetFgsUserGridPreferenceQuery(GridCode), CancellationToken.None);
 
-        afterDelete.Data!.Columns.Should().BeEmpty();
-        entries[expectedKey].Columns.Should().BeEmpty();
+        afterDelete.Data!.GridConfiguration.GetRawText().Should().Be("{}");
+        entries[expectedKey].GridConfiguration.GetRawText().Should().Be("{}");
         store.Verify(s => s.GetAsync(GridCode, It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     [Fact]
-    public async Task Save_EmptyColumns_OverwritesCacheWithEmptyList()
+    public async Task Save_EmptyConfiguration_OverwritesCacheWithEmptyObject()
     {
         var entries = new Dictionary<string, FgsUserGridPreferenceDto>(StringComparer.Ordinal);
         var cache = CreateCache(entries);
         var store = new Mock<IFgsUserGridPreferenceStore>();
         store
-            .Setup(s => s.UpsertAsync(
-                GridCode,
-                It.Is<IReadOnlyList<string>>(columns => columns.Count == 0),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FgsUserGridPreferenceDto(GridCode, []));
+            .Setup(s => s.UpsertAsync(GridCode, "{}", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FgsUserGridPreferenceDto(GridCode, EmptyConfiguration()));
 
         var handler = new SaveFgsUserGridPreferenceCommandHandler(
             store.Object,
@@ -101,13 +99,35 @@ public sealed class FgsUserGridPreferenceHandlerTests
             SignedInUser().Object);
 
         var response = await handler.Handle(
-            new SaveFgsUserGridPreferenceCommand(GridCode, []),
+            new SaveFgsUserGridPreferenceCommand(GridCode, EmptyConfiguration()),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
-        response.Data!.Columns.Should().BeEmpty();
+        response.Data!.GridConfiguration.GetRawText().Should().Be("{}");
         var expectedKey = CacheKeys.Build(TenantId, CompanyId, "user-grid-preference", $"{UserId:D}:{GridCode}");
-        entries[expectedKey].Columns.Should().BeEmpty();
+        entries[expectedKey].GridConfiguration.GetRawText().Should().Be("{}");
+    }
+
+    [Fact]
+    public async Task Save_StringifiedConfiguration_PassesParsedJsonToStore()
+    {
+        var store = new Mock<IFgsUserGridPreferenceStore>();
+        store
+            .Setup(s => s.UpsertAsync(GridCode, SavedConfiguration, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FgsUserGridPreferenceDto(GridCode, ParseConfiguration(SavedConfiguration)));
+        var handler = new SaveFgsUserGridPreferenceCommandHandler(
+            store.Object,
+            Mock.Of<ICacheService>(),
+            new TenantContext { TenantId = TenantId, CompanyId = CompanyId },
+            SignedInUser().Object);
+
+        var response = await handler.Handle(
+            new SaveFgsUserGridPreferenceCommand(GridCode, JsonSerializer.SerializeToElement(SavedConfiguration)),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.GridConfiguration.GetRawText().Should().Be(SavedConfiguration);
+        store.Verify(s => s.UpsertAsync(GridCode, SavedConfiguration, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -169,12 +189,12 @@ public sealed class FgsUserGridPreferenceHandlerTests
             user.Object);
 
         var response = await handler.Handle(
-            new SaveFgsUserGridPreferenceCommand(GridCode, ["name"]),
+            new SaveFgsUserGridPreferenceCommand(GridCode, ParseConfiguration(SavedConfiguration)),
             CancellationToken.None);
 
         response.StatusCode.Should().Be(ApiStatusCodes.Unauthorized);
         store.Verify(
-            s => s.UpsertAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()),
+            s => s.UpsertAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -198,6 +218,10 @@ public sealed class FgsUserGridPreferenceHandlerTests
         store.Verify(s => s.DeleteAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         cache.Verify(c => c.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
+
+    private static JsonElement EmptyConfiguration() => ParseConfiguration("{}");
+
+    private static JsonElement ParseConfiguration(string json) => JsonDocument.Parse(json).RootElement.Clone();
 
     private static Mock<IFgsUserContext> SignedInUser()
     {

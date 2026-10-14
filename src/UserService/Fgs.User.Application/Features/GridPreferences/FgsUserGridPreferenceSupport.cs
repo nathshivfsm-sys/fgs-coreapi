@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Fgs.Foundation.Caching;
 using Fgs.MultiTenancy;
 using Fgs.Security.Abstractions;
@@ -9,12 +10,67 @@ internal static class FgsUserGridPreferenceLimits
 {
     public const int MaxCodeLength = 100;
 
-    public const int MaxColumnCount = 100;
+    public const int MaxConfigurationLength = 65_536;
 }
 
 internal static class FgsUserGridPreferenceSupport
 {
     public const string CacheEntityName = "user-grid-preference";
+
+    private static readonly JsonDocument EmptyConfigurationDocument = JsonDocument.Parse("{}");
+
+    public static JsonElement EmptyConfiguration => EmptyConfigurationDocument.RootElement;
+
+    public static bool TryReadConfiguration(JsonElement configuration, out string json, out string error)
+    {
+        if (configuration.ValueKind is JsonValueKind.Undefined or JsonValueKind.Null)
+        {
+            json = string.Empty;
+            error = "Grid configuration is required.";
+            return false;
+        }
+
+        var candidate = configuration.ValueKind == JsonValueKind.String
+            ? configuration.GetString()
+            : configuration.ValueKind == JsonValueKind.Object
+                ? configuration.GetRawText()
+                : null;
+
+        if (candidate is null)
+        {
+            json = string.Empty;
+            error = "Grid configuration must be a JSON object.";
+            return false;
+        }
+
+        if (candidate.Length > FgsUserGridPreferenceLimits.MaxConfigurationLength)
+        {
+            json = string.Empty;
+            error = "Grid configuration must be 65536 characters or fewer.";
+            return false;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(candidate);
+            if (document.RootElement.ValueKind != JsonValueKind.Object)
+            {
+                json = string.Empty;
+                error = "Grid configuration must be a JSON object.";
+                return false;
+            }
+        }
+        catch (JsonException)
+        {
+            json = string.Empty;
+            error = "Grid configuration must be valid JSON.";
+            return false;
+        }
+
+        json = candidate;
+        error = string.Empty;
+        return true;
+    }
 
     public static bool TryGetUserId(IFgsUserContext userContext, out Guid userId)
     {

@@ -19,13 +19,9 @@ public sealed class FgsUserGridPreferenceStore(
 {
     private const int MaxCodeLength = 100;
 
-    private const int MaxColumnCount = 100;
+    private const int MaxConfigurationLength = 65_536;
 
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true
-    };
+    private static readonly JsonDocument EmptyConfigurationDocument = JsonDocument.Parse("{}");
 
     public async Task<FgsUserGridPreferenceDto> GetAsync(
         string gridCode,
@@ -42,19 +38,21 @@ public sealed class FgsUserGridPreferenceStore(
                     && preference.GridCode == code,
                 cancellationToken);
 
-        var columns = entity is null ? [] : ReadColumns(entity.GridConfiguration);
-        return new FgsUserGridPreferenceDto(code, columns);
+        var configuration = entity is null
+            ? EmptyConfigurationDocument.RootElement
+            : ReadConfiguration(entity.GridConfiguration);
+        return new FgsUserGridPreferenceDto(code, configuration);
     }
 
     public async Task<FgsUserGridPreferenceDto> UpsertAsync(
         string gridCode,
-        IReadOnlyList<string> columns,
+        string gridConfiguration,
         CancellationToken cancellationToken = default)
     {
         var scope = RequireScope();
         var code = NormalizeGridCode(gridCode);
-        var normalizedColumns = NormalizeColumns(columns);
-        var json = Serialize(normalizedColumns);
+        var json = NormalizeConfiguration(gridConfiguration);
+        var configuration = ReadConfiguration(json);
         var now = DateTimeOffset.UtcNow;
         var actor = scope.UserId.ToString("D");
 
@@ -65,7 +63,7 @@ public sealed class FgsUserGridPreferenceStore(
             existing.UpdatedOn = now;
             existing.UpdatedBy = actor;
             await unitOfWork.SaveChangesAsync(cancellationToken);
-            return new FgsUserGridPreferenceDto(code, normalizedColumns);
+            return new FgsUserGridPreferenceDto(code, configuration);
         }
 
         var entity = new FgsUserGridPreference
@@ -102,7 +100,7 @@ public sealed class FgsUserGridPreferenceStore(
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        return new FgsUserGridPreferenceDto(code, normalizedColumns);
+        return new FgsUserGridPreferenceDto(code, configuration);
     }
 
     public async Task DeleteAsync(string gridCode, CancellationToken cancellationToken = default)
@@ -156,47 +154,51 @@ public sealed class FgsUserGridPreferenceStore(
         return trimmed;
     }
 
-    private static IReadOnlyList<string> NormalizeColumns(IReadOnlyList<string> columns)
+    private static string NormalizeConfiguration(string json)
     {
-        if (columns.Count > MaxColumnCount)
+        if (string.IsNullOrWhiteSpace(json))
         {
-            throw new ArgumentException("At most 100 column codes are allowed.");
+            throw new ArgumentException("Grid configuration is required.");
         }
 
-        var normalized = new string[columns.Count];
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-        for (var index = 0; index < columns.Count; index++)
+        if (json.Length > MaxConfigurationLength)
         {
-            var column = columns[index]?.Trim();
-            if (string.IsNullOrEmpty(column) || column.Length > MaxCodeLength || !seen.Add(column))
-            {
-                throw new ArgumentException("Column codes must be non-blank, at most 100 characters, and distinct.");
-            }
-
-            normalized[index] = column;
-        }
-
-        return normalized;
-    }
-
-    private static string Serialize(IReadOnlyList<string> columns) =>
-        JsonSerializer.Serialize(new GridConfigurationPayload { Columns = columns.ToList() }, JsonOptions);
-
-    private static IReadOnlyList<string> ReadColumns(string json)
-    {
-        if (string.IsNullOrWhiteSpace(json) || json == "{}")
-        {
-            return [];
+            throw new ArgumentException("Grid configuration must be 65536 characters or fewer.");
         }
 
         try
         {
-            var payload = JsonSerializer.Deserialize<GridConfigurationPayload>(json, JsonOptions);
-            return payload?.Columns ?? [];
+            using var document = JsonDocument.Parse(json);
+            if (document.RootElement.ValueKind != JsonValueKind.Object)
+            {
+                throw new ArgumentException("Grid configuration must be a JSON object.");
+            }
+
+            return JsonSerializer.Serialize(document.RootElement);
+        }
+        catch (JsonException exception)
+        {
+            throw new ArgumentException("Grid configuration must be valid JSON.", exception);
+        }
+    }
+
+    private static JsonElement ReadConfiguration(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json) || json == "{}")
+        {
+            return EmptyConfigurationDocument.RootElement;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(json);
+            return document.RootElement.ValueKind == JsonValueKind.Object
+                ? document.RootElement.Clone()
+                : EmptyConfigurationDocument.RootElement;
         }
         catch (JsonException)
         {
-            return [];
+            return EmptyConfigurationDocument.RootElement;
         }
     }
 
@@ -216,11 +218,6 @@ public sealed class FgsUserGridPreferenceStore(
         }
 
         return false;
-    }
-
-    private sealed class GridConfigurationPayload
-    {
-        public List<string> Columns { get; set; } = [];
     }
 
     private readonly record struct CallerScope(long TenantId, long CompanyId, Guid UserId);

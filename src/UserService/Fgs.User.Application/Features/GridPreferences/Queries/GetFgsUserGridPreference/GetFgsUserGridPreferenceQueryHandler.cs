@@ -35,6 +35,6 @@ public sealed class GetFgsUserGridPreferenceQueryHandler(
             cancellationToken: cancellationToken);
 
         return ApiResponse<FgsUserGridPreferenceDto>.Ok(
-            preference ?? new FgsUserGridPreferenceDto(gridCode, []));
+            preference ?? new FgsUserGridPreferenceDto(gridCode, FgsUserGridPreferenceSupport.EmptyConfiguration));
     }
 }

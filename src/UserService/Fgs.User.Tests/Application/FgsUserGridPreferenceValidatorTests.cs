@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Fgs.User.Application.Features.GridPreferences.Commands.DeleteFgsUserGridPreference;
 using Fgs.User.Application.Features.GridPreferences.Commands.SaveFgsUserGridPreference;
 using Fgs.User.Application.Features.GridPreferences.Queries.GetFgsUserGridPreference;
@@ -7,48 +8,69 @@ namespace Fgs.User.Tests.Application;
 public sealed class FgsUserGridPreferenceValidatorTests
 {
     [Fact]
-    public async Task Save_WithBlankDuplicateAndTooLongCodes_Fails()
+    public async Task Save_WithMissingNonObjectOrTooLargeConfiguration_Fails()
     {
         var validator = new SaveFgsUserGridPreferenceCommandValidator();
-        var tooLong = new string('x', 101);
+        var tooLong = $"{{\"note\":\"{new string('x', 65_536)}\"}}";
 
-        var blankGrid = await validator.ValidateAsync(new SaveFgsUserGridPreferenceCommand("  ", ["name"]));
-        var longGrid = await validator.ValidateAsync(new SaveFgsUserGridPreferenceCommand(tooLong, ["name"]));
-        var blankColumn = await validator.ValidateAsync(new SaveFgsUserGridPreferenceCommand("WorkOrderList", ["name", " "]));
-        var duplicate = await validator.ValidateAsync(
-            new SaveFgsUserGridPreferenceCommand("WorkOrderList", ["name", " name "]));
-        var longColumn = await validator.ValidateAsync(new SaveFgsUserGridPreferenceCommand("WorkOrderList", [tooLong]));
-        var tooMany = await validator.ValidateAsync(
-            new SaveFgsUserGridPreferenceCommand("WorkOrderList", Enumerable.Range(0, 101).Select(i => $"c{i}").ToArray()));
-        var missingColumns = await validator.ValidateAsync(new SaveFgsUserGridPreferenceCommand("WorkOrderList", null));
+        var blankGrid = await validator.ValidateAsync(
+            new SaveFgsUserGridPreferenceCommand("  ", Parse("{}")));
+        var longGrid = await validator.ValidateAsync(
+            new SaveFgsUserGridPreferenceCommand(new string('g', 101), Parse("{}")));
+        var missing = await validator.ValidateAsync(
+            new SaveFgsUserGridPreferenceCommand("WorkOrderList", default));
+        var nullConfiguration = await validator.ValidateAsync(
+            new SaveFgsUserGridPreferenceCommand("WorkOrderList", Parse("null")));
+        var array = await validator.ValidateAsync(
+            new SaveFgsUserGridPreferenceCommand("WorkOrderList", Parse("[\"name\"]")));
+        var oversized = await validator.ValidateAsync(
+            new SaveFgsUserGridPreferenceCommand("WorkOrderList", Parse(tooLong)));
+        var plainText = await validator.ValidateAsync(
+            new SaveFgsUserGridPreferenceCommand("WorkOrderList", JsonSerializer.SerializeToElement("not-json")));
+        var stringifiedArray = await validator.ValidateAsync(
+            new SaveFgsUserGridPreferenceCommand("WorkOrderList", JsonSerializer.SerializeToElement("[]")));
 
         blankGrid.IsValid.Should().BeFalse();
         blankGrid.Errors.Should().Contain(e => e.ErrorMessage == "Grid code is required.");
         longGrid.IsValid.Should().BeFalse();
         longGrid.Errors.Should().Contain(e => e.ErrorMessage == "Grid code must be 100 characters or fewer.");
-        blankColumn.IsValid.Should().BeFalse();
-        blankColumn.Errors.Should().Contain(e => e.ErrorMessage == "Column code is required.");
-        duplicate.IsValid.Should().BeFalse();
-        duplicate.Errors.Should().Contain(e => e.ErrorMessage == "Column codes must be distinct.");
-        longColumn.IsValid.Should().BeFalse();
-        longColumn.Errors.Should().Contain(e => e.ErrorMessage == "Column code must be 100 characters or fewer.");
-        tooMany.IsValid.Should().BeFalse();
-        tooMany.Errors.Should().Contain(e => e.ErrorMessage == "At most 100 column codes are allowed.");
-        missingColumns.IsValid.Should().BeFalse();
-        missingColumns.Errors.Should().Contain(e => e.ErrorMessage == "Columns are required.");
+        missing.IsValid.Should().BeFalse();
+        missing.Errors.Should().Contain(e => e.ErrorMessage == "Grid configuration is required.");
+        nullConfiguration.IsValid.Should().BeFalse();
+        nullConfiguration.Errors.Should().Contain(e => e.ErrorMessage == "Grid configuration is required.");
+        array.IsValid.Should().BeFalse();
+        array.Errors.Should().Contain(e => e.ErrorMessage == "Grid configuration must be a JSON object.");
+        oversized.IsValid.Should().BeFalse();
+        oversized.Errors.Should().Contain(e => e.ErrorMessage == "Grid configuration must be 65536 characters or fewer.");
+        plainText.IsValid.Should().BeFalse();
+        plainText.Errors.Should().Contain(e => e.ErrorMessage == "Grid configuration must be valid JSON.");
+        stringifiedArray.IsValid.Should().BeFalse();
+        stringifiedArray.Errors.Should().Contain(e => e.ErrorMessage == "Grid configuration must be a JSON object.");
     }
 
     [Fact]
-    public async Task Save_WithEmptyOrDistinctColumns_Succeeds()
+    public async Task Save_WithEmptyOrSelectedGridConfiguration_Succeeds()
     {
         var validator = new SaveFgsUserGridPreferenceCommandValidator();
+        var selected = """
+            {
+              "columns": [{ "field": "name", "width": 180, "visible": true, "order": 0 }],
+              "sorting": [{ "field": "name", "direction": "asc" }]
+            }
+            """;
 
-        var empty = await validator.ValidateAsync(new SaveFgsUserGridPreferenceCommand("WorkOrderList", []));
+        var empty = await validator.ValidateAsync(
+            new SaveFgsUserGridPreferenceCommand("WorkOrderList", Parse("{}")));
         var distinct = await validator.ValidateAsync(
-            new SaveFgsUserGridPreferenceCommand(new string('g', 100), ["name", "city", new string('c', 100)]));
+            new SaveFgsUserGridPreferenceCommand(new string('g', 100), Parse(selected)));
+        var stringified = await validator.ValidateAsync(
+            new SaveFgsUserGridPreferenceCommand(
+                "WorkOrderList",
+                JsonSerializer.SerializeToElement("""{"columns":[{"field":"name","width":180}]}""")));
 
         empty.IsValid.Should().BeTrue();
         distinct.IsValid.Should().BeTrue();
+        stringified.IsValid.Should().BeTrue();
     }
 
     [Theory]
@@ -81,4 +103,6 @@ public sealed class FgsUserGridPreferenceValidatorTests
         get.Errors.Should().Contain(e => e.ErrorMessage == "Grid code must be 100 characters or fewer.");
         delete.Errors.Should().Contain(e => e.ErrorMessage == "Grid code must be 100 characters or fewer.");
     }
+
+    private static JsonElement Parse(string json) => JsonDocument.Parse(json).RootElement.Clone();
 }

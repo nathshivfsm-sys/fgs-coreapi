@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fgs.User.API.Controllers;
 
 /// <summary>
-/// Signed-in user's grid column preferences. The row is always the caller in the current tenant and company.
+/// Signed-in user's grid preferences. The row is always the caller in the current tenant and company.
 /// </summary>
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("gridpreference")]
@@ -34,7 +34,7 @@ public sealed class GridPreferenceController(IMediator mediator) : FgsApiControl
         [FromBody] FgsUserGridPreferenceWriteDto request,
         CancellationToken cancellationToken) =>
         FromApiResponse(await Mediator.Send(
-            new SaveFgsUserGridPreferenceCommand(gridCode, request.Columns),
+            new SaveFgsUserGridPreferenceCommand(gridCode, request.GridConfiguration),
             cancellationToken));
 
     [HttpDelete("{gridCode}")]

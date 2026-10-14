@@ -27,11 +27,13 @@ public sealed class FgsUserGridPreferenceStoreTests
 
         var store = CreateStore(context, userId, "Ada Lovelace");
         var otherStore = CreateStore(context, otherUserId, "Other Person");
+        const string selected = """{ "columns": [ { "field": "name", "width": 180, "visible": true } ] }""";
+        const string stored = """{"columns":[{"field":"name","width":180,"visible":true}]}""";
         var missing = await store.GetAsync("WorkOrderList");
-        var saved = await store.UpsertAsync(" WorkOrderList ", [" name ", "city"]);
+        var saved = await store.UpsertAsync(" WorkOrderList ", selected);
         var otherUser = await otherStore.GetAsync("WorkOrderList");
         var loaded = await store.GetAsync("WorkOrderList");
-        var updated = await store.UpsertAsync("WorkOrderList", []);
+        var updated = await store.UpsertAsync("WorkOrderList", "{}");
         var row = await context.FgsUserGridPreferences
             .IgnoreQueryFilters()
             .SingleAsync(preference => preference.GridCode == "WorkOrderList" && preference.UserId == userId);
@@ -39,17 +41,17 @@ public sealed class FgsUserGridPreferenceStoreTests
         await store.DeleteAsync("WorkOrderList");
         var afterDelete = await store.GetAsync("WorkOrderList");
 
-        missing.Columns.Should().BeEmpty();
+        missing.GridConfiguration.GetRawText().Should().Be("{}");
         saved.GridCode.Should().Be("WorkOrderList");
-        saved.Columns.Should().Equal("name", "city");
-        otherUser.Columns.Should().BeEmpty();
-        loaded.Columns.Should().Equal("name", "city");
-        updated.Columns.Should().BeEmpty();
+        saved.GridConfiguration.GetRawText().Should().Be(stored);
+        otherUser.GridConfiguration.GetRawText().Should().Be("{}");
+        loaded.GridConfiguration.GetRawText().Should().Be(stored);
+        updated.GridConfiguration.GetRawText().Should().Be("{}");
         row.CreatedBy.Should().Be(userId.ToString("D"));
         row.CreatedBy.Should().NotBe("Ada Lovelace");
-        row.GridConfiguration.Should().Contain("\"columns\"");
+        row.GridConfiguration.Should().Be("{}");
         row.UpdatedBy.Should().Be(userId.ToString("D"));
-        afterDelete.Columns.Should().BeEmpty();
+        afterDelete.GridConfiguration.GetRawText().Should().Be("{}");
         (await context.FgsUserGridPreferences.IgnoreQueryFilters().CountAsync()).Should().Be(0);
     }
 
@@ -64,12 +66,13 @@ public sealed class FgsUserGridPreferenceStoreTests
         var unitOfWork = new UniqueViolationThenSave(context);
         var store = CreateStore(context, userId, "Ada Lovelace", unitOfWork);
 
-        var saved = await store.UpsertAsync("EstimateList", ["email"]);
+        const string selected = """{"columns":[{"field":"email","visible":true}]}""";
+        var saved = await store.UpsertAsync("EstimateList", selected);
 
-        saved.Columns.Should().Equal("email");
+        saved.GridConfiguration.GetRawText().Should().Be(selected);
         var rows = await context.FgsUserGridPreferences.IgnoreQueryFilters().ToListAsync();
         rows.Should().ContainSingle();
-        rows[0].GridConfiguration.Should().Contain("email");
+        rows[0].GridConfiguration.Should().Be(selected);
         rows[0].UpdatedBy.Should().Be(userId.ToString("D"));
         unitOfWork.SaveCalls.Should().Be(2);
     }

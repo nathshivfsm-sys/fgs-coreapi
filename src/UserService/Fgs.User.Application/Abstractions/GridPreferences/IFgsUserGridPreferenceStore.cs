@@ -8,7 +8,7 @@ public interface IFgsUserGridPreferenceStore
 
     Task<FgsUserGridPreferenceDto> UpsertAsync(
         string gridCode,
-        IReadOnlyList<string> columns,
+        string gridConfiguration,
         CancellationToken cancellationToken = default);
 
     Task DeleteAsync(string gridCode, CancellationToken cancellationToken = default);

@@ -27,9 +27,13 @@ public sealed class SaveFgsUserGridPreferenceCommandHandler(
                 ApiStatusCodes.Unauthorized);
         }
 
+        if (!FgsUserGridPreferenceSupport.TryReadConfiguration(request.GridConfiguration, out var json, out var error))
+        {
+            return ApiResponse<FgsUserGridPreferenceDto>.Fail([error], ApiStatusCodes.BadRequest);
+        }
+
         var gridCode = request.GridCode.Trim();
-        var columns = (request.Columns ?? []).Select(static column => column.Trim()).ToArray();
-        var saved = await store.UpsertAsync(gridCode, columns, cancellationToken);
+        var saved = await store.UpsertAsync(gridCode, json, cancellationToken);
         var cacheKey = FgsUserGridPreferenceSupport.CacheKey(tenantContext, userId, gridCode);
         await cache.SetAsync(cacheKey, saved, cancellationToken: cancellationToken);
         return ApiResponse<FgsUserGridPreferenceDto>.Ok(saved);

@@ -8753,7 +8753,7 @@
           ]
         },
         {
-          "description": "Signed-in user's column layout for any grid. Authenticated caller only; no extra permission. The row is always the current user in the current tenant and company. GET returns columns [] when no row exists. PUT upserts columns (an empty list is stored). DELETE removes the row and still succeeds when it is already missing.",
+          "description": "Signed-in user's grid preferences stored as JSON. Authenticated caller only; no extra permission. The row is always the current user in the current tenant and company. GET returns gridConfiguration {} when no row exists. PUT upserts the JSON object the user selected. DELETE removes the row and still succeeds when it is already missing.",
           "name": "GridPreferenceController",
           "item": [
             {
@@ -8773,7 +8773,7 @@
                     "WorkOrderList"
                   ]
                 },
-                "description": "Returns { gridCode, columns } for the signed-in user. No saved row returns columns: [].",
+                "description": "Returns { gridCode, gridConfiguration } for the signed-in user. No saved row returns gridConfiguration: {}.",
                 "header": [
                   {
                     "key": "Accept",
@@ -8820,7 +8820,7 @@
                     "WorkOrderList"
                   ]
                 },
-                "description": "Upserts the signed-in user's columns for this grid. Empty columns is allowed and stores []. Duplicate, blank, or over-length codes return 400. gridCode and each column code are required, distinct, and at most 100 characters. At most 100 columns.",
+                "description": "Upserts the signed-in user's selected grid preferences. gridConfiguration may be a JSON object or a stringified JSON object from JSON.stringify. The stored value is always a JSON object. {} is allowed. A missing value, invalid JSON, a non-object, or more than 65536 characters returns 400. gridCode is required and at most 100 characters.",
                 "header": [
                   {
                     "key": "Accept",
@@ -8844,7 +8844,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"columns\": [\"name\", \"city\", \"email\"]\n}",
+                  "raw": "{\n  \"gridConfiguration\": \"{\\\"columns\\\":[{\\\"field\\\":\\\"name\\\",\\\"width\\\":180,\\\"visible\\\":true,\\\"order\\\":0},{\\\"field\\\":\\\"city\\\",\\\"width\\\":120,\\\"visible\\\":true,\\\"order\\\":1}],\\\"sorting\\\":[{\\\"field\\\":\\\"name\\\",\\\"direction\\\":\\\"asc\\\"}]}\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
