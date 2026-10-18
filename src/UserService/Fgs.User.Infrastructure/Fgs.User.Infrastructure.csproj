@@ -26,11 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Persistence\Database\Migrations\" />
-    <Folder Include="Persistence\Database\Scripts\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <InternalsVisibleTo Include="Fgs.User.Tests" />
   </ItemGroup>
 
