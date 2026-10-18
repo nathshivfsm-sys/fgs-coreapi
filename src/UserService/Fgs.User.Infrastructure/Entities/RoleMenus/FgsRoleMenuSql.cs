@@ -9,7 +9,7 @@ internal static class FgsRoleMenuSql
     public const string SelectDetailColumns = """
         rm."Id", rm."RoleId", rm."MenuId", rm."DisplayOrder", rm."IsActive", rm."CreatedOn", rm."CreatedBy",
         tm."Id" AS "TenantMenuId", tm."MenuCode", tm."Name" AS "MenuName", tm."Description" AS "MenuDescription",
-        tm."ParentMenuId", tm."MenuType", tm."Route", tm."Icon", tm."DisplayOrder" AS "MenuDisplayOrder",
+        tm."ParentMenuId", tm."MenuType", tm."Route", tm."Icon", tm."SortOrder" AS "MenuDisplayOrder",
         tm."IsActive" AS "MenuIsActive", tm."CreatedOn" AS "MenuCreatedOn", tm."CreatedBy" AS "MenuCreatedBy"
         """;
 

@@ -1961,6 +1961,15 @@ SET "TargetSchemaName" = 'setup'
 WHERE "SeedCode" = 'ALL_GloTag'
   AND "TargetSchemaName" = 'shared';
 
+-- Rename existing ALL_GloMenu order mapping before the insert below.
+-- The insert matches on TargetColumnName, so a later update would insert a second SortOrder row.
+UPDATE glo."GloSeedTableColumnMapping" AS existing
+SET "TargetColumnName" = 'SortOrder'
+FROM glo."GloSeedTableMapping" m
+WHERE existing."SeedTableMappingId" = m."Id"
+  AND m."SeedCode" = 'ALL_GloMenu'
+  AND existing."TargetColumnName" = 'DisplayOrder';
+
 INSERT INTO glo."GloSeedTableColumnMapping"
 (
     "SeedTableMappingId",
@@ -2119,7 +2128,7 @@ INNER JOIN (
         ('ALL_GloMenu', 'MenuType', 'MenuType', NULL, NULL, 8, true, true),
         ('ALL_GloMenu', 'Route', 'Route', NULL, NULL, 9, false, true),
         ('ALL_GloMenu', 'Icon', 'Icon', NULL, NULL, 10, false, true),
-        ('ALL_GloMenu', 'SortOrder', 'DisplayOrder', NULL, NULL, 11, true, true),
+        ('ALL_GloMenu', 'SortOrder', 'SortOrder', NULL, NULL, 11, true, true),
         ('ALL_GloMenu', 'IsActive', 'IsActive', NULL, NULL, 12, true, true),
         ('ALL_GloMenu', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 13, true, true),
         ('ALL_GloMenu', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 14, false, true),

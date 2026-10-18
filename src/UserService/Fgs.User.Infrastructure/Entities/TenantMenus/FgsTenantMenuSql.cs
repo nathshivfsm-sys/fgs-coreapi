@@ -6,6 +6,6 @@ internal static class FgsTenantMenuSql
 
     public const string SelectColumns = """
         "Id", "MenuId", "MenuCode", "Name", "Description", "ParentMenuId", "MenuType", "Route", "Icon",
-        "DisplayOrder", "IsActive", "CreatedOn", "CreatedBy"
+        "SortOrder", "IsActive", "CreatedOn", "CreatedBy"
         """;
 }

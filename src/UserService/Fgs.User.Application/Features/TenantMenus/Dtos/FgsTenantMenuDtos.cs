@@ -10,7 +10,7 @@ public sealed record FgsTenantMenuDetailDto(
     string MenuType,
     string? Route,
     string? Icon,
-    short DisplayOrder,
+    short SortOrder,
     bool IsActive,
     DateTimeOffset CreatedOn,
     string? CreatedBy);
@@ -20,7 +20,7 @@ public sealed record FgsTenantMenuLookupDto(
     int MenuId,
     string MenuCode,
     string Name,
-    short DisplayOrder);
+    short SortOrder);
 
 public sealed record FgsTenantMenuCreateDto(
     int MenuId,
@@ -31,7 +31,7 @@ public sealed record FgsTenantMenuCreateDto(
     int? ParentMenuId = null,
     string? Route = null,
     string? Icon = null,
-    short? DisplayOrder = null);
+    short? SortOrder = null);
 
 public sealed record FgsTenantMenuUpdateDto(
     int MenuId,
@@ -42,7 +42,7 @@ public sealed record FgsTenantMenuUpdateDto(
     int? ParentMenuId = null,
     string? Route = null,
     string? Icon = null,
-    short DisplayOrder = 1);
+    short SortOrder = 0);
 
 public sealed record FgsTenantMenuPatchDto(
     int? MenuId = null,
@@ -53,7 +53,7 @@ public sealed record FgsTenantMenuPatchDto(
     string? MenuType = null,
     string? Route = null,
     string? Icon = null,
-    short? DisplayOrder = null,
+    short? SortOrder = null,
     bool? IsActive = null);
 
 public sealed record FgsTenantMenuSyncItemDto(
@@ -65,7 +65,7 @@ public sealed record FgsTenantMenuSyncItemDto(
     int? ParentMenuId = null,
     string? Route = null,
     string? Icon = null,
-    short? DisplayOrder = null,
+    short? SortOrder = null,
     bool IsActive = true);
 
 /// <summary>

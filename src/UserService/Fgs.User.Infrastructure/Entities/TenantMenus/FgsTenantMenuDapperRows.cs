@@ -13,7 +13,7 @@ internal sealed class FgsTenantMenuRow
     public string MenuType { get; set; } = null!;
     public string? Route { get; set; }
     public string? Icon { get; set; }
-    public short DisplayOrder { get; set; }
+    public short SortOrder { get; set; }
     public bool IsActive { get; set; }
     public DateTimeOffset CreatedOn { get; set; }
     public string? CreatedBy { get; set; }
@@ -29,7 +29,7 @@ internal sealed class FgsTenantMenuRow
             MenuType,
             Route,
             Icon,
-            DisplayOrder,
+            SortOrder,
             IsActive,
             CreatedOn,
             CreatedBy);
@@ -41,8 +41,8 @@ internal sealed class FgsTenantMenuLookupRow
     public int MenuId { get; set; }
     public string MenuCode { get; set; } = null!;
     public string Name { get; set; } = null!;
-    public short DisplayOrder { get; set; }
+    public short SortOrder { get; set; }
 
     public FgsTenantMenuLookupDto ToLookupDto() =>
-        new(Id, MenuId, MenuCode, Name, DisplayOrder);
+        new(Id, MenuId, MenuCode, Name, SortOrder);
 }

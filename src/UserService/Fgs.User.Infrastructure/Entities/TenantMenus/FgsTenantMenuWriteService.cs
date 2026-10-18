@@ -37,9 +37,9 @@ public sealed class FgsTenantMenuWriteService(
             MenuType = dto.MenuType.Trim(),
             Route = dto.Route?.Trim(),
             Icon = dto.Icon?.Trim(),
-            DisplayOrder = dto.DisplayOrder ?? await DisplayOrderSequence.NextAsync(
+            SortOrder = dto.SortOrder ?? await DisplayOrderSequence.NextAsync(
                 context.FgsTenantMenus,
-                t => t.DisplayOrder,
+                t => t.SortOrder,
                 cancellationToken),
             IsActive = true,
             CreatedOn = now,
@@ -69,7 +69,7 @@ public sealed class FgsTenantMenuWriteService(
             dto.MenuType,
             dto.Route,
             dto.Icon,
-            dto.DisplayOrder);
+            dto.SortOrder);
         StampForUpdate(entity);
 
         await SaveChangesAsync(cancellationToken);
@@ -124,9 +124,9 @@ public sealed class FgsTenantMenuWriteService(
             entity.Icon = dto.Icon.Trim();
         }
 
-        if (dto.DisplayOrder.HasValue)
+        if (dto.SortOrder.HasValue)
         {
-            entity.DisplayOrder = dto.DisplayOrder.Value;
+            entity.SortOrder = dto.SortOrder.Value;
         }
 
         if (dto.IsActive.HasValue)
@@ -167,7 +167,7 @@ public sealed class FgsTenantMenuWriteService(
         var now = DateTimeOffset.UtcNow;
         var nextOrder = await DisplayOrderSequence.NextAsync(
             context.FgsTenantMenus,
-            menu => menu.DisplayOrder,
+            menu => menu.SortOrder,
             cancellationToken);
         var sequenceFull = false;
         foreach (var item in desiredItems)
@@ -184,7 +184,7 @@ public sealed class FgsTenantMenuWriteService(
                     item.MenuType,
                     item.Route,
                     item.Icon,
-                    item.DisplayOrder ?? existingRow.DisplayOrder);
+                    item.SortOrder ?? existingRow.SortOrder);
                 existingRow.IsActive = item.IsActive;
                 existingRow.UpdatedOn = now;
                 existingRow.UpdatedBy = actor;
@@ -204,7 +204,7 @@ public sealed class FgsTenantMenuWriteService(
                     MenuType = item.MenuType.Trim(),
                     Route = item.Route?.Trim(),
                     Icon = item.Icon?.Trim(),
-                    DisplayOrder = item.DisplayOrder ?? DisplayOrderSequence.TakeNext(ref nextOrder, ref sequenceFull),
+                    SortOrder = item.SortOrder ?? DisplayOrderSequence.TakeNext(ref nextOrder, ref sequenceFull),
                     IsActive = item.IsActive,
                     CreatedOn = now,
                     CreatedBy = actor
@@ -217,7 +217,7 @@ public sealed class FgsTenantMenuWriteService(
         return await context.FgsTenantMenus
             .AsNoTracking()
             .Where(x => x.TenantId == tenantId && x.CompanyId == companyId)
-            .OrderBy(x => x.DisplayOrder)
+            .OrderBy(x => x.SortOrder)
             .ThenBy(x => x.Id)
             .Select(x => MapToDetail(x))
             .ToListAsync(cancellationToken);
@@ -267,7 +267,7 @@ public sealed class FgsTenantMenuWriteService(
         string menuType,
         string? route,
         string? icon,
-        short displayOrder)
+        short sortOrder)
     {
         entity.MenuId = menuId;
         entity.MenuCode = menuCode.Trim();
@@ -277,7 +277,7 @@ public sealed class FgsTenantMenuWriteService(
         entity.MenuType = menuType.Trim();
         entity.Route = route?.Trim();
         entity.Icon = icon?.Trim();
-        entity.DisplayOrder = displayOrder;
+        entity.SortOrder = sortOrder;
     }
 
     private static bool IsUniqueViolation(DbUpdateException exception) =>
@@ -296,7 +296,7 @@ public sealed class FgsTenantMenuWriteService(
             entity.MenuType,
             entity.Route,
             entity.Icon,
-            entity.DisplayOrder,
+            entity.SortOrder,
             entity.IsActive,
             entity.CreatedOn,
             entity.CreatedBy);

@@ -1527,12 +1527,6 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(255)")
                         .HasComment("Description of the menu item and its purpose.");
 
-                    b.Property<short>("DisplayOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint")
-                        .HasDefaultValue((short)1)
-                        .HasComment("Controls the display order of the menu item for the tenant company.");
-
                     b.Property<string>("Icon")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
@@ -1575,6 +1569,12 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(255)")
                         .HasComment("Application route used to navigate to the menu item when applicable.");
 
+                    b.Property<short>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)0)
+                        .HasComment("Determines the display order of the menu item within its parent menu.");
+
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
                         .HasColumnOrder(1)
@@ -1601,6 +1601,9 @@ namespace Fgs.User.Infrastructure.Database.Migrations
                     b.HasIndex("TenantId", "CompanyId", "MenuId")
                         .IsUnique()
                         .HasDatabaseName("IX_FgsTenantMenu_TenantId_CompanyId_MenuId");
+
+                    b.HasIndex("TenantId", "CompanyId", "ParentMenuId")
+                        .HasDatabaseName("IX_FgsTenantMenu_TenantId_CompanyId_ParentMenuId");
 
                     b.ToTable("FgsTenantMenu", "identity", t =>
                         {

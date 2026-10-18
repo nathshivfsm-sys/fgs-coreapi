@@ -270,14 +270,14 @@ public sealed class ApplicationDtosCoverageTests
         tenantMenu.MenuType.Should().Be("PAGE");
         tenantMenu.Route.Should().Be("/d");
         tenantMenu.Icon.Should().Be("home");
-        tenantMenu.DisplayOrder.Should().Be(1);
+        tenantMenu.SortOrder.Should().Be(1);
         tenantMenu.IsActive.Should().BeTrue();
         tenantMenu.CreatedOn.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(5));
         tenantMenu.CreatedBy.Should().Be("t");
         (tenantMenu with { IsActive = false }).IsActive.Should().BeFalse();
         var tenantMenuSync = new FgsTenantMenuSyncDto(
             [new FgsTenantMenuSyncItemDto(100, "DASHBOARD", "Dashboard", "PAGE")]);
-        (tenantMenuSync with { Items = [new FgsTenantMenuSyncItemDto(101, "SETTINGS", "Settings", "GROUP", DisplayOrder: 2)] }).Items
+        (tenantMenuSync with { Items = [new FgsTenantMenuSyncItemDto(101, "SETTINGS", "Settings", "GROUP", SortOrder: 2)] }).Items
             .Should().ContainSingle(x => x.MenuId == 101 && x.MenuCode == "SETTINGS");
         var syncItem = new FgsTenantMenuSyncItemDto(
             200,
@@ -288,21 +288,21 @@ public sealed class ApplicationDtosCoverageTests
             ParentMenuId: 100,
             Route: "/child",
             Icon: "folder",
-            DisplayOrder: 3,
+            SortOrder: 3,
             IsActive: false);
         syncItem.Description.Should().Be("Nested");
         syncItem.ParentMenuId.Should().Be(100);
         syncItem.Route.Should().Be("/child");
         syncItem.Icon.Should().Be("folder");
-        syncItem.DisplayOrder.Should().Be(3);
+        syncItem.SortOrder.Should().Be(3);
         syncItem.IsActive.Should().BeFalse();
         var lookup = new FgsTenantMenuLookupDto(1, 100, "DASHBOARD", "Dashboard", 1);
         lookup.Id.Should().Be(1);
         lookup.MenuId.Should().Be(100);
         lookup.MenuCode.Should().Be("DASHBOARD");
         lookup.Name.Should().Be("Dashboard");
-        lookup.DisplayOrder.Should().Be(1);
-        var create = new FgsTenantMenuCreateDto(100, "DASHBOARD", "Dashboard", "PAGE", Description: "d", ParentMenuId: 1, Route: "/d", Icon: "home", DisplayOrder: 2);
+        lookup.SortOrder.Should().Be(1);
+        var create = new FgsTenantMenuCreateDto(100, "DASHBOARD", "Dashboard", "PAGE", Description: "d", ParentMenuId: 1, Route: "/d", Icon: "home", SortOrder: 2);
         create.MenuId.Should().Be(100);
         create.MenuCode.Should().Be("DASHBOARD");
         create.Name.Should().Be("Dashboard");
@@ -311,8 +311,8 @@ public sealed class ApplicationDtosCoverageTests
         create.ParentMenuId.Should().Be(1);
         create.Route.Should().Be("/d");
         create.Icon.Should().Be("home");
-        create.DisplayOrder.Should().Be(2);
-        var update = new FgsTenantMenuUpdateDto(100, "DASHBOARD", "Home", "PAGE", Description: "u", ParentMenuId: 2, Route: "/h", Icon: "house", DisplayOrder: 3);
+        create.SortOrder.Should().Be(2);
+        var update = new FgsTenantMenuUpdateDto(100, "DASHBOARD", "Home", "PAGE", Description: "u", ParentMenuId: 2, Route: "/h", Icon: "house", SortOrder: 3);
         update.MenuId.Should().Be(100);
         update.MenuCode.Should().Be("DASHBOARD");
         update.Name.Should().Be("Home");
@@ -321,7 +321,7 @@ public sealed class ApplicationDtosCoverageTests
         update.ParentMenuId.Should().Be(2);
         update.Route.Should().Be("/h");
         update.Icon.Should().Be("house");
-        update.DisplayOrder.Should().Be(3);
+        update.SortOrder.Should().Be(3);
         var patch = new FgsTenantMenuPatchDto(
             MenuId: 101,
             MenuCode: "SETTINGS",
@@ -332,7 +332,7 @@ public sealed class ApplicationDtosCoverageTests
             Route: "/s",
             Icon: "gear",
             IsActive: false,
-            DisplayOrder: 2);
+            SortOrder: 2);
         patch.MenuId.Should().Be(101);
         patch.MenuCode.Should().Be("SETTINGS");
         patch.Name.Should().Be("Settings");
@@ -342,7 +342,7 @@ public sealed class ApplicationDtosCoverageTests
         patch.Route.Should().Be("/s");
         patch.Icon.Should().Be("gear");
         patch.IsActive.Should().BeFalse();
-        patch.DisplayOrder.Should().Be((short)2);
+        patch.SortOrder.Should().Be((short)2);
 
         var rolePermissionSummary = new FgsRolePermissionSummaryDto(1, 1, 2, DateTimeOffset.UtcNow, "t");
         (rolePermissionSummary with { FgsPermissionId = 3 }).FgsRoleId.Should().Be(1);

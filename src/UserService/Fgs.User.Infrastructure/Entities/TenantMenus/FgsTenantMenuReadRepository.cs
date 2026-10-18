@@ -43,7 +43,7 @@ internal sealed class FgsTenantMenuReadRepository(
             FROM {FgsTenantMenuSql.Table}
             WHERE "TenantId" = @TenantId
               AND "CompanyId" = @CompanyId
-            ORDER BY "DisplayOrder" ASC, "Id" ASC
+            ORDER BY "SortOrder" ASC, "Id" ASC
             """;
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -73,10 +73,10 @@ internal sealed class FgsTenantMenuReadRepository(
         }
 
         var sql = $"""
-            SELECT "Id", "MenuId", "MenuCode", "Name", "DisplayOrder"
+            SELECT "Id", "MenuId", "MenuCode", "Name", "SortOrder"
             FROM {FgsTenantMenuSql.Table}
             WHERE {string.Join(" AND ", where)}
-            ORDER BY "DisplayOrder" ASC, "Name" ASC, "Id" ASC
+            ORDER BY "SortOrder" ASC, "Name" ASC, "Id" ASC
             """;
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);

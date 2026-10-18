@@ -22,8 +22,8 @@ public sealed class SyncFgsTenantMenusCommandValidator : AbstractValidator<SyncF
             item.RuleFor(x => x.ParentMenuId).GreaterThan(0).When(x => x.ParentMenuId.HasValue);
             item.RuleFor(x => x.Route).MaximumLength(255).When(x => x.Route is not null);
             item.RuleFor(x => x.Icon).MaximumLength(100).When(x => x.Icon is not null);
-            item.RuleFor(x => x.DisplayOrder).GreaterThanOrEqualTo((short)0)
-            .When(x => x.DisplayOrder.HasValue);
+            item.RuleFor(x => x.SortOrder).GreaterThanOrEqualTo((short)0)
+            .When(x => x.SortOrder.HasValue);
         });
     }
 }
@@ -51,8 +51,8 @@ public sealed class CreateFgsTenantMenuCommandValidator : AbstractValidator<Crea
         RuleFor(x => x.Dto.ParentMenuId).GreaterThan(0).When(x => x.Dto.ParentMenuId.HasValue);
         RuleFor(x => x.Dto.Route).MaximumLength(255).When(x => x.Dto.Route is not null);
         RuleFor(x => x.Dto.Icon).MaximumLength(100).When(x => x.Dto.Icon is not null);
-        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0)
-            .When(x => x.Dto.DisplayOrder.HasValue);
+        RuleFor(x => x.Dto.SortOrder).GreaterThanOrEqualTo((short)0)
+            .When(x => x.Dto.SortOrder.HasValue);
     }
 }
 
@@ -81,7 +81,7 @@ public sealed class UpdateFgsTenantMenuCommandValidator : AbstractValidator<Upda
         RuleFor(x => x.Dto.ParentMenuId).GreaterThan(0).When(x => x.Dto.ParentMenuId.HasValue);
         RuleFor(x => x.Dto.Route).MaximumLength(255).When(x => x.Dto.Route is not null);
         RuleFor(x => x.Dto.Icon).MaximumLength(100).When(x => x.Dto.Icon is not null);
-        RuleFor(x => x.Dto.DisplayOrder).GreaterThanOrEqualTo((short)0);
+        RuleFor(x => x.Dto.SortOrder).GreaterThanOrEqualTo((short)0);
     }
 }
 
@@ -132,8 +132,8 @@ public sealed class PatchFgsTenantMenuCommandValidator : AbstractValidator<Patch
             .MaximumLength(100)
             .When(x => x.Dto.Icon is not null);
 
-        RuleFor(x => x.Dto.DisplayOrder)
+        RuleFor(x => x.Dto.SortOrder)
             .GreaterThanOrEqualTo((short)0)
-            .When(x => x.Dto.DisplayOrder.HasValue);
+            .When(x => x.Dto.SortOrder.HasValue);
     }
 }

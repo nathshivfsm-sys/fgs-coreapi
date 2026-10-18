@@ -46,7 +46,7 @@ public sealed class TenantMenuHandlerTests
         string menuType,
         short displayOrder = 1,
         bool isActive = true) =>
-        new(menuId, code, name, menuType, DisplayOrder: displayOrder, IsActive: isActive);
+        new(menuId, code, name, menuType, SortOrder: displayOrder, IsActive: isActive);
 
     private static FgsTenantMenuCreateDto CreateDto(
         int menuId = 100,
@@ -289,7 +289,7 @@ public sealed class TenantMenuHandlerTests
         var validator = new SyncFgsTenantMenusCommandValidator();
         var result = await validator.ValidateAsync(
             new SyncFgsTenantMenusCommand(new FgsTenantMenuSyncDto(
-                [new FgsTenantMenuSyncItemDto(0, "", "", "", DisplayOrder: -1)])));
+                [new FgsTenantMenuSyncItemDto(0, "", "", "", SortOrder: -1)])));
 
         result.IsValid.Should().BeFalse();
     }

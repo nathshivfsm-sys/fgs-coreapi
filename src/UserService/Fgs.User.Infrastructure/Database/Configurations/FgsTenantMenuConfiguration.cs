@@ -69,10 +69,10 @@ internal class FgsTenantMenuConfiguration : IEntityTypeConfiguration<FgsTenantMe
         entity.Property(e => e.IsActive)
             .HasDefaultValue(true)
             .HasComment("Indicates whether the menu item is currently available to the tenant company.");
-        entity.Property(e => e.DisplayOrder)
+        entity.Property(e => e.SortOrder)
             .HasColumnType("smallint")
-            .HasDefaultValue((short)1)
-            .HasComment("Controls the display order of the menu item for the tenant company.");
+            .HasDefaultValue((short)0)
+            .HasComment("Determines the display order of the menu item within its parent menu.");
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.MenuId })
             .IsUnique()
@@ -82,5 +82,7 @@ internal class FgsTenantMenuConfiguration : IEntityTypeConfiguration<FgsTenantMe
             .HasDatabaseName("IX_FgsTenantMenu_TenantId_CompanyId_MenuCode");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.IsActive })
             .HasDatabaseName("IX_FgsTenantMenu_TenantId_CompanyId_IsActive");
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.ParentMenuId })
+            .HasDatabaseName("IX_FgsTenantMenu_TenantId_CompanyId_ParentMenuId");
     }
 }

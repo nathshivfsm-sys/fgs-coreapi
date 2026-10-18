@@ -22,5 +22,5 @@ public class FgsTenantMenu : FgsTenantCompanySetupEntityBase<long>
 
     public string? Icon { get; set; }
 
-    public short DisplayOrder { get; set; } = 1;
+    public short SortOrder { get; set; } = 0;
 }

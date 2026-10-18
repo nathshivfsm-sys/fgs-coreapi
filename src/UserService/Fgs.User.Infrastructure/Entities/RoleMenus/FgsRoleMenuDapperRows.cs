@@ -45,7 +45,7 @@ internal sealed class FgsRoleMenuRow
             MenuType,
             Route,
             Icon,
-            MenuDisplayOrder ?? 1,
+            MenuDisplayOrder ?? 0,
             MenuIsActive ?? true,
             MenuCreatedOn ?? CreatedOn,
             MenuCreatedBy);
