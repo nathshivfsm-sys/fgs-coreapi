@@ -135,6 +135,57 @@ public sealed class TenantProvisioningOrchestratorTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task SyncMissingCatalogAsync_ResolvesGloBusinessTypeIdsAndDoesNotProvisionTenant()
+    {
+        await using var context = await CreateContextAsync();
+        var now = DateTimeOffset.UtcNow;
+
+        context.GloBusinessTypes.AddRange(
+            new GloBusinessType { Id = 5, Code = "HVAC", Name = "HVAC", IsActive = true, CreatedOn = now },
+            new GloBusinessType { Id = 9, Code = "PLUMBING", Name = "Plumbing", IsActive = true, CreatedOn = now });
+        context.FgsBusinessTypes.AddRange(
+            new FgsBusinessType { Id = 1, TenantId = 10, CompanyId = 1, Code = "HVAC", Name = "HVAC", IsActive = true, CreatedOn = now },
+            new FgsBusinessType { Id = 2, TenantId = 10, CompanyId = 1, Code = "PLUMBING", Name = "Plumbing", IsActive = true, CreatedOn = now });
+        await context.SaveChangesAsync();
+
+        var seedResult = new TenantDataSeedResult(2, 1, 0, []);
+        IReadOnlyList<int>? capturedGloIds = null;
+        var seedingEngine = new Mock<ITenantDataSeedingEngine>();
+        seedingEngine
+            .Setup(s => s.SeedTenantDataAsync(10, 1, It.IsAny<IReadOnlyList<int>?>(), It.IsAny<CancellationToken>()))
+            .Callback<long, long, IReadOnlyList<int>?, CancellationToken>((_, _, ids, _) => capturedGloIds = ids)
+            .ReturnsAsync(seedResult);
+
+        var userTenantClient = CreateUserTenantClientMock();
+        var userCompanyClient = CreateUserCompanyClientMock();
+        var fileTenantClient = CreateFileTenantClientMock();
+
+        var orchestrator = new TenantProvisioningOrchestrator(
+            userTenantClient.Object,
+            userCompanyClient.Object,
+            fileTenantClient.Object,
+            seedingEngine.Object,
+            context,
+            NullLogger<TenantProvisioningOrchestrator>.Instance);
+
+        var result = await orchestrator.SyncMissingCatalogAsync(10, 1, CancellationToken.None);
+
+        result.Should().BeSameAs(seedResult);
+        capturedGloIds.Should().NotBeNull();
+        capturedGloIds!.OrderBy(id => id).Should().Equal(5, 9);
+
+        userTenantClient.Verify(
+            c => c.UpdateStatusAsync(It.IsAny<long>(), It.IsAny<UpdateTenantStatusRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        userCompanyClient.Verify(
+            c => c.GetCompaniesAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        fileTenantClient.Verify(
+            c => c.ProvisionBucketAsync(It.IsAny<long>(), It.IsAny<ProvisionTenantBucketRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static Mock<IUserTenantClient> CreateUserTenantClientMock()
     {
         var mock = new Mock<IUserTenantClient>();

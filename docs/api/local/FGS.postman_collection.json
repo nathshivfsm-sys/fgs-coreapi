@@ -24639,6 +24639,71 @@
           ]
         },
         {
+          "description": "TenantSeedController - tenantseed",
+          "name": "TenantSeedController",
+          "item": [
+            {
+              "name": "Sync",
+              "request": {
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/tenantseed",
+                  "path": [
+                    "api",
+                    "v1",
+                    "tenantseed"
+                  ]
+                },
+                "description": "Sync missing catalog rows for the current tenant and company.",
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "type": "text",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  },
+                  "mode": "raw"
+                },
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            }
+          ]
+        },
+        {
           "description": "TermsConditionController - termscondition",
           "name": "TermsConditionController",
           "item": [

@@ -111,6 +111,28 @@ public sealed class TenantProvisioningOrchestrator(
         }
     }
 
+    public async Task<TenantDataSeedResult> SyncMissingCatalogAsync(
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken = default)
+    {
+        logger.LogInformation(
+            "Syncing missing catalog rows for tenant {TenantId}, company {CompanyId}",
+            tenantId,
+            companyId);
+
+        var gloBusinessTypeIds = await ResolveGloBusinessTypeIdsAsync(
+            tenantId,
+            companyId,
+            cancellationToken);
+
+        return await seedingEngine.SeedTenantDataAsync(
+            tenantId,
+            companyId,
+            gloBusinessTypeIds,
+            cancellationToken);
+    }
+
     private async Task<IReadOnlyList<int>> ResolveGloBusinessTypeIdsAsync(
         long tenantId,
         long companyId,

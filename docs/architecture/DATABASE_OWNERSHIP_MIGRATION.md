@@ -135,6 +135,7 @@ Generate new migrations with [`scripts/generate-migration-sql.ps1`](../../script
 |------|-------|------|
 | Global + glo reference data + seed mappings | SetupService | `Fgs.Setup.Infrastructure/Database/Seeds/Initial_Migration_Seed.sql` |
 | Glo cache tables (provider + resolution types) | SetupService | `Fgs.Setup.Infrastructure/Database/Seeds/Glo_Cache_Tables_Seed.sql` |
+| Glo navigation menu (`glo.GloMenu`) | SetupService | `Fgs.Setup.Infrastructure/Database/Seeds/Glo_Menu_Seed.sql` (`Glo_Menu_Seed_Down.sql`) |
 | Glo seed rollback | SetupService | `Fgs.Setup.Infrastructure/Database/Seeds/Initial_Migration_Seed_Down.sql` |
 | Permission catalog (`identity.FgsPermission`) | UserService | `Fgs.User.Infrastructure/Database/Seeds/FgsPermission_Seed.sql` |
 | Inventory reference seed (item types + default location) | InventoryService | `Fgs.Inventory.Infrastructure/Database/Seeds/Initial_Inventory_Reference_Seed.sql` |
@@ -142,8 +143,9 @@ Generate new migrations with [`scripts/generate-migration-sql.ps1`](../../script
 
 -- Run order (greenfield):
 --   1. all service `dotnet ef database update`
---   2. Setup Initial_Migration_Seed.sql + Glo_Cache_Tables_Seed.sql
---      (includes all glo.GloSeedTableMapping / column mappings used by tenant provisioning)
+--   2. Setup Initial_Migration_Seed.sql + Glo_Cache_Tables_Seed.sql + Glo_Menu_Seed.sql
+--      (includes all glo.GloSeedTableMapping / column mappings used by tenant provisioning;
+--       Glo_Menu_Seed.sql runs with the other Setup seeds)
 --   3. Initial_Inventory_Reference_Seed.sql
 --   4. other owning-service reference seeds
 
