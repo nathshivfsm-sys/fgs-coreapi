@@ -177,6 +177,7 @@ public sealed class TenantDataSeedingEngine(
                 mappings,
                 tenantId,
                 companyId,
+                tableResults,
                 cancellationToken);
         }
         catch (Exception ex)
@@ -188,6 +189,29 @@ public sealed class TenantDataSeedingEngine(
                 companyId);
             tableResults.Add(new TenantSeedTableResult(
                 SeedTransformationTypes.SeedCodes.AllGloRolePermission,
+                TenantSeedTableOutcome.Failed,
+                ex.Message));
+        }
+
+        try
+        {
+            await SeedRoleMenusAsync(
+                connectionScope,
+                mappings,
+                tenantId,
+                companyId,
+                tableResults,
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(
+                ex,
+                "Role menu seed failed for tenant {TenantId}, company {CompanyId}",
+                tenantId,
+                companyId);
+            tableResults.Add(new TenantSeedTableResult(
+                SeedTransformationTypes.SeedCodes.AllGloRoleMenu,
                 TenantSeedTableOutcome.Failed,
                 ex.Message));
         }
@@ -709,6 +733,7 @@ public sealed class TenantDataSeedingEngine(
         IReadOnlyList<GloSeedTableMapping> mappings,
         long tenantId,
         long companyId,
+        List<TenantSeedTableResult> tableResults,
         CancellationToken cancellationToken)
     {
         var rolePermissionMapping = mappings.FirstOrDefault(m =>
@@ -765,21 +790,6 @@ public sealed class TenantDataSeedingEngine(
             return;
         }
 
-        if (await TenantJoinedChildSeedHelper.IsTenantCompanySeededAsync(
-                connections.TargetConnection,
-                connections.TargetSchema,
-                "FgsRolePermission",
-                tenantId,
-                companyId,
-                cancellationToken))
-        {
-            logger.LogInformation(
-                "FgsRolePermission already seeded for tenant {TenantId}, company {CompanyId}; skipping",
-                tenantId,
-                companyId);
-            return;
-        }
-
         var inserted = await TenantJoinedChildSeedHelper.ExecuteInTargetTransactionAsync(
             connections.TargetConnection,
             async (transaction, ct) =>
@@ -808,11 +818,108 @@ public sealed class TenantDataSeedingEngine(
             },
             cancellationToken);
 
-        logger.LogInformation(
-            "Seeded {RowCount} FgsRolePermission row(s) for tenant {TenantId}, company {CompanyId}",
-            inserted,
-            tenantId,
-            companyId);
+        var tableResult = new TenantSeedTableResult(
+            SeedTransformationTypes.SeedCodes.AllGloRolePermission,
+            TenantSeedTableOutcome.Succeeded,
+            null,
+            inserted);
+        tableResults.Add(tableResult);
+        LogTableResult(tableResult, tableResult.SeedCode, tenantId, companyId);
+    }
+
+    private async Task SeedRoleMenusAsync(
+        TenantSeedConnectionScope connectionScope,
+        IReadOnlyList<GloSeedTableMapping> mappings,
+        long tenantId,
+        long companyId,
+        List<TenantSeedTableResult> tableResults,
+        CancellationToken cancellationToken)
+    {
+        var roleMenuMapping = mappings.FirstOrDefault(m =>
+            string.Equals(
+                m.SeedCode,
+                SeedTransformationTypes.SeedCodes.AllGloRoleMenu,
+                StringComparison.OrdinalIgnoreCase));
+        if (roleMenuMapping is null)
+        {
+            logger.LogInformation(
+                "Skipping role menu seed: mapping {SeedCode} is not active",
+                SeedTransformationTypes.SeedCodes.AllGloRoleMenu);
+            return;
+        }
+
+        var connections = await TenantJoinedChildSeedHelper.ResolveConnectionsAsync(
+            connectionScope,
+            mappings,
+            FgsDatabaseSchemas.Identity,
+            cancellationToken);
+
+        var validator = new TenantSeedMetadataValidator();
+        var sourceDatabase = connectionScope.ResolveSourceDatabaseName(connections.SourceDatabaseName);
+        var targetDatabase = connectionScope.ResolveTargetDatabaseName(connections.TargetDatabaseName);
+
+        var sourceRoleMenuMetadata = await validator.GetTableMetadataAsync(
+            connections.SourceConnection, sourceDatabase, connections.SourceSchema, "GloRoleMenu", cancellationToken);
+        var sourceRoleMetadata = await validator.GetTableMetadataAsync(
+            connections.SourceConnection, sourceDatabase, connections.SourceSchema, "GloRole", cancellationToken);
+        var targetRoleMenuMetadata = await validator.GetTableMetadataAsync(
+            connections.TargetConnection, targetDatabase, connections.TargetSchema, "FgsRoleMenu", cancellationToken);
+        var targetRoleMetadata = await validator.GetTableMetadataAsync(
+            connections.TargetConnection, targetDatabase, connections.TargetSchema, "FgsRole", cancellationToken);
+        var targetTenantMenuMetadata = await validator.GetTableMetadataAsync(
+            connections.TargetConnection, targetDatabase, connections.TargetSchema, "FgsTenantMenu", cancellationToken);
+
+        if (!sourceRoleMenuMetadata.Exists
+            || !sourceRoleMetadata.Exists
+            || !targetRoleMenuMetadata.Exists
+            || !targetRoleMetadata.Exists
+            || !targetTenantMenuMetadata.Exists)
+        {
+            logger.LogWarning(
+                "Skipping role menu seed because required tables are missing (source rm={SourceRm}, source role={SourceRole}, target rm={TargetRm}, target role={TargetRole}, target menu={TargetMenu})",
+                sourceRoleMenuMetadata.Exists,
+                sourceRoleMetadata.Exists,
+                targetRoleMenuMetadata.Exists,
+                targetRoleMetadata.Exists,
+                targetTenantMenuMetadata.Exists);
+            return;
+        }
+
+        var inserted = await TenantJoinedChildSeedHelper.ExecuteInTargetTransactionAsync(
+            connections.TargetConnection,
+            async (transaction, ct) =>
+            {
+                if (connections.IsCrossDatabase)
+                {
+                    return await TenantJoinedChildSeedHelper.SeedRoleMenusCrossDatabaseAsync(
+                        connections.SourceConnection,
+                        connections.TargetConnection,
+                        transaction,
+                        connections.SourceSchema,
+                        connections.TargetSchema,
+                        tenantId,
+                        companyId,
+                        ct);
+                }
+
+                return await TenantJoinedChildSeedHelper.SeedRoleMenusSameDatabaseAsync(
+                    connections.TargetConnection,
+                    transaction,
+                    connections.SourceSchema,
+                    connections.TargetSchema,
+                    tenantId,
+                    companyId,
+                    ct);
+            },
+            cancellationToken);
+
+        var tableResult = new TenantSeedTableResult(
+            SeedTransformationTypes.SeedCodes.AllGloRoleMenu,
+            TenantSeedTableOutcome.Succeeded,
+            null,
+            inserted);
+        tableResults.Add(tableResult);
+        LogTableResult(tableResult, tableResult.SeedCode, tenantId, companyId);
     }
 
     private async Task SeedUniversalMatrixTiersAsync(

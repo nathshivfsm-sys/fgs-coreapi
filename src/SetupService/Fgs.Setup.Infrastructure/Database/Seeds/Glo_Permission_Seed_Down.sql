@@ -1,0 +1,165 @@
+-- Glo_Permission_Seed_Down.sql
+-- Deletes only the rows inserted by Glo_Permission_Seed.sql.
+-- Junctions for the seeded roles and permission codes go first.
+-- Does not delete existing roles, glo.GloMenu, or identity.FgsPermission.
+
+DELETE FROM glo."GloRoleMenu" AS role_menu
+USING glo."GloRole" AS role
+WHERE role_menu."RoleId" = role."Id"
+  AND role."RoleCode" IN (
+    'TENANT_ADMIN',
+    'COMPANY_ADMIN',
+    'TENANT_USER',
+    'READONLY_AUDITOR',
+    'DISPATCHER',
+    'BILLING',
+    'CSR',
+    'SALES',
+    'SERVICE_MANAGER',
+    'FIELD_SUPERVISOR',
+    'FIELD_TECH',
+    'INVENTORY_MANAGER',
+    'API_CLIENT'
+);
+
+DELETE FROM glo."GloRolePermission" AS role_permission
+USING glo."GloRole" AS role, glo."GloPermission" AS permission
+WHERE role_permission."RoleId" = role."Id"
+  AND role_permission."PermissionId" = permission."Id"
+  AND (
+      role."RoleCode" IN (
+        'TENANT_ADMIN',
+        'COMPANY_ADMIN',
+        'TENANT_USER',
+        'READONLY_AUDITOR',
+        'DISPATCHER',
+        'BILLING',
+        'CSR',
+        'SALES',
+        'SERVICE_MANAGER',
+        'FIELD_SUPERVISOR',
+        'FIELD_TECH',
+        'INVENTORY_MANAGER',
+        'API_CLIENT'
+      )
+      OR permission."PermissionCode" IN (
+        'ROLE.CREATE',
+        'ROLE.LIST',
+        'ROLE.EDIT',
+        'ROLE.PERMISSIONS',
+        'ROLE.CLONE',
+        'DASHBOARD.VIEW',
+        'LEAD.LIST',
+        'LEAD.VIEW',
+        'LEAD.CREATE_EDIT',
+        'WORKORDER.LIST',
+        'WORKORDER.VIEW',
+        'WORKORDER.CREATE_EDIT',
+        'QUOTE.LIST',
+        'QUOTE.VIEW',
+        'QUOTE.CREATE_EDIT',
+        'INVOICE.LIST',
+        'INVOICE.VIEW',
+        'INVOICE.CREATE_EDIT',
+        'CUSTOMER.LIST',
+        'CUSTOMER.VIEW',
+        'CUSTOMER.CREATE_EDIT',
+        'DISPATCH.VIEW',
+        'CONTRACT.LIST',
+        'CONTRACT.VIEW',
+        'CONTRACT.CREATE_EDIT',
+        'PURCHASEORDER.LIST',
+        'PURCHASEORDER.VIEW',
+        'PURCHASEORDER.CREATE_EDIT',
+        'SETTINGS.PAYROLL_SETTING',
+        'SETTINGS.COMPANY.GENERAL_INFO',
+        'SETTINGS.COMPANY.SERVICES',
+        'SETTINGS.WORK_ORDER_CONFIGURATION',
+        'SETTINGS.CUSTOM_FIELDS',
+        'SETTINGS.QUOTE_CONFIGURATION',
+        'SETTINGS.SETUP',
+        'SETTINGS.CONTRACT_CONFIGURATION',
+        'SETTINGS.PURCHASE_ORDER_CONFIGURATION',
+        'SETTINGS.SCHEDULE',
+        'SETTINGS.INVOICE_CONFIGURATION',
+        'SETTINGS.TEMPLATE_LISTING',
+        'SETTINGS.PAYROLL_CONFIGURATION',
+        'SETTINGS.TAX',
+        'SETTINGS.ZIP_CODE',
+        'SETTINGS.JOB_TYPE',
+        'SETTINGS.PRICE_BOOK',
+        'SETTINGS.INVENTORY',
+        'SETTINGS.TRUCK_WAREHOUSE',
+        'SETTINGS.PART_ASSIGNMENT',
+        'SETTINGS.NOTIFICATION',
+        'MOBILE.TEAM',
+        'MOBILE.FIELD_MANAGER',
+        'MOBILE.VIEW_FUTURE_APPOINTMENTS',
+        'MOBILE.VIEW_PAST_APPOINTMENTS'
+      )
+  );
+
+DELETE FROM glo."GloPermission"
+WHERE "PermissionCode" IN (
+    'ROLE.CREATE',
+    'ROLE.LIST',
+    'ROLE.EDIT',
+    'ROLE.PERMISSIONS',
+    'ROLE.CLONE',
+    'DASHBOARD.VIEW',
+    'LEAD.LIST',
+    'LEAD.VIEW',
+    'LEAD.CREATE_EDIT',
+    'WORKORDER.LIST',
+    'WORKORDER.VIEW',
+    'WORKORDER.CREATE_EDIT',
+    'QUOTE.LIST',
+    'QUOTE.VIEW',
+    'QUOTE.CREATE_EDIT',
+    'INVOICE.LIST',
+    'INVOICE.VIEW',
+    'INVOICE.CREATE_EDIT',
+    'CUSTOMER.LIST',
+    'CUSTOMER.VIEW',
+    'CUSTOMER.CREATE_EDIT',
+    'DISPATCH.VIEW',
+    'CONTRACT.LIST',
+    'CONTRACT.VIEW',
+    'CONTRACT.CREATE_EDIT',
+    'PURCHASEORDER.LIST',
+    'PURCHASEORDER.VIEW',
+    'PURCHASEORDER.CREATE_EDIT',
+    'SETTINGS.PAYROLL_SETTING',
+    'SETTINGS.COMPANY.GENERAL_INFO',
+    'SETTINGS.COMPANY.SERVICES',
+    'SETTINGS.WORK_ORDER_CONFIGURATION',
+    'SETTINGS.CUSTOM_FIELDS',
+    'SETTINGS.QUOTE_CONFIGURATION',
+    'SETTINGS.SETUP',
+    'SETTINGS.CONTRACT_CONFIGURATION',
+    'SETTINGS.PURCHASE_ORDER_CONFIGURATION',
+    'SETTINGS.SCHEDULE',
+    'SETTINGS.INVOICE_CONFIGURATION',
+    'SETTINGS.TEMPLATE_LISTING',
+    'SETTINGS.PAYROLL_CONFIGURATION',
+    'SETTINGS.TAX',
+    'SETTINGS.ZIP_CODE',
+    'SETTINGS.JOB_TYPE',
+    'SETTINGS.PRICE_BOOK',
+    'SETTINGS.INVENTORY',
+    'SETTINGS.TRUCK_WAREHOUSE',
+    'SETTINGS.PART_ASSIGNMENT',
+    'SETTINGS.NOTIFICATION',
+    'MOBILE.TEAM',
+    'MOBILE.FIELD_MANAGER',
+    'MOBILE.VIEW_FUTURE_APPOINTMENTS',
+    'MOBILE.VIEW_PAST_APPOINTMENTS'
+);
+
+DELETE FROM glo."GloRole"
+WHERE "RoleCode" IN (
+    'TENANT_USER',
+    'SALES',
+    'INVENTORY_MANAGER',
+    'API_CLIENT'
+);

@@ -331,6 +331,162 @@ internal static class TenantJoinedChildSeedHelper
         return inserted;
     }
 
+    /// <summary>
+    /// Seeds <c>identity.FgsRoleMenu</c> from <c>glo.GloRoleMenu</c>, remapping
+    /// RoleId → tenant <c>FgsRole.Id</c> by RoleCode and copying MenuId. Rows are inserted
+    /// only when <c>identity.FgsTenantMenu</c> already has that MenuId for the tenant and company.
+    /// </summary>
+    internal static async Task<int> SeedRoleMenusSameDatabaseAsync(
+        DbConnection connection,
+        DbTransaction transaction,
+        string sourceSchema,
+        string targetSchema,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = BuildRoleMenuSameDatabaseSql(sourceSchema, targetSchema);
+        TenantSeedCommandExtensions.AddSeedParameters(command, tenantId, companyId);
+        AddSeedCreatedByParameter(command);
+        return await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
+    internal static string BuildRoleMenuSameDatabaseSql(string sourceSchema, string targetSchema)
+    {
+        var gloRoleMenuTable = TenantSeedSqlBuilder.QualifyTable(sourceSchema, "GloRoleMenu");
+        var gloRoleTable = TenantSeedSqlBuilder.QualifyTable(sourceSchema, "GloRole");
+        var fgsRoleTable = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsRole");
+        var fgsTenantMenuTable = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsTenantMenu");
+        var fgsRoleMenuTable = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsRoleMenu");
+
+        return $"""
+            INSERT INTO {fgsRoleMenuTable}
+            (
+                "TenantId",
+                "CompanyId",
+                "RoleId",
+                "MenuId",
+                "DisplayOrder",
+                "IsActive",
+                "CreatedOn",
+                "CreatedBy"
+            )
+            SELECT
+                @tenantId,
+                @companyId,
+                fr."Id",
+                grm."MenuId",
+                grm."SortOrder",
+                true,
+                NOW(),
+                @seedCreatedBy
+            FROM {gloRoleMenuTable} grm
+            INNER JOIN {gloRoleTable} gr ON gr."Id" = grm."RoleId"
+            INNER JOIN {fgsRoleTable} fr
+                ON fr."TenantId" = @tenantId
+               AND fr."CompanyId" = @companyId
+               AND fr."RoleCode" = gr."RoleCode"
+            INNER JOIN {fgsTenantMenuTable} tm
+                ON tm."TenantId" = @tenantId
+               AND tm."CompanyId" = @companyId
+               AND tm."MenuId" = grm."MenuId"
+            WHERE grm."IsActive" = true
+              AND NOT EXISTS (
+                SELECT 1
+                FROM {fgsRoleMenuTable} existing
+                WHERE existing."TenantId" = @tenantId
+                  AND existing."CompanyId" = @companyId
+                  AND existing."RoleId" = fr."Id"
+                  AND existing."MenuId" = grm."MenuId"
+            )
+            """;
+    }
+
+    internal static async Task<int> SeedRoleMenusCrossDatabaseAsync(
+        DbConnection sourceConnection,
+        DbConnection targetConnection,
+        DbTransaction transaction,
+        string sourceSchema,
+        string targetSchema,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var sourceRows = await LoadRoleMenuSourceRowsAsync(
+            sourceConnection,
+            sourceSchema,
+            cancellationToken);
+
+        var roleIds = await LoadTenantRoleIdsByCodeAsync(
+            targetConnection,
+            transaction,
+            targetSchema,
+            tenantId,
+            companyId,
+            cancellationToken);
+
+        var tenantMenuIds = await LoadTenantMenuIdsAsync(
+            targetConnection,
+            transaction,
+            targetSchema,
+            tenantId,
+            companyId,
+            cancellationToken);
+
+        var existingKeys = await LoadRoleMenuExistingKeysAsync(
+            targetConnection,
+            transaction,
+            targetSchema,
+            tenantId,
+            companyId,
+            cancellationToken);
+
+        var fgsRoleMenuTable = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsRoleMenu");
+        var inserted = 0;
+
+        foreach (var row in sourceRows)
+        {
+            if (!roleIds.TryGetValue(row.RoleCode, out var fgsRoleId)
+                || !tenantMenuIds.Contains(row.MenuId))
+            {
+                continue;
+            }
+
+            var key = $"{fgsRoleId}:{row.MenuId}";
+            if (existingKeys.Contains(key))
+            {
+                continue;
+            }
+
+            await using var insertCommand = targetConnection.CreateCommand();
+            insertCommand.Transaction = transaction;
+            insertCommand.CommandText = $"""
+                INSERT INTO {fgsRoleMenuTable}
+                (
+                    "TenantId", "CompanyId", "RoleId", "MenuId", "DisplayOrder",
+                    "IsActive", "CreatedOn", "CreatedBy"
+                )
+                VALUES
+                (
+                    @tenantId, @companyId, @roleId, @menuId, @displayOrder,
+                    true, NOW(), @seedCreatedBy
+                )
+                """;
+            TenantSeedCommandExtensions.AddSeedParameters(insertCommand, tenantId, companyId);
+            AddSeedCreatedByParameter(insertCommand);
+            AddParameter(insertCommand, "roleId", fgsRoleId);
+            AddParameter(insertCommand, "menuId", row.MenuId);
+            AddParameter(insertCommand, "displayOrder", row.SortOrder);
+
+            inserted += await insertCommand.ExecuteNonQueryAsync(cancellationToken);
+            existingKeys.Add(key);
+        }
+
+        return inserted;
+    }
+
     private static async Task<List<RolePermissionSourceRow>> LoadRolePermissionSourceRowsAsync(
         DbConnection sourceConnection,
         string sourceSchema,
@@ -438,6 +594,91 @@ internal static class TenantJoinedChildSeedHelper
         while (await reader.ReadAsync(cancellationToken))
         {
             existingKeys.Add($"{reader.GetInt64(0)}:{reader.GetInt64(1)}");
+        }
+
+        return existingKeys;
+    }
+
+    private static async Task<List<RoleMenuSourceRow>> LoadRoleMenuSourceRowsAsync(
+        DbConnection sourceConnection,
+        string sourceSchema,
+        CancellationToken cancellationToken)
+    {
+        var gloRoleMenuTable = TenantSeedSqlBuilder.QualifyTable(sourceSchema, "GloRoleMenu");
+        var gloRoleTable = TenantSeedSqlBuilder.QualifyTable(sourceSchema, "GloRole");
+
+        var sourceSql = $"""
+            SELECT gr."RoleCode", grm."MenuId", grm."SortOrder"
+            FROM {gloRoleMenuTable} grm
+            INNER JOIN {gloRoleTable} gr ON gr."Id" = grm."RoleId"
+            WHERE grm."IsActive" = true
+            """;
+
+        var rows = new List<RoleMenuSourceRow>();
+        await using var sourceCommand = sourceConnection.CreateCommand();
+        sourceCommand.CommandText = sourceSql;
+        await using var reader = await sourceCommand.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            rows.Add(new RoleMenuSourceRow(reader.GetString(0), reader.GetInt32(1), reader.GetInt16(2)));
+        }
+
+        return rows;
+    }
+
+    private static async Task<HashSet<int>> LoadTenantMenuIdsAsync(
+        DbConnection targetConnection,
+        DbTransaction transaction,
+        string targetSchema,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var fgsTenantMenuTable = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsTenantMenu");
+        var menuIds = new HashSet<int>();
+
+        await using var command = targetConnection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = $"""
+            SELECT "MenuId"
+            FROM {fgsTenantMenuTable}
+            WHERE "TenantId" = @tenantId AND "CompanyId" = @companyId
+            """;
+        TenantSeedCommandExtensions.AddSeedParameters(command, tenantId, companyId);
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            menuIds.Add(reader.GetInt32(0));
+        }
+
+        return menuIds;
+    }
+
+    private static async Task<HashSet<string>> LoadRoleMenuExistingKeysAsync(
+        DbConnection targetConnection,
+        DbTransaction transaction,
+        string targetSchema,
+        long tenantId,
+        long companyId,
+        CancellationToken cancellationToken)
+    {
+        var fgsRoleMenuTable = TenantSeedSqlBuilder.QualifyTable(targetSchema, "FgsRoleMenu");
+        var existingKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        await using var command = targetConnection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = $"""
+            SELECT "RoleId", "MenuId"
+            FROM {fgsRoleMenuTable}
+            WHERE "TenantId" = @tenantId AND "CompanyId" = @companyId
+            """;
+        TenantSeedCommandExtensions.AddSeedParameters(command, tenantId, companyId);
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            existingKeys.Add($"{reader.GetInt64(0)}:{reader.GetInt32(1)}");
         }
 
         return existingKeys;
@@ -697,4 +938,6 @@ internal static class TenantJoinedChildSeedHelper
         string ServiceCode);
 
     private sealed record RolePermissionSourceRow(string RoleCode, string PermissionCode);
+
+    private sealed record RoleMenuSourceRow(string RoleCode, int MenuId, short SortOrder);
 }

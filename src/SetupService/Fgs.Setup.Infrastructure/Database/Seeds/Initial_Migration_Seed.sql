@@ -1927,6 +1927,8 @@ FROM (
         ('TENANT_CrmServiceLocation_asset_cache', 'fgs_dev_db', 'crm', 'CrmServiceLocation', 'fgs_dev_db', 'asset', 'FgsServiceLocationCache', 12, 'Service location cache (asset)', true),
         ('ALL_GloRole', 'fgs_dev_db', 'glo', 'GloRole', 'fgs_dev_db', 'identity', 'FgsRole', 15, 'Tenant assignable roles (identity)', true),
         ('ALL_GloMenu', 'fgs_dev_db', 'glo', 'GloMenu', 'fgs_dev_db', 'identity', 'FgsTenantMenu', 16, 'Tenant company menus (identity)', true),
+        ('ALL_GloRolePermission', 'fgs_dev_db', 'glo', 'GloRolePermission', 'fgs_dev_db', 'identity', 'FgsRolePermission', 17, 'Tenant role permissions (identity)', true),
+        ('ALL_GloRoleMenu', 'fgs_dev_db', 'glo', 'GloRoleMenu', 'fgs_dev_db', 'identity', 'FgsRoleMenu', 18, 'Tenant role menus (identity)', true),
         ('ALL_GloBillingCategory', 'fgs_dev_db', 'glo', 'GloBillingCategory', 'fgs_dev_db', 'setup', 'FgsBillingCategory', 100, 'Billing Category', true),
         ('GLO_INVENTORY_CATEGORY_TO_FGS_INVENTORY_CATEGORY', 'fgs_dev_db', 'glo', 'GloInventoryCategory', 'fgs_dev_db', 'inventory', 'FgsInventoryCategory', 105, 'Inventory Category', true),
         ('ALL_GloSource', 'fgs_dev_db', 'glo', 'GloSource', 'fgs_dev_db', 'setup', 'FgsSource', 190, 'Source', true),
@@ -2132,6 +2134,12 @@ INNER JOIN (
         ('ALL_GloMenu', 'IsActive', 'IsActive', NULL, NULL, 12, true, true),
         ('ALL_GloMenu', NULL, 'CreatedOn', 'CURRENT_TIMESTAMP', NULL, 13, true, true),
         ('ALL_GloMenu', NULL, 'CreatedBy', 'SEED_CREATED_BY', NULL, 14, false, true),
+
+        -- ALL_GloRolePermission -> identity.FgsRolePermission (RoleId remapped by RoleCode in the soft path)
+        ('ALL_GloRolePermission', 'RoleId', 'FgsRoleId', 'JOINED_PARENT', NULL, 1, true, true),
+
+        -- ALL_GloRoleMenu -> identity.FgsRoleMenu (RoleId remapped by RoleCode in the soft path)
+        ('ALL_GloRoleMenu', 'RoleId', 'RoleId', 'JOINED_PARENT', NULL, 1, true, true),
 
         -- ALL_GloBillingCategory -> FgsBillingCategory
         ('ALL_GloBillingCategory', NULL, 'TenantId', 'TENANT_ID', NULL, 1, true, true),

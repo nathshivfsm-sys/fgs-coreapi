@@ -124,6 +124,31 @@ public sealed class TenantJoinedChildSeedHelperTests
     }
 
     [Fact]
+    public void BuildRoleMenuSameDatabaseSql_RemapsRoleByCodeAndCopiesMenuId()
+    {
+        var sql = TenantJoinedChildSeedHelper.BuildRoleMenuSameDatabaseSql(
+            FgsDatabaseSchemas.Glo,
+            FgsDatabaseSchemas.Identity);
+
+        sql.Should().Contain("INSERT INTO \"identity\".\"FgsRoleMenu\"");
+        sql.Should().Contain("\"DisplayOrder\"");
+        sql.Should().Contain("grm.\"SortOrder\"");
+        sql.Should().Contain("FROM \"glo\".\"GloRoleMenu\" grm");
+        sql.Should().Contain("INNER JOIN \"glo\".\"GloRole\" gr ON gr.\"Id\" = grm.\"RoleId\"");
+        sql.Should().Contain("AND fr.\"RoleCode\" = gr.\"RoleCode\"");
+        sql.Should().Contain("INNER JOIN \"identity\".\"FgsTenantMenu\" tm");
+        sql.Should().Contain("tm.\"TenantId\" = @tenantId");
+        sql.Should().Contain("tm.\"CompanyId\" = @companyId");
+        sql.Should().Contain("tm.\"MenuId\" = grm.\"MenuId\"");
+        sql.Should().Contain("WHERE grm.\"IsActive\" = true");
+        sql.Should().Contain("existing.\"TenantId\" = @tenantId");
+        sql.Should().Contain("existing.\"CompanyId\" = @companyId");
+        sql.Should().Contain("existing.\"RoleId\" = fr.\"Id\"");
+        sql.Should().Contain("existing.\"MenuId\" = grm.\"MenuId\"");
+        sql.Should().NotContain("JOINED_PARENT");
+    }
+
+    [Fact]
     public void SelectReferenceMapping_PrefersGloToIdentity_ForRolePermissionSoftPath()
     {
         var mappings = new List<GloSeedTableMapping>

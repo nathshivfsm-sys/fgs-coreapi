@@ -268,6 +268,8 @@ WHERE "SeedTableMappingId" IN (
     WHERE "SeedCode" IN (
         'ALL_GloBillingCategory',
         'ALL_GloRole',
+        'ALL_GloRolePermission',
+        'ALL_GloRoleMenu',
         'ALL_GloSource',
         'ALL_GloTimeSlot',
         'ALL_GloEstimateFlavor',
@@ -307,6 +309,8 @@ DELETE FROM glo."GloSeedTableMapping"
 WHERE "SeedCode" IN (
     'ALL_GloBillingCategory',
     'ALL_GloRole',
+    'ALL_GloRolePermission',
+    'ALL_GloRoleMenu',
     'ALL_GloSource',
         'ALL_GloTimeSlot',
     'ALL_GloEstimateFlavor',

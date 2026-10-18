@@ -20,6 +20,7 @@ public static class SeedTransformationTypes
     public static class SeedCodes
     {
         public const string AllGloRolePermission = "ALL_GloRolePermission";
+        public const string AllGloRoleMenu = "ALL_GloRoleMenu";
     }
 
     public static class TargetColumns
