@@ -78,6 +78,11 @@ public sealed class FgsRoleWriteService(
             cancellationToken)
             ?? throw new KeyNotFoundException($"Role '{sourceRoleId}' was not found.");
 
+        if (!source.IsBuiltIn || !source.IsActive)
+        {
+            throw new ArgumentException("Only an active built-in role can be cloned.");
+        }
+
         var permissionIds = await ResolvePermissionIdsAsync(
             sourceRoleId,
             tenantId,
@@ -91,7 +96,7 @@ public sealed class FgsRoleWriteService(
             CompanyId = companyId,
             ParentRoleId = source.Id,
             RoleCode = NormalizeRoleCode(dto.RoleCode),
-            Name = dto.Name.Trim(),
+            Name = ResolveCloneRoleName(dto.Name, source.Name),
             Description = dto.Description?.Trim() ?? source.Description,
             IsBuiltIn = false,
             DisplayOrder = dto.DisplayOrder ?? source.DisplayOrder,
@@ -245,13 +250,15 @@ public sealed class FgsRoleWriteService(
         IReadOnlyList<long>? requestedPermissionIds,
         CancellationToken cancellationToken)
     {
+        var sourcePermissionIds = await context.FgsRolePermissions
+            .AsNoTracking()
+            .Where(x => x.FgsRoleId == sourceRoleId && x.TenantId == tenantId && x.CompanyId == companyId)
+            .Select(x => x.FgsPermissionId)
+            .ToListAsync(cancellationToken);
+
         if (requestedPermissionIds is null)
         {
-            return await context.FgsRolePermissions
-                .AsNoTracking()
-                .Where(x => x.FgsRoleId == sourceRoleId && x.TenantId == tenantId && x.CompanyId == companyId)
-                .Select(x => x.FgsPermissionId)
-                .ToListAsync(cancellationToken);
+            return sourcePermissionIds;
         }
 
         var desiredIds = requestedPermissionIds.Distinct().ToList();
@@ -268,6 +275,16 @@ public sealed class FgsRoleWriteService(
         if (missing.Count > 0)
         {
             throw new KeyNotFoundException($"Permission '{missing[0]}' was not found.");
+        }
+
+        var allowed = sourcePermissionIds.ToHashSet();
+        foreach (var permissionId in desiredIds)
+        {
+            if (!allowed.Contains(permissionId))
+            {
+                throw new ArgumentException(
+                    $"Permission '{permissionId}' is not granted by the source role.");
+            }
         }
 
         return desiredIds;
@@ -313,6 +330,18 @@ public sealed class FgsRoleWriteService(
         || exception.InnerException?.Message.Contains("23505", StringComparison.Ordinal) == true;
 
     private static string NormalizeRoleCode(string roleCode) => roleCode.Trim().ToUpperInvariant();
+
+    private static string ResolveCloneRoleName(string submittedName, string sourceName)
+    {
+        var trimmedSubmitted = submittedName.Trim();
+        var trimmedSource = sourceName.Trim();
+        if (string.Equals(trimmedSubmitted, trimmedSource, StringComparison.OrdinalIgnoreCase))
+        {
+            return "Copy of " + trimmedSource;
+        }
+
+        return trimmedSubmitted;
+    }
 
     private static FgsRoleDetailDto MapToDetail(FgsRole entity) =>
         new(

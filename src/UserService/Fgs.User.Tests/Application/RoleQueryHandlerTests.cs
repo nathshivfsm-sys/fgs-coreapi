@@ -172,6 +172,92 @@ public sealed class RoleQueryHandlerTests
     }
 
     [Fact]
+    public async Task CloneValidator_MatchingSourceName_ChecksCopyOfName()
+    {
+        var read = new Mock<IFgsRoleReadRepository>();
+        read.Setup(r => r.GetByIdAsync(7, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FgsRoleDetailDto(7, "MANAGER", "Manager", null, null, true, 1, true));
+        read.Setup(r => r.ExistsByRoleCodeAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        read.Setup(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string name, long? _, CancellationToken _) =>
+                string.Equals(name, "Manager", StringComparison.OrdinalIgnoreCase));
+
+        var validator = new CloneFgsRoleCommandValidator(read.Object);
+        var result = await validator.ValidateAsync(
+            new Fgs.User.Application.Features.Roles.Commands.CloneFgsRole.CloneFgsRoleCommand(
+                7, new FgsRoleCloneDto("MANAGER_COPY", " manager ")));
+
+        result.IsValid.Should().BeTrue();
+        read.Verify(
+            r => r.ExistsByNameAsync("Copy of Manager", null, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CloneValidator_CopyOfNameAlreadyExists_FailsUniqueness()
+    {
+        var read = new Mock<IFgsRoleReadRepository>();
+        read.Setup(r => r.GetByIdAsync(7, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FgsRoleDetailDto(7, "MANAGER", "Manager", null, null, true, 1, true));
+        read.Setup(r => r.ExistsByRoleCodeAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        read.Setup(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string name, long? _, CancellationToken _) => name == "Copy of Manager");
+
+        var validator = new CloneFgsRoleCommandValidator(read.Object);
+        var result = await validator.ValidateAsync(
+            new Fgs.User.Application.Features.Roles.Commands.CloneFgsRole.CloneFgsRoleCommand(
+                7, new FgsRoleCloneDto("MANAGER_COPY", "Manager")));
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("name", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task CloneValidator_DistinctName_ChecksSubmittedName()
+    {
+        var read = new Mock<IFgsRoleReadRepository>();
+        read.Setup(r => r.GetByIdAsync(7, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FgsRoleDetailDto(7, "MANAGER", "Manager", null, null, true, 1, true));
+        read.Setup(r => r.ExistsByRoleCodeAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        read.Setup(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        var validator = new CloneFgsRoleCommandValidator(read.Object);
+        var result = await validator.ValidateAsync(
+            new Fgs.User.Application.Features.Roles.Commands.CloneFgsRole.CloneFgsRoleCommand(
+                7, new FgsRoleCloneDto("FIELD_LEAD", " Field Lead ")));
+
+        result.IsValid.Should().BeTrue();
+        read.Verify(
+            r => r.ExistsByNameAsync("Field Lead", null, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CloneValidator_PrefixedNameOver100Characters_Fails()
+    {
+        var sourceName = new string('M', 93);
+        var read = new Mock<IFgsRoleReadRepository>();
+        read.Setup(r => r.GetByIdAsync(7, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FgsRoleDetailDto(7, "MANAGER", sourceName, null, null, true, 1, true));
+        read.Setup(r => r.ExistsByRoleCodeAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        read.Setup(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        var validator = new CloneFgsRoleCommandValidator(read.Object);
+        var result = await validator.ValidateAsync(
+            new Fgs.User.Application.Features.Roles.Commands.CloneFgsRole.CloneFgsRoleCommand(
+                7, new FgsRoleCloneDto("MANAGER_COPY", sourceName)));
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("100", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task PatchValidator_RejectsLowercaseRoleCode()
     {
         var read = new Mock<IFgsRoleReadRepository>();

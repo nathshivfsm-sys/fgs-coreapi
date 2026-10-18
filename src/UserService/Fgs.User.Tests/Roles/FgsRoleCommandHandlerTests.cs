@@ -164,6 +164,186 @@ public sealed class FgsRoleCommandHandlerTests
     }
 
     [Fact]
+    public async Task CloneHandler_CopiesSubsetAndLeavesSourceUnchanged()
+    {
+        await using var context = await CreateContextAsync();
+        var source = await SeedRoleAsync(context, "SOURCE", "Source Role", isBuiltIn: true);
+        var granted = await SeedPermissionAsync(context, "USER.VIEW");
+        var withheld = await SeedPermissionAsync(context, "USER.EDIT");
+        await context.FgsRolePermissions.AddAsync(new FgsRolePermission
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            FgsRoleId = source.Id,
+            FgsPermissionId = granted.Id,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "seed"
+        });
+        await context.FgsRolePermissions.AddAsync(new FgsRolePermission
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            FgsRoleId = source.Id,
+            FgsPermissionId = withheld.Id,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "seed"
+        });
+        await context.FgsRoleMenus.AddAsync(new FgsRoleMenu
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            RoleId = source.Id,
+            MenuId = 42,
+            DisplayOrder = 1,
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "seed"
+        });
+        var dataAccess = new FgsDataAccess
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            DataAccessCode = "OWN",
+            Name = "Own",
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "seed"
+        };
+        await context.FgsDataAccesses.AddAsync(dataAccess);
+        await context.SaveChangesAsync();
+        await context.FgsRoleDataAccesses.AddAsync(new FgsRoleDataAccess
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            FgsRoleId = source.Id,
+            FgsDataAccessId = dataAccess.Id,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "seed"
+        });
+        await context.SaveChangesAsync();
+
+        var sourcePermissionIds = await context.FgsRolePermissions
+            .Where(x => x.FgsRoleId == source.Id)
+            .Select(x => x.FgsPermissionId)
+            .ToListAsync();
+
+        var writeService = CreateWriteService(context);
+        var cloned = await writeService.CloneAsync(
+            source.Id,
+            new FgsRoleCloneDto("SOURCE_COPY", "Source Copy", null, null, [granted.Id]),
+            CancellationToken.None);
+
+        cloned.ParentRoleId.Should().Be(source.Id);
+        cloned.IsBuiltIn.Should().BeFalse();
+        (await context.FgsRolePermissions
+            .Where(x => x.FgsRoleId == cloned.Id)
+            .Select(x => x.FgsPermissionId)
+            .ToListAsync()).Should().Equal(granted.Id);
+        (await context.FgsRoleMenus.CountAsync(x => x.RoleId == cloned.Id)).Should().Be(1);
+        (await context.FgsRoleDataAccesses.CountAsync(x => x.FgsRoleId == cloned.Id)).Should().Be(1);
+
+        var sourceAfter = await context.FgsRoles.SingleAsync(x => x.Id == source.Id);
+        sourceAfter.Name.Should().Be("Source Role");
+        sourceAfter.RoleCode.Should().Be("SOURCE");
+        sourceAfter.IsBuiltIn.Should().BeTrue();
+        sourceAfter.ParentRoleId.Should().BeNull();
+        (await context.FgsRolePermissions
+            .Where(x => x.FgsRoleId == source.Id)
+            .Select(x => x.FgsPermissionId)
+            .ToListAsync()).Should().BeEquivalentTo(sourcePermissionIds);
+        (await context.FgsRoleMenus.CountAsync(x => x.RoleId == source.Id)).Should().Be(1);
+        (await context.FgsRoleDataAccesses.CountAsync(x => x.FgsRoleId == source.Id)).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task CloneHandler_AppliesCloneNameRule()
+    {
+        await using var context = await CreateContextAsync();
+        var source = await SeedRoleAsync(context, "MANAGER", "Manager", isBuiltIn: true);
+        var writeService = CreateWriteService(context);
+
+        var sameName = await writeService.CloneAsync(
+            source.Id,
+            new FgsRoleCloneDto("COPY_A", "Manager"),
+            CancellationToken.None);
+        var trimmedName = await writeService.CloneAsync(
+            source.Id,
+            new FgsRoleCloneDto("COPY_B", " manager "),
+            CancellationToken.None);
+        var otherName = await writeService.CloneAsync(
+            source.Id,
+            new FgsRoleCloneDto("FIELD_LEAD", "Field Lead"),
+            CancellationToken.None);
+
+        sameName.Name.Should().Be("Copy of Manager");
+        trimmedName.Name.Should().Be("Copy of Manager");
+        otherName.Name.Should().Be("Field Lead");
+        (await context.FgsRoles.SingleAsync(x => x.Id == source.Id)).Name.Should().Be("Manager");
+    }
+
+    [Fact]
+    public async Task CloneHandler_RejectsCustomRoleSource()
+    {
+        await using var context = await CreateContextAsync();
+        var source = await SeedRoleAsync(context, "CUSTOM", "Custom", isBuiltIn: false);
+        var writeService = CreateWriteService(context);
+
+        var act = async () => await writeService.CloneAsync(
+            source.Id,
+            new FgsRoleCloneDto("CUSTOM_COPY", "Custom Copy"),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*built-in*");
+        (await context.FgsRoles.CountAsync()).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task CloneHandler_RejectsPermissionNotOnSource()
+    {
+        await using var context = await CreateContextAsync();
+        var source = await SeedRoleAsync(context, "SOURCE", "Source Role", isBuiltIn: true);
+        var granted = await SeedPermissionAsync(context, "USER.VIEW");
+        var outside = await SeedPermissionAsync(context, "USER.EDIT");
+        await context.FgsRolePermissions.AddAsync(new FgsRolePermission
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            FgsRoleId = source.Id,
+            FgsPermissionId = granted.Id,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "seed"
+        });
+        await context.SaveChangesAsync();
+        var writeService = CreateWriteService(context);
+
+        var act = async () => await writeService.CloneAsync(
+            source.Id,
+            new FgsRoleCloneDto("SOURCE_COPY", "Source Copy", null, null, [outside.Id]),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage($"*{outside.Id}*");
+        (await context.FgsRoles.CountAsync()).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task CloneHandler_UnknownPermission_ThrowsNotFound()
+    {
+        await using var context = await CreateContextAsync();
+        var source = await SeedRoleAsync(context, "SOURCE", "Source Role", isBuiltIn: true);
+        var writeService = CreateWriteService(context);
+
+        var act = async () => await writeService.CloneAsync(
+            source.Id,
+            new FgsRoleCloneDto("SOURCE_COPY", "Source Copy", null, null, [999]),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<KeyNotFoundException>()
+            .WithMessage("*999*");
+    }
+
+    [Fact]
     public async Task UpdateHandler_UpdatesMutableFields()
     {
         await using var context = await CreateContextAsync();
@@ -312,6 +492,47 @@ public sealed class FgsRoleCommandHandlerTests
         };
 
         return await TestDbContextFactory.CreateAndInitializeAsync(accessor);
+    }
+
+    private static async Task<FgsRole> SeedRoleAsync(
+        FgsUserDbContext context,
+        string roleCode,
+        string name,
+        bool isBuiltIn)
+    {
+        var role = new FgsRole
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            RoleCode = roleCode,
+            Name = name,
+            IsBuiltIn = isBuiltIn,
+            IsActive = true,
+            DisplayOrder = 1,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "seed"
+        };
+        await context.FgsRoles.AddAsync(role);
+        await context.SaveChangesAsync();
+        return role;
+    }
+
+    private static async Task<FgsPermission> SeedPermissionAsync(FgsUserDbContext context, string code)
+    {
+        var permission = new FgsPermission
+        {
+            PermissionCode = code,
+            Module = "User",
+            Resource = "User",
+            Action = "View",
+            Name = code,
+            DisplayOrder = 1,
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow
+        };
+        await context.FgsPermissions.AddAsync(permission);
+        await context.SaveChangesAsync();
+        return permission;
     }
 
     private static Fgs.User.Application.Abstractions.Roles.IFgsRoleReadRepository CreateDefaultReadRepository()

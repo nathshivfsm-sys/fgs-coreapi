@@ -35,8 +35,10 @@ public sealed record FgsRoleCreateDto(
     short? DisplayOrder = null);
 
 /// <summary>
-/// Payload for cloning an existing role. When <see cref="FgsPermissionIds"/> is null,
-/// all permissions from the source role are copied; otherwise the provided set is used.
+/// Payload for cloning an active built-in role. When <see cref="FgsPermissionIds"/> is null,
+/// every permission currently on the source role is copied. A provided list must be a subset
+/// of those permissions; an empty list copies none. When the submitted name matches the source
+/// name (trimmed, ordinal ignore case), the clone is saved as "Copy of {source name}".
 /// </summary>
 public sealed record FgsRoleCloneDto(
     string RoleCode,

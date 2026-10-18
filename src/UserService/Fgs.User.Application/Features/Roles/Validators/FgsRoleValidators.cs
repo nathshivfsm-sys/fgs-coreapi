@@ -54,10 +54,30 @@ public sealed class CloneFgsRoleCommandValidator : AbstractValidator<CloneFgsRol
 
         RuleFor(x => x.Dto.Name)
             .NotEmpty()
-            .MaximumLength(100)
-            .MustAsync(async (command, name, cancellationToken) =>
-                !await readRepository.ExistsByNameAsync(name, null, cancellationToken))
-            .WithMessage("A role with this name already exists.");
+            .CustomAsync(async (name, context, cancellationToken) =>
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return;
+                }
+
+                var command = context.InstanceToValidate;
+                var effectiveName = await ResolveEffectiveCloneNameAsync(
+                    readRepository,
+                    command.SourceRoleId,
+                    name,
+                    cancellationToken);
+
+                if (effectiveName.Length > MaxRoleNameLength)
+                {
+                    context.AddFailure("Name must be 100 characters or fewer.");
+                }
+
+                if (await readRepository.ExistsByNameAsync(effectiveName, null, cancellationToken))
+                {
+                    context.AddFailure("A role with this name already exists.");
+                }
+            });
 
         RuleFor(x => x.Dto.Description)
             .MaximumLength(255)
@@ -70,6 +90,35 @@ public sealed class CloneFgsRoleCommandValidator : AbstractValidator<CloneFgsRol
         RuleForEach(x => x.Dto.FgsPermissionIds)
             .GreaterThan(0)
             .When(x => x.Dto.FgsPermissionIds is not null);
+    }
+
+    private const int MaxRoleNameLength = 100;
+
+    private static async Task<string> ResolveEffectiveCloneNameAsync(
+        IFgsRoleReadRepository readRepository,
+        long sourceRoleId,
+        string submittedName,
+        CancellationToken cancellationToken)
+    {
+        var source = await readRepository.GetByIdAsync(sourceRoleId, cancellationToken);
+        if (source is null)
+        {
+            return submittedName.Trim();
+        }
+
+        return ResolveCloneRoleName(submittedName, source.Name);
+    }
+
+    private static string ResolveCloneRoleName(string submittedName, string sourceName)
+    {
+        var trimmedSubmitted = submittedName.Trim();
+        var trimmedSource = sourceName.Trim();
+        if (string.Equals(trimmedSubmitted, trimmedSource, StringComparison.OrdinalIgnoreCase))
+        {
+            return "Copy of " + trimmedSource;
+        }
+
+        return trimmedSubmitted;
     }
 }
 

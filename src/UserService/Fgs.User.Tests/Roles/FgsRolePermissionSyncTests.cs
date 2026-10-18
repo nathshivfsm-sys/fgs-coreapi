@@ -158,6 +158,73 @@ public sealed class FgsRolePermissionSyncTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task SyncAndCreate_OnClonedRole_RejectPermissionOutsideParent()
+    {
+        await using var context = await CreateContextAsync();
+        var (childRoleId, onParent, _, outside) = await SeedClonedRoleAsync(context);
+        var write = CreateWriteService(context);
+
+        var sync = async () => await write.SyncAsync(
+            new FgsRolePermissionSyncDto(childRoleId, [outside]),
+            CancellationToken.None);
+        var create = async () => await write.CreateAsync(
+            new FgsRolePermissionCreateDto(childRoleId, outside),
+            CancellationToken.None);
+
+        await sync.Should().ThrowAsync<ArgumentException>().WithMessage($"*{outside}*");
+        await create.Should().ThrowAsync<ArgumentException>().WithMessage($"*{outside}*");
+        (await context.FgsRolePermissions
+            .Where(x => x.FgsRoleId == childRoleId)
+            .Select(x => x.FgsPermissionId)
+            .ToListAsync()).Should().Equal(onParent);
+    }
+
+    [Fact]
+    public async Task UpdateAndPatch_OnClonedRole_RejectPermissionOutsideParent()
+    {
+        await using var context = await CreateContextAsync();
+        var (childRoleId, onParent, _, outside) = await SeedClonedRoleAsync(context);
+        var assignmentId = await context.FgsRolePermissions
+            .Where(x => x.FgsRoleId == childRoleId)
+            .Select(x => x.Id)
+            .SingleAsync();
+        var write = CreateWriteService(context);
+
+        var update = async () => await write.UpdateAsync(
+            assignmentId,
+            new FgsRolePermissionUpdateDto(outside),
+            CancellationToken.None);
+        var patch = async () => await write.PatchAsync(
+            assignmentId,
+            new FgsRolePermissionPatchDto(outside),
+            CancellationToken.None);
+
+        await update.Should().ThrowAsync<ArgumentException>().WithMessage($"*{outside}*");
+        await patch.Should().ThrowAsync<ArgumentException>().WithMessage($"*{outside}*");
+        (await context.FgsRolePermissions.SingleAsync(x => x.Id == assignmentId))
+            .FgsPermissionId.Should().Be(onParent);
+    }
+
+    [Fact]
+    public async Task Sync_OnClonedRole_RestoresPermissionParentStillHas()
+    {
+        await using var context = await CreateContextAsync();
+        var (childRoleId, onParent, alsoOnParent, _) = await SeedClonedRoleAsync(context);
+        var write = CreateWriteService(context);
+
+        var cleared = await write.SyncAsync(
+            new FgsRolePermissionSyncDto(childRoleId, []),
+            CancellationToken.None);
+        cleared.Should().BeEmpty();
+
+        var restored = await write.SyncAsync(
+            new FgsRolePermissionSyncDto(childRoleId, [onParent, alsoOnParent]),
+            CancellationToken.None);
+
+        restored.Select(x => x.FgsPermissionId).Should().BeEquivalentTo([onParent, alsoOnParent]);
+    }
+
     private static FgsUser CreateUser(Guid id, string entraObjectId) =>
         new()
         {
@@ -261,6 +328,101 @@ public sealed class FgsRolePermissionSyncTests
         context.FgsPermissions.AddRange(permissions);
         await context.SaveChangesAsync();
         return (role.Id, permissions[0].Id, permissions[1].Id, permissions[2].Id);
+    }
+
+    private static async Task<(long ChildRoleId, long OnParent, long AlsoOnParent, long Outside)> SeedClonedRoleAsync(
+        FgsUserDbContext context)
+    {
+        var parent = new FgsRole
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            RoleCode = "PARENT",
+            Name = "Parent",
+            IsBuiltIn = true,
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "test"
+        };
+        context.FgsRoles.Add(parent);
+        await context.SaveChangesAsync();
+
+        var child = new FgsRole
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            ParentRoleId = parent.Id,
+            RoleCode = "CHILD",
+            Name = "Child",
+            IsBuiltIn = false,
+            IsActive = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "test"
+        };
+        context.FgsRoles.Add(child);
+        var permissions = new[]
+        {
+            new FgsPermission
+            {
+                PermissionCode = "ON_PARENT",
+                Module = "User",
+                Resource = "Role",
+                Action = "Read",
+                Name = "On parent",
+                CreatedOn = DateTimeOffset.UtcNow
+            },
+            new FgsPermission
+            {
+                PermissionCode = "ALSO_ON_PARENT",
+                Module = "User",
+                Resource = "Role",
+                Action = "Write",
+                Name = "Also on parent",
+                CreatedOn = DateTimeOffset.UtcNow
+            },
+            new FgsPermission
+            {
+                PermissionCode = "OUTSIDE",
+                Module = "User",
+                Resource = "Role",
+                Action = "Delete",
+                Name = "Outside",
+                CreatedOn = DateTimeOffset.UtcNow
+            }
+        };
+        context.FgsPermissions.AddRange(permissions);
+        await context.SaveChangesAsync();
+
+        context.FgsRolePermissions.AddRange(
+            new FgsRolePermission
+            {
+                TenantId = TenantId,
+                CompanyId = CompanyId,
+                FgsRoleId = parent.Id,
+                FgsPermissionId = permissions[0].Id,
+                CreatedOn = DateTimeOffset.UtcNow,
+                CreatedBy = "test"
+            },
+            new FgsRolePermission
+            {
+                TenantId = TenantId,
+                CompanyId = CompanyId,
+                FgsRoleId = parent.Id,
+                FgsPermissionId = permissions[1].Id,
+                CreatedOn = DateTimeOffset.UtcNow,
+                CreatedBy = "test"
+            },
+            new FgsRolePermission
+            {
+                TenantId = TenantId,
+                CompanyId = CompanyId,
+                FgsRoleId = child.Id,
+                FgsPermissionId = permissions[0].Id,
+                CreatedOn = DateTimeOffset.UtcNow,
+                CreatedBy = "test"
+            });
+        await context.SaveChangesAsync();
+        return (child.Id, permissions[0].Id, permissions[1].Id, permissions[2].Id);
     }
 
     private static async Task<FgsUserDbContext> CreateContextAsync()
