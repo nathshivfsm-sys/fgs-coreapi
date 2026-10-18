@@ -3,6 +3,7 @@ using Fgs.Credentials.Extensions;
 using Fgs.Foundation.Caching.Extensions;
 using Fgs.Foundation.Hosting;
 using Fgs.Observability.Extensions;
+using Fgs.User.API.Swagger;
 using Fgs.User.Application;
 using Fgs.User.Infrastructure;
 
@@ -22,6 +23,7 @@ var hostOptions = builder.AddFgsApiHost(options =>
     options.UseForwardedHeaders = true;
 });
 
+builder.Services.AddFgsUserSwagger();
 builder.Services.AddFgsUserApplication();
 builder.Services.AddFgsUserInfrastructure(builder.Configuration);
 await builder.LoadFgsRemoteCredentialsAsync();

@@ -1,8 +1,9 @@
 using Fgs.Contracts.Api;
+using Fgs.User.Application.Features.TenantMenus;
 using Fgs.User.Application.Features.TenantMenus.Dtos;
 using MediatR;
 
 namespace Fgs.User.Application.Features.TenantMenus.Queries.ListFgsTenantMenus;
 
-public sealed record ListFgsTenantMenusQuery()
+public sealed record ListFgsTenantMenusQuery(FgsTenantMenuType? MenuType)
     : IRequest<ApiResponse<IReadOnlyList<FgsTenantMenuDetailDto>>>;

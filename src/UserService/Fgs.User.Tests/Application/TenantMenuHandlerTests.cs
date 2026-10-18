@@ -1,5 +1,6 @@
 using Fgs.Contracts.Api;
 using Fgs.User.Application.Abstractions.TenantMenus;
+using Fgs.User.Application.Features.TenantMenus;
 using Fgs.User.Application.Features.TenantMenus.Commands.CreateFgsTenantMenu;
 using Fgs.User.Application.Features.TenantMenus.Commands.PatchFgsTenantMenu;
 using Fgs.User.Application.Features.TenantMenus.Commands.SyncFgsTenantMenus;
@@ -94,14 +95,33 @@ public sealed class TenantMenuHandlerTests
     public async Task ListHandler_ReturnsAssignments()
     {
         var read = new Mock<IFgsTenantMenuReadRepository>();
-        read.Setup(r => r.ListAsync(It.IsAny<CancellationToken>()))
+        read.Setup(r => r.ListAsync(null, It.IsAny<CancellationToken>()))
             .ReturnsAsync([Detail(1, 100, "DASHBOARD", "Dashboard", "PAGE")]);
 
         var handler = new ListFgsTenantMenusQueryHandler(read.Object);
-        var response = await handler.Handle(new ListFgsTenantMenusQuery(), CancellationToken.None);
+        var response = await handler.Handle(new ListFgsTenantMenusQuery(null), CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.Data.Should().ContainSingle(x => x.MenuId == 100 && x.MenuCode == "DASHBOARD");
+        read.Verify(r => r.ListAsync(null, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ListHandler_PassesLeftMenuFilter()
+    {
+        var read = new Mock<IFgsTenantMenuReadRepository>();
+        read.Setup(r => r.ListAsync(FgsTenantMenuType.LeftMenu, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([Detail(2, 200, "JOBS", "Jobs", FgsTenantMenuTypeConverter.LeftMenu)]);
+
+        var handler = new ListFgsTenantMenusQueryHandler(read.Object);
+        var response = await handler.Handle(
+            new ListFgsTenantMenusQuery(FgsTenantMenuType.LeftMenu),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        read.Verify(
+            r => r.ListAsync(FgsTenantMenuType.LeftMenu, It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

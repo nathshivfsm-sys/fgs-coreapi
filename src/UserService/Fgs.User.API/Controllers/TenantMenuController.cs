@@ -3,6 +3,7 @@ using Fgs.Contracts.Api;
 using Fgs.Foundation.Api;
 using Fgs.Security.Authorization;
 using Fgs.Security.Constants;
+using Fgs.User.Application.Features.TenantMenus;
 using Fgs.User.Application.Features.TenantMenus.Commands.CreateFgsTenantMenu;
 using Fgs.User.Application.Features.TenantMenus.Commands.PatchFgsTenantMenu;
 using Fgs.User.Application.Features.TenantMenus.Commands.SyncFgsTenantMenus;
@@ -33,8 +34,10 @@ public sealed class TenantMenuController(IMediator mediator) : FgsApiControllerB
 
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<FgsTenantMenuDetailDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> List(CancellationToken cancellationToken) =>
-        FromApiResponse(await Mediator.Send(new ListFgsTenantMenusQuery(), cancellationToken));
+    public async Task<IActionResult> List(
+        [FromQuery] FgsTenantMenuType? menuType = null,
+        CancellationToken cancellationToken = default) =>
+        FromApiResponse(await Mediator.Send(new ListFgsTenantMenusQuery(menuType), cancellationToken));
 
     [HttpGet("lookup")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<FgsTenantMenuLookupDto>>), StatusCodes.Status200OK)]

@@ -12,7 +12,7 @@ public sealed class ListFgsTenantMenusQueryHandler(IFgsTenantMenuReadRepository 
         ListFgsTenantMenusQuery request,
         CancellationToken cancellationToken)
     {
-        var result = await readRepository.ListAsync(cancellationToken);
+        var result = await readRepository.ListAsync(request.MenuType, cancellationToken);
         return ApiResponse<IReadOnlyList<FgsTenantMenuDetailDto>>.Ok(result);
     }
 }

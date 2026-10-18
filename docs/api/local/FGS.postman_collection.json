@@ -7456,6 +7456,14 @@
               "request": {
                 "method": "GET",
                 "url": {
+                  "query": [
+                    {
+                      "key": "menuType",
+                      "description": "Optional menu type filter. Top Menu or Left Menu.",
+                      "value": "",
+                      "disabled": true
+                    }
+                  ],
                   "host": [
                     "https://developer.fsm.com"
                   ],

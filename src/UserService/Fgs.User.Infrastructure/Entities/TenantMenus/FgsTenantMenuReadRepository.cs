@@ -2,6 +2,7 @@ using Dapper;
 using Fgs.MultiTenancy;
 using Fgs.User.Application.Abstractions.Persistence;
 using Fgs.User.Application.Abstractions.TenantMenus;
+using Fgs.User.Application.Features.TenantMenus;
 using Fgs.User.Application.Features.TenantMenus.Dtos;
 using Fgs.User.Infrastructure.Common;
 
@@ -35,14 +36,25 @@ internal sealed class FgsTenantMenuReadRepository(
     }
 
     public async Task<IReadOnlyList<FgsTenantMenuDetailDto>> ListAsync(
+        FgsTenantMenuType? menuType,
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = IdentityTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        var filters = new List<string>
+        {
+            "\"TenantId\" = @TenantId",
+            "\"CompanyId\" = @CompanyId"
+        };
+
+        if (menuType is not null)
+        {
+            filters.Add("\"MenuType\" = @MenuType");
+        }
+
         var sql = $"""
             SELECT {FgsTenantMenuSql.SelectColumns}
             FROM {FgsTenantMenuSql.Table}
-            WHERE "TenantId" = @TenantId
-              AND "CompanyId" = @CompanyId
+            WHERE {string.Join(" AND ", filters)}
             ORDER BY "SortOrder" ASC, "Id" ASC
             """;
 
@@ -50,7 +62,12 @@ internal sealed class FgsTenantMenuReadRepository(
         var rows = await connection.QueryAsync<FgsTenantMenuRow>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, CompanyId = companyId },
+                new
+                {
+                    TenantId = tenantId,
+                    CompanyId = companyId,
+                    MenuType = menuType is null ? null : FgsTenantMenuTypeConverter.ToStoredValue(menuType.Value)
+                },
                 cancellationToken: cancellationToken));
 
         return rows.Select(row => row.ToDetailDto()).ToList();
