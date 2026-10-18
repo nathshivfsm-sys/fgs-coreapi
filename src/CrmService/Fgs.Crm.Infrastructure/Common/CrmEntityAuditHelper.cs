@@ -43,6 +43,20 @@ public sealed class CrmEntityAuditHelper
         entity.IsActive = true;
     }
 
+    public void StampForCreate(CrmDefaultCustomer entity) =>
+        StampAudit(entity, (tenantId, companyId) =>
+        {
+            entity.TenantId = tenantId;
+            entity.CompanyId = companyId;
+        });
+
+    public void StampForCreate(CrmDefaultServiceLocation entity) =>
+        StampAudit(entity, (tenantId, companyId) =>
+        {
+            entity.TenantId = tenantId;
+            entity.CompanyId = companyId;
+        });
+
     public void StampForCreate(CrmContact entity)
     {
         StampAudit(entity, (tenantId, companyId) =>
@@ -83,6 +97,10 @@ public sealed class CrmEntityAuditHelper
     public void StampForUpdate(CrmCustomer entity) => StampUpdated(entity);
 
     public void StampForUpdate(CrmServiceLocation entity) => StampUpdated(entity);
+
+    public void StampForUpdate(CrmDefaultCustomer entity) => StampUpdated(entity);
+
+    public void StampForUpdate(CrmDefaultServiceLocation entity) => StampUpdated(entity);
 
     public void StampForUpdate(CrmContact entity) => StampUpdated(entity);
 

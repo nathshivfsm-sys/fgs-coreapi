@@ -1,7 +1,11 @@
 using Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerServiceLocation;
+using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Dtos;
 using Fgs.Crm.Application.Common.CrmCrud;
+using Fgs.Crm.Application.Features.Customers.Queries.GetCrmDefaultCustomer;
+using Fgs.Crm.Application.Features.Customers.Queries.GetCrmDefaultServiceLocation;
 using Fgs.Crm.Domain.Entities;
 using Fgs.Crm.Domain.Enums;
 using Fgs.Crm.Infrastructure.Common;
@@ -202,6 +206,144 @@ public sealed class CrmCustomerCommandHandlerTests
         location.EmailAllowed.Should().BeFalse();
         location.SmsAllowed.Should().BeFalse();
         location.TaxExempt.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Create_OmittedPaymentTermPoAndTaxExempt_CopyDefaultCustomerRow()
+    {
+        await using var context = await CreateContextAsync();
+        context.CrmDefaultCustomers.Add(new CrmDefaultCustomer
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            DefaultPaymentTermId = 99,
+            DefaultMaterialPricingMatrixId = 11,
+            DefaultLaborPricingMatrixId = 12,
+            DefaultOtherPricingMatrixId = 13,
+            DefaultPORequired = true,
+            TaxExempt = true,
+            CreatedOn = DateTimeOffset.UtcNow,
+            CreatedBy = "seed"
+        });
+        await context.SaveChangesAsync();
+
+        var writeService = CreateWriteService(context);
+        var result = await writeService.CreateAsync(SampleCreateDto() with
+        {
+            DefaultPaymentTermId = null,
+            DefaultPORequired = null,
+            TaxExempt = null
+        });
+
+        result.Customer.DefaultPaymentTermId.Should().Be(99);
+        result.Customer.DefaultPORequired.Should().BeTrue();
+        result.Customer.TaxExempt.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GetDefaultCustomer_WhenMissing_ReturnsEmptyShape()
+    {
+        await using var context = await CreateContextAsync();
+        var handler = new GetCrmDefaultCustomerQueryHandler(CreateReadRepository(context));
+
+        var response = await handler.Handle(new GetCrmDefaultCustomerQuery(), CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.StatusCode.Should().Be(200);
+        response.Data.Should().BeEquivalentTo(CrmDefaultCustomerDto.Empty);
+    }
+
+    [Fact]
+    public async Task UpsertDefaultCustomer_InsertsThenUpdatesCurrentCompanyRow()
+    {
+        await using var context = await CreateContextAsync();
+        var handler = new UpsertCrmDefaultCustomerCommandHandler(CreateWriteService(context));
+        var inserted = await handler.Handle(
+            new UpsertCrmDefaultCustomerCommand(new CrmDefaultCustomerUpsertDto(99, 11, 12, 13, true, true)),
+            CancellationToken.None);
+
+        inserted.Success.Should().BeTrue();
+        inserted.StatusCode.Should().Be(200);
+        inserted.Data!.Id.Should().BeGreaterThan(0);
+        inserted.Data.DefaultPaymentTermId.Should().Be(99);
+        inserted.Data.DefaultPORequired.Should().BeTrue();
+        inserted.Data.TaxExempt.Should().BeTrue();
+
+        var created = await context.CrmDefaultCustomers.SingleAsync();
+        created.TenantId.Should().Be(TenantId);
+        created.CompanyId.Should().Be(CompanyId);
+        created.CreatedBy.Should().Be("11111111-1111-1111-1111-111111111111");
+        var createdOn = created.CreatedOn;
+
+        var updated = await handler.Handle(
+            new UpsertCrmDefaultCustomerCommand(new CrmDefaultCustomerUpsertDto(5, null, 77, null, false, false)),
+            CancellationToken.None);
+
+        updated.Success.Should().BeTrue();
+        updated.Data!.Id.Should().Be(inserted.Data.Id);
+        updated.Data.DefaultPaymentTermId.Should().Be(5);
+        updated.Data.DefaultMaterialPricingMatrixId.Should().BeNull();
+        updated.Data.DefaultLaborPricingMatrixId.Should().Be(77);
+        updated.Data.DefaultPORequired.Should().BeFalse();
+        updated.Data.TaxExempt.Should().BeFalse();
+
+        var row = await context.CrmDefaultCustomers.SingleAsync();
+        row.CreatedOn.Should().Be(createdOn);
+        row.UpdatedBy.Should().Be("11111111-1111-1111-1111-111111111111");
+        (await context.CrmDefaultCustomers.CountAsync()).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task GetDefaultServiceLocation_WhenMissing_ReturnsEmptyShape()
+    {
+        await using var context = await CreateContextAsync();
+        var handler = new GetCrmDefaultServiceLocationQueryHandler(CreateReadRepository(context));
+
+        var response = await handler.Handle(new GetCrmDefaultServiceLocationQuery(), CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.StatusCode.Should().Be(200);
+        response.Data.Should().BeEquivalentTo(CrmDefaultServiceLocationDto.Empty);
+    }
+
+    [Fact]
+    public async Task UpsertDefaultServiceLocation_InsertsThenUpdatesCurrentCompanyRow()
+    {
+        await using var context = await CreateContextAsync();
+        var handler = new UpsertCrmDefaultServiceLocationCommandHandler(CreateWriteService(context));
+        var inserted = await handler.Handle(
+            new UpsertCrmDefaultServiceLocationCommand(
+                new CrmDefaultServiceLocationUpsertDto(32, 31, 33, 21, false, 42, 44, 41, 43, false, true)),
+            CancellationToken.None);
+
+        inserted.Success.Should().BeTrue();
+        inserted.StatusCode.Should().Be(200);
+        inserted.Data!.Id.Should().BeGreaterThan(0);
+        inserted.Data.EmailAllowed.Should().BeFalse();
+        inserted.Data.SmsAllowed.Should().BeFalse();
+        inserted.Data.TaxExempt.Should().BeTrue();
+        inserted.Data.DefaultPaymentMethodId.Should().Be(21);
+
+        var createdOn = (await context.CrmDefaultServiceLocations.SingleAsync()).CreatedOn;
+
+        var updated = await handler.Handle(
+            new UpsertCrmDefaultServiceLocationCommand(
+                new CrmDefaultServiceLocationUpsertDto(null, 8, null, null, true, null, null, null, null, true, false)),
+            CancellationToken.None);
+
+        updated.Success.Should().BeTrue();
+        updated.Data!.Id.Should().Be(inserted.Data.Id);
+        updated.Data.DefaultLaborPricingMatrixId.Should().BeNull();
+        updated.Data.DefaultMaterialPricingMatrixId.Should().Be(8);
+        updated.Data.EmailAllowed.Should().BeTrue();
+        updated.Data.SmsAllowed.Should().BeTrue();
+        updated.Data.TaxExempt.Should().BeFalse();
+
+        var row = await context.CrmDefaultServiceLocations.SingleAsync();
+        row.TenantId.Should().Be(TenantId);
+        row.CompanyId.Should().Be(CompanyId);
+        row.CreatedOn.Should().Be(createdOn);
+        row.UpdatedBy.Should().Be("11111111-1111-1111-1111-111111111111");
     }
 
     [Fact]
@@ -753,6 +895,9 @@ public sealed class CrmCustomerCommandHandlerTests
             auditHelper,
             new CrmCustomerReadRepository(context));
     }
+
+    private static CrmCustomerReadRepository CreateReadRepository(FgsCrmDbContext context) =>
+        new(context, CreateTenantContextAccessor());
 
     private static CrmServiceLocationUpdateDto BreakLocationUpdate(long? break1Id, long? break2Id) =>
         new(

@@ -33290,6 +33290,222 @@
                   "type": "bearer"
                 }
               }
+            },
+            {
+              "name": "Get default customer",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
+                  "raw": "https://api-dev.fieldwhizey.com/crm-service/api/v1/customer/default",
+                  "path": [
+                    "crm-service",
+                    "api",
+                    "v1",
+                    "customer",
+                    "default"
+                  ]
+                },
+                "description": "Gets the company default customer row. Returns an empty shape when none exists. Requires CUSTOMER.VIEW.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "Update default customer",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
+                  "raw": "https://api-dev.fieldwhizey.com/crm-service/api/v1/customer/default",
+                  "path": [
+                    "crm-service",
+                    "api",
+                    "v1",
+                    "customer",
+                    "default"
+                  ]
+                },
+                "description": "Inserts or updates the company default customer row. Requires CUSTOMER.EDIT. Bools are stored values.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "type": "text",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "raw": "{\n  \"defaultPaymentTermId\": 1,\n  \"defaultMaterialPricingMatrixId\": null,\n  \"defaultLaborPricingMatrixId\": null,\n  \"defaultOtherPricingMatrixId\": null,\n  \"defaultPORequired\": false,\n  \"taxExempt\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  },
+                  "mode": "raw"
+                },
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "Get default service location",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
+                  "raw": "https://api-dev.fieldwhizey.com/crm-service/api/v1/servicelocation/default",
+                  "path": [
+                    "crm-service",
+                    "api",
+                    "v1",
+                    "servicelocation",
+                    "default"
+                  ]
+                },
+                "description": "Gets the company default service-location row. Returns an empty shape when none exists. Requires CUSTOMER.VIEW.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "Update default service location",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
+                  "raw": "https://api-dev.fieldwhizey.com/crm-service/api/v1/servicelocation/default",
+                  "path": [
+                    "crm-service",
+                    "api",
+                    "v1",
+                    "servicelocation",
+                    "default"
+                  ]
+                },
+                "description": "Inserts or updates the company default service-location row. Requires CUSTOMER.EDIT. Bools are stored values.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "type": "text",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "raw": "{\n  \"defaultLaborPricingMatrixId\": null,\n  \"defaultMaterialPricingMatrixId\": null,\n  \"defaultOtherPricingMatrixId\": null,\n  \"defaultPaymentMethodId\": null,\n  \"emailAllowed\": true,\n  \"estimateEmailTemplateId\": null,\n  \"estimateSmsTemplateId\": null,\n  \"invoiceEmailTemplateId\": null,\n  \"invoiceSmsTemplateId\": null,\n  \"smsAllowed\": true,\n  \"taxExempt\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  },
+                  "mode": "raw"
+                },
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
             }
           ]
         }

@@ -5,6 +5,8 @@ using Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerServiceLocation;
+using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Dtos;
 using Fgs.Foundation.Validation;
 using FluentValidation;
@@ -32,7 +34,9 @@ public sealed class CreateCrmCustomerCommandValidator : AbstractValidator<Create
                 .WithMessage("A customer with this number already exists.");
             RuleFor(x => x.Dto.Name).NotEmpty().MaximumLength(200);
             RuleFor(x => x.Dto.DisplayName).NotEmpty().MaximumLength(200);
-            RuleFor(x => x.Dto.DefaultPaymentTermId).NotNull().GreaterThan(0);
+            RuleFor(x => x.Dto.DefaultPaymentTermId)
+                .GreaterThan(0)
+                .When(x => x.Dto.DefaultPaymentTermId.HasValue);
             ApplyAddressRules(this);
             RuleFor(x => x.Dto.TaxExemptNumber).MaximumLength(100);
             RuleFor(x => x.Dto.CustomerAccountNumber).MaximumLength(100);
@@ -318,6 +322,72 @@ public sealed class UpdateCrmCustomerServiceLocationCommandValidator : AbstractV
         When(x => x.Dto is not null, () =>
         {
             RuleFor(x => x.Dto).SetValidator(new CrmServiceLocationUpdateDtoValidator());
+        });
+    }
+}
+
+public sealed class UpsertCrmDefaultCustomerCommandValidator : AbstractValidator<UpsertCrmDefaultCustomerCommand>
+{
+    public UpsertCrmDefaultCustomerCommandValidator()
+    {
+        RuleFor(x => x.Dto)
+            .NotNull()
+            .WithMessage(
+                "Request body is required. Ensure the JSON is valid (unresolved Postman variables produce invalid JSON).");
+
+        When(x => x.Dto is not null, () =>
+        {
+            RuleFor(x => x.Dto.DefaultPaymentTermId)
+                .GreaterThan(0)
+                .When(x => x.Dto.DefaultPaymentTermId.HasValue);
+            RuleFor(x => x.Dto.DefaultMaterialPricingMatrixId)
+                .GreaterThan(0)
+                .When(x => x.Dto.DefaultMaterialPricingMatrixId.HasValue);
+            RuleFor(x => x.Dto.DefaultLaborPricingMatrixId)
+                .GreaterThan(0)
+                .When(x => x.Dto.DefaultLaborPricingMatrixId.HasValue);
+            RuleFor(x => x.Dto.DefaultOtherPricingMatrixId)
+                .GreaterThan(0)
+                .When(x => x.Dto.DefaultOtherPricingMatrixId.HasValue);
+        });
+    }
+}
+
+public sealed class UpsertCrmDefaultServiceLocationCommandValidator : AbstractValidator<UpsertCrmDefaultServiceLocationCommand>
+{
+    public UpsertCrmDefaultServiceLocationCommandValidator()
+    {
+        RuleFor(x => x.Dto)
+            .NotNull()
+            .WithMessage(
+                "Request body is required. Ensure the JSON is valid (unresolved Postman variables produce invalid JSON).");
+
+        When(x => x.Dto is not null, () =>
+        {
+            RuleFor(x => x.Dto.DefaultLaborPricingMatrixId)
+                .GreaterThan(0)
+                .When(x => x.Dto.DefaultLaborPricingMatrixId.HasValue);
+            RuleFor(x => x.Dto.DefaultMaterialPricingMatrixId)
+                .GreaterThan(0)
+                .When(x => x.Dto.DefaultMaterialPricingMatrixId.HasValue);
+            RuleFor(x => x.Dto.DefaultOtherPricingMatrixId)
+                .GreaterThan(0)
+                .When(x => x.Dto.DefaultOtherPricingMatrixId.HasValue);
+            RuleFor(x => x.Dto.DefaultPaymentMethodId)
+                .GreaterThan(0)
+                .When(x => x.Dto.DefaultPaymentMethodId.HasValue);
+            RuleFor(x => x.Dto.EstimateEmailTemplateId)
+                .GreaterThan(0)
+                .When(x => x.Dto.EstimateEmailTemplateId.HasValue);
+            RuleFor(x => x.Dto.EstimateSmsTemplateId)
+                .GreaterThan(0)
+                .When(x => x.Dto.EstimateSmsTemplateId.HasValue);
+            RuleFor(x => x.Dto.InvoiceEmailTemplateId)
+                .GreaterThan(0)
+                .When(x => x.Dto.InvoiceEmailTemplateId.HasValue);
+            RuleFor(x => x.Dto.InvoiceSmsTemplateId)
+                .GreaterThan(0)
+                .When(x => x.Dto.InvoiceSmsTemplateId.HasValue);
         });
     }
 }

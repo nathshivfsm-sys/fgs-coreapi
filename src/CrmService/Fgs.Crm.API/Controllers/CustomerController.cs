@@ -6,9 +6,11 @@ using Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerServiceLocation;
+using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultCustomer;
 using Fgs.Crm.Application.Features.Customers.Dtos;
 using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerById;
 using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerServiceLocationById;
+using Fgs.Crm.Application.Features.Customers.Queries.GetCrmDefaultCustomer;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomerServiceLocations;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers;
 using Fgs.Crm.Application.Features.Customers.Queries.LookupCrmCustomers;
@@ -31,6 +33,27 @@ namespace Fgs.Crm.API.Controllers;
 [Produces("application/json")]
 public sealed class CustomerController(IMediator mediator) : ControllerBase
 {
+    [RequirePermission(FgsPermissionCodes.CustomerView)]
+    [HttpGet("default")]
+    [ProducesResponseType(typeof(ApiResponse<CrmDefaultCustomerDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDefault(CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new GetCrmDefaultCustomerQuery(), cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [RequirePermission(FgsPermissionCodes.CustomerEdit)]
+    [HttpPut("default")]
+    [ProducesResponseType(typeof(ApiResponse<CrmDefaultCustomerDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpsertDefault(
+        [FromBody] CrmDefaultCustomerUpsertDto request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new UpsertCrmDefaultCustomerCommand(request), cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
     [RequirePermission(FgsPermissionCodes.CustomerView)]
     [HttpGet("{id:long}/servicelocation")]
     [ProducesResponseType(typeof(ApiResponse<CrmServiceLocationListResultDto>), StatusCodes.Status200OK)]

@@ -351,8 +351,8 @@ public sealed record CrmCustomerCreateDto(
     long? DefaultMaterialPricingMatrixId,
     long? DefaultLaborPricingMatrixId,
     long? DefaultOtherPricingMatrixId,
-    bool DefaultPORequired,
-    bool TaxExempt,
+    bool? DefaultPORequired,
+    bool? TaxExempt,
     string? TaxExemptNumber,
     string? CustomerAccountNumber,
     string? ExternalEntityId,
@@ -429,3 +429,54 @@ public sealed record CrmCustomerListFilters(
     string? Name = null,
     string? DisplayName = null,
     bool? IsPreferred = null);
+
+public sealed record CrmDefaultCustomerDto(
+    long? Id,
+    long? DefaultPaymentTermId,
+    long? DefaultMaterialPricingMatrixId,
+    long? DefaultLaborPricingMatrixId,
+    long? DefaultOtherPricingMatrixId,
+    bool DefaultPORequired,
+    bool TaxExempt)
+{
+    public static CrmDefaultCustomerDto Empty { get; } = new(null, null, null, null, null, false, false);
+}
+
+public sealed record CrmDefaultCustomerUpsertDto(
+    long? DefaultPaymentTermId,
+    long? DefaultMaterialPricingMatrixId,
+    long? DefaultLaborPricingMatrixId,
+    long? DefaultOtherPricingMatrixId,
+    bool DefaultPORequired,
+    bool TaxExempt);
+
+public sealed record CrmDefaultServiceLocationDto(
+    long? Id,
+    long? DefaultLaborPricingMatrixId,
+    long? DefaultMaterialPricingMatrixId,
+    long? DefaultOtherPricingMatrixId,
+    long? DefaultPaymentMethodId,
+    bool EmailAllowed,
+    long? EstimateEmailTemplateId,
+    long? EstimateSmsTemplateId,
+    long? InvoiceEmailTemplateId,
+    long? InvoiceSmsTemplateId,
+    bool SmsAllowed,
+    bool TaxExempt)
+{
+    public static CrmDefaultServiceLocationDto Empty { get; } =
+        new(null, null, null, null, null, true, null, null, null, null, true, false);
+}
+
+public sealed record CrmDefaultServiceLocationUpsertDto(
+    long? DefaultLaborPricingMatrixId,
+    long? DefaultMaterialPricingMatrixId,
+    long? DefaultOtherPricingMatrixId,
+    long? DefaultPaymentMethodId,
+    bool EmailAllowed,
+    long? EstimateEmailTemplateId,
+    long? EstimateSmsTemplateId,
+    long? InvoiceEmailTemplateId,
+    long? InvoiceSmsTemplateId,
+    bool SmsAllowed,
+    bool TaxExempt);

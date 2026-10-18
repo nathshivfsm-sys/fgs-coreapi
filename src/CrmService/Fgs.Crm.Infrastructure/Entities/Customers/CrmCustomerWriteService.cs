@@ -59,9 +59,6 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
             Latitude = dto.Latitude,
             Longitude = dto.Longitude,
             PlaceId = TrimOrNull(dto.PlaceId),
-            DefaultPaymentTermId = dto.DefaultPaymentTermId,
-            DefaultPORequired = dto.DefaultPORequired,
-            TaxExempt = dto.TaxExempt,
             TaxExemptNumber = TrimOrNull(dto.TaxExemptNumber),
             CustomerAccountNumber = TrimOrNull(dto.CustomerAccountNumber),
             ExternalEntityId = TrimOrNull(dto.ExternalEntityId),
@@ -359,6 +356,110 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
         return await MapToDetailAsync(entity, cancellationToken);
     }
 
+    public async Task<CrmDefaultCustomerDto> UpsertDefaultCustomerAsync(
+        CrmDefaultCustomerUpsertDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var scope = new CrmDefaultCustomer();
+        _auditHelper.StampForCreate(scope);
+
+        var entity = await _context.CrmDefaultCustomers
+            .FirstOrDefaultAsync(
+                d => d.TenantId == scope.TenantId && d.CompanyId == scope.CompanyId,
+                cancellationToken);
+
+        if (entity is null)
+        {
+            ApplyDefaultCustomer(scope, dto);
+            await _context.CrmDefaultCustomers.AddAsync(scope, cancellationToken);
+            await SaveChangesAsync(cancellationToken);
+            return MapDefaultCustomer(scope);
+        }
+
+        ApplyDefaultCustomer(entity, dto);
+        _auditHelper.StampForUpdate(entity);
+        await SaveChangesAsync(cancellationToken);
+        return MapDefaultCustomer(entity);
+    }
+
+    public async Task<CrmDefaultServiceLocationDto> UpsertDefaultServiceLocationAsync(
+        CrmDefaultServiceLocationUpsertDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var scope = new CrmDefaultServiceLocation();
+        _auditHelper.StampForCreate(scope);
+
+        var entity = await _context.CrmDefaultServiceLocations
+            .FirstOrDefaultAsync(
+                d => d.TenantId == scope.TenantId && d.CompanyId == scope.CompanyId,
+                cancellationToken);
+
+        if (entity is null)
+        {
+            ApplyDefaultServiceLocation(scope, dto);
+            await _context.CrmDefaultServiceLocations.AddAsync(scope, cancellationToken);
+            await SaveChangesAsync(cancellationToken);
+            return MapDefaultServiceLocation(scope);
+        }
+
+        ApplyDefaultServiceLocation(entity, dto);
+        _auditHelper.StampForUpdate(entity);
+        await SaveChangesAsync(cancellationToken);
+        return MapDefaultServiceLocation(entity);
+    }
+
+    private static void ApplyDefaultCustomer(CrmDefaultCustomer entity, CrmDefaultCustomerUpsertDto dto)
+    {
+        entity.DefaultPaymentTermId = dto.DefaultPaymentTermId;
+        entity.DefaultMaterialPricingMatrixId = dto.DefaultMaterialPricingMatrixId;
+        entity.DefaultLaborPricingMatrixId = dto.DefaultLaborPricingMatrixId;
+        entity.DefaultOtherPricingMatrixId = dto.DefaultOtherPricingMatrixId;
+        entity.DefaultPORequired = dto.DefaultPORequired;
+        entity.TaxExempt = dto.TaxExempt;
+    }
+
+    private static void ApplyDefaultServiceLocation(
+        CrmDefaultServiceLocation entity,
+        CrmDefaultServiceLocationUpsertDto dto)
+    {
+        entity.DefaultLaborPricingMatrixId = dto.DefaultLaborPricingMatrixId;
+        entity.DefaultMaterialPricingMatrixId = dto.DefaultMaterialPricingMatrixId;
+        entity.DefaultOtherPricingMatrixId = dto.DefaultOtherPricingMatrixId;
+        entity.DefaultPaymentMethodId = dto.DefaultPaymentMethodId;
+        entity.EmailAllowed = dto.EmailAllowed;
+        entity.EstimateEmailTemplateId = dto.EstimateEmailTemplateId;
+        entity.EstimateSmsTemplateId = dto.EstimateSmsTemplateId;
+        entity.InvoiceEmailTemplateId = dto.InvoiceEmailTemplateId;
+        entity.InvoiceSmsTemplateId = dto.InvoiceSmsTemplateId;
+        entity.SmsAllowed = dto.SmsAllowed;
+        entity.TaxExempt = dto.TaxExempt;
+    }
+
+    private static CrmDefaultCustomerDto MapDefaultCustomer(CrmDefaultCustomer entity) =>
+        new(
+            entity.Id,
+            entity.DefaultPaymentTermId,
+            entity.DefaultMaterialPricingMatrixId,
+            entity.DefaultLaborPricingMatrixId,
+            entity.DefaultOtherPricingMatrixId,
+            entity.DefaultPORequired,
+            entity.TaxExempt);
+
+    private static CrmDefaultServiceLocationDto MapDefaultServiceLocation(CrmDefaultServiceLocation entity) =>
+        new(
+            entity.Id,
+            entity.DefaultLaborPricingMatrixId,
+            entity.DefaultMaterialPricingMatrixId,
+            entity.DefaultOtherPricingMatrixId,
+            entity.DefaultPaymentMethodId,
+            entity.EmailAllowed,
+            entity.EstimateEmailTemplateId,
+            entity.EstimateSmsTemplateId,
+            entity.InvoiceEmailTemplateId,
+            entity.InvoiceSmsTemplateId,
+            entity.SmsAllowed,
+            entity.TaxExempt);
+
     private async Task<CrmCustomer?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
         await _context.CrmCustomers.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 
@@ -430,6 +531,9 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
         entity.DefaultMaterialPricingMatrixId = dto.DefaultMaterialPricingMatrixId ?? defaults?.DefaultMaterialPricingMatrixId;
         entity.DefaultLaborPricingMatrixId = dto.DefaultLaborPricingMatrixId ?? defaults?.DefaultLaborPricingMatrixId;
         entity.DefaultOtherPricingMatrixId = dto.DefaultOtherPricingMatrixId ?? defaults?.DefaultOtherPricingMatrixId;
+        entity.DefaultPaymentTermId = dto.DefaultPaymentTermId ?? defaults?.DefaultPaymentTermId;
+        entity.DefaultPORequired = dto.DefaultPORequired ?? defaults?.DefaultPORequired ?? false;
+        entity.TaxExempt = dto.TaxExempt ?? defaults?.TaxExempt ?? false;
     }
 
     private CrmContact? AddPrimaryContact(CrmCustomer customer, CrmCustomerCreateDto dto)

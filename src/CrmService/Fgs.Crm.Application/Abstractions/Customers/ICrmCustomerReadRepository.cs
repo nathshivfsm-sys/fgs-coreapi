@@ -40,4 +40,8 @@ public interface ICrmCustomerReadRepository
         CancellationToken cancellationToken = default);
 
     Task<bool> ExistsAsync(long id, bool activeOnly = true, CancellationToken cancellationToken = default);
+
+    Task<CrmDefaultCustomerDto?> GetDefaultCustomerAsync(CancellationToken cancellationToken = default);
+
+    Task<CrmDefaultServiceLocationDto?> GetDefaultServiceLocationAsync(CancellationToken cancellationToken = default);
 }

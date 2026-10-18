@@ -1,7 +1,9 @@
 using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Crm.Application.Common.CrmCrud;
+using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Dtos;
+using Fgs.Crm.Application.Features.Customers.Queries.GetCrmDefaultServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCompanyServiceLocations;
 using Fgs.Crm.Domain.Enums;
 using Fgs.Foundation.Api;
@@ -22,6 +24,27 @@ namespace Fgs.Crm.API.Controllers;
 [Produces("application/json")]
 public sealed class ServiceLocationController(IMediator mediator) : ControllerBase
 {
+    [RequirePermission(FgsPermissionCodes.CustomerView)]
+    [HttpGet("default")]
+    [ProducesResponseType(typeof(ApiResponse<CrmDefaultServiceLocationDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDefault(CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new GetCrmDefaultServiceLocationQuery(), cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [RequirePermission(FgsPermissionCodes.CustomerEdit)]
+    [HttpPut("default")]
+    [ProducesResponseType(typeof(ApiResponse<CrmDefaultServiceLocationDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpsertDefault(
+        [FromBody] CrmDefaultServiceLocationUpsertDto request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new UpsertCrmDefaultServiceLocationCommand(request), cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
     /// <summary>
     /// Lists service locations for the current company.
     /// Omitted <paramref name="isActive"/> returns all locations.

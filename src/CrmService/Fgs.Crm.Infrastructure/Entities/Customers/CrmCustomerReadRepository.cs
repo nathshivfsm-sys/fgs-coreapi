@@ -5,11 +5,14 @@ using Fgs.Crm.Domain.Entities;
 using Fgs.Crm.Domain.Enums;
 using Fgs.Crm.Infrastructure.Database;
 using Fgs.Foundation.Paging;
+using Fgs.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fgs.Crm.Infrastructure.Entities.Customers;
 
-internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICrmCustomerReadRepository
+internal sealed class CrmCustomerReadRepository(
+    FgsCrmDbContext dbContext,
+    ITenantContextAccessor? tenantContextAccessor = null) : ICrmCustomerReadRepository
 {
     public async Task<CrmCustomerDetailDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
@@ -940,4 +943,64 @@ internal sealed class CrmCustomerReadRepository(FgsCrmDbContext dbContext) : ICr
             primaryContactPhone,
             entity.CreatedOn,
             tagIds);
+
+    public async Task<CrmDefaultCustomerDto?> GetDefaultCustomerAsync(CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = RequireTenantCompany();
+        var entity = await dbContext.CrmDefaultCustomers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                d => d.TenantId == tenantId && d.CompanyId == companyId,
+                cancellationToken);
+
+        return entity is null ? null : MapDefaultCustomer(entity);
+    }
+
+    public async Task<CrmDefaultServiceLocationDto?> GetDefaultServiceLocationAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = RequireTenantCompany();
+        var entity = await dbContext.CrmDefaultServiceLocations
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                d => d.TenantId == tenantId && d.CompanyId == companyId,
+                cancellationToken);
+
+        return entity is null ? null : MapDefaultServiceLocation(entity);
+    }
+
+    private (long TenantId, long CompanyId) RequireTenantCompany()
+    {
+        if (tenantContextAccessor?.Current is ITenantContext context)
+        {
+            return (context.TenantId, context.CompanyId);
+        }
+
+        throw new InvalidOperationException("Tenant context is required.");
+    }
+
+    private static CrmDefaultCustomerDto MapDefaultCustomer(CrmDefaultCustomer entity) =>
+        new(
+            entity.Id,
+            entity.DefaultPaymentTermId,
+            entity.DefaultMaterialPricingMatrixId,
+            entity.DefaultLaborPricingMatrixId,
+            entity.DefaultOtherPricingMatrixId,
+            entity.DefaultPORequired,
+            entity.TaxExempt);
+
+    private static CrmDefaultServiceLocationDto MapDefaultServiceLocation(CrmDefaultServiceLocation entity) =>
+        new(
+            entity.Id,
+            entity.DefaultLaborPricingMatrixId,
+            entity.DefaultMaterialPricingMatrixId,
+            entity.DefaultOtherPricingMatrixId,
+            entity.DefaultPaymentMethodId,
+            entity.EmailAllowed,
+            entity.EstimateEmailTemplateId,
+            entity.EstimateSmsTemplateId,
+            entity.InvoiceEmailTemplateId,
+            entity.InvoiceSmsTemplateId,
+            entity.SmsAllowed,
+            entity.TaxExempt);
 }

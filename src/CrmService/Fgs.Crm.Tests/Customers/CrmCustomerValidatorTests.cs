@@ -3,6 +3,8 @@ using Fgs.Crm.Application.Features.Customers.Commands.AddCrmCustomerServiceLocat
 using Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerServiceLocation;
+using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Dtos;
 using Fgs.Crm.Application.Features.Customers.Validators;
 using Fgs.Crm.Domain.Enums;
@@ -108,15 +110,48 @@ public sealed class CrmCustomerValidatorTests
     }
 
     [Fact]
-    public async Task CreateValidator_WhenPaymentTermMissing_HasValidationError()
+    public async Task CreateValidator_WhenPaymentTermMissing_IsValid()
     {
         var validator = new CreateCrmCustomerCommandValidator(_readRepository.Object);
         var command = new CreateCrmCustomerCommand(SampleCreateDto() with { DefaultPaymentTermId = null });
 
         var result = await validator.ValidateAsync(command);
 
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "Dto.DefaultPaymentTermId");
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenPaymentTermNotPositive_HasValidationError()
+    {
+        var validator = new CreateCrmCustomerCommandValidator(_readRepository.Object);
+
+        foreach (var paymentTermId in new long?[] { 0, -1 })
+        {
+            var command = new CreateCrmCustomerCommand(SampleCreateDto() with { DefaultPaymentTermId = paymentTermId });
+            var result = await validator.ValidateAsync(command);
+
+            result.IsValid.Should().BeFalse();
+            result.Errors.Should().Contain(e => e.PropertyName == "Dto.DefaultPaymentTermId");
+        }
+    }
+
+    [Fact]
+    public async Task UpsertDefaultValidators_WhenIdNotPositive_HasValidationError()
+    {
+        var customerValidator = new UpsertCrmDefaultCustomerCommandValidator();
+        var customerResult = await customerValidator.ValidateAsync(
+            new UpsertCrmDefaultCustomerCommand(new CrmDefaultCustomerUpsertDto(0, null, null, null, false, false)));
+
+        customerResult.IsValid.Should().BeFalse();
+        customerResult.Errors.Should().Contain(e => e.PropertyName == "Dto.DefaultPaymentTermId");
+
+        var locationValidator = new UpsertCrmDefaultServiceLocationCommandValidator();
+        var locationResult = await locationValidator.ValidateAsync(
+            new UpsertCrmDefaultServiceLocationCommand(
+                new CrmDefaultServiceLocationUpsertDto(null, -2, null, null, true, null, null, null, null, true, false)));
+
+        locationResult.IsValid.Should().BeFalse();
+        locationResult.Errors.Should().Contain(e => e.PropertyName == "Dto.DefaultMaterialPricingMatrixId");
     }
 
     [Fact]
