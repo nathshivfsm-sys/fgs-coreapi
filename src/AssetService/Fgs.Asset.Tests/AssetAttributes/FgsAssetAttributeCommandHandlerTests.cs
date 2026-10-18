@@ -1,6 +1,6 @@
 using Fgs.Asset.Application.Features.AssetAttributes.Commands.CreateFgsAssetAttribute;
 using Fgs.Asset.Application.Features.AssetAttributes.Dtos;
-using Fgs.Asset.Infrastructure.AssetAttributes;
+using Fgs.Asset.Infrastructure.Entities.AssetAttributes;
 using Fgs.Asset.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Asset.Infrastructure.Database;

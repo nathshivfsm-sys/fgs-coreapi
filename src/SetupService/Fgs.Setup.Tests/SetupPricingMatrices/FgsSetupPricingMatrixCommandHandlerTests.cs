@@ -10,7 +10,7 @@ using Fgs.Setup.Application.Features.SetupPricingMatrices.Dtos;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
-using Fgs.Setup.Infrastructure.Persistence.SetupPricingMatrices;
+using Fgs.Setup.Infrastructure.Entities.SetupPricingMatrices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;

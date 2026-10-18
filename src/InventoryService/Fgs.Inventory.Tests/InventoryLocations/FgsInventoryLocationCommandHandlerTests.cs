@@ -9,7 +9,7 @@ using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Inventory.Infrastructure.Database;
-using Fgs.Inventory.Infrastructure.InventoryLocations;
+using Fgs.Inventory.Infrastructure.Entities.InventoryLocations;
 using Microsoft.EntityFrameworkCore;
 using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore.Diagnostics;

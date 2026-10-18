@@ -10,7 +10,7 @@ using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Inventory.Infrastructure.Database;
-using Fgs.Inventory.Infrastructure.TruckStockTemplates;
+using Fgs.Inventory.Infrastructure.Entities.TruckStockTemplates;
 using Microsoft.EntityFrameworkCore;
 using Fgs.MultiTenancy.Persistence;
 using Microsoft.EntityFrameworkCore.Diagnostics;

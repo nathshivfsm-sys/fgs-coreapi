@@ -3,7 +3,7 @@ using Fgs.Billing.Application.Features.Invoices.Dtos;
 using Fgs.Billing.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Billing.Infrastructure.Database;
-using Fgs.Billing.Infrastructure.Persistence.Invoices;
+using Fgs.Billing.Infrastructure.Entities.Invoices;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;

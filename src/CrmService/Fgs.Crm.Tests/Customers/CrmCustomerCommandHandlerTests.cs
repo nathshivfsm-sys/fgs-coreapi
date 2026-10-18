@@ -7,7 +7,7 @@ using Fgs.Crm.Domain.Enums;
 using Fgs.Crm.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Crm.Infrastructure.Database;
-using Fgs.Crm.Infrastructure.Persistence.Customers;
+using Fgs.Crm.Infrastructure.Entities.Customers;
 using Fgs.Foundation.Caching;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;

@@ -1,6 +1,8 @@
 using Fgs.Audit.Application.Abstractions;
 using Fgs.Audit.Domain.Enums;
-using Fgs.Audit.Infrastructure.Audit;
+using Fgs.Audit.Infrastructure.Entities.ArchiveCatalogs;
+using Fgs.Audit.Infrastructure.Entities.CredentialAudits;
+using Fgs.Audit.Infrastructure.Entities.Events;
 using Fgs.Audit.Infrastructure.Database;
 using Fgs.Audit.Infrastructure.Database.Schemas;
 using Fgs.Credentials;

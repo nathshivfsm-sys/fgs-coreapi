@@ -3,7 +3,7 @@ using Fgs.MultiTenancy.Persistence;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
-using Fgs.Setup.Infrastructure.Persistence.Tenants;
+using Fgs.Setup.Infrastructure.Entities.Tenants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 

@@ -12,7 +12,7 @@ using Fgs.Setup.Application.Features.UniversalPricingServices.Dtos;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
-using Fgs.Setup.Infrastructure.Persistence.UniversalPricingMatrix.UniversalPricingServices;
+using Fgs.Setup.Infrastructure.Entities.UniversalPricingMatrix.UniversalPricingServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;

@@ -5,7 +5,7 @@ using Fgs.Persistence.Extensions;
 using Fgs.ServiceAgreement.Application.Abstractions.ServiceAgreements;
 using Fgs.ServiceAgreement.Infrastructure.Common;
 using Fgs.ServiceAgreement.Infrastructure.Database;
-using Fgs.ServiceAgreement.Infrastructure.Persistence.ServiceAgreements;
+using Fgs.ServiceAgreement.Infrastructure.Entities.ServiceAgreements;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

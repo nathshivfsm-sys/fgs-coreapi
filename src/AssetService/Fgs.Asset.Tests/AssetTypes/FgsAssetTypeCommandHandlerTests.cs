@@ -4,7 +4,7 @@ using Fgs.Asset.Application.Features.AssetTypes.Dtos;
 using Fgs.Asset.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Asset.Infrastructure.Database;
-using Fgs.Asset.Infrastructure.AssetTypes;
+using Fgs.Asset.Infrastructure.Entities.AssetTypes;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.Persistence.Implementations;

@@ -3,7 +3,7 @@ using Fgs.MultiTenancy.Persistence;
 using Fgs.Notification.Domain.Entities;
 using Fgs.Notification.Domain.Enums;
 using Fgs.Notification.Infrastructure.Database;
-using Fgs.Notification.Infrastructure.Notifications.History;
+using Fgs.Notification.Infrastructure.Entities.History;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;

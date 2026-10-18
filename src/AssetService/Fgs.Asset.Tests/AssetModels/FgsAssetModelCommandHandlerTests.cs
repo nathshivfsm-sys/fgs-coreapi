@@ -7,7 +7,7 @@ using Fgs.Asset.Application.Features.AssetModels.Commands.CreateFgsAssetModel;
 using Fgs.Asset.Application.Features.AssetModels.Commands.PatchFgsAssetModel;
 using Fgs.Asset.Application.Features.AssetModels.Dtos;
 using Fgs.Asset.Domain.Entities;
-using Fgs.Asset.Infrastructure.AssetModels;
+using Fgs.Asset.Infrastructure.Entities.AssetModels;
 using Fgs.Asset.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Asset.Infrastructure.Database;

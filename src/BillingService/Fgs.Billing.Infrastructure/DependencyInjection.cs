@@ -4,7 +4,7 @@ using Fgs.Credentials.Extensions;
 using Fgs.Billing.Application.Abstractions.Invoices;
 using Fgs.Billing.Infrastructure.Common;
 using Fgs.Billing.Infrastructure.Database;
-using Fgs.Billing.Infrastructure.Persistence.Invoices;
+using Fgs.Billing.Infrastructure.Entities.Invoices;
 using Fgs.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

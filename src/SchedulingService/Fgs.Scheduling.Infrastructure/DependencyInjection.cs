@@ -5,7 +5,7 @@ using Fgs.Persistence.Extensions;
 using Fgs.Scheduling.Application.Abstractions.Appointments;
 using Fgs.Scheduling.Infrastructure.Common;
 using Fgs.Scheduling.Infrastructure.Database;
-using Fgs.Scheduling.Infrastructure.Persistence.Appointments;
+using Fgs.Scheduling.Infrastructure.Entities.Appointments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

@@ -12,7 +12,7 @@ using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
-using Fgs.Setup.Infrastructure.Persistence.JobTypes;
+using Fgs.Setup.Infrastructure.Entities.JobTypes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;

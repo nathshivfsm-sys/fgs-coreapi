@@ -11,7 +11,7 @@ using Fgs.Setup.Application.Features.SetupDescriptions.Dtos;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
-using Fgs.Setup.Infrastructure.Persistence.SetupDescriptions;
+using Fgs.Setup.Infrastructure.Entities.SetupDescriptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;

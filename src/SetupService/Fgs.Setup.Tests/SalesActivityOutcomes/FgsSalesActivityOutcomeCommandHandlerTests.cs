@@ -11,7 +11,7 @@ using Fgs.Setup.Application.Features.SalesActivityOutcomes.Dtos;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
-using Fgs.Setup.Infrastructure.Persistence.SalesActivityOutcomes;
+using Fgs.Setup.Infrastructure.Entities.SalesActivityOutcomes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;

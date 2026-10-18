@@ -11,7 +11,7 @@ using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers;
 using Fgs.Crm.Domain.Entities;
 using Fgs.Crm.Domain.Enums;
 using Fgs.Crm.Infrastructure.Database;
-using Fgs.Crm.Infrastructure.Persistence.Customers;
+using Fgs.Crm.Infrastructure.Entities.Customers;
 using Fgs.Foundation.Caching.Abstractions;
 using Fgs.Foundation.Paging;
 using Fgs.MultiTenancy;

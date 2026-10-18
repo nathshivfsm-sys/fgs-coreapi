@@ -4,7 +4,7 @@ using Fgs.Inventory.Domain.Entities;
 using Fgs.Inventory.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Inventory.Infrastructure.Database;
-using Fgs.Inventory.Infrastructure.PurchaseOrders;
+using Fgs.Inventory.Infrastructure.Entities.PurchaseOrders;
 using Fgs.Messaging.Abstractions;
 using Fgs.MultiTenancy;
 using Fgs.MultiTenancy.Persistence;

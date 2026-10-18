@@ -6,7 +6,7 @@ using Fgs.Crm.Domain.Enums;
 using Fgs.Crm.Infrastructure.Common;
 using Fgs.Crm.Infrastructure.Database;
 using Fgs.Crm.Infrastructure.Database.Schemas;
-using Fgs.Crm.Infrastructure.Persistence.Customers;
+using Fgs.Crm.Infrastructure.Entities.Customers;
 using Fgs.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

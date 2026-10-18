@@ -1,4 +1,4 @@
-using Fgs.Audit.Infrastructure.Audit;
+using Fgs.Audit.Infrastructure.Entities.CredentialAudits;
 using Fgs.Audit.Infrastructure.Database;
 using Fgs.Contracts.CredentialAudit;
 using Fgs.MultiTenancy;

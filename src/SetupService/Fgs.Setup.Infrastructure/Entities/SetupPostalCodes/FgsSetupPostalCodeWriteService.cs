@@ -1,0 +1,201 @@
+using Fgs.Persistence.Abstractions;
+using Fgs.Setup.Application.Abstractions.SetupPostalCodes;
+using Fgs.Setup.Application.Features.SetupPostalCodes.Dtos;
+using Fgs.Setup.Domain.Entities;
+using Fgs.Setup.Infrastructure.Common;
+using Fgs.Setup.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
+
+using Fgs.MultiTenancy.Persistence;
+
+namespace Fgs.Setup.Infrastructure.Entities.SetupPostalCodes;
+
+public sealed class FgsSetupPostalCodeWriteService : IFgsSetupPostalCodeWriteService
+{
+    private readonly FgsSetupDbContext _context;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly SetupEntityAuditHelper _auditHelper;
+
+    public FgsSetupPostalCodeWriteService(
+        FgsSetupDbContext context,
+        IUnitOfWork unitOfWork,
+        SetupEntityAuditHelper auditHelper)
+    {
+        _context = context;
+        _unitOfWork = unitOfWork;
+        _auditHelper = auditHelper;
+    }
+
+    public async Task<FgsSetupPostalCodeDetailDto> CreateAsync(
+        FgsSetupPostalCodeCreateDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var entity = new FgsSetupPostalCode
+        {
+            PostalCode = dto.PostalCode.Trim(),
+            CountryCode = NormalizeCountryCode(dto.CountryCode),
+            StateProvinceCode = dto.StateProvinceCode.Trim(),
+            City = dto.City.Trim(),
+            TripChargeAmount = dto.TripChargeAmount ?? 0m,
+            FgsSetupZoneId = dto.FgsSetupZoneId,
+            FgsSetupTaxId = dto.FgsSetupTaxId
+        };
+
+        _auditHelper.StampForCreate(entity);
+        await _context.FgsSetupPostalCodes.AddAsync(entity, cancellationToken);
+        await SaveChangesAsync(cancellationToken);
+
+        return await MapToDetailAsync(entity, cancellationToken);
+    }
+
+    public async Task<FgsSetupPostalCodeDetailDto> UpdateAsync(
+        long id,
+        FgsSetupPostalCodeUpdateDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var entity = await FindEntityAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Postal Code '{id}' was not found.");
+
+        entity.PostalCode = dto.PostalCode.Trim();
+        entity.CountryCode = NormalizeCountryCode(dto.CountryCode);
+        entity.StateProvinceCode = dto.StateProvinceCode.Trim();
+        entity.City = dto.City.Trim();
+        entity.TripChargeAmount = dto.TripChargeAmount ?? 0m;
+        entity.FgsSetupZoneId = dto.FgsSetupZoneId;
+        entity.FgsSetupTaxId = dto.FgsSetupTaxId;
+
+        _auditHelper.StampForUpdate(entity);
+        await SaveChangesAsync(cancellationToken);
+
+        return await MapToDetailAsync(entity, cancellationToken);
+    }
+
+    public async Task<FgsSetupPostalCodeDetailDto> PatchAsync(
+        long id,
+        FgsSetupPostalCodePatchDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var entity = await FindEntityAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Postal Code '{id}' was not found.");
+
+        if (dto.PostalCode is not null)
+        {
+            entity.PostalCode = dto.PostalCode.Trim();
+        }
+
+        if (dto.CountryCode is not null)
+        {
+            entity.CountryCode = NormalizeCountryCode(dto.CountryCode);
+        }
+
+        if (dto.StateProvinceCode is not null)
+        {
+            entity.StateProvinceCode = dto.StateProvinceCode.Trim();
+        }
+
+        if (dto.City is not null)
+        {
+            entity.City = dto.City.Trim();
+        }
+
+        if (dto.TripChargeAmount.HasValue)
+        {
+            entity.TripChargeAmount = dto.TripChargeAmount.Value;
+        }
+
+        if (dto.FgsSetupZoneId.HasValue)
+        {
+            entity.FgsSetupZoneId = dto.FgsSetupZoneId.Value;
+        }
+
+        if (dto.FgsSetupTaxId.HasValue)
+        {
+            entity.FgsSetupTaxId = dto.FgsSetupTaxId.Value;
+        }
+
+        if (dto.IsActive.HasValue)
+        {
+            entity.IsActive = dto.IsActive.Value;
+        }
+
+        _auditHelper.StampForUpdate(entity);
+        await SaveChangesAsync(cancellationToken);
+
+        return await MapToDetailAsync(entity, cancellationToken);
+    }
+
+    public async Task<FgsSetupPostalCodeDetailDto> DeleteAsync(long id, CancellationToken cancellationToken = default)
+    {
+        var entity = await FindEntityAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Postal Code '{id}' was not found.");
+
+        if (entity.IsActive)
+        {
+            entity.IsActive = false;
+            _auditHelper.StampForUpdate(entity);
+            await SaveChangesAsync(cancellationToken);
+        }
+
+        return await MapToDetailAsync(entity, cancellationToken);
+    }
+
+    private async Task<FgsSetupPostalCode?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
+        await _context.FgsSetupPostalCodes.FirstOrDefaultIncludingInactiveAsync(e => e.Id == id, cancellationToken);
+
+    private async Task SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+        {
+            throw new InvalidOperationException("A postal code with the same code already exists.", ex);
+        }
+    }
+
+    private static bool IsUniqueViolation(DbUpdateException exception) =>
+        exception.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true
+        || exception.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true
+        || exception.InnerException?.Message.Contains("23505", StringComparison.Ordinal) == true;
+
+    private static string NormalizeCountryCode(string code) => code.Trim().ToUpperInvariant();
+
+    private async Task<FgsSetupPostalCodeDetailDto> MapToDetailAsync(
+        FgsSetupPostalCode entity,
+        CancellationToken cancellationToken)
+    {
+        string? zoneName = null;
+        if (entity.FgsSetupZoneId is > 0)
+        {
+            zoneName = await _context.FgsSetupZones
+                .AsNoTracking()
+                .Where(z => z.Id == entity.FgsSetupZoneId.Value)
+                .Select(z => z.Name)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        string? taxName = null;
+        if (entity.FgsSetupTaxId is > 0)
+        {
+            taxName = await _context.FgsSetupTaxes
+                .AsNoTracking()
+                .Where(t => t.Id == entity.FgsSetupTaxId.Value)
+                .Select(t => t.Name)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        return new FgsSetupPostalCodeDetailDto(
+            entity.Id,
+            entity.PostalCode,
+            entity.CountryCode,
+            entity.StateProvinceCode,
+            entity.City,
+            entity.TripChargeAmount,
+            entity.FgsSetupZoneId,
+            zoneName,
+            entity.FgsSetupTaxId,
+            taxName,
+            entity.IsActive);
+    }
+}

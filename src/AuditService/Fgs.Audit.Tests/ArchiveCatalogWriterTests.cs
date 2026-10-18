@@ -1,4 +1,4 @@
-using Fgs.Audit.Infrastructure.Audit;
+using Fgs.Audit.Infrastructure.Entities.ArchiveCatalogs;
 using Fgs.Audit.Infrastructure.Database;
 using Fgs.Contracts.Audit;
 using Fgs.MultiTenancy;
