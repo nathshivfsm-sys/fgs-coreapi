@@ -24537,8 +24537,8 @@
           ]
         },
         {
-          "description": "TenantCompanyBusinessTypeController - tenant/{tenantId:long}/companies/{companyId:long}/businesstype",
-          "name": "TenantCompanyBusinessTypeController",
+          "description": "TenantController - tenant/{tenantId:long}/companies/{companyId:long}/businesstype",
+          "name": "TenantController",
           "item": [
             {
               "name": "AddCompanyBusinessTypes",
@@ -24599,8 +24599,8 @@
           ]
         },
         {
-          "description": "TenantProvisioningController - tenantprovisioning",
-          "name": "TenantProvisioningController",
+          "description": "TenantController - tenantprovisioning",
+          "name": "TenantController",
           "item": [
             {
               "name": "ProvisionTenant",
@@ -24647,8 +24647,8 @@
           ]
         },
         {
-          "description": "TenantSeedController - tenantseed",
-          "name": "TenantSeedController",
+          "description": "TenantController - tenantseed",
+          "name": "TenantController",
           "item": [
             {
               "name": "Sync",
