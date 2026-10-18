@@ -1,6 +1,0 @@
-﻿@Fgs.Communication.API_HostAddress = http://localhost:5081
-
-GET {{Fgs.Communication.API_HostAddress}}/health
-Accept: application/json
-
-###
