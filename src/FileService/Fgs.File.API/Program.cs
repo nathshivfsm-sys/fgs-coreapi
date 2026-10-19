@@ -1,5 +1,6 @@
 using Fgs.Credentials;
 using Fgs.Credentials.Extensions;
+using Fgs.File.API.Swagger;
 using Fgs.File.Application;
 using Fgs.File.Infrastructure;
 using Fgs.Foundation.Hosting;
@@ -17,6 +18,7 @@ var hostOptions = builder.AddFgsApiHost(options =>
     options.UseMultiTenancy = true;
 });
 
+builder.Services.AddFgsFileSwagger();
 builder.Services.AddFgsFileApplication();
 builder.Services.AddFgsFileInfrastructure(builder.Configuration);
 builder.Services.AddHttpContextAccessor();

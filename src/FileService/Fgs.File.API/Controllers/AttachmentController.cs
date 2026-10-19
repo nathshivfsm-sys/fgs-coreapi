@@ -13,10 +13,12 @@ using Fgs.File.Application.Features.Attachments.Queries.GetAttachmentStream;
 using Fgs.File.Application.Features.Attachments.Queries.GetAttachmentThumbnailStream;
 using Fgs.File.Application.Features.Attachments.Queries.ListAttachments;
 using Fgs.File.Application.Features.Attachments.Models;
+using Fgs.File.Domain.Enums;
 using Fgs.Foundation.Api;
 using Fgs.Foundation.Paging;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
@@ -36,9 +38,9 @@ public sealed class AttachmentController(
     [RequestFormLimits(MultipartBodyLengthLimit = 524288000)]
     public async Task<IActionResult> Upload(
         IFormFile file,
-        [FromForm] string entityType,
+        [FromForm][BindRequired] FileEntityType entityType,
         [FromForm] long entityId,
-        [FromForm] string category,
+        [FromForm][BindRequired] AttachmentCategory category,
         [FromForm] string? description,
         [FromForm] string? tags,
         [FromForm] bool isVisibleToCustomer = true,
@@ -68,9 +70,9 @@ public sealed class AttachmentController(
             file.FileName,
             AttachmentFileValidator.ResolveContentType(file.ContentType, file.FileName),
             file.Length,
-            entityType,
+            entityType.ToString(),
             entityId,
-            category,
+            category.ToString(),
             description,
             parsedTags,
             isVisibleToCustomer,
@@ -82,10 +84,10 @@ public sealed class AttachmentController(
 
     [HttpGet("{entityType}/{attachmentId:long}", Name = AttachmentRouteNames.Download)]
     [Produces("application/octet-stream")]
-    public async Task<IActionResult> Download(string entityType, long attachmentId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Download(FileEntityType entityType, long attachmentId, CancellationToken cancellationToken)
     {
         var range = ParseRangeHeader();
-        var response = await Mediator.Send(new GetAttachmentStreamQuery(attachmentId, entityType, range), cancellationToken);
+        var response = await Mediator.Send(new GetAttachmentStreamQuery(attachmentId, entityType.ToString(), range), cancellationToken);
         if (!response.Success || response.Data is null)
         {
             return StatusCode(response.StatusCode, response);
@@ -96,9 +98,9 @@ public sealed class AttachmentController(
 
     [HttpGet("{entityType}/{attachmentId:long}/thumbnail", Name = AttachmentRouteNames.Thumbnail)]
     [Produces("application/octet-stream")]
-    public async Task<IActionResult> Thumbnail(string entityType, long attachmentId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Thumbnail(FileEntityType entityType, long attachmentId, CancellationToken cancellationToken)
     {
-        var response = await Mediator.Send(new GetAttachmentThumbnailStreamQuery(attachmentId, entityType), cancellationToken);
+        var response = await Mediator.Send(new GetAttachmentThumbnailStreamQuery(attachmentId, entityType.ToString()), cancellationToken);
         if (!response.Success || response.Data is null)
         {
             return StatusCode(response.StatusCode, response);
@@ -109,8 +111,8 @@ public sealed class AttachmentController(
 
     [HttpGet("{entityType}/{attachmentId:long}/metadata", Name = AttachmentRouteNames.Metadata)]
     [ProducesResponseType(typeof(ApiResponse<AttachmentMetadataDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetMetadata(string entityType, long attachmentId, CancellationToken cancellationToken) =>
-        FromApiResponse(await Mediator.Send(new GetAttachmentMetadataQuery(attachmentId, entityType), cancellationToken));
+    public async Task<IActionResult> GetMetadata(FileEntityType entityType, long attachmentId, CancellationToken cancellationToken) =>
+        FromApiResponse(await Mediator.Send(new GetAttachmentMetadataQuery(attachmentId, entityType.ToString()), cancellationToken));
 
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PagedResult<AttachmentMetadataDto>>), StatusCodes.Status200OK)]
@@ -120,11 +122,11 @@ public sealed class AttachmentController(
         [FromQuery] string? sortBy = null,
         [FromQuery] SortDirection sortDirection = SortDirection.Asc,
         [FromQuery] string? search = null,
-        [FromQuery] string? entityType = null,
+        [FromQuery] FileEntityType? entityType = null,
         [FromQuery] long? entityId = null,
         [FromQuery] bool? isVisibleToCustomer = null,
         [FromQuery] bool? isVisibleToFieldTechnician = null,
-        [FromQuery] string? category = null,
+        [FromQuery] AttachmentCategory? category = null,
         [FromQuery] string? contentType = null,
         [FromQuery] string? extension = null,
         [FromQuery] string? fileName = null,
@@ -140,11 +142,11 @@ public sealed class AttachmentController(
         var query = new ListAttachmentsQuery(
             new AttachmentListQuery(page, pageSize, sortBy, sortDirection, search),
             new AttachmentListFilters(
-                entityType,
+                entityType?.ToString(),
                 entityId,
                 isVisibleToCustomer,
                 isVisibleToFieldTechnician,
-                category,
+                category?.ToString(),
                 contentType,
                 extension,
                 fileName,
@@ -163,12 +165,12 @@ public sealed class AttachmentController(
     [HttpDelete("by-entity")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> BulkDeleteByEntity(
-        [FromQuery] string entityType,
+        [FromQuery][BindRequired] FileEntityType entityType,
         [FromQuery] long entityId,
-        [FromQuery] string? category = null,
+        [FromQuery] AttachmentCategory? category = null,
         CancellationToken cancellationToken = default) =>
         NoContentFromApiResponse(await Mediator.Send(
-            new BulkSoftDeleteAttachmentsByEntityCommand(entityType, entityId, category),
+            new BulkSoftDeleteAttachmentsByEntityCommand(entityType.ToString(), entityId, category?.ToString()),
             cancellationToken));
 
     private StorageByteRange? ParseRangeHeader()

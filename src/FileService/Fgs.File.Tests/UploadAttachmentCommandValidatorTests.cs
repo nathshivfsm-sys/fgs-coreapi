@@ -33,6 +33,23 @@ public sealed class UploadAttachmentCommandValidatorTests
     }
 
     [Fact]
+    public void EmployeeEntityType_PassesValidation()
+    {
+        var command = CreateValidCommand() with { EntityType = "Employee" };
+        var result = CreateValidator().TestValidate(command);
+        result.ShouldNotHaveValidationErrorFor(x => x.EntityType);
+    }
+
+    [Fact]
+    public void UnsupportedEntityType_FailsValidation()
+    {
+        var command = CreateValidCommand() with { EntityType = "Unknown" };
+        var result = CreateValidator().TestValidate(command);
+        result.ShouldHaveValidationErrorFor(x => x.EntityType)
+            .WithErrorMessage("Unsupported entity type.");
+    }
+
+    [Fact]
     public void UnsupportedExtension_FailsValidation()
     {
         var command = CreateValidCommand() with { OriginalFileName = "malware.exe" };

@@ -7,5 +7,6 @@ public enum FileEntityType
     WorkOrder = 3,
     Estimate = 4,
     Invoice = 5,
-    Opportunity = 6
+    Opportunity = 6,
+    Employee = 7
 }
