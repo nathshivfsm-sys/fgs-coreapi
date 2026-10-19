@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text.RegularExpressions;
 using Fgs.Contracts.Audit;
 using Fgs.Contracts.Clients;
 using Fgs.Persistence.Abstractions;
@@ -9,7 +11,10 @@ using Fgs.Setup.Application.Features.Employees.Dtos;
 using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 using Fgs.MultiTenancy.Persistence;
 
@@ -27,6 +32,12 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
     private const string AuditRecordType = "SYSTEM";
     private const string FieldChangeEntryType = "FIELD_CHANGE";
     private const string StatusFieldName = "Status";
+    private const int EmployeeNumberSaveAttempts = 3;
+    private const string EmployeeNumberUniqueIndexName = "UX_FgsEmployee_TenantId_CompanyId_EmployeeNumber";
+    private const string TechCodeAlreadyExistsMessage = "A technician with this tech code already exists.";
+    private static readonly Regex ServerAssignedEmployeeNumberRegex = new(
+        "^EMP-[0-9]{6,}$",
+        RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
     private readonly FgsSetupDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
@@ -63,7 +74,6 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         var entity = new FgsEmployee
         {
             UserId = dto.UserId,
-            EmployeeNumber = dto.EmployeeNumber.Trim(),
             EmployeeTypeId = dto.EmployeeTypeId,
             DisplayName = dto.DisplayName.Trim(),
             LegalFirstName = TrimOrNull(dto.LegalFirstName),
@@ -89,7 +99,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
 
         _auditHelper.StampForCreate(entity);
         await _context.FgsEmployees.AddAsync(entity, cancellationToken);
-        await SaveChangesAsync(cancellationToken);
+        await SaveCreatedEmployeeAsync(entity, cancellationToken);
 
         entity.AddressId = await _locationWriteService.UpsertAsync(
             MasterEntityTypeCode,
@@ -109,7 +119,16 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
             if (dto.EmployeeTypeId == EmployeeTypeIds.Technician
                 && string.IsNullOrWhiteSpace(profile.TechCode))
             {
-                profile = profile with { TechCode = entity.EmployeeNumber.Trim() };
+                var techCode = entity.EmployeeNumber.Trim();
+                if (await TechCodeExistsAsync(techCode, cancellationToken))
+                {
+                    throw new ValidationException(
+                    [
+                        new ValidationFailure("TechnicianProfile.TechCode", TechCodeAlreadyExistsMessage)
+                    ]);
+                }
+
+                profile = profile with { TechCode = techCode };
             }
 
             await UpsertTechnicianProfileAsync(entity, profile, cancellationToken);
@@ -751,6 +770,101 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
             location.State,
             location.Country,
             location.PostalCode);
+
+    private async Task SaveCreatedEmployeeAsync(FgsEmployee entity, CancellationToken cancellationToken)
+    {
+        for (var attempt = 1; attempt <= EmployeeNumberSaveAttempts; attempt++)
+        {
+            entity.EmployeeNumber = await NextEmployeeNumberAsync(cancellationToken);
+            try
+            {
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                return;
+            }
+            catch (DbUpdateException ex) when (IsEmployeeNumberUniqueViolation(ex) && attempt < EmployeeNumberSaveAttempts)
+            {
+                // The number was stored by a concurrent create. Assign the next one and retry.
+            }
+            catch (DbUpdateException ex) when (IsEmployeeNumberUniqueViolation(ex) || IsUniqueViolation(ex))
+            {
+                throw new InvalidOperationException(
+                    "An employee with the same employee number, user link, or technician code already exists.",
+                    ex);
+            }
+        }
+    }
+
+    private async Task<string> NextEmployeeNumberAsync(CancellationToken cancellationToken)
+    {
+        var employeeNumbers = await _context.FgsEmployees
+            .AsNoTracking()
+            .Select(employee => employee.EmployeeNumber)
+            .ToListAsync(cancellationToken);
+
+        long highest = 0;
+        foreach (var employeeNumber in employeeNumbers)
+        {
+            if (TryParseServerEmployeeSequence(employeeNumber, out var sequence) && sequence > highest)
+            {
+                highest = sequence;
+            }
+        }
+
+        return FormatServerEmployeeNumber(highest + 1);
+    }
+
+    private static bool TryParseServerEmployeeSequence(string? employeeNumber, out long sequence)
+    {
+        sequence = 0;
+        if (string.IsNullOrWhiteSpace(employeeNumber))
+        {
+            return false;
+        }
+
+        var trimmed = employeeNumber.Trim();
+        if (!ServerAssignedEmployeeNumberRegex.IsMatch(trimmed))
+        {
+            return false;
+        }
+
+        return long.TryParse(
+            trimmed.AsSpan(4),
+            NumberStyles.None,
+            CultureInfo.InvariantCulture,
+            out sequence);
+    }
+
+    private static string FormatServerEmployeeNumber(long sequence) =>
+        "EMP-" + sequence.ToString("D6", CultureInfo.InvariantCulture);
+
+    private async Task<bool> TechCodeExistsAsync(string techCode, CancellationToken cancellationToken)
+    {
+        var techCodes = await _context.FgsEmployeeTechnicianProfiles
+            .AsNoTracking()
+            .Select(profile => profile.TechCode)
+            .ToListAsync(cancellationToken);
+
+        return techCodes.Any(code => string.Equals(code, techCode, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool IsEmployeeNumberUniqueViolation(DbUpdateException exception)
+    {
+        for (Exception? current = exception; current is not null; current = current.InnerException)
+        {
+            if (current is PostgresException postgres
+                && string.Equals(postgres.ConstraintName, EmployeeNumberUniqueIndexName, StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            if (current.Message.Contains(EmployeeNumberUniqueIndexName, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

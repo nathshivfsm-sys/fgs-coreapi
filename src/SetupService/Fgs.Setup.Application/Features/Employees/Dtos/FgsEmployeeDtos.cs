@@ -108,7 +108,7 @@ public sealed record FgsEmployeeLookupDto(
 
 public sealed record FgsEmployeeCreateDto(
     Guid? UserId,
-    string EmployeeNumber,
+    string? EmployeeNumber,
     short EmployeeTypeId,
     string DisplayName,
     string? LegalFirstName,

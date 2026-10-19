@@ -28,16 +28,18 @@ public sealed class FgsEmployeeValidatorTests
     }
 
     [Fact]
-    public async Task CreateValidator_WhenEmployeeNumberMissing_HasValidationError()
+    public async Task CreateValidator_WhenEmployeeNumberMissing_Passes()
     {
         var readRepository = new Mock<IFgsEmployeeReadRepository>();
         var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
-        var command = new CreateFgsEmployeeCommand(CreateDto(employeeNumber: ""));
 
-        var result = await validator.ValidateAsync(command);
+        var missing = await validator.ValidateAsync(new CreateFgsEmployeeCommand(CreateDto() with { EmployeeNumber = null }));
+        var blank = await validator.ValidateAsync(new CreateFgsEmployeeCommand(CreateDto(employeeNumber: "")));
 
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "Dto.EmployeeNumber");
+        missing.IsValid.Should().BeTrue();
+        blank.IsValid.Should().BeTrue();
+        missing.Errors.Should().NotContain(e => e.PropertyName == "Dto.EmployeeNumber");
+        blank.Errors.Should().NotContain(e => e.PropertyName == "Dto.EmployeeNumber");
     }
 
     [Fact]
@@ -54,34 +56,23 @@ public sealed class FgsEmployeeValidatorTests
     }
 
     [Fact]
-    public async Task CreateValidator_WhenDuplicateEmployeeNumber_HasValidationError()
+    public async Task CreateValidator_WhenDuplicateOrSpecialEmployeeNumber_Passes()
     {
         var readRepository = new Mock<IFgsEmployeeReadRepository>();
         readRepository
-            .Setup(r => r.ExistsByEmployeeNumberAsync("EMP-001", null, It.IsAny<CancellationToken>()))
+            .Setup(r => r.ExistsByEmployeeNumberAsync(It.IsAny<string>(), null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
-
         var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
-        var command = new CreateFgsEmployeeCommand(CreateDto());
 
-        var result = await validator.ValidateAsync(command);
+        var duplicate = await validator.ValidateAsync(new CreateFgsEmployeeCommand(CreateDto()));
+        var specialCharacters = await validator.ValidateAsync(
+            new CreateFgsEmployeeCommand(CreateDto(employeeNumber: "EMP@001")));
 
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("employee number", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Fact]
-    public async Task CreateValidator_WhenEmployeeNumberHasSpecialCharacters_HasValidationError()
-    {
-        var readRepository = new Mock<IFgsEmployeeReadRepository>();
-        var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
-        var command = new CreateFgsEmployeeCommand(CreateDto(employeeNumber: "EMP@001"));
-
-        var result = await validator.ValidateAsync(command);
-
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e =>
-            e.ErrorMessage.Contains("special characters", StringComparison.OrdinalIgnoreCase));
+        duplicate.IsValid.Should().BeTrue();
+        specialCharacters.IsValid.Should().BeTrue();
+        readRepository.Verify(
+            r => r.ExistsByEmployeeNumberAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -98,9 +89,7 @@ public sealed class FgsEmployeeValidatorTests
                 TechnicianProfile = CreateTechnicianProfile() with { TechCode = "  T@001  " }
             }));
 
-        employeeNumberResult.IsValid.Should().BeFalse();
-        employeeNumberResult.Errors.Should().Contain(e =>
-            e.ErrorMessage.Contains("special characters", StringComparison.OrdinalIgnoreCase));
+        employeeNumberResult.IsValid.Should().BeTrue();
         techCodeResult.IsValid.Should().BeFalse();
         techCodeResult.Errors.Should().Contain(e =>
             e.ErrorMessage.Contains("special characters", StringComparison.OrdinalIgnoreCase));
@@ -154,7 +143,7 @@ public sealed class FgsEmployeeValidatorTests
     }
 
     [Fact]
-    public async Task CreateValidator_WhenBlankTechCodeAndEmployeeNumberExceedsTechCodeLength_HasValidationError()
+    public async Task CreateValidator_WhenBlankTechCode_PassesWithoutCheckingEmployeeNumber()
     {
         var readRepository = new Mock<IFgsEmployeeReadRepository>();
         var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
@@ -165,9 +154,7 @@ public sealed class FgsEmployeeValidatorTests
 
         var result = await validator.ValidateAsync(command);
 
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e =>
-            e.ErrorMessage.Contains("25 characters", StringComparison.OrdinalIgnoreCase));
+        result.IsValid.Should().BeTrue();
     }
 
     [Fact]
@@ -206,6 +193,49 @@ public sealed class FgsEmployeeValidatorTests
         var result = await validator.ValidateAsync(command);
 
         result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateValidator_WhenEmployeeNumberMissing_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new UpdateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new UpdateFgsEmployeeCommand(5, CreateOfficeUpdateDto(employeeNumber: ""));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Dto.EmployeeNumber");
+    }
+
+    [Fact]
+    public async Task UpdateValidator_WhenDuplicateEmployeeNumber_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        readRepository
+            .Setup(r => r.ExistsByEmployeeNumberAsync("EMP-001", 5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        var validator = new UpdateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new UpdateFgsEmployeeCommand(5, CreateOfficeUpdateDto());
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("employee number", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task UpdateValidator_WhenEmployeeNumberHasSpecialCharacters_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new UpdateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new UpdateFgsEmployeeCommand(5, CreateOfficeUpdateDto(employeeNumber: "EMP@001"));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e =>
+            e.ErrorMessage.Contains("special characters", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -365,6 +395,35 @@ public sealed class FgsEmployeeValidatorTests
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e =>
             e.ErrorMessage.Contains("special characters", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task PatchValidator_WhenEmployeeNumberMissing_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new PatchFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new PatchFgsEmployeeCommand(5, CreateEmployeeNumberPatch(""));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Dto.EmployeeNumber");
+    }
+
+    [Fact]
+    public async Task PatchValidator_WhenDuplicateEmployeeNumber_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        readRepository
+            .Setup(r => r.ExistsByEmployeeNumberAsync("EMP-001", 5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        var validator = new PatchFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new PatchFgsEmployeeCommand(5, CreateEmployeeNumberPatch("EMP-001"));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("employee number", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -583,6 +642,61 @@ public sealed class FgsEmployeeValidatorTests
 
         result.IsValid.Should().BeTrue();
     }
+
+    private static FgsEmployeeUpdateDto CreateOfficeUpdateDto(string employeeNumber = "EMP-001") =>
+        new(
+            null,
+            employeeNumber,
+            EmployeeTypeIds.Office,
+            "Alex Office",
+            "Alex",
+            null,
+            "Office",
+            null,
+            new DateOnly(2026, 1, 15),
+            null,
+            EmployeeStatusIds.Active,
+            null,
+            "alex@example.com",
+            null,
+            "+15551234567",
+            CreateAddress(),
+            null,
+            40m,
+            60m,
+            80m,
+            LaborBurdenTypeIds.Amount,
+            10m,
+            false,
+            null);
+
+    private static FgsEmployeePatchDto CreateEmployeeNumberPatch(string? employeeNumber) =>
+        new(
+            null,
+            employeeNumber,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     private static FgsEmployeeCreateDto CreateDto(
         string employeeNumber = "EMP-001",

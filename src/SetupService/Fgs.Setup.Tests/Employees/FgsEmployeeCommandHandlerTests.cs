@@ -1,3 +1,4 @@
+using FluentValidation;
 using Fgs.Contracts.Api;
 using Fgs.Contracts.Audit;
 using Fgs.Contracts.Clients;
@@ -192,9 +193,9 @@ public sealed class FgsEmployeeCommandHandlerTests
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
-        response.Data!.EmployeeNumber.Should().Be("EMP-100");
-        response.Data.TechnicianProfile!.TechCode.Should().Be("EMP-100");
-        context.FgsEmployeeTechnicianProfiles.Single().TechCode.Should().Be("EMP-100");
+        response.Data!.EmployeeNumber.Should().Be("EMP-000001");
+        response.Data.TechnicianProfile!.TechCode.Should().Be("EMP-000001");
+        context.FgsEmployeeTechnicianProfiles.Single().TechCode.Should().Be("EMP-000001");
     }
 
     [Fact]
@@ -217,7 +218,7 @@ public sealed class FgsEmployeeCommandHandlerTests
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
-        response.Data!.EmployeeNumber.Should().Be("EMP-001");
+        response.Data!.EmployeeNumber.Should().Be("EMP-000001");
         response.Data.TechnicianProfile!.TechCode.Should().Be("T-001");
     }
 
@@ -512,13 +513,139 @@ public sealed class FgsEmployeeCommandHandlerTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task CreateHandler_WhenEmployeeNumberMissingOrArbitrary_AssignsSequencePerCompany()
+    {
+        var databaseName = Guid.NewGuid().ToString();
+        await using var context = await CreateContextAsync(databaseName: databaseName);
+        await SeedMasterEntityTypeAsync(context);
+        var writeService = CreateWriteService(context);
+
+        var missing = await writeService.CreateAsync(
+            CreateOfficeDto() with { EmployeeNumber = null },
+            CancellationToken.None);
+        var arbitrary = await writeService.CreateAsync(
+            CreateOfficeDto() with
+            {
+                EmployeeNumber = "EMP-200",
+                OfficeEmail = "second.office@example.com"
+            },
+            CancellationToken.None);
+
+        missing.EmployeeNumber.Should().Be("EMP-000001");
+        arbitrary.EmployeeNumber.Should().Be("EMP-000002");
+
+        await using var otherCompany = await CreateContextAsync(companyId: CompanyId + 1, databaseName: databaseName);
+        var otherWriteService = CreateWriteService(otherCompany, CompanyId + 1);
+        var restarted = await otherWriteService.CreateAsync(
+            CreateOfficeDto() with { OfficeEmail = "other.company@example.com" },
+            CancellationToken.None);
+
+        restarted.EmployeeNumber.Should().Be("EMP-000001");
+    }
+
+    [Fact]
+    public async Task CreateHandler_WhenMatchingNumberExists_AssignsNextAndIgnoresNonMatching()
+    {
+        await using var terminatedContext = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(terminatedContext);
+        await SeedEmployeeAsync(terminatedContext, "EMP-000005", EmployeeStatusIds.Terminated);
+        await SeedEmployeeAsync(terminatedContext, "EMP-200", EmployeeStatusIds.Active);
+        await SeedEmployeeAsync(terminatedContext, "EMP-000009", EmployeeStatusIds.Active, companyId: CompanyId + 1);
+
+        var nextAfterTerminated = await CreateWriteService(terminatedContext).CreateAsync(
+            CreateOfficeDto(),
+            CancellationToken.None);
+
+        nextAfterTerminated.EmployeeNumber.Should().Be("EMP-000006");
+
+        await using var inactiveContext = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(inactiveContext);
+        await SeedEmployeeAsync(inactiveContext, "EMP-000005", EmployeeStatusIds.Inactive);
+
+        var nextAfterInactive = await CreateWriteService(inactiveContext).CreateAsync(
+            CreateOfficeDto(),
+            CancellationToken.None);
+
+        nextAfterInactive.EmployeeNumber.Should().Be("EMP-000006");
+    }
+
+    [Fact]
+    public async Task CreateHandler_WhenGeneratedTechCodeAlreadyExists_ThrowsValidationException()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(context);
+        var existing = new FgsEmployee
+        {
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            EmployeeNumber = "EMP-200",
+            EmployeeTypeId = EmployeeTypeIds.Technician,
+            DisplayName = "Existing Tech",
+            StatusId = EmployeeStatusIds.Active,
+            CreatedOn = DateTime.UtcNow,
+            CreatedBy = 1
+        };
+        context.FgsEmployees.Add(existing);
+        await context.SaveChangesAsync();
+        context.FgsEmployeeTechnicianProfiles.Add(new FgsEmployeeTechnicianProfile
+        {
+            EmployeeId = existing.Id,
+            TenantId = TenantId,
+            CompanyId = CompanyId,
+            TechCode = "EMP-000001",
+            DailyCapacityHours = 8m,
+            StartLocationTypeId = StartLocationTypeIds.Office,
+            CreatedOn = DateTime.UtcNow,
+            CreatedBy = 1
+        });
+        await context.SaveChangesAsync();
+
+        var act = async () => await CreateWriteService(context).CreateAsync(
+            CreateDto() with
+            {
+                EmployeeNumber = null,
+                OfficeEmail = "new.tech@example.com",
+                TechnicianProfile = CreateTechnicianProfile() with { TechCode = "   " }
+            },
+            CancellationToken.None);
+
+        var exception = await act.Should().ThrowAsync<ValidationException>();
+        exception.Which.Errors.Should().Contain(e =>
+            e.ErrorMessage == "A technician with this tech code already exists.");
+        context.FgsEmployeeTechnicianProfiles.Should().ContainSingle(p => p.TechCode == "EMP-000001");
+    }
+
+    [Fact]
+    public async Task UpdateAndPatch_StoreRequestedEmployeeNumber()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(context);
+        var writeService = CreateWriteService(context);
+        var created = await writeService.CreateAsync(CreateOfficeDto(), CancellationToken.None);
+        created.EmployeeNumber.Should().Be("EMP-000001");
+
+        var updated = await writeService.UpdateAsync(
+            created.Id,
+            CreateOfficeUpdateDto() with { EmployeeNumber = "  EMP-KEEP  " },
+            CancellationToken.None);
+        var patched = await writeService.PatchAsync(
+            created.Id,
+            CreateStatusPatch(employeeNumber: "  EMP-PATCH  "),
+            CancellationToken.None);
+
+        updated.EmployeeNumber.Should().Be("EMP-KEEP");
+        patched.EmployeeNumber.Should().Be("EMP-PATCH");
+    }
+
     private static FgsEmployeePatchDto CreateStatusPatch(
         short? statusId = null,
         bool? isActive = null,
-        string? displayName = null) =>
+        string? displayName = null,
+        string? employeeNumber = null) =>
         new(
             UserId: null,
-            EmployeeNumber: null,
+            EmployeeNumber: employeeNumber,
             EmployeeTypeId: null,
             DisplayName: displayName,
             LegalFirstName: null,
@@ -726,16 +853,18 @@ public sealed class FgsEmployeeCommandHandlerTests
             Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId }
         };
 
-    private static FgsEmployeeWriteService CreateWriteService(FgsSetupDbContext context)
+    private static FgsEmployeeWriteService CreateWriteService(
+        FgsSetupDbContext context,
+        long companyId = CompanyId)
     {
         var userContext = new Mock<IFgsUserContext>();
         userContext.SetupGet(x => x.TenantId).Returns(TenantId);
-        userContext.SetupGet(x => x.CompanyId).Returns(CompanyId);
+        userContext.SetupGet(x => x.CompanyId).Returns(companyId);
         userContext.SetupGet(x => x.UserId).Returns(Guid.Parse("11111111-1111-1111-1111-111111111111"));
 
         var tenantAccessor = new TestTenantContextAccessor
         {
-            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId }
+            Current = new TenantContext { TenantId = TenantId, CompanyId = companyId }
         };
 
         var auditHelper = new SetupEntityAuditHelper(
@@ -829,15 +958,37 @@ public sealed class FgsEmployeeCommandHandlerTests
         await context.SaveChangesAsync();
     }
 
-    private static async Task<FgsSetupDbContext> CreateContextAsync()
+    private static async Task SeedEmployeeAsync(
+        FgsSetupDbContext context,
+        string employeeNumber,
+        short statusId,
+        long companyId = CompanyId)
+    {
+        context.FgsEmployees.Add(new FgsEmployee
+        {
+            TenantId = TenantId,
+            CompanyId = companyId,
+            EmployeeNumber = employeeNumber,
+            EmployeeTypeId = EmployeeTypeIds.Office,
+            DisplayName = employeeNumber,
+            StatusId = statusId,
+            CreatedOn = DateTime.UtcNow,
+            CreatedBy = 1
+        });
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task<FgsSetupDbContext> CreateContextAsync(
+        long companyId = CompanyId,
+        string? databaseName = null)
     {
         var accessor = new TestTenantContextAccessor
         {
-            Current = new TenantContext { TenantId = TenantId, CompanyId = CompanyId }
+            Current = new TenantContext { TenantId = TenantId, CompanyId = companyId }
         };
 
         var options = new DbContextOptionsBuilder<FgsSetupDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(databaseName ?? Guid.NewGuid().ToString())
             .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options;
 

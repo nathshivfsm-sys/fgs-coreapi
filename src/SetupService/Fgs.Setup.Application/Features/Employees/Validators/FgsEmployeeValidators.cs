@@ -21,16 +21,6 @@ public sealed class CreateFgsEmployeeCommandValidator : AbstractValidator<Create
 
         When(x => x.Dto is not null, () =>
         {
-            RuleFor(x => x.Dto.EmployeeNumber).NotEmpty().MaximumLength(50);
-            RuleFor(x => x.Dto.EmployeeNumber)
-                .Must(EmployeeCodeCharacters.IsAllowed)
-                .When(x => !string.IsNullOrWhiteSpace(x.Dto.EmployeeNumber))
-                .WithMessage("Employee number cannot contain special characters.");
-            RuleFor(x => x.Dto.EmployeeNumber).MustAsync(async (_, employeeNumber, cancellationToken) =>
-                    string.IsNullOrWhiteSpace(employeeNumber)
-                    || !await readRepository.ExistsByEmployeeNumberAsync(employeeNumber.Trim(), null, cancellationToken))
-                .WithMessage("An employee with this employee number already exists.");
-
             RuleFor(x => x.Dto.EmployeeTypeId)
                 .Must(id => id is EmployeeTypeIds.Office or EmployeeTypeIds.Technician)
                 .WithMessage("EmployeeTypeId must be Office (1) or Technician (2).");
@@ -85,31 +75,12 @@ public sealed class CreateFgsEmployeeCommandValidator : AbstractValidator<Create
                 .When(x => x.Dto.EmployeeTypeId == EmployeeTypeIds.Technician)
                 .WithMessage("Technician profile is required when EmployeeTypeId is Technician.");
 
-            When(x => x.Dto.TechnicianProfile is not null
-                && UsesEmployeeNumberAsTechCode(x.Dto), () =>
-            {
-                RuleFor(x => x.Dto.TechnicianProfile!)
-                    .SetValidator(new EmployeeTechnicianProfileWriteDtoValidator(
-                        readRepository,
-                        excludeEmployeeId: null,
-                        requireExplicitTechCode: false)!);
-
-                RuleFor(x => x.Dto.EmployeeNumber)
-                    .Must(number => !string.IsNullOrWhiteSpace(number) && number.Trim().Length <= 25)
-                    .WithMessage("Employee number must be 25 characters or fewer when it is used as the tech code.");
-                RuleFor(x => x.Dto.EmployeeNumber)
-                    .Must(number => !string.IsNullOrWhiteSpace(number) && EmployeeCodeCharacters.IsAllowed(number))
-                    .WithMessage("Tech code cannot contain special characters.");
-                RuleFor(x => x.Dto.EmployeeNumber)
-                    .MustAsync(async (_, employeeNumber, cancellationToken) =>
-                        string.IsNullOrWhiteSpace(employeeNumber)
-                        || !await readRepository.ExistsByTechCodeAsync(employeeNumber.Trim(), null, cancellationToken))
-                    .WithMessage("A technician with this tech code already exists.");
-            });
-
             RuleFor(x => x.Dto.TechnicianProfile!)
-                .SetValidator(new EmployeeTechnicianProfileWriteDtoValidator(readRepository, excludeEmployeeId: null)!)
-                .When(x => x.Dto.TechnicianProfile is not null && !UsesEmployeeNumberAsTechCode(x.Dto));
+                .SetValidator(command => new EmployeeTechnicianProfileWriteDtoValidator(
+                    readRepository,
+                    excludeEmployeeId: null,
+                    requireExplicitTechCode: !UsesEmployeeNumberAsTechCode(command.Dto)))
+                .When(x => x.Dto.TechnicianProfile is not null);
         });
     }
 
