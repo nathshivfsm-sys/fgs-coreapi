@@ -19,7 +19,7 @@ public class FgsEmployeeTechnicianProfile : ITenantCompanyScoped
 
     public string? TechName { get; set; }
 
-    public bool CanBeScheduled { get; set; } = true;
+    public bool CanBeScheduled { get; set; }
 
     public decimal DailyCapacityHours { get; set; } = 8.00m;
 

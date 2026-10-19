@@ -9,9 +9,9 @@ internal sealed class FgsEmployeeSummaryRow
     public string EmployeeNumber { get; set; } = null!;
     public short EmployeeTypeId { get; set; }
     public string DisplayName { get; set; } = null!;
-    public string LegalFirstName { get; set; } = null!;
+    public string? LegalFirstName { get; set; }
     public string? LegalMiddleName { get; set; }
-    public string LegalLastName { get; set; } = null!;
+    public string? LegalLastName { get; set; }
     public DateOnly? BirthDate { get; set; }
     public DateOnly? HireDate { get; set; }
     public DateOnly? TerminationDate { get; set; }
@@ -76,9 +76,9 @@ internal sealed class FgsEmployeeDetailRow
     public string EmployeeNumber { get; set; } = null!;
     public short EmployeeTypeId { get; set; }
     public string DisplayName { get; set; } = null!;
-    public string LegalFirstName { get; set; } = null!;
+    public string? LegalFirstName { get; set; }
     public string? LegalMiddleName { get; set; }
-    public string LegalLastName { get; set; } = null!;
+    public string? LegalLastName { get; set; }
     public DateOnly? BirthDate { get; set; }
     public DateOnly? HireDate { get; set; }
     public DateOnly? TerminationDate { get; set; }
@@ -176,7 +176,7 @@ internal sealed class FgsEmployeeDetailRow
             profileId,
             TechCode,
             TechName,
-            CanBeScheduled ?? true,
+            CanBeScheduled ?? false,
             DailyCapacityHours ?? 8.00m,
             DispatchZoneId,
             StartLocationTypeId ?? 0,

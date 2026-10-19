@@ -28,7 +28,7 @@ internal sealed class FgsEmployeeTechnicianProfileConfiguration : IEntityTypeCon
             .HasComment("Required unique technician code used on dispatch boards, whiteboards, reports, scheduling screens, mobile applications, and integrations.");
         entity.Property(e => e.TechName).HasMaxLength(100)
             .HasComment("Technician name displayed to customers in appointment reminders, technician tracking pages, work orders, invoices, and customer communications.");
-        entity.Property(e => e.CanBeScheduled).HasDefaultValue(true)
+        entity.Property(e => e.CanBeScheduled).HasDefaultValue(false)
             .HasComment("Indicates whether the technician can receive appointments and appear on the dispatch board.");
         entity.Property(e => e.DailyCapacityHours).HasColumnType("numeric(5,2)").HasDefaultValue(8.00m)
             .HasComment("Number of labor hours available per day. Used for whiteboard capacity calculations, scheduling, utilization reporting, and workforce planning.");

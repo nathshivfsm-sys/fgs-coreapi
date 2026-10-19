@@ -1,6 +1,7 @@
 using Fgs.Setup.Application.Abstractions.Employees;
 using Fgs.Setup.Application.Common.Locations;
 using Fgs.Setup.Application.Features.Employees.Commands.CreateFgsEmployee;
+using Fgs.Setup.Application.Features.Employees.Commands.PatchFgsEmployee;
 using Fgs.Setup.Application.Features.Employees.Commands.UpdateFgsEmployee;
 using Fgs.Setup.Application.Features.Employees.Dtos;
 using Fgs.Setup.Application.Features.Employees.Validators;
@@ -75,6 +76,289 @@ public sealed class FgsEmployeeValidatorTests
         var readRepository = new Mock<IFgsEmployeeReadRepository>();
         var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
         var command = new CreateFgsEmployeeCommand(CreateDto(employeeNumber: "EMP@001"));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e =>
+            e.ErrorMessage.Contains("special characters", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenCodeStillHasSpecialCharactersAfterTrim_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
+
+        var employeeNumberResult = await validator.ValidateAsync(
+            new CreateFgsEmployeeCommand(CreateDto(employeeNumber: "  EMP@001  ")));
+        var techCodeResult = await validator.ValidateAsync(
+            new CreateFgsEmployeeCommand(CreateDto() with
+            {
+                TechnicianProfile = CreateTechnicianProfile() with { TechCode = "  T@001  " }
+            }));
+
+        employeeNumberResult.IsValid.Should().BeFalse();
+        employeeNumberResult.Errors.Should().Contain(e =>
+            e.ErrorMessage.Contains("special characters", StringComparison.OrdinalIgnoreCase));
+        techCodeResult.IsValid.Should().BeFalse();
+        techCodeResult.Errors.Should().Contain(e =>
+            e.ErrorMessage.Contains("special characters", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenCodeHasOnlyLeadingOrTrailingSpaces_Passes()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new CreateFgsEmployeeCommand(CreateDto(employeeNumber: "  EMP-001  ") with
+        {
+            TechnicianProfile = CreateTechnicianProfile() with { TechCode = "  T-001  " }
+        });
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenLegalNamesNull_Passes()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new CreateFgsEmployeeCommand(CreateDto() with
+        {
+            LegalFirstName = null,
+            LegalMiddleName = null,
+            LegalLastName = null
+        });
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenBlankTechCodeUsesEmployeeNumber_Passes()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new CreateFgsEmployeeCommand(CreateDto(employeeNumber: "  EMP-100  ") with
+        {
+            TechnicianProfile = CreateTechnicianProfile() with { TechCode = "   " }
+        });
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CreateValidator_WhenBlankTechCodeAndEmployeeNumberExceedsTechCodeLength_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new CreateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new CreateFgsEmployeeCommand(CreateDto(employeeNumber: "  " + new string('A', 26) + "  ") with
+        {
+            TechnicianProfile = CreateTechnicianProfile() with { TechCode = null }
+        });
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e =>
+            e.ErrorMessage.Contains("25 characters", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task UpdateValidator_WhenEmployeeNumberHasOnlyLeadingOrTrailingSpaces_Passes()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new UpdateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new UpdateFgsEmployeeCommand(
+            5,
+            new FgsEmployeeUpdateDto(
+                null,
+                "  EMP-001  ",
+                EmployeeTypeIds.Office,
+                "Alex Office",
+                null,
+                "   ",
+                null,
+                null,
+                new DateOnly(2026, 1, 15),
+                null,
+                EmployeeStatusIds.Active,
+                null,
+                "alex@example.com",
+                null,
+                "+15551234567",
+                CreateAddress(),
+                null,
+                40m,
+                60m,
+                80m,
+                LaborBurdenTypeIds.Amount,
+                10m,
+                false,
+                null));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateValidator_WhenTechCodeHasOnlyLeadingOrTrailingSpaces_Passes()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new UpdateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new UpdateFgsEmployeeCommand(
+            5,
+            new FgsEmployeeUpdateDto(
+                null,
+                "  EMP-001  ",
+                EmployeeTypeIds.Technician,
+                "Alex Tech",
+                null,
+                null,
+                null,
+                null,
+                new DateOnly(2026, 1, 15),
+                null,
+                EmployeeStatusIds.Active,
+                null,
+                "alex@example.com",
+                null,
+                "+15551234567",
+                CreateAddress(),
+                null,
+                40m,
+                60m,
+                80m,
+                null,
+                null,
+                false,
+                null,
+                CreateTechnicianProfile() with { TechCode = "  T-001  " }));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateValidator_WhenTechCodeBlank_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new UpdateFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new UpdateFgsEmployeeCommand(
+            5,
+            new FgsEmployeeUpdateDto(
+                null,
+                "EMP-001",
+                EmployeeTypeIds.Technician,
+                "Alex Tech",
+                "Alex",
+                null,
+                "Tech",
+                null,
+                new DateOnly(2026, 1, 15),
+                null,
+                EmployeeStatusIds.Active,
+                null,
+                "alex@example.com",
+                null,
+                "+15551234567",
+                CreateAddress(),
+                null,
+                40m,
+                60m,
+                80m,
+                null,
+                null,
+                false,
+                null,
+                CreateTechnicianProfile() with { TechCode = "   " }));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Dto.TechnicianProfile.TechCode");
+    }
+
+    [Fact]
+    public async Task PatchValidator_WhenCodesHaveOnlyLeadingOrTrailingSpaces_Passes()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new PatchFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new PatchFgsEmployeeCommand(
+            5,
+            new FgsEmployeePatchDto(
+                null,
+                "  EMP-001  ",
+                EmployeeTypeIds.Technician,
+                null,
+                "   ",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                CreateTechnicianProfile() with { TechCode = "  T-001  " }));
+
+        var result = await validator.ValidateAsync(command);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task PatchValidator_WhenEmployeeNumberStillHasSpecialCharactersAfterTrim_HasValidationError()
+    {
+        var readRepository = new Mock<IFgsEmployeeReadRepository>();
+        var validator = new PatchFgsEmployeeCommandValidator(readRepository.Object);
+        var command = new PatchFgsEmployeeCommand(
+            5,
+            new FgsEmployeePatchDto(
+                null,
+                "  EMP@001  ",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null));
 
         var result = await validator.ValidateAsync(command);
 

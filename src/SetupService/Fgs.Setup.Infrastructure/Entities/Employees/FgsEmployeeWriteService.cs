@@ -66,9 +66,9 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
             EmployeeNumber = dto.EmployeeNumber.Trim(),
             EmployeeTypeId = dto.EmployeeTypeId,
             DisplayName = dto.DisplayName.Trim(),
-            LegalFirstName = dto.LegalFirstName.Trim(),
+            LegalFirstName = TrimOrNull(dto.LegalFirstName),
             LegalMiddleName = TrimOrNull(dto.LegalMiddleName),
-            LegalLastName = dto.LegalLastName.Trim(),
+            LegalLastName = TrimOrNull(dto.LegalLastName),
             BirthDate = dto.BirthDate,
             HireDate = dto.HireDate,
             TerminationDate = dto.TerminationDate,
@@ -105,7 +105,14 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
                 throw new InvalidOperationException("Technician profile is required when EmployeeTypeId is Technician.");
             }
 
-            await UpsertTechnicianProfileAsync(entity, dto.TechnicianProfile, cancellationToken);
+            var profile = dto.TechnicianProfile;
+            if (dto.EmployeeTypeId == EmployeeTypeIds.Technician
+                && string.IsNullOrWhiteSpace(profile.TechCode))
+            {
+                profile = profile with { TechCode = entity.EmployeeNumber.Trim() };
+            }
+
+            await UpsertTechnicianProfileAsync(entity, profile, cancellationToken);
         }
 
         await EnqueueEmployeeAuditAsync(
@@ -135,9 +142,9 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         entity.EmployeeNumber = dto.EmployeeNumber.Trim();
         entity.EmployeeTypeId = dto.EmployeeTypeId;
         entity.DisplayName = dto.DisplayName.Trim();
-        entity.LegalFirstName = dto.LegalFirstName.Trim();
+        entity.LegalFirstName = TrimOrNull(dto.LegalFirstName);
         entity.LegalMiddleName = TrimOrNull(dto.LegalMiddleName);
-        entity.LegalLastName = dto.LegalLastName.Trim();
+        entity.LegalLastName = TrimOrNull(dto.LegalLastName);
         entity.BirthDate = dto.BirthDate;
         entity.HireDate = dto.HireDate;
         entity.TerminationDate = dto.TerminationDate;
@@ -206,7 +213,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
 
         if (dto.LegalFirstName is not null)
         {
-            entity.LegalFirstName = dto.LegalFirstName.Trim();
+            entity.LegalFirstName = TrimOrNull(dto.LegalFirstName);
         }
 
         if (dto.LegalMiddleName is not null)
@@ -216,7 +223,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
 
         if (dto.LegalLastName is not null)
         {
-            entity.LegalLastName = dto.LegalLastName.Trim();
+            entity.LegalLastName = TrimOrNull(dto.LegalLastName);
         }
 
         if (dto.BirthDate.HasValue)
@@ -646,7 +653,7 @@ public sealed class FgsEmployeeWriteService : IFgsEmployeeWriteService
         FgsEmployeeTechnicianProfile profile,
         FgsEmployeeTechnicianProfileWriteDto dto)
     {
-        profile.TechCode = dto.TechCode.Trim();
+        profile.TechCode = dto.TechCode?.Trim() ?? string.Empty;
         profile.TechName = TrimOrNull(dto.TechName);
         profile.CanBeScheduled = dto.CanBeScheduled;
         profile.DailyCapacityHours = dto.DailyCapacityHours ?? DefaultDailyCapacityHours;

@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Fgs.Foundation.Validation;
 using Fgs.Setup.Application.Abstractions.Employees;
 using Fgs.Setup.Application.Common.Locations;
@@ -22,12 +23,12 @@ public sealed class CreateFgsEmployeeCommandValidator : AbstractValidator<Create
         {
             RuleFor(x => x.Dto.EmployeeNumber).NotEmpty().MaximumLength(50);
             RuleFor(x => x.Dto.EmployeeNumber)
-                .Matches(@"^[A-Za-z0-9_-]+$")
+                .Must(EmployeeCodeCharacters.IsAllowed)
                 .When(x => !string.IsNullOrWhiteSpace(x.Dto.EmployeeNumber))
                 .WithMessage("Employee number cannot contain special characters.");
             RuleFor(x => x.Dto.EmployeeNumber).MustAsync(async (_, employeeNumber, cancellationToken) =>
                     string.IsNullOrWhiteSpace(employeeNumber)
-                    || !await readRepository.ExistsByEmployeeNumberAsync(employeeNumber, null, cancellationToken))
+                    || !await readRepository.ExistsByEmployeeNumberAsync(employeeNumber.Trim(), null, cancellationToken))
                 .WithMessage("An employee with this employee number already exists.");
 
             RuleFor(x => x.Dto.EmployeeTypeId)
@@ -35,9 +36,9 @@ public sealed class CreateFgsEmployeeCommandValidator : AbstractValidator<Create
                 .WithMessage("EmployeeTypeId must be Office (1) or Technician (2).");
 
             RuleFor(x => x.Dto.DisplayName).NotEmpty().MaximumLength(200);
-            RuleFor(x => x.Dto.LegalFirstName).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Dto.LegalFirstName).MaximumLength(100).When(x => x.Dto.LegalFirstName is not null);
             RuleFor(x => x.Dto.LegalMiddleName).MaximumLength(100).When(x => x.Dto.LegalMiddleName is not null);
-            RuleFor(x => x.Dto.LegalLastName).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Dto.LegalLastName).MaximumLength(100).When(x => x.Dto.LegalLastName is not null);
 
             RuleFor(x => x.Dto.StatusId)
                 .Must(id => id is EmployeeStatusIds.Active
@@ -84,11 +85,38 @@ public sealed class CreateFgsEmployeeCommandValidator : AbstractValidator<Create
                 .When(x => x.Dto.EmployeeTypeId == EmployeeTypeIds.Technician)
                 .WithMessage("Technician profile is required when EmployeeTypeId is Technician.");
 
+            When(x => x.Dto.TechnicianProfile is not null
+                && UsesEmployeeNumberAsTechCode(x.Dto), () =>
+            {
+                RuleFor(x => x.Dto.TechnicianProfile!)
+                    .SetValidator(new EmployeeTechnicianProfileWriteDtoValidator(
+                        readRepository,
+                        excludeEmployeeId: null,
+                        requireExplicitTechCode: false)!);
+
+                RuleFor(x => x.Dto.EmployeeNumber)
+                    .Must(number => !string.IsNullOrWhiteSpace(number) && number.Trim().Length <= 25)
+                    .WithMessage("Employee number must be 25 characters or fewer when it is used as the tech code.");
+                RuleFor(x => x.Dto.EmployeeNumber)
+                    .Must(number => !string.IsNullOrWhiteSpace(number) && EmployeeCodeCharacters.IsAllowed(number))
+                    .WithMessage("Tech code cannot contain special characters.");
+                RuleFor(x => x.Dto.EmployeeNumber)
+                    .MustAsync(async (_, employeeNumber, cancellationToken) =>
+                        string.IsNullOrWhiteSpace(employeeNumber)
+                        || !await readRepository.ExistsByTechCodeAsync(employeeNumber.Trim(), null, cancellationToken))
+                    .WithMessage("A technician with this tech code already exists.");
+            });
+
             RuleFor(x => x.Dto.TechnicianProfile!)
                 .SetValidator(new EmployeeTechnicianProfileWriteDtoValidator(readRepository, excludeEmployeeId: null)!)
-                .When(x => x.Dto.TechnicianProfile is not null);
+                .When(x => x.Dto.TechnicianProfile is not null && !UsesEmployeeNumberAsTechCode(x.Dto));
         });
     }
+
+    private static bool UsesEmployeeNumberAsTechCode(FgsEmployeeCreateDto dto) =>
+        dto.EmployeeTypeId == EmployeeTypeIds.Technician
+        && dto.TechnicianProfile is not null
+        && string.IsNullOrWhiteSpace(dto.TechnicianProfile.TechCode);
 }
 
 public sealed class UpdateFgsEmployeeCommandValidator : AbstractValidator<UpdateFgsEmployeeCommand>
@@ -104,12 +132,12 @@ public sealed class UpdateFgsEmployeeCommandValidator : AbstractValidator<Update
         {
             RuleFor(x => x.Dto.EmployeeNumber).NotEmpty().MaximumLength(50);
             RuleFor(x => x.Dto.EmployeeNumber)
-                .Matches(@"^[A-Za-z0-9_-]+$")
+                .Must(EmployeeCodeCharacters.IsAllowed)
                 .When(x => !string.IsNullOrWhiteSpace(x.Dto.EmployeeNumber))
                 .WithMessage("Employee number cannot contain special characters.");
             RuleFor(x => x.Dto.EmployeeNumber).MustAsync(async (command, employeeNumber, cancellationToken) =>
                     string.IsNullOrWhiteSpace(employeeNumber)
-                    || !await readRepository.ExistsByEmployeeNumberAsync(employeeNumber, command.Id, cancellationToken))
+                    || !await readRepository.ExistsByEmployeeNumberAsync(employeeNumber.Trim(), command.Id, cancellationToken))
                 .WithMessage("An employee with this employee number already exists.");
 
             RuleFor(x => x.Dto.EmployeeTypeId)
@@ -117,9 +145,9 @@ public sealed class UpdateFgsEmployeeCommandValidator : AbstractValidator<Update
                 .WithMessage("EmployeeTypeId must be Office (1) or Technician (2).");
 
             RuleFor(x => x.Dto.DisplayName).NotEmpty().MaximumLength(200);
-            RuleFor(x => x.Dto.LegalFirstName).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Dto.LegalFirstName).MaximumLength(100).When(x => x.Dto.LegalFirstName is not null);
             RuleFor(x => x.Dto.LegalMiddleName).MaximumLength(100).When(x => x.Dto.LegalMiddleName is not null);
-            RuleFor(x => x.Dto.LegalLastName).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Dto.LegalLastName).MaximumLength(100).When(x => x.Dto.LegalLastName is not null);
 
             RuleFor(x => x.Dto.StatusId)
                 .Must(id => id is EmployeeStatusIds.Active
@@ -189,13 +217,13 @@ public sealed class PatchFgsEmployeeCommandValidator : AbstractValidator<PatchFg
         {
             RuleFor(x => x.Dto.EmployeeNumber).NotEmpty().MaximumLength(50).When(x => x.Dto.EmployeeNumber is not null);
             RuleFor(x => x.Dto.EmployeeNumber)
-                .Matches(@"^[A-Za-z0-9_-]+$")
+                .Must(EmployeeCodeCharacters.IsAllowed)
                 .When(x => !string.IsNullOrWhiteSpace(x.Dto.EmployeeNumber))
                 .WithMessage("Employee number cannot contain special characters.");
             RuleFor(x => x.Dto.EmployeeNumber).MustAsync(async (command, employeeNumber, cancellationToken) =>
                     employeeNumber is null
                     || string.IsNullOrWhiteSpace(employeeNumber)
-                    || !await readRepository.ExistsByEmployeeNumberAsync(employeeNumber, command.Id, cancellationToken))
+                    || !await readRepository.ExistsByEmployeeNumberAsync(employeeNumber.Trim(), command.Id, cancellationToken))
                 .When(x => x.Dto.EmployeeNumber is not null)
                 .WithMessage("An employee with this employee number already exists.");
 
@@ -205,9 +233,9 @@ public sealed class PatchFgsEmployeeCommandValidator : AbstractValidator<PatchFg
                 .WithMessage("EmployeeTypeId must be Office (1) or Technician (2).");
 
             RuleFor(x => x.Dto.DisplayName).NotEmpty().MaximumLength(200).When(x => x.Dto.DisplayName is not null);
-            RuleFor(x => x.Dto.LegalFirstName).NotEmpty().MaximumLength(100).When(x => x.Dto.LegalFirstName is not null);
+            RuleFor(x => x.Dto.LegalFirstName).MaximumLength(100).When(x => x.Dto.LegalFirstName is not null);
             RuleFor(x => x.Dto.LegalMiddleName).MaximumLength(100).When(x => x.Dto.LegalMiddleName is not null);
-            RuleFor(x => x.Dto.LegalLastName).NotEmpty().MaximumLength(100).When(x => x.Dto.LegalLastName is not null);
+            RuleFor(x => x.Dto.LegalLastName).MaximumLength(100).When(x => x.Dto.LegalLastName is not null);
 
             RuleFor(x => x.Dto.StatusId)
                 .Must(id => id is EmployeeStatusIds.Active
@@ -304,16 +332,27 @@ internal sealed class EmployeeTechnicianProfileWriteDtoValidator : AbstractValid
 {
     public EmployeeTechnicianProfileWriteDtoValidator(
         IFgsEmployeeReadRepository readRepository,
-        long? excludeEmployeeId)
+        long? excludeEmployeeId,
+        bool requireExplicitTechCode = true)
     {
-        RuleFor(x => x.TechCode).NotEmpty().MaximumLength(25);
+        if (requireExplicitTechCode)
+        {
+            RuleFor(x => x.TechCode).NotEmpty().MaximumLength(25);
+        }
+        else
+        {
+            RuleFor(x => x.TechCode)
+                .MaximumLength(25)
+                .When(x => !string.IsNullOrWhiteSpace(x.TechCode));
+        }
+
         RuleFor(x => x.TechCode)
-            .Matches(@"^[A-Za-z0-9_-]+$")
+            .Must(EmployeeCodeCharacters.IsAllowed)
             .When(x => !string.IsNullOrWhiteSpace(x.TechCode))
             .WithMessage("Tech code cannot contain special characters.");
         RuleFor(x => x.TechCode).MustAsync(async (_, techCode, cancellationToken) =>
                 string.IsNullOrWhiteSpace(techCode)
-                || !await readRepository.ExistsByTechCodeAsync(techCode, excludeEmployeeId, cancellationToken))
+                || !await readRepository.ExistsByTechCodeAsync(techCode.Trim(), excludeEmployeeId, cancellationToken))
             .WithMessage("A technician with this tech code already exists.");
 
         RuleFor(x => x.TechName).MaximumLength(100).When(x => x.TechName is not null);
@@ -332,4 +371,11 @@ internal sealed class EmployeeTechnicianProfileWriteDtoValidator : AbstractValid
         RuleFor(x => x.TechSkillId).GreaterThan(0).When(x => x.TechSkillId.HasValue);
         RuleFor(x => x.TruckId).GreaterThan(0).When(x => x.TruckId.HasValue);
     }
+}
+
+file static class EmployeeCodeCharacters
+{
+    public static bool IsAllowed(string? value) =>
+        string.IsNullOrWhiteSpace(value)
+        || Regex.IsMatch(value.Trim(), @"^[A-Za-z0-9_-]+$", RegexOptions.CultureInvariant);
 }

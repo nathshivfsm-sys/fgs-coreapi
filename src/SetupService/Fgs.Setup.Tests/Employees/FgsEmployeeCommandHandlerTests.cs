@@ -61,6 +61,7 @@ public sealed class FgsEmployeeCommandHandlerTests
         response.Data.Address.PostalCode.Should().Be("78701");
         response.Data.TechnicianProfile.Should().NotBeNull();
         response.Data.TechnicianProfile!.TechCode.Should().Be("T-001");
+        response.Data.TechnicianProfile.CanBeScheduled.Should().BeTrue();
         response.Data.TechnicianProfile.StartLocationTypeId.Should().Be(StartLocationTypeIds.Office);
         context.FgsLocations.Should().ContainSingle(l => l.IsActive && l.AddressLine1 == "100 Main St");
         context.FgsEmployeeTechnicianProfiles.Should().ContainSingle(p => p.TechCode == "T-001");
@@ -92,6 +93,132 @@ public sealed class FgsEmployeeCommandHandlerTests
         response.Success.Should().BeTrue();
         response.Data!.TechnicianProfile.Should().BeNull();
         context.FgsEmployeeTechnicianProfiles.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task CreateHandler_WhenCanBeScheduledAndIsPurchaserOmitted_PersistsBothFalse()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(context);
+        var handler = new CreateFgsEmployeeCommandHandler(
+            CreateWriteService(context),
+            new Mock<ICacheService>().Object,
+            CreateTenantContextAccessor(),
+            NullLogger<CreateFgsEmployeeCommandHandler>.Instance);
+        var profile = new FgsEmployeeTechnicianProfileWriteDto(
+            TechCode: "T-200",
+            TechName: "Alex",
+            StartLocationTypeId: StartLocationTypeIds.Office);
+        var dto = new FgsEmployeeCreateDto(
+            UserId: null,
+            EmployeeNumber: "EMP-200",
+            EmployeeTypeId: EmployeeTypeIds.Technician,
+            DisplayName: "Alex Tech",
+            LegalFirstName: "Alex",
+            LegalMiddleName: null,
+            LegalLastName: "Tech",
+            BirthDate: null,
+            HireDate: new DateOnly(2026, 1, 15),
+            TerminationDate: null,
+            StatusId: EmployeeStatusIds.Active,
+            PersonalEmail: null,
+            OfficeEmail: "alex.defaults@example.com",
+            PersonalPhone: null,
+            OfficePhone: "+15551234567",
+            Address: CreateAddress(),
+            ProfilePhotoFileId: null,
+            RegularRate: 40m,
+            LaborBurdenTypeId: null,
+            LaborBurdenValue: null,
+            TechnicianProfile: profile);
+
+        var response = await handler.Handle(new CreateFgsEmployeeCommand(dto), CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.IsPurchaser.Should().BeFalse();
+        response.Data.TechnicianProfile!.CanBeScheduled.Should().BeFalse();
+        context.FgsEmployees.Single().IsPurchaser.Should().BeFalse();
+        context.FgsEmployeeTechnicianProfiles.Single().CanBeScheduled.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task CreateHandler_WhenLegalNamesNull_Succeeds()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(context);
+        var handler = new CreateFgsEmployeeCommandHandler(
+            CreateWriteService(context),
+            new Mock<ICacheService>().Object,
+            CreateTenantContextAccessor(),
+            NullLogger<CreateFgsEmployeeCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new CreateFgsEmployeeCommand(CreateDto() with
+            {
+                LegalFirstName = null,
+                LegalMiddleName = "   ",
+                LegalLastName = null
+            }),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.LegalFirstName.Should().BeNull();
+        response.Data.LegalMiddleName.Should().BeNull();
+        response.Data.LegalLastName.Should().BeNull();
+        var stored = context.FgsEmployees.Single();
+        stored.LegalFirstName.Should().BeNull();
+        stored.LegalMiddleName.Should().BeNull();
+        stored.LegalLastName.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task CreateHandler_WhenTechCodeBlank_StoresTrimmedEmployeeNumber()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(context);
+        var handler = new CreateFgsEmployeeCommandHandler(
+            CreateWriteService(context),
+            new Mock<ICacheService>().Object,
+            CreateTenantContextAccessor(),
+            NullLogger<CreateFgsEmployeeCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new CreateFgsEmployeeCommand(CreateDto() with
+            {
+                EmployeeNumber = "  EMP-100  ",
+                OfficeEmail = "tech.default@example.com",
+                TechnicianProfile = CreateTechnicianProfile() with { TechCode = "   " }
+            }),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.EmployeeNumber.Should().Be("EMP-100");
+        response.Data.TechnicianProfile!.TechCode.Should().Be("EMP-100");
+        context.FgsEmployeeTechnicianProfiles.Single().TechCode.Should().Be("EMP-100");
+    }
+
+    [Fact]
+    public async Task CreateHandler_WhenCodesHaveOnlyLeadingOrTrailingSpaces_StoresTrimmedValues()
+    {
+        await using var context = await CreateContextAsync();
+        await SeedMasterEntityTypeAsync(context);
+        var handler = new CreateFgsEmployeeCommandHandler(
+            CreateWriteService(context),
+            new Mock<ICacheService>().Object,
+            CreateTenantContextAccessor(),
+            NullLogger<CreateFgsEmployeeCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new CreateFgsEmployeeCommand(CreateDto() with
+            {
+                EmployeeNumber = "  EMP-001  ",
+                TechnicianProfile = CreateTechnicianProfile() with { TechCode = "  T-001  " }
+            }),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.EmployeeNumber.Should().Be("EMP-001");
+        response.Data.TechnicianProfile!.TechCode.Should().Be("T-001");
     }
 
     [Fact]

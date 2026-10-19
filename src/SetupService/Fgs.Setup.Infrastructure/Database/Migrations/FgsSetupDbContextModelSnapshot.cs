@@ -559,21 +559,19 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasComment("Labor burden amount or percentage used for estimating, costing, and profitability calculations.");
 
                     b.Property<string>("LegalFirstName")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
-                        .HasComment("Employee legal first name.");
+                        .HasComment("Paycheck first name printed on the paycheck and used on the timecard Excel export.");
 
                     b.Property<string>("LegalLastName")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
-                        .HasComment("Employee legal last name.");
+                        .HasComment("Paycheck last name printed on the paycheck and used on the timecard Excel export.");
 
                     b.Property<string>("LegalMiddleName")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
-                        .HasComment("Employee legal middle name.");
+                        .HasComment("Paycheck middle name printed on the paycheck and used on the timecard Excel export.");
 
                     b.Property<string>("Notes")
                         .HasColumnType("text")
@@ -678,7 +676,7 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.Property<bool>("CanBeScheduled")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(true)
+                        .HasDefaultValue(false)
                         .HasComment("Indicates whether the technician can receive appointments and appear on the dispatch board.");
 
                     b.Property<long>("CompanyId")

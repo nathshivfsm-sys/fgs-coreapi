@@ -34,12 +34,12 @@ internal sealed class FgsEmployeeConfiguration : IEntityTypeConfiguration<FgsEmp
             .HasMaxLength(200)
             .IsRequired()
             .HasComment("Display name used throughout the application, dispatch board, schedules, and reports.");
-        entity.Property(e => e.LegalFirstName).HasMaxLength(100).IsRequired()
-            .HasComment("Employee legal first name.");
+        entity.Property(e => e.LegalFirstName).HasMaxLength(100)
+            .HasComment("Paycheck first name printed on the paycheck and used on the timecard Excel export.");
         entity.Property(e => e.LegalMiddleName).HasMaxLength(100)
-            .HasComment("Employee legal middle name.");
-        entity.Property(e => e.LegalLastName).HasMaxLength(100).IsRequired()
-            .HasComment("Employee legal last name.");
+            .HasComment("Paycheck middle name printed on the paycheck and used on the timecard Excel export.");
+        entity.Property(e => e.LegalLastName).HasMaxLength(100)
+            .HasComment("Paycheck last name printed on the paycheck and used on the timecard Excel export.");
         entity.Property(e => e.BirthDate).HasComment("Employee date of birth.");
         entity.Property(e => e.HireDate).HasComment("Date employee was hired.");
         entity.Property(e => e.TerminationDate).HasComment("Date employee was terminated or separated from employment.");

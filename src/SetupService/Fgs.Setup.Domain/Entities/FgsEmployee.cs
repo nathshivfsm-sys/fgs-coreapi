@@ -21,11 +21,11 @@ public class FgsEmployee : ITenantCompanyScoped
 
     public string DisplayName { get; set; } = null!;
 
-    public string LegalFirstName { get; set; } = null!;
+    public string? LegalFirstName { get; set; }
 
     public string? LegalMiddleName { get; set; }
 
-    public string LegalLastName { get; set; } = null!;
+    public string? LegalLastName { get; set; }
 
     public DateOnly? BirthDate { get; set; }
 
