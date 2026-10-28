@@ -15,7 +15,16 @@ fi
 
 mkdir -p /etc/nginx/conf.d/includes
 
-cat > /etc/nginx/conf.d/includes/upstreams.prod.conf << 'UP'
+# Unresolved upstream hostnames abort nginx startup and take the whole gateway offline.
+# Prefer the live billing container when it is on the Docker network; otherwise stub.
+if getent hosts billing-service >/dev/null 2>&1; then
+  BILLING_UPSTREAM='billing-service:5011 max_fails=3 fail_timeout=10s; keepalive 32'
+else
+  echo "billing-service not resolvable; stubbing billing_service upstream to 127.0.0.1:9" >&2
+  BILLING_UPSTREAM='127.0.0.1:9'
+fi
+
+cat > /etc/nginx/conf.d/includes/upstreams.prod.conf << UP
 upstream setup_service {
   least_conn;
   server setup-service:5004 max_fails=3 fail_timeout=10s;
@@ -30,7 +39,7 @@ upstream inventory_service { server inventory-service:5012 max_fails=3 fail_time
 upstream asset_service { server asset-service:5015 max_fails=3 fail_timeout=10s; keepalive 32; }
 upstream crm_service { server crm-service:5009 max_fails=3 fail_timeout=10s; keepalive 32; }
 upstream scheduling_service { server 127.0.0.1:9; }
-upstream billing_service { server billing-service:5011 max_fails=3 fail_timeout=10s; keepalive 32; }
+upstream billing_service { server ${BILLING_UPSTREAM}; }
 upstream service_agreement_service { server 127.0.0.1:9; }
 UP
 
