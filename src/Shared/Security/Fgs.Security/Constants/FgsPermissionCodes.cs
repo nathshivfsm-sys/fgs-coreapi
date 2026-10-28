@@ -35,6 +35,11 @@ public static class FgsPermissionCodes
     public const string InvoiceEdit = "INVOICE.EDIT";
     public const string InvoiceDelete = "INVOICE.DELETE";
 
+    public const string PaymentView = "PAYMENT.VIEW";
+    public const string PaymentCreate = "PAYMENT.CREATE";
+    public const string PaymentEdit = "PAYMENT.EDIT";
+    public const string PaymentDelete = "PAYMENT.DELETE";
+
     public const string ServiceAgreementView = "SERVICEAGREEMENT.VIEW";
     public const string ServiceAgreementCreate = "SERVICEAGREEMENT.CREATE";
     public const string ServiceAgreementEdit = "SERVICEAGREEMENT.EDIT";

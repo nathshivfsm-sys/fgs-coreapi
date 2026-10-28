@@ -34,6 +34,8 @@ public sealed class FgsBillingDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsPaymentTransaction> FgsPaymentTransactions => Set<FgsPaymentTransaction>();
 
+    public DbSet<FgsARCustomerPaymentInformation> FgsARCustomerPaymentInformations => Set<FgsARCustomerPaymentInformation>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(FgsDatabaseSchemas.Billing);

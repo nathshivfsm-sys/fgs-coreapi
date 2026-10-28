@@ -6,6 +6,9 @@ using Fgs.Setup.Application.Features.Credentials.Commands.CreateCredential;
 using Fgs.Setup.Application.Features.Credentials.Commands.RotateCredential;
 using Fgs.Setup.Application.Features.Credentials.Commands.UpdateCredential;
 using Fgs.Setup.Application.Features.Credentials.DTOs;
+using Fgs.Credentials;
+using Fgs.Credentials.Options;
+using Fgs.Setup.Application.Features.Credentials.Queries.GetCompanyProviderCredential;
 using Fgs.Setup.Application.Features.Credentials.Queries.GetCredential;
 using Fgs.Setup.Application.Features.Credentials.Queries.GetResolvedCredentialConfiguration;
 using Fgs.Setup.Application.Features.Credentials.Queries.ListCredentials;
@@ -17,6 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using Fgs.Security.Authorization;
 using Fgs.Security.Constants;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Fgs.Setup.API.Controllers;
 
@@ -28,7 +32,9 @@ namespace Fgs.Setup.API.Controllers;
 [ApiVersion(FgsApiVersions.V1)]
 [FgsVersionedRoute("credential")]
 [Produces("application/json")]
-public sealed class CredentialController(IMediator mediator) : ControllerBase
+public sealed class CredentialController(
+    IMediator mediator,
+    IOptions<CredentialDistributionOptions> distributionOptions) : ControllerBase
 {
     [RequirePermission(FgsPermissionCodes.SetupView)]
     [HttpGet]
@@ -43,6 +49,39 @@ public sealed class CredentialController(IMediator mediator) : ControllerBase
     {
         var response = await mediator.Send(
             new ListCredentialsQuery(scope, tenantId, companyId, activeOnly),
+            cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    /// <summary>
+    /// Returns the active company credential for a provider code.
+    /// Accepts a caller JWT or <see cref="CredentialDistributionHeaders.InternalServiceKey"/>.
+    /// Tenant and company come from <c>X-Tenant-Id</c> and <c>X-Company-Id</c>.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpGet("company-provider")]
+    [ProducesResponseType(typeof(ApiResponse<CompanyProviderCredentialDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCompanyProvider(
+        [FromQuery] string providerCode,
+        [FromHeader(Name = CredentialDistributionHeaders.InternalServiceKey)] string? serviceKey,
+        CancellationToken cancellationToken)
+    {
+        var isInternalService = InternalServiceAuthorization.IsAuthorized(
+            serviceKey,
+            distributionOptions.Value);
+        if (!isInternalService && User?.Identity?.IsAuthenticated != true)
+        {
+            return StatusCode(
+                StatusCodes.Status401Unauthorized,
+                ApiResponse<object>.Fail(
+                    ["Authentication required. Provide a valid JWT or internal service key."],
+                    ApiStatusCodes.Unauthorized));
+        }
+
+        var response = await mediator.Send(
+            new GetCompanyProviderCredentialQuery(providerCode),
             cancellationToken);
         return StatusCode(response.StatusCode, response);
     }

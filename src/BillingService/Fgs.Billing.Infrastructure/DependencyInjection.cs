@@ -1,9 +1,11 @@
 using Fgs.Credentials;
 using Fgs.Credentials.Abstractions;
 using Fgs.Credentials.Extensions;
+using Fgs.Billing.Application.Abstractions.CustomerPaymentInformation;
 using Fgs.Billing.Application.Abstractions.Invoices;
 using Fgs.Billing.Infrastructure.Common;
 using Fgs.Billing.Infrastructure.Database;
+using Fgs.Billing.Infrastructure.Entities.CustomerPaymentInformation;
 using Fgs.Billing.Infrastructure.Entities.Invoices;
 using Fgs.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +41,13 @@ public static class DependencyInjection
         services.AddScoped<BillingEntityAuditHelper>();
         services.AddScoped<IFgsInvoiceReadRepository, FgsInvoiceReadRepository>();
         services.AddScoped<IFgsInvoiceWriteService, FgsInvoiceWriteService>();
+        services.AddScoped<ICustomerPaymentInformationReadRepository, CustomerPaymentInformationReadRepository>();
+        services.AddScoped<ICustomerPaymentInformationWriteService, CustomerPaymentInformationWriteService>();
+        services.AddScoped<ICompanyAuthorizeNetSettings, CompanyAuthorizeNetSettingsReader>();
+        services.AddHttpClient<IAuthorizeNetCustomerProfileClient, AuthorizeNetCustomerProfileClient>(client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
 
         return services;
     }

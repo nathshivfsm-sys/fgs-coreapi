@@ -23,6 +23,7 @@ internal static class FgsBillingDbContextConfigurationExtensions
                 "FgsPayment" => "FK_FgsPayment_TenantCompany",
                 "FgsInvoicePaymentApplication" => "FK_FgsInvoicePaymentApplication_TenantCompany",
                 "FgsPaymentTransaction" => "FK_FgsPaymentTransaction_TenantCompany",
+                "FgsARCustomerPaymentInformation" => "FK_FgsARCustomerPaymentInformation_TenantCompany",
                 "FgsInvoiceWorkDescription" => "FK_FgsInvoiceWorkDescription_TenantCompany",
                 _ => $"FK_{tableName}_FgsTenantCompanyCache_TenantId_CompanyId"
             });

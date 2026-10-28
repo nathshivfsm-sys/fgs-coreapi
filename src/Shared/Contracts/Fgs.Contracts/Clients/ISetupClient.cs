@@ -39,6 +39,11 @@ public interface ISetupClient
     Task<Fgs.Contracts.Api.ApiResponse<IReadOnlyList<GlBreakLookupItemDto>>> LookupGlBreaksAsync(
         [Query] bool activeOnly,
         CancellationToken cancellationToken = default);
+
+    [Get("/api/v1/credential/company-provider")]
+    Task<Fgs.Contracts.Api.ApiResponse<CompanyProviderCredentialDto>> GetCompanyProviderCredentialAsync(
+        [Query] string providerCode,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record AddCompanyBusinessTypesRequest(
@@ -57,3 +62,12 @@ public sealed record ResolvedCredentialConfigurationDto(
 public sealed record GlBreakLookupItemDto(
     long Id,
     string Name);
+
+/// <summary>
+/// Decrypted company credential fields for Authorize.net. Callers must not log these values.
+/// </summary>
+public sealed record CompanyProviderCredentialDto(
+    string ApiLoginId,
+    string PublicClientKey,
+    string TransactionKey,
+    bool UseSandbox);

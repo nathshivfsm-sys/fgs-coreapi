@@ -23,6 +23,192 @@ namespace Fgs.Billing.Infrastructure.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Fgs.Billing.Domain.Entities.FgsARCustomerPaymentInformation", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasComment("Unique identifier for the AR customer payment information record.");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ARCustomerId")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the AR customer associated with the payment information.");
+
+                    b.Property<string>("AccountType")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Type of bank account associated with an ACH payment method, such as CHECKING or SAVINGS.");
+
+                    b.Property<string>("BankName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Name of the financial institution associated with an ACH payment method.");
+
+                    b.Property<long?>("BillingAddressId")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the billing address associated with the payment information. The referenced address contains the street, city, state, county, postal code, and country information.");
+
+                    b.Property<string>("CardBrand")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Card network or brand, such as Visa, Mastercard, American Express, or Discover. Applies to card payment methods.");
+
+                    b.Property<string>("CardHolderName")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasComment("Name of the person or entity shown as the cardholder for the card payment method.");
+
+                    b.Property<string>("CardType")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Identifies whether a card payment is a CREDIT or DEBIT card. This column is null for ACH payment methods.");
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2)
+                        .HasComment("Identifies the company within the tenant that owns the payment information.");
+
+                    b.Property<long>("CreatedBy")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the user who created the payment information.");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp")
+                        .HasDefaultValueSql("now()")
+                        .HasComment("Date and time when the payment information was created.");
+
+                    b.Property<string>("CustomerPaymentProfileId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Identifies the individual saved payment profile associated with the customer at Authorize.Net.");
+
+                    b.Property<string>("CustomerProfileId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Identifies the customer profile associated with the AR customer at Authorize.Net.");
+
+                    b.Property<short?>("ExpirationMonth")
+                        .HasColumnType("smallint")
+                        .HasComment("Expiration month of the card payment method. This column is null for ACH payment methods.");
+
+                    b.Property<short?>("ExpirationYear")
+                        .HasColumnType("smallint")
+                        .HasComment("Expiration year of the card payment method. This column is null for ACH payment methods.");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the payment information is currently active and available for payment processing.");
+
+                    b.Property<bool>("IsContractBilling")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the payment information is selected and authorized for contract billing charges.");
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether the payment information is the default payment information for the AR customer when no specific payment information is selected.");
+
+                    b.Property<string>("Last4")
+                        .HasMaxLength(4)
+                        .HasColumnType("character varying(4)")
+                        .HasComment("Last four digits of the card or bank account used for display and identification purposes.");
+
+                    b.Property<string>("PaymentMethodType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Identifies the payment method type. Supported values are CARD and ACH.");
+
+                    b.Property<string>("PaymentToken")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("Tokenized reference to the payment method provided by the payment processor. Raw card numbers, CVV values, and bank account numbers must not be stored.");
+
+                    b.Property<string>("ReceiptEmail")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
+                        .HasComment("Email address to which payment receipts for charges using this payment information should be sent.");
+
+                    b.Property<string>("ReceiptPhoneNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasComment("Phone number to which payment receipt notifications for charges using this payment information should be sent.");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1)
+                        .HasComment("Identifies the tenant that owns the payment information.");
+
+                    b.Property<long?>("UpdatedBy")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifies the user who last updated the payment information.");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("timestamp")
+                        .HasComment("Date and time when the payment information was last updated.");
+
+                    b.Property<string>("WalletType")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasComment("Identifies the digital wallet used for a card payment. Supported values are APPLE_PAY and GOOGLE_PAY. Null indicates that no digital wallet is used.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CompanyId")
+                        .HasDatabaseName("IX_FgsARCustomerPaymentInformation_TenantCompany");
+
+                    b.HasIndex("TenantId", "CompanyId", "CustomerPaymentProfileId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsARCustomerPaymentInformation_CustomerPaymentProfile")
+                        .HasFilter("\"CustomerPaymentProfileId\" IS NOT NULL");
+
+                    b.HasIndex("TenantId", "CompanyId", "PaymentMethodType")
+                        .HasDatabaseName("IX_FgsARCustomerPaymentInformation_PaymentMethodType");
+
+                    b.HasIndex("TenantId", "CompanyId", "WalletType")
+                        .HasDatabaseName("IX_FgsARCustomerPaymentInformation_WalletType");
+
+                    b.HasIndex("TenantId", "CompanyId", "ARCustomerId", "IsContractBilling", "IsActive")
+                        .HasDatabaseName("IX_FgsARCustomerPaymentInformation_ContractBilling");
+
+                    b.HasIndex(new[] { "TenantId", "CompanyId", "ARCustomerId" }, "IX_FgsARCustomerPaymentInformation_ARCustomer")
+                        .HasDatabaseName("IX_FgsARCustomerPaymentInformation_ARCustomer");
+
+                    b.HasIndex(new[] { "TenantId", "CompanyId", "ARCustomerId" }, "UX_FgsARCustomerPaymentInformation_ContractBilling")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsARCustomerPaymentInformation_ContractBilling")
+                        .HasFilter("\"IsContractBilling\" = true AND \"IsActive\" = true");
+
+                    b.HasIndex(new[] { "TenantId", "CompanyId", "ARCustomerId" }, "UX_FgsARCustomerPaymentInformation_Default")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FgsARCustomerPaymentInformation_Default")
+                        .HasFilter("\"IsDefault\" = true AND \"IsActive\" = true");
+
+                    b.ToTable("FgsARCustomerPaymentInformation", "billing", t =>
+                        {
+                            t.HasComment("Stores tokenized payment information associated with an AR customer, including credit cards, debit cards, ACH payment accounts, Apple Pay, and Google Pay payment methods.");
+
+                            t.HasCheckConstraint("CK_FgsARCustomerPaymentInformation_CardType", "((\"PaymentMethodType\" = 'CARD' AND \"CardType\" IN ('CREDIT', 'DEBIT')) OR (\"PaymentMethodType\" = 'ACH' AND \"CardType\" IS NULL))");
+
+                            t.HasCheckConstraint("CK_FgsARCustomerPaymentInformation_ExpirationMonth", "(\"ExpirationMonth\" IS NULL OR \"ExpirationMonth\" BETWEEN 1 AND 12)");
+
+                            t.HasCheckConstraint("CK_FgsARCustomerPaymentInformation_Last4", "(\"Last4\" IS NULL OR \"Last4\" ~ '^[0-9]{4}$')");
+
+                            t.HasCheckConstraint("CK_FgsARCustomerPaymentInformation_PaymentMethodType", "\"PaymentMethodType\" IN ('CARD', 'ACH')");
+
+                            t.HasCheckConstraint("CK_FgsARCustomerPaymentInformation_WalletType", "((\"WalletType\" IS NULL) OR (\"PaymentMethodType\" = 'CARD' AND \"WalletType\" IN ('APPLE_PAY', 'GOOGLE_PAY')))");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Billing.Domain.Entities.FgsInvoice", b =>
                 {
                     b.Property<long>("Id")
@@ -1015,6 +1201,16 @@ namespace Fgs.Billing.Infrastructure.Database.Migrations
                         {
                             t.HasComment("Local cache of tenant company information used by the billing schema to eliminate cross-schema dependencies on tenant.FgsTenantCompany.");
                         });
+                });
+
+            modelBuilder.Entity("Fgs.Billing.Domain.Entities.FgsARCustomerPaymentInformation", b =>
+                {
+                    b.HasOne("Fgs.Billing.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsARCustomerPaymentInformation_TenantCompany");
                 });
 
             modelBuilder.Entity("Fgs.Billing.Domain.Entities.FgsInvoice", b =>

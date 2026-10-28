@@ -43031,6 +43031,141 @@
               }
             }
           ]
+        },
+        {
+          "description": "CustomerPaymentInformationController - saved cards",
+          "name": "CustomerPaymentInformationController",
+          "item": [
+            {
+              "name": "List",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "query": [
+                    { "key": "arCustomerId", "value": "{{arCustomerId}}" },
+                    { "key": "isActive", "value": "true" },
+                    { "key": "page", "value": "{{page}}" },
+                    { "key": "pageSize", "value": "{{pageSize}}" },
+                    { "key": "sortBy", "value": "{{sortBy}}", "disabled": true },
+                    { "key": "sortDirection", "value": "{{sortDirection}}", "disabled": true },
+                    { "key": "search", "value": "{{search}}", "disabled": true }
+                  ],
+                  "host": ["https://developer.fsm.com"],
+                  "raw": "https://developer.fsm.com/api/v1/customerpaymentinformation?arCustomerId={{arCustomerId}}&isActive=true",
+                  "path": ["api", "v1", "customerpaymentinformation"]
+                },
+                "description": "List saved cards for an AR customer. Requires PAYMENT.VIEW.",
+                "header": [
+                  { "key": "Accept", "type": "text", "value": "application/json" },
+                  { "key": "X-Tenant-Id", "type": "text", "value": "{{tenantId}}" },
+                  { "key": "X-Company-Id", "type": "text", "value": "{{companyId}}" }
+                ],
+                "auth": { "type": "bearer", "bearer": [{ "key": "token", "type": "string", "value": "{{accessToken}}" }] }
+              }
+            },
+            {
+              "name": "AcceptConfig",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "host": ["https://developer.fsm.com"],
+                  "raw": "https://developer.fsm.com/api/v1/customerpaymentinformation/accept-config",
+                  "path": ["api", "v1", "customerpaymentinformation", "accept-config"]
+                },
+                "description": "Accept.js public configuration. Requires PAYMENT.CREATE. Does not return the transaction key.",
+                "header": [
+                  { "key": "Accept", "type": "text", "value": "application/json" },
+                  { "key": "X-Tenant-Id", "type": "text", "value": "{{tenantId}}" },
+                  { "key": "X-Company-Id", "type": "text", "value": "{{companyId}}" }
+                ],
+                "auth": { "type": "bearer", "bearer": [{ "key": "token", "type": "string", "value": "{{accessToken}}" }] }
+              }
+            },
+            {
+              "name": "Create",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "host": ["https://developer.fsm.com"],
+                  "raw": "https://developer.fsm.com/api/v1/customerpaymentinformation",
+                  "path": ["api", "v1", "customerpaymentinformation"]
+                },
+                "description": "Save a card from Accept.js opaque data. Requires PAYMENT.CREATE.",
+                "header": [
+                  { "key": "Accept", "type": "text", "value": "application/json" },
+                  { "key": "X-Tenant-Id", "type": "text", "value": "{{tenantId}}" },
+                  { "key": "X-Company-Id", "type": "text", "value": "{{companyId}}" },
+                  { "key": "Content-Type", "type": "text", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"arCustomerId\": {{arCustomerId}},\n  \"opaqueData\": {\n    \"dataDescriptor\": \"COMMON.ACCEPT.INAPP.PAYMENT\",\n    \"dataValue\": \"opaque-data-placeholder\"\n  },\n  \"cardHolderName\": \"Jane Cardholder\",\n  \"billingZip\": \"12345\",\n  \"setAsDefault\": true\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "auth": { "type": "bearer", "bearer": [{ "key": "token", "type": "string", "value": "{{accessToken}}" }] }
+              }
+            },
+            {
+              "name": "GetById",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "host": ["https://developer.fsm.com"],
+                  "raw": "https://developer.fsm.com/api/v1/customerpaymentinformation/{{customerPaymentInformationId}}",
+                  "path": ["api", "v1", "customerpaymentinformation", "{{customerPaymentInformationId}}"]
+                },
+                "description": "Get one saved card. Requires PAYMENT.VIEW. ACH rows return 404.",
+                "header": [
+                  { "key": "Accept", "type": "text", "value": "application/json" },
+                  { "key": "X-Tenant-Id", "type": "text", "value": "{{tenantId}}" },
+                  { "key": "X-Company-Id", "type": "text", "value": "{{companyId}}" }
+                ],
+                "auth": { "type": "bearer", "bearer": [{ "key": "token", "type": "string", "value": "{{accessToken}}" }] }
+              }
+            },
+            {
+              "name": "Update",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "host": ["https://developer.fsm.com"],
+                  "raw": "https://developer.fsm.com/api/v1/customerpaymentinformation/{{customerPaymentInformationId}}",
+                  "path": ["api", "v1", "customerpaymentinformation", "{{customerPaymentInformationId}}"]
+                },
+                "description": "Update cardholder, expiry, or default. Include opaqueData only when the card number changes. Requires PAYMENT.EDIT.",
+                "header": [
+                  { "key": "Accept", "type": "text", "value": "application/json" },
+                  { "key": "X-Tenant-Id", "type": "text", "value": "{{tenantId}}" },
+                  { "key": "X-Company-Id", "type": "text", "value": "{{companyId}}" },
+                  { "key": "Content-Type", "type": "text", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"cardHolderName\": \"Jane Cardholder\",\n  \"expirationMonth\": 12,\n  \"expirationYear\": 2028,\n  \"isDefault\": true\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "auth": { "type": "bearer", "bearer": [{ "key": "token", "type": "string", "value": "{{accessToken}}" }] }
+              }
+            },
+            {
+              "name": "Delete",
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "host": ["https://developer.fsm.com"],
+                  "raw": "https://developer.fsm.com/api/v1/customerpaymentinformation/{{customerPaymentInformationId}}",
+                  "path": ["api", "v1", "customerpaymentinformation", "{{customerPaymentInformationId}}"]
+                },
+                "description": "Soft-delete a saved card. Requires PAYMENT.DELETE.",
+                "header": [
+                  { "key": "Accept", "type": "text", "value": "application/json" },
+                  { "key": "X-Tenant-Id", "type": "text", "value": "{{tenantId}}" },
+                  { "key": "X-Company-Id", "type": "text", "value": "{{companyId}}" }
+                ],
+                "auth": { "type": "bearer", "bearer": [{ "key": "token", "type": "string", "value": "{{accessToken}}" }] }
+              }
+            }
+          ]
         }
       ]
     },

@@ -43,6 +43,26 @@ public sealed class BillingEntityAuditHelper
         entity.RowVersion += 1;
     }
 
+    public void StampForCreate(FgsARCustomerPaymentInformation entity)
+    {
+        var now = _dateTimeProvider.UtcNow.DateTime;
+        var actorId = ResolveNumericActor();
+        var (tenantId, companyId) = ResolveTenantCompany();
+
+        entity.CreatedOn = now;
+        entity.CreatedBy = actorId;
+        entity.UpdatedOn = now;
+        entity.UpdatedBy = actorId;
+        entity.TenantId = tenantId;
+        entity.CompanyId = companyId;
+    }
+
+    public void StampForUpdate(FgsARCustomerPaymentInformation entity)
+    {
+        entity.UpdatedOn = _dateTimeProvider.UtcNow.DateTime;
+        entity.UpdatedBy = ResolveNumericActor();
+    }
+
     /// <summary>
     /// Invoice audit columns store numeric actor ids. Until identity exposes a long user key,
     /// fall back to 0 (system) when only a Guid user id is available.

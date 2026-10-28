@@ -481,6 +481,17 @@ FROM (
                 {"key":"SigningKey","label":"Signing Key","type":"password","required":false,"sensitive":true}
             ]',
             FALSE
+        ),
+        (
+            'AUTHORIZE_NET',
+            'Authorize.Net',
+            '[
+                {"key":"ApiLoginId","label":"API Login ID","type":"text","required":true},
+                {"key":"PublicClientKey","label":"Public Client Key","type":"text","required":true},
+                {"key":"TransactionKey","label":"Transaction Key","type":"password","required":true,"sensitive":true},
+                {"key":"UseSandbox","label":"Use Sandbox","type":"boolean","required":true}
+            ]',
+            TRUE
         )
 ) AS v("ProviderCode", "ProviderName", "ConfigurationSchema", "IsActive")
 WHERE NOT EXISTS (
@@ -654,6 +665,17 @@ FROM (
                 {"key":"SigningKey","label":"Signing Key","type":"password","required":false,"sensitive":true}
             ]',
             FALSE
+        ),
+        (
+            'AUTHORIZE_NET',
+            'Authorize.Net',
+            '[
+                {"key":"ApiLoginId","label":"API Login ID","type":"text","required":true},
+                {"key":"PublicClientKey","label":"Public Client Key","type":"text","required":true},
+                {"key":"TransactionKey","label":"Transaction Key","type":"password","required":true,"sensitive":true},
+                {"key":"UseSandbox","label":"Use Sandbox","type":"boolean","required":true}
+            ]',
+            TRUE
         )
 ) AS v("ProviderCode", "ProviderName", "ConfigurationSchema", "IsActive")
 WHERE t."ProviderCode" = v."ProviderCode";
