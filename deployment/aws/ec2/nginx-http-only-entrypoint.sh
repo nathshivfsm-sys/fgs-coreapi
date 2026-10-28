@@ -203,6 +203,38 @@ location /swagger/billing/ {
 }
 SWAGGER
 
+# Billing API via Docker DNS (same pattern as swagger). Included before
+# api-v1-routes.prod.conf so these locations win over a stubbed billing_service upstream.
+cat > /etc/nginx/conf.d/includes/billing-api-routes.ec2.conf << 'BILLINGAPI'
+location ~ ^/api/v1/invoice(/|$) {
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $billing_upstream billing-service:5011;
+    proxy_pass http://$billing_upstream$request_uri;
+    proxy_set_header X-Forwarded-Prefix /api/v1/invoice;
+    include /etc/nginx/proxy_params.conf;
+    include /etc/nginx/cache_params.conf;
+}
+
+location ~ ^/api/v1/customerpaymentinformation(/|$) {
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $billing_upstream billing-service:5011;
+    proxy_pass http://$billing_upstream$request_uri;
+    proxy_set_header X-Forwarded-Prefix /api/v1/customerpaymentinformation;
+    include /etc/nginx/proxy_params.conf;
+    include /etc/nginx/cache_params.conf;
+}
+
+location /billing-service/api/v1/ {
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    rewrite ^/billing-service/(.*)$ /$1 break;
+    set $billing_upstream billing-service:5011;
+    proxy_pass http://$billing_upstream;
+    proxy_set_header X-Forwarded-Prefix /billing-service/api/v1;
+    include /etc/nginx/proxy_params.conf;
+    include /etc/nginx/cache_params.conf;
+}
+BILLINGAPI
+
 # Minimal index if image has no swagger-index.html
 if [ ! -f /etc/nginx/conf.d/includes/swagger-index.html ]; then
   cat > /etc/nginx/conf.d/includes/swagger-index.html << 'IDX'
@@ -237,6 +269,7 @@ server {
     return 200 "healthy\n";
     add_header Content-Type text/plain;
   }
+  include /etc/nginx/conf.d/includes/billing-api-routes.ec2.conf;
   # api-v1-routes.prod.conf already includes api-v1-service-prefix-routes.conf
   include /etc/nginx/conf.d/includes/api-v1-routes.prod.conf;
   include /etc/nginx/conf.d/includes/swagger-routes.ec2.conf;
