@@ -383,6 +383,38 @@ services:
       <<: *app-healthcheck
       test: ["CMD", "curl", "-fsS", "http://crm-service:5009/health"]
 
+  billing-service:
+    image: ${FGS_BILLING_IMAGE:?set FGS_BILLING_IMAGE in .env}
+    hostname: billing-service
+    <<: *app-network
+    mem_limit: 192m
+    environment:
+      <<: *datadog-env
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      SetupService__BaseUrl: http://setup-service:5004
+      UserService__BaseUrl: http://user-service:5001
+      CredentialDistribution__InternalServiceKey: ${CREDENTIAL_DISTRIBUTION_KEY:-fgs-internal-credential-distribution-key}
+      CredentialConsumer__ServiceName: fgs-billing-service
+      CredentialConsumer__RequiredProviders__0: DATABASE
+      Redis__ConnectionString: redis:6379
+      Redis__Enabled: "true"
+      Swagger__Enabled: "true"
+      Swagger__RoutePrefix: swagger/billing
+    depends_on:
+      redis:
+        condition: service_healthy
+      setup-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    expose:
+      - "5011"
+    healthcheck:
+      <<: *app-healthcheck
+      test: ["CMD", "curl", "-fsS", "http://billing-service:5011/health"]
+
   consumer-service:
     image: ${FGS_CONSUMER_IMAGE:?set FGS_CONSUMER_IMAGE in .env}
     hostname: consumer-service

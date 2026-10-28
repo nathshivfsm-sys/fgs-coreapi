@@ -18,7 +18,7 @@ on:
       compose_service:
         required: true
         type: string
-        description: Docker Compose service name (redis, rabbitmq, setup-service, audit-service, user-service, bff-service, notification-service, file-service, inventory-service, asset-service, crm-service, consumer-service, nginx)
+        description: Docker Compose service name (redis, rabbitmq, setup-service, audit-service, user-service, bff-service, notification-service, file-service, inventory-service, asset-service, crm-service, billing-service, consumer-service, nginx)
       channel:
         required: true
         type: string
@@ -30,7 +30,7 @@ on:
       image_tag_prefix:
         required: true
         type: string
-        description: ECR tag prefix (redis, rabbitmq, setup, user, bff, nginx, crm)
+        description: ECR tag prefix (redis, rabbitmq, setup, user, bff, nginx, crm, billing)
 
 permissions:
   contents: read
@@ -80,7 +80,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Sync EC2 host files
-        if: inputs.compose_service == 'crm-service' || inputs.compose_service == 'nginx'
+        if: inputs.compose_service == 'crm-service' || inputs.compose_service == 'billing-service' || inputs.compose_service == 'nginx'
         env:
           INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
           FGS_DIR: ${{ vars.FGS_COMPOSE_DIR || '/opt/fgs' }}

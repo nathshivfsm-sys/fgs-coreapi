@@ -20,7 +20,7 @@ upstream inventory_service { server inventory-service:5012 max_fails=3 fail_time
 upstream asset_service { server asset-service:5015 max_fails=3 fail_timeout=10s; keepalive 32; }
 upstream crm_service { server crm-service:5009 max_fails=3 fail_timeout=10s; keepalive 32; }
 upstream scheduling_service { server 127.0.0.1:9; }
-upstream billing_service { server 127.0.0.1:9; }
+upstream billing_service { server billing-service:5011 max_fails=3 fail_timeout=10s; keepalive 32; }
 upstream service_agreement_service { server 127.0.0.1:9; }
 UP
 
@@ -178,6 +178,20 @@ location /swagger/crm/ {
     proxy_buffering off;
     add_header Cache-Control "no-store" always;
 }
+
+location = /swagger/billing {
+    return 308 /swagger/billing/;
+}
+
+location /swagger/billing/ {
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $swagger_upstream billing-service:5011;
+    proxy_pass http://$swagger_upstream$request_uri;
+    include /etc/nginx/proxy_params.conf;
+    proxy_cache off;
+    proxy_buffering off;
+    add_header Cache-Control "no-store" always;
+}
 SWAGGER
 
 # Minimal index if image has no swagger-index.html
@@ -198,6 +212,7 @@ if [ ! -f /etc/nginx/conf.d/includes/swagger-index.html ]; then
     <li><a href="/swagger/inventory/">Inventory</a></li>
     <li><a href="/swagger/asset/">Asset</a></li>
     <li><a href="/swagger/crm/">CRM</a></li>
+    <li><a href="/swagger/billing/">Billing</a></li>
   </ul>
 </body></html>
 IDX
