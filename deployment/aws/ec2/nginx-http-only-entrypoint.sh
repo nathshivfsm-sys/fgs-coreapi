@@ -203,8 +203,22 @@ location /swagger/billing/ {
 }
 SWAGGER
 
-# Billing API via Docker DNS (same pattern as swagger). Included before
-# api-v1-routes.prod.conf so these locations win over a stubbed billing_service upstream.
+# Billing API via Docker DNS. Strip image billing locations first to avoid
+# nginx [emerg] duplicate location crash-loop, then write EC2 replacements.
+strip_billing_locations() {
+  awk '
+    $0 ~ /^location ~ \^\/api\/v1\/invoice\(/ { skip=1; next }
+    $0 ~ /^location ~ \^\/api\/v1\/customerpaymentinformation\(/ { skip=1; next }
+    $0 ~ /^location \/billing-service\/api\/v1\// { skip=1; next }
+    skip && /^[[:space:]]*}/ { skip=0; next }
+    skip { next }
+    { print }
+  ' "$1" > "$1.stripped" && mv "$1.stripped" "$1"
+}
+
+strip_billing_locations /etc/nginx/conf.d/includes/api-v1-routes.prod.conf
+strip_billing_locations /etc/nginx/conf.d/includes/api-v1-service-prefix-routes.conf
+
 cat > /etc/nginx/conf.d/includes/billing-api-routes.ec2.conf << 'BILLINGAPI'
 location ~ ^/api/v1/invoice(/|$) {
     resolver 127.0.0.11 valid=10s ipv6=off;

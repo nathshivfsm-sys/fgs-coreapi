@@ -213,10 +213,25 @@ location /swagger/billing/ {
 }
 SWAGGER
 
-# Billing API via Docker DNS (same pattern as swagger). Must be included *before*
-# api-v1-routes.prod.conf so these regex/prefix locations win over proxy_pass to the
-# static billing_service upstream (which is stubbed to 127.0.0.1:9 when billing was
-# not resolvable at nginx start — that causes API 502 while /swagger/billing/ works).
+# Billing API via Docker DNS (same pattern as swagger). Strip the image's billing
+# locations first — duplicate location "/billing-service/api/v1/" (and identical
+# regex) makes nginx exit with [emerg] and crash-loop. Then write EC2 replacements
+# so APIs work even when billing_service was stubbed to 127.0.0.1:9 at start.
+strip_billing_locations() {
+  # shellcheck disable=SC2016
+  awk '
+    $0 ~ /^location ~ \^\/api\/v1\/invoice\(/ { skip=1; next }
+    $0 ~ /^location ~ \^\/api\/v1\/customerpaymentinformation\(/ { skip=1; next }
+    $0 ~ /^location \/billing-service\/api\/v1\// { skip=1; next }
+    skip && /^[[:space:]]*}/ { skip=0; next }
+    skip { next }
+    { print }
+  ' "$1" > "$1.stripped" && mv "$1.stripped" "$1"
+}
+
+strip_billing_locations /etc/nginx/conf.d/includes/api-v1-routes.prod.conf
+strip_billing_locations /etc/nginx/conf.d/includes/api-v1-service-prefix-routes.conf
+
 cat > /etc/nginx/conf.d/includes/billing-api-routes.ec2.conf << 'BILLINGAPI'
 location ~ ^/api/v1/invoice(/|$) {
     resolver 127.0.0.11 valid=10s ipv6=off;
