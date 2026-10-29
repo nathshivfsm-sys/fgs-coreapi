@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Authorize.Net Accept.js token</title>
+  <style>
+    body { font-family: Consolas, monospace; margin: 24px; max-width: 720px; }
+    label { display: block; margin-top: 12px; }
+    input { width: 100%; padding: 6px; box-sizing: border-box; }
+    button { margin-top: 16px; padding: 8px 16px; }
+    pre { background: #111; color: #0f0; padding: 12px; overflow: auto; white-space: pre-wrap; }
+    .hint { color: #555; font-size: 12px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Sandbox Accept.js token</h1>
+  <p class="hint">Paste values from GET /api/v1/customerpaymentinformation/accept-config. Serve this page over http://localhost (not file://).</p>
+
+  <label>Api Login ID
+    <input id="apiLoginId" autocomplete="off" />
+  </label>
+  <label>Public Client Key
+    <input id="clientKey" autocomplete="off" />
+  </label>
+
+  <button type="button" id="go">Tokenize sandbox Visa 4111…</button>
+  <pre id="out">Waiting…</pre>
+
+  <script src="https://jstest.authorize.net/v1/Accept.js"></script>
+  <script>
+    document.getElementById("go").addEventListener("click", function () {
+      var out = document.getElementById("out");
+      if (typeof Accept === "undefined" || !Accept.dispatchData) {
+        out.textContent =
+          "Accept.js did not load. Open this page via http://localhost (not file://) and check the Network tab for Accept.js.";
+        return;
+      }
+
+      var apiLoginID = document.getElementById("apiLoginId").value.trim();
+      var clientKey = document.getElementById("clientKey").value.trim();
+      if (!apiLoginID || !clientKey) {
+        out.textContent = "Enter Api Login ID and Public Client Key from AcceptConfig.";
+        return;
+      }
+
+      out.textContent = "Calling Accept.dispatchData…";
+      Accept.dispatchData(
+        {
+          authData: { apiLoginID: apiLoginID, clientKey: clientKey },
+          cardData: {
+            cardNumber: "4111111111111111",
+            month: "12",
+            year: "2028",
+            cardCode: "123",
+            zip: "12345",
+            fullName: "Jane Cardholder"
+          }
+        },
+        function (response) {
+          out.textContent = JSON.stringify(response, null, 2);
+        }
+      );
+    });
+  </script>
+</body>
+</html>
