@@ -3034,14 +3034,15 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("TenantId", "CompanyId", "Version")
-                        .HasName("UQ_FgsSetupPriceBookVersion_TenantId_CompanyId_Version");
-
                     b.HasIndex("TenantId", "CompanyId", "EffectiveFrom")
                         .HasDatabaseName("IX_FgsSetupPriceBookVersion_TenantId_CompanyId_EffectiveFrom");
 
                     b.HasIndex("TenantId", "CompanyId", "IsActive")
                         .HasDatabaseName("IX_FgsSetupPriceBookVersion_TenantId_CompanyId_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "Version")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_FgsSetupPriceBookVersion_TenantId_CompanyId_Version");
 
                     b.ToTable("FgsSetupPriceBookVersion", "setup", t =>
                         {

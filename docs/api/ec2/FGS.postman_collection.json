@@ -17536,7 +17536,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"priceBookCode\": \"PB\",\n  \"priceBookName\": \"Price Book\",\n  \"description\": \"Price Book used in field service operations\",\n  \"jobTypeId\": {{jobTypeId}},\n  \"pricingModel\": \"Price Book\",\n  \"estimatedDurationMinutes\": 1,\n  \"basePrice\": 100.00,\n  \"isTaxable\": true\n}",
+                  "raw": "{\n  \"priceBookCode\": \"PB\",\n  \"priceBookName\": \"Price Book\",\n  \"description\": \"Price Book used in field service operations\",\n  \"jobTypeId\": {{jobTypeId}},\n  \"pricingModel\": \"Price Book\",\n  \"estimatedDurationMinutes\": 1,\n  \"basePrice\": 100.00,\n  \"isTaxable\": true,\n  \"priceBookVersionId\": {{priceBookVersionId}}\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -17613,7 +17613,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\n  \"priceBookCode\": \"PB\",\n  \"priceBookName\": \"Price Book\",\n  \"description\": \"Price Book used in field service operations\",\n  \"jobTypeId\": {{jobTypeId}},\n  \"pricingModel\": \"Price Book\",\n  \"estimatedDurationMinutes\": 1,\n  \"basePrice\": 100.00,\n  \"isTaxable\": true\n}",
+                  "raw": "{\n  \"priceBookCode\": \"PB\",\n  \"priceBookName\": \"Price Book\",\n  \"description\": \"Price Book used in field service operations\",\n  \"jobTypeId\": {{jobTypeId}},\n  \"pricingModel\": \"Price Book\",\n  \"estimatedDurationMinutes\": 1,\n  \"basePrice\": 100.00,\n  \"isTaxable\": true,\n  \"priceBookVersionId\": {{priceBookVersionId}}\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -17691,6 +17691,369 @@
                     }
                   ],
                   "type": "bearer"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "PriceBookVersionController - pricebookversion",
+          "description": "PriceBookVersionController - pricebookversion",
+          "item": [
+            {
+              "name": "GetById",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/pricebookversion/{{priceBookVersionId}}",
+                  "path": [
+                    "api",
+                    "v1",
+                    "pricebookversion",
+                    "{{priceBookVersionId}}"
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ]
+                },
+                "description": "GetById"
+              }
+            },
+            {
+              "name": "List",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/pricebookversion",
+                  "path": [
+                    "api",
+                    "v1",
+                    "pricebookversion"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "pageSize",
+                      "value": "25"
+                    },
+                    {
+                      "key": "version",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "isActive",
+                      "value": "",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ]
+                },
+                "description": "List"
+              }
+            },
+            {
+              "name": "Lookup",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/pricebookversion/lookup",
+                  "path": [
+                    "api",
+                    "v1",
+                    "pricebookversion",
+                    "lookup"
+                  ],
+                  "query": [
+                    {
+                      "key": "activeOnly",
+                      "value": "true"
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ]
+                },
+                "description": "Lookup"
+              }
+            },
+            {
+              "name": "Create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "type": "text",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/pricebookversion",
+                  "path": [
+                    "api",
+                    "v1",
+                    "pricebookversion"
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ]
+                },
+                "description": "Create",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"version\": \"2026-Q1\",\n  \"effectiveFrom\": \"2026-01-01\",\n  \"effectiveTo\": \"2026-03-31\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const body = pm.response.json();",
+                      "if (body.success && body.data) {",
+                      "  const row = Array.isArray(body.data) ? body.data[0] : body.data;",
+                      "  if (row && row.id != null) pm.environment.set(\"priceBookVersionId\", String(row.id));",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Update",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "type": "text",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/pricebookversion/{{priceBookVersionId}}",
+                  "path": [
+                    "api",
+                    "v1",
+                    "pricebookversion",
+                    "{{priceBookVersionId}}"
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ]
+                },
+                "description": "Update",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"version\": \"2026-Q1\",\n  \"effectiveFrom\": \"2026-01-01\",\n  \"effectiveTo\": \"2026-03-31\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Patch",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "type": "text",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/pricebookversion/{{priceBookVersionId}}",
+                  "path": [
+                    "api",
+                    "v1",
+                    "pricebookversion",
+                    "{{priceBookVersionId}}"
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ]
+                },
+                "description": "Patch",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"isActive\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 }
               }
             }
@@ -33932,22 +34295,62 @@
                 "method": "GET",
                 "url": {
                   "query": [
-                    { "key": "arCustomerId", "value": "{{arCustomerId}}" },
-                    { "key": "isActive", "value": "true" },
-                    { "key": "page", "value": "{{page}}" },
-                    { "key": "pageSize", "value": "{{pageSize}}" }
+                    {
+                      "key": "arCustomerId",
+                      "value": "{{arCustomerId}}"
+                    },
+                    {
+                      "key": "isActive",
+                      "value": "true"
+                    },
+                    {
+                      "key": "page",
+                      "value": "{{page}}"
+                    },
+                    {
+                      "key": "pageSize",
+                      "value": "{{pageSize}}"
+                    }
                   ],
-                  "host": ["https://api-dev.fieldwhizey.com"],
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
                   "raw": "https://api-dev.fieldwhizey.com/billing-service/api/v1/customerpaymentinformation?arCustomerId={{arCustomerId}}&isActive=true",
-                  "path": ["billing-service", "api", "v1", "customerpaymentinformation"]
+                  "path": [
+                    "billing-service",
+                    "api",
+                    "v1",
+                    "customerpaymentinformation"
+                  ]
                 },
                 "description": "List saved cards for an AR customer. Requires PAYMENT.VIEW.",
                 "header": [
-                  { "key": "Accept", "type": "text", "value": "application/json" },
-                  { "key": "X-Tenant-Id", "type": "text", "value": "{{tenantId}}" },
-                  { "key": "X-Company-Id", "type": "text", "value": "{{companyId}}" }
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
                 ],
-                "auth": { "type": "bearer", "bearer": [{ "key": "token", "type": "string", "value": "{{accessToken}}" }] }
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ]
+                }
               }
             },
             {
@@ -33955,17 +34358,46 @@
               "request": {
                 "method": "GET",
                 "url": {
-                  "host": ["https://api-dev.fieldwhizey.com"],
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
                   "raw": "https://api-dev.fieldwhizey.com/billing-service/api/v1/customerpaymentinformation/accept-config",
-                  "path": ["billing-service", "api", "v1", "customerpaymentinformation", "accept-config"]
+                  "path": [
+                    "billing-service",
+                    "api",
+                    "v1",
+                    "customerpaymentinformation",
+                    "accept-config"
+                  ]
                 },
                 "description": "Accept.js public configuration. Requires PAYMENT.CREATE. Does not return the transaction key.",
                 "header": [
-                  { "key": "Accept", "type": "text", "value": "application/json" },
-                  { "key": "X-Tenant-Id", "type": "text", "value": "{{tenantId}}" },
-                  { "key": "X-Company-Id", "type": "text", "value": "{{companyId}}" }
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
                 ],
-                "auth": { "type": "bearer", "bearer": [{ "key": "token", "type": "string", "value": "{{accessToken}}" }] }
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ]
+                }
               }
             },
             {
@@ -33973,23 +34405,59 @@
               "request": {
                 "method": "POST",
                 "url": {
-                  "host": ["https://api-dev.fieldwhizey.com"],
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
                   "raw": "https://api-dev.fieldwhizey.com/billing-service/api/v1/customerpaymentinformation",
-                  "path": ["billing-service", "api", "v1", "customerpaymentinformation"]
+                  "path": [
+                    "billing-service",
+                    "api",
+                    "v1",
+                    "customerpaymentinformation"
+                  ]
                 },
                 "description": "Save a card from Accept.js opaque data. Requires PAYMENT.CREATE.",
                 "header": [
-                  { "key": "Accept", "type": "text", "value": "application/json" },
-                  { "key": "X-Tenant-Id", "type": "text", "value": "{{tenantId}}" },
-                  { "key": "X-Company-Id", "type": "text", "value": "{{companyId}}" },
-                  { "key": "Content-Type", "type": "text", "value": "application/json" }
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "type": "text",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"arCustomerId\": {{arCustomerId}},\n  \"opaqueData\": {\n    \"dataDescriptor\": \"COMMON.ACCEPT.INAPP.PAYMENT\",\n    \"dataValue\": \"opaque-data-placeholder\"\n  },\n  \"cardHolderName\": \"Jane Cardholder\",\n  \"billingZip\": \"12345\",\n  \"setAsDefault\": true\n}",
-                  "options": { "raw": { "language": "json" } }
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
-                "auth": { "type": "bearer", "bearer": [{ "key": "token", "type": "string", "value": "{{accessToken}}" }] }
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ]
+                }
               }
             },
             {
@@ -33997,17 +34465,46 @@
               "request": {
                 "method": "GET",
                 "url": {
-                  "host": ["https://api-dev.fieldwhizey.com"],
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
                   "raw": "https://api-dev.fieldwhizey.com/billing-service/api/v1/customerpaymentinformation/{{customerPaymentInformationId}}",
-                  "path": ["billing-service", "api", "v1", "customerpaymentinformation", "{{customerPaymentInformationId}}"]
+                  "path": [
+                    "billing-service",
+                    "api",
+                    "v1",
+                    "customerpaymentinformation",
+                    "{{customerPaymentInformationId}}"
+                  ]
                 },
                 "description": "Get one saved card. Requires PAYMENT.VIEW. ACH rows return 404.",
                 "header": [
-                  { "key": "Accept", "type": "text", "value": "application/json" },
-                  { "key": "X-Tenant-Id", "type": "text", "value": "{{tenantId}}" },
-                  { "key": "X-Company-Id", "type": "text", "value": "{{companyId}}" }
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
                 ],
-                "auth": { "type": "bearer", "bearer": [{ "key": "token", "type": "string", "value": "{{accessToken}}" }] }
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ]
+                }
               }
             },
             {
@@ -34015,23 +34512,60 @@
               "request": {
                 "method": "PUT",
                 "url": {
-                  "host": ["https://api-dev.fieldwhizey.com"],
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
                   "raw": "https://api-dev.fieldwhizey.com/billing-service/api/v1/customerpaymentinformation/{{customerPaymentInformationId}}",
-                  "path": ["billing-service", "api", "v1", "customerpaymentinformation", "{{customerPaymentInformationId}}"]
+                  "path": [
+                    "billing-service",
+                    "api",
+                    "v1",
+                    "customerpaymentinformation",
+                    "{{customerPaymentInformationId}}"
+                  ]
                 },
                 "description": "Update cardholder, expiry, or default. Include opaqueData only when the card number changes. Requires PAYMENT.EDIT.",
                 "header": [
-                  { "key": "Accept", "type": "text", "value": "application/json" },
-                  { "key": "X-Tenant-Id", "type": "text", "value": "{{tenantId}}" },
-                  { "key": "X-Company-Id", "type": "text", "value": "{{companyId}}" },
-                  { "key": "Content-Type", "type": "text", "value": "application/json" }
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "type": "text",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"cardHolderName\": \"Jane Cardholder\",\n  \"expirationMonth\": 12,\n  \"expirationYear\": 2028,\n  \"isDefault\": true\n}",
-                  "options": { "raw": { "language": "json" } }
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 },
-                "auth": { "type": "bearer", "bearer": [{ "key": "token", "type": "string", "value": "{{accessToken}}" }] }
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ]
+                }
               }
             },
             {
@@ -34039,17 +34573,46 @@
               "request": {
                 "method": "DELETE",
                 "url": {
-                  "host": ["https://api-dev.fieldwhizey.com"],
+                  "host": [
+                    "https://api-dev.fieldwhizey.com"
+                  ],
                   "raw": "https://api-dev.fieldwhizey.com/billing-service/api/v1/customerpaymentinformation/{{customerPaymentInformationId}}",
-                  "path": ["billing-service", "api", "v1", "customerpaymentinformation", "{{customerPaymentInformationId}}"]
+                  "path": [
+                    "billing-service",
+                    "api",
+                    "v1",
+                    "customerpaymentinformation",
+                    "{{customerPaymentInformationId}}"
+                  ]
                 },
                 "description": "Soft-delete a saved card. Requires PAYMENT.DELETE.",
                 "header": [
-                  { "key": "Accept", "type": "text", "value": "application/json" },
-                  { "key": "X-Tenant-Id", "type": "text", "value": "{{tenantId}}" },
-                  { "key": "X-Company-Id", "type": "text", "value": "{{companyId}}" }
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
                 ],
-                "auth": { "type": "bearer", "bearer": [{ "key": "token", "type": "string", "value": "{{accessToken}}" }] }
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ]
+                }
               }
             }
           ]

@@ -47,12 +47,13 @@ public sealed class PriceBookController(IMediator mediator) : ControllerBase
         [FromQuery] string? pricingModel = null,
         [FromQuery] string? priceBookCode = null,
         [FromQuery] string? priceBookName = null,
+        [FromQuery] long? priceBookVersionId = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListPriceBooksQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new FgsPriceBookListFilters(jobTypeId, pricingModel, priceBookCode, priceBookName)),
+                new FgsPriceBookListFilters(jobTypeId, pricingModel, priceBookCode, priceBookName, priceBookVersionId)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);

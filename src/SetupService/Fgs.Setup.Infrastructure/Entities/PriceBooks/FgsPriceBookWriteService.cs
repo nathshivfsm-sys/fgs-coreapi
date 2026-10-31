@@ -1,3 +1,4 @@
+using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Abstractions;
 using Fgs.Setup.Application.Abstractions.PriceBooks;
 using Fgs.Setup.Application.Features.PriceBooks.Dtos;
@@ -5,8 +6,6 @@ using Fgs.Setup.Domain.Entities;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Setup.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-
-using Fgs.MultiTenancy.Persistence;
 
 namespace Fgs.Setup.Infrastructure.Entities.PriceBooks;
 
@@ -23,6 +22,7 @@ public sealed class FgsPriceBookWriteService(
         {
             PriceBookCode = dto.PriceBookCode.Trim(),
             PriceBookName = dto.PriceBookName.Trim(),
+            PriceBookVersionId = dto.PriceBookVersionId,
             Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
             JobTypeId = dto.JobTypeId,
             PricingModel = dto.PricingModel.Trim(),
@@ -35,7 +35,7 @@ public sealed class FgsPriceBookWriteService(
         await context.FgsPriceBooks.AddAsync(entity, cancellationToken);
         await SaveChangesAsync(cancellationToken);
 
-        return MapToDetail(entity);
+        return await MapToDetailAsync(entity, cancellationToken);
     }
 
     public async Task<FgsPriceBookDetailDto> UpdateAsync(
@@ -48,6 +48,7 @@ public sealed class FgsPriceBookWriteService(
 
         entity.PriceBookCode = dto.PriceBookCode.Trim();
         entity.PriceBookName = dto.PriceBookName.Trim();
+        entity.PriceBookVersionId = dto.PriceBookVersionId;
         entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
         entity.JobTypeId = dto.JobTypeId;
         entity.PricingModel = dto.PricingModel.Trim();
@@ -58,7 +59,7 @@ public sealed class FgsPriceBookWriteService(
         auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
 
-        return MapToDetail(entity);
+        return await MapToDetailAsync(entity, cancellationToken);
     }
 
     public async Task<FgsPriceBookDetailDto> PatchAsync(
@@ -87,6 +88,11 @@ public sealed class FgsPriceBookWriteService(
         if (dto.JobTypeId.HasValue)
         {
             entity.JobTypeId = dto.JobTypeId.Value;
+        }
+
+        if (dto.PriceBookVersionId.HasValue)
+        {
+            entity.PriceBookVersionId = dto.PriceBookVersionId;
         }
 
         if (dto.PricingModel is not null)
@@ -125,7 +131,7 @@ public sealed class FgsPriceBookWriteService(
         auditHelper.StampForUpdate(entity);
         await SaveChangesAsync(cancellationToken);
 
-        return MapToDetail(entity);
+        return await MapToDetailAsync(entity, cancellationToken);
     }
 
     private async Task<FgsPriceBook?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
@@ -149,11 +155,36 @@ public sealed class FgsPriceBookWriteService(
         exception.InnerException?.Message.Contains("UX_FgsPriceBook", StringComparison.OrdinalIgnoreCase) == true
         || exception.InnerException?.Message.Contains("duplicate key", StringComparison.OrdinalIgnoreCase) == true;
 
-    private static FgsPriceBookDetailDto MapToDetail(FgsPriceBook entity) =>
-        new(
+    private async Task<FgsPriceBookDetailDto> MapToDetailAsync(
+        FgsPriceBook entity,
+        CancellationToken cancellationToken)
+    {
+        string? version = null;
+        DateOnly? effectiveFrom = null;
+        DateOnly? effectiveTo = null;
+
+        if (entity.PriceBookVersionId.HasValue)
+        {
+            var versionEntity = await context.FgsSetupPriceBookVersions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(v => v.Id == entity.PriceBookVersionId.Value, cancellationToken);
+
+            if (versionEntity is not null)
+            {
+                version = versionEntity.Version;
+                effectiveFrom = versionEntity.EffectiveFrom;
+                effectiveTo = versionEntity.EffectiveTo;
+            }
+        }
+
+        return new FgsPriceBookDetailDto(
             entity.Id,
             entity.PriceBookCode,
             entity.PriceBookName,
+            entity.PriceBookVersionId,
+            version,
+            effectiveFrom,
+            effectiveTo,
             entity.Description,
             entity.JobTypeId,
             entity.PricingModel,
@@ -161,4 +192,5 @@ public sealed class FgsPriceBookWriteService(
             entity.BasePrice,
             entity.IsTaxable,
             entity.IsActive);
+    }
 }

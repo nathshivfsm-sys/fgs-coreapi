@@ -26,6 +26,10 @@ public interface IFgsPriceBookReadRepository
         long id,
         CancellationToken cancellationToken = default);
 
+    Task<bool> ExistsPriceBookVersionIdAsync(
+        long id,
+        CancellationToken cancellationToken = default);
+
     Task<bool> ExistsByIdAsync(
         long id,
         CancellationToken cancellationToken = default);

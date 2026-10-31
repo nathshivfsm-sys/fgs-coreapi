@@ -7,6 +7,10 @@ internal sealed class FgsPriceBookSummaryRow
     public long Id { get; set; }
     public string PriceBookCode { get; set; } = null!;
     public string PriceBookName { get; set; } = null!;
+    public long? PriceBookVersionId { get; set; }
+    public string? Version { get; set; }
+    public DateOnly? EffectiveFrom { get; set; }
+    public DateOnly? EffectiveTo { get; set; }
     public long JobTypeId { get; set; }
     public string PricingModel { get; set; } = null!;
     public int EstimatedDurationMinutes { get; set; }
@@ -15,7 +19,20 @@ internal sealed class FgsPriceBookSummaryRow
     public bool IsActive { get; set; }
 
     public FgsPriceBookSummaryDto ToDto() =>
-        new(Id, PriceBookCode, PriceBookName, JobTypeId, PricingModel, EstimatedDurationMinutes, BasePrice, IsTaxable, IsActive);
+        new(
+            Id,
+            PriceBookCode,
+            PriceBookName,
+            PriceBookVersionId,
+            Version,
+            EffectiveFrom,
+            EffectiveTo,
+            JobTypeId,
+            PricingModel,
+            EstimatedDurationMinutes,
+            BasePrice,
+            IsTaxable,
+            IsActive);
 }
 
 internal sealed class FgsPriceBookDetailRow
@@ -23,6 +40,10 @@ internal sealed class FgsPriceBookDetailRow
     public long Id { get; set; }
     public string PriceBookCode { get; set; } = null!;
     public string PriceBookName { get; set; } = null!;
+    public long? PriceBookVersionId { get; set; }
+    public string? Version { get; set; }
+    public DateOnly? EffectiveFrom { get; set; }
+    public DateOnly? EffectiveTo { get; set; }
     public string? Description { get; set; }
     public long JobTypeId { get; set; }
     public string PricingModel { get; set; } = null!;
@@ -32,7 +53,21 @@ internal sealed class FgsPriceBookDetailRow
     public bool IsActive { get; set; }
 
     public FgsPriceBookDetailDto ToDto() =>
-        new(Id, PriceBookCode, PriceBookName, Description, JobTypeId, PricingModel, EstimatedDurationMinutes, BasePrice, IsTaxable, IsActive);
+        new(
+            Id,
+            PriceBookCode,
+            PriceBookName,
+            PriceBookVersionId,
+            Version,
+            EffectiveFrom,
+            EffectiveTo,
+            Description,
+            JobTypeId,
+            PricingModel,
+            EstimatedDurationMinutes,
+            BasePrice,
+            IsTaxable,
+            IsActive);
 }
 
 internal sealed class FgsPriceBookLookupRow
@@ -41,7 +76,8 @@ internal sealed class FgsPriceBookLookupRow
     public string PriceBookCode { get; set; } = null!;
     public string PriceBookName { get; set; } = null!;
     public string PricingModel { get; set; } = null!;
+    public long? PriceBookVersionId { get; set; }
 
     public FgsPriceBookLookupDto ToDto() =>
-        new(Id, PriceBookCode, PriceBookName, PricingModel);
+        new(Id, PriceBookCode, PriceBookName, PricingModel, PriceBookVersionId);
 }

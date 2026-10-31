@@ -32,8 +32,9 @@ internal class FgsSetupPriceBookVersionConfiguration : IEntityTypeConfiguration<
             .HasDefaultValueSql("now()");
         entity.Property(e => e.UpdatedOn).HasColumnType("timestamptz");
 
-        entity.HasAlternateKey(e => new { e.TenantId, e.CompanyId, e.Version })
-            .HasName("UQ_FgsSetupPriceBookVersion_TenantId_CompanyId_Version");
+        entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.Version })
+            .IsUnique()
+            .HasDatabaseName("UQ_FgsSetupPriceBookVersion_TenantId_CompanyId_Version");
 
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.IsActive })
             .HasDatabaseName("IX_FgsSetupPriceBookVersion_TenantId_CompanyId_IsActive");

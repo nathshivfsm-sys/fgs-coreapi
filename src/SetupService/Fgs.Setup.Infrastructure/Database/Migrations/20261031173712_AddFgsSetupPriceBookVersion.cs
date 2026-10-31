@@ -33,7 +33,6 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_FgsSetupPriceBookVersion", x => x.Id);
-                    table.UniqueConstraint("UQ_FgsSetupPriceBookVersion_TenantId_CompanyId_Version", x => new { x.TenantId, x.CompanyId, x.Version });
                     table.CheckConstraint("CK_FgsSetupPriceBookVersion_EffectiveDates", "\"EffectiveTo\" IS NULL OR \"EffectiveTo\" >= \"EffectiveFrom\"");
                     table.ForeignKey(
                         name: "FK_FgsSetupPriceBookVersion_FgsTenantCompanyCache_TenantId_CompanyId",
@@ -43,6 +42,13 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         principalColumns: new[] { "TenantId", "CompanyId" },
                         onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "UQ_FgsSetupPriceBookVersion_TenantId_CompanyId_Version",
+                schema: "setup",
+                table: "FgsSetupPriceBookVersion",
+                columns: new[] { "TenantId", "CompanyId", "Version" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_FgsSetupPriceBookVersion_TenantId_CompanyId_EffectiveFrom",

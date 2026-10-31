@@ -32,6 +32,9 @@ internal sealed class FgsPriceBookConfiguration : IEntityTypeConfiguration<FgsPr
             .HasComment("Unique business code of the price book item.");
         entity.Property(e => e.PriceBookName).HasMaxLength(200).IsRequired()
             .HasComment("Display name of the service offered in the price book.");
+        entity.Property(e => e.PriceBookVersionId)
+            .HasComment(
+                "Identifier of the Price Book version associated with this price book record. The referenced version contains the version number and effective date range.");
         entity.Property(e => e.Description).HasColumnType("text")
             .HasComment("Detailed description of the service.");
         entity.Property(e => e.JobTypeId).IsRequired()
@@ -64,6 +67,12 @@ internal sealed class FgsPriceBookConfiguration : IEntityTypeConfiguration<FgsPr
             .HasConstraintName("FK_FgsPriceBook_JobTypeId")
             .OnDelete(DeleteBehavior.Restrict);
 
+        entity.HasOne(e => e.PriceBookVersion)
+            .WithMany()
+            .HasForeignKey(e => e.PriceBookVersionId)
+            .HasConstraintName("FK_FgsPriceBook_FgsSetupPriceBookVersion_PriceBookVersionId")
+            .OnDelete(DeleteBehavior.Restrict);
+
         entity.HasMany(e => e.Items)
             .WithOne(i => i.PriceBook)
             .HasForeignKey(i => i.PriceBookId)
@@ -74,6 +83,8 @@ internal sealed class FgsPriceBookConfiguration : IEntityTypeConfiguration<FgsPr
             .HasDatabaseName("IX_FgsPriceBook_Tenant_Company");
         entity.HasIndex(e => e.JobTypeId)
             .HasDatabaseName("IX_FgsPriceBook_JobTypeId");
+        entity.HasIndex(e => e.PriceBookVersionId)
+            .HasDatabaseName("IX_FgsPriceBook_PriceBookVersionId");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.IsActive })
             .HasDatabaseName("IX_FgsPriceBook_Tenant_Company_IsActive");
         entity.HasIndex(e => new { e.TenantId, e.CompanyId, e.PriceBookCode })

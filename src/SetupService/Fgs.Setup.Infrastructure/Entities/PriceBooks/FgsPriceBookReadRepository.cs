@@ -20,10 +20,10 @@ internal sealed class FgsPriceBookReadRepository(
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(tenantContextAccessor);
         var sql = $"""
             SELECT {FgsPriceBookSql.SelectDetailColumns}
-            FROM {FgsPriceBookSql.Table}
-            WHERE "Id" = @Id
-              AND "TenantId" = @TenantId
-              AND "CompanyId" = @CompanyId
+            FROM {FgsPriceBookSql.FromWithVersionJoin}
+            WHERE pb."Id" = @Id
+              AND pb."TenantId" = @TenantId
+              AND pb."CompanyId" = @CompanyId
             """;
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -46,38 +46,43 @@ internal sealed class FgsPriceBookReadRepository(
 
         var where = new List<string>
         {
-            "\"TenantId\" = @TenantId",
-            "\"CompanyId\" = @CompanyId"
+            "pb.\"TenantId\" = @TenantId",
+            "pb.\"CompanyId\" = @CompanyId"
         };
 
         if (paging.IsActive.HasValue)
         {
-            where.Add("\"IsActive\" = @IsActive");
+            where.Add("pb.\"IsActive\" = @IsActive");
         }
 
         if (filters.JobTypeId.HasValue)
         {
-            where.Add("\"JobTypeId\" = @JobTypeId");
+            where.Add("pb.\"JobTypeId\" = @JobTypeId");
+        }
+
+        if (filters.PriceBookVersionId.HasValue)
+        {
+            where.Add("pb.\"PriceBookVersionId\" = @PriceBookVersionId");
         }
 
         if (!string.IsNullOrWhiteSpace(filters.PricingModel))
         {
-            where.Add("\"PricingModel\" = @PricingModel");
+            where.Add("pb.\"PricingModel\" = @PricingModel");
         }
 
         if (!string.IsNullOrWhiteSpace(filters.PriceBookCode))
         {
-            where.Add("\"PriceBookCode\" ILIKE @PriceBookCode");
+            where.Add("pb.\"PriceBookCode\" ILIKE @PriceBookCode");
         }
 
         if (!string.IsNullOrWhiteSpace(filters.PriceBookName))
         {
-            where.Add("\"PriceBookName\" ILIKE @PriceBookName");
+            where.Add("pb.\"PriceBookName\" ILIKE @PriceBookName");
         }
 
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
-            where.Add("(\"PriceBookCode\" ILIKE @Search OR \"PriceBookName\" ILIKE @Search)");
+            where.Add("(pb.\"PriceBookCode\" ILIKE @Search OR pb.\"PriceBookName\" ILIKE @Search)");
         }
 
         var whereClause = string.Join(" AND ", where);
@@ -85,13 +90,13 @@ internal sealed class FgsPriceBookReadRepository(
 
         var sql = $"""
             SELECT {FgsPriceBookSql.SelectSummaryColumns}
-            FROM {FgsPriceBookSql.Table}
+            FROM {FgsPriceBookSql.FromWithVersionJoin}
             WHERE {whereClause}
             {orderBy}
             LIMIT @PageSize OFFSET @Offset;
 
             SELECT COUNT(*)
-            FROM {FgsPriceBookSql.Table}
+            FROM {FgsPriceBookSql.Table} pb
             WHERE {whereClause};
             """;
 
@@ -101,6 +106,7 @@ internal sealed class FgsPriceBookReadRepository(
             CompanyId = companyId,
             IsActive = paging.IsActive,
             JobTypeId = filters.JobTypeId,
+            PriceBookVersionId = filters.PriceBookVersionId,
             PricingModel = string.IsNullOrWhiteSpace(filters.PricingModel) ? null : filters.PricingModel.Trim(),
             PriceBookCode = string.IsNullOrWhiteSpace(filters.PriceBookCode) ? null : $"%{filters.PriceBookCode.Trim()}%",
             PriceBookName = string.IsNullOrWhiteSpace(filters.PriceBookName) ? null : $"%{filters.PriceBookName.Trim()}%",
@@ -128,14 +134,14 @@ internal sealed class FgsPriceBookReadRepository(
         CancellationToken cancellationToken = default)
     {
         var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(tenantContextAccessor);
-        var activeFilter = activeOnly ? "AND \"IsActive\" = TRUE" : string.Empty;
+        var activeFilter = activeOnly ? "AND pb.\"IsActive\" = TRUE" : string.Empty;
         var sql = $"""
             SELECT {FgsPriceBookSql.SelectLookupColumns}
-            FROM {FgsPriceBookSql.Table}
-            WHERE "TenantId" = @TenantId
-              AND "CompanyId" = @CompanyId
+            FROM {FgsPriceBookSql.Table} pb
+            WHERE pb."TenantId" = @TenantId
+              AND pb."CompanyId" = @CompanyId
               {activeFilter}
-            ORDER BY "PriceBookName" ASC
+            ORDER BY pb."PriceBookName" ASC
             """;
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -185,6 +191,30 @@ internal sealed class FgsPriceBookReadRepository(
             SELECT EXISTS(
                 SELECT 1
                 FROM {FgsPriceBookSql.JobTypeTable}
+                WHERE "TenantId" = @TenantId
+                  AND "CompanyId" = @CompanyId
+                  AND "Id" = @Id
+                  AND "IsActive" = TRUE
+            )
+            """;
+
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, CompanyId = companyId, Id = id },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task<bool> ExistsPriceBookVersionIdAsync(
+        long id,
+        CancellationToken cancellationToken = default)
+    {
+        var (tenantId, companyId) = SetupTenantScopeResolver.ResolveRequired(tenantContextAccessor);
+        var sql = $"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM {FgsPriceBookSql.VersionTable}
                 WHERE "TenantId" = @TenantId
                   AND "CompanyId" = @CompanyId
                   AND "Id" = @Id

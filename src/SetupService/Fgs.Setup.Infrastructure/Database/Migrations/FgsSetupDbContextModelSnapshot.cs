@@ -1708,6 +1708,10 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(200)")
                         .HasComment("Display name of the service offered in the price book.");
 
+                    b.Property<long?>("PriceBookVersionId")
+                        .HasColumnType("bigint")
+                        .HasComment("Identifier of the Price Book version associated with this price book record. The referenced version contains the version number and effective date range.");
+
                     b.Property<string>("PricingModel")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1733,6 +1737,9 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     b.HasIndex("JobTypeId")
                         .HasDatabaseName("IX_FgsPriceBook_JobTypeId");
+
+                    b.HasIndex("PriceBookVersionId")
+                        .HasDatabaseName("IX_FgsPriceBook_PriceBookVersionId");
 
                     b.HasIndex("TenantId", "CompanyId")
                         .HasDatabaseName("IX_FgsPriceBook_Tenant_Company");
@@ -3031,14 +3038,15 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("TenantId", "CompanyId", "Version")
-                        .HasName("UQ_FgsSetupPriceBookVersion_TenantId_CompanyId_Version");
-
                     b.HasIndex("TenantId", "CompanyId", "EffectiveFrom")
                         .HasDatabaseName("IX_FgsSetupPriceBookVersion_TenantId_CompanyId_EffectiveFrom");
 
                     b.HasIndex("TenantId", "CompanyId", "IsActive")
                         .HasDatabaseName("IX_FgsSetupPriceBookVersion_TenantId_CompanyId_IsActive");
+
+                    b.HasIndex("TenantId", "CompanyId", "Version")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_FgsSetupPriceBookVersion_TenantId_CompanyId_Version");
 
                     b.ToTable("FgsSetupPriceBookVersion", "setup", t =>
                         {
@@ -9211,6 +9219,12 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_FgsPriceBook_JobTypeId");
 
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsSetupPriceBookVersion", "PriceBookVersion")
+                        .WithMany()
+                        .HasForeignKey("PriceBookVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_FgsPriceBook_FgsSetupPriceBookVersion_PriceBookVersionId");
+
                     b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "CompanyId")
@@ -9219,6 +9233,8 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasConstraintName("FK_FgsPriceBook_FgsTenantCompanyCache_TenantId_CompanyId");
 
                     b.Navigation("JobType");
+
+                    b.Navigation("PriceBookVersion");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsPriceBookItem", b =>

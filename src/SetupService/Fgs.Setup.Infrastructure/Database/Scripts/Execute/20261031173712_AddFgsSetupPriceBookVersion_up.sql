@@ -16,10 +16,16 @@ BEGIN
         "UpdatedBy" character varying(100),
         "IsActive" boolean NOT NULL DEFAULT TRUE,
         CONSTRAINT "PK_FgsSetupPriceBookVersion" PRIMARY KEY ("Id"),
-        CONSTRAINT "UQ_FgsSetupPriceBookVersion_TenantId_CompanyId_Version" UNIQUE ("TenantId", "CompanyId", "Version"),
         CONSTRAINT "CK_FgsSetupPriceBookVersion_EffectiveDates" CHECK ("EffectiveTo" IS NULL OR "EffectiveTo" >= "EffectiveFrom"),
         CONSTRAINT "FK_FgsSetupPriceBookVersion_FgsTenantCompanyCache_TenantId_CompanyId" FOREIGN KEY ("TenantId", "CompanyId") REFERENCES setup."FgsTenantCompanyCache" ("TenantId", "CompanyId") ON DELETE RESTRICT
     );
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM setup."__EFMigrationsHistory" WHERE "MigrationId" = '20261031173712_AddFgsSetupPriceBookVersion') THEN
+    CREATE UNIQUE INDEX "UQ_FgsSetupPriceBookVersion_TenantId_CompanyId_Version" ON setup."FgsSetupPriceBookVersion" ("TenantId", "CompanyId", "Version");
     END IF;
 END $EF$;
 

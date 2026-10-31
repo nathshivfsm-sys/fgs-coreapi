@@ -12,6 +12,8 @@ public class FgsPriceBook : FgsTenantCompanySetupEntityBase<long>
 
     public string PriceBookName { get; set; } = null!;
 
+    public long? PriceBookVersionId { get; set; }
+
     public string? Description { get; set; }
 
     public long JobTypeId { get; set; }
@@ -25,6 +27,8 @@ public class FgsPriceBook : FgsTenantCompanySetupEntityBase<long>
     public bool IsTaxable { get; set; } = true;
 
     public FgsJobType? JobType { get; set; }
+
+    public FgsSetupPriceBookVersion? PriceBookVersion { get; set; }
 
     public ICollection<FgsPriceBookItem> Items { get; set; } = new List<FgsPriceBookItem>();
 }

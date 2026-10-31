@@ -22,6 +22,14 @@ public sealed class CreateFgsPriceBookCommandValidator : AbstractValidator<Creat
             .MustAsync(async (_, id, cancellationToken) =>
                 await readRepository.ExistsJobTypeIdAsync(id, cancellationToken))
             .WithMessage("The specified job type was not found.");
+        RuleFor(x => x.Dto.PriceBookVersionId)
+            .GreaterThan(0)
+            .When(x => x.Dto.PriceBookVersionId.HasValue);
+        RuleFor(x => x.Dto.PriceBookVersionId)
+            .MustAsync(async (_, id, cancellationToken) =>
+                await readRepository.ExistsPriceBookVersionIdAsync(id!.Value, cancellationToken))
+            .WithMessage("The specified price book version was not found.")
+            .When(x => x.Dto.PriceBookVersionId.HasValue);
         RuleFor(x => x.Dto.PricingModel)
             .Must(PriceBookValidation.IsAllowedPricingModel)
             .WithMessage("Pricing model must be 'Flat Rate' or 'Dynamic'.");
@@ -52,6 +60,14 @@ public sealed class UpdateFgsPriceBookCommandValidator : AbstractValidator<Updat
             .MustAsync(async (_, id, cancellationToken) =>
                 await readRepository.ExistsJobTypeIdAsync(id, cancellationToken))
             .WithMessage("The specified job type was not found.");
+        RuleFor(x => x.Dto.PriceBookVersionId)
+            .GreaterThan(0)
+            .When(x => x.Dto.PriceBookVersionId.HasValue);
+        RuleFor(x => x.Dto.PriceBookVersionId)
+            .MustAsync(async (_, id, cancellationToken) =>
+                await readRepository.ExistsPriceBookVersionIdAsync(id!.Value, cancellationToken))
+            .WithMessage("The specified price book version was not found.")
+            .When(x => x.Dto.PriceBookVersionId.HasValue);
         RuleFor(x => x.Dto.PricingModel)
             .Must(PriceBookValidation.IsAllowedPricingModel)
             .WithMessage("Pricing model must be 'Flat Rate' or 'Dynamic'.");
@@ -84,6 +100,14 @@ public sealed class PatchFgsPriceBookCommandValidator : AbstractValidator<PatchF
                 await readRepository.ExistsJobTypeIdAsync(id!.Value, cancellationToken))
             .WithMessage("The specified job type was not found.")
             .When(x => x.Dto.JobTypeId.HasValue);
+        RuleFor(x => x.Dto.PriceBookVersionId)
+            .GreaterThan(0)
+            .When(x => x.Dto.PriceBookVersionId.HasValue);
+        RuleFor(x => x.Dto.PriceBookVersionId)
+            .MustAsync(async (_, id, cancellationToken) =>
+                await readRepository.ExistsPriceBookVersionIdAsync(id!.Value, cancellationToken))
+            .WithMessage("The specified price book version was not found.")
+            .When(x => x.Dto.PriceBookVersionId.HasValue);
         RuleFor(x => x.Dto.PricingModel)
             .Must(model => model is null || PriceBookValidation.IsAllowedPricingModel(model))
             .WithMessage("Pricing model must be 'Flat Rate' or 'Dynamic'.")
