@@ -26,18 +26,20 @@ internal sealed class FgsSetupPricingMatrixHeaderRow
 
     public bool IsMobileVisible { get; init; }
 
+    public bool IsUsedInPriceBook { get; init; }
+
     public bool IsActive { get; init; }
 
     public FgsSetupPricingMatrixSummaryDto ToSummaryDto() =>
         new(Id, Code, Name, IsDefault, IsLaborTierStructure, IsLaborRateBySkillLevel,
-            PriceAdjustmentTypeId, Category, EffectiveFrom, EffectiveTo, IsMobileVisible, IsActive);
+            PriceAdjustmentTypeId, Category, EffectiveFrom, EffectiveTo, IsMobileVisible, IsUsedInPriceBook, IsActive);
 
     public FgsSetupPricingMatrixDetailDto ToDetailDto() =>
         new(Id, Code, Name, IsDefault, IsLaborTierStructure, IsLaborRateBySkillLevel,
-            PriceAdjustmentTypeId, Category, EffectiveFrom, EffectiveTo, IsMobileVisible, IsActive);
+            PriceAdjustmentTypeId, Category, EffectiveFrom, EffectiveTo, IsMobileVisible, IsUsedInPriceBook, IsActive);
 
     public FgsSetupPricingMatrixLookupDto ToLookupDto() =>
-        new(Id, Code, Name, IsDefault, Category);
+        new(Id, Code, Name, IsDefault, Category, IsUsedInPriceBook);
 
     public FgsSetupPricingMatrixFlagsDto ToFlagsDto() =>
         new(Id, IsLaborTierStructure, IsLaborRateBySkillLevel, PriceAdjustmentTypeId, IsActive);

@@ -104,7 +104,7 @@ public sealed class FgsSetupPricingMatrixValidatorTests
 
         var result = await PatchValidator().ValidateAsync(
             new PatchFgsSetupPricingMatrixCommand(1,
-                new(null, null, null, null, null, 3, null, null, null, null)));
+                new(null, null, null, null, null, 3, null, null, null, null, null)));
 
         result.Errors.Should().Contain(e =>
             e.ErrorMessage == "Price adjustment type cannot be changed after create.");
@@ -115,7 +115,7 @@ public sealed class FgsSetupPricingMatrixValidatorTests
     {
         var result = await PatchValidator().ValidateAsync(
             new PatchFgsSetupPricingMatrixCommand(1,
-                new(null, "Updated", null, null, null, null, null, null, null, null)));
+                new(null, "Updated", null, null, null, null, null, null, null, null, null)));
 
         result.IsValid.Should().BeTrue();
     }
@@ -128,11 +128,11 @@ public sealed class FgsSetupPricingMatrixValidatorTests
 
     private static FgsSetupPricingMatrixCreateDto BuildCreateDto(string name = "MATRIX1") =>
         new(name, "Test pricing matrix", false, false, false, 1,
-            new DateOnly(2026, 1, 1), null, true);
+            new DateOnly(2026, 1, 1), null, true, false);
 
     private static FgsSetupPricingMatrixUpdateDto BuildUpdateDto(
         string name = "MATRIX1",
         short? priceAdjustmentTypeId = 1) =>
         new(name, "Test pricing matrix", false, false, false, priceAdjustmentTypeId,
-            new DateOnly(2026, 1, 1), null, true);
+            new DateOnly(2026, 1, 1), null, true, false);
 }

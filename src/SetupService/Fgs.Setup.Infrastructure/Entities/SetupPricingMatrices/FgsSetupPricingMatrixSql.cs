@@ -37,13 +37,13 @@ internal static class FgsSetupPricingMatrixSql
     public static readonly string SelectHeaderColumns = $"""
         pm."Id", pm."Code", pm."Name", pm."IsDefault", pm."IsLaborTierStructure", pm."IsLaborRateBySkillLevel",
         pm."PriceAdjustmentTypeId", ({CategoryExpression}) AS "Category",
-        pm."EffectiveFrom", pm."EffectiveTo", pm."IsMobileVisible", pm."IsActive"
+        pm."EffectiveFrom", pm."EffectiveTo", pm."IsMobileVisible", pm."IsUsedInPriceBook", pm."IsActive"
         """;
 
     public static readonly string SelectSummaryColumns = SelectHeaderColumns;
 
     public static readonly string SelectLookupColumns = $"""
-        pm."Id", pm."Code", pm."Name", pm."IsDefault", ({CategoryExpression}) AS "Category"
+        pm."Id", pm."Code", pm."Name", pm."IsDefault", ({CategoryExpression}) AS "Category", pm."IsUsedInPriceBook"
         """;
 
     public const string SelectFlagsColumns = """
@@ -53,7 +53,7 @@ internal static class FgsSetupPricingMatrixSql
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
         "Id", "Code", "Name", "IsDefault", "IsLaborTierStructure", "IsLaborRateBySkillLevel",
-        "PriceAdjustmentTypeId", "EffectiveFrom", "EffectiveTo", "IsMobileVisible", "IsActive"
+        "PriceAdjustmentTypeId", "EffectiveFrom", "EffectiveTo", "IsMobileVisible", "IsUsedInPriceBook", "IsActive"
     };
 
     public static string ResolveOrderBy(string? sortBy, SortDirection direction)

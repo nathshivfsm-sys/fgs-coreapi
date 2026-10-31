@@ -20,5 +20,7 @@ public class FgsSetupPricingMatrix : FgsTenantCompanySetupEntityBase<long>
 
     public bool IsDefault { get; set; } = true;
 
+    public bool IsUsedInPriceBook { get; set; }
+
     public PriceAdjustmentType PriceAdjustmentTypeId { get; set; }
 }

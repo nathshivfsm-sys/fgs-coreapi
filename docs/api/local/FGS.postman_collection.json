@@ -18220,6 +18220,12 @@
                       "description": "Optional derived category filter: 1=Material, 2=Labor, 3=Other.",
                       "value": "",
                       "disabled": true
+                    },
+                    {
+                      "key": "isUsedInPriceBook",
+                      "description": "Optional isUsedInPriceBook filter.",
+                      "value": "",
+                      "disabled": true
                     }
                   ],
                   "host": [
@@ -18354,7 +18360,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"name\": \"FLATLABOR\",\r\n  \"description\": \"Flat Labor Pricing\",\r\n  \"isDefault\": false,\r\n  \"isLaborTierStructure\": false,\r\n  \"isLaborRateBySkillLevel\": false,\r\n  \"priceAdjustmentTypeId\": null,\r\n  \"effectiveFrom\": null,\r\n  \"effectiveTo\": null,\r\n  \"isMobileVisible\": true\r\n}",
+                  "raw": "{\r\n  \"name\": \"FLATLABOR\",\r\n  \"description\": \"Flat Labor Pricing\",\r\n  \"isDefault\": false,\r\n  \"isLaborTierStructure\": false,\r\n  \"isLaborRateBySkillLevel\": false,\r\n  \"priceAdjustmentTypeId\": null,\r\n  \"effectiveFrom\": null,\r\n  \"effectiveTo\": null,\r\n  \"isMobileVisible\": true,\r\n  \"isUsedInPriceBook\": false\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -18428,7 +18434,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"name\": \"FLATSKILL\",\r\n  \"description\": \"Flat Labor by Skill Level\",\r\n  \"isDefault\": false,\r\n  \"isLaborTierStructure\": false,\r\n  \"isLaborRateBySkillLevel\": true,\r\n  \"priceAdjustmentTypeId\": null,\r\n  \"effectiveFrom\": null,\r\n  \"effectiveTo\": null,\r\n  \"isMobileVisible\": true\r\n}",
+                  "raw": "{\r\n  \"name\": \"FLATSKILL\",\r\n  \"description\": \"Flat Labor by Skill Level\",\r\n  \"isDefault\": false,\r\n  \"isLaborTierStructure\": false,\r\n  \"isLaborRateBySkillLevel\": true,\r\n  \"priceAdjustmentTypeId\": null,\r\n  \"effectiveFrom\": null,\r\n  \"effectiveTo\": null,\r\n  \"isMobileVisible\": true,\r\n  \"isUsedInPriceBook\": false\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -18502,7 +18508,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"name\": \"LABORTIER\",\r\n  \"description\": \"Tiered Labor Pricing\",\r\n  \"isDefault\": false,\r\n  \"isLaborTierStructure\": true,\r\n  \"isLaborRateBySkillLevel\": false,\r\n  \"priceAdjustmentTypeId\": null,\r\n  \"effectiveFrom\": null,\r\n  \"effectiveTo\": null,\r\n  \"isMobileVisible\": true\r\n}",
+                  "raw": "{\r\n  \"name\": \"LABORTIER\",\r\n  \"description\": \"Tiered Labor Pricing\",\r\n  \"isDefault\": false,\r\n  \"isLaborTierStructure\": true,\r\n  \"isLaborRateBySkillLevel\": false,\r\n  \"priceAdjustmentTypeId\": null,\r\n  \"effectiveFrom\": null,\r\n  \"effectiveTo\": null,\r\n  \"isMobileVisible\": true,\r\n  \"isUsedInPriceBook\": false\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -18576,7 +18582,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"name\": \"MATERIAL\",\r\n  \"description\": \"Material Cost-Range Markup\",\r\n  \"isDefault\": false,\r\n  \"isLaborTierStructure\": false,\r\n  \"isLaborRateBySkillLevel\": false,\r\n  \"priceAdjustmentTypeId\": 1,\r\n  \"effectiveFrom\": null,\r\n  \"effectiveTo\": null,\r\n  \"isMobileVisible\": true\r\n}",
+                  "raw": "{\r\n  \"name\": \"MATERIAL\",\r\n  \"description\": \"Material Cost-Range Markup\",\r\n  \"isDefault\": false,\r\n  \"isLaborTierStructure\": false,\r\n  \"isLaborRateBySkillLevel\": false,\r\n  \"priceAdjustmentTypeId\": 1,\r\n  \"effectiveFrom\": null,\r\n  \"effectiveTo\": null,\r\n  \"isMobileVisible\": true,\r\n  \"isUsedInPriceBook\": false\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -18650,7 +18656,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"name\": \"OTHER\",\r\n  \"description\": \"Other Category Markup\",\r\n  \"isDefault\": false,\r\n  \"isLaborTierStructure\": false,\r\n  \"isLaborRateBySkillLevel\": false,\r\n  \"priceAdjustmentTypeId\": 1,\r\n  \"effectiveFrom\": null,\r\n  \"effectiveTo\": null,\r\n  \"isMobileVisible\": true\r\n}",
+                  "raw": "{\r\n  \"name\": \"OTHER\",\r\n  \"description\": \"Other Category Markup\",\r\n  \"isDefault\": false,\r\n  \"isLaborTierStructure\": false,\r\n  \"isLaborRateBySkillLevel\": false,\r\n  \"priceAdjustmentTypeId\": 1,\r\n  \"effectiveFrom\": null,\r\n  \"effectiveTo\": null,\r\n  \"isMobileVisible\": true,\r\n  \"isUsedInPriceBook\": false\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -18726,7 +18732,7 @@
                   }
                 ],
                 "body": {
-                  "raw": "{\r\n  \"name\": \"FLATLABOR\",\r\n  \"description\": \"Flat Labor Pricing Updated\",\r\n  \"isDefault\": false,\r\n  \"isLaborTierStructure\": false,\r\n  \"isLaborRateBySkillLevel\": false,\r\n  \"priceAdjustmentTypeId\": null,\r\n  \"effectiveFrom\": null,\r\n  \"effectiveTo\": null,\r\n  \"isMobileVisible\": true\r\n}",
+                  "raw": "{\r\n  \"name\": \"FLATLABOR\",\r\n  \"description\": \"Flat Labor Pricing Updated\",\r\n  \"isDefault\": false,\r\n  \"isLaborTierStructure\": false,\r\n  \"isLaborRateBySkillLevel\": false,\r\n  \"priceAdjustmentTypeId\": null,\r\n  \"effectiveFrom\": null,\r\n  \"effectiveTo\": null,\r\n  \"isMobileVisible\": true,\r\n  \"isUsedInPriceBook\": false\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"

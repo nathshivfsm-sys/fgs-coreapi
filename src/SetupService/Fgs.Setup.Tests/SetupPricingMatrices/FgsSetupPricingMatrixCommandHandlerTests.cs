@@ -34,7 +34,7 @@ public sealed class FgsSetupPricingMatrixCommandHandlerTests
 
         var response = await handler.Handle(
             new CreateFgsSetupPricingMatrixCommand(new(
-                "STANDARD", "Standard pricing", false, false, false, 1, null, null, true)),
+                "STANDARD", "Standard pricing", false, false, false, 1, null, null, true, false)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -57,7 +57,7 @@ public sealed class FgsSetupPricingMatrixCommandHandlerTests
         await using var context = await CreateContextAsync();
         var service = CreateWriteService(context);
         var created = await service.CreateAsync(
-            new("OLD", "Old name", false, false, false, 1, null, null, true));
+            new("OLD", "Old name", false, false, false, 1, null, null, true, false));
         var cache = new Mock<ICacheService>();
         var handler = new UpdateFgsSetupPricingMatrixCommandHandler(
             service, cache.Object, CreateTenantAccessor(),
@@ -66,7 +66,7 @@ public sealed class FgsSetupPricingMatrixCommandHandlerTests
         var response = await handler.Handle(
             new UpdateFgsSetupPricingMatrixCommand(created.Id,
                 new("OLD", "Updated name", false, true, true, 1,
-                    new DateOnly(2026, 1, 1), new DateOnly(2026, 12, 31), false)),
+                    new DateOnly(2026, 1, 1), new DateOnly(2026, 12, 31), false, true)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
@@ -76,6 +76,7 @@ public sealed class FgsSetupPricingMatrixCommandHandlerTests
         response.Data.IsLaborTierStructure.Should().BeTrue();
         response.Data.PriceAdjustmentTypeId.Should().Be(1);
         response.Data.Category.Should().Be(2);
+        response.Data.IsUsedInPriceBook.Should().BeTrue();
         context.FgsSetupPricingMatrixLabors.Should().BeEmpty();
         context.FgsSetupPricingMatrixMaterialTiers.Should().BeEmpty();
         context.FgsSetupPricingMatrixOthers.Should().BeEmpty();
@@ -90,7 +91,7 @@ public sealed class FgsSetupPricingMatrixCommandHandlerTests
         await using var context = await CreateContextAsync();
         var service = CreateWriteService(context);
         var created = await service.CreateAsync(
-            new("PATCHME", "Original", false, false, false, 1, null, null, true));
+            new("PATCHME", "Original", false, false, false, 1, null, null, true, false));
         var cache = new Mock<ICacheService>();
         var handler = new PatchFgsSetupPricingMatrixCommandHandler(
             service, cache.Object, CreateTenantAccessor(),
@@ -98,13 +99,14 @@ public sealed class FgsSetupPricingMatrixCommandHandlerTests
 
         var response = await handler.Handle(
             new PatchFgsSetupPricingMatrixCommand(created.Id,
-                new(null, "Patched", null, null, null, null, null, null, null, null)),
+                new(null, "Patched", null, null, null, null, null, null, null, true, null)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
         response.Message.Should().Be("Pricing matrix updated successfully.");
         response.Data!.Name.Should().Be("Patched");
         response.Data.PriceAdjustmentTypeId.Should().Be(1);
+        response.Data.IsUsedInPriceBook.Should().BeTrue();
         cache.Verify(c => c.RemoveByPrefixAsync(
             CacheKeys.EntityPrefix(TenantId, CompanyId, "pricingmatrix"),
             It.IsAny<CancellationToken>()), Times.Once);

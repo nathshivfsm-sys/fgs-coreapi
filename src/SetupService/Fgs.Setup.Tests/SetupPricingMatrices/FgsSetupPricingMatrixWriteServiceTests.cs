@@ -26,11 +26,12 @@ public sealed class FgsSetupPricingMatrixWriteServiceTests
 
         var result = await CreateWriteService(context).CreateAsync(
             new(" MATRIX1 ", " Test matrix ", false, true, false, 2,
-                new DateOnly(2026, 1, 1), null, false));
+                new DateOnly(2026, 1, 1), null, false, true));
 
         result.Code.Should().Be("MATRIX1");
         result.Name.Should().Be("Test matrix");
         result.PriceAdjustmentTypeId.Should().Be(2);
+        result.IsUsedInPriceBook.Should().BeTrue();
         context.FgsSetupPricingMatrixLabors.Should().BeEmpty();
         context.FgsSetupPricingMatrixLaborTiers.Should().BeEmpty();
         context.FgsSetupPricingMatrixMaterialTiers.Should().BeEmpty();
@@ -46,13 +47,14 @@ public sealed class FgsSetupPricingMatrixWriteServiceTests
 
         var result = await service.UpdateAsync(created.Id,
             new("OLD", "New description", false, true, true, 3,
-                new DateOnly(2026, 2, 1), new DateOnly(2026, 12, 31), false));
+                new DateOnly(2026, 2, 1), new DateOnly(2026, 12, 31), false, true));
 
         result.Code.Should().Be("OLD");
         result.Name.Should().Be("New description");
         result.IsLaborTierStructure.Should().BeTrue();
         result.IsLaborRateBySkillLevel.Should().BeTrue();
         result.IsMobileVisible.Should().BeFalse();
+        result.IsUsedInPriceBook.Should().BeTrue();
         result.PriceAdjustmentTypeId.Should().Be(1);
         result.Category.Should().Be(2);
     }
@@ -66,7 +68,7 @@ public sealed class FgsSetupPricingMatrixWriteServiceTests
 
         var result = await service.UpdateAsync(created.Id,
             new("KEEPTYPE", "Still type 1", false, false, false, 2,
-                new DateOnly(2026, 1, 1), null, true));
+                new DateOnly(2026, 1, 1), null, true, false));
 
         result.PriceAdjustmentTypeId.Should().Be(1);
         (await context.FgsSetupPricingMatrices.FindAsync(created.Id))!.PriceAdjustmentTypeId
@@ -81,7 +83,7 @@ public sealed class FgsSetupPricingMatrixWriteServiceTests
         var created = await service.CreateAsync(BuildCreate("PATCHTYPE"));
 
         var result = await service.PatchAsync(created.Id,
-            new(null, null, null, null, null, 3, null, null, null, null));
+            new(null, null, null, null, null, 3, null, null, null, null, null));
 
         result.PriceAdjustmentTypeId.Should().Be(1);
         (await context.FgsSetupPricingMatrices.FindAsync(created.Id))!.PriceAdjustmentTypeId
@@ -96,11 +98,12 @@ public sealed class FgsSetupPricingMatrixWriteServiceTests
         var created = await service.CreateAsync(BuildCreate("ORIGINAL"));
 
         var result = await service.PatchAsync(created.Id,
-            new(null, "Patched description", null, null, null, null, null, null, false, null));
+            new(null, "Patched description", null, null, null, null, null, null, false, true, null));
 
         result.Code.Should().Be("ORIGINAL");
         result.Name.Should().Be("Patched description");
         result.IsMobileVisible.Should().BeFalse();
+        result.IsUsedInPriceBook.Should().BeTrue();
     }
 
     [Fact]
@@ -119,7 +122,7 @@ public sealed class FgsSetupPricingMatrixWriteServiceTests
 
     private static FgsSetupPricingMatrixCreateDto BuildCreate(string name, bool isDefault = false) =>
         new(name, $"{name} description", isDefault, false, false, 1,
-            new DateOnly(2026, 1, 1), null, true);
+            new DateOnly(2026, 1, 1), null, true, false);
 
     private static FgsSetupPricingMatrixWriteService CreateWriteService(FgsSetupDbContext context)
     {

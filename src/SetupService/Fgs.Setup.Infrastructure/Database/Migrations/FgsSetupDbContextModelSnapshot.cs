@@ -3039,6 +3039,12 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
 
+                    b.Property<bool>("IsUsedInPriceBook")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Indicates whether this pricing matrix is used by the Price Book for pricing calculations.");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)

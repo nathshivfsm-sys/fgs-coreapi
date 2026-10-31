@@ -41,7 +41,8 @@ public sealed class FgsSetupPricingMatrixWriteService : IFgsSetupPricingMatrixWr
             PriceAdjustmentTypeId = ResolvePriceAdjustmentType(dto.PriceAdjustmentTypeId),
             EffectiveFrom = dto.EffectiveFrom ?? DateOnly.FromDateTime(DateTime.UtcNow),
             EffectiveTo = dto.EffectiveTo,
-            IsMobileVisible = dto.IsMobileVisible ?? true
+            IsMobileVisible = dto.IsMobileVisible ?? true,
+            IsUsedInPriceBook = dto.IsUsedInPriceBook ?? false
         };
 
         _auditHelper.StampForCreate(entity);
@@ -79,6 +80,8 @@ public sealed class FgsSetupPricingMatrixWriteService : IFgsSetupPricingMatrixWr
         {
             entity.IsMobileVisible = dto.IsMobileVisible.Value;
         }
+
+        entity.IsUsedInPriceBook = dto.IsUsedInPriceBook;
 
         _auditHelper.StampForUpdate(entity);
         await ApplyDefaultMatrixAsync(entity, cancellationToken);
@@ -133,6 +136,11 @@ public sealed class FgsSetupPricingMatrixWriteService : IFgsSetupPricingMatrixWr
         if (dto.IsMobileVisible.HasValue)
         {
             entity.IsMobileVisible = dto.IsMobileVisible.Value;
+        }
+
+        if (dto.IsUsedInPriceBook.HasValue)
+        {
+            entity.IsUsedInPriceBook = dto.IsUsedInPriceBook.Value;
         }
 
         if (dto.IsActive.HasValue)
@@ -222,6 +230,7 @@ public sealed class FgsSetupPricingMatrixWriteService : IFgsSetupPricingMatrixWr
             entity.EffectiveFrom,
             entity.EffectiveTo,
             entity.IsMobileVisible,
+            entity.IsUsedInPriceBook,
             entity.IsActive);
     }
 

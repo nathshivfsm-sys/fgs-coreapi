@@ -28,7 +28,7 @@ public sealed class FgsSetupPricingMatrixGetByIdQueryHandlerTests
     {
         var detail = new FgsSetupPricingMatrixDetailDto(
             1, "STANDARD", "Standard Pricing", true, false, true, 1, 2,
-            new DateOnly(2026, 1, 1), null, true, true);
+            new DateOnly(2026, 1, 1), null, true, false, true);
         var repository = new Mock<IFgsSetupPricingMatrixReadRepository>();
         repository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
         var cache = new Mock<ICacheService>();

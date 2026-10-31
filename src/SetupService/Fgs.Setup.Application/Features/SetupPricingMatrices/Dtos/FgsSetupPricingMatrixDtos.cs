@@ -12,6 +12,7 @@ public sealed record FgsSetupPricingMatrixSummaryDto(
     DateOnly EffectiveFrom,
     DateOnly? EffectiveTo,
     bool IsMobileVisible,
+    bool IsUsedInPriceBook,
     bool IsActive);
 
 public sealed record FgsSetupPricingMatrixDetailDto(
@@ -26,6 +27,7 @@ public sealed record FgsSetupPricingMatrixDetailDto(
     DateOnly EffectiveFrom,
     DateOnly? EffectiveTo,
     bool IsMobileVisible,
+    bool IsUsedInPriceBook,
     bool IsActive);
 
 public sealed record FgsSetupPricingMatrixLookupDto(
@@ -33,7 +35,8 @@ public sealed record FgsSetupPricingMatrixLookupDto(
     string Code,
     string Name,
     bool IsDefault,
-    short Category);
+    short Category,
+    bool IsUsedInPriceBook);
 
 public sealed record FgsSetupPricingMatrixCreateDto(
     string Name,
@@ -44,7 +47,8 @@ public sealed record FgsSetupPricingMatrixCreateDto(
     short? PriceAdjustmentTypeId,
     DateOnly? EffectiveFrom,
     DateOnly? EffectiveTo,
-    bool? IsMobileVisible);
+    bool? IsMobileVisible,
+    bool? IsUsedInPriceBook);
 
 public sealed record FgsSetupPricingMatrixUpdateDto(
     string Name,
@@ -55,7 +59,8 @@ public sealed record FgsSetupPricingMatrixUpdateDto(
     short? PriceAdjustmentTypeId,
     DateOnly? EffectiveFrom,
     DateOnly? EffectiveTo,
-    bool? IsMobileVisible);
+    bool? IsMobileVisible,
+    bool IsUsedInPriceBook);
 
 public sealed record FgsSetupPricingMatrixPatchDto(
     string? Name,
@@ -67,12 +72,14 @@ public sealed record FgsSetupPricingMatrixPatchDto(
     DateOnly? EffectiveFrom,
     DateOnly? EffectiveTo,
     bool? IsMobileVisible,
+    bool? IsUsedInPriceBook,
     bool? IsActive);
 
 public sealed record FgsSetupPricingMatrixListFilters(
     string? Code = null,
     bool? IsDefault = null,
-    short? Category = null);
+    short? Category = null,
+    bool? IsUsedInPriceBook = null);
 
 /// <summary>Header flags used by child validators.</summary>
 public sealed record FgsSetupPricingMatrixFlagsDto(
