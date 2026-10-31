@@ -137,8 +137,6 @@ internal static class EntitySchemaRegistry
         [typeof(FgsUniversalMatrixSizeTier)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsUniversalMatrixTier)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsUniversalPricingService)] = FgsDatabaseSchemas.Setup,
-        [typeof(FgsVehicle)] = FgsDatabaseSchemas.Setup,
-        [typeof(FgsVehicleMaintenance)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsNonWorkingDate)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsCredential)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsCrew)] = FgsDatabaseSchemas.Setup,

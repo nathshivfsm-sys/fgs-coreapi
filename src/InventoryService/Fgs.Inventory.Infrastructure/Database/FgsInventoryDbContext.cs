@@ -55,6 +55,10 @@ public sealed class FgsInventoryDbContext : FgsTenantFilteredDbContext
 
     public DbSet<FgsInventorySerial> FgsInventorySerials => Set<FgsInventorySerial>();
 
+    public DbSet<FgsVehicle> FgsVehicles => Set<FgsVehicle>();
+
+    public DbSet<FgsVehicleMaintenance> FgsVehicleMaintenances => Set<FgsVehicleMaintenance>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresEnum<FgsInventorySerialStatus>(

@@ -141,16 +141,6 @@ public sealed class SetupEntityAuditHelper
         StampTenantCompanyUpdate(entity);
     }
 
-    public void StampForCreate(FgsVehicleMaintenance entity)
-    {
-        StampTenantCompanyEntity(entity);
-    }
-
-    public void StampForUpdate(FgsVehicleMaintenance entity)
-    {
-        StampTenantCompanyUpdate(entity);
-    }
-
     private void StampTenantCompanyEntity(FgsEntityBase entity)
     {
         var now = _dateTimeProvider.UtcNow;
@@ -183,11 +173,6 @@ public sealed class SetupEntityAuditHelper
                 salesActivityOutcome.TenantId = tenantId;
                 salesActivityOutcome.CompanyId = companyId;
                 salesActivityOutcome.IsActive = true;
-                break;
-            case FgsVehicleMaintenance vehicleMaintenance:
-                vehicleMaintenance.TenantId = tenantId;
-                vehicleMaintenance.CompanyId = companyId;
-                vehicleMaintenance.IsActive = true;
                 break;
         }
     }

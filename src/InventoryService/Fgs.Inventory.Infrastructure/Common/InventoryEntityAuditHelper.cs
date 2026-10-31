@@ -77,6 +77,15 @@ public sealed class InventoryEntityAuditHelper
     public void StampForUpdate(FgsTruckStockTemplateItem entity) =>
         StampForUpdate((FgsEntityBase)entity);
 
+    public void StampForCreate(FgsVehicleMaintenance entity)
+    {
+        StampForCreate(entity, entity);
+        entity.IsActive = true;
+    }
+
+    public void StampForUpdate(FgsVehicleMaintenance entity) =>
+        StampForUpdate((FgsEntityBase)entity);
+
     public void StampStockUpdated(FgsInventoryStock stock) =>
         stock.UpdatedOn = _dateTimeProvider.UtcNow;
 

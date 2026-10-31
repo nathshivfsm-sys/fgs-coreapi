@@ -48,9 +48,9 @@ See `Fgs.Setup.Infrastructure/Database/Schemas/EntitySchemaRegistry.cs` for the 
 
 | Entity | Schema |
 |--------|--------|
-| `FgsInventoryItemType`, `FgsInventoryCategory`, `FgsInventorySubCategory`, `FgsVendor`, `FgsInventoryLocation`, `FgsInventoryItem`, `FgsInventoryItemAlternate`, `FgsInventoryItemDependency`, `FgsInventoryStock`, `FgsVendorInventoryItem`, `FgsInventoryTransaction`, `FgsPurchaseOrder`, `FgsPurchaseOrderDetail` | `inventory` |
+| `FgsInventoryItemType`, `FgsInventoryCategory`, `FgsInventorySubCategory`, `FgsVendor`, `FgsInventoryLocation`, `FgsInventoryItem`, `FgsInventoryItemAlternate`, `FgsInventoryItemDependency`, `FgsInventoryStock`, `FgsVendorInventoryItem`, `FgsInventoryTransaction`, `FgsPurchaseOrder`, `FgsPurchaseOrderDetail`, `FgsTruckStockTemplate`, `FgsTruckStockTemplateItem`, `FgsInventorySerial`, `FgsVehicle`, `FgsVehicleMaintenance` | `inventory` |
 
-No cross-schema FKs. `setup.FgsVehicle.InventoryLocationId` references `inventory.FgsInventoryLocation` as a scalar column only (validated via Inventory API/SQL).
+No cross-schema FKs. `FgsVehicle.InventoryLocationId` is a same-schema EF FK to `inventory.FgsInventoryLocation`. `FgsVehicleMaintenance.VehicleMaintenanceTypeId` references `glo.GloVehicleMaintenanceType` as a scalar only.
 
 ### FileService (`file`)
 

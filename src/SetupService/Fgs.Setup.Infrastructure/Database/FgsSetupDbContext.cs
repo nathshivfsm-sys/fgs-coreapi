@@ -120,10 +120,6 @@ public class FgsSetupDbContext : FgsTenantFilteredDbContext
     public DbSet<GloInventoryTransactionType> GloInventoryTransactionTypes =>
         Set<GloInventoryTransactionType>();
 
-    public DbSet<FgsVehicle> FgsVehicles => Set<FgsVehicle>();
-
-    public DbSet<FgsVehicleMaintenance> FgsVehicleMaintenances => Set<FgsVehicleMaintenance>();
-
     public DbSet<FgsNonWorkingDate> FgsNonWorkingDates => Set<FgsNonWorkingDate>();
 
     public DbSet<GloVehicleMaintenanceType> GloVehicleMaintenanceTypes => Set<GloVehicleMaintenanceType>();
